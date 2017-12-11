@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Infralution")]
 [assembly: AssemblyProduct("Infralution.Localization.Wpf")]
-[assembly: AssemblyCopyright("Copyright © Infralution 2014")]
+[assembly: AssemblyCopyright("Copyright © Infralution 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -28,5 +28,5 @@ using System.Windows;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("3.2.0.0")]
+[assembly: AssemblyVersion("3.3.*")]
 

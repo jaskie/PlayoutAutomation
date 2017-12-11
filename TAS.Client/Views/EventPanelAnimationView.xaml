@@ -1,0 +1,51 @@
+﻿<local:EventPanelView ResxExtension.DefaultResxName="TAS.Client.Views.EventPanelView" Language="{UICulture}" 
+             x:Class="TAS.Client.Views.EventPanelAnimationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:sys="clr-namespace:System;assembly=System"
+             xmlns:c="clr-namespace:TAS.Client"
+             xmlns:local="clr-namespace:TAS.Client.Views"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             mc:Ignorable="d" 
+             d:DataContext="{x:Type vm:EventPanelStillViewmodel}"
+             d:DesignWidth="700"
+             >
+    <Border x:Name="border" Style="{StaticResource EventPanelStyle}">
+        <Grid Opacity="{Binding IsEnabled, Converter={StaticResource EnabledToOpacity}}" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="22"/>
+                <ColumnDefinition Width="86"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Image ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Animation.png"/>
+            <Image ToolTip="{Binding MediaErrorInfo}" >
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Actions/delete.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding MediaErrorInfo}" Value="NoError">
+                                <Setter Property="Source" Value="{x:Null}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+            <Image Grid.Column="1" ToolTip="{Binding PlayState}" Style="{StaticResource EventPlayStateImage}"/>
+            <StackPanel VerticalAlignment="Center" Margin="3, 0" Grid.Column="2">
+                <TextBlock FontSize="12" Text="{Binding ScheduledDelay}" ToolTip="{Resx _scheduledDelay.ToolTip}" Style="{StaticResource EventPanelTextBlock}" />
+            </StackPanel>
+            <TextBlock Grid.Column="3" Text="{Binding EventName}" FontSize="15" VerticalAlignment="Center" Margin="5, 0">
+                <TextBlock.ToolTip>
+                    <TextBlock Text="{Binding Parent.EventName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
+                </TextBlock.ToolTip>
+            </TextBlock>
+        </Grid>
+    </Border>
+</local:EventPanelView>

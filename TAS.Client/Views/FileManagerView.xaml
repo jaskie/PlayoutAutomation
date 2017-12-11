@@ -1,0 +1,109 @@
+﻿<UserControl Language="{UICulture}"
+             ResxExtension.DefaultResxName="TAS.Client.Views.FileManagerView"
+             x:Class="TAS.Client.Views.FileManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels;assembly=TAS.Client"
+             xmlns:client="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:System ="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DataContext="{x:Type vm:FileManagerViewmodel}"
+             d:DesignHeight="300" d:DesignWidth="800"
+             >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Center">
+            <Label Content="{Resx _fileOperations}" Margin="20, 0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10, 0">
+                <CheckBox Content="{Resx _deleteFinishedSuccessfully}" Margin="8, 0" VerticalAlignment="Center" IsChecked="{Binding ClearFinished}"/>
+                <Button Margin="5,1,5,5" Command="{Binding CommandClearFinished}">
+                    <StackPanel Orientation="Horizontal" Margin="5, 0">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
+                        <TextBlock Text="{Resx _clearFinished}" Margin="5, 0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Margin="5,1,5,5" Command="{Binding CommandCancelPending}">
+                    <StackPanel Orientation="Horizontal" Margin="5, 0">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png"/>
+                        <TextBlock Text="{Resx _cancelPending}" Margin="5, 0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+        <DataGrid Grid.Row="1" ItemsSource="{Binding OperationList}" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn x:Name="operationState" Width="10" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image ToolTip="{Binding OperationStatus}">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding OperationStatus}" Value="Waiting">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/FileOperationStates/Waiting.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding OperationStatus}" Value="Aborted">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/FileOperationStates/Aborted.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding OperationStatus}" Value="Failed">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/FileOperationStates/Failed.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding OperationStatus}" Value="InProgress">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/FileOperationStates/InProgress.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding OperationStatus}" Value="Finished">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/FileOperationStates/Finished.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Progress}" Width="105" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ProgressBar IsIndeterminate="{Binding IsIndeterminate, Mode=OneWay}"  Value="{Binding Progress, Mode=OneWay}" Minimum="0" Maximum="100" />
+                                <Label Content="{Binding Path=Progress}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Foreground="White" FontWeight="Bold" />
+                                <Button Width="16" Padding="0" Grid.Column="1" ToolTip="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.OperationOutput}" Command="{Binding CommandShowOutput}">
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Indicators/gearwheel.png"/>
+                                </Button>
+                                <Button Width="16" Padding="0" Grid.Column="2" Visibility="{Binding IsWarning, Converter={StaticResource BoolToVis}}" Command="{Binding CommandShowWarning}">
+                                    <Image Source="/TAS.Client.Common;component/Images/Indicators/warning.png"/>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Operation}" Binding="{Binding Title, Mode=OneWay}" Width="*" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Scheduled}" Width="100"  Binding="{Binding ScheduledTime, Converter={StaticResource DateTimeToStringConverter}, ConverterParameter=T, Mode=OneWay}" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Started}" Width="100" Binding="{Binding StartTime, Converter={StaticResource DateTimeToStringConverter}, ConverterParameter=T,  Mode=OneWay}" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Finished}" Width="100" Binding="{Binding FinishedTime, Converter={StaticResource DateTimeToStringConverter}, ConverterParameter=T, Mode=OneWay}" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.TryCount}" Binding="{Binding TryCount, Mode=OneWay}" />
+            </DataGrid.Columns>
+            <DataGrid.Resources>
+                <ContextMenu x:Key="ItemMenu">
+                    <MenuItem Header="{Resx ResxName=TAS.Client.Views.FileManagerView,  Key=_grid.Popup.Abort}" Command="{Binding CommandAbort}" />
+                </ContextMenu>
+            </DataGrid.Resources>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="ContextMenu" Value="{StaticResource ItemMenu}" />
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+    </Grid>
+</UserControl>

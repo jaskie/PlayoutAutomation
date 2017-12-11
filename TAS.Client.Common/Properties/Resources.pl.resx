@@ -1,0 +1,335 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="_allFiles" xml:space="preserve">
+    <value>Wszystkie pliki</value>
+  </data>
+  <data name="_all_" xml:space="preserve">
+    <value>Wszystkie</value>
+  </data>
+  <data name="_button_Add" xml:space="preserve">
+    <value>Dodaj</value>
+  </data>
+  <data name="_caption_Confirmation" xml:space="preserve">
+    <value>Potwierdzenie</value>
+  </data>
+  <data name="_caption_Error" xml:space="preserve">
+    <value>Błąd</value>
+  </data>
+  <data name="_caption_Warning" xml:space="preserve">
+    <value>Ostrzeżenie</value>
+  </data>
+  <data name="_media" xml:space="preserve">
+    <value>Media</value>
+  </data>
+  <data name="_message_CantInitializeEngines" xml:space="preserve">
+    <value>Nie udalo się zainicjalizowanie silnika aplikacji z powodu błędu:
+{0}
+Skonfiguruj system przy użyciu programu TVPlay.config.</value>
+  </data>
+  <data name="_message_CommandFailed" xml:space="preserve">
+    <value>Wykonanie polecenia nie powiodło się. Błąd, który wystąpił:
+{0}</value>
+  </data>
+  <data name="_message_DeleteAnyway" xml:space="preserve">
+    <value>Usunąć mimo tego?</value>
+  </data>
+  <data name="_message_DirectoryRefreshFailed" xml:space="preserve">
+    <value>Odświeżenie katalogu nie powiodło się. Błąd, który wystąpił:
+{0}</value>
+  </data>
+  <data name="_message_MediaDeleteDenyReason_Protected" xml:space="preserve">
+    <value>Klip jest zabezpieczony przed usunięciem</value>
+  </data>
+  <data name="_message_MediaDeleteDenyReason_Scheduled" xml:space="preserve">
+    <value>Zaplanowany w {0} o {1}</value>
+  </data>
+  <data name="_message_MediaDeleteDenyReason_Unknown" xml:space="preserve">
+    <value>Przyczyna nieznana</value>
+  </data>
+  <data name="_message_MediaDeleteNotAllowed" xml:space="preserve">
+    <value>Nie można usunąć klipów, ponieważ:</value>
+  </data>
+  <data name="_moreItems" xml:space="preserve">
+    <value>i jeszcze {0} elementów</value>
+  </data>
+  <data name="_none_" xml:space="preserve">
+    <value>Brak</value>
+  </data>
+  <data name="_or_" xml:space="preserve">
+    <value> lub </value>
+  </data>
+  <data name="_query_DeleteAllGraphics" xml:space="preserve">
+    <value>Usunąć wszystkie elementy grafiki?</value>
+  </data>
+  <data name="_query_DeleteItem" xml:space="preserve">
+    <value>Usunąć ten element z wszystkimi składnikami?</value>
+  </data>
+  <data name="_query_DeleteSelected" xml:space="preserve">
+    <value>Usunąć wybrane elementy ({0})?
+{1}</value>
+  </data>
+  <data name="_query_DeleteSelectedContainers" xml:space="preserve">
+    <value>Zamierzasz usunąć {0} kontener(ów):
+{1}
+Naprawdę je usunąć?</value>
+  </data>
+  <data name="_query_DeleteSelectedFiles" xml:space="preserve">
+    <value>Pliki do usunięcia:
+{0}
+
+Naprawdę usunąć?</value>
+  </data>
+  <data name="_query_ExitApplication" xml:space="preserve">
+    <value>Zakończyć sterowanie emisją?</value>
+  </data>
+  <data name="_query_LoadWhileRunning" xml:space="preserve">
+    <value>Załadować ten element teraz?</value>
+  </data>
+  <data name="_query_PlayWhileRunning" xml:space="preserve">
+    <value>Odtworzyć ten element teraz?</value>
+  </data>
+  <data name="_query_SaveChangedData" xml:space="preserve">
+    <value>Zapisać zmienione dane dotyczące
+{0}?</value>
+  </data>
+  <data name="_query_StartAnotherInstance" xml:space="preserve">
+    <value>Program może byc uruchomiony tylko raz.
+Jeśli jego poprzednia kopia nie odpowiada i chcesz uruchomić nową, naciśnij OK. W przeciwnym razie naciśnij Anuluj.</value>
+  </data>
+  <data name="_query_StartBackupInstance" xml:space="preserve">
+    <value>Ten program został skonfigurowany jako zapasowy dla instalacji na innym komputerze i powinien być uruchomiony TYLKO w razie awarii.
+Jednoczesna praca na obydwu komputerach nie jest dozwolona.
+Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
+  </data>
+  <data name="_query_Undelete" xml:space="preserve">
+    <value>Przywrócić usunięte?</value>
+  </data>
+  <data name="_rundown" xml:space="preserve">
+    <value>Playlista</value>
+  </data>
+  <data name="_rundowns" xml:space="preserve">
+    <value>Playlisty</value>
+  </data>
+  <data name="_title_Delete" xml:space="preserve">
+    <value>Usuń: {0}:{1}</value>
+  </data>
+  <data name="_title_Duration" xml:space="preserve">
+    <value>Czas trwania</value>
+  </data>
+  <data name="_title_EmptyMovie" xml:space="preserve">
+    <value>Pusty klip</value>
+  </data>
+  <data name="_title_ExportClip" xml:space="preserve">
+    <value>Eksport {0} -&gt; {1}</value>
+  </data>
+  <data name="_title_MeasureVolume" xml:space="preserve">
+    <value>Pomiar LUFS: {0}:{1}</value>
+  </data>
+  <data name="_title_NewCommandScript" xml:space="preserve">
+    <value>Skrypt</value>
+  </data>
+  <data name="_title_NewContainer" xml:space="preserve">
+    <value>Kontener</value>
+  </data>
+  <data name="_title_NewDirectory" xml:space="preserve">
+    <value>Nowy folder</value>
+  </data>
+  <data name="_title_NewLive" xml:space="preserve">
+    <value>Nowy live</value>
+  </data>
+  <data name="_title_NewRundown" xml:space="preserve">
+    <value>Nowa playlista</value>
+  </data>
+  <data name="_title_NewSegment" xml:space="preserve">
+    <value>Nowy</value>
+  </data>
+  <data name="_title_RundownEnd" xml:space="preserve">
+    <value>Koniec playlisty</value>
+  </data>
+  <data name="_title_SegmentName" xml:space="preserve">
+    <value>Nazwa segmentu</value>
+  </data>
+  <data name="_title_TCIn" xml:space="preserve">
+    <value>TC In</value>
+  </data>
+  <data name="_title_TCOut" xml:space="preserve">
+    <value>TC Out</value>
+  </data>
+  <data name="_tooltip_SelectFile" xml:space="preserve">
+    <value>Wybierz plik...</value>
+  </data>
+  <data name="_unknown_" xml:space="preserve">
+    <value>Nieznany</value>
+  </data>
+  <data name="_validateStartPlayMustBeInsideFile" xml:space="preserve">
+    <value>Rozpoczęcie odtwarzania musi się zawierać pomiędzy TC początkowym i końcowym klipu.</value>
+  </data>
+  <data name="_validate_CommandSyntax" xml:space="preserve">
+    <value>Polecenie nieprawidłowe</value>
+  </data>
+  <data name="_validate_DurationInvalid" xml:space="preserve">
+    <value>Czas trwania (z uwzględnieniem TC startu) jest dłuższy, niż klipu.</value>
+  </data>
+  <data name="_validate_EndTCAfterFile" xml:space="preserve">
+    <value>Timecode końca jest za klipem (końcowy TC klipu to {0}).</value>
+  </data>
+  <data name="_validate_EndTCBeforeFile" xml:space="preserve">
+    <value>Timecode końca jest przed klipem (początkowy TC klipu to {0}).</value>
+  </data>
+  <data name="_validate_FileAlreadyExists" xml:space="preserve">
+    <value>Plik o takiej nazwie już istnieje.</value>
+  </data>
+  <data name="_validate_FileMustHaveExtension" xml:space="preserve">
+    <value>Plik musi mieć rozszerzenie nazwy {0}.</value>
+  </data>
+  <data name="_validate_FileNameCanNotContainSpecialCharacters" xml:space="preserve">
+    <value>Nazwa pliku nie może zawierać znaków specjalnych.</value>
+  </data>
+  <data name="_validate_FileNameCanNotStartOrEndWithSpace" xml:space="preserve">
+    <value>Nazwa pliku nie może się zaczynać ani kończyć spacją.</value>
+  </data>
+  <data name="_validate_FileNameEmpty" xml:space="preserve">
+    <value>Musisz podać nazwę pliku.</value>
+  </data>
+  <data name="_validate_ScheduledDelayInvalid" xml:space="preserve">
+    <value>Suma długości i opóźnienia przekracza czas trwania elementu.</value>
+  </data>
+  <data name="_validate_StartTCAfterFile" xml:space="preserve">
+    <value>Timecode startu jest za klipem (końcowy TC klipu to {0}).</value>
+  </data>
+  <data name="_validate_StartTCBeforeFile" xml:space="preserve">
+    <value>Timecode startu jest przed klipem (początkowy TC klipu to {0}).</value>
+  </data>
+  <data name="_validate_StartTimePassed" xml:space="preserve">
+    <value>Czas startu już upłynął</value>
+  </data>
+  <data name="_validate_TransitionPauseTimeInvalid" xml:space="preserve">
+    <value>Czas pauzy nie może być dłuższy od czasu przejścia.</value>
+  </data>
+  <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
+    <value>Czas przejścia jest dłuższy, niż czas trwania.</value>
+  </data>
+  <data name="_window_CommandScriptItemEditWindowTitle" xml:space="preserve">
+    <value>Edycja komendy serwera</value>
+  </data>
+  <data name="_window_IngestAs" xml:space="preserve">
+    <value>Zaingestuj jako...</value>
+  </data>
+</root>

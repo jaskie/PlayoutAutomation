@@ -1,0 +1,31 @@
+﻿<UserControl ResxExtension.DefaultResxName="TAS.Client.Views.IngestEditorView" Language="{UICulture}" 
+        x:Class="TAS.Client.Views.IngestEditorView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:TAS.Client.Views" 
+        xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+        >
+    <Grid>
+        <DockPanel>
+            <DataGrid ItemsSource="{Binding OperationList}" SelectedItem="{Binding SelectedOperation}" AutoGenerateColumns="False" IsReadOnly="True" Visibility="{Binding ShowMediaList, Converter={StaticResource BoolToVis}}" Width="200">
+                <DataGrid.Resources>
+                    <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.IngestEditorView, Key=_grid.Header.Clip}" Width="*" Binding="{Binding SourceFileName, Mode=OneWay}" />
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Height="15" ToolTip="{Resx ResxName=TAS.Client.Views.IngestEditorView, Key=_grid.Delete}"
+                                        Command="{Binding Data.CommandDeleteOperation, Source={StaticResource proxy}}" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=DataContext}">
+                                    <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"/>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <views:ConvertOperationView DataContext="{Binding SelectedOperation}" Margin="5"/>
+        </DockPanel>
+    </Grid>
+</UserControl>

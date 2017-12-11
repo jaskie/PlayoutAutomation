@@ -483,7 +483,9 @@ namespace System.Net.FtpClient {
             data = encoding.GetBytes(string.Format("{0}\r\n", buf));
             Write(data, 0, data.Length);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public new void Dispose() {
             FtpTrace.WriteLine("Disposing FtpSocketStream...");
             Close();
@@ -503,7 +505,7 @@ namespace System.Net.FtpClient {
                     }
 
 #if !NET2
-                    m_socket.Dispose();
+                    m_socket?.Dispose();
 #endif
                 }
                 catch (SocketException ex) {

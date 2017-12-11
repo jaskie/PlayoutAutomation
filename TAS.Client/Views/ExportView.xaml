@@ -1,0 +1,138 @@
+﻿<Window x:Class="TAS.Client.Views.ExportView"
+        ResxExtension.DefaultResxName="TAS.Client.Views.ExportView" Language="{UICulture}" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+        xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+        xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+        xmlns:client="clr-namespace:TAS.Client"
+        mc:Ignorable="d" 
+        d:DataContext="{x:Type vm:ExportViewmodel}"
+        d:DesignHeight="400" d:DesignWidth="360" 
+        Title="{Resx Window.Title}" 
+        FontSize="13"
+        Height="400" Width="600">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top" Height="35">
+            <Label Content="{Resx _destination}" VerticalAlignment="Center"/>
+            <Button DockPanel.Dock="Right" Command="{Binding CommandExport}" Margin="5">
+                <StackPanel Orientation="Horizontal" >
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-export.png"/>
+                    <Label Content="{Resx _export}" Padding="0" VerticalContentAlignment="Center" Margin="5, 0"/>
+                </StackPanel>
+            </Button>
+            <toolkit:DropDownButton Name="folderCombo" BorderThickness="2" Margin="4" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory}"
+                                    ToolTip="{Binding SelectedDirectory.Folder}"
+                                    Template="{StaticResource ComboBoxTreeTemplate}">
+                <toolkit:DropDownButton.DropDownContent>
+                    <controls:TreeViewEx ItemsSource="{Binding Directories}" SelectedItem="{Binding SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged" Width="220">
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type vm:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
+                                <TextBlock Text="{Binding DirectoryName}" ToolTip="{Binding Folder}"/>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </controls:TreeViewEx>
+                </toolkit:DropDownButton.DropDownContent>
+            </toolkit:DropDownButton>
+        </DockPanel>
+        <DockPanel DockPanel.Dock="Top" Visibility="{Binding CanConcatMedia, Converter={StaticResource BoolToVis}}">
+            <CheckBox IsChecked="{Binding ConcatMedia}" Margin="4" Content="{Resx _concatMedia}" VerticalAlignment="Center"/>
+            <TextBox Text="{Binding ConcatMediaName, UpdateSourceTrigger=PropertyChanged}" Margin="10, 2" Visibility="{Binding IsConcatMediaNameVisible, Converter={StaticResource BoolToVis}}"/>
+        </DockPanel>
+        <StackPanel Visibility="{Binding IsMXF, Converter={StaticResource BoolToVis}}" DockPanel.Dock="Top" Orientation="Horizontal" Margin="4">
+            <StackPanel.Resources>
+                <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+                    <Setter Property="Width" Value="100"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+                <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                    <Setter Property="Width" Value="148"/>
+                </Style>
+            </StackPanel.Resources>
+            <Label Content="{Resx _audioFormat}"/>
+            <ComboBox ItemsSource="{Binding MXFAudioExportFormats}" SelectedItem="{Binding MXFAudioExportFormat}"/>
+            <Label Content="{Resx _videoFormat}"/>
+            <ComboBox ItemsSource="{Binding MXFVideoExportFormats}" SelectedItem="{Binding MXFVideoExportFormat}"/>
+        </StackPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <StatusBarItem.Content>
+                    <TextBlock>
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{Resx _statusBar.StringFormat, ResxName=TAS.Client.Views.ExportView}">
+                                <Binding Path="ExportMediaCount"/>
+                                <Binding Path="TotalTime"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StatusBarItem.Content>
+            </StatusBarItem>
+        </StatusBar>
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Items}" AutoGenerateColumns="False" CanUserAddRows="False">
+            <DataGrid.Resources>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="DataGridCell">
+                                <Grid Background="{TemplateBinding Background}">
+                                    <ContentPresenter VerticalAlignment="Center" />
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{Resx _grid.Header.ClipName, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding MediaName, Mode=OneWay}" IsReadOnly="True" />
+                <DataGridTemplateColumn Header="{Resx _grid.Header.TCStart, ResxName=TAS.Client.Views.ExportView}" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <controls:TimecodeTextBlock Timecode="{Binding StartTC}" VideoFormat="{Binding VideoFormat}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="{Resx _grid.Header.Duration, ResxName=TAS.Client.Views.ExportView}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <controls:TimecodeTextBlock Timecode="{Binding Duration}" VideoFormat="{Binding VideoFormat}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="{Resx _grid.Header.AudioVolume, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding AudioVolume, StringFormat={}{0:0.0 dB}}"/>
+                <DataGridTemplateColumn Header="{Resx _grid.Header.Logos, ResxName=TAS.Client.Views.ExportView}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button ToolTip="{Resx _grid.Logo.Add, ResxName=TAS.Client.Views.ExportView}" Command="{Binding CommandAddLogo}" Height="15" Padding="0" BorderThickness="1" Margin="1">
+                                    <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png"/>
+                                </Button>
+                                <ItemsControl ItemsSource="{Binding Logos}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+                                                <Button ToolTip="{Resx _grid.Logo.Remove, ResxName=TAS.Client.Views.ExportView}" Command="{Binding CommandRemove}" Height="15" Padding="0" BorderThickness="1" Margin="1">
+                                                    <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </DockPanel>
+</Window>

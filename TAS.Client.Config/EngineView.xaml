@@ -1,0 +1,77 @@
+﻿<UserControl x:Class="TAS.Client.Config.EngineView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
+             xmlns:vm="clr-namespace:TAS.Client.Config"
+             d:DataContext="{x:Type vm:EngineViewmodel}"
+             mc:Ignorable="d" 
+             >
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer.Resources>
+            <Style TargetType="TextBox">
+                <Setter Property="Margin" Value="5, 0"/>
+            </Style>
+            <Style TargetType="ComboBox">
+                <Setter Property="Margin" Value="5, 0"/>
+            </Style>
+            <Style TargetType="CheckBox">
+                <Setter Property="Margin" Value="5"/>
+            </Style>
+        </ScrollViewer.Resources>
+        <StackPanel MinHeight="480" MinWidth="250" Margin="0, 0, 0, 5">
+            <Label Content="Engine name"/>
+            <TextBox Text="{Binding EngineName, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Content="Video format"/>
+            <ComboBox SelectedItem="{Binding VideoFormat}" ItemsSource="{Binding VideoFormats}"/>
+            <Label Content="Aspect ratio control"/>
+            <ComboBox SelectedItem="{Binding AspectRatioControl}" ItemsSource="{Binding AspectRatioControls}"/>
+            <Label Content="Time correction (ms, relative to system time)"/>
+            <TextBox Text="{Binding TimeCorrection, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Content="Reference loudness"/>
+            <TextBox Text="{Binding VolumeReferenceLoudness, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Content="Instance binding"/>
+            <TextBox Text="{Binding Instance, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Content="Primary program channel"/>
+            <ComboBox SelectedItem="{Binding ChannelPRI}" ItemsSource="{Binding Channels}"/>
+            <Label Content="Backup program channel"/>
+            <ComboBox SelectedItem="{Binding ChannelSEC}" ItemsSource="{Binding Channels}"/>
+            <Label Content="Preview channel"/>
+            <ComboBox SelectedItem="{Binding ChannelPRV}" ItemsSource="{Binding Channels}"/>
+            <Label Content="Archive directory"/>
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Height="21" ToolTip="Manage archive directories" Command="{Binding CommandManageArchiveDirectories}">
+                    <Image Source="/TAS.Client.Common;component/Images/Config/config.png"/>
+                </Button>
+                <ComboBox ItemsSource="{Binding ArchiveDirectories}" SelectedItem="{Binding ArchiveDirectory}"/>
+            </DockPanel>
+            <Separator Margin="5"/>
+            <HeaderedContentControl>
+                <HeaderedContentControl.Header>
+                    <Label Content="CG graphics properties"/>
+                </HeaderedContentControl.Header>
+                <StackPanel>
+                    <CheckBox IsChecked="{Binding EnableCGElementsForNewEvents}" Content="Enable CG elements for new events by default"/>
+                    <Label Content="Crawl enable behavior"/>
+                    <ComboBox ItemsSource="{Binding CrawlEnableBehaviors }" SelectedItem="{Binding CrawlEnableBehavior}"/>
+                    <Label Content="CG start delay (negative if ahead)"/>
+                    <TextBox Text="{Binding CGStartDelay, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+            </HeaderedContentControl>
+            <Separator/>
+            <HeaderedContentControl>
+                <HeaderedContentControl.Header>
+                    <Label Content="Remote control interface"/>
+                </HeaderedContentControl.Header>
+                <StackPanel>
+                    <CheckBox IsChecked="{Binding RemoteHostEnabled}" Content="Enabled"/>
+                    <StackPanel Visibility="{Binding RemoteHostEnabled, Converter={StaticResource BoolToVis}}">
+                        <Label Content="Endpoint port (free TCP port 1024 - 65535)"/>
+                        <TextBox Text="{Binding RemoteHostListenPort, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </StackPanel>
+            </HeaderedContentControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

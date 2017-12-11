@@ -50,6 +50,9 @@ namespace Infralution.Localization.Wpf
     {
         private class LookupTable : Dictionary<string, object> { }
         private Dictionary<CultureInfo, LookupTable> _lookupTables = new Dictionary<CultureInfo, LookupTable>();
+        /// <summary>
+        /// resource manager instance
+        /// </summary>
         protected ResourceManager _resourceManager;
         private bool _isFlagEnum = false;
         private Array _flagValues;
@@ -281,6 +284,8 @@ namespace Infralution.Localization.Wpf
         /// <returns>The localized string value for the enum</returns>
         static public string ConvertToString(Enum value)
         {
+            if (value == null)
+                return string.Empty;
             TypeConverter converter = TypeDescriptor.GetConverter(value.GetType());
             return converter.ConvertToString(value);
         }

@@ -299,6 +299,7 @@ namespace System.Net.FtpClient {
 
                 if (m_parsers == null) {
                     m_parsers = new List<Parser>();
+                    m_parsers.Add(new Parser(ParseK2List));
                     m_parsers.Add(new Parser(ParseMachineList));
                     m_parsers.Add(new Parser(ParseUnixList));
                     m_parsers.Add(new Parser(ParseDosList));
@@ -402,12 +403,10 @@ namespace System.Net.FtpClient {
         /// <param name="capabilities">Server capabilities</param>
         /// <returns>FtpListItem if the item is able to be parsed</returns>
         static FtpListItem ParseMachineList(string buf, FtpCapability capabilities) {
-            FtpListItem item = new FtpListItem();
             Match m;
-
             if (!(m = Regex.Match(buf, "type=(?<type>.+?);", RegexOptions.IgnoreCase)).Success)
                 return null;
-
+            FtpListItem item = new FtpListItem();
             switch (m.Groups["type"].Value.ToLower()) {
                 case "dir":
                 case "pdir":
@@ -474,7 +473,6 @@ namespace System.Net.FtpClient {
                 @"(?<size>\d+)\s+" +
                 @"(?<modify>\w+\s+\d+\s+\d+:\d+|\w+\s+\d+\s+\d+)\s" +
                 @"(?<name>.*)$";
-            FtpListItem item = new FtpListItem();
             Match m;
 
             if (!(m = Regex.Match(buf, regex, RegexOptions.IgnoreCase)).Success)
@@ -485,6 +483,7 @@ namespace System.Net.FtpClient {
             if (m.Groups["permissions"].Value.Length == 0)
                 return null;
 
+            FtpListItem item = new FtpListItem();
             switch (m.Groups["permissions"].Value[0]) {
                 case 'd':
                     item.Type = FtpFileSystemObjectType.Directory;
@@ -674,6 +673,55 @@ namespace System.Net.FtpClient {
 
             return null;
         }
+
+        /// <summary>
+        /// Parses GrassValley K2 videoserver format listings
+        /// </summary>
+        /// <param name="buf">A line from the listing</param>
+        /// <param name="capabilities">Server capabilities</param>
+        /// <returns>FtpListItem if the item is able to be parsed</returns>
+        static FtpListItem ParseK2List(string buf, FtpCapability capabilities)
+        {
+            Match m;
+            string regex=
+                @"(?<permissions>.+)\s+" +
+                @"(?<objectcount>\d+)\s+" +
+                @"(?<user>\w+)\s+" +
+                @"(?<group>\w+)\s+" +
+                @"(?<size>\d*)\s+" +
+                @"(?<modify>\w+\s+\d+\s+\d+:\d+:\d+|\w+\s+\d+\s+\d+)\s" +
+                @"(?<name>.*)$";
+
+            if ((m = Regex.Match(buf, regex)).Success)
+            {
+                FtpListItem item = new FtpListItem();
+                item.Name = m.Groups["name"].Value;
+                item.Modified = m.Groups["modify"].Value.GetK2Date();
+                long size;
+                if (long.TryParse(m.Groups["size"].Value, out size))
+                    item.Size = size;
+                switch (m.Groups["permissions"].Value[0])
+                {
+                    case 'd':
+                        item.Type = FtpFileSystemObjectType.Directory;
+                        break;
+                    case '-':
+                    case 's':
+                        item.Type = FtpFileSystemObjectType.Movie;
+                        break;
+                    case 'l':
+                        item.Type = FtpFileSystemObjectType.Link;
+                        break;
+                    default:
+                        return null;
+                }
+                return item;
+            }
+            else
+                return null;
+        }
+
+
 
         /// <summary>
         /// Ftp listing line parser

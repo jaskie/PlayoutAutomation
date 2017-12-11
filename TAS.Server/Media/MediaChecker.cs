@@ -1,0 +1,85 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using TAS.Common;
+using TAS.FFMpegUtils;
+using TAS.Server.Common;
+using TAS.Server.Interfaces;
+
+namespace TAS.Server
+{
+    public static class MediaChecker
+    {
+        internal static TMediaStatus Check(Media media)
+        {
+            if (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Unknown)
+            {
+                TimeSpan videoDuration;
+                TimeSpan audioDuration;
+                int startTickCunt = Environment.TickCount;
+                using (FFMpegWrapper ffmpeg = new FFMpegWrapper(media.FullPath))
+                {
+                    Rational r = ffmpeg.GetFrameRate();
+                    RationalNumber frameRate = new RationalNumber(r.Num, r.Den);
+                    videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan(frameRate);
+                    audioDuration = (TimeSpan)ffmpeg.GetAudioDuration();
+                    var mediaDuration = ((videoDuration > audioDuration) && (audioDuration > TimeSpan.Zero) ? audioDuration : videoDuration).Round(frameRate);
+                    media.Duration = mediaDuration;
+                    if (media.DurationPlay == TimeSpan.Zero || media.DurationPlay > mediaDuration)
+                        media.DurationPlay = mediaDuration;
+                    int w = ffmpeg.GetWidth();
+                    int h = ffmpeg.GetHeight();
+                    FieldOrder order = ffmpeg.GetFieldOrder();
+                    Rational sar = ffmpeg.GetSAR();
+                    if (h == 608 && w == 720)
+                    {
+                        media.HasExtraLines = true;
+                        h = 576;
+                    }
+                    else
+                        media.HasExtraLines = false;
+                    string timecode = ffmpeg.GetTimeCode();
+                    if (timecode != null
+                        && timecode.IsValidSMPTETimecode(frameRate))
+                    {
+                        media.TcStart = timecode.SMPTETimecodeToTimeSpan(frameRate);
+                        if (media.TcPlay < media.TcStart)
+                            media.TcPlay = media.TcStart;
+                    }                    
+
+                    RationalNumber sAR = (h == 576 && ((sar.Num == 608 && sar.Den == 405) || (sar.Num == 1 && sar.Den == 1) || (sar.Num == 118 && sar.Den == 81))) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].SAR
+                        : (sar.Num == 152 && sar.Den == 135) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL].SAR
+                        : new RationalNumber(sar.Num, sar.Den);
+                    
+                    var vfd = VideoFormatDescription.Match(new System.Drawing.Size(w, h), new RationalNumber(frameRate.Num, frameRate.Den), sAR, order != FieldOrder.PROGRESSIVE);
+                    media.VideoFormat = vfd.Format;
+                    if (media is IngestMedia)
+                        ((IngestMedia)media).StreamInfo = ffmpeg.GetStreamInfo();
+                    if (media is TempMedia)
+                        ((TempMedia)media).StreamInfo = ffmpeg.GetStreamInfo();
+
+                    Debug.WriteLine("FFmpeg check of {0} finished. It took {1} milliseconds", media.FullPath, Environment.TickCount - startTickCunt);
+
+                    if (videoDuration > TimeSpan.Zero)
+                    {
+                        media.MediaType = TMediaType.Movie;
+                        if (Math.Abs(videoDuration.Ticks - audioDuration.Ticks) >= TimeSpan.TicksPerSecond
+                            && audioDuration != TimeSpan.Zero)
+                            // when more than 0.5 sec difference
+                            return TMediaStatus.ValidationError;
+                        else
+                            return TMediaStatus.Available;
+                    }
+                    else
+                        return TMediaStatus.ValidationError;
+                }
+            }
+            else
+                return TMediaStatus.Available;
+        }
+    }
+}
+

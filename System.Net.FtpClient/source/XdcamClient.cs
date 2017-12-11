@@ -21,6 +21,8 @@ namespace System.Net.FtpClient
         {
             EnableThreadSafeDataConnections = false;
             DataConnectionType = FtpDataConnectionType.PASV;
+            UngracefullDisconnection = true;
+            Encoding = Encoding.UTF8;            
         }
 
         /// <summary>
@@ -37,7 +39,7 @@ namespace System.Net.FtpClient
                 // read in one line of raw file listing for the file - it's the only method to get file size
                 try
                 {
-                    using (FtpDataStream stream = OpenDataStream(string.Format("LIST {0}", path.GetFtpPath()), 0))
+                    using (FtpDataStream stream = OpenDataStream($"LIST {path.GetFtpPath()}", 0))
                     {
                         string buf;
                         try
@@ -136,7 +138,7 @@ namespace System.Net.FtpClient
             try
             {
                 m_lock.WaitOne();
-                stream = OpenDataStream(string.Format("SITE REPF {0} {1} {2}", path.GetFtpPath(), startFrame, frameCount), 0);
+                stream = OpenDataStream($"SITE REPFL \"{path.GetFtpPath()}\" {startFrame} {frameCount}", 0);
             }
             finally
             {
@@ -148,12 +150,12 @@ namespace System.Net.FtpClient
         /// Read free disc space from device
         /// </summary>
         /// <returns>Free disc space on the device, 0 if unknown</returns>
-        public UInt64 GetFreeDiscSpace()
+        public long GetFreeDiscSpace()
         {
             try
             {
                 m_lock.WaitOne();
-                using (Stream stream = OpenDataStream(string.Format("SITE DF"), 0))
+                using (Stream stream = OpenDataStream("SITE DF", 0))
                 {
                     using (StreamReader reader = new StreamReader(stream, Encoding.ASCII))
                     {
@@ -162,7 +164,7 @@ namespace System.Net.FtpClient
                             string response = reader.ReadLine();
                             if (response.StartsWith("others"))
                             {
-                                return UInt64.Parse(response.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries)[1]);
+                                return long.Parse(response.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries)[1]);
                             }
                         }
                         return 0L;

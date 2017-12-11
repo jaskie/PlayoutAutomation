@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<IngestDirectories xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <IngestDirectory>
+    <IsRecursive>true</IsRecursive>
+    <MediaLoudnessCheckAfterIngest>true</MediaLoudnessCheckAfterIngest>
+    <DirectoryName>LXF</DirectoryName>
+    <Folder>E:\lxf</Folder>
+    <EncodeParams>-preset veryfast -pix_fmt yuv420p -g 30</EncodeParams>
+    <Extensions />
+    <VideoCodec>libx264</VideoCodec>
+    <AudioCodec>aac</AudioCodec>
+  </IngestDirectory>
+  <IngestDirectory>
+    <IsXDCAM>true</IsXDCAM>
+    <IsExport>true</IsExport>
+    <MXFAudioExportFormat>Channels4Bits24</MXFAudioExportFormat>
+    <MXFVideoExportFormat>IMX40</MXFVideoExportFormat>
+    <DirectoryName>XDCAM decl</DirectoryName>
+    <Folder>ftp://10.0.0.211</Folder>
+    <Username>admin</Username>
+    <Password>pdw-1500</Password>
+    <EncodeParams>-preset veryfast -pix_fmt yuv420p -g 30</EncodeParams>
+    <Extensions />
+    <VideoCodec>libx264</VideoCodec>
+    <AudioCodec>aac</AudioCodec>
+  </IngestDirectory>
+</IngestDirectories>

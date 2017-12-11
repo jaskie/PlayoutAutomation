@@ -1,0 +1,127 @@
+﻿<UserControl x:Class="TAS.Client.Views.RecordersView"
+             ResxExtension.DefaultResxName="TAS.Client.Views.RecordersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TAS.Client.Views"
+             mc:Ignorable="d" 
+             xmlns:client="clr-namespace:TAS.Client"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             d:DataContext="{x:Type vm:RecordersViewmodel}"
+             d:DesignHeight="500" d:DesignWidth="600">
+    <UserControl.Resources>
+        <Style TargetType="Button" >
+            <Setter Property="Width" Value="40" />
+            <Setter Property="Margin" Value="8" />
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="controls:TimecodeEdit" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+    <StackPanel>
+        <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True">
+            <Label Content="{Resx _recorder}"/>
+            <ComboBox MinWidth="120" ItemsSource="{Binding Recorders}" SelectedItem="{Binding Recorder}" DisplayMemberPath="RecorderName" />
+            <Label Content="{Resx _channel}"/>
+            <ComboBox MinWidth="120" ItemsSource="{Binding Channels}" SelectedItem="{Binding Channel}" DisplayMemberPath="ChannelName" />
+        </ToolBar>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <Label Content="{Resx _fileName}"/>
+            <TextBox Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="220" VerticalAlignment="Center"/>
+            <Label Content="{Resx _fileFormat}"/>
+            <ComboBox ItemsSource="{Binding FileFormats}" SelectedItem="{Binding FileFormat, ValidatesOnDataErrors=True}" Width="80"/>
+            <CheckBox Visibility="{Binding IsStandardDefinition, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsNarrowMode}" Content="4:3" VerticalAlignment="Center" Margin="5, 0"/>
+        </StackPanel>
+        <Expander IsExpanded="True">
+            <Expander.Header>
+                <TextBlock Text="{Resx _deckRecording}"/>
+            </Expander.Header>
+            <StackPanel >
+                <ToolBar ToolBarTray.IsLocked="True" Height="35">
+                    <Button Command="{Binding CommandRewind}" ToolTip="{Resx _rewind.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-seek-backward.png" />
+                    </Button>
+                    <Button Command="{Binding CommandPlay}" ToolTip="{Resx _play.ToolTip}" >
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-start.png" />
+                    </Button>
+                    <Button Command="{Binding CommandStop}" ToolTip="{Resx _stop.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png" />
+                    </Button>
+                    <Button Command="{Binding CommandFastForward}" ToolTip="{Resx _ff.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-seek-forward.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Command="{Binding CommandCapture}" ToolTip="{Resx _capture.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-capture.png" />
+                    </Button>
+                </ToolBar>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel.Resources>
+                        <Style TargetType="Label">
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        </Style>
+                        <Style TargetType="controls:TimecodeEdit">
+                            <Setter Property="Width" Value="80"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="Height" Value="19"/>
+                            <Setter Property="Width" Value="19"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <Label Content="{Resx _tcIn}"/>
+                    <controls:TimecodeEdit Timecode="{Binding TcIn}" VideoFormat="{Binding VideoFormat}"/>
+                    <Button Margin="0" Command="{Binding CommandGetCurrentTcToIn}" ToolTip="{Resx _getTC.ToolTip}">
+                        <Image  Source="/TAS.Client.Common;component/Images/Actions/import-movie.png"/>
+                    </Button>
+                    <Label Content="{Resx _currentTc}"/>
+                    <controls:TimecodeEdit Timecode="{Binding CurrentTc}" VideoFormat="{Binding VideoFormat}"/>
+                    <Button Margin="0" Command="{Binding CommandGoToTimecode}" ToolTip="{Resx _gotoTC.ToolTip}">
+                        <Image  Source="/TAS.Client.Common;component/Images/Actions/go-jump.png"/>
+                    </Button>
+                    <Label Content="{Resx _tcOut}"/>
+                    <controls:TimecodeEdit Timecode="{Binding TcOut}" VideoFormat="{Binding VideoFormat}"/>
+                    <Button Margin="0" Command="{Binding CommandGetCurrentTcToOut}" ToolTip="{Resx _getTC.ToolTip}">
+                        <Image  Source="/TAS.Client.Common;component/Images/Actions/import-movie.png"/>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+        <Expander IsExpanded="True">
+            <Expander.Header>
+                <TextBlock Text="{Resx _manualRecording}"/>
+            </Expander.Header>
+            <ToolBar ToolBarTray.IsLocked="True" Height="35">
+                <Button Command="{Binding CommandStartRecord}" ToolTip="{Resx _record.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-record.png" />
+                </Button>
+                <Button Command="{Binding CommandRecordFinish}" ToolTip="{Resx _recordEnd.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png" />
+                </Button>
+                <Separator/>
+                <Label Content="{Resx _recordTimeLimit}"/>
+                <controls:TimecodeEdit Timecode="{Binding TimeLimit}" VideoFormat="{Binding VideoFormat}" />
+                <Button Command="{Binding CommandSetRecordLimit}" Height="20" Margin="0" ToolTip="{Resx _setRecordLimit.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/save-small.png" />
+                </Button>
+                <Label Content="{Resx _recordTimeLeft}"/>
+                <controls:TimecodeEdit Timecode="{Binding RecorderTimeLeft}"  VideoFormat="{Binding VideoFormat}" Background="{DynamicResource {x:Static SystemColors.ControlLightLightBrush}}" IsReadOnly="True"/>
+            </ToolBar>
+        </Expander>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,147 @@
+﻿<UserControl Language="{UICulture}" ResxExtension.DefaultResxName="TAS.Client.Views.PreviewView"
+             x:Class="TAS.Client.Views.PreviewView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             xmlns:client="clr-namespace:TAS.Client"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             d:DataContext="{x:Type vm:PreviewViewmodel}"
+             FontSize="12" 
+             MinHeight="55"
+             >
+    <UserControl.Resources>
+        <Style x:Key="controlButtonProperties" TargetType="Button" >
+            <Setter Property="Width" Value="40" />
+            <Setter Property="Margin" Value="8" />
+        </Style>
+    </UserControl.Resources>
+    <UserControl.InputBindings>
+        <KeyBinding Command="{Binding CommandCopyToTcIn}" Gesture="Ctrl+I"/>
+        <KeyBinding Command="{Binding CommandCopyToTcOut}" Gesture="Ctrl+O"/>
+        <KeyBinding Command="{Binding CommandSaveSegment}" Gesture="Ctrl+S" />
+        <KeyBinding Command="{Binding CommandSetSegmentNameFocus}" Gesture="F2" />
+    </UserControl.InputBindings>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" MinWidth="300" >
+        <DockPanel IsEnabled="{Binding IsEnabled}">
+            <DockPanel DockPanel.Dock="Top">
+                <Button Command="{Binding CommandPause}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonPause.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Paused.png" Stretch="None" />
+                </Button>
+                <Button Command="{Binding CommandPlay}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonPlay.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Playing.png" Stretch="None" />
+                </Button>
+                <Button Command="{Binding CommandStop}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Aborted.png" Stretch="None" />
+                </Button>
+                <StackPanel>
+                    <TextBox Text="{Binding MediaName, Mode=OneWay}" Margin="3" IsEnabled="{Binding IsLoaded}" IsReadOnly="True"/>
+                    <TextBox Text="{Binding FileName, Mode=OneWay}" Margin="3" IsEnabled="{Binding IsLoaded}" IsReadOnly="True"/>
+                </StackPanel>
+            </DockPanel>
+            <DockPanel Grid.Row="1" IsEnabled="{Binding IsPlayable}">
+                <DockPanel.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Width" Value="22" />
+                        <Setter Property="Height" Value="22"/>
+                        <Setter Property="Margin" Value="1" />
+                        <Setter Property="Padding" Value="0" />
+                    </Style>
+                </DockPanel.Resources>
+                <controls:MediaSeekSlider DockPanel.Dock="Top" Margin="10" 
+                                        Position="{Binding SliderPosition}" 
+                                        Maximum="{Binding SliderMaximum}" 
+                                        SmallChange="1" LargeChange="{Binding FramesPerSecond}" 
+                                        Interval="500" Delay="1000" TickPlacement="TopLeft" 
+                                        TickFrequency="{Binding SliderTickFrequency}" 
+                                        ToolTip="{Resx _slider.ToolTip}"/>
+                <Grid DockPanel.Dock="Top">
+                    <Grid.Resources>                        
+                        <Style TargetType="controls:TimecodeEdit">
+                            <Setter Property="Margin" Value="0, 1"/>
+                        </Style>
+                        <Style TargetType="Label">
+                            <Setter Property="Margin" Value="0, 3"/>
+                            <Setter Property="Padding" Value="1" />
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="27" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="27" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <Label Content="Start TC" />
+                        <controls:TimecodeEdit Timecode="{Binding StartTc, Mode=OneWay}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit Timecode="{Binding TcIn}" VideoFormat="{Binding VideoFormat}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <Button ToolTip="{Resx _secondBack.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="rsecond" >
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/FFBack.png" />
+                        </Button>
+                        <Button ToolTip="{Resx _frameBack.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="rframe">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/OneFrameBack.png" />
+                        </Button>
+                        <Button ToolTip="{Resx _buttonCopyTCIn.ToolTip}" Command="{Binding CommandCopyToTcIn}" >
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy-small.png" />
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <Label Content="{Resx _currentTC}" />
+                        <controls:TimecodeEdit Timecode="{Binding Position}" VideoFormat="{Binding VideoFormat}" />
+                        <Grid Margin="0, 1">
+                            <Label Content="In" HorizontalAlignment="Left" />
+                            <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Resx _wholeFile.ToolTip}" IsChecked="{Binding PlayWholeClip}" />
+                            <Label Content="Out" HorizontalAlignment="Right" />
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel Grid.Column="3">
+                        <Button ToolTip="{Resx _secondForward.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="fsecond">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/FFForward.png" />
+                        </Button>
+                        <Button ToolTip="{Resx _frameForward.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="fframe">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/OneFrameForward.png" />
+                        </Button>
+                        <Button ToolTip="{Resx _buttonCopyTCOut.ToolTip}" Command="{Binding CommandCopyToTcOut}">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy-small.png" />
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Grid.Column="4">
+                        <Label Content="{Resx _duration}" />
+                        <controls:TimecodeEdit Timecode="{Binding Duration, Mode=OneWay}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit Timecode="{Binding TcOut}" VideoFormat="{Binding VideoFormat}" />
+                    </StackPanel>
+                </Grid>
+     
+                <DockPanel IsEnabled="{Binding IsSegmentsEnabled, Converter={StaticResource BoolToVis}}" Visibility="{Binding IsSegmentsVisible, Converter={StaticResource BoolToVis}}">
+                    <DockPanel DockPanel.Dock="Top">
+                        <Label DockPanel.Dock="Left" Content="{Resx _name}" Padding="2" VerticalContentAlignment="Center" Margin="4,0"/>
+                        <Button DockPanel.Dock="Right" ToolTip="{Resx _delete.ToolTip}" Command="{Binding CommandDeleteSegment}" Margin="5,0" >
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png" />
+                        </Button>
+                        <Button DockPanel.Dock="Right" ToolTip="{Resx _save.ToolTip}" Command="{Binding CommandSaveSegment}" Margin="0" >
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/save-small.png" />
+                        </Button>
+                        <Button DockPanel.Dock="Right" ToolTip="{Resx _addSegment.ToolTip}" Command="{Binding CommandNewSegment}" Margin="5,0" >
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png" />
+                        </Button>
+                        <TextBox DockPanel.Dock="Left" Text="{Binding SelectedSegmentName, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Resx _name.ToolTip}"/>
+                    </DockPanel>
+                    <DataGrid MinHeight="80" ItemsSource="{Binding MediaSegments}" SelectedItem="{Binding SelectedSegment}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding SegmentName}" Header="{Resx ResxName=TAS.Client.Views.PreviewView, Key=_name}" Width="*"/>
+                            <DataGridTextColumn Binding="{Binding sTcIn}" Header="TC In" Width="100"/>
+                            <DataGridTextColumn Binding="{Binding sTcOut}" Header="TC Out" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </DockPanel>
+        </DockPanel>
+    </ScrollViewer>
+</UserControl>

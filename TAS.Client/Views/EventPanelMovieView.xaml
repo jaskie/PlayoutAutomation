@@ -1,0 +1,167 @@
+﻿<local:EventPanelView ResxExtension.DefaultResxName="TAS.Client.Views.EventPanelView" Language="{UICulture}" 
+             x:Class="TAS.Client.Views.EventPanelMovieView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:sys="clr-namespace:System;assembly=System"
+             xmlns:c="clr-namespace:TAS.Client"
+             xmlns:local="clr-namespace:TAS.Client.Views"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             mc:Ignorable="d" 
+             d:DataContext="{x:Type vm:EventPanelMovieViewmodel}"
+             FontSize="12" 
+             d:DesignWidth="700"
+             >
+    <StackPanel>
+        <StackPanel.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Copy}" Command="{Binding CommandCopy}" InputGestureText="Ctrl-C" />
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Cut}" Command="{Binding CommandCut}" InputGestureText="Ctrl-X"  />
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste}">
+                    <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Before}" Command="{Binding CommandPaste}" CommandParameter="Before" />
+                    <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.After}" Command="{Binding CommandPaste}" CommandParameter="After" InputGestureText="Ctrl-V" />
+                </MenuItem>
+            </ContextMenu>
+        </StackPanel.ContextMenu>
+        <Border Style="{StaticResource EventPanelIsStartBorder}">
+            <TextBlock Text="{Resx _blockBegin}" FontSize="10" />
+        </Border>
+        <Border Style="{StaticResource EventPanelIsHoldBorder}"/>
+        <Border Style="{StaticResource EventPanelStyle}">
+            <Border.Resources>
+                <Style TargetType="Button" BasedOn="{StaticResource EventPanelCommandButton}"/>
+            </Border.Resources>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="33" />
+                    <ColumnDefinition Width="31" />
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35" />
+                    <RowDefinition Height="26" />
+                </Grid.RowDefinitions>
+                <Border Grid.RowSpan="2">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding MediaCategory}" Value="Show">
+                                    <Setter Property="Background" Value="LightGreen"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding MediaCategory}" Value="Commercial">
+                                    <Setter Property="Background" Value="#FFF05B5B"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Border Background="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}"/>
+                </Border>
+                <Border Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="3">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsPlaying}"  Value="True">
+                                    <Setter Property="Background" Value="#4040FF00"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsForcedNext}" Value="True">
+                                    <Setter Property="Background" Value="LightPink"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+                <Image Grid.Column="0" Grid.RowSpan="2" Margin="3" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Movie.png" Style="{StaticResource EventPanelImage}" />
+                <Path Visibility="{Binding IsEnabled, Converter={StaticResource InvertedBoolToVis}}" Grid.RowSpan="3" Stroke="#FFD67421" StrokeThickness="6" Data="M-10 13 -18 13 -18 48 -10 48"/>
+                <Image Grid.Column="0" Grid.Row="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected.ToolTip}" />
+                <Image Grid.Column="0" Grid.Row="1" Stretch="None" VerticalAlignment="Bottom" Margin="0, 3">
+                    <Image.Style>
+                        <Style TargetType="Image">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding VideoFormat}" Value="PAL_FHA">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/FHA.png" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding VideoFormat}" Value="Other">
+                                    <Setter Property="Source" Value="{x:Null}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding VideoFormat}" Value="HD1080i5000">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/HD.png" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding VideoFormat}" Value="HD1080p2500">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/HD.png" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding VideoFormat}" Value="PAL">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/4-3.png" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+                <Image Grid.Column="0"  Grid.RowSpan="2" ToolTip="{Binding MediaErrorInfo}" HorizontalAlignment="Right" >
+                    <Image.Style>
+                        <Style TargetType="Image">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/error-overlay.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding MediaErrorInfo}" Value="TooShort">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/warning-overlay.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding MediaErrorInfo}" Value="NoError">
+                                    <Setter Property="Source" Value="{x:Null}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+                <Image Grid.Column="1" Grid.RowSpan="2" ToolTip="{Binding PlayState}" Style="{StaticResource EventPlayStateImage}"/>
+                <Border Grid.Column="2"  Grid.RowSpan="2" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" Background="Red" ToolTip="{Resx _isInvalidInSchedule.ToolTip}"/>
+                <StackPanel Grid.Column="2" Grid.RowSpan="2">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource EventPanelTextBlock}">
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <TextBlock Text="{Binding ScheduledTime}" ToolTip="{Resx _scheduledTime.ToolTip}" />
+                    <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" Foreground="{Binding Offset, Converter={StaticResource TimeSpanToRedGreenBrushConverter}}"  Visibility="{Binding Offset, Converter={StaticResource NullToVis}}" ToolTip="{Resx _offsetTime.ToolTip}"/>
+                    <TextBlock Text="{Binding Duration}" ToolTip="{Resx _duration.ToolTip}" />
+                    <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" ToolTip="{Resx _endTime.ToolTip}"/>
+                    <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" Style="{StaticResource EventPanelImage}"/>
+                </StackPanel>
+                <Grid Grid.Column="3" Grid.Row="0" Grid.ColumnSpan="2" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock FontSize="19" Text="{Binding EventName}" Style="{StaticResource EventPanelTextBlock}">
+                            <TextBlock.ToolTip>
+                                <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
+                            </TextBlock.ToolTip>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource MediaFileNameTextBlock}"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
+                </Grid>
+                <StackPanel Grid.Column="3" Grid.Row="2" Orientation="Horizontal" Visibility="{Binding IsSelected,Converter={StaticResource BoolToVis}}">
+                    <Button Command="{Binding CommandAddNextMovie}" ToolTip="{Resx _addNextMovie.ToolTip}" >
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-movie.png"/>
+                    </Button>
+                    <Button Command="{Binding CommandAddNextEmptyMovie}" ToolTip="{Resx _addNextEmptyMovie.ToolTip}" >
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-empty-movie.png"/>
+                    </Button>
+                    <Button Command="{Binding CommandAddNextRundown}" ToolTip="{Resx _addNextRundown.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-rundown.png"/>
+                    </Button>
+                    <Button Command="{Binding CommandAddNextLive}" ToolTip="{Resx _addNextLive.ToolTip}" >
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-next-live.png"/>
+                    </Button>
+                </StackPanel>
+                <local:EventPanelCGElementsView Grid.Column="3" Grid.Row="1" HorizontalAlignment="Right"  Margin="5, 0" />
+            </Grid>
+        </Border>
+    </StackPanel>
+</local:EventPanelView>

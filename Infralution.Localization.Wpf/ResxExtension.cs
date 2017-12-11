@@ -87,6 +87,11 @@ namespace Infralution.Localization.Wpf
         private string _defaultValue;
 
         /// <summary>
+        /// The key used to retrieve the BindingTargetNullValue
+        /// </summary>
+        private string _bindingTargetNullKey;
+
+        /// <summary>
         /// The resource manager to use for this extension.  Holding a strong reference to the
         /// Resource Manager keeps it in the cache while ever there are ResxExtensions that
         /// are using it.
@@ -415,6 +420,17 @@ namespace Infralution.Localization.Wpf
         {
             get { return Binding.TargetNullValue; }
             set { Binding.TargetNullValue = value; }
+        }
+
+        /// <summary>
+        /// Supply a Resx key to set the BindingTargetNullValue
+        /// </summary>
+        [DefaultValue(null)]
+        public string BindingTargetNullKey
+        {
+            get { return _bindingTargetNullKey; }
+            set 
+            {  _bindingTargetNullKey = value; }
         }
 
         /// <summary>
@@ -811,7 +827,14 @@ namespace Infralution.Localization.Wpf
                 binding.NotifyOnTargetUpdated = _binding.NotifyOnTargetUpdated;
                 binding.NotifyOnValidationError = _binding.NotifyOnValidationError;
                 binding.Path = _binding.Path;
-                binding.TargetNullValue = _binding.TargetNullValue;
+                if (string.IsNullOrEmpty(_bindingTargetNullKey))
+                {
+                    binding.TargetNullValue = _binding.TargetNullValue;
+                }
+                else
+                {
+                    binding.TargetNullValue = GetLocalizedResource(_bindingTargetNullKey);
+                }
                 binding.UpdateSourceTrigger = _binding.UpdateSourceTrigger;
                 binding.ValidatesOnDataErrors = _binding.ValidatesOnDataErrors;
                 binding.ValidatesOnExceptions = _binding.ValidatesOnExceptions;
@@ -884,12 +907,14 @@ namespace Infralution.Localization.Wpf
         }
 
         /// <summary>
-        /// Return the value for the markup extension
+        /// Return the localized resource given a resource Key
         /// </summary>
-        /// <returns>The value from the resources if possible otherwise the default value</returns>
-        protected override object GetValue()
+        /// <param name="resourceKey">The resourceKey</param>
+        /// <returns>The value for the current UICulture</returns>
+        /// <remarks>Calls GetResource event first then if not handled uses the resource manager</remarks>
+        protected virtual object GetLocalizedResource(string resourceKey)
         {
-            if (string.IsNullOrEmpty(Key)) return null;
+            if (string.IsNullOrEmpty(resourceKey)) return null;
             object result = null;
             if (!string.IsNullOrEmpty(ResxName))
             {
@@ -897,7 +922,7 @@ namespace Infralution.Localization.Wpf
                 {
                     if (GetResource != null)
                     {
-                        result = GetResource(ResxName, Key, CultureManager.UICulture);
+                        result = GetResource(ResxName, resourceKey, CultureManager.UICulture);
                     }
                     if (result == null)
                     {
@@ -907,19 +932,34 @@ namespace Infralution.Localization.Wpf
                         }
                         if (_resourceManager != null)
                         {
-                            result = _resourceManager.GetObject(Key, CultureManager.UICulture);
+                            result = _resourceManager.GetObject(resourceKey, CultureManager.UICulture);
                         }
-                    }
-                    if (!IsMultiBindingChild)
-                    {
-                        result = ConvertValue(result);
                     }
                 }
                 catch
                 {
                 }
             }
+            return result;
+        }
 
+         /// <summary>
+        /// Return the value for the markup extension
+        /// </summary>
+        /// <returns>The value from the resources if possible otherwise the default value</returns>
+        protected override object GetValue()
+        {
+            object result = GetLocalizedResource(Key);
+            if (result != null && !IsMultiBindingChild)
+            {
+                try
+                {
+                    result = ConvertValue(result);
+                }
+                catch
+                {
+                }
+            }
             if (result == null)
             {
                 result = GetDefaultValue(Key);

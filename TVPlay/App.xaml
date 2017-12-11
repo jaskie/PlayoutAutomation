@@ -1,56 +1,16 @@
 ﻿<Application x:Class="TAS.Client.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:client="clr-namespace:TAS.Client"
-             StartupUri="Views/MainWindow.xaml">
-        
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             StartupUri="MainWindow.xaml" DispatcherUnhandledException="Application_DispatcherUnhandledException"
+             >
+
     <Application.Resources>
-        <!--<Style x:Key="{x:Type Label}" TargetType="{x:Type Label}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Label}">
-                        <Border Background="{TemplateBinding Background}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        Padding="{TemplateBinding Padding}"
-                        SnapsToDevicePixels="true">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                      RecognizesAccessKey="False"
-                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsEnabled"
-                             Value="false">
-                                <Setter Property="Foreground"
-                                Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>-->
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary>
-                    <client:BoolToBrushButtonConverter x:Key="BoolToBrushButton" />
-                    <client:BoolToBrushConverter x:Key="BoolToBrush"/>
-                    <BooleanToVisibilityConverter x:Key="BoolToVis" />
-                    <client:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
-                    <client:EventTypeToIntConverter x:Key="EventToInt" />
-                    <client:DateTimeToSMPTEConverter x:Key="DateTimeToSMPTE" />
-                    <client:TimeSpanToFramesConverter x:Key="TimeSpanToFrames" />
-                    <client:DateTimeFormatConverter x:Key="DateTimeFormat"/>
-                    <client:ColorToBrushConverter x:Key="ColorToBrush" />
-                    <client:EnabledBoolToOpacityConverter x:Key="EnabledToOpacity" />
-                    <client:PlayStateToUriConverter x:Key="PlayStateToUri" />
-                    <client:MediaErrorInfoToUriConverter x:Key="MediaErrorInfoToUri" />
-                    <client:TimeSpanToSignedStringConverter x:Key="TimeSpanToSignedString" />
-                    <client:MediaEmphasisToBrushConverter x:Key="MediaEmphasisToBrush" />
-                    <client:BoolToStringConverter x:Key="BooleanToAspectDescriptionConverter" FalseValue="16:9" TrueValue="4:3" />
-                    <client:NegativeBooleanToVisibilityConverter x:Key="NegativeBoolToVis" />
-
-                </ResourceDictionary>
+                <ResourceDictionary Source="/TAS.Client.Common;component/Converters.xaml"/>
+                <ResourceDictionary Source="/TAS.Client.Common;component/Styles.xaml"/>
+                <ResourceDictionary Source="/TAS.Client.Common;component/Controls/Resources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

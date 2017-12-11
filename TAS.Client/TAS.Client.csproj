@@ -1,0 +1,456 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F6E01E47-5075-42A7-B2A2-BC35BC074F9F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TAS.Client</RootNamespace>
+    <AssemblyName>TAS.Client</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="Xceed.Wpf.AvalonDock, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Aero, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.Aero.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Metro, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.Metro.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.VS2010, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.VS2010.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xceed.Wpf.DataGrid, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.DataGrid.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xceed.Wpf.Toolkit, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.Toolkit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="HiddenEventsStorage.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\CGElementViewmodel.cs" />
+    <Compile Include="ViewModels\ChannelViewmodel.cs" />
+    <Compile Include="ViewModels\ConvertOperationViewModel.cs" />
+    <Compile Include="ViewModels\EngineCGElementsControllerViewmodel.cs" />
+    <Compile Include="ViewModels\EngineStateViewmodel.cs" />
+    <Compile Include="ViewModels\EngineViewmodel.cs" />
+    <Compile Include="EventClipboard.cs" />
+    <Compile Include="ViewModels\EventEditViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelCommandScriptViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelAnimationViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelAutoStartEventViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelContainerViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelDummyViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelLiveViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelMovieViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelRootViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelRundownElementViewmodelBase.cs" />
+    <Compile Include="ViewModels\EventPanelRundownViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelStillViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelViewmodelBase.cs" />
+    <Compile Include="ViewModels\ExportMediaLogoViewmodel.cs" />
+    <Compile Include="ViewModels\ExportViewmodel.cs" />
+    <Compile Include="ViewModels\FileManagerViewmodel.cs" />
+    <Compile Include="ViewModels\FileOperationViewmodel.cs" />
+    <Compile Include="ViewModels\IngestEditViewmodel.cs" />
+    <Compile Include="ViewModels\ITemplatedEdit.cs" />
+    <Compile Include="ViewModels\KeyValueEditViewmodel.cs" />
+    <Compile Include="ViewModels\MediaDirectoryViewmodel.cs" />
+    <Compile Include="ViewModels\MediaEditViewmodel.cs" />
+    <Compile Include="ViewModels\MediaEditWindowViewmodel.cs" />
+    <Compile Include="ViewModels\ExportMediaViewmodel.cs" />
+    <Compile Include="ViewModels\MediaManagerViewmodel.cs" />
+    <Compile Include="ViewModels\MediaSearchViewmodel.cs" />
+    <Compile Include="ViewModels\MediaSegmentViewmodel.cs" />
+    <Compile Include="ViewModels\MediaViewViewmodel.cs" />
+    <Compile Include="ViewModels\PreviewViewmodel.cs" />
+    <Compile Include="ViewModels\RecordersViewmodel.cs" />
+    <Compile Include="Views\ChannelView.xaml.cs">
+      <DependentUpon>ChannelView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ConvertOperationView.xaml.cs">
+      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EngineCGElementsControllerView.xaml.cs">
+      <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EngineDebugView.xaml.cs">
+      <DependentUpon>EngineDebugView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EngineStateView.xaml.cs">
+      <DependentUpon>EngineStateView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EngineView.xaml.cs">
+      <DependentUpon>EngineView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventEditView.xaml.cs">
+      <DependentUpon>EventEditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelCGElementsView.xaml.cs">
+      <DependentUpon>EventPanelCGElementsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelCommandScriptView.xaml.cs">
+      <DependentUpon>EventPanelCommandScriptView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelAutoStartEventView.xaml.cs">
+      <DependentUpon>EventPanelAutoStartEventView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelContainerView.xaml.cs">
+      <DependentUpon>EventPanelContainerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelLiveView.xaml.cs">
+      <DependentUpon>EventPanelLiveView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelRundownView.xaml.cs">
+      <DependentUpon>EventPanelRundownView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelMovieView.xaml.cs">
+      <DependentUpon>EventPanelMovieView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelAnimationView.xaml.cs">
+      <DependentUpon>EventPanelAnimationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelStillView.xaml.cs">
+      <DependentUpon>EventPanelStillView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExportView.xaml.cs">
+      <DependentUpon>ExportView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FileManagerView.xaml.cs">
+      <DependentUpon>FileManagerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelView.cs" />
+    <Compile Include="Views\IngestEditorView.xaml.cs">
+      <DependentUpon>IngestEditorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\KeyValueEditView.xaml.cs">
+      <DependentUpon>KeyValueEditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MediaEditView.xaml.cs">
+      <DependentUpon>MediaEditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MediaManagerView.xaml.cs">
+      <DependentUpon>MediaManagerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MediaSearchView.xaml.cs">
+      <DependentUpon>MediaSearchView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OperationOutputView.xaml.cs">
+      <DependentUpon>OperationOutputView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PreviewView.xaml.cs">
+      <DependentUpon>PreviewView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RecordersView.xaml.cs">
+      <DependentUpon>RecordersView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TemplatedEditView.xaml.cs">
+      <DependentUpon>TemplatedEditView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
+      <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
+      <Name>Infralution.Localization.Wpf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TAS.Client.Common\TAS.Client.Common.csproj">
+      <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
+      <Name>TAS.Client.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
+      <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
+      <Name>TAS.Remoting</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">
+      <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
+      <Name>TAS.Server.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Views\ChannelView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ConvertOperationView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EngineCGElementsControllerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EngineDebugView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EngineStateView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EngineView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventEditView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelCGElementsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EventPanelCommandScriptView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelAutoStartEventView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EventPanelContainerView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelLiveView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelRundownView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelMovieView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelAnimationView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelStillView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ExportView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\FileManagerView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\IngestEditorView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\KeyValueEditView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\MediaEditView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\MediaManagerView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\MediaSearchView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\OperationOutputView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\PreviewView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\RecordersView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TemplatedEditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\ChannelView.pl.resx">
+      <DependentUpon>ChannelView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ChannelView.resx">
+      <DependentUpon>ChannelView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ConvertOperationView.pl.resx">
+      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ConvertOperationView.resx">
+      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineCGElementsControllerView.resx">
+      <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineCGElementsControllerView.pl.resx">
+      <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineStateView.pl.resx">
+      <DependentUpon>EngineStateView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineStateView.resx">
+      <DependentUpon>EngineStateView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineView.pl.resx">
+      <DependentUpon>EngineView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineView.resx">
+      <DependentUpon>EngineView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventEditView.pl.resx">
+      <DependentUpon>EventEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventEditView.resx">
+      <DependentUpon>EventEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventPanelView.pl.resx">
+      <DependentUpon>EventPanelView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventPanelView.resx">
+      <DependentUpon>EventPanelView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ExportView.pl.resx">
+      <DependentUpon>ExportView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ExportView.resx">
+      <DependentUpon>ExportView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\FileManagerView.pl.resx">
+      <DependentUpon>FileManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\FileManagerView.resx">
+      <DependentUpon>FileManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\IngestEditorView.pl.resx">
+      <DependentUpon>IngestEditorView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\IngestEditorView.resx">
+      <DependentUpon>IngestEditorView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\KeyValueEditView.pl.resx">
+      <DependentUpon>KeyValueEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\KeyValueEditView.resx">
+      <DependentUpon>KeyValueEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaEditView.pl.resx">
+      <DependentUpon>MediaEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaEditView.resx">
+      <DependentUpon>MediaEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaManagerView.pl.resx">
+      <DependentUpon>MediaManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaManagerView.resx">
+      <DependentUpon>MediaManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaSearchView.pl.resx">
+      <DependentUpon>MediaSearchView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaSearchView.resx">
+      <DependentUpon>MediaSearchView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\PreviewView.pl.resx">
+      <DependentUpon>PreviewView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\PreviewView.resx">
+      <DependentUpon>PreviewView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\RecordersView.resx">
+      <DependentUpon>RecordersView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\RecordersView.pl.resx">
+      <DependentUpon>RecordersView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\TemplatedEditView.pl.resx">
+      <DependentUpon>TemplatedEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\TemplatedEditView.resx">
+      <DependentUpon>TemplatedEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

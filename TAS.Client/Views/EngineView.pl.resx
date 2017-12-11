@@ -1,0 +1,346 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="_menu.Edit" xml:space="preserve">
+    <value>_Edycja</value>
+  </data>
+  <data name="_menu.Edit.AddNext" xml:space="preserve">
+    <value>Dodaj _następny...</value>
+  </data>
+  <data name="_menu.Edit.AddNext.Live" xml:space="preserve">
+    <value>_Live</value>
+  </data>
+  <data name="_menu.Edit.AddNext.Movie" xml:space="preserve">
+    <value>_Klip</value>
+  </data>
+  <data name="_menu.Edit.AddNext.Rundown" xml:space="preserve">
+    <value>_Playlista</value>
+  </data>
+  <data name="_menu.Edit.AddUnder" xml:space="preserve">
+    <value>Dodaj _podrzędny</value>
+  </data>
+  <data name="_menu.Edit.Cut" xml:space="preserve">
+    <value>_Wytnij...</value>
+  </data>
+  <data name="_menu.Edit.Cut.FromThis" xml:space="preserve">
+    <value>_Od tego elementu</value>
+  </data>
+  <data name="_menu.Edit.Cut.OnlyThis" xml:space="preserve">
+    <value>_Tylko ten element</value>
+  </data>
+  <data name="_menu.Edit.DeleteSelected" xml:space="preserve">
+    <value>_Usuń zaznaczone</value>
+  </data>
+  <data name="_menu.Edit.Paste" xml:space="preserve">
+    <value>W_klej...</value>
+  </data>
+  <data name="_menu.Edit.Paste.After" xml:space="preserve">
+    <value>_Za</value>
+  </data>
+  <data name="_menu.Edit.Paste.Before" xml:space="preserve">
+    <value>_Przed</value>
+  </data>
+  <data name="_menu.Edit.Paste.Under" xml:space="preserve">
+    <value>Po_d</value>
+  </data>
+  <data name="_menu.Rundown" xml:space="preserve">
+    <value>_Playlista</value>
+  </data>
+  <data name="_menu.Container.AddContainer" xml:space="preserve">
+    <value>Dodaj _kontener na playlisty</value>
+  </data>
+  <data name="_menu.Rundown.AddEmpty" xml:space="preserve">
+    <value>Dodaj pustą listę _startową</value>
+  </data>
+  <data name="_menu.Rundown.Restart" xml:space="preserve">
+    <value>_Uruchom ponownie zaznaczoną pozycję</value>
+  </data>
+  <data name="_statusbar.Gpi.Active" xml:space="preserve">
+    <value>Aktywne</value>
+  </data>
+  <data name="_statusbar.Gpi.Crawl" xml:space="preserve">
+    <value>Pasek:</value>
+  </data>
+  <data name="_statusbar.Gpi.Logo" xml:space="preserve">
+    <value>Logo:</value>
+  </data>
+  <data name="_statusbar.Gpi.Parental" xml:space="preserve">
+    <value>Kategoria wiekowa:</value>
+  </data>
+  <data name="_statusbar.Selected" xml:space="preserve">
+    <value>Wybrane {0}, </value>
+  </data>
+  <data name="_toolbar.ClearAll" xml:space="preserve">
+    <value>Stop wszystko | Shift+Pause/Break</value>
+  </data>
+  <data name="_toolbar.ClearCG1" xml:space="preserve">
+    <value>Czyść grafikę 1</value>
+  </data>
+  <data name="_toolbar.ClearCG2" xml:space="preserve">
+    <value>Czyść grafikę 2</value>
+  </data>
+  <data name="_toolbar.ClearCG3" xml:space="preserve">
+    <value>Czyść grafikę 3</value>
+  </data>
+  <data name="_toolbar.Load" xml:space="preserve">
+    <value>Załaduj | F2</value>
+  </data>
+  <data name="_toolbar.NowPlaying" xml:space="preserve">
+    <value>Teraz odtwarza</value>
+  </data>
+  <data name="_toolbar.playingEventName.Menu.Restart" xml:space="preserve">
+    <value>Restart (od bieżącego położenia)</value>
+  </data>
+  <data name="_toolbar.Reschedule" xml:space="preserve">
+    <value>Zaplanuj ponownie | F4</value>
+  </data>
+  <data name="_toolbar.StartLoaded" xml:space="preserve">
+    <value>Start załadowanego | F3</value>
+  </data>
+  <data name="_toolbar.StartSelected" xml:space="preserve">
+    <value>Start zaznaczonego | Ctrl+F3</value>
+  </data>
+  <data name="_toolbar.TimeToAttention" xml:space="preserve">
+    <value>Uwaga za</value>
+  </data>
+  <data name="_toolbar.Track" xml:space="preserve">
+    <value>Śledź</value>
+  </data>
+  <data name="_statusbar.Total" xml:space="preserve">
+    <value>łącznie </value>
+  </data>
+  <data name="_menu.Tools" xml:space="preserve">
+    <value>Narzędzia</value>
+  </data>
+  <data name="_toolbar.clockWidth" xml:space="preserve">
+    <value>130</value>
+  </data>
+  <data name="_menu.Tools.Export" xml:space="preserve">
+    <value>E_ksportuj zaznaczone</value>
+  </data>
+  <data name="_menu.Edit.Copy" xml:space="preserve">
+    <value>Kopiuj</value>
+  </data>
+  <data name="_menu.Container" xml:space="preserve">
+    <value>_Kontener</value>
+  </data>
+  <data name="_statusbar.Indicator.Alarm" xml:space="preserve">
+    <value>Alarm!</value>
+  </data>
+  <data name="_statusbar.Indicator.NoAlarms" xml:space="preserve">
+    <value>Bez alarmów</value>
+  </data>
+  <data name="_statusbar.Indicator.PRIConnected" xml:space="preserve">
+    <value>Kanał podstawowy OK</value>
+  </data>
+  <data name="_statusbar.Indicator.PRIDisconnected" xml:space="preserve">
+    <value>Kanał podstawowy odłączony</value>
+  </data>
+  <data name="_statusbar.Indicator.PRVConnected" xml:space="preserve">
+    <value>Kanał podglądu OK</value>
+  </data>
+  <data name="_statusbar.Indicator.PRVDisconnected" xml:space="preserve">
+    <value>Kanał podglądu odłączony</value>
+  </data>
+  <data name="_statusbar.Indicator.SECConnected" xml:space="preserve">
+    <value>Kanał rezerwowy OK</value>
+  </data>
+  <data name="_statusbar.Indicator.SECDisconnected" xml:space="preserve">
+    <value>Kanał rezerwowy odłączony</value>
+  </data>
+  <data name="_toolbar.ForceNext" xml:space="preserve">
+    <value>Wymuś jako następny | Ctrl+F2</value>
+  </data>
+  <data name="_toolbar.Next" xml:space="preserve">
+    <value>Następny</value>
+  </data>
+  <data name="_toolbar.NextWithRequestedStartTime" xml:space="preserve">
+    <value>Czas wymaganego</value>
+  </data>
+  <data name="_menu.Rundown.Load" xml:space="preserve">
+    <value>Ł_aduj z pliku</value>
+  </data>
+  <data name="_menu.Rundown.Load.After" xml:space="preserve">
+    <value>_Za</value>
+  </data>
+  <data name="_menu.Rundown.Load.Under" xml:space="preserve">
+    <value>_Pod</value>
+  </data>
+  <data name="_menu.Rundown.Save" xml:space="preserve">
+    <value>Zapi_sz do pliku</value>
+  </data>
+  <data name="_statusbar.Indicator.DatabaseError" xml:space="preserve">
+    <value>Błąd bazy danych</value>
+  </data>
+  <data name="_statusbar.Indicator.DatabaseOK" xml:space="preserve">
+    <value>Baza danych OK</value>
+  </data>
+  <data name="_menu.Container.Show" xml:space="preserve">
+    <value>Pokaż</value>
+  </data>
+  <data name="_menu.Tools.DebugWindow" xml:space="preserve">
+    <value>Okienko debuggowania</value>
+  </data>
+  <data name="_menu.Tools.FindUnlinkedEvents" xml:space="preserve">
+    <value>Wyszukaj niepowiązane zdarzenia w bazie danych</value>
+  </data>
+  <data name="_menu.Tools.Plugins" xml:space="preserve">
+    <value>Dodatki</value>
+  </data>
+  <data name="_toolbar.ClearAnimations" xml:space="preserve">
+    <value>Czyść animacje</value>
+  </data>
+  <data name="_toolbar.FieldOrderInverted" xml:space="preserve">
+    <value>Odwróć pola</value>
+  </data>
+  <data name="_toolbar.FieldOrderInverted.ToolTip" xml:space="preserve">
+    <value>Zamienia kolejność półobrazów.
+Działa natychmiastowo, do końca odtwarzanego klipu.</value>
+  </data>
+  <data name="_search.Close.ToolTip" xml:space="preserve">
+    <value>Ukryj panel wyszukiwania</value>
+  </data>
+  <data name="_search.Search.ToolTip" xml:space="preserve">
+    <value>Szukaj | Enter</value>
+  </data>
+  <data name="_search.SearchFor" xml:space="preserve">
+    <value>Znajdź</value>
+  </data>
+  <data name="_search.NotFound" xml:space="preserve">
+    <value>Nie znaleziono</value>
+  </data>
+  <data name="_menu.Rundown.Search" xml:space="preserve">
+    <value>Wyszukaj</value>
+  </data>
+  <data name="_search.EnterTextToSearch" xml:space="preserve">
+    <value>Wprowadź szukany tekst</value>
+  </data>
+  <data name="_menu.Tools.Export.All" xml:space="preserve">
+    <value>Wszystkie klipy</value>
+  </data>
+  <data name="_menu.Tools.Export.EnabledOnly" xml:space="preserve">
+    <value>Tylko aktywne</value>
+  </data>
+  <data name="_toolbar.ClearMixer" xml:space="preserve">
+    <value>Wyczyść transformacje miksera</value>
+  </data>
+  <data name="_menu.Edit.Undo" xml:space="preserve">
+    <value>Przywróć usunięte</value>
+  </data>
+</root>

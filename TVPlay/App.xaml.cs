@@ -16,25 +16,32 @@ namespace TAS.Client
     /// </summary>
     public partial class App : Application
     {
-
-        public static EngineController EngineController;
-
-        private static string volumeReferenceLoudnessKey = "VolumeReferenceLoudness";
-        
         public App()
         {
-            decimal referenceLoudness = -23;
-            if (ConfigurationManager.AppSettings.AllKeys.Contains(volumeReferenceLoudnessKey))
-                decimal.TryParse(ConfigurationManager.AppSettings[volumeReferenceLoudnessKey], out referenceLoudness);
-            App.Current.Properties[volumeReferenceLoudnessKey] = referenceLoudness;
-            CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
-            //CultureManager.UICulture = new System.Globalization.CultureInfo("en");
-            EngineController = new EngineController();
+            
+            #region hacks
+            Common.WpfHacks.ApplyGridViewRowPresenter_CellMargin();
+            #endregion
+            string uiCulture = ConfigurationManager.AppSettings["UiLanguage"];
+            if (string.IsNullOrWhiteSpace(uiCulture))
+                CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
+            else
+                CultureManager.UICulture = new System.Globalization.CultureInfo(uiCulture);
         }
         protected override void OnExit(ExitEventArgs e)
         {
-            EngineController.Dispose();
             base.OnExit(e);
+            EngineController.ShutDown();
+        }
+
+        private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            var window = App.Current?.MainWindow;
+            if (window == null)
+                MessageBox.Show(e.Exception.Message, TAS.Client.Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+            else
+                MessageBox.Show(window, e.Exception.Message, TAS.Client.Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+            e.Handled = true;
         }
     }
 }

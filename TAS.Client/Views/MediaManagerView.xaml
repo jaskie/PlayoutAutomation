@@ -1,0 +1,422 @@
+﻿<UserControl Language="{UICulture}" ResxExtension.DefaultResxName="TAS.Client.Views.MediaManagerView"
+             x:Class="TAS.Client.Views.MediaManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1200"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:views="clr-namespace:TAS.Client.Views"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             d:DataContext="{x:Type vm:MediaManagerViewmodel}"
+             FontSize="13" KeyUp="UserControl_KeyUp"
+             >
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
+        <ControlTemplate x:Key="toggleButtonTemplate" TargetType="ToggleButton">
+            <Grid Width="15" Height="13" Background="Transparent">
+                <Path x:Name="ExpandPath" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="1,1,1,1" Fill="{StaticResource GlyphBrush}" Data="M 4 0 L 8 4 L 4 8 Z"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Data" TargetName="ExpandPath" Value="M 0 4 L 8 4 L 4 8 Z"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <Style x:Key="toggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Template" Value="{StaticResource toggleButtonTemplate}" />
+        </Style>
+    </UserControl.Resources>
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding CommandRefresh}"/>
+        <KeyBinding Gesture="Ctrl+Delete" Command="{Binding CommandDeleteSelected}"/>
+    </UserControl.InputBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition/>
+            <RowDefinition Height="200"/>
+            <RowDefinition Height="22"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="330" />
+        </Grid.ColumnDefinitions>
+        <Menu Name="mainMenu" IsMainMenu="True" Background="Transparent" FontSize="12">
+            <MenuItem Header="{Resx _menu.Tools}">
+                <MenuItem Header="{Resx _menu.Tools.SynchronizeSecToPri}" Command="{Binding CommandSyncPriToSec}"/>
+            </MenuItem>
+        </Menu>
+        <TabControl Grid.RowSpan="2" >
+            <TabControl.Resources>
+            <Style TargetType="TabPanel">
+                <Setter Property="HorizontalAlignment" Value="Right"/>
+                </Style>
+            </TabControl.Resources>
+            <TabItem Header="{Resx _media}">
+                <DockPanel >
+                    <DockPanel Height="26" Margin="2" DockPanel.Dock="Top">
+                        <DockPanel.Resources>
+                            <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                                <Setter Property="Width" Value="120"/>
+                                <Setter Property="Margin" Value="5, 1"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                        </DockPanel.Resources>
+                        <Label Content="{Resx _directory}"/>
+                        <toolkit:DropDownButton Name="folderCombo" VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" ToolTip="{Binding SelectedDirectory.Folder}"
+                                    Template="{StaticResource ComboBoxTreeTemplate}">
+                            <toolkit:DropDownButton.Content>
+                                <TextBlock Text="{Binding SelectedDirectory}" Margin="2"/>
+                            </toolkit:DropDownButton.Content>
+                            <toolkit:DropDownButton.DropDownContent>
+                                <controls:TreeViewEx MinWidth="120" ItemsSource="{Binding MediaDirectories}" SelectedItem="{Binding SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged">
+                                    <controls:TreeViewEx.ItemTemplate>
+                                        <HierarchicalDataTemplate DataType="{x:Type vm:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
+                                            <TextBlock Text="{Binding DirectoryName}" ToolTip="{Binding Folder}"/>
+                                        </HierarchicalDataTemplate>
+                                    </controls:TreeViewEx.ItemTemplate>
+                                </controls:TreeViewEx>
+                            </toolkit:DropDownButton.DropDownContent>
+                        </toolkit:DropDownButton>
+
+                        <Button ToolTip="{Resx _refresh}" Margin="0, 2, 5, 2" Command="{Binding CommandRefresh}" VerticalAlignment="Center">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
+                        </Button>
+                        <ComboBox ItemsSource="{Binding MediaTypes}"  SelectedValue="{Binding MediaType}" Margin="0,1" ToolTip="{Resx _mediaType}"/>
+                        <ComboBox Visibility="{Binding IsMediaCategoryVisible, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" ToolTip="{Resx _mediaCategory}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Width="13" Style="{StaticResource MediaCategoryImage}"/>
+                                        <TextBlock Margin="2, 0, 0, 0" Text="{Binding}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Label Content="{Resx _search}"  VerticalAlignment="Center" />
+                        <Button DockPanel.Dock="Right" Margin="1, 2" Style="{StaticResource ClearButton}" Command="{Binding CommandClearFilters}" ToolTip="{Resx _toolbar.Clear.ToolTip}">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
+                        </Button>
+                        <controls:SearchTextBox Prompt="{Resx _searchFor}" VerticalAlignment="Center" Margin="0, 1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" SearchMode="Regular" Command="{Binding CommandSearch}" />
+                    </DockPanel>
+                    <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True" Height="35" >
+                        <ToolBar.Resources>
+                            <Style TargetType="Label">
+                                <Setter Property="Padding" Value="3"/>
+                            </Style>
+                        </ToolBar.Resources>
+                        <Button ToolTip="{Resx _toolbar.Ingest.ToolTip}" Margin="10, 0" Command="{Binding CommandIngestSelectedToServer}" Visibility="{Binding IsIngestOrArchiveDirectory, Converter={StaticResource BoolToVis}}">
+                            <StackPanel  Orientation="Horizontal" >
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-ingest.png" />
+                                <Label Content="{Resx _toolbar.Ingest}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button ToolTip="{Resx _toolbar.ArchiveDelete.ToolTip}" Margin="10,0" Command="{Binding CommandMoveSelectedToArchive}" Visibility="{Binding IsServerDirectory, Converter={StaticResource BoolToVis}}">
+                            <StackPanel Orientation="Horizontal">
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/archive-export-delete.png" />
+                                <Label Content="{Resx _toolbar.ArchiveDelete}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button ToolTip="{Resx _toolbar.ArchiveLeft.ToolTip}" Margin="10,0" Command="{Binding CommandCopySelectedToArchive}" Visibility="{Binding IsServerDirectory, Converter={StaticResource BoolToVis}}">
+                            <StackPanel Orientation="Horizontal">
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/archive-export.png" />
+                                <Label Content="{Resx _toolbar.ArchiveLeft}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button ToolTip="{Resx _toolbar.GetLoudness.ToolTip}" Margin="10,0" Command="{Binding CommandGetLoudness}">
+                            <StackPanel Orientation="Horizontal">
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png"/>
+                                <Label Content="{Resx _toolbar.GetLoudness}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button ToolTip="{Resx _toolbar.CloneAnimation.ToolTip}" Margin="10,0" Command="{Binding CommandCloneAnimation}" Visibility="{Binding IsAnimationDirectory, Converter={StaticResource BoolToVis}}">
+                            <StackPanel Orientation="Horizontal">
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy.png"/>
+                                <Label Content="{Resx _toolbar.CloneAnimation}"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button ToolTip="{Resx _toolbar.Export.ToolTip}" Margin="10,0" Command="{Binding CommandExport}" Visibility="{Binding IsMediaExportVisible, Converter={StaticResource BoolToVis}}">
+                            <StackPanel Orientation="Horizontal">
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-export.png"/>
+                                <Label Content="{Resx _toolbar.Export}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button ToolTip="{Resx _toolbar.Delete.ToolTip}" Margin="30,0" Command="{Binding CommandDeleteSelected}">
+                            <StackPanel Orientation="Horizontal">
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
+                                <Label Content="{Resx _toolbar.Delete}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Row="1" HorizontalAlignment="Right" Margin="5" Width="30" Command="{Binding CommandSweepStaleMedia}" Visibility="Hidden">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
+                        </Button>
+                    </ToolBar>
+                    <DataGrid Grid.Row="3" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
+                        <i:Interaction.Behaviors>
+                            <common:BindableSelectedItems SelectedItems="{Binding SelectedMediaList, Mode=OneWayToSource}"/>
+                        </i:Interaction.Behaviors>
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="DetailsVisibility" Value="{Binding IsExpanded, Converter={StaticResource BoolToVis}}" />
+                                <Setter Property="Background" Value="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}" />
+                            </Style>
+                            <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
+                            <common:BoolToStringConverter x:Key="isArchivedConverter" TrueValue="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.IsArchived}" />
+                            <common:BoolToStringConverter x:Key="isTrimmedConverter" TrueValue="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.IsTrimmed}" />
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" CanUserSort="False" Width="20">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ToggleButton Visibility="{Binding HasSegments, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsExpanded, UpdateSourceTrigger=PropertyChanged}" Width="14" Height="14" Style="{StaticResource toggleButtonStyle}"  />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="10" CanUserResize="False" x:Name="trimmedColumn" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image ToolTip="{Binding IsTrimmed, Converter={StaticResource isTrimmedConverter}}">
+                                            <Image.Style>
+                                                <Style TargetType="Image">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsTrimmed}" Value="True">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/scizors.png" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="10" CanUserSort="True" CanUserResize="False" x:Name="stateColumn">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image ToolTip="{Binding MediaStatus}">
+                                            <Image.Style>
+                                                <Style TargetType="Image">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding MediaStatus}" Value="Available">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/available.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaStatus}" Value="Copied">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/copied.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaStatus}" Value="CopyError">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/copy-error.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaStatus}" Value="ValidationError">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/validation-error.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaStatus}" Value="Copying">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/copying.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaStatus}" Value="CopyPending">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/copy-pending.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaStatus}" Value="Deleted">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/deleted.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaStatus}" Value="Required">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/required.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaStatus}" Value="Unknown">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/unknown.png"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayMediaCategory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image ToolTip="{Binding MediaCategory}">
+                                            <Image.Style>
+                                                <Style TargetType="Image">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding MediaCategory}" Value="Show">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/show.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaCategory}" Value="Commercial">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/commercial.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaCategory}" Value="Promo">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/promo.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaCategory}" Value="Sponsored">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/sponsored.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaCategory}" Value="Fill">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/fill.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaCategory}" Value="Insert">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/insert.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaCategory}" Value="Jingle">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/jingle.png"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="10" x:Name="isArchivedColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsServerDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image ToolTip="{Binding IsArchived, Converter={StaticResource isArchivedConverter}}">
+                                            <Image.Style>
+                                                <Style TargetType="Image">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsArchived}" Value="True">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/archive.png"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="10" x:Name="isIngestedColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsIngestOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image ToolTip="{Binding IngestStatus}">
+                                            <Image.Style>
+                                                <Style TargetType="Image">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IngestStatus}" Value="InProgress">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/IngestStates/InProgress.png"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IngestStatus}" Value="Ready">
+                                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/IngestStates/Ready.png"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn x:Name="clipNrColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipNr}" Width="50" Visibility="{Binding Data.IsDisplayClipNr, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" Binding="{Binding ClipNr, Mode=OneWay}"  />
+                            <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="*" Binding="{Binding MediaName, Mode=OneWay}" />
+                            <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}"  />
+                            <DataGridTextColumn x:Name="tCStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.TcPlay}" Width="80" Binding="{Binding sTcPlay, Mode=OneWay}" />
+                            <DataGridTextColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.DurationPlay}"  Width="90" Binding="{Binding sDurationPlay, Mode=OneWay}" />
+                            <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.Folder}" Visibility="{Binding Data.IsDisplayFolder,  Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" Width="*" Binding="{Binding Folder, Mode=OneWay}" />
+                            <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.FileName}" Width="*" Binding="{Binding FileName, Mode=OneWay}" />
+                        </DataGrid.Columns>
+                        <DataGrid.RowDetailsTemplate>
+                            <DataTemplate>
+                                <ListView ItemsSource="{Binding MediaSegments}" SelectedValue="{Binding SelectedSegment}" BorderThickness="0" Background="#FFE0EFFF" SelectionMode="Single" FontSize="12">
+                                    <ListView.View>
+                                        <GridView  >
+                                            <GridView.ColumnHeaderContainerStyle>
+                                                <Style TargetType="GridViewColumnHeader">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </Style>
+                                            </GridView.ColumnHeaderContainerStyle>
+                                            <GridViewColumn Width="{Binding ElementName=toggleColumn, Path=ActualWidth}" >
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate />
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Width="{Binding ElementName=trimmedColumn, Path=ActualWidth}" >
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate />
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Width="{Binding ElementName=stateColumn, Path=ActualWidth}" >
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate />
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Width="{Binding ElementName=categoryColumn, Path=ActualWidth}" >
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate />
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Width="{Binding ElementName=isArchivedColumn, Path=ActualWidth}" >
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate />
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn TextBlock.TextAlignment="Left" DisplayMemberBinding="{Binding SegmentName, Mode=OneWay}" Width="{Binding ElementName=clipNameColumn, Path=ActualWidth}" />
+                                            <GridViewColumn Width="{Binding ElementName=ingestDateColumn, Path=ActualWidth}">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate />
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn TextBlock.TextAlignment="Left" DisplayMemberBinding="{Binding sTcIn, Mode=OneWay}" Width="{Binding ElementName=tCStartColumn, Path=ActualWidth}" />
+                                            <GridViewColumn TextBlock.TextAlignment="Left" DisplayMemberBinding="{Binding sDuration, Mode=OneWay}" Width="{Binding ElementName=durationColumn, Path=ActualWidth}" />
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </DataTemplate>
+                        </DataGrid.RowDetailsTemplate>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="{Resx _recorders}">
+                <views:RecordersView DataContext="{Binding RecordersViewmodel}"/>
+            </TabItem>
+        </TabControl>
+        <GridSplitter Grid.Column="1" ResizeDirection="Columns" Grid.RowSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Left"  Background="DarkGray" Width="3" Cursor="SizeWE" />
+        <Grid Grid.Column="1" Grid.RowSpan="3" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ContentControl Content="{Binding EditMedia.Editor}" />
+            <GridSplitter Grid.Row="1" VerticalAlignment="Top" Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Stretch" Background="DarkGray" Cursor="SizeNS" Height="3" ShowsPreview="True"/>
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition MinHeight="55"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ContentControl Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" Margin="3, 3, 0, 0" Content="{Binding PreviewViewmodel}" >
+                    <ContentControl.ContentTemplate>
+                        <DataTemplate DataType="{x:Type vm:PreviewViewmodel}">
+                            <views:PreviewView/>
+                        </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
+                <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+                <ContentControl Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" Margin="0, 3, 0, 0"  Content="{Binding VideoPreview.View}"/>
+            </Grid>
+        </Grid>
+        <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+        <ContentControl Grid.Row="2" Content="{Binding FileManagerViewmodel}" >
+            <ContentControl.ContentTemplate>
+                <DataTemplate DataType="{x:Type vm:FileManagerViewmodel}">
+                    <views:FileManagerView/>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
+        <StatusBar Grid.Row="3" Grid.ColumnSpan="2">
+            <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
+                <common:StatusIndicator IsGreen="{Binding IsMediaDirectoryOk}" Margin="10,0,0,0"/>
+                <TextBlock Text="{Resx _statusbar.TotalItems}" Margin="5, 0"/>
+                <TextBlock Text="{Binding ItemsCount}" />
+                <StackPanel Orientation="Horizontal" Visibility="{Binding DirectoryTotalSpace, Converter={StaticResource ZeroToVis}}">
+                    <TextBlock Text="{Resx _statusbar.VolumeSize}" Margin="5, 0"/>
+                    <TextBlock Text="{Binding DirectoryTotalSpace, StringFormat=' \{0:F2\} GB'}" />
+                </StackPanel>
+                <TextBlock Text="{Resx _statusbar.VolumeFreeSpace}" Margin="5, 0"/>
+                <TextBlock Text="{Binding DirectoryFreeSpace, StringFormat=' \{0:F2\} GB'}" />
+                <TextBlock Text="{Binding DirectoryFreePercentage, StringFormat='(\{0:F1\} %)'}" Visibility="{Binding DirectoryTotalSpace, Converter={StaticResource ZeroToVis}}"/>
+            </StackPanel>
+        </StatusBar>
+    </Grid>
+</UserControl>
