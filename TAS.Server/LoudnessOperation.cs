@@ -50,12 +50,12 @@ namespace TAS.Server
                 {
 
                     bool success;
-                    if (Source == null)
-                        throw new ArgumentException("LoudnessOperation: Source is not of type Media");
-                    if (Source.Directory is IngestDirectory && ((IngestDirectory)Source.Directory).AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia localSourceMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(Source))
+                    if (!(Source is MediaBase source))
+                        throw new ArgumentException("LoudnessOperation: Source is not of type MediaBase");
+                    if (source.Directory is IngestDirectory && ((IngestDirectory)source.Directory).AccessType != TDirectoryAccessType.Direct)
+                        using (TempMedia localSourceMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(source))
                         {
-                            if (SourceMedia.CopyMediaTo(localSourceMedia, ref Aborted))
+                            if (source.CopyMediaTo(localSourceMedia, ref Aborted))
                             {
                                 success = InternalExecute(localSourceMedia);
                                 if (!success)
@@ -65,7 +65,7 @@ namespace TAS.Server
                             return false;
                         }
 
-                    success = InternalExecute(SourceMedia);
+                    success = InternalExecute(source);
                     if (!success)
                         TryCount--;
                     return success;
@@ -82,7 +82,7 @@ namespace TAS.Server
         private bool InternalExecute(MediaBase inputMedia)
         {
             Debug.WriteLine(this, "Loudness operation started");
-            string Params = string.Format("-nostats -i \"{0}\" -ss {1} -t {2} -filter_complex ebur128=peak=sample -f null -", inputMedia.FullPath, MeasureStart, MeasureDuration == TimeSpan.Zero ? inputMedia.DurationPlay: MeasureDuration);
+            string Params = $"-nostats -i \"{inputMedia.FullPath}\" -ss {MeasureStart} -t {(MeasureDuration == TimeSpan.Zero ? inputMedia.DurationPlay : MeasureDuration)} -filter_complex ebur128=peak=sample -f null -";
 
             if (RunProcess(Params))
             {

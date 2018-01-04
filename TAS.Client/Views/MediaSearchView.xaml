@@ -15,6 +15,7 @@
         FontSize="12" 
         Title="{Resx _windowTitle}"
         DataContextChanged="Window_DataContextChanged"
+        FocusManager.FocusedElement="{Binding ElementName=TbSearch}"
         >
     <Grid Width="Auto">
         <Grid.RowDefinitions>
@@ -101,7 +102,7 @@
                         </Style>
                     </DataGrid.RowStyle>
                     <DataGrid.Columns>
-                        <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" Width="20" Visibility="{Binding Data.IsServerOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="HasSegments">
+                        <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" Width="20" SortMemberPath="HasSegments">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <ToggleButton Visibility="{Binding HasSegments, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsExpanded, UpdateSourceTrigger=PropertyChanged}" Width="14" Height="14" Style="{StaticResource ToggleButtonStyle}"  />
@@ -120,7 +121,7 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserResize="False" Visibility="{Binding Data.IsServerOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="MediaCategory">
+                        <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserResize="False" Visibility="{Binding Data.IsShowCategoryColumn, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="MediaCategory">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Image DataContext="{Binding MediaCategory}" Style="{StaticResource MediaCategoryImage}"/>

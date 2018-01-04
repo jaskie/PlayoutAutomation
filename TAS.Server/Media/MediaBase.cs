@@ -385,7 +385,7 @@ namespace TAS.Server.Media
                     LastUpdated = DateTimeExtensions.FromFileTime(fi.LastWriteTimeUtc, DateTimeKind.Utc);
                     //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
 
-                    MediaStatus = MediaChecker.Check(this);
+                    MediaChecker.Check(this);
                 }                
                 IsVerified = true;
             }

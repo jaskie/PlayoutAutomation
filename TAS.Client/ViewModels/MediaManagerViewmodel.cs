@@ -16,6 +16,7 @@ using TAS.Common;
 using System.IO;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Threading.Tasks;
 using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
@@ -37,6 +38,7 @@ namespace TAS.Client.ViewModels
         private object _mediaType = resources._all_;
         private MediaDirectoryViewmodel _selectedDirectory;
         private ObservableCollection<MediaViewViewmodel> _mediaItems;
+        private bool _isPropertiesPanelVisible = true;
 
         public MediaManagerViewmodel(IEngine engine, IPreview preview)
         {
@@ -85,6 +87,7 @@ namespace TAS.Client.ViewModels
             CommandRefresh = new UICommand { ExecuteDelegate = ob => _refreshMediaDirectory(_selectedDirectory?.Directory), CanExecuteDelegate = _canRefresh };
             CommandSyncPriToSec = new UICommand { ExecuteDelegate = _syncSecToPri, CanExecuteDelegate = o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin};
             CommandCloneAnimation = new UICommand { ExecuteDelegate = _cloneAnimation, CanExecuteDelegate = _canCloneAnimation };
+            CommandTogglePropertiesPanel = new UICommand { ExecuteDelegate = o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible };
         }
 
         public ICommand CommandSearch { get; }
@@ -99,6 +102,8 @@ namespace TAS.Client.ViewModels
         public ICommand CommandRefresh { get; }
         public ICommand CommandSyncPriToSec { get; }
         public ICommand CommandCloneAnimation { get; }
+        public ICommand CommandTogglePropertiesPanel { get;  }
+
 
         #region PreviewCommands
         public ICommand CommandPreviewPlay => PreviewViewmodel?.CommandPlay;
@@ -184,7 +189,7 @@ namespace TAS.Client.ViewModels
                     _searchTextSplit = value.ToLower().Split(' ');
             }
         }
-
+        
         public IEnumerable<object> MediaCategories => new List<object> { resources._all_ }.Concat(Enum.GetValues(typeof(TMediaCategory)).Cast<object>());
         public object MediaCategory
         {
@@ -229,6 +234,13 @@ namespace TAS.Client.ViewModels
                     Application.Current.Dispatcher.BeginInvoke((Action)delegate () { NotifyPropertyChanged(nameof(SelectedDirectory)); }); //revert folder display, deferred execution
             }
         }
+
+        public bool IsPropertiesPanelVisible
+        {
+            get => _isPropertiesPanelVisible;
+            set => SetField(ref _isPropertiesPanelVisible, value);
+        }
+
 
         public bool IsDisplayFolder => _selectedDirectory != null && (_selectedDirectory.IsArchiveDirectory || _selectedDirectory.IsRecursive);
 
@@ -457,7 +469,7 @@ namespace TAS.Client.ViewModels
                 if (!directory.IsArchiveDirectory)
                     _mediaView.Filter = _filter;
                 if (directory.IsXdcam && !directory.IsWan)
-                    ThreadPool.QueueUserWorkItem(o => _refreshMediaDirectory(directory.Directory));
+                    Task.Run(() => _refreshMediaDirectory(directory.Directory));
             }
             else
                 MediaItems = null;
@@ -569,7 +581,7 @@ namespace TAS.Client.ViewModels
         private void _refreshMediaDirectory(IMediaDirectory directory)
         {
             if (directory != null)
-                ThreadPool.QueueUserWorkItem(o =>
+                Task.Run(() =>
                 {
                     try
                     {
@@ -618,7 +630,7 @@ namespace TAS.Client.ViewModels
             {
                 List<IIngestOperation> ingestList = new List<IIngestOperation>();
                 var selectedMedia = _getSelections();
-                ThreadPool.QueueUserWorkItem(o =>
+                Task.Run(() =>
                 {
                     selectedMedia.ForEach(m =>
                     {

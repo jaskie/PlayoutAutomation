@@ -343,4 +343,7 @@ Effective until current clip ends.</value>
   <data name="_show" xml:space="preserve">
     <value>Show</value>
   </data>
+  <data name="_propertiesPanelExpander.ToolTip" xml:space="preserve">
+    <value>F11</value>
+  </data>
 </root>

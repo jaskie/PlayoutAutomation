@@ -56,7 +56,7 @@ namespace TAS.Server
 
         private readonly SynchronizedCollection<Event> _rootEvents = new SynchronizedCollection<Event>();
         private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
-        private readonly ConcurrentDictionary<Guid, IEvent> _events = new ConcurrentDictionary<Guid, IEvent>();
+        private readonly ConcurrentDictionary<ulong, IEvent> _events = new ConcurrentDictionary<ulong, IEvent>();
         private readonly Lazy<List<IAclRight>> _rights;
         private Event _playing;
         private Event _forcedNext;
@@ -97,7 +97,6 @@ namespace TAS.Server
         public event EventHandler<EventEventArgs> VisibleEventAdded;
         public event EventHandler<EventEventArgs> VisibleEventRemoved;
 
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> PreloadedEventsOperation;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         public event EventHandler<EventEventArgs> EventLocated;
         public event EventHandler<EventEventArgs> EventDeleted;
@@ -341,7 +340,7 @@ namespace TAS.Server
                     gpi.Started += _gpiStartLoaded;
 
             Debug.WriteLine(this, "Creating engine thread");
-            _engineThread = new Thread(_engineThreadProc);
+            _engineThread = new Thread(ThreadProc);
             _engineThread.Priority = ThreadPriority.Highest;
             _engineThread.Name = $"Engine main thread for {EngineName}";
             _engineThread.IsBackground = true;
@@ -694,11 +693,15 @@ namespace TAS.Server
 
         public void AddRootEvent(IEvent aEvent)
         {
-            var ev = aEvent as Event;
-            if (ev == null)
+            if (!(aEvent is Event ev))
                 return;
             _rootEvents.Add(ev);
-            EventLocated?.Invoke(this, new EventEventArgs(ev));
+            ev.NotifyLocated();
+        }
+
+        internal bool RemoveRootEvent(Event aEvent)
+        {
+            return _rootEvents.Remove(aEvent);
         }
 
         public IEvent CreateNewEvent(
@@ -739,17 +742,19 @@ namespace TAS.Server
         )
         {
             IEvent result;
+            if (idRundownEvent != 0
+                && _events.TryGetValue(idRundownEvent, out result))
+                return result;
             if (eventType == TEventType.Animation)
                 result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, fields, method, templateLayer);
             else if (eventType == TEventType.CommandScript)
                 result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, startType, playState, scheduledDelay, eventName, startTime, isEnabled, command);
             else
                 result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
-            if (_events.TryAdd(((Event)result).DtoGuid, result))
-            {
-                result.Located += _eventLocated;
-                result.Deleted += _eventDeleted;
-            }
+            if (idRundownEvent != 0)
+                _events.TryAdd(idRundownEvent, result);
+            result.Located += _eventLocated;
+            result.Deleted += _eventDeleted;
             if (startType == TStartType.OnFixedTime)
                 _fixedTimeEvents.Add((Event)result);
             return result;
@@ -759,15 +764,14 @@ namespace TAS.Server
         {
             if (!HaveRight(EngineRight.Play))
                 return;
-
-            ThreadPool.QueueUserWorkItem(o => {
+            Task.Run(() => {
                 try
                 {
                     _reSchedule(aEvent as Event);
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(e, "ReScheduleDelayed exception");
+                    Logger.Error(e, "ReSchedule exception");
                 }
             });
         }
@@ -960,13 +964,11 @@ namespace TAS.Server
 
         private void _removeEvent(Event aEvent)
         {
-            _rootEvents.Remove(aEvent);
-            IEvent eventToRemove;
-            if (_events.TryRemove(aEvent.DtoGuid, out eventToRemove))
-            {
-                aEvent.Located -= _eventLocated;
-                aEvent.Deleted -= _eventDeleted;
-            }
+            RemoveRootEvent(aEvent);
+            if (aEvent.Id != 0)
+                _events.TryRemove(aEvent.Id, out var eventToRemove);
+            aEvent.Located -= _eventLocated;
+            aEvent.Deleted -= _eventDeleted;
             if (aEvent.StartType == TStartType.OnFixedTime)
                 RemoveFixedTimeEvent(aEvent);
             var media = aEvent.Media as ServerMedia;
@@ -976,9 +978,10 @@ namespace TAS.Server
                 && ArchivePolicy == TArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
                 && _mediaManager.ArchiveDirectory != null
                 && CanDeleteMedia(media).Result == MediaDeleteResult.MediaDeleteResultEnum.Success)
-                ThreadPool.QueueUserWorkItem(o => _mediaManager.ArchiveMedia(new List<IServerMedia>(new[] { media }), true));
+                Task.Run(() =>
+                    _mediaManager.ArchiveMedia(new List<IServerMedia>(new[] {media}), true));
         }
-        
+
         private void _reSchedule(Event aEvent)
         {
             if (aEvent == null)
@@ -1046,16 +1049,15 @@ namespace TAS.Server
                 _preloadedEvents[aEvent.Layer] = aEvent;
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
-                var cgElementsController = CGElementsController;
                 if (!aEvent.IsHold
-                    && cgElementsController?.IsConnected == true
-                    && cgElementsController.IsCGEnabled
+                    && CGElementsController?.IsConnected == true
+                    && CGElementsController.IsCGEnabled
                     && CGStartDelay < 0)
                 {
-                    ThreadPool.QueueUserWorkItem(o =>
+                    Task.Run(() =>
                     {
                         Thread.Sleep(_preloadTime + TimeSpan.FromMilliseconds(CGStartDelay));
-                        cgElementsController.SetState(aEvent);
+                        CGElementsController.SetState(aEvent);
                     });
                 }
             }
@@ -1120,7 +1122,7 @@ namespace TAS.Server
                             cgController.SetState(aEvent);
                         else
                         {
-                            ThreadPool.QueueUserWorkItem(o =>
+                            Task.Run(() =>
                             {
                                 Thread.Sleep(CGStartDelay);
                                 cgController.SetState(aEvent);
@@ -1151,7 +1153,7 @@ namespace TAS.Server
             NotifyEngineOperation(aEvent, TEngineOperation.Play);
             if (aEvent.Layer == VideoLayer.Program
                 && (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live))
-                ThreadPool.QueueUserWorkItem(o => aEvent.AsRunLogWrite());
+                Task.Run(() => aEvent.AsRunLogWrite());
         }
 
         private void _startLoaded()
@@ -1524,12 +1526,8 @@ namespace TAS.Server
             EngineOperation?.Invoke(this, new EngineOperationEventArgs(aEvent, operation));
         }
 
-        private void NotifyLoadedNextEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
-        {
-            PreloadedEventsOperation?.Invoke(o, e);
-        }
 
-        private void _engineThreadProc()
+        private void ThreadProc()
         {
             Debug.WriteLine(this, "Engine thread started");
             Logger.Debug("Started engine thread for {0}", this);
@@ -1650,9 +1648,13 @@ namespace TAS.Server
             ((IDisposable)sender).Dispose();
         }
 
-        private void _eventLocated(object sender, EventArgs e)
+        private void _eventLocated(object sender, EventArgs ea)
         {
-            EventLocated?.Invoke(this, new EventEventArgs(sender as IEvent));
+            if (!(sender is IEvent e))
+                return;
+            if (e.Id != 0)
+                _events.TryAdd(e.Id, e);
+            EventLocated?.Invoke(this, new EventEventArgs(e));
         }
 
 

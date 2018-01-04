@@ -10,7 +10,7 @@ namespace TAS.Client.ViewModels
 {
     public abstract class EventPanelRundownElementViewmodelBase : EventPanelViewmodelBase
     {
-        private string _timeLeft = string.Empty;
+        private TimeSpan _timeLeft;
         private IMedia _media;
 
         public EventPanelRundownElementViewmodelBase(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
@@ -134,10 +134,10 @@ namespace TAS.Client.ViewModels
 
         #endregion // Commands
 
-        public string TimeLeft
+        public TimeSpan TimeLeft 
         {
-            get { return _timeLeft; }
-            set { SetField(ref _timeLeft, value); }
+            get => _timeLeft;
+            set => SetField(ref _timeLeft, value);
         }
 
         public string EndTime => Event == null || Event.GetSuccessor() != null ? string.Empty : Event.EndTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(VideoFormat);
@@ -349,7 +349,7 @@ namespace TAS.Client.ViewModels
 
         protected void EventPositionChanged(object sender, EventPositionEventArgs e)
         {
-            TimeLeft = (e.TimeToFinish == TimeSpan.Zero || Event.PlayState == TPlayState.Scheduled) ? string.Empty : e.TimeToFinish.ToSMPTETimecodeString(VideoFormat);
+            TimeLeft = e.TimeToFinish;
         }
 
         protected override void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)

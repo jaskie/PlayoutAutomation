@@ -724,6 +724,7 @@ namespace TAS.Database
                         _readAnimatedEvent(((IEventPesistent)result).Id, result as ITemplated);
                         result.IsModified = false;
                     }
+                    return result;
                 }
                 return null;
             }

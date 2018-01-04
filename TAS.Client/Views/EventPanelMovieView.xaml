@@ -144,7 +144,7 @@
                         </TextBlock>
                         <TextBlock Style="{StaticResource MediaFileNameTextBlock}"/>
                     </StackPanel>
-                    <TextBlock Grid.Column="1" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
+                    <TextBlock Grid.Column="1" Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToString}}" FontSize="22" VerticalAlignment="Center" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
                 </Grid>
                 <StackPanel Grid.Column="3" Grid.Row="2" Orientation="Horizontal" Visibility="{Binding IsSelected,Converter={StaticResource BoolToVis}}">
                     <Button Command="{Binding CommandAddNextMovie}" ToolTip="{Resx _addNextMovie.ToolTip}" >

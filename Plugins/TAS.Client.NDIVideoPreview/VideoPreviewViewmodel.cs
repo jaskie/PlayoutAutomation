@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -58,7 +59,7 @@ namespace TAS.Client.NDIVideoPreview
             CommandHidePopup = new UICommand {ExecuteDelegate = o => DisplayPopup = false};
             InitNdiFind();
             if (_ndiFindInstance != IntPtr.Zero)
-                ThreadPool.QueueUserWorkItem(o =>
+                Task.Run(() =>
                 {
                     if (Ndi.NDIlib_find_wait_for_sources(_ndiFindInstance, 5000))
                     {
@@ -138,7 +139,7 @@ namespace TAS.Client.NDIVideoPreview
                         AudioLevels = new double[0];
                         IsDisplaySource = _ndiSources.ContainsKey(value);
                         if (IsDisplaySource)
-                            ThreadPool.QueueUserWorkItem(o => Connect(value));
+                            Task.Run(() => Connect(value));
                     }
                 }
             }

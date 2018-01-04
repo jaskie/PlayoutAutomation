@@ -141,7 +141,7 @@ namespace TAS.Remoting.Model
 
         public Event()
         {
-            _subEvents = new Lazy<IEnumerable<IEvent>>(() => Get<ReadOnlyCollection<IEvent>>(nameof(IEvent.SubEvents)));
+            ResetSubEvents();
             ResetSlibbings();
         }
 
@@ -335,6 +335,7 @@ namespace TAS.Remoting.Model
                     return;
                 case nameof(IEvent.SubEventChanged):
                     var ea = Deserialize<CollectionOperationEventArgs<IEvent>>(message);
+                    ResetSubEvents();
                     _subEventChanged?.Invoke(this, ea);
                     return;
             }
@@ -379,6 +380,11 @@ namespace TAS.Remoting.Model
             _parent = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Parent)));
             _next = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Next)));
             _prior = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Prior)));
+        }
+
+        private void ResetSubEvents()
+        {
+            _subEvents = new Lazy<IEnumerable<IEvent>>(() => Get<ReadOnlyCollection<IEvent>>(nameof(IEvent.SubEvents)));
         }
 
         public override string ToString()

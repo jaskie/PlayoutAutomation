@@ -147,6 +147,9 @@
   <data name="_grid.IsTrimmed" xml:space="preserve">
     <value>Trimmed</value>
   </data>
+  <data name="_hide" xml:space="preserve">
+    <value>Hide</value>
+  </data>
   <data name="_media" xml:space="preserve">
     <value>Media files</value>
   </data>
@@ -162,6 +165,9 @@
   <data name="_menu.Tools.SynchronizeSecToPri" xml:space="preserve">
     <value>Synchronize content between servers</value>
   </data>
+  <data name="_propertiesPanelExpander.ToolTip" xml:space="preserve">
+    <value>F11</value>
+  </data>
   <data name="_recorders" xml:space="preserve">
     <value>Recording</value>
   </data>
@@ -173,6 +179,9 @@
   </data>
   <data name="_searchFor" xml:space="preserve">
     <value>Enter search phrase</value>
+  </data>
+  <data name="_show" xml:space="preserve">
+    <value>Show</value>
   </data>
   <data name="_statusbar.TotalItems" xml:space="preserve">
     <value>Files:</value>

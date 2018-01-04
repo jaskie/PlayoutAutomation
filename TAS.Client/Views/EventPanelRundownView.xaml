@@ -102,7 +102,7 @@
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-next-live.png"/>
                     </Button>
                 </StackPanel>
-                <TextBlock Grid.Column="4" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
+                <TextBlock Grid.Column="4" Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToString}}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
             </Grid>
         </Border>
     </StackPanel>

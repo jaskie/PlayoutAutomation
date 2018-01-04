@@ -19,7 +19,7 @@ namespace TAS.Client.Common
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return null;
+            return Binding.DoNothing;
         }
     }
 
@@ -51,7 +51,28 @@ namespace TAS.Client.Common
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-                return null;
+            return Binding.DoNothing;
+        }
+    }
+
+    [ValueConversion(typeof(TimeSpan), typeof(string))]
+    public class TimeSpanToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is TimeSpan ts)
+            {
+                if (ts.Equals(TimeSpan.Zero))
+                    return string.Empty;
+                return (TimeSpan) value < TimeSpan.Zero
+                    ? ((TimeSpan) value).ToString("'-'hh\\:mm\\:ss")
+                    : ((TimeSpan) value).ToString("hh\\:mm\\:ss");
+            }
+            return string.Empty;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Binding.DoNothing;
         }
     }
 

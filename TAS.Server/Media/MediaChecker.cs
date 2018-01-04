@@ -8,7 +8,7 @@ namespace TAS.Server.Media
 {
     public static class MediaChecker
     {
-        internal static TMediaStatus Check(MediaBase media)
+        internal static void Check(MediaBase media)
         {
             if (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Unknown)
             {
@@ -49,11 +49,9 @@ namespace TAS.Server.Media
                     
                     var vfd = VideoFormatDescription.Match(new System.Drawing.Size(w, h), new RationalNumber(frameRate.Num, frameRate.Den), sAR, order != FieldOrder.PROGRESSIVE);
                     media.VideoFormat = vfd.Format;
-                    var ingestMedia = media as IngestMedia;
-                    if (ingestMedia != null)
+                    if (media is IngestMedia ingestMedia)
                         ingestMedia.StreamInfo = ffmpeg.GetStreamInfo();
-                    var tempMedia = media as TempMedia;
-                    if (tempMedia != null)
+                    if (media is TempMedia tempMedia)
                         tempMedia.StreamInfo = ffmpeg.GetStreamInfo();
 
                     Debug.WriteLine("FFmpeg check of {0} finished. It took {1} milliseconds", media.FullPath, Environment.TickCount - startTickCunt);
@@ -64,13 +62,13 @@ namespace TAS.Server.Media
                         if (Math.Abs(videoDuration.Ticks - audioDuration.Ticks) >= TimeSpan.TicksPerSecond
                             && audioDuration != TimeSpan.Zero)
                             // when more than 0.5 sec difference
-                            return TMediaStatus.ValidationError;
-                        return TMediaStatus.Available;
+                            media.MediaStatus = TMediaStatus.ValidationError;
+                        media.MediaStatus = TMediaStatus.Available;
                     }
-                    return TMediaStatus.ValidationError;
+                    media.MediaStatus = TMediaStatus.ValidationError;
                 }
             }
-            return TMediaStatus.Available;
+            media.MediaStatus = TMediaStatus.Available;
         }
     }
 }

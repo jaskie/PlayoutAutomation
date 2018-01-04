@@ -3,6 +3,7 @@ using Svt.Caspar;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using TAS.Remoting.Server;
 using TAS.Common;
@@ -234,7 +235,7 @@ namespace TAS.Server
             if (media?.MediaStatus == TMediaStatus.Copying)
             {
                 media.MediaStatus = TMediaStatus.Copied;
-                ThreadPool.QueueUserWorkItem((o) =>
+                Task.Run(() =>
                 {
                     Thread.Sleep(500);
                     media.Verify();

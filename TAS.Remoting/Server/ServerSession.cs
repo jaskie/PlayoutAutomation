@@ -17,6 +17,7 @@ using delegateKey = System.Tuple<System.Guid, string>;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
+
 namespace TAS.Remoting.Server
 {
     public class ServerSession : WebSocketBehavior
@@ -24,6 +25,7 @@ namespace TAS.Remoting.Server
         private readonly JsonSerializer _serializer;
         private readonly ReferenceResolver _referenceResolver;
         private readonly ConcurrentDictionary<Tuple<Guid, string>, Delegate> _delegates;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ServerSession));
 
         public ServerSession()
         {
@@ -141,7 +143,7 @@ namespace TAS.Remoting.Server
                     else
                     {
                         _sendResponse(message, null);
-                        throw new ApplicationException(string.Format("Server: unknown DTO: {0} on {1}", message.DtoGuid, message));
+                        throw new ApplicationException($"Server: unknown DTO: {message.DtoGuid} on {message}");
                     }
                 }
             }
@@ -150,6 +152,7 @@ namespace TAS.Remoting.Server
                 message.MessageType = WebSocketMessage.WebSocketMessageType.Exception;
                 //SerializeDto(message, ex);
                 //Send(message.Serialize());
+                Logger.Error(ex);
                 Debug.WriteLine(ex);
             }
         }
@@ -162,8 +165,7 @@ namespace TAS.Remoting.Server
                 if (havingDelegate != null)
                 {
                     EventInfo ei = havingDelegate.GetType().GetEvent(d.Item2);
-                    Delegate delegateToRemove;
-                    if (_delegates.TryRemove(d, out delegateToRemove))
+                    if (_delegates.TryRemove(d, out var delegateToRemove))
                         ei.RemoveEventHandler(havingDelegate, delegateToRemove);
                 }
             }
@@ -171,17 +173,20 @@ namespace TAS.Remoting.Server
             _referenceResolver.ReferenceDisposed -= _referencedObjectDisposed;
             _referenceResolver.Dispose();
             Debug.WriteLine("Server: connection closed.");
+            Logger.Info("Connection closed.");
             base.OnClose(e);
         }
 
         protected override void OnOpen()
         {
             base.OnOpen();
+            Logger.Info($"Connection open from {Context?.UserEndPoint.Address}");
             Debug.WriteLine("Server: connection open.");
         }
 
         protected override void OnError(WebSocketSharp.ErrorEventArgs e)
         {
+            Logger.Error(e.Exception, e.Message);
             Debug.WriteLine(e.Exception);
             base.OnError(e);
         }
@@ -229,8 +234,7 @@ namespace TAS.Remoting.Server
         private void _removeDelegate(IDto objectToInvoke, EventInfo ei)
         {
             delegateKey signature = new delegateKey(objectToInvoke.DtoGuid, ei.Name);
-            Delegate delegateToRemove;
-            if (_delegates.TryRemove(signature, out delegateToRemove))
+            if (_delegates.TryRemove(signature, out var delegateToRemove))
             {
                 ei.RemoveEventHandler(objectToInvoke, delegateToRemove);
                 Debug.WriteLine($"Server: removed delegate {ei.Name} on {objectToInvoke}");
@@ -245,35 +249,16 @@ namespace TAS.Remoting.Server
                 originalDelegate.Method);
         }
 
-        private void _alignContentTypes(ref object[] inputArray, Type[] inputTypes)
-        {
-            for (int i = 0; i < inputArray.Length; i++)
-            {
-                object input = inputArray[i];
-                Type requiredType = inputTypes[i];
-                if (input != null)
-                {
-                    Type actualType = input.GetType();
-                    if (actualType != requiredType)
-                    {
-                        MethodParametersAlignment.AlignType(ref input, requiredType);
-                        inputArray[i] = input;
-                    }
-                }
-            }
-        }
-
         private void _notifyClient(object o, EventArgs e, string eventName)
         {
             if (!(o is IDto dto))
                 return;
             EventArgs eventArgs;
-            PropertyChangedEventArgs ea = e as PropertyChangedEventArgs;
-            if (ea != null && eventName == nameof(INotifyPropertyChanged.PropertyChanged))
+            if (e is PropertyChangedEventArgs ea && eventName == nameof(INotifyPropertyChanged.PropertyChanged))
             {
                 PropertyInfo p = o.GetType().GetProperty(ea.PropertyName);
                 if (p?.CanRead == true)
-                    eventArgs = PropertyChangedWithValueEventArgs.Create(ea.PropertyName, p.GetValue(o, null));
+                    eventArgs = PropertyChangedWithDataEventArgs.Create(ea.PropertyName, p.GetValue(o, null));
                 else
                 {
                     eventArgs = PropertyChangedWithDataEventArgs.Create(ea.PropertyName, null);
@@ -299,19 +284,16 @@ namespace TAS.Remoting.Server
 
         private void _referencedObjectDisposed(object o, EventArgs a)
         {
-            IDto dto = o as IDto;
-            if (dto == null)
+            if (!(o is IDto dto))
                 return;
             var delegatesToRemove = _delegates.Keys.Where(k => k.Item1 == dto.DtoGuid);
             foreach (var dk in delegatesToRemove)
             {
-                Delegate delegateToRemove;
-                if (_delegates.TryRemove(dk, out delegateToRemove))
-                {
-                    EventInfo ei = dto.GetType().GetEvent(dk.Item2);
-                    ei.RemoveEventHandler(dto, delegateToRemove);
-                    Debug.WriteLine($"Server: Delegate {dk.Item2}  on {dto} removed;");
-                }
+                if (!_delegates.TryRemove(dk, out var delegateToRemove))
+                    continue;
+                var ei = dto.GetType().GetEvent(dk.Item2);
+                ei.RemoveEventHandler(dto, delegateToRemove);
+                Debug.WriteLine($"Server: Delegate {dk.Item2}  on {dto} removed;");
             }
             WebSocketMessage message = new WebSocketMessage
             {
@@ -331,7 +313,14 @@ namespace TAS.Remoting.Server
 
         private void _referenceResolver_ReferencePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            _notifyClient(sender, e, nameof(INotifyPropertyChanged.PropertyChanged));
+            try
+            {
+                _notifyClient(sender, e, nameof(INotifyPropertyChanged.PropertyChanged));
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception);
+            }
         }
 
     }

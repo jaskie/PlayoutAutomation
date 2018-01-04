@@ -12,6 +12,7 @@ using TAS.Client.Common;
 using TAS.Common;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using TAS.Client.Common.Plugin;
 using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
@@ -27,6 +28,7 @@ namespace TAS.Client.ViewModels
         private Views.EngineDebugView _debugWindow;
         private int _audioLevelPri = -100;
         private bool _trackPlayingEvent = true;
+        private bool _isPropertiesPanelVisible = true;
 
         private MediaSearchViewmodel _mediaSearchViewModel;
         private readonly ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
@@ -140,6 +142,8 @@ namespace TAS.Client.ViewModels
         #endregion // Editor commands
         public ICommand CommandUserManager { get; private set; }
         public ICommand CommandEngineRights { get; private set; }
+        public ICommand CommandTogglePropertiesPanel { get; private set; }  
+
 
         #region PreviewCommands
 
@@ -176,6 +180,12 @@ namespace TAS.Client.ViewModels
         public bool IsSearchBoxFocused { get => _isSearchBoxFocused; set => SetField(ref _isSearchBoxFocused, value); }
 
         public EngineCGElementsControllerViewmodel CGElementsControllerViewmodel => _cGElementsControllerViewmodel;
+
+        public bool IsPropertiesPanelVisible
+        {
+            get => _isPropertiesPanelVisible;
+            set => SetField(ref _isPropertiesPanelVisible, value);
+        }
 
         public bool TrackPlayingEvent
         {
@@ -257,6 +267,7 @@ namespace TAS.Client.ViewModels
             CommandToggleLayer = new UICommand { ExecuteDelegate = _toggleLayer };
             CommandToggleEnabled = new UICommand { ExecuteDelegate = _toggleEnabled };
             CommandToggleHold = new UICommand { ExecuteDelegate = _toggleHold };
+            CommandTogglePropertiesPanel = new UICommand { ExecuteDelegate = o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible };
 
             CommandSearchDo = new UICommand { ExecuteDelegate = _search, CanExecuteDelegate = _canSearch };
             CommandSearchShowPanel = new UICommand { ExecuteDelegate = _showSearchPanel };
@@ -533,8 +544,8 @@ namespace TAS.Client.ViewModels
             {
                 var firstEvent = evmList.First().Event;
                 EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.Prior : firstEvent.Parent);
-                ThreadPool.QueueUserWorkItem(
-                    o =>
+                Task.Run(
+                    () =>
                     {
                         try
                         {
@@ -901,6 +912,7 @@ namespace TAS.Client.ViewModels
         IUiPlugin[] _plugins = null;
         [Import(AllowDefault = true)]
         IVideoPreview _videoPreview;
+
 #pragma warning restore
 
         public IList<IUiPlugin> Plugins => _plugins;

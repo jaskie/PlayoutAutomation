@@ -207,14 +207,6 @@ namespace TAS.Database
             }
         }
 
-        private void _tryReconnect(MySqlConnection connection)
-        {
-            ThreadPool.QueueUserWorkItem(o =>
-            {
-                _connect(connection);
-            });
-        }
-
         public override void Open()
         {
             if (_connectionPrimary != null)

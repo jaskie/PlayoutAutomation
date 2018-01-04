@@ -17,7 +17,6 @@ namespace TAS.Client.ViewModels
     public class MediaSearchViewmodel : ViewmodelBase
     {
         private readonly TMediaType _mediaType;
-        private readonly RationalNumber? _frameRate;
         private readonly VideoFormatDescription _videoFormatDescription;
         private readonly IEngine _engine;
         private readonly IMediaDirectory _searchDirectory;
@@ -39,15 +38,11 @@ namespace TAS.Client.ViewModels
             if (mediaType == TMediaType.Movie)
             {
                 _videoFormatDescription = engine.FormatDescription;
-                _frameRate = _videoFormatDescription.FrameRate;
                 if (preview != null)
                     PreviewViewmodel = new PreviewViewmodel(engine, preview) {IsSegmentsVisible = true};
             }
             else
-            {
                 _videoFormatDescription = videoFormatDescription;
-                _frameRate = videoFormatDescription?.FrameRate;
-            }
             _mediaType = mediaType;
             if (PreviewViewmodel != null)
                 PreviewViewmodel.PropertyChanged += _onPreviewViewModelPropertyChanged;
@@ -117,7 +112,7 @@ namespace TAS.Client.ViewModels
             {
                 if (SetField(ref _mediaCategory, value))
                 {
-                    NotifyPropertyChanged(nameof(IsServerOrArchiveDirectory));
+                    NotifyPropertyChanged(nameof(IsShowCategoryColumn));
                     _itemsView.Refresh();
                 }
             }
@@ -147,7 +142,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsMovie => _mediaType == TMediaType.Movie;
 
-        public bool IsServerOrArchiveDirectory => _mediaType == TMediaType.Movie && !(_mediaCategory is TMediaCategory);
+        public bool IsShowCategoryColumn => _mediaType == TMediaType.Movie && !(_mediaCategory is TMediaCategory);
 
         public bool EnableCGElementsForNewEvents
         {
@@ -171,8 +166,6 @@ namespace TAS.Client.ViewModels
         }
 
         public event EventHandler<MediaSearchEventArgs> MediaChoosen;
-
-        internal Action<MediaSearchEventArgs> ExecuteAction;
 
         internal TStartType NewEventStartType;
 
@@ -200,8 +193,8 @@ namespace TAS.Client.ViewModels
                 media != null
                 && media.MediaType == requiredMediaType
                 &&
-                   ((requiredMediaType == TMediaType.Still && media.FormatDescription().IsWideScreen == _videoFormatDescription?.IsWideScreen)
-                 || (media.MediaType == TMediaType.Movie && media.FrameRate().Equals(_frameRate))
+                   ((requiredMediaType == TMediaType.Still && (_videoFormatDescription == null || _videoFormatDescription.IsWideScreen == media.FormatDescription().IsWideScreen))
+                 || (media.MediaType == TMediaType.Movie && media.FrameRate().Equals(_videoFormatDescription?.FrameRate))
                  || media.MediaType == TMediaType.Animation);
         }
 
@@ -256,54 +249,32 @@ namespace TAS.Client.ViewModels
 
         private TimeSpan GetTCStart()
         {
-            if (PreviewViewmodel != null)
+            var pvlm = PreviewViewmodel?.LoadedMedia;
+            if (pvlm != null && pvlm.MediaGuid == SelectedMedia?.MediaGuid)
             {
-                var pvlm = PreviewViewmodel.LoadedMedia;
-                if (pvlm != null)
-                {
-                    var s = PreviewViewmodel.SelectedSegment;
-                    if (s != null)
-                        return s.TcIn;
-                    if (PreviewViewmodel.TcIn != pvlm.TcPlay ||
-                        PreviewViewmodel.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
-                        return PreviewViewmodel.TcIn;
-                }
+                var s = PreviewViewmodel.SelectedSegment;
+                if (s != null)
+                    return s.TcIn;
+                if (PreviewViewmodel.TcIn != pvlm.TcPlay ||
+                    PreviewViewmodel.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
+                    return PreviewViewmodel.TcIn;
             }
-            var mediaVm = SelectedItem;
-            if (mediaVm != null)
-            {
-                var segmentVm = mediaVm.SelectedSegment;
-                if (segmentVm == null)
-                    return mediaVm.TcPlay;
-                return segmentVm.TcIn;
-            }
-            return TimeSpan.Zero;
+            return SelectedItem?.SelectedSegment?.TcIn ?? SelectedItem?.TcPlay ?? TimeSpan.Zero;
         }
 
         private TimeSpan GetDuration()
         {
-            if (PreviewViewmodel != null)
+            var pvlm = PreviewViewmodel?.LoadedMedia;
+            if (pvlm != null && pvlm.MediaGuid == SelectedMedia?.MediaGuid)
             {
-                var pvlm = PreviewViewmodel.LoadedMedia;
-                if (pvlm != null)
-                {
-                    var s = PreviewViewmodel.SelectedSegment;
-                    if (s != null)
-                        return s.Duration;
-                    if (PreviewViewmodel.TcIn != pvlm.TcPlay ||
-                        PreviewViewmodel.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
-                        return PreviewViewmodel.DurationSelection;
-                }
+                var s = PreviewViewmodel.SelectedSegment;
+                if (s != null)
+                    return s.Duration;
+                if (PreviewViewmodel.TcIn != pvlm.TcPlay ||
+                    PreviewViewmodel.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
+                    return PreviewViewmodel.DurationSelection;
             }
-            var mediaVm = SelectedItem;
-            if (mediaVm != null)
-            {
-                var segmentVm = mediaVm.SelectedSegment;
-                if (segmentVm == null)
-                    return mediaVm.DurationPlay;
-                return segmentVm.Duration;
-            }
-            return TimeSpan.Zero;
+            return SelectedItem?.SelectedSegment?.Duration ?? SelectedItem?.DurationPlay ?? TimeSpan.Zero;
         }
 
         private string GetMediaName()

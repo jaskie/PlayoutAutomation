@@ -8,6 +8,7 @@ using System.IO;
 using System.Windows.Input;
 using TAS.Client.Common;
 using System.Threading;
+using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
@@ -532,7 +533,7 @@ namespace TAS.Client.ViewModels
 
         private void _audioVolumeFinished(object sender, EventArgs e)
         {
-            ThreadPool.QueueUserWorkItem((o) =>
+            Task.Run(() =>
             {
                 _checkVolumeSignal.WaitOne(5000);
                 IsVolumeChecking = false; // finishCallback

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using TAS.Common.Interfaces;
 
 namespace TAS.Common
@@ -115,10 +116,11 @@ namespace TAS.Common
                 pe = pe.GetVisualParent();
             }
         }
+
         public static void SaveDelayed(this IEvent aEvent)
         {
             if (aEvent.IsModified)
-                ThreadPool.QueueUserWorkItem(o => aEvent.Save());
+                Task.Run(() => aEvent.Save());
         }
 
         public static long LengthInFrames(this IEvent aEvent)

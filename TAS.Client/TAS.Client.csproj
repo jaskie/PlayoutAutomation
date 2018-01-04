@@ -39,8 +39,8 @@
       <HintPath>..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MvvmDialogs, Version=4.1.1.0, Culture=neutral, PublicKeyToken=3d3b9708589bc73e, processorArchitecture=MSIL">
-      <HintPath>..\packages\MvvmDialogs.4.1.1\lib\net45\MvvmDialogs.dll</HintPath>
+    <Reference Include="MvvmDialogs, Version=5.1.0.0, Culture=neutral, PublicKeyToken=3d3b9708589bc73e, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmDialogs.5.1.0\lib\net45\MvvmDialogs.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -249,10 +249,6 @@
     <ProjectReference Include="..\TAS.Client.Common\TAS.Client.Common.csproj">
       <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
       <Name>TAS.Client.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
-      <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
-      <Name>TAS.Remoting</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Common\TAS.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>

@@ -96,7 +96,6 @@ namespace TAS.Client.Config
         private bool _remoteHostEnabled;
         public bool RemoteHostEnabled { get { return _remoteHostEnabled; } set { SetField(ref _remoteHostEnabled, value); } }
         private ushort _remoteHostListenPort;
-        private byte _defaultLogo;
         public ushort RemoteHostListenPort { get { return _remoteHostListenPort; } set { SetField(ref _remoteHostListenPort, value); } }
 
         public Common.UICommand CommandManageArchiveDirectories { get; }

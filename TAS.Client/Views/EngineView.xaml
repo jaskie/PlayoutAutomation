@@ -55,6 +55,7 @@
         <KeyBinding Command="{Binding CommandMoveUp}" Gesture="Alt+Up"/>
         <KeyBinding Command="{Binding CommandMoveDown}" Gesture="Alt+Down"/>
         <KeyBinding Command="{Binding CommandSearchShowPanel}" Gesture="Ctrl+F"/>
+        <KeyBinding Command="{Binding CommandTogglePropertiesPanel}" Gesture="F11"/>
         
         <KeyBinding Command="{Binding CommandPreviewPlay}" Gesture="Ctrl+Space"/>
         <KeyBinding Command="{Binding CommandPreviewUnload}" Gesture="Ctrl+Shift+Space"/>
@@ -256,9 +257,9 @@
                             </ToggleButton>
                         </StackPanel>
                     </StackPanel>
-                    <StackPanel Width="120">
+                    <StackPanel Width="125">
                         <Label Content="{Resx _toolbar.TimeToAttention}" />
-                        <controls:TimecodeTextBlock Timecode="{Binding TimeToAttention}" VideoFormat="{Binding VideoFormat}" HideZero="True" VerticalAlignment="Center" FontSize="22" Margin="5, 0">
+                        <TextBlock Text="{Binding TimeToAttention, Converter={StaticResource TimeSpanToString}}" TextAlignment="Center" VerticalAlignment="Center" FontSize="26" Margin="5, 0">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Style.Triggers>
@@ -271,9 +272,15 @@
                                     </Style.Triggers>
                                 </Style>
                             </TextBlock.Style>
-                        </controls:TimecodeTextBlock>
+                        </TextBlock>
+                        <Label Content="{Resx _toolbar.NextWithRequestedStartTime}"/>
+                        <TextBlock FontSize="12" Text="{Binding NextWithRequestedStartTime.Offset, Converter={StaticResource TimeSpanToSignedString}}">
+                            <TextBlock.ToolTip>
+                                <Run Text="{Binding NextWithRequestedStartTime.EventName}"/>
+                            </TextBlock.ToolTip>
+                        </TextBlock>
                     </StackPanel>
-                    <StackPanel Width="200">
+                    <StackPanel Width="350">
                         <Label Content="{Resx _toolbar.NowPlaying}"  />
                         <TextBlock Text="{Binding PlayingEventName}">
                             <TextBlock.ContextMenu>
@@ -282,14 +289,6 @@
                                 </ContextMenu>
                             </TextBlock.ContextMenu>
                         </TextBlock>
-                        <Label Content="{Resx _toolbar.NextWithRequestedStartTime}"/>
-                        <TextBlock Text="{Binding NextWithRequestedStartTime.Offset, Converter={StaticResource TimeSpanToSignedString}}">
-                            <TextBlock.ToolTip>
-                                <Run Text="{Binding NextWithRequestedStartTime.EventName}"/>
-                            </TextBlock.ToolTip>
-                        </TextBlock>
-                    </StackPanel>
-                    <StackPanel Width="150">
                         <Label Content="{Resx _toolbar.Next}"  />
                         <TextBlock Text="{Binding NextToPlay}"/>
                     </StackPanel>
@@ -420,14 +419,14 @@
                 </TabControl.Resources>
                 <TabItem Padding="0, 20" Header="{Resx _tabs.Rundowns}">-->
             <Border DockPanel.Dock="Right" BorderThickness="1, 0, 0, 0" BorderBrush="DarkGray">
-                <Expander ExpandDirection="Left" IsExpanded="True" >
+                <Expander ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" >
                     <Expander.Resources>
                         <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
                             <Style.Triggers>
                                 <Trigger Property="IsExpanded" Value="True">
                                     <Setter Property="Header" >
                                         <Setter.Value>
-                                            <TextBlock Text="{Resx _hide, ResxName=TAS.Client.Views.EngineView}">
+                                            <TextBlock Text="{Resx _hide, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
                                                 <TextBlock.LayoutTransform>
                                                     <RotateTransform Angle="90"/>
                                                 </TextBlock.LayoutTransform>
@@ -438,7 +437,7 @@
                                 <Trigger Property="IsExpanded" Value="False">
                                     <Setter Property="Header" >
                                         <Setter.Value>
-                                            <TextBlock Text="{Resx _show, ResxName=TAS.Client.Views.EngineView}">
+                                            <TextBlock Text="{Resx _show, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
                                                 <TextBlock.LayoutTransform>
                                                     <RotateTransform Angle="90"/>
                                                 </TextBlock.LayoutTransform>

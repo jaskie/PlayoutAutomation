@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -199,6 +199,8 @@ namespace TAS.Server
                 Event prior = null;
                 if (startType == TStartType.After && _idEventBinding > 0)
                     prior = (Event)Engine.DbReadEvent(_idEventBinding);
+                if (prior != null)
+                    prior.Next = this;
                 return prior;
             });
 
@@ -234,24 +236,21 @@ namespace TAS.Server
         [JsonProperty]
         public double? AudioVolume
         {
-            get { return _audioVolume; }
-            set { SetField(ref _audioVolume, value); }
+            get => _audioVolume;
+            set => SetField(ref _audioVolume, value);
         }
 
         [JsonProperty]
         public TimeSpan Duration
         {
-            get { return _duration; }
-            set { _setDuration(((Engine)Engine).AlignTimeSpan(value)); }
+            get => _duration;
+            set => _setDuration(((Engine)Engine).AlignTimeSpan(value));
         }
 
         [JsonProperty]
         public bool IsEnabled
         {
-            get
-            {
-                return _isEnabled;
-            }
+            get => _isEnabled;
             set
             {
                 if (SetField(ref _isEnabled, value))
@@ -267,7 +266,7 @@ namespace TAS.Server
         [JsonProperty]
         public string EventName
         {
-            get { return _eventName; }
+            get => _eventName;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -279,7 +278,7 @@ namespace TAS.Server
         [JsonProperty]
         public TEventType EventType
         {
-            get { return _eventType; }
+            get => _eventType;
             set
             {
                 if (SetField(ref _eventType, value))
@@ -295,7 +294,7 @@ namespace TAS.Server
         [JsonProperty]
         public bool IsHold
         {
-            get { return _isHold; }
+            get => _isHold;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -307,7 +306,7 @@ namespace TAS.Server
         [JsonProperty]
         public bool IsLoop
         {
-            get { return _isLoop; }
+            get => _isLoop;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -319,7 +318,7 @@ namespace TAS.Server
         [JsonProperty]
         public string IdAux
         {
-            get { return _idAux; }
+            get => _idAux;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -331,7 +330,7 @@ namespace TAS.Server
         [JsonProperty]
         public ulong IdProgramme
         {
-            get { return _idProgramme; }
+            get => _idProgramme;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -346,7 +345,7 @@ namespace TAS.Server
         [JsonProperty]
         public TimeSpan? RequestedStartTime
         {
-            get { return _requestedStartTime; }
+            get => _requestedStartTime;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -359,7 +358,7 @@ namespace TAS.Server
         [JsonProperty]
         public TimeSpan ScheduledDelay
         {
-            get { return _scheduledDelay; }
+            get => _scheduledDelay;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -371,7 +370,7 @@ namespace TAS.Server
         [JsonProperty]
         public TimeSpan ScheduledTc
         {
-            get { return _scheduledTc; }
+            get => _scheduledTc;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -383,7 +382,7 @@ namespace TAS.Server
         [JsonProperty]
         public DateTime ScheduledTime
         {
-            get { return _scheduledTime; }
+            get => _scheduledTime;
             set
             {
                 if (_startType == TStartType.Manual || _startType == TStartType.OnFixedTime && _playState == TPlayState.Scheduled && HaveRight(EventRight.Modify))
@@ -394,7 +393,7 @@ namespace TAS.Server
         [JsonProperty]
         public DateTime StartTime
         {
-            get { return _startTime; }
+            get => _startTime;
             internal set
             {
                 if (SetField(ref _startTime, value))
@@ -408,7 +407,7 @@ namespace TAS.Server
         [JsonProperty]
         public TStartType StartType
         {
-            get { return _startType; }
+            get => _startType;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -427,7 +426,7 @@ namespace TAS.Server
         [JsonProperty]
         public TimeSpan TransitionTime
         {
-            get { return _transitionTime; }
+            get => _transitionTime;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -443,7 +442,7 @@ namespace TAS.Server
         [JsonProperty]
         public TimeSpan TransitionPauseTime
         {
-            get { return _transitionPauseTime; }
+            get => _transitionPauseTime;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -455,7 +454,7 @@ namespace TAS.Server
         [JsonProperty]
         public TTransitionType TransitionType
         {
-            get { return _transitionType; }
+            get => _transitionType;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -467,7 +466,7 @@ namespace TAS.Server
         [JsonProperty]
         public TEasing TransitionEasing
         {
-            get { return _transitionEasing; }
+            get => _transitionEasing;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -479,7 +478,7 @@ namespace TAS.Server
         [JsonProperty]
         public AutoStartFlags AutoStartFlags
         {
-            get { return _autoStartFlags; }
+            get => _autoStartFlags;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -491,11 +490,8 @@ namespace TAS.Server
         [JsonProperty]
         public Guid MediaGuid
         {
-            get { return _mediaGuid; }
-            set
-            {
-                _setMedia(null, value);
-            }
+            get => _mediaGuid;
+            set => _setMedia(null, value);
         }
 
         #endregion //IEventProperties
@@ -532,11 +528,15 @@ namespace TAS.Server
         #endregion // IAclObject
 
         [JsonProperty]
-        public bool IsForcedNext { get { return _isForcedNext; } internal set { SetField(ref _isForcedNext, value); } }
+        public bool IsForcedNext
+        {
+            get => _isForcedNext;
+            internal set => SetField(ref _isForcedNext, value);
+        }
 
         public bool IsModified
         {
-            get { return _isModified; }
+            get => _isModified;
             set
             {
                 if (_isModified != value)
@@ -550,14 +550,14 @@ namespace TAS.Server
         [JsonProperty]
         public virtual TPlayState PlayState
         {
-            get { return _playState; }
-            set { _setPlayState(value); }
+            get => _playState;
+            set => _setPlayState(value);
         }
 
         [JsonProperty]
         public long Position // in frames
         {
-            get { return _position; }
+            get => _position;
             set
             {
                 if (_position != value)
@@ -584,7 +584,7 @@ namespace TAS.Server
         [JsonProperty]
         public TimeSpan StartTc
         {
-            get { return _startTc; }
+            get => _startTc;
             set
             {
                 value = ((Engine)Engine).AlignTimeSpan(value);
@@ -595,7 +595,7 @@ namespace TAS.Server
         [JsonProperty]
         public IMedia Media
         {
-            get { return ServerMediaPRI; }
+            get => ServerMediaPRI;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -607,7 +607,7 @@ namespace TAS.Server
 
         public IEvent Parent
         {
-            get { return _parent.Value; }
+            get => _parent.Value;
             private set            {
                 if (_parent.IsValueCreated || value != _parent.Value)
                 {
@@ -619,7 +619,7 @@ namespace TAS.Server
 
         public IEvent Prior
         {
-            get { return _prior.Value; }
+            get => _prior.Value;
             private set
             {
                 if (!_prior.IsValueCreated || value != _prior.Value)
@@ -632,7 +632,7 @@ namespace TAS.Server
 
         public IEvent Next
         {
-            get { return _next.Value; }
+            get => _next.Value;
             private set
             {
                 if (!_next.IsValueCreated || value != _next.Value)
@@ -725,6 +725,7 @@ namespace TAS.Server
                 next = Next as Event;
                 Event prior = Prior as Event;
                 TStartType startType = _startType;
+                _engine.RemoveRootEvent(this);
                 if (next != null)
                 {
                     next.Parent = parent;
@@ -871,8 +872,8 @@ namespace TAS.Server
             {
                 Event oldParent = eventToInsert.Parent as Event;
                 Event oldPrior = eventToInsert.Prior as Event;
-                if (oldParent != null)
-                    oldParent._subEventsRemove(eventToInsert);
+                oldParent?._subEventsRemove(eventToInsert);
+                _engine.RemoveRootEvent(eventToInsert);
                 if (oldPrior != null)
                     oldPrior.Next = null;
 
@@ -911,8 +912,8 @@ namespace TAS.Server
                 Event parent = this.Parent as Event;
                 Event oldParent = eventToInsert.Parent as Event;
                 Event oldPrior = eventToInsert.Prior as Event;
-                if (oldParent != null)
-                    oldParent._subEventsRemove(eventToInsert);
+                oldParent?._subEventsRemove(eventToInsert);
+                _engine.RemoveRootEvent(eventToInsert);
                 if (oldPrior != null)
                     oldPrior.Next = null;
 
@@ -960,8 +961,8 @@ namespace TAS.Server
             {
                 Event oldPrior = subEventToAdd.Prior as Event;
                 Event oldParent = subEventToAdd.Parent as Event;
-                if (oldParent != null)
-                    oldParent._subEventsRemove(subEventToAdd);
+                oldParent?._subEventsRemove(subEventToAdd);
+                _engine.RemoveRootEvent(subEventToAdd);
                 if (oldPrior != null)
                     oldPrior.Next = null;
                 if (EventType == TEventType.Container)
@@ -1097,6 +1098,7 @@ namespace TAS.Server
                 else
                     this.DbUpdateEvent();
                 IsModified = false;
+                Debug.WriteLine(this, "Event saved");
             }
             catch (Exception e)
             {
@@ -1518,13 +1520,10 @@ namespace TAS.Server
             Deleted?.Invoke(this, EventArgs.Empty);
         }
 
-        private void NotifyLocated()
+        internal void NotifyLocated()
         {
             Located?.Invoke(this, EventArgs.Empty);
         }
-
-
-      
        
     }
 

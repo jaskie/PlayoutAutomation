@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
@@ -63,7 +64,7 @@ namespace TVPlayClient
         private void _createView()
         {
             IsLoading = true;
-            ThreadPool.QueueUserWorkItem((o) =>
+            Task.Run(() =>
             {
                 while (true)
                 {

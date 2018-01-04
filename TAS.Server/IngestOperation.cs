@@ -360,65 +360,63 @@ namespace TAS.Server
                 return false;
             }
             CreateDestMediaIfNotExists();
-            MediaBase destMedia = Dest as MediaBase;
-            if (destMedia != null)
-            {
-                ProgressDuration = localSourceMedia.Duration;
-                Debug.WriteLine(this, "Convert operation started");
-                AddOutputMessage("Starting convert operation:");
-                destMedia.MediaStatus = TMediaStatus.Copying;
-                //CheckInputFile(media);
-                string encodeParams = GetEncodeParameters(localSourceMedia, streams);
-                //TimeSpan outStartTC = IsTrimmed() ? 
-                string ingestRegion = IsTrimmed() ?
-                    string.Format(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - Source.TcStart, Duration) : string.Empty;
-                string Params = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                        " -i \"{1}\"{0} -vsync cfr{2} -timecode {3} -y \"{4}\"",
-                        ingestRegion,
-                        localSourceMedia.FullPath,
-                        encodeParams,
-                        StartTC.ToSMPTETimecodeString(destMedia.FrameRate()),
-                    destMedia.FullPath);
+            var destMedia = Dest;
+            if (destMedia == null)
+                return false;
+            ProgressDuration = localSourceMedia.Duration;
+            Debug.WriteLine(this, "Convert operation started");
+            AddOutputMessage("Starting convert operation:");
+            destMedia.MediaStatus = TMediaStatus.Copying;
+            string encodeParams = GetEncodeParameters(localSourceMedia, streams);
+            string ingestRegion = IsTrimmed() ?
+                string.Format(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - Source.TcStart, Duration) : string.Empty;
+            string Params = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                " -i \"{1}\"{0} -vsync cfr{2} -timecode {3} -y \"{4}\"",
+                ingestRegion,
+                localSourceMedia.FullPath,
+                encodeParams,
+                StartTC.ToSMPTETimecodeString(destMedia.FrameRate()),
+                destMedia.FullPath);
             if (Dest is ArchiveMedia)
                 FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));
             Dest.AudioChannelMapping = (TAudioChannelMapping)MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion].OutputFormat;
-                if (RunProcess(Params)  // FFmpeg 
-                    && destMedia.FileExists())
+            if (RunProcess(Params)  // FFmpeg 
+                && destMedia.FileExists())
+            {
+                destMedia.MediaStatus = TMediaStatus.Copied;
+                destMedia.Verify();
+                destMedia.TcPlay = destMedia.TcStart;
+                destMedia.DurationPlay = destMedia.Duration;
+                if (Math.Abs(destMedia.Duration.Ticks - (IsTrimmed() ? Duration.Ticks : localSourceMedia.Duration.Ticks)) > TimeSpan.TicksPerSecond / 2)
                 {
-                    destMedia.MediaStatus = TMediaStatus.Copied;
-                    destMedia.Verify();
-                    if (Math.Abs(destMedia.Duration.Ticks - (IsTrimmed() ? Duration.Ticks : localSourceMedia.Duration.Ticks)) > TimeSpan.TicksPerSecond / 2)
-                    {
-                        destMedia.MediaStatus = TMediaStatus.CopyError;
-                        if (destMedia is PersistentMedia)
-                            (destMedia as PersistentMedia).Save();
-                        AddWarningMessage($"Durations are different: {localSourceMedia.Duration.ToSMPTETimecodeString(localSourceMedia.FrameRate())} vs {destMedia.Duration.ToSMPTETimecodeString(destMedia.FrameRate())}");
-                        Debug.WriteLine(this, "Convert operation succeed, but durations are diffrent");
-                    }
-                    else
-                    {
-                        if ((Source.Directory is IngestDirectory) && ((IngestDirectory)Source.Directory).DeleteSource)
-                            ThreadPool.QueueUserWorkItem( o =>
-                            {
-                                Thread.Sleep(2000);
-                                OwnerFileManager.Queue(new FileOperation(OwnerFileManager) { Kind = TFileOperationKind.Delete, Source = Source });
-                            });
-                        AddOutputMessage("Convert operation finished successfully");
-                        Debug.WriteLine(this, "Convert operation succeed");
-                    }
-                    OperationStatus = FileOperationStatus.Finished;
-                    if (LoudnessCheck)
-                    {
-                        ThreadPool.QueueUserWorkItem((o) =>
+                    destMedia.MediaStatus = TMediaStatus.CopyError;
+                    (destMedia as PersistentMedia)?.Save();
+                    AddWarningMessage($"Durations are different: {localSourceMedia.Duration.ToSMPTETimecodeString(localSourceMedia.FrameRate())} vs {destMedia.Duration.ToSMPTETimecodeString(destMedia.FrameRate())}");
+                    Debug.WriteLine(this, "Convert operation succeed, but durations are diffrent");
+                }
+                else
+                {
+                    if ((Source.Directory is IngestDirectory) && ((IngestDirectory)Source.Directory).DeleteSource)
+                        ThreadPool.QueueUserWorkItem( o =>
                         {
                             Thread.Sleep(2000);
-                            OwnerFileManager.Queue( new LoudnessOperation(OwnerFileManager) { Source = destMedia });
+                            OwnerFileManager.Queue(new FileOperation(OwnerFileManager) { Kind = TFileOperationKind.Delete, Source = Source });
                         });
-                    }
-                    return true;
+                    AddOutputMessage("Convert operation finished successfully");
+                    Debug.WriteLine(this, "Convert operation succeed");
                 }
-                Debug.WriteLine("FFmpeg rewraper Execute(): Failed for {0}. Command line was {1}", (object)Source, Params);
+                OperationStatus = FileOperationStatus.Finished;
+                if (LoudnessCheck)
+                {
+                    ThreadPool.QueueUserWorkItem((o) =>
+                    {
+                        Thread.Sleep(2000);
+                        OwnerFileManager.Queue( new LoudnessOperation(OwnerFileManager) { Source = destMedia });
+                    });
+                }
+                return true;
             }
+            Debug.WriteLine("FFmpeg rewraper Execute(): Failed for {0}. Command line was {1}", (object)Source, Params);
             return false;
         }
         #endregion //Movie conversion
