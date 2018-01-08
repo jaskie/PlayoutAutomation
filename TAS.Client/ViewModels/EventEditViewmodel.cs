@@ -8,6 +8,7 @@ using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
@@ -43,6 +44,11 @@ namespace TAS.Client.ViewModels
         private TimeSpan _scheduledDelay;
         private sbyte _layer;
 
+        public static readonly Regex RegexMixerFill = new Regex(EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerClip = new Regex(EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerClear = new Regex(EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexPlay = new Regex(EventExtensions.PlayCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexCg = new Regex(EventExtensions.CgCommand, RegexOptions.IgnoreCase);
 
         public EventEditViewmodel(EngineViewmodel engineViewModel)
         {
@@ -158,7 +164,7 @@ namespace TAS.Client.ViewModels
                         validationResult = _validateScheduledDelay();
                         break;
                     case nameof(Command):
-                        validationResult = EventExtensions.IsValidCommand(_command)
+                        validationResult = IsValidCommand(_command)
                             ? string.Empty
                             : resources._validate_CommandSyntax;
                         break;
@@ -1132,7 +1138,17 @@ namespace TAS.Client.ViewModels
             }
 
         }
-        
+
+        private bool IsValidCommand(string commandText)
+        {
+            return !string.IsNullOrWhiteSpace(commandText)
+                   && (RegexMixerFill.IsMatch(commandText)
+                       || RegexMixerClip.IsMatch(commandText)
+                       || RegexMixerClear.IsMatch(commandText)
+                       || RegexCg.IsMatch(commandText)
+                   );
+        }
+
         private void Rights_Modified(object sender, EventArgs e)
         {
             IsModified = true;

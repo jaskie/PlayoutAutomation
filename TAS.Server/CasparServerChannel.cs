@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 using System;
 using System.Linq;
 using Svt.Caspar;
@@ -24,6 +24,17 @@ namespace TAS.Server
         private readonly ConcurrentDictionary<VideoLayer, Event> _visible = new ConcurrentDictionary<VideoLayer, Event>();
         private bool _isServerConnected;
         private int _audiolevel;
+
+        public static readonly Regex RegexMixerFill = new Regex(EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerClip = new Regex(EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerClear = new Regex(EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexPlay = new Regex(EventExtensions.PlayCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexCg = new Regex(EventExtensions.CgCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexCgWithLayer = new Regex(EventExtensions.CgWithLayerCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexCgAdd = new Regex(EventExtensions.CgAddCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexCgInvoke = new Regex(EventExtensions.CgInvokeCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexCgUpdate = new Regex(EventExtensions.CgUpdateCommand, RegexOptions.IgnoreCase);
+
 
         #region IPlayoutServerChannel
         public int Id { get; set; }
@@ -211,7 +222,7 @@ namespace TAS.Server
                                 CasparCGDataCollection uf = new CasparCGDataCollection();
                                 foreach (var field in eTemplated.Fields)
                                     uf.SetData(field.Key, field.Value);
-                                channel.CG.Update((int)aEvent.Layer, eTemplated.TemplateLayer, uf);
+                                channel.CG.Update((int)aEvent.Layer, eTemplated.TemplateLayer, uf.ToAMCPEscapedXml());
                                 break;
                             default:
                                 Debug.WriteLine("Method CG {0} not implemented", eTemplated.Method, null);
@@ -326,9 +337,8 @@ namespace TAS.Server
             if (CheckConnected(channel))
             {
                 channel.Clear((int)aVideoLayer);
-                Event removed;
-                _visible.TryRemove(aVideoLayer, out removed);
-                _loadedNext.TryRemove(aVideoLayer, out removed);
+                _visible.TryRemove(aVideoLayer, out _);
+                _loadedNext.TryRemove(aVideoLayer, out _);
                 Debug.WriteLine(aVideoLayer, "CasparClear");
             }
         }
@@ -391,67 +401,133 @@ namespace TAS.Server
                 Debug.WriteLine("SetAspect narrow: {0}", narrow);
             }
         }
-        
+
         public bool Execute(string command)
         {
             var channel = _casparChannel;
             if (string.IsNullOrWhiteSpace(command) || !CheckConnected(channel))
                 return false;
-            Match match = EventExtensions.RegexMixerFill.Match(command);
+            Match match = RegexMixerFill.Match(command);
             if (match.Success)
             {
-                VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                VideoLayer layer = (VideoLayer) Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
                 float x = float.Parse(match.Groups["x"].Value, CultureInfo.InvariantCulture);
                 float y = float.Parse(match.Groups["y"].Value, CultureInfo.InvariantCulture);
                 float sx = float.Parse(match.Groups["sx"].Value, CultureInfo.InvariantCulture);
                 float sy = float.Parse(match.Groups["sy"].Value, CultureInfo.InvariantCulture);
-                int duration = string.IsNullOrWhiteSpace(match.Groups["duration"].Value) ? 0 : int.Parse(match.Groups["duration"].Value);
-                TEasing easing = match.Groups["easing"].Success ? (TEasing)Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true) : TEasing.Linear;
-                channel.Fill((int)layer, x, y, sx, sy, duration, (Easing)easing);
+                int duration = string.IsNullOrWhiteSpace(match.Groups["duration"].Value)
+                    ? 0
+                    : int.Parse(match.Groups["duration"].Value);
+                TEasing easing = match.Groups["easing"].Success
+                    ? (TEasing) Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true)
+                    : TEasing.Linear;
+                channel.Fill((int) layer, x, y, sx, sy, duration, (Easing) easing);
                 return true;
             }
-            match = EventExtensions.RegexMixerClip.Match(command);
+            match = RegexMixerClip.Match(command);
             if (match.Success)
             {
-                VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                VideoLayer layer = (VideoLayer) Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
                 float x = float.Parse(match.Groups["x"].Value, CultureInfo.InvariantCulture);
                 float y = float.Parse(match.Groups["y"].Value, CultureInfo.InvariantCulture);
                 float sx = float.Parse(match.Groups["sx"].Value, CultureInfo.InvariantCulture);
                 float sy = float.Parse(match.Groups["sy"].Value, CultureInfo.InvariantCulture);
-                int duration = string.IsNullOrWhiteSpace(match.Groups["duration"].Value) ? 0 : int.Parse(match.Groups["duration"].Value);
-                TEasing easing = match.Groups["easing"].Success ? (TEasing)Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true) : TEasing.Linear;
-                channel.Clip((int)layer, x, y, sx, sy, duration, (Easing)easing);
+                int duration = string.IsNullOrWhiteSpace(match.Groups["duration"].Value)
+                    ? 0
+                    : int.Parse(match.Groups["duration"].Value);
+                TEasing easing = match.Groups["easing"].Success
+                    ? (TEasing) Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true)
+                    : TEasing.Linear;
+                channel.Clip((int) layer, x, y, sx, sy, duration, (Easing) easing);
                 return true;
             }
-            match = EventExtensions.RegexMixerClear.Match(command);
+            match = RegexMixerClear.Match(command);
             if (match.Success)
             {
-                VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
-                channel.ClearMixer((int)layer);
+                VideoLayer layer = (VideoLayer) Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                channel.ClearMixer((int) layer);
                 return true;
             }
-            match = EventExtensions.RegexPlay.Match(command);
+            match = RegexPlay.Match(command);
             if (match.Success)
             {
-                VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                VideoLayer layer = (VideoLayer) Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
                 string file = match.Groups["file"].Value;
-                CasparItem item = new CasparItem((int)layer, file);
+                CasparItem item = new CasparItem((int) layer, file);
                 Capture transitionTypeCapture = match.Groups["transition_type"];
                 Capture transitionDurationCapture = match.Groups["transition_duration"];
                 Capture transitionEasingCapture = match.Groups["easing"];
-                int transitionDuration;
-                TransitionType transitionType;
-                if (int.TryParse(transitionDurationCapture.Value, out transitionDuration) && Enum.TryParse(transitionTypeCapture.Value, true, out transitionType))
+                if (int.TryParse(transitionDurationCapture.Value, out var transitionDuration) &&
+                    Enum.TryParse(transitionTypeCapture.Value, true, out TransitionType transitionType))
                 {
                     item.Transition.Type = transitionType;
                     item.Transition.Duration = transitionDuration;
-                    Easing easing;
-                    if (Enum.TryParse(transitionEasingCapture.Value, true, out easing))
+                    if (Enum.TryParse(transitionEasingCapture.Value, true, out Easing easing))
                         item.Transition.Easing = easing;
                 }
                 channel.LoadBG(item);
                 channel.Play(item.VideoLayer);
                 return true;
+            }
+            match = RegexCg.Match(command);
+            if (match.Success)
+            {
+                VideoLayer layer = (VideoLayer) Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                if (Enum.TryParse(match.Groups["method"].Value, true, out TemplateMethod methodEnum))
+                {
+                    if (methodEnum == TemplateMethod.Clear)
+                    {
+                        channel.CG.Clear((int) layer);
+                        return true;
+                    }
+                    var matchWithCgLayer = RegexCgWithLayer.Match(command);
+                    if (!matchWithCgLayer.Success || !int.TryParse(matchWithCgLayer.Groups["cg_layer"].Value, out var cgLayer))
+                        return false;
+                    switch (methodEnum)
+                    {
+                        case TemplateMethod.Play:
+                            channel.CG.Play((int) layer, cgLayer);
+                            return true;
+                        case TemplateMethod.Next:
+                            channel.CG.Next((int) layer, cgLayer);
+                            return true;
+                        case TemplateMethod.Stop:
+                            channel.CG.Stop((int) layer, cgLayer);
+                            return true;
+                        case TemplateMethod.Remove:
+                            channel.CG.Remove((int) layer, cgLayer);
+                            return true;
+                        case TemplateMethod.Add:
+                            var matchAdd = RegexCgAdd.Match(command);
+                            if (!matchAdd.Success)
+                                return false;
+                            var file = matchAdd.Groups["file"].Value;
+                            if (string.IsNullOrWhiteSpace(file))
+                                return false;
+                            int.TryParse(matchAdd.Groups["play_on_load"].Value, out var playOnLoadAsInt);
+                            channel.CG.Add((int) layer, cgLayer, file, playOnLoadAsInt == 1,
+                                matchAdd.Groups["data"].Value);
+                            return true;
+                        case TemplateMethod.Invoke:
+                            var matchInvoke = RegexCgInvoke.Match(command);
+                            if (!matchInvoke.Success)
+                                return false;
+                            var cgMethod = matchInvoke.Groups["cg_method"].Value;
+                            if (string.IsNullOrWhiteSpace(cgMethod))
+                                return false;
+                            channel.CG.Invoke((int) layer, cgLayer, cgMethod);
+                            return true;
+                        case TemplateMethod.Update:
+                            var matchUpdate = RegexCgUpdate.Match(command);
+                            if (!matchUpdate.Success)
+                                return false;
+                            var data = matchUpdate.Groups["data"].Value;
+                            if (string.IsNullOrWhiteSpace(data))
+                                return false;
+                            channel.CG.Update((int) layer, cgLayer, data);
+                            return true;
+                    }
+                }
             }
             return false;
         }
@@ -469,17 +545,14 @@ namespace TAS.Server
                 _casparChannel = casparChannel;
                 if (oldChannel != null)
                     oldChannel.AudioDataReceived -= Channel_AudioDataReceived;
-                if (casparChannel != null)
-                {
-                    casparChannel.AudioDataReceived += Channel_AudioDataReceived;
-                    VideoFormat = CasparModeToVideoFormat(casparChannel.VideoMode);
-                    Debug.WriteLine(this, "Caspar channel assigned");
+                casparChannel.AudioDataReceived += Channel_AudioDataReceived;
+                VideoFormat = CasparModeToVideoFormat(casparChannel.VideoMode);
+                Debug.WriteLine(this, "Caspar channel assigned");
 
-                    if (Owner?.IsConnected == true)
-                    {
-                        ClearMixer();
-                        casparChannel?.MasterVolume((float)MasterVolume);
-                    }
+                if (Owner?.IsConnected == true)
+                {
+                    ClearMixer();
+                    casparChannel?.MasterVolume((float) MasterVolume);
                 }
             }
         }

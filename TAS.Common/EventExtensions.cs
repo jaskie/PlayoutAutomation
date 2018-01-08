@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common.Interfaces;
 
@@ -10,30 +9,20 @@ namespace TAS.Common
     public static class EventExtensions
     {
 
-        private static readonly string MixerFillCommand =
-            $@"\s*MIXER\s+(?<layer>{
-                string.Join("|", Enum.GetNames(typeof(VideoLayer)))
-            })\s+FILL\s+(?<x>[+-]?([0-9]*[.])?[0-9]+)\s+(?<y>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sx>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sy>[+-]?([0-9]*[.])?[0-9]+)(\s+(?<duration>([0-9]+)))?(\s+(?<easing>({
-                string.Join("|", Enum.GetNames(typeof(TEasing)))
-            })))?";
+        public static readonly string MixerFillCommand =
+            $@"\s*MIXER\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+FILL\s+(?<x>[+-]?([0-9]*[.])?[0-9]+)\s+(?<y>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sx>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sy>[+-]?([0-9]*[.])?[0-9]+)(\s+(?<duration>([0-9]+)))?(\s+(?<easing>({string.Join("|", Enum.GetNames(typeof(TEasing)))})))?";
 
-        public static readonly Regex RegexMixerFill = new Regex(MixerFillCommand, RegexOptions.IgnoreCase);
-
-        private static readonly string MixerClipCommand =
+        public static readonly string MixerClipCommand =
             $@"\s*MIXER\s+(?<layer>{
                 string.Join("|", Enum.GetNames(typeof(VideoLayer)))
             })\s+CLIP\s+(?<x>[+-]?([0-9]*[.])?[0-9]+)\s+(?<y>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sx>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sy>[+-]?([0-9]*[.])?[0-9]+)(\s+(?<duration>([0-9]+)))?(\s+(?<easing>({
                 string.Join("|", Enum.GetNames(typeof(TEasing)))
             })))?";
 
-        public static readonly Regex RegexMixerClip = new Regex(MixerClipCommand, RegexOptions.IgnoreCase);
-
-        private static readonly string MixerClearCommand =
+        public static readonly string MixerClearCommand =
             $@"\s*MIXER\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+CLEAR\s*";
 
-        public static readonly Regex RegexMixerClear = new Regex(MixerClearCommand, RegexOptions.IgnoreCase);
-
-        private static readonly string PlayCommand =
+        public static readonly string PlayCommand =
                 $@"\s*PLAY\s+(?<layer>{
                         string.Join("|", Enum.GetNames(typeof(VideoLayer)))
                     })\s+(?<file>\w+|""[\w\s]*"")(?<transition_block>\s+(?<transition_type>({
@@ -42,15 +31,16 @@ namespace TAS.Common
                         string.Join("|", Enum.GetNames(typeof(TEasing)))
                     })))?)?";
 
-        public static readonly Regex RegexPlay = new Regex(PlayCommand, RegexOptions.IgnoreCase);
+        public static readonly string CgCommand =
+            $@"\s*CG\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+(?<method>{string.Join("|", Enum.GetNames(typeof(TemplateMethod)))})";
+        
+        public static readonly string CgWithLayerCommand = $@"{CgCommand}\s+(?<cg_layer>\d+)";
+        
+        public static readonly string CgAddCommand = $@"{CgWithLayerCommand}\s+(?<file>\w+|""[\w\s]*"")(\s+(?<play_on_load>0|1))*(\s+(?<data>\w+|""[\w\s]*""))*";
 
-        public static bool IsValidCommand(string commandText)
-        {
-            return !string.IsNullOrWhiteSpace(commandText)
-                && (RegexMixerFill.IsMatch(commandText)
-                || RegexMixerClip.IsMatch(commandText)
-                || RegexMixerClear.IsMatch(commandText));
-        }
+        public static readonly string CgInvokeCommand = $@"{CgWithLayerCommand}\s+(?<cg_method>\w+)";
+
+        public static readonly string CgUpdateCommand = $@"{CgWithLayerCommand}\s+(?<data>\w+|""[\w\s]*"")";
 
         public static IEvent FindNext(this IEvent startEvent, Func<IEvent, bool> searchFunc)
         {

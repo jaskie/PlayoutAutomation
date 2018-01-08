@@ -14,46 +14,6 @@ namespace Svt.Caspar
 			Channel = channel;
 		}
 
-
-
-		[Obsolete("use another overload", false)]
-		public void Add(CasparCGItem item)
-		{
-			Add(item, false);
-		}
-		[Obsolete("use another overload", false)]
-        public void Add(int layer, CasparCGItem item)
-		{
-            item.Layer = layer;
-			Add(item, false);
-		}
-		[Obsolete("use another overload", false)]
-        public void Add(int layer, CasparCGItem item, bool bPlayOnLoad)
-		{
-            item.Layer = layer;
-			Add(item, bPlayOnLoad);
-		}
-        [Obsolete("use another overload", false)]
-        public void Add(int videoLayer, int layer, CasparCGItem item, bool bPlayOnLoad)
-        {
-            item.VideoLayer = videoLayer;
-            item.Layer = layer;
-            Add(item, bPlayOnLoad);
-        }
-		[Obsolete("use another overload", false)]
-		public void Add(CasparCGItem item, bool bPlayOnLoad)
-		{
-			bool bAutoPlay = item.AutoPlay || bPlayOnLoad;
-            if (item.VideoLayer == -1)
-                Channel.Connection.SendString("CG " + Channel.ID + " ADD " + item.Layer + " \"" + item.TemplateIdentifier + "\" " + (bAutoPlay ? "1" : "0") + " \"" + item.XMLData + "\"");
-            else
-                Channel.Connection.SendString("CG " + Channel.ID + "-" + item.VideoLayer + " ADD " + item.Layer + " \"" + item.TemplateIdentifier + "\" " + (bAutoPlay ? "1" : "0") + " \"" + item.XMLData + "\"");
-		}
-
-
-
-
-
         public void Add(int layer, string template)
 		{
             Add(layer, template, false, string.Empty);
@@ -80,14 +40,14 @@ namespace Svt.Caspar
         }
         public void Add(int layer, string template, bool bPlayOnLoad, string data)
 		{
-            Channel.Connection.SendString("CG " + Channel.ID + " ADD " + layer + " \"" + template + "\" " + (bPlayOnLoad ? "1" : "0") + " \"" + (!string.IsNullOrEmpty(data) ? data : string.Empty) + "\"");
+            Channel.Connection.SendString("CG " + Channel.ID + " ADD " + layer + " \"" + template + "\" " + (bPlayOnLoad ? "1" : "0") + " \"" + (data ?? string.Empty) + "\"");
 		}
         public void Add(int videoLayer, int layer, string template, bool bPlayOnLoad, string data)
         {
             if (videoLayer == -1)
                 Add(layer, template, bPlayOnLoad, data);
             else
-                Channel.Connection.SendString("CG " + Channel.ID + "-" + videoLayer + " ADD " + layer + " \"" + template + "\" " + (bPlayOnLoad ? "1" : "0") + " \"" + (!string.IsNullOrEmpty(data) ? data : string.Empty) + "\"");
+                Channel.Connection.SendString("CG " + Channel.ID + "-" + videoLayer + " ADD " + layer + " \"" + template + "\" " + (bPlayOnLoad ? "1" : "0") + " \"" + (data ?? string.Empty) + "\"");
         }
 
 		public void Add(int layer, string template, ICGDataContainer data)
@@ -100,14 +60,14 @@ namespace Svt.Caspar
         }
         public void Add(int layer, string template, bool bPlayOnLoad, ICGDataContainer data)
         {
-            Channel.Connection.SendString("CG " + Channel.ID + " ADD " + layer + " \"" + template + "\" " + (bPlayOnLoad ? "1" : "0") + " \"" + ((data != null) ? data.ToAMCPEscapedXml() : string.Empty) + "\"");
+            Channel.Connection.SendString("CG " + Channel.ID + " ADD " + layer + " \"" + template + "\" " + (bPlayOnLoad ? "1" : "0") + " \"" + (data?.ToAMCPEscapedXml() ?? string.Empty) + "\"");
         }
 		public void Add(int videoLayer, int layer, string template, bool bPlayOnLoad, ICGDataContainer data)
 		{
             if (videoLayer == -1)
                 Add(layer, template, bPlayOnLoad, data);
             else
-                Channel.Connection.SendString("CG " + Channel.ID + "-" + videoLayer + " ADD " + layer + " \"" + template + "\" " + (bPlayOnLoad ? "1" : "0") + " \"" + ((data != null) ? data.ToAMCPEscapedXml() : string.Empty) + "\"");
+                Channel.Connection.SendString("CG " + Channel.ID + "-" + videoLayer + " ADD " + layer + " \"" + template + "\" " + (bPlayOnLoad ? "1" : "0") + " \"" + (data?.ToAMCPEscapedXml() ?? string.Empty) + "\"");
 		}
 
 
@@ -180,9 +140,6 @@ namespace Svt.Caspar
         }
 
 
-
-
-
         public void Next(int layer)
 		{
             Channel.Connection.SendString("CG " + Channel.ID + " NEXT " + layer);
@@ -195,32 +152,21 @@ namespace Svt.Caspar
                 Channel.Connection.SendString("CG " + Channel.ID + "-" + videoLayer + " NEXT " + layer);
         }
 
+       
+	    public void Update(int layer, string data)
+	    {
+	        Channel.Connection.SendString("CG " + Channel.ID + " UPDATE " + layer + " " + " \"" + data + "\"");
+	    }
+	    public void Update(int videoLayer, int layer, string data)
+	    {
+	        if (videoLayer == -1)
+	            Update(layer, data);
+	        else
+	            Channel.Connection.SendString("CG " + Channel.ID + "-" + videoLayer + " UPDATE " + layer + " " + " \"" + data + "\"");
+	    }
 
-
-
-
-
-		public void Update(int layer, ICGDataContainer data)
-		{
-			Channel.Connection.SendString("CG " + Channel.ID + " UPDATE " + layer + " " + " \"" + data.ToAMCPEscapedXml() + "\"");
-		}
-        public void Update(int videoLayer, int layer, ICGDataContainer data)
-        {
-            if (videoLayer == -1)
-                Update(layer, data);
-            else
-                Channel.Connection.SendString("CG " + Channel.ID + "-" + videoLayer + " UPDATE " + layer + " " + " \"" + data.ToAMCPEscapedXml() + "\"");
-        }
-
-
-
-
-
-
-
-
-
-		public void Invoke(int layer, string method)
+        
+        public void Invoke(int layer, string method)
 		{
 			Channel.Connection.SendString("CG " + Channel.ID + " INVOKE " + layer + " " + method);
 		}
@@ -233,11 +179,7 @@ namespace Svt.Caspar
         }
 
 
-
-
-
-
-		public void Info()
+        public void Info()
 		{
 			Channel.Connection.SendString("CG " + Channel.ID + " INFO");
 		}
