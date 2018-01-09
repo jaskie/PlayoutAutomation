@@ -79,7 +79,7 @@ namespace TAS.Client.ViewModels
         void _convertOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IngestOperationViewModel.IsValid))
-                OnModified();
+                NotifyPropertyChanged(nameof(IsValid));
         }
 
         protected override void OnDispose()

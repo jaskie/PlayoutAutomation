@@ -283,6 +283,9 @@ namespace TAS.Client.ViewModels
                 case nameof(IMedia.TcPlay):
                     StartTC = _ingestOperation.Source.TcPlay;
                     break;
+                case nameof(IMedia.IsVerified):
+                    NotifyPropertyChanged(nameof(IsValid));
+                    break;
             }
         }
 
@@ -302,6 +305,8 @@ namespace TAS.Client.ViewModels
 
         private string ValidateTc()
         {
+            if (IsStill)
+                return null;
             if (StartTC < _ingestOperation.Source.TcStart)
                 return string.Format(resources._validate_StartTCBeforeFile, _ingestOperation.Source.TcStart.ToSMPTETimecodeString(_ingestOperation.Source.VideoFormat));
             if (StartTC > _ingestOperation.Source.TcLastFrame())
