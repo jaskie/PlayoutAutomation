@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.ComponentModel;
+using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;

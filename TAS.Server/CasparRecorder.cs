@@ -32,6 +32,7 @@ namespace TAS.Server
 
         #region Deserialized properties
         public int RecorderNumber { get; set; }
+
         public int Id { get; set; }
 
         [JsonProperty]
@@ -41,6 +42,7 @@ namespace TAS.Server
             set { SetField(ref _recorderName, value); }
         }
 
+        [JsonProperty]
         public int DefaultChannel { get; set; }
 
         #endregion Deserialized properties

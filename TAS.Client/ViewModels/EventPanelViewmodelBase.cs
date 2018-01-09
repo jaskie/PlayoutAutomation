@@ -61,7 +61,6 @@ namespace TAS.Client.ViewModels
                     Childrens.Add(DummyChild);
             }
             Event.PropertyChanged += OnEventPropertyChanged;
-            Event.SubEventChanged += OnSubeventChanged;
         }
 
         protected override void OnDispose()
@@ -75,7 +74,6 @@ namespace TAS.Client.ViewModels
             if (Event != null)
             {
                 Event.PropertyChanged -= OnEventPropertyChanged;
-                Event.SubEventChanged -= OnSubeventChanged;
                 EngineViewmodel?.RemoveMultiSelected(this);
                 IsMultiSelected = false;
             }
@@ -346,18 +344,18 @@ namespace TAS.Client.ViewModels
         {
             if (e.PropertyName == nameof(IEvent.EventName))
                 NotifyPropertyChanged(e.PropertyName);
-        }
-
-        protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
-        {
-            Debug.WriteLine(e.Item, $"OnSubEventChanged {e.Operation}");
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate 
+            if (e.PropertyName == nameof(IEvent.SubEventsCount))
             {
-                if (e.Operation == CollectionOperation.Remove && !IsExpanded && HasDummyChild && Event.SubEventsCount == 0)
-                    Childrens.Remove(DummyChild);
-                if (e.Operation == CollectionOperation.Add && !IsExpanded && !HasDummyChild && Event.SubEventsCount > 0)
-                    Childrens.Add(DummyChild);
-            });
+                Application.Current.Dispatcher.BeginInvoke((Action) delegate
+                {
+                    if (IsExpanded)
+                        return;
+                    if (((IEvent) sender).SubEventsCount == 0)
+                        Childrens.Remove(DummyChild);
+                    else if (!HasDummyChild)
+                        Childrens.Add(DummyChild);
+                });
+            }
         }
 
         protected EventPanelViewmodelBase RootOwner

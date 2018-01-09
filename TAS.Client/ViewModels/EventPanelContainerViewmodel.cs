@@ -27,8 +27,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandPaste => EngineViewmodel.CommandPasteSelected;
         public ICommand CommandAddSubRundown { get; }
 
-        public int ChildrenCount => Event.SubEventsCount;
-
         public override bool IsVisible
         {
             get { return _isVisible; }
@@ -45,12 +43,6 @@ namespace TAS.Client.ViewModels
                     Root.NotifyContainerVisibility();
                 }
             }
-        }
-
-        protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
-        {
-            base.OnSubeventChanged(o, e);
-            NotifyPropertyChanged(nameof(ChildrenCount));
         }
 
         private void _addSubRundown(object o)

@@ -4,7 +4,7 @@ namespace TAS.Client.ViewModels
 {
     public class EventPanelStillViewmodel: EventPanelRundownElementViewmodelBase
     {
-        public EventPanelStillViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent) { }
+        public EventPanelStillViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent) {}
 
     }
 }

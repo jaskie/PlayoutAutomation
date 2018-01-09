@@ -223,7 +223,7 @@ namespace TAS.Remoting.Client
                         return response;
                 }
                 while (timeout.ElapsedMilliseconds < QueryTimeout);
-                throw new TimeoutException($"Didn't received response from server within {QueryTimeout} milliseconds. Query was {sendedMessage}");
+                throw new TimeoutException($"Didn't received response from server within {QueryTimeout} milliseconds. Query was {sendedMessage.MessageType}:{sendedMessage.MemberName}");
             };
             IAsyncResult funcAsyncResult = resultFunc.BeginInvoke(null, null);
             funcAsyncResult.AsyncWaitHandle.WaitOne();

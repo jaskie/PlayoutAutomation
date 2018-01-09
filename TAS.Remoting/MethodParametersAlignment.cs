@@ -34,7 +34,7 @@ namespace TAS.Remoting
             if (input is string && type == typeof(Guid))
                 input = Guid.Parse((string)input);
             else
-            if (type.IsValueType && input != null)
+            if (type.IsValueType && input != null && !type.IsGenericType)
                 input = Convert.ChangeType(input, type);
         }
     }

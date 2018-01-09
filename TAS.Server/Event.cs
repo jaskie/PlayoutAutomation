@@ -1218,7 +1218,6 @@ namespace TAS.Server
 
         private void _delete()
         {
-            Remove();
             foreach (var se in SubEvents)
             {
                 var ne = se as Event;
@@ -1230,6 +1229,7 @@ namespace TAS.Server
                 }
                 (se as Event)?._delete();
             }
+            Remove();
             _isDeleted = true;
             this.DbDeleteEvent();
             _engine.RemoveEvent(this);

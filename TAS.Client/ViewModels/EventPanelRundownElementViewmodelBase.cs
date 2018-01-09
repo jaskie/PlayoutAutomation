@@ -13,10 +13,11 @@ namespace TAS.Client.ViewModels
         private TimeSpan _timeLeft;
         private IMedia _media;
 
-        public EventPanelRundownElementViewmodelBase(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
+        protected EventPanelRundownElementViewmodelBase(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
         {
             Media = ev.Media;
             ev.PositionChanged += EventPositionChanged;
+            ev.SubEventChanged += OnSubeventChanged;
 
             CommandToggleHold = new UICommand
             {
@@ -326,25 +327,24 @@ namespace TAS.Client.ViewModels
                     p.SetOnTop();
 
         }
-
-        protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
+        protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            base.OnSubeventChanged(o, e);
-            switch (e.Item.Layer)
-            {
-                case VideoLayer.CG1:
-                    NotifyPropertyChanged(nameof(HasSubItemOnLayer1));
-                    NotifyPropertyChanged(nameof(Layer1SubItemMediaName));
-                    break;                
-                case VideoLayer.CG2:      
-                    NotifyPropertyChanged(nameof(HasSubItemOnLayer2));
-                    NotifyPropertyChanged(nameof(Layer2SubItemMediaName));
-                    break;               
-                case VideoLayer.CG3:     
-                    NotifyPropertyChanged(nameof(HasSubItemOnLayer3));
-                    NotifyPropertyChanged(nameof(Layer3SubItemMediaName));
-                    break;
-            }
+            if (e.Item.EventType == TEventType.StillImage)
+                switch (e.Item.Layer)
+                {
+                    case VideoLayer.CG1:
+                        NotifyPropertyChanged(nameof(HasSubItemOnLayer1));
+                        NotifyPropertyChanged(nameof(Layer1SubItemMediaName));
+                        break;
+                    case VideoLayer.CG2:
+                        NotifyPropertyChanged(nameof(HasSubItemOnLayer2));
+                        NotifyPropertyChanged(nameof(Layer2SubItemMediaName));
+                        break;
+                    case VideoLayer.CG3:
+                        NotifyPropertyChanged(nameof(HasSubItemOnLayer3));
+                        NotifyPropertyChanged(nameof(Layer3SubItemMediaName));
+                        break;
+                }
         }
 
         protected void EventPositionChanged(object sender, EventPositionEventArgs e)
@@ -395,13 +395,14 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(VideoFormat));
                 NotifyPropertyChanged(nameof(MediaErrorInfo));
             }
-        }
+            }
 
         protected override void OnDispose()
         {
             base.OnDispose();
             Media = null;
             Event.PositionChanged -= EventPositionChanged;
+            Event.SubEventChanged -= OnSubeventChanged;
         }
 
         private void _onMediaPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -421,17 +422,9 @@ namespace TAS.Client.ViewModels
 
         private string _subItemMediaName(VideoLayer layer)
         {
-            if (Event != null)
-            {
-                IEvent se = Event.SubEvents.FirstOrDefault(e => e.Layer == layer && e.EventType == TEventType.StillImage);
-                if (se != null)
-                {
-                    IMedia m = se.Media;
-                    if (m != null)
-                        return m.MediaName;
-                }
-            }
-            return string.Empty;
+            var se = Event?.SubEvents.FirstOrDefault(e => e.Layer == layer && e.EventType == TEventType.StillImage);
+            var m = se?.Media;
+            return m?.MediaName ?? string.Empty;
         }
 
         private bool _hasSubItemsOnLayer(VideoLayer layer)

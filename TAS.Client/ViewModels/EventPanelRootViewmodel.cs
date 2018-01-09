@@ -43,7 +43,7 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate
             {
-                EventPanelViewmodelBase evm = Find(e.Event);
+                var evm = Find(e.Event);
                 evm?.Dispose();
             });
         }
@@ -76,6 +76,7 @@ namespace TAS.Client.ViewModels
                 }
             });
         }
+
 
         private EventPanelViewmodelBase PlaceEventInRundown(IEvent e, bool show)
         {

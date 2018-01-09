@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Concurrent;
+using System.Collections;
 using System.Collections.Generic;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -11,7 +11,7 @@ namespace TAS.Server
     {
         private int _templateLayer;
         private TemplateMethod _method;
-        private readonly ConcurrentDictionary<string, string> _fields;
+        private readonly Dictionary<string, string> _fields;
         
         internal AnimatedEvent(
                     Engine engine,
@@ -61,7 +61,7 @@ namespace TAS.Server
                         false, 0, 0, 0
                         )
         {
-            _fields = fields == null ? new ConcurrentDictionary<string, string>() : new ConcurrentDictionary<string, string>(fields);
+            _fields = fields == null ? new Dictionary<string, string>() : new Dictionary<string, string>(fields);
             _method = method;
             _templateLayer = templateLayer;
         }
@@ -69,21 +69,34 @@ namespace TAS.Server
         [JsonProperty]
         public IDictionary<string, string> Fields
         {
-            get { return _fields; }
+            get
+            {
+                lock (((IDictionary) _fields).SyncRoot)
+                    return new Dictionary<string, string>(_fields);
+            }
             set
             {
-                _fields.Clear();
-                foreach (var kvp in value)
-                    _fields.TryAdd(kvp.Key, kvp.Value);
+                lock (((IDictionary) _fields).SyncRoot)
+                {
+                    _fields.Clear();
+                    foreach (var kvp in value)
+                        _fields.Add(kvp.Key, kvp.Value);
+                }
                 IsModified = true;
             }
         }
 
         [JsonProperty]
-        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value); } }
+        public TemplateMethod Method {
+            get => _method;
+            set => SetField(ref _method, value);
+        }
 
         [JsonProperty]
-        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
+        public int TemplateLayer {
+            get => _templateLayer;
+            set => SetField(ref _templateLayer, value);
+        }
 
 
     }
