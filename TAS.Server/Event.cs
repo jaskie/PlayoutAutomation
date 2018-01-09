@@ -19,7 +19,7 @@ using TAS.Server.Security;
 namespace TAS.Server
 {
     [DebuggerDisplay("{" + nameof(_eventName) + "}")]
-    public class Event : DtoBase, IEventPesistent, IComparable
+    public class Event : DtoBase, IEventPesistent
     {
         bool _isForcedNext;
 
@@ -710,10 +710,6 @@ namespace TAS.Server
 
         public event EventHandler<EventPositionEventArgs> PositionChanged;
 
-        public event EventHandler Located;
-
-        public event EventHandler Deleted;
-        
         public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
 
         public void Remove()
@@ -1038,17 +1034,7 @@ namespace TAS.Server
             }
             return null;
         }
-
-        public int CompareTo(object obj)
-        {
-            if (object.Equals(obj, this))
-                return 0;
-            if (obj == null) return -1;
-            var timecomp = ScheduledTime.CompareTo(((Event)obj).ScheduledTime);
-            timecomp = timecomp == 0 ? ScheduledDelay.CompareTo((obj as Event).ScheduledDelay) : timecomp;
-            return timecomp == 0 ? Id.CompareTo(((Event)obj).Id) : timecomp;
-        }
-
+        
         public void Delete()
         {
             if (!IsDeleted 
@@ -1246,7 +1232,8 @@ namespace TAS.Server
             }
             _isDeleted = true;
             this.DbDeleteEvent();
-            NotifyDeleted();
+            _engine.RemoveEvent(this);
+            _engine.NotifyEventDeleted(this);
             _isModified = false;
             Dispose();
         }
@@ -1515,14 +1502,9 @@ namespace TAS.Server
             return acl;
         }
 
-        private void NotifyDeleted()
+        private void NotifyLocated()
         {
-            Deleted?.Invoke(this, EventArgs.Empty);
-        }
-
-        internal void NotifyLocated()
-        {
-            Located?.Invoke(this, EventArgs.Empty);
+            _engine.NotifyEventLocated(this);
         }
        
     }

@@ -54,6 +54,7 @@ namespace TAS.Client.ViewModels
         {
             _engineViewModel = engineViewModel;
             _engine = engineViewModel.Engine;
+            _engine.EventLocated += OnLocated;
             _fields.CollectionChanged += _fields_or_commands_CollectionChanged;
             CommandSaveEdit = new UICommand {ExecuteDelegate = _save, CanExecuteDelegate = _canSave};
             CommandUndoEdit = new UICommand {ExecuteDelegate = _load, CanExecuteDelegate = o => IsModified};
@@ -120,14 +121,12 @@ namespace TAS.Client.ViewModels
                     {
                         ev.PropertyChanged -= _eventPropertyChanged;
                         ev.SubEventChanged -= _onSubeventChanged;
-                        ev.Located -= OnLocated;
                     }
                     _event = value;
                     if (value != null)
                     {
                         value.PropertyChanged += _eventPropertyChanged;
                         value.SubEventChanged += _onSubeventChanged;
-                        value.Located += OnLocated;
                     }
                     _load(null);
                 }
@@ -767,6 +766,7 @@ namespace TAS.Client.ViewModels
         {
             if (_event != null)
                 Event = null;
+            _engine.EventLocated -= OnLocated;
             _fields.CollectionChanged -= _fields_or_commands_CollectionChanged;
         }
 
@@ -1031,8 +1031,10 @@ namespace TAS.Client.ViewModels
         {
         }
 
-        private void OnLocated(object o, EventArgs e)
+        private void OnLocated(object o, EventEventArgs e)
         {
+            if (e.Event != Event)
+                return;
             NotifyPropertyChanged(nameof(StartType));
             NotifyPropertyChanged(nameof(BoundEventName));
             NotifyPropertyChanged(nameof(ScheduledTime));
@@ -1142,7 +1144,8 @@ namespace TAS.Client.ViewModels
         private bool IsValidCommand(string commandText)
         {
             return !string.IsNullOrWhiteSpace(commandText)
-                   && (RegexMixerFill.IsMatch(commandText)
+                   && (RegexPlay.IsMatch(commandText)
+                       || RegexMixerFill.IsMatch(commandText)
                        || RegexMixerClip.IsMatch(commandText)
                        || RegexMixerClear.IsMatch(commandText)
                        || RegexCg.IsMatch(commandText)

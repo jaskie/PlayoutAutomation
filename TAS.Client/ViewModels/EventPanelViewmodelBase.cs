@@ -62,7 +62,6 @@ namespace TAS.Client.ViewModels
             }
             Event.PropertyChanged += OnEventPropertyChanged;
             Event.SubEventChanged += OnSubeventChanged;
-            Event.Located += OnLocated;
         }
 
         protected override void OnDispose()
@@ -77,7 +76,6 @@ namespace TAS.Client.ViewModels
             {
                 Event.PropertyChanged -= OnEventPropertyChanged;
                 Event.SubEventChanged -= OnSubeventChanged;
-                Event.Located -= OnLocated;
                 EngineViewmodel?.RemoveMultiSelected(this);
                 IsMultiSelected = false;
             }
@@ -183,7 +181,94 @@ namespace TAS.Client.ViewModels
             }
             return null;
         }
-        
+
+        protected internal virtual void UpdateLocation()
+        {
+            var ev = Event;
+            if (ev == null)
+                return;
+            IEvent prior = ev.Prior;
+            IEvent parent = ev.Parent;
+            IEvent next = ev.Next;
+            IEvent visualParent = ev.GetVisualParent();
+            if (prior != null)
+            {
+                int index = Parent.Childrens.IndexOf(this);
+                if (visualParent != Parent.Event
+                    || index <= 0
+                    || Parent.Childrens[index - 1].Event != prior)
+                {
+                    EventPanelViewmodelBase priorVm = Root.Find(prior);
+                    if (priorVm != null)
+                    {
+                        EventPanelViewmodelBase newParent = priorVm.Parent;
+                        if (Parent == newParent)
+                        {
+                            int priorIndex = newParent.Childrens.IndexOf(priorVm);
+                            if (index >= priorIndex)
+                                newParent.Childrens.Move(index, priorIndex + 1);
+                            else
+                                newParent.Childrens.Move(index, priorIndex);
+                        }
+                        else
+                        {
+                            Parent.Childrens.Remove(this);
+                            if (!newParent.HasDummyChild)
+                                newParent.Childrens.Insert(newParent.Childrens.IndexOf(priorVm) + 1, this);
+                            Parent = newParent;
+                        }
+                    }
+                }
+            }
+            else if (parent == null && next != null)
+            {
+                int index = Parent.Childrens.IndexOf(this);
+                if (visualParent != Parent.Event
+                    || index <= 0
+                    || Parent.Childrens[index].Event != next)
+                {
+                    EventPanelViewmodelBase nextVm = Root.Find(next);
+                    if (nextVm != null)
+                    {
+                        EventPanelViewmodelBase newParent = nextVm.Parent;
+                        if (Parent == newParent)
+                        {
+                            int nextIndex = newParent.Childrens.IndexOf(nextVm);
+                            if (index >= nextIndex)
+                                newParent.Childrens.Move(index, nextIndex);
+                            else
+                                newParent.Childrens.Move(index, nextIndex - 1);
+                        }
+                        else
+                        {
+                            Parent.Childrens.Remove(this);
+                            if (!newParent.HasDummyChild)
+                                newParent.Childrens.Insert(newParent.Childrens.IndexOf(nextVm), this);
+                            Parent = newParent;
+                        }
+                    }
+                }
+            }
+            else if (parent == null)
+            {
+                Parent.Childrens.Remove(this);
+                Root.Childrens.Add(this);
+                Parent = Root;
+            }
+            else
+            {
+                EventPanelViewmodelBase parentVm = Root.Find(parent);
+                if (parentVm != null)
+                {
+                    if (parentVm == Parent)
+                        parentVm.Childrens.Move(parentVm.Childrens.IndexOf(this), 0);
+                    else
+                        Parent = parentVm;
+                }
+            }
+            BringIntoView();
+        }
+
         public bool Contains(IEvent  aEvent)
         {
             foreach (EventPanelViewmodelBase m in Childrens)
@@ -257,12 +342,6 @@ namespace TAS.Client.ViewModels
         }
 
 
-        protected virtual void OnLocated(object sender, EventArgs e)
-        {
-            if (_parent != null)
-                Application.Current.Dispatcher.BeginInvoke((Action)_updateLocation);
-        }
-
         protected virtual void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IEvent.EventName))
@@ -321,94 +400,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _updateLocation()
-        {
-            if (Event != null)
-            {
-                IEvent prior = Event.Prior;
-                IEvent parent = Event.Parent;
-                IEvent next = Event.Next;
-                IEvent visualParent = Event.GetVisualParent();
-                if (prior != null)
-                {
-                    int index = _parent.Childrens.IndexOf(this);
-                    if (visualParent != _parent.Event
-                        || index <= 0
-                        || _parent.Childrens[index - 1].Event != prior)
-                    {
-                        EventPanelViewmodelBase priorVm = Root.Find(prior);
-                        if (priorVm != null)
-                        {
-                            EventPanelViewmodelBase newParent = priorVm._parent;
-                            if (_parent == newParent)
-                            {
-                                int priorIndex = newParent.Childrens.IndexOf(priorVm);
-                                if (index >= priorIndex)
-                                    newParent.Childrens.Move(index, priorIndex + 1);
-                                else
-                                    newParent.Childrens.Move(index, priorIndex);
-                            }
-                            else
-                            {
-                                _parent.Childrens.Remove(this);
-                                if (!newParent.HasDummyChild)
-                                    newParent.Childrens.Insert(newParent.Childrens.IndexOf(priorVm) + 1, this);
-                                _parent = newParent;
-                            }
-                        }
-                    }
-                }
-                else
-                if (parent == null && next != null)
-                {
-                    int index = _parent.Childrens.IndexOf(this);
-                    if (visualParent != _parent.Event
-                        || index <= 0
-                        || _parent.Childrens[index].Event != next)
-                    {
-                        EventPanelViewmodelBase nextVm = Root.Find(next);
-                        if (nextVm != null)
-                        {
-                            EventPanelViewmodelBase newParent = nextVm._parent;
-                            if (_parent == newParent)
-                            {
-                                int nextIndex = newParent.Childrens.IndexOf(nextVm);
-                                if (index >= nextIndex)
-                                    newParent.Childrens.Move(index, nextIndex);
-                                else
-                                    newParent.Childrens.Move(index, nextIndex - 1);
-                            }
-                            else
-                            {
-                                _parent.Childrens.Remove(this);
-                                if (!newParent.HasDummyChild)
-                                    newParent.Childrens.Insert(newParent.Childrens.IndexOf(nextVm), this);
-                                _parent = newParent;
-                            }
-                        }
-                    }
-                }
-                else
-                if (parent == null)
-                {
-                    _parent.Childrens.Remove(this);
-                    Root.Childrens.Add(this);
-                    _parent = Root;
-                }
-                else
-                {
-                    EventPanelViewmodelBase parentVm = Root.Find(parent);
-                    if (parentVm != null)
-                    {
-                        if (parentVm == _parent)
-                            parentVm.Childrens.Move(parentVm.Childrens.IndexOf(this), 0);
-                        else
-                            Parent = parentVm;
-                    }
-                }
-                BringIntoView();
-            }
-        }
 
     }
 }

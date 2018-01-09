@@ -444,4 +444,7 @@
   <data name="AuthenticationSource_WindowsCredentials" xml:space="preserve">
     <value>Windows credentials</value>
   </data>
+  <data name="TEventType_CommandScript" xml:space="preserve">
+    <value>Custom server command</value>
+  </data>
 </root>

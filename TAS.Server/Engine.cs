@@ -46,18 +46,14 @@ namespace TAS.Server
         public readonly object RundownSync = new object();
         private readonly object _tickLock = new object();
 
-        private readonly SynchronizedCollection<Event> _visibleEvents = new SynchronizedCollection<Event>()
-            ; // list of visible events
-
+        private readonly SynchronizedCollection<Event> _visibleEvents = new SynchronizedCollection<Event>(); // list of visible events
         private readonly List<IEvent> _runningEvents = new List<IEvent>(); // list of events loaded and playing 
-
-        private readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents =
-            new ConcurrentDictionary<VideoLayer, IEvent>();
-
+        private readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents = new ConcurrentDictionary<VideoLayer, IEvent>();
         private readonly SynchronizedCollection<Event> _rootEvents = new SynchronizedCollection<Event>();
         private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
         private readonly ConcurrentDictionary<ulong, IEvent> _events = new ConcurrentDictionary<ulong, IEvent>();
         private readonly Lazy<List<IAclRight>> _rights;
+
         private Event _playing;
         private Event _forcedNext;
         private IEnumerable<IGpi> _localGpis;
@@ -696,7 +692,7 @@ namespace TAS.Server
             if (!(aEvent is Event ev))
                 return;
             _rootEvents.Add(ev);
-            ev.NotifyLocated();
+            NotifyEventLocated(ev);
         }
 
         internal bool RemoveRootEvent(Event aEvent)
@@ -753,8 +749,6 @@ namespace TAS.Server
                 result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
             if (idRundownEvent != 0)
                 _events.TryAdd(idRundownEvent, result);
-            result.Located += _eventLocated;
-            result.Deleted += _eventDeleted;
             if (startType == TStartType.OnFixedTime)
                 _fixedTimeEvents.Add((Event)result);
             return result;
@@ -948,6 +942,30 @@ namespace TAS.Server
             }
         }
 
+        internal void RemoveEvent(Event @event)
+        {
+            RemoveRootEvent(@event);
+            if (@event.StartType == TStartType.OnFixedTime)
+                RemoveFixedTimeEvent(@event);
+            if (@event.Id != 0)
+                _events.TryRemove(@event.Id, out _);
+
+            if (@event.Media is ServerMedia media
+                && @event.PlayState == TPlayState.Played
+                && media.MediaType == TMediaType.Movie
+                && ArchivePolicy == TArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
+                && _mediaManager.ArchiveDirectory != null
+                && CanDeleteMedia(media).Result == MediaDeleteResult.MediaDeleteResultEnum.Success)
+                Task.Run(() =>
+                    _mediaManager.ArchiveMedia(new List<IServerMedia>(new[] { media }), true));
+        }
+
+        internal void NotifyEventDeleted(Event @event)
+        {
+            EventDeleted?.Invoke(this, new EventEventArgs(@event));
+        }
+
+
         // private methods
         private void _start(Event aEvent)
         {
@@ -960,26 +978,6 @@ namespace TAS.Server
                 foreach (var e in eventsToStop)
                     _stop(e);
             }
-        }
-
-        private void _removeEvent(Event aEvent)
-        {
-            RemoveRootEvent(aEvent);
-            if (aEvent.Id != 0)
-                _events.TryRemove(aEvent.Id, out var eventToRemove);
-            aEvent.Located -= _eventLocated;
-            aEvent.Deleted -= _eventDeleted;
-            if (aEvent.StartType == TStartType.OnFixedTime)
-                RemoveFixedTimeEvent(aEvent);
-            var media = aEvent.Media as ServerMedia;
-            if (media != null
-                && aEvent.PlayState == TPlayState.Played
-                && media.MediaType == TMediaType.Movie
-                && ArchivePolicy == TArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
-                && _mediaManager.ArchiveDirectory != null
-                && CanDeleteMedia(media).Result == MediaDeleteResult.MediaDeleteResultEnum.Success)
-                Task.Run(() =>
-                    _mediaManager.ArchiveMedia(new List<IServerMedia>(new[] {media}), true));
         }
 
         private void _reSchedule(Event aEvent)
@@ -1641,22 +1639,10 @@ namespace TAS.Server
             }
         }
 
-        private void _eventDeleted(object sender, EventArgs e)
+        internal void NotifyEventLocated(Event aEvent)
         {
-            _removeEvent(sender as Event);
-            EventDeleted?.Invoke(this, new EventEventArgs(sender as IEvent));
-            ((IDisposable)sender).Dispose();
+            EventLocated?.Invoke(this, new EventEventArgs(aEvent));
         }
-
-        private void _eventLocated(object sender, EventArgs ea)
-        {
-            if (!(sender is IEvent e))
-                return;
-            if (e.Id != 0)
-                _events.TryAdd(e.Id, e);
-            EventLocated?.Invoke(this, new EventEventArgs(e));
-        }
-
 
         private MediaBase _findPreviewMedia(MediaBase media)
         {

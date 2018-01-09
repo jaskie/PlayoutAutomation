@@ -263,20 +263,6 @@ namespace TAS.Remoting.Model
         public TTransitionType TransitionType { get { return _transitionType; } set { Set(value); } }
 
         #region Event handlers
-        private event EventHandler _deleted;
-        public event EventHandler Deleted
-        {
-            add
-            {
-                EventAdd(_deleted);
-                _deleted += value;
-            }
-            remove
-            {
-                _deleted -= value;
-                EventRemove(_deleted);
-            }
-        }
         private event EventHandler<EventPositionEventArgs> _positionChanged;
         public event EventHandler<EventPositionEventArgs> PositionChanged
         {
@@ -289,20 +275,6 @@ namespace TAS.Remoting.Model
             {
                 _positionChanged -= value;
                 EventRemove(_positionChanged);
-            }
-        }
-        private event EventHandler _located;
-        public event EventHandler Located
-        {
-            add
-            {
-                EventAdd(_located);
-                _located += value;
-            }
-            remove
-            {
-                _located -= value;
-                EventRemove(_located);
             }
         }
         private event EventHandler<CollectionOperationEventArgs<IEvent>> _subEventChanged;
@@ -324,15 +296,9 @@ namespace TAS.Remoting.Model
         {
             switch (message.MemberName)
             {
-                case nameof(IEvent.Deleted):
-                    _deleted?.Invoke(this, Deserialize<EventArgs>(message));
-                    break;
                 case nameof(IEvent.PositionChanged):
                     _positionChanged?.Invoke(this, Deserialize<EventPositionEventArgs>(message));
                     break;
-                case nameof(IEvent.Located):
-                    _located?.Invoke(this, Deserialize<EventArgs>(message));
-                    return;
                 case nameof(IEvent.SubEventChanged):
                     var ea = Deserialize<CollectionOperationEventArgs<IEvent>>(message);
                     ResetSubEvents();
