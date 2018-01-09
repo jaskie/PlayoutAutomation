@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
@@ -231,7 +232,7 @@ namespace TAS.Server.Media
             if (oldTask != null && oldTask.Status != System.Threading.Tasks.TaskStatus.RanToCompletion)
                 return;
             var watcherTaskCancelationTokenSource = new CancellationTokenSource();
-            _watcherSetupTask = System.Threading.Tasks.Task.Factory.StartNew(
+            _watcherSetupTask = Task.Factory.StartNew(
                 () =>
                 {
                     _watcherFilter = filter;
@@ -397,16 +398,16 @@ namespace TAS.Server.Media
 
         protected virtual IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
-            if (string.IsNullOrWhiteSpace(fullPath))
+            if (string.IsNullOrWhiteSpace(fullPath) || !AcceptFile(fullPath))
                 return null;
-            MediaBase newMedia = FindMediaFirstByFullPath(fullPath);
-            if (newMedia == null && AcceptFile(fullPath))
-            {
-                newMedia = (MediaBase)CreateMedia(fullPath, guid);
-                newMedia.MediaName = Path.GetFileName(fullPath);
-                newMedia.LastUpdated = lastWriteTime == default(DateTime) && File.Exists(fullPath) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
-                newMedia.MediaType = (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (FileUtils.VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;
-            }
+            var newMedia = (MediaBase) CreateMedia(fullPath, guid);
+            newMedia.MediaName = Path.GetFileName(fullPath);
+            newMedia.LastUpdated = lastWriteTime == default(DateTime) && File.Exists(fullPath) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
+            newMedia.MediaType = (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant()))
+                    ? TMediaType.Still
+                    : (FileUtils.VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant()))
+                        ? TMediaType.Movie
+                        : TMediaType.Unknown;
             return newMedia;
         }
 
@@ -473,8 +474,10 @@ namespace TAS.Server.Media
 
         protected virtual void OnMediaChanged(IMedia media)
         {
-            if (media.IsVerified)
-                media.ReVerify();
+            if (!media.IsVerified)
+                return;
+            media.ReVerify();
+            Logger.Trace("Media {0} changed", media);
         }
 
         protected virtual void NotifyMediaDeleted(IMedia media)

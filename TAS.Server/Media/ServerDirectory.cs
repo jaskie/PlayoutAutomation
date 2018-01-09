@@ -112,5 +112,16 @@ namespace TAS.Server.Media
             var unverifiedFiles = FindMediaList(mf => ((ServerMedia)mf).IsVerified == false);
             unverifiedFiles.ForEach(media => media.Verify());
         }
+
+        protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
+        {
+            IMedia media = FindMediaFirstByFullPath(fullPath);
+            if (media != null)
+                return media;
+            media = base.AddFile(fullPath, lastWriteTime, guid);
+            if (media != null)
+                Logger.Warn("Unknown media added to server directory: {0}", fullPath);
+            return media;
+        }
     }
 }
