@@ -1131,7 +1131,7 @@ namespace TAS.Client.ViewModels
                     if (!(vm.SelectedMedia is IServerMedia media))
                         return;
                     Media = media;
-                    Duration = media.Duration;
+                    Duration = media.DurationPlay;
                     ScheduledTc = media.TcPlay;
                     AudioVolume = null;
                     EventName = media.MediaName;
