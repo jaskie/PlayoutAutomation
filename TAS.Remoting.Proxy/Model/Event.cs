@@ -135,7 +135,6 @@ namespace TAS.Remoting.Model
 
         private Lazy<IEvent> _prior;
 
-        [JsonProperty(nameof(IEvent.SubEvents))]
         private Lazy<IEnumerable<IEvent>> _subEvents;
 
         #pragma warning restore

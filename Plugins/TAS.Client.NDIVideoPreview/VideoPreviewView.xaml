@@ -115,7 +115,7 @@
                     </DrawingBrush>
                 </Rectangle.Fill>
             </Rectangle>
-            <Image Visibility="{Binding IsDisplaySource, Converter={StaticResource BoolToVis}}" Name="VideoSurface" Source="{Binding VideoBitmap}" />
+            <Image Visibility="{Binding IsDisplaySource, Converter={StaticResource BoolToVis}}" Source="{Binding VideoBitmap}" />
             <ItemsControl ItemsSource="{Binding AudioLevels}" Visibility="{Binding IsDisplayAudioBars, Converter={StaticResource BoolToVis}}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -124,7 +124,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <ProgressBar Value="{Binding Path=., Mode=OneWay}" Height="5" Margin="3, 1"  Style="{StaticResource ProgressBarVolumeMeterStyle}"/>
+                        <ProgressBar Value="{Binding Mode=OneWay}" Height="5" Margin="3, 1"  Style="{StaticResource ProgressBarVolumeMeterStyle}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

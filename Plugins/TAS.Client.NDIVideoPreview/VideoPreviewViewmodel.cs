@@ -278,6 +278,7 @@ namespace TAS.Client.NDIVideoPreview
             {
                 // start up a thread to receive on
                 _ndiReceiveThread = new Thread(ReceiveThreadProc) { IsBackground = true, Name = "Newtek Ndi video preview plugin receive thread" };
+                _exitReceiveThread = false;
                 _ndiReceiveThread.Start();
             }
         }
@@ -294,7 +295,7 @@ namespace TAS.Client.NDIVideoPreview
                 NDIlib_audio_frame_t audioFrame = new NDIlib_audio_frame_t();
                 NDIlib_metadata_frame_t metadataFrame = new NDIlib_metadata_frame_t();
 
-                switch (Ndi.NDIlib_recv_capture(recvInstance, ref videoFrame, ref audioFrame, ref metadataFrame, 1000))
+                switch (Ndi.NDIlib_recv_capture(recvInstance, ref videoFrame, ref audioFrame, ref metadataFrame, 100))
                 {
                     case NDIlib_frame_type_e.NDIlib_frame_type_video:
                         if (videoFrame.p_data == IntPtr.Zero)
@@ -310,18 +311,19 @@ namespace TAS.Client.NDIVideoPreview
 
                         int stride = (int)videoFrame.line_stride_in_bytes;
                         int bufferSize = yres * stride;
-                        Application.Current?.Dispatcher.BeginInvoke(new Action(delegate
+                        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                         {
                             if (VideoBitmap == null
                                 || VideoBitmap.PixelWidth != xres
                                 || VideoBitmap.PixelHeight != yres)
                                 VideoBitmap = new WriteableBitmap(xres, yres, 96, dpiY, System.Windows.Media.PixelFormats.Pbgra32, null);
-                            if (!(_videoBitmap is WriteableBitmap videoBitmap))
-                                return;
                             // update the writeable bitmap
-                            videoBitmap.Lock();
-                            videoBitmap.WritePixels(new Int32Rect(0, 0, xres, yres), videoFrame.p_data, bufferSize, stride);
-                            videoBitmap.Unlock();
+                            if ((_videoBitmap is WriteableBitmap videoBitmap) 
+                                && videoBitmap.TryLock(TimeSpan.FromSeconds(1)))
+                            {
+                                videoBitmap.WritePixels(new Int32Rect(0, 0, xres, yres), videoFrame.p_data, bufferSize, stride);
+                                videoBitmap.Unlock();
+                            }
                             Ndi.NDIlib_recv_free_video(recvInstance, ref videoFrame);
                         }));
                         break;
@@ -401,6 +403,7 @@ namespace TAS.Client.NDIVideoPreview
                         break;
                 }
             }
+            Ndi.NDIlib_recv_destroy(recvInstance);
             Debug.WriteLine(this, "Receive thread exited");
         }
 
@@ -409,12 +412,9 @@ namespace TAS.Client.NDIVideoPreview
             if (_ndiReceiveThread != null)
             {
                 _exitReceiveThread = true;
-                _ndiReceiveThread.Join(1000);
+                _ndiReceiveThread.Join();
+                _ndiReceiveThread = null;
             }
-            _ndiReceiveThread = null;
-            _exitReceiveThread = false;
-            Ndi.NDIlib_recv_destroy(_ndiReceiveInstance);
-            _ndiReceiveInstance = IntPtr.Zero;
             _waveOut?.Dispose();
         }
 
