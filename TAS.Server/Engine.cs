@@ -287,11 +287,16 @@ namespace TAS.Server
             _playoutChannelPRV = (CasparServerChannel) sPRV?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV);
             _mediaManager.SetRecorders(recorders);
 
-
-            _localGpis = this.ComposeParts<IGpi>();
-            _plugins = this.ComposeParts<IEnginePlugin>();
-            CGElementsController = this.ComposePart<ICGElementsController>();
-
+            try
+            {
+                _localGpis = this.ComposeParts<IGpi>();
+                _plugins = this.ComposeParts<IEnginePlugin>();
+                CGElementsController = this.ComposePart<ICGElementsController>();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Engine plugins composition error");
+            }
             FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
             FrameTicks = FormatDescription.FrameTicks;
             FrameRate = FormatDescription.FrameRate;
