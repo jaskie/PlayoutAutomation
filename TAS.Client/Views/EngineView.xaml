@@ -418,56 +418,55 @@
                     </Style>
                 </TabControl.Resources>
                 <TabItem Padding="0, 20" Header="{Resx _tabs.Rundowns}">-->
-            <Border DockPanel.Dock="Right" BorderThickness="1, 0, 0, 0" BorderBrush="DarkGray">
-                <Expander ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" >
-                    <Expander.Resources>
-                        <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
-                            <Style.Triggers>
-                                <Trigger Property="IsExpanded" Value="True">
-                                    <Setter Property="Header" >
-                                        <Setter.Value>
-                                            <TextBlock Text="{Resx _hide, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
-                                                <TextBlock.LayoutTransform>
-                                                    <RotateTransform Angle="90"/>
-                                                </TextBlock.LayoutTransform>
-                                            </TextBlock>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                                <Trigger Property="IsExpanded" Value="False">
-                                    <Setter Property="Header" >
-                                        <Setter.Value>
-                                            <TextBlock Text="{Resx _show, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
-                                                <TextBlock.LayoutTransform>
-                                                    <RotateTransform Angle="90"/>
-                                                </TextBlock.LayoutTransform>
-                                            </TextBlock>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Expander.Resources>
-                    <Grid Width="350">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" MinHeight="50"/>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <views:EventEditView DataContext="{Binding EventEditViewmodel}"/>
-                        <GridSplitter Grid.Row="0" Visibility="{Binding PreviewViewmodel, Converter={StaticResource NullToVis}}"  HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                        <ContentControl Grid.Row="1" Margin="0, 0, 0, 3" Content="{Binding PreviewViewmodel}">
-                            <ContentControl.Resources>
-                                <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
-                                    <views:PreviewView/>
-                                </DataTemplate>
-                            </ContentControl.Resources>
-                        </ContentControl>
-                        <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="2" Margin="0, 3, 0, 0" Content="{Binding VideoPreview.View}"/>
-                    </Grid>
-                </Expander>
-            </Border>
+            <Expander DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" >
+                <Expander.Resources>
+                    <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
+                        <Style.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter Property="Header" >
+                                    <Setter.Value>
+                                        <TextBlock Text="{Resx _hide, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
+                                            <TextBlock.LayoutTransform>
+                                                <RotateTransform Angle="90"/>
+                                            </TextBlock.LayoutTransform>
+                                        </TextBlock>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsExpanded" Value="False">
+                                <Setter Property="Header" >
+                                    <Setter.Value>
+                                        <TextBlock Text="{Resx _show, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
+                                            <TextBlock.LayoutTransform>
+                                                <RotateTransform Angle="90"/>
+                                            </TextBlock.LayoutTransform>
+                                        </TextBlock>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Expander.Resources>
+                <Grid Width="350" Name="SidePanel">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" MinHeight="50"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Thumb Name="SidePanelResizer" HorizontalAlignment="Left" Width="3"  BorderThickness="0" Background="DarkGray" Grid.Column="0" Grid.RowSpan="3" Cursor="SizeWE" DragDelta="SidePanelResizer_DragDelta"/>
+                    <views:EventEditView DataContext="{Binding EventEditViewmodel}" Margin="3, 0, 0, 0"/>
+                    <GridSplitter Grid.Row="0" Visibility="{Binding PreviewViewmodel, Converter={StaticResource NullToVis}}"  HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
+                    <ContentControl Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding PreviewViewmodel}">
+                        <ContentControl.Resources>
+                            <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
+                                <views:PreviewView/>
+                            </DataTemplate>
+                        </ContentControl.Resources>
+                    </ContentControl>
+                    <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="2" Margin="3, 3, 0, 0" Content="{Binding VideoPreview.View}"/>
+                </Grid>
+            </Expander>
             <DockPanel>
                 <Grid Height="28" DockPanel.Dock="Bottom" Visibility="{Binding IsSearchPanelVisible, Converter={StaticResource BoolToVis}}">
                     <StackPanel Orientation="Horizontal" >

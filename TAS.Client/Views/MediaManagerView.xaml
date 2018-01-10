@@ -45,62 +45,61 @@
 
     </UserControl.InputBindings>
     <DockPanel>
-        <Border DockPanel.Dock="Right" BorderThickness="1, 0, 0, 0" BorderBrush="DarkGray">
-            <Expander ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" >
-                <Expander.Resources>
-                    <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
-                        <Style.Triggers>
-                            <Trigger Property="IsExpanded" Value="True">
-                                <Setter Property="Header" >
-                                    <Setter.Value>
-                                        <TextBlock Text="{Resx _hide, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
-                                            <TextBlock.LayoutTransform>
-                                                <RotateTransform Angle="90"/>
-                                            </TextBlock.LayoutTransform>
-                                        </TextBlock>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsExpanded" Value="False">
-                                <Setter Property="Header" >
-                                    <Setter.Value>
-                                        <TextBlock Text="{Resx _show, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
-                                            <TextBlock.LayoutTransform>
-                                                <RotateTransform Angle="90"/>
-                                            </TextBlock.LayoutTransform>
-                                        </TextBlock>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Expander.Resources>
-                <Grid Width="350">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" MinHeight="50"/>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <ContentControl Content="{Binding EditMedia}">
-                        <ContentControl.Resources>
-                            <DataTemplate DataType="{x:Type viewmodels:MediaEditViewmodel}">
-                                <views:MediaEditView/>
-                            </DataTemplate>
-                        </ContentControl.Resources>
-                    </ContentControl>
-                    <GridSplitter Grid.Row="0" Visibility="{Binding IsDisplayPreview, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                    <ContentControl Visibility="{Binding IsDisplayPreview, Converter={StaticResource BoolToVis}}" Grid.Row="1" Margin="0, 0, 0, 3" Content="{Binding PreviewViewmodel}">
-                        <ContentControl.Resources>
-                            <DataTemplate DataType="{x:Type viewmodels:PreviewViewmodel}" >
-                                <views:PreviewView/>
-                            </DataTemplate>
-                        </ContentControl.Resources>
-                    </ContentControl>
-                    <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="2" Margin="0, 3, 0, 0" Content="{Binding VideoPreview.View}"/>
-                </Grid>
-            </Expander>
-        </Border>
+        <Expander DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" >
+            <Expander.Resources>
+                <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
+                    <Style.Triggers>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter Property="Header" >
+                                <Setter.Value>
+                                    <TextBlock Text="{Resx _hide, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
+                                        <TextBlock.LayoutTransform>
+                                            <RotateTransform Angle="90"/>
+                                        </TextBlock.LayoutTransform>
+                                    </TextBlock>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsExpanded" Value="False">
+                            <Setter Property="Header" >
+                                <Setter.Value>
+                                    <TextBlock Text="{Resx _show, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
+                                        <TextBlock.LayoutTransform>
+                                            <RotateTransform Angle="90"/>
+                                        </TextBlock.LayoutTransform>
+                                    </TextBlock>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Expander.Resources>
+            <Grid Name="SidePanel" Width="350">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" MinHeight="50"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Thumb Name="SidePanelResizer" HorizontalAlignment="Left" Width="3"  BorderThickness="0" Background="DarkGray" Grid.Column="0" Grid.RowSpan="3" Cursor="SizeWE" DragDelta="SidePanelResizer_OnDragDelta"/>
+                <ContentControl Grid.Row="0" Content="{Binding EditMedia}" Margin="3, 0, 0, 0">
+                    <ContentControl.Resources>
+                        <DataTemplate DataType="{x:Type viewmodels:MediaEditViewmodel}">
+                            <views:MediaEditView/>
+                        </DataTemplate>
+                    </ContentControl.Resources>
+                </ContentControl>
+                <GridSplitter Grid.Row="0" Visibility="{Binding IsDisplayPreview, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
+                <ContentControl Visibility="{Binding IsDisplayPreview, Converter={StaticResource BoolToVis}}" Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding PreviewViewmodel}">
+                    <ContentControl.Resources>
+                        <DataTemplate DataType="{x:Type viewmodels:PreviewViewmodel}" >
+                            <views:PreviewView/>
+                        </DataTemplate>
+                    </ContentControl.Resources>
+                </ContentControl>
+                <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="2" Margin="3, 3, 0, 0" Content="{Binding VideoPreview.View}"/>
+            </Grid>
+        </Expander>
         <StatusBar DockPanel.Dock="Bottom" >
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
                 <controls:StatusIndicator IsGreen="{Binding IsMediaDirectoryOk}" Margin="10,0,0,0"/>

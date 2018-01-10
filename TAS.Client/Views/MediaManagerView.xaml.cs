@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TAS.Client.ViewModels;
 using System.Collections;
+using System.Windows.Controls.Primitives;
 
 namespace TAS.Client.Views
 {
@@ -40,6 +41,14 @@ namespace TAS.Client.Views
         private void TreeViewEx_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             FolderCombo.IsOpen = false;
+        }
+
+        private void SidePanelResizer_OnDragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var xadjust = SidePanel.Width - e.HorizontalChange;
+            if (xadjust >= 0)
+                SidePanel.Width = xadjust;
+            e.Handled = true;
         }
     }
 }

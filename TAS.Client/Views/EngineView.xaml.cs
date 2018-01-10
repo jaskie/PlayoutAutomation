@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using TAS.Client.Common;
 
 namespace TAS.Client.Views
@@ -19,6 +20,14 @@ namespace TAS.Client.Views
         public EngineView()
         {
             InitializeComponent();
+        }
+
+        private void SidePanelResizer_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var xadjust = SidePanel.Width - e.HorizontalChange;
+            if (xadjust >= 0)
+                SidePanel.Width = xadjust;
+            e.Handled = true;
         }
     }
 }
