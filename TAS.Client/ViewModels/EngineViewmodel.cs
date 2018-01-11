@@ -438,7 +438,10 @@ namespace TAS.Client.ViewModels
                 e.Event.ScheduledTc, 
                 e.Event.Duration, 
                 e.Event.GetAudioVolume()));
-            using (new ExportViewmodel(Engine, selections)) { }
+            using (var vm = new ExportViewmodel(Engine, selections))
+            {
+                UiServices.ShowDialog<Views.ExportView>(vm);
+            }
         }
 
         private void _startSelected(object obj)
