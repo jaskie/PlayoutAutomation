@@ -18,7 +18,7 @@ namespace TAS.Client
     public partial class App : Application
     {
         private static readonly Mutex Mutex = new Mutex(false, "TASClientApplication");
-        bool _isSystemShutdown;
+        bool _isShutdown;
 
         public App()
         {
@@ -36,13 +36,13 @@ namespace TAS.Client
             ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
 
-        public bool IsIsSystemShutdown => _isSystemShutdown;
+        public bool IsShutdown => _isShutdown;
 
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
             EngineController.ShutDown();
-            if (!_isSystemShutdown)
+            if (!_isShutdown)
                 Mutex.ReleaseMutex();
         }
 
@@ -50,9 +50,9 @@ namespace TAS.Client
         {
             var window = Current?.MainWindow;
             if (window == null)
-                MessageBox.Show(e.Exception.Message, Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(e.Exception.Message, resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             else
-                MessageBox.Show(window, e.Exception.Message, Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(window, e.Exception.Message, resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         }
 
@@ -68,7 +68,7 @@ namespace TAS.Client
                      || (isBackupInstance && MessageBox.Show(resources._query_StartBackupInstance,
                              resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes)))
                 {
-                    _isSystemShutdown = true;
+                    _isShutdown = true;
                     Shutdown(0);
                     return;
                 }
@@ -82,32 +82,47 @@ namespace TAS.Client
 
             try
             {
+                SplashScreenView.Current?.Notify("Initializing engines...");
                 EngineController.Initialize();
             }
             catch (TypeInitializationException e)
             {
                 MessageBox.Show(string.Format(resources._message_CantInitializeEngines, e.InnerException),
                     resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-                Current.Shutdown(1);
+                _isShutdown = true;
+                Shutdown(1);
             }
             catch (Exception e)
             {
-                MessageBox.Show(string.Format(resources._message_CantInitializeEngines, e), resources._caption_Error,
+                var message =
+#if DEBUG
+                $"{e}";
+#else
+                $"{e.Source}:{e.GetType().Name} {e.Message}";
+#endif
+                MessageBox.Show(string.Format(resources._message_CantInitializeEngines, message), resources._caption_Error,
                     MessageBoxButton.OK, MessageBoxImage.Error);
+                _isShutdown = true;
                 Shutdown(1);
             }
 
-            AppDomain.CurrentDomain.SetThreadPrincipal(new GenericPrincipal(new LocalUser(), new string[0]));
-
             var splash = MainWindow as SplashScreenView;
-            MainWindow = new MainWindow();
-            MainWindow.Show();
+            if (!_isShutdown)
+            {
+                AppDomain.CurrentDomain.SetThreadPrincipal(new GenericPrincipal(new LocalUser(), new string[0]));
+                SplashScreenView.Current?.Notify("Creating views...");
+                MainWindow = new MainWindow();
+                MainWindow.Show();
+            }
             splash?.Close();
         }
 
         protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
         {
-            _isSystemShutdown = true;
+            if (MessageBox.Show(resources._query_ExitApplication, resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                _isShutdown = true;
+            else
+                e.Cancel = true;
             base.OnSessionEnding(e);
         }
     }

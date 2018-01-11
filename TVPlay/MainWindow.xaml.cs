@@ -25,7 +25,7 @@ namespace TAS.Client
         private void AppMainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
 #if DEBUG == false
-            e.Cancel = !((App)Application.Current).IsIsSystemShutdown && MessageBox.Show(resources._query_ExitApplication, resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.No;
+            e.Cancel = !((App)Application.Current).IsShutdown && MessageBox.Show(resources._query_ExitApplication, resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.No;
 #endif // DEBUG
         }
 

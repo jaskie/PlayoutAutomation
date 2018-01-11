@@ -28,7 +28,21 @@ namespace TAS.Client.Views
             var assemblyName = Assembly.GetEntryAssembly().GetName();
             Product.Text = assemblyName.Name;
             Version.Text = assemblyName.Version.ToString();
+            Current = this;
         }
+
+        public void Notify(string message)
+        {
+            LoadStage.Text = message;
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            Current = null;
+        }
+
+        public static SplashScreenView Current { get; private set; }
         
     }
 }
