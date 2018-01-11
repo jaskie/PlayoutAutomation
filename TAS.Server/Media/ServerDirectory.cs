@@ -24,7 +24,7 @@ namespace TAS.Server.Media
         {
             if (!IsInitialized)
             {
-                this.Load<ServerMedia>(MediaManager.ArchiveDirectory, Server.Id);
+                EngineController.Database.Load<ServerMedia>(this, MediaManager.ArchiveDirectory, Server.Id);
                 base.Initialize();
                 Debug.WriteLine(this, "Directory initialized");
             }

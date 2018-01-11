@@ -1,52 +1,36 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using TAS.Database;
 
 namespace TAS.Client.Config.Model
 {
     public class ArchiveDirectories
     {
         public readonly List<ArchiveDirectory> Directories;
+        private readonly Database.Db _db;
 
-        public ArchiveDirectories(string connectionStringPrimary = null, string connectionStringSecondary = null)
+        public ArchiveDirectories(Database.Db db)
         {
-            try
-            {
-                Db.Open(connectionStringPrimary, connectionStringSecondary);
-                Directories = Db.DbLoadArchiveDirectories<ArchiveDirectory>();
-                Directories.ForEach(d => d.IsModified = false);
-            }
-            finally
-            {
-                Db.Close();
-            }
+            _db = db;
+            Directories = db.DbLoadArchiveDirectories<ArchiveDirectory>();
+            Directories.ForEach(d => d.IsModified = false);
         }
 
         public void Save()
         {
-            Db.Open();
-            try
+            foreach (var dir in Directories.ToList())
             {
-                foreach (var dir in Directories.ToList())
+                if (dir.IsDeleted)
                 {
-                    if (dir.IsDeleted)
-                    {
-                        dir.DbDeleteArchiveDirectory();
-                        Directories.Remove(dir);
-                    }
-                    else
-                    if (dir.IsNew)
-                        dir.DbInsertArchiveDirectory();
-                    else
-                    if (dir.IsModified)
-                        dir.DbUpdateArchiveDirectory();
+                    _db.DbDeleteArchiveDirectory(dir);
+                    Directories.Remove(dir);
                 }
-            }
-            finally
-            {
-                Db.Close();
+                else
+                if (dir.IsNew)
+                    _db.DbInsertArchiveDirectory(dir);
+                else
+                if (dir.IsModified)
+                    _db.DbUpdateArchiveDirectory(dir);
             }
         }
-
     }
 }

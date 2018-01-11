@@ -176,7 +176,7 @@ namespace TAS.Server
                  var result = new SynchronizedCollection<Event>();
                  if (Id != 0)
                  {
-                     var seList = Engine.DbReadSubEvents(this);
+                     var seList = EngineController.Database.DbReadSubEvents(_engine, this);
                      foreach (Event e in seList)
                      {
                          e.Parent = this;
@@ -188,7 +188,7 @@ namespace TAS.Server
 
             _next = new Lazy<Event>(() =>
             {
-                var next = (Event)Engine.DbReadNext(this);
+                var next = (Event)EngineController.Database.DbReadNext(_engine, this);
                 if (next != null)
                     next.Prior = this;
                 return next;
@@ -198,7 +198,7 @@ namespace TAS.Server
             {
                 Event prior = null;
                 if (startType == TStartType.After && _idEventBinding > 0)
-                    prior = (Event)Engine.DbReadEvent(_idEventBinding);
+                    prior = (Event)EngineController.Database.DbReadEvent(_engine, _idEventBinding);
                 if (prior != null)
                     prior.Next = this;
                 return prior;
@@ -207,11 +207,11 @@ namespace TAS.Server
             _parent = new Lazy<Event>(() =>
             {
                 if ((startType == TStartType.WithParent || startType == TStartType.WithParentFromEnd) && _idEventBinding > 0)
-                    return (Event)Engine.DbReadEvent(_idEventBinding);
+                    return (Event)EngineController.Database.DbReadEvent(_engine, _idEventBinding);
                 return null;
             });
 
-            _rights = new Lazy<List<IAclRight>>(() => Db.DbReadEventAclList<EventAclRight>(this, _engine.AuthenticationService as IAuthenticationServicePersitency));
+            _rights = new Lazy<List<IAclRight>>(() => EngineController.Database.DbReadEventAclList<EventAclRight>(this, _engine.AuthenticationService as IAuthenticationServicePersitency));
         }
         #endregion //Constructor
 
@@ -1083,9 +1083,9 @@ namespace TAS.Server
             try
             {
                 if (Id == 0)
-                    this.DbInsertEvent();
+                    EngineController.Database.DbInsertEvent(this);
                 else
-                    this.DbUpdateEvent();
+                    EngineController.Database.DbUpdateEvent(this);
                 IsModified = false;
                 Debug.WriteLine(this, "Event saved");
             }
@@ -1234,7 +1234,7 @@ namespace TAS.Server
             }
             Remove();
             _isDeleted = true;
-            this.DbDeleteEvent();
+            EngineController.Database.DbDeleteEvent(this);
             _engine.RemoveEvent(this);
             _engine.NotifyEventDeleted(this);
             _isModified = false;

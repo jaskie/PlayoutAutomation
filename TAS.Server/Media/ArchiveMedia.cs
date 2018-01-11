@@ -36,15 +36,15 @@ namespace TAS.Server.Media
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = this.DbDeleteMedia();
+                            result = EngineController.Database.DbDeleteMedia(this);
                     }
                     else
                     {
                         if (IdPersistentMedia == 0)
-                            result = this.DbInsertMedia(((ArchiveDirectory)Directory).idArchive);
+                            result = EngineController.Database.DbInsertMedia(this, ((ArchiveDirectory)Directory).idArchive);
                         else if (IsModified)
                         {
-                            this.DbUpdateMedia(((ArchiveDirectory) Directory).idArchive);
+                            EngineController.Database.DbUpdateMedia(this, ((ArchiveDirectory) Directory).idArchive);
                             result = true;
                         }
                         IsModified = false;

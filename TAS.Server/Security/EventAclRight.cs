@@ -7,14 +7,14 @@ namespace TAS.Server.Security
         public override void Save()
         {
             if (Id == default(ulong))
-                this.DbInsertEventAcl();
+                EngineController.Database.DbInsertEventAcl(this);
             else
-                this.DbUpdateEventAcl();
+                EngineController.Database.DbUpdateEventAcl(this);
         }
 
         public override void Delete()
         {
-            this.DbDeleteEventAcl();
+            EngineController.Database.DbDeleteEventAcl(this);
             Dispose();
         }
     }

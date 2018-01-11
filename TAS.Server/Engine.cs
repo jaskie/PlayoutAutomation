@@ -84,8 +84,8 @@ namespace TAS.Server
         {
             _engineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
-            Db.ConnectionStateChanged += _database_ConnectionStateChanged;
-            _rights = new Lazy<List<IAclRight>>(() => Db.DbReadEngineAclList<EngineAclRight>(this, AuthenticationService as IAuthenticationServicePersitency));
+            EngineController.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
+            _rights = new Lazy<List<IAclRight>>(() => EngineController.Database.DbReadEngineAclList<EngineAclRight>(this, AuthenticationService as IAuthenticationServicePersitency));
         }
 
         public event EventHandler<EngineTickEventArgs> EngineTick;
@@ -320,7 +320,7 @@ namespace TAS.Server
             _mediaManager.Initialize();
 
             Debug.WriteLine(this, "Reading Root Events");
-            this.DbReadRootEvents();
+            EngineController.Database.DbReadRootEvents(this);
 
             EngineState = TEngineState.Idle;
             var cgElementsController = CGElementsController;
@@ -351,7 +351,7 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public ConnectionStateRedundant DatabaseConnectionState { get; } = Db.ConnectionState;
+        public ConnectionStateRedundant DatabaseConnectionState { get; } = EngineController.Database.ConnectionState;
 
         [XmlIgnore]
         public List<IEvent> FixedTimeEvents
@@ -687,7 +687,7 @@ namespace TAS.Server
                 if (reason.Result != MediaDeleteResult.MediaDeleteResultEnum.Success)
                     return reason;
             }
-            return this.DbMediaInUse(serverMedia);
+            return EngineController.Database.DbMediaInUse(this, serverMedia);
         }
 
         public IEnumerable<IEvent> GetRootEvents() { lock (_rootEvents.SyncRoot) return _rootEvents.Cast<IEvent>().ToList(); }
@@ -832,7 +832,7 @@ namespace TAS.Server
 
         public void SearchMissingEvents()
         {
-            this.DbSearchMissing();
+            EngineController.Database.DbSearchMissing(this);
         }
 
         #region  IPersistent properties
@@ -1156,7 +1156,7 @@ namespace TAS.Server
             NotifyEngineOperation(aEvent, TEngineOperation.Play);
             if (aEvent.Layer == VideoLayer.Program
                 && (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live))
-                Task.Run(() => aEvent.AsRunLogWrite());
+                Task.Run(() => EngineController.Database.AsRunLogWrite(aEvent));
         }
 
         private void _startLoaded()
@@ -1518,7 +1518,7 @@ namespace TAS.Server
         {
             foreach (var e in _rootEvents)
                 e.SaveLoadedTree();
-            Db.ConnectionStateChanged -= _database_ConnectionStateChanged;
+            EngineController.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
             CGElementsController?.Dispose();
             Remote?.Dispose();
             base.DoDispose();
@@ -1537,7 +1537,7 @@ namespace TAS.Server
             CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
             _currentTicks = CurrentTime.Ticks;
 
-            var playingEvents = this.DbSearchPlaying().Cast<Event>().ToArray();
+            var playingEvents = EngineController.Database.DbSearchPlaying(this).Cast<Event>().ToArray();
             var playing = playingEvents.FirstOrDefault(e => e.Layer == VideoLayer.Program && (e.EventType == TEventType.Live || e.EventType == TEventType.Movie));
             if (playing != null)
             {

@@ -21,14 +21,14 @@ namespace TAS.Server.Media
 
         public IArchiveMedia Find(IMediaProperties media)
         {
-            return this.DbMediaFind<ArchiveMedia>(media);
+            return EngineController.Database.DbMediaFind<ArchiveMedia>(this, media);
         }
 
         public void ArchiveSave(IServerMedia media, bool deleteAfterSuccess)
         {
             ArchiveMedia archived;
             if (media.IsArchived
-                && (archived = this.DbMediaFind<ArchiveMedia>(media)) != null
+                && (archived = EngineController.Database.DbMediaFind<ArchiveMedia>(this, media)) != null
                 && archived.FileExists())
             {
                 if (deleteAfterSuccess)
@@ -57,7 +57,7 @@ namespace TAS.Server.Media
         public void Search()
         {
             Clear();
-            this.DbSearch<ArchiveMedia>();
+            EngineController.Database.DbSearch<ArchiveMedia>(this);
         }
 
         public TMediaCategory? SearchMediaCategory { get; set; }
@@ -78,7 +78,7 @@ namespace TAS.Server.Media
 
         public override void SweepStaleMedia()
         {
-            IEnumerable<IMedia> staleMediaList = this.DbFindStaleMedia<ArchiveMedia>();
+            IEnumerable<IMedia> staleMediaList = EngineController.Database.DbFindStaleMedia<ArchiveMedia>(this);
             foreach (var m in staleMediaList)
                 m.Delete();
         }

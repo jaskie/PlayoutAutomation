@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using TAS.Database;
 
 namespace TAS.Client.Config.Model
 {
@@ -9,16 +8,19 @@ namespace TAS.Client.Config.Model
         internal readonly ArchiveDirectories ArchiveDirectories;
         public readonly string ConnectionStringPrimary;
         public readonly string ConnectionStringSecondary;
+        private readonly Database.Db _db;
         public Engines(string connectionStringPrimary, string connectionStringSecondary)
         {
             ConnectionStringPrimary = connectionStringPrimary;
             ConnectionStringSecondary = connectionStringSecondary;
-            ArchiveDirectories = new ArchiveDirectories(connectionStringPrimary, connectionStringSecondary);
+            _db = new Database.Db();
+            _db.Open(connectionStringPrimary, connectionStringSecondary);
+            ArchiveDirectories = new ArchiveDirectories(_db);
             try
             {
-                Db.Open();
-                EngineList = Db.DbLoadEngines<Engine>();
-                Servers = Db.DbLoadServers<CasparServer>();
+                _db.Open();
+                EngineList = _db.DbLoadEngines<Engine>();
+                Servers = _db.DbLoadServers<CasparServer>();
                 Servers.ForEach(s =>
                 {
                     s.Channels.ForEach(c => c.Owner = s);
@@ -33,7 +35,7 @@ namespace TAS.Client.Config.Model
             }
             finally
             {
-                Db.Close();
+                _db.Close();
             }
         }
 
@@ -41,22 +43,22 @@ namespace TAS.Client.Config.Model
         {
             try
             {
-                Db.Open(ConnectionStringPrimary, ConnectionStringSecondary);
+                _db.Open(ConnectionStringPrimary, ConnectionStringSecondary);
                 EngineList.ForEach(e =>
                 {
                     if (e.IsModified)
                     {
                         if (e.Id == 0)
-                            e.DbInsertEngine();
+                            _db.DbInsertEngine(e);
                         else
-                            e.DbUpdateEngine();
+                            _db.DbUpdateEngine(e);
                     }
                 });
-                DeletedEngines.ForEach(s => { if (s.Id > 0) s.DbDeleteEngine(); });
+                DeletedEngines.ForEach(s => { if (s.Id > 0) _db.DbDeleteEngine(s); });
             }
             finally
             {
-                Db.Close();
+                _db.Close();
             }
         }
 

@@ -4,7 +4,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Database;
 
 namespace TAS.Client.Config
 {
@@ -19,11 +18,13 @@ namespace TAS.Client.Config
         private bool _isBackupInstance;
         private bool _isConnectionStringSecondary;
         private string _uiLanguage;
+        private readonly Database.Db _db;
 
         protected override void OnDispose() { }
         public ConfigFileViewmodel(Model.ConfigFile configFile)
             : base(configFile, typeof(ConfigFileView), $"Config file ({configFile.FileName})")
         {
+            _db = new Database.Db();
             CommandEditConnectionString = new UICommand { ExecuteDelegate = _editConnectionString };
             CommandEditConnectionStringSecondary = new UICommand { ExecuteDelegate = _editConnectionStringSecondary };
             CommandTestConnectivity = new UICommand { ExecuteDelegate = _testConnectivity, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
@@ -115,13 +116,13 @@ namespace TAS.Client.Config
 
         private void _testConnectivity(object obj)
         {
-            if (Db.TestConnect(tasConnectionString))
+            if (_db.TestConnect(tasConnectionString))
             {
-                Db.Open(tasConnectionString, tasConnectionStringSecondary);
-                if (Db.UpdateRequired())
+                _db.Open(tasConnectionString, tasConnectionStringSecondary);
+                if (_db.UpdateRequired())
                 {
                     if (ShowMessage("Connection successful, but database should be updated. \nUpdate now?", "Connection test", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                        if (Db.UpdateDb())
+                        if (_db.UpdateDb())
                             ShowMessage("Database is now up-to-date.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
                         else 
                             ShowMessage("Database update failed.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -136,7 +137,7 @@ namespace TAS.Client.Config
 
         private void _testConnectivitySecondary(object obj)
         {
-            if (Db.TestConnect(tasConnectionStringSecondary))
+            if (_db.TestConnect(tasConnectionStringSecondary))
                 ShowMessage("Connection successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
             else
                 ShowMessage("Connection failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -144,17 +145,17 @@ namespace TAS.Client.Config
 
         private void _clonePrimaryDatabase(object obj)
         {
-            if (Db.TestConnect(tasConnectionStringSecondary))
+            if (_db.TestConnect(tasConnectionStringSecondary))
             {
                 if (ShowMessage("Secondary database already exists. Delete it first?", "Warning - database exists", MessageBoxButton.YesNo, MessageBoxImage.Hand) != MessageBoxResult.Yes)
                     return;
-                if (!Db.DropDatabase(tasConnectionStringSecondary))
+                if (!_db.DropDatabase(tasConnectionStringSecondary))
                 {
                     ShowMessage("Database delete failed, cannot proceed.", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
-            if (Db.CloneDatabase(tasConnectionString, tasConnectionStringSecondary))
+            if (_db.CloneDatabase(tasConnectionString, tasConnectionStringSecondary))
                 ShowMessage("Database clone successful", "Database clone", MessageBoxButton.OK, MessageBoxImage.Information);
             else
                 ShowMessage("Database clonning failed", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);

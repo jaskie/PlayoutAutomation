@@ -1,51 +1,33 @@
 ﻿using System.Collections.Generic;
-using TAS.Database;
 
 namespace TAS.Client.Config.Model
 {
     public class PlayoutServers
     {
-        readonly string _connectionString;
-        readonly string _connectionStringSecondary;
-        public PlayoutServers(string connectionString, string connectionStringSecondary)
+        readonly Database.Db _db;
+        public PlayoutServers(string connectionStringPrimary, string connectionStringSecondary)
         {
-            _connectionString = connectionString;
-            _connectionStringSecondary = connectionStringSecondary;
-            try
-            {
-                Db.Open(_connectionString, _connectionStringSecondary);
-                Servers = Db.DbLoadServers<CasparServer>();
-                Servers.ForEach(s =>
-                    {
-                        s.IsNew = false;
-                        s.Channels.ForEach(c => c.Owner = s);
-                        s.Recorders.ForEach(r => r.Owner = s);
-                    });
-            }
-            finally
-            {
-                Db.Close();
-            }
+            _db = new Database.Db();
+            _db.Open(connectionStringPrimary, connectionStringSecondary);
+            Servers = _db.DbLoadServers<CasparServer>();
+            Servers.ForEach(s =>
+                {
+                    s.IsNew = false;
+                    s.Channels.ForEach(c => c.Owner = s);
+                    s.Recorders.ForEach(r => r.Owner = s);
+                });
         }
 
         public void Save()
         {
-            try
+            Servers.ForEach(s =>
             {
-                Db.Open(_connectionString, _connectionStringSecondary);
-                Servers.ForEach(s =>
-                {
-                    if (s.Id == 0)
-                        s.DbInsertServer();
-                    else
-                        s.DbUpdateServer();
-                });
-                DeletedServers.ForEach(s => { if (s.Id > 0) s.DbDeleteServer(); });
-            }
-            finally
-            {
-                Db.Close();
-            }
+                if (s.Id == 0)
+                    _db.DbInsertServer(s);
+                else
+                    _db.DbUpdateServer(s);
+            });
+            DeletedServers.ForEach(s => { if (s.Id > 0) _db.DbDeleteServer(s); });
         }
 
         public List<CasparServer> Servers { get; }

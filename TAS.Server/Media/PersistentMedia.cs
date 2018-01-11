@@ -18,7 +18,7 @@ namespace TAS.Server.Media
         internal PersistentMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid)
         {
             IdPersistentMedia = idPersistentMedia;
-            _mediaSegments = new Lazy<MediaSegments>(this.DbMediaSegmentsRead<MediaSegments>);
+            _mediaSegments = new Lazy<MediaSegments>(() => EngineController.Database.DbMediaSegmentsRead<MediaSegments>(this));
         }
         public UInt64 IdPersistentMedia { get; set; }
 

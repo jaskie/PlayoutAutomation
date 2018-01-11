@@ -8,12 +8,7 @@ namespace TAS.Client.Config
 {
     public class ArchiveDirectoriesViewmodel: OkCancelViewmodelBase<ArchiveDirectories>
     {
-        public ArchiveDirectoriesViewmodel() : base(new ArchiveDirectories(), typeof(ArchiveDirectoriesView), "Archive directories") 
-        {
-            Directories = new ObservableCollection<ArchiveDirectory>(Model.Directories);
-            _createCommands();
-        }
-
+       
         public ArchiveDirectoriesViewmodel(ArchiveDirectories directories) : base(directories, typeof(ArchiveDirectoriesView), "Archive directories")
         {
             Directories = new ObservableCollection<ArchiveDirectory>(Model.Directories);

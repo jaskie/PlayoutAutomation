@@ -12,13 +12,13 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Database
 {
-    public static class Db
+    public class Db
     {
-        static DbConnectionRedundant _connection;
-        private static string _connectionStringSecondary;
-        private static string _connectionStringPrimary;
+        DbConnectionRedundant _connection;
+        private string _connectionStringSecondary;
+        private string _connectionStringPrimary;
 
-        public static void Open(string connectionStringPrimary = null, string connectionStringSecondary = null)
+        public void Open(string connectionStringPrimary = null, string connectionStringSecondary = null)
         {
             if (connectionStringPrimary != null)
             {
@@ -30,46 +30,46 @@ namespace TAS.Database
             _connection.Open();
         }
 
-        private static void _connection_StateRedundantChange(object sender, RedundantConnectionStateEventArgs e)
+        private void _connection_StateRedundantChange(object sender, RedundantConnectionStateEventArgs e)
         {
             ConnectionStateChanged?.Invoke(sender, e);
         }
 
-        public static event EventHandler<RedundantConnectionStateEventArgs> ConnectionStateChanged;
+        public event EventHandler<RedundantConnectionStateEventArgs> ConnectionStateChanged;
 
-        public static void Close()
+        public void Close()
         {
             _connection.Close();
         }
 
-        public static string ConnectionStringPrimary => _connectionStringPrimary;
-        public static string ConnectionStringSecondary => _connectionStringSecondary;
+        public string ConnectionStringPrimary => _connectionStringPrimary;
+        public string ConnectionStringSecondary => _connectionStringSecondary;
 
-        public static ConnectionStateRedundant ConnectionState => _connection.StateRedundant;
+        public ConnectionStateRedundant ConnectionState => _connection.StateRedundant;
 
         #region Configuration Functions
-        public static bool TestConnect(string connectionString)
+        public bool TestConnect(string connectionString)
         {
             return DbConnectionRedundant.TestConnect(connectionString);
         }
         
-        public static bool CreateEmptyDatabase(string connectionString, string collate)
+        public bool CreateEmptyDatabase(string connectionString, string collate)
         {
             return DbConnectionRedundant.CreateEmptyDatabase(connectionString, collate);
         }
 
-        public static bool DropDatabase(string connectionString)
+        public bool DropDatabase(string connectionString)
         {
             return DbConnectionRedundant.DropDatabase(connectionString);
         }
 
-        public static bool CloneDatabase(string connectionStringSource, string connectionStringDestination)
+        public bool CloneDatabase(string connectionStringSource, string connectionStringDestination)
         {
             DbConnectionRedundant.CloneDatabase(connectionStringSource, connectionStringDestination);
             return DbConnectionRedundant.TestConnect(connectionStringDestination);
         }
                 
-        public static bool UpdateRequired()
+        public bool UpdateRequired()
         {
             var command = new DbCommandRedundant("select `value` from `params` where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);
             string dbVersionStr;
@@ -102,7 +102,7 @@ namespace TAS.Database
             return false;
         }
 
-        public static bool UpdateDb()
+        public bool UpdateDb()
         {
             var command = new DbCommandRedundant("select `value` from `params` where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);
             int dbVersionNr = 0;
@@ -161,7 +161,7 @@ namespace TAS.Database
 
         #region IPlayoutServer
 
-        public static List<T> DbLoadServers<T>() where T : IPlayoutServerProperties
+        public List<T> DbLoadServers<T>() where T : IPlayoutServerProperties
         {
             List<T> servers = new List<T>();
             lock (_connection)
@@ -183,7 +183,7 @@ namespace TAS.Database
             return servers;
         }
 
-        public static void DbInsertServer(this IPlayoutServerProperties server) 
+        public void DbInsertServer(IPlayoutServerProperties server) 
         {
             lock (_connection)
             {
@@ -201,7 +201,7 @@ namespace TAS.Database
             }
         }
 
-        public static void DbUpdateServer(this IPlayoutServerProperties server) 
+        public void DbUpdateServer(IPlayoutServerProperties server) 
         {
             lock (_connection)
             {
@@ -218,7 +218,7 @@ namespace TAS.Database
             }
         }
 
-        public static void DbDeleteServer(this IPlayoutServerProperties server) 
+        public void DbDeleteServer(IPlayoutServerProperties server) 
         {
             lock (_connection)
             {
@@ -232,7 +232,7 @@ namespace TAS.Database
 
         #region IEngine
 
-        public static List<T> DbLoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
+        public List<T> DbLoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
         {
             List<T> engines = new List<T>();
             lock (_connection)
@@ -269,7 +269,7 @@ namespace TAS.Database
             }
         }
 
-        public static void DbInsertEngine(this IEnginePersistent engine) 
+        public void DbInsertEngine(IEnginePersistent engine) 
         {
             lock (_connection)
             {
@@ -295,7 +295,7 @@ namespace TAS.Database
             }
         }
 
-        public static void DbUpdateEngine(this IEnginePersistent engine)
+        public void DbUpdateEngine(IEnginePersistent engine)
         {
             lock (_connection)
             {
@@ -319,7 +319,7 @@ namespace TAS.Database
             }
         }
 
-        public static void DbDeleteEngine(this IEnginePersistent engine) 
+        public void DbDeleteEngine(IEnginePersistent engine) 
         {
             lock (_connection)
             {
@@ -329,7 +329,7 @@ namespace TAS.Database
             }
         }
 
-        public static void DbReadRootEvents(this IEngine engine)
+        public void DbReadRootEvents(IEngine engine)
         {
             lock (_connection)
             {
@@ -351,7 +351,7 @@ namespace TAS.Database
             }
         }
 
-        public static void DbSearchMissing(this IEngine engine) 
+        public void DbSearchMissing(IEngine engine) 
         {
             {
                 lock (_connection)
@@ -385,7 +385,7 @@ namespace TAS.Database
             }
         }
 
-        public static List<IEvent> DbSearchPlaying(this IEngine engine)
+        public List<IEvent> DbSearchPlaying(IEngine engine)
         {
             {
                 lock (_connection)
@@ -414,7 +414,7 @@ namespace TAS.Database
             }
         }
 
-        public static MediaDeleteResult DbMediaInUse(this IEngine engine, IServerMedia serverMedia)
+        public MediaDeleteResult DbMediaInUse(IEngine engine, IServerMedia serverMedia)
         {
             MediaDeleteResult reason = MediaDeleteResult.NoDeny;
             lock (_connection)
@@ -440,7 +440,7 @@ namespace TAS.Database
         #endregion //IEngine
 
         #region ArchiveDirectory
-        public static List<T> DbLoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
+        public List<T> DbLoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
         {
             List<T> directories = new List<T>();
             lock (_connection)
@@ -462,7 +462,7 @@ namespace TAS.Database
             return directories;
         }
 
-        public static void DbInsertArchiveDirectory(this IArchiveDirectoryProperties dir) 
+        public void DbInsertArchiveDirectory(IArchiveDirectoryProperties dir) 
         {
             lock (_connection)
             {
@@ -475,7 +475,7 @@ namespace TAS.Database
             }
         }
 
-        public static void DbUpdateArchiveDirectory(this IArchiveDirectoryProperties dir)
+        public void DbUpdateArchiveDirectory(IArchiveDirectoryProperties dir)
         {
             lock (_connection)
             {
@@ -486,7 +486,7 @@ namespace TAS.Database
             }
         }
 
-        public static void DbDeleteArchiveDirectory(this IArchiveDirectoryProperties dir) 
+        public void DbDeleteArchiveDirectory(IArchiveDirectoryProperties dir) 
         {
             lock (_connection)
             {
@@ -496,23 +496,23 @@ namespace TAS.Database
             }
         }
 
-        private static ConstructorInfo _archiveMediaConstructorInfo;
+        private ConstructorInfo _archiveMediaConstructorInfo;
 
-        private static T _readArchiveMedia<T>(DbDataReaderRedundant dataReader, IArchiveDirectory dir) where T: IArchiveMedia
+        private T _readArchiveMedia<T>(DbDataReaderRedundant dataReader, IArchiveDirectory dir) where T: IArchiveMedia
         {
             if (_archiveMediaConstructorInfo == null)
                 _archiveMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IArchiveDirectory), typeof(Guid), typeof(UInt64) });
             if (_archiveMediaConstructorInfo != null)
             {
                 T media = (T)_archiveMediaConstructorInfo.Invoke(new object[] { dir, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idArchiveMedia") });
-                media._mediaReadFields(dataReader);
+                _mediaReadFields(media, dataReader);
                 media.IsModified = false;
                 return media;
             }
             throw new ApplicationException("No IArchiveMedia constructor found");
         }
 
-        public static void DbSearch<T>(this IArchiveDirectory dir) where T: IArchiveMedia
+        public void DbSearch<T>(IArchiveDirectory dir) where T: IArchiveMedia
         {
             string search = dir.SearchString;
             lock (_connection)
@@ -540,8 +540,8 @@ namespace TAS.Database
             }
         }
 
-        private static ConstructorInfo _archiveDirectoryConstructorInfo;
-        public static IArchiveDirectory LoadArchiveDirectory<T>(this IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectory
+        private ConstructorInfo _archiveDirectoryConstructorInfo;
+        public IArchiveDirectory LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectory
         {
             lock (_connection)
             {
@@ -561,7 +561,7 @@ namespace TAS.Database
             }
         }
 
-        public static IEnumerable<IArchiveMedia> DbFindStaleMedia<T>(this IArchiveDirectory dir) where T: IArchiveMedia
+        public IEnumerable<IArchiveMedia> DbFindStaleMedia<T>(IArchiveDirectory dir) where T: IArchiveMedia
         {
             List<IArchiveMedia> returnList = new List<IArchiveMedia>();
             lock (_connection)
@@ -578,7 +578,7 @@ namespace TAS.Database
             return returnList;
         }
 
-        public static T DbMediaFind<T>(this IArchiveDirectory dir, IMediaProperties media) where T: IArchiveMedia
+        public T DbMediaFind<T>(IArchiveDirectory dir, IMediaProperties media) where T: IArchiveMedia
         {
             T result = default(T);
             lock (_connection)
@@ -600,7 +600,7 @@ namespace TAS.Database
             return result;
         }
 
-        public static bool DbArchiveContainsMedia(this IArchiveDirectory dir, IMediaProperties media)
+        public bool DbArchiveContainsMedia(IArchiveDirectory dir, IMediaProperties media)
         {
             lock (_connection)
             {
@@ -620,7 +620,7 @@ namespace TAS.Database
         #endregion // ArchiveDirectory
 
         #region IEvent
-        public static List<IEvent> DbReadSubEvents(this IEngine engine, IEventPesistent eventOwner)
+        public List<IEvent> DbReadSubEvents(IEngine engine, IEventPesistent eventOwner)
         {
             lock (_connection)
             {
@@ -658,7 +658,7 @@ namespace TAS.Database
             }
         }
 
-        public static IEvent DbReadNext(this IEngine engine, IEventPesistent aEvent) 
+        public IEvent DbReadNext(IEngine engine, IEventPesistent aEvent) 
         {
             lock (_connection)
             {
@@ -684,7 +684,7 @@ namespace TAS.Database
             }
         }
 
-        private static void _readAnimatedEvent(ulong id, ITemplated animatedEvent)
+        private void _readAnimatedEvent(ulong id, ITemplated animatedEvent)
         {
             DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM `rundownevent_templated` where `idrundownevent_templated` = @id;", _connection);
             cmd.Parameters.AddWithValue("@id", id);
@@ -705,7 +705,7 @@ namespace TAS.Database
             }
         }
 
-        public static IEvent DbReadEvent(this IEngine engine, UInt64 idRundownEvent)
+        public IEvent DbReadEvent(IEngine engine, UInt64 idRundownEvent)
         {
             lock (_connection)
             {
@@ -730,7 +730,7 @@ namespace TAS.Database
             }
         }
 
-        private static IEvent _eventRead(IEngine engine, DbDataReaderRedundant dataReader)
+        private IEvent _eventRead(IEngine engine, DbDataReaderRedundant dataReader)
         {
             uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flagsEvent")) ? 0 : dataReader.GetUInt32("flagsEvent");
             ushort transitionType = dataReader.GetUInt16("typTransition");
@@ -774,7 +774,7 @@ namespace TAS.Database
         private static DateTime _minMySqlDate = new DateTime(1000, 01, 01);
         private static DateTime _maxMySQLDate = new DateTime(9999, 12, 31, 23, 59, 59);
 
-        private static bool _eventFillParamsAndExecute(DbCommandRedundant cmd, IEventPesistent aEvent)
+        private bool _eventFillParamsAndExecute(DbCommandRedundant cmd, IEventPesistent aEvent)
         {
 
             Debug.WriteLineIf(aEvent.Duration.Days > 1, aEvent, "Duration extremely long");
@@ -829,7 +829,7 @@ namespace TAS.Database
             return cmd.ExecuteNonQuery() == 1;
         }
 
-        private static void _eventAnimatedSave(ulong id,  ITemplated e, bool inserting)
+        private void _eventAnimatedSave(ulong id,  ITemplated e, bool inserting)
         {
             string query = inserting ?
                 @"INSERT INTO `rundownevent_templated` (`idrundownevent_templated`, `Method`, `TemplateLayer`, `Fields`) VALUES (@idrundownevent_templated, @Method, @TemplateLayer, @Fields);" :
@@ -845,7 +845,7 @@ namespace TAS.Database
         }
 
 
-        public static bool DbInsertEvent(this IEventPesistent aEvent)
+        public bool DbInsertEvent(IEventPesistent aEvent)
         {
             lock (_connection)
             {
@@ -871,7 +871,7 @@ VALUES
             return false;
         }
 
-        public static bool DbUpdateEvent<TEvent>(this TEvent aEvent) where  TEvent: IEventPesistent
+        public bool DbUpdateEvent<TEvent>(TEvent aEvent) where  TEvent: IEventPesistent
         {
             lock (_connection)
             {
@@ -920,7 +920,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             return false;
         }
 
-        public static bool DbDeleteEvent(this IEventPesistent aEvent)
+        public bool DbDeleteEvent(IEventPesistent aEvent)
         {
             lock (_connection)
             {
@@ -933,7 +933,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             }
         }
 
-        public static void AsRunLogWrite(this IEventPesistent e)
+        public void AsRunLogWrite(IEventPesistent e)
         {
             try
             {
@@ -1010,7 +1010,7 @@ VALUES
 
         #region ACL
 
-        public static List<IAclRight> DbReadEventAclList<TEventAcl>(IEventPesistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
+        public List<IAclRight> DbReadEventAclList<TEventAcl>(IEventPesistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
         {
             if (aEvent == null)
                 return null;
@@ -1039,7 +1039,7 @@ VALUES
             }
         }
 
-        public static bool DbInsertEventAcl<TEventAcl>(this TEventAcl acl) where TEventAcl: IAclRight, IPersistent
+        public bool DbInsertEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
         {
             if (acl?.Owner == null)
                 return false;
@@ -1060,7 +1060,7 @@ VALUES
             }
         }
 
-        public static bool DbUpdateEventAcl<TEventAcl>(this TEventAcl acl) where TEventAcl: IAclRight, IPersistent
+        public bool DbUpdateEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1076,7 +1076,7 @@ VALUES
             }
         }
 
-        public static bool DbDeleteEventAcl<TEventAcl>(this TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        public bool DbDeleteEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1088,7 +1088,7 @@ VALUES
         }
 
 
-        public static List<IAclRight> DbReadEngineAclList<TEngineAcl>(IPersistent engine, IAuthenticationServicePersitency authenticationService) where TEngineAcl : IAclRight, IPersistent, new()
+        public List<IAclRight> DbReadEngineAclList<TEngineAcl>(IPersistent engine, IAuthenticationServicePersitency authenticationService) where TEngineAcl : IAclRight, IPersistent, new()
         {
             lock (_connection)
             {
@@ -1115,7 +1115,7 @@ VALUES
             }
         }
 
-        public static bool DbInsertEngineAcl<TEventAcl>(this TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        public bool DbInsertEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             if (acl?.Owner == null)
                 return false;
@@ -1136,7 +1136,7 @@ VALUES
             }
         }
 
-        public static bool DbUpdateEngineAcl<TEventAcl>(this TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        public bool DbUpdateEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1152,7 +1152,7 @@ VALUES
             }
         }
 
-        public static bool DbDeleteEngineAcl<TEventAcl>(this TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        public bool DbDeleteEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1166,7 +1166,7 @@ VALUES
         #endregion //ACL
 
         #region Media
-        private static void _mediaFillParamsAndExecute(DbCommandRedundant cmd, IPersistentMedia media, ulong serverId)
+        private void _mediaFillParamsAndExecute(DbCommandRedundant cmd, IPersistentMedia media, ulong serverId)
         {
             cmd.Parameters.AddWithValue("@idProgramme", media.IdProgramme);
             cmd.Parameters.AddWithValue("@idAux", media.IdAux);
@@ -1227,7 +1227,7 @@ VALUES
             { Debug.WriteLine(media, e.Message); }
         }
 
-        private static void _mediaReadFields(this IPersistentMedia media, DbDataReaderRedundant dataReader)
+        private void _mediaReadFields(IPersistentMedia media, DbDataReaderRedundant dataReader)
         {
             uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flags")) ? 0 : dataReader.GetUInt32("flags");
             media.MediaName = dataReader.IsDBNull(dataReader.GetOrdinal("MediaName")) ? string.Empty : dataReader.GetString("MediaName");
@@ -1260,7 +1260,7 @@ VALUES
 
         static ConstructorInfo _serverMediaConstructorInfo;
         static ConstructorInfo _animatedMediaConstructorInfo;
-        public static void Load<T>(this IAnimationDirectory directory, ulong serverId) where T: IAnimatedMedia
+        public void Load<T>(IAnimationDirectory directory, ulong serverId) where T: IAnimatedMedia
         {
             Debug.WriteLine(directory, "AnimationDirectory load started");
             lock (_connection)
@@ -1281,7 +1281,7 @@ VALUES
                         {
 
                             T nm = (T)_animatedMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia")});
-                            nm._mediaReadFields(dataReader);
+                            _mediaReadFields(nm, dataReader);
                             string templateFields = dataReader.GetString("Fields");
                             if (!string.IsNullOrWhiteSpace(templateFields))
                             {
@@ -1308,7 +1308,7 @@ VALUES
             }
         }
 
-        public static void Load<T>(this IServerDirectory directory, IArchiveDirectory archiveDirectory, ulong serverId) where T : IServerMedia
+        public void Load<T>(IServerDirectory directory, IArchiveDirectory archiveDirectory, ulong serverId) where T : IServerMedia
         {
             Debug.WriteLine(directory, "ServerLoadMediaDirectory started");
             lock (_connection)
@@ -1329,7 +1329,7 @@ VALUES
                         while (dataReader.Read())
                         {
                             T nm = (T)_serverMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia"), archiveDirectory});
-                            nm._mediaReadFields(dataReader);
+                            _mediaReadFields(nm, dataReader);
                             nm.IsModified = false;
                             if (nm.MediaStatus != TMediaStatus.Available)
                             {
@@ -1347,7 +1347,7 @@ VALUES
             }
         }
 
-        private static bool _insert_media_templated(IAnimatedMedia media)
+        private bool _insert_media_templated(IAnimatedMedia media)
         {
             try
             {
@@ -1368,7 +1368,7 @@ VALUES
             }
         }
 
-        private static void _update_media_templated(IAnimatedMedia media)
+        private void _update_media_templated(IAnimatedMedia media)
         {
             try
             {
@@ -1386,7 +1386,7 @@ VALUES
             }
         }
 
-        private static bool _delete_media_templated(IAnimatedMedia media)
+        private bool _delete_media_templated(IAnimatedMedia media)
         {
             try
             {
@@ -1403,7 +1403,7 @@ VALUES
             }
         }
 
-        public static bool DbInsertMedia(this IAnimatedMedia animatedMedia, ulong serverId )
+        public bool DbInsertMedia(IAnimatedMedia animatedMedia, ulong serverId )
         {
             bool result = false;
             lock (_connection)
@@ -1428,13 +1428,13 @@ VALUES
             return result;
         }
 
-        public static bool DbInsertMedia(this IServerMedia serverMedia, ulong serverId)
+        public bool DbInsertMedia(IServerMedia serverMedia, ulong serverId)
         {
             lock (_connection)
                 return _dbInsertMedia(serverMedia, serverId);
         }
 
-        private static bool _dbInsertMedia(IPersistentMedia media, ulong serverId)
+        private bool _dbInsertMedia(IPersistentMedia media, ulong serverId)
         {
             string query =
 @"INSERT INTO servermedia 
@@ -1448,7 +1448,7 @@ VALUES
             return true;
         }
 
-        public static bool DbInsertMedia(this IArchiveMedia archiveMedia, ulong serverid)
+        public bool DbInsertMedia(IArchiveMedia archiveMedia, ulong serverid)
         {
             lock (_connection)
             {
@@ -1464,7 +1464,7 @@ VALUES
             return true;
         }
 
-        public static bool DbDeleteMedia(this IServerMedia serverMedia)
+        public bool DbDeleteMedia(IServerMedia serverMedia)
         {
             lock (_connection)
             {
@@ -1472,7 +1472,7 @@ VALUES
             }
         }
 
-        public static bool DbDeleteMedia(this IAnimatedMedia animatedMedia)
+        public bool DbDeleteMedia(IAnimatedMedia animatedMedia)
         {
             lock (_connection)
             {
@@ -1498,7 +1498,7 @@ VALUES
         }
 
 
-        private static bool _dbDeleteMedia(IPersistentMedia serverMedia)
+        private bool _dbDeleteMedia(IPersistentMedia serverMedia)
         {
             string query = "DELETE FROM ServerMedia WHERE idServerMedia=@idServerMedia;";
             DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
@@ -1506,7 +1506,7 @@ VALUES
             return cmd.ExecuteNonQuery() == 1;
         }
 
-        public static bool DbDeleteMedia(this IArchiveMedia archiveMedia)
+        public bool DbDeleteMedia(IArchiveMedia archiveMedia)
         {
             lock (_connection)
             {
@@ -1517,7 +1517,7 @@ VALUES
             }
         }
 
-        public static void DbUpdateMedia(this IAnimatedMedia animatedMedia, ulong serverId)
+        public void DbUpdateMedia(IAnimatedMedia animatedMedia, ulong serverId)
         {
             lock (_connection)
             {
@@ -1538,13 +1538,13 @@ VALUES
         }
 
 
-        public static void DbUpdateMedia(this IServerMedia serverMedia, ulong serverId)
+        public void DbUpdateMedia(IServerMedia serverMedia, ulong serverId)
         {
             lock (_connection)
                 _dbUpdateMedia(serverMedia, serverId);
         }
 
-        private static void _dbUpdateMedia(IPersistentMedia serverMedia, ulong serverId)
+        private void _dbUpdateMedia(IPersistentMedia serverMedia, ulong serverId)
         {
             string query =
                 @"UPDATE ServerMedia SET 
@@ -1577,7 +1577,7 @@ WHERE idServerMedia=@idServerMedia;";
             Debug.WriteLine(serverMedia, "ServerMediaUpdate-d");
         }
 
-        public static void DbUpdateMedia(this IArchiveMedia archiveMedia, ulong serverId)
+        public void DbUpdateMedia(IArchiveMedia archiveMedia, ulong serverId)
         {
             lock (_connection)
             {
@@ -1617,9 +1617,9 @@ WHERE idArchiveMedia=@idArchiveMedia;";
         #endregion // Media
 
         #region MediaSegment
-        private static System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference> _mediaSegments = new System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference>();
-        private static ConstructorInfo _mediaSegmentsConstructorInfo;
-        private static IMediaSegments _findInDictionary(Guid mediaGuid)
+        private System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference> _mediaSegments = new System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference>();
+        private ConstructorInfo _mediaSegmentsConstructorInfo;
+        private IMediaSegments _findInDictionary(Guid mediaGuid)
         {
             WeakReference existingRef;
             if (_mediaSegments.TryGetValue(mediaGuid, out existingRef))
@@ -1632,7 +1632,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             return null;
         }
 
-        public static T DbMediaSegmentsRead<T>(this IPersistentMedia media) where T : IMediaSegments 
+        public T DbMediaSegmentsRead<T>(IPersistentMedia media) where T : IMediaSegments 
         {
             lock (_connection)
             {
@@ -1668,7 +1668,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             }
         }
 
-        public static void DbDeleteMediaSegment(this IMediaSegment mediaSegment)
+        public void DbDeleteMediaSegment(IMediaSegment mediaSegment)
         {
             var ps = mediaSegment as IPersistent;
             if (ps != null && ps.Id!= 0)
@@ -1684,7 +1684,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
         }
 
 
-        public static ulong DbSaveMediaSegment(this IMediaSegment mediaSegment)
+        public ulong DbSaveMediaSegment(IMediaSegment mediaSegment)
         {
             var ps = mediaSegment as IPersistent;
             if (ps == null)
@@ -1713,7 +1713,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
 
         #region Security
 
-        public static void DbInsertSecurityObject(this ISecurityObject aco)
+        public void DbInsertSecurityObject(ISecurityObject aco)
         {
             var pAco = aco as IPersistent;
             if (pAco == null)
@@ -1742,7 +1742,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             }
         }
 
-        public static void DbDeleteSecurityObject(this ISecurityObject aco)
+        public void DbDeleteSecurityObject(ISecurityObject aco)
         {
             var pAco = aco as IPersistent;
             if (pAco == null || pAco.Id == 0)
@@ -1764,7 +1764,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             }
         }
 
-        public static void DbUpdateSecurityObject(this ISecurityObject aco)
+        public void DbUpdateSecurityObject(ISecurityObject aco)
         {
             var pAco = aco as IPersistent;
             if (pAco == null || pAco.Id == 0)
@@ -1792,7 +1792,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             }
         }
 
-        public static List<T> DbLoad<T>() where T : ISecurityObject
+        public List<T> DbLoad<T>() where T : ISecurityObject
         {
             var users = new List<T>();
             lock (_connection)

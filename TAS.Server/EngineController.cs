@@ -15,22 +15,25 @@ namespace TAS.Server
 
         public static List<Engine> Engines { get; private set; }
 
+        public static Database.Db Database { get; private set; }
+
         public static void Initialize()
         {
             Logger.Info("Engines initializing");
             Logger.Debug("Connecting to database");
             ConnectionStringSettings connectionStringPrimary = ConfigurationManager.ConnectionStrings["tasConnectionString"];
             ConnectionStringSettings connectionStringSecondary = ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
-            Db.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
-            _servers = Db.DbLoadServers<CasparServer>();
+            Database = new Database.Db();
+            Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
+            _servers = Database.DbLoadServers<CasparServer>();
             _servers.ForEach(s =>
             {
                 s.ChannelsSer.ForEach(c => c.Owner = s);
                 s.RecordersSer.ForEach(r => r.SetOwner(s));
             });
 
-            AuthenticationService authenticationService = new AuthenticationService(Db.DbLoad<User>(), Db.DbLoad<Group>());
-            Engines = Db.DbLoadEngines<Engine>(ulong.Parse(ConfigurationManager.AppSettings["Instance"]));
+            AuthenticationService authenticationService = new AuthenticationService(Database.DbLoad<User>(), Database.DbLoad<Group>());
+            Engines = Database.DbLoadEngines<Engine>(ulong.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (var e in Engines)
                 e.Initialize(_servers, authenticationService);
             Logger.Debug("Engines initialized");

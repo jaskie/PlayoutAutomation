@@ -23,7 +23,7 @@ namespace TAS.Server.Media
             if (!IsInitialized)
             {
                 DirectoryName = "Animacje";
-                this.Load<AnimatedMedia>(Server.Id);
+                EngineController.Database.Load<AnimatedMedia>(this, Server.Id);
                 base.Initialize();
                 Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
             }

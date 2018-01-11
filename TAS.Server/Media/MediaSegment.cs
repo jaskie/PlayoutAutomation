@@ -43,13 +43,13 @@ namespace TAS.Server.Media
 
         public void Save()
         {
-            Id = this.DbSaveMediaSegment();
+            Id = EngineController.Database.DbSaveMediaSegment(this);
         }
 
         public void Delete()
         {
             if (Owner.Remove(this))
-                this.DbDeleteMediaSegment();
+                EngineController.Database.DbDeleteMediaSegment(this);
 
         }
 

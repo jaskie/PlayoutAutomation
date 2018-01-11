@@ -19,16 +19,16 @@ namespace TAS.Server.Security
             if (Id == default(ulong))
             {
                 AuthenticationService.AddGroup(this);
-                this.DbInsertSecurityObject();
+                EngineController.Database.DbInsertSecurityObject(this);
             }
             else
-                this.DbUpdateSecurityObject();
+                EngineController.Database.DbUpdateSecurityObject(this);
         }
 
         public override void Delete()
         {
             AuthenticationService.RemoveGroup(this);
-            this.DbDeleteSecurityObject();
+            EngineController.Database.DbDeleteSecurityObject(this);
             Dispose();
         }
     }

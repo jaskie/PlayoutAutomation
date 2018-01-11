@@ -43,7 +43,7 @@ namespace TAS.Client.Config.Model
 
         public bool CreateEmptyDatabase()
         {
-            return Db.CreateEmptyDatabase(ConnectionString, Collation);
+            return new Db().CreateEmptyDatabase(ConnectionString, Collation);
         }
     }
 }

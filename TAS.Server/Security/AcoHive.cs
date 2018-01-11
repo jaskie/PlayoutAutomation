@@ -48,11 +48,11 @@ namespace TAS.Server.Security
         bool isRemoved;
         lock (((IList) _items).SyncRoot)
             isRemoved = _items.Remove(item);
-        if (isRemoved)
-        {
-            item.DbDeleteSecurityObject();
-            AcoOperartion?.Invoke(this, new CollectionOperationEventArgs<TItem>(item, CollectionOperation.Remove));
-        }
+            if (isRemoved)
+            {
+                EngineController.Database.DbDeleteSecurityObject(item); ;
+                AcoOperartion?.Invoke(this, new CollectionOperationEventArgs<TItem>(item, CollectionOperation.Remove));
+            }
         return isRemoved;
     }
 

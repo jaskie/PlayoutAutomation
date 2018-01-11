@@ -16,7 +16,7 @@ namespace TAS.Server.Media
         public ServerMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia, IArchiveDirectory archiveDirectory) : base(directory, guid, idPersistentMedia)
         {
             IdPersistentMedia = idPersistentMedia;
-            _isArchived = new Lazy<bool>(() => archiveDirectory?.DbArchiveContainsMedia(this) ?? false);
+            _isArchived = new Lazy<bool>(() => (archiveDirectory != null)? EngineController.Database.DbArchiveContainsMedia(archiveDirectory, this) : false);
         }
 
         // media properties
@@ -59,17 +59,17 @@ namespace TAS.Server.Media
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = this.DbDeleteMedia();
+                            result = EngineController.Database.DbDeleteMedia(this);
                     }
                     else
                     {
                         if (directory != null)
                         {
                             if (IdPersistentMedia == 0)
-                                result = this.DbInsertMedia(directory.Server.Id);
+                                result = EngineController.Database.DbInsertMedia(this, directory.Server.Id);
                             else if (IsModified)
                             {
-                                this.DbUpdateMedia(directory.Server.Id);
+                                EngineController.Database.DbUpdateMedia(this, directory.Server.Id);
                                 result = true;
                             }
                         }
