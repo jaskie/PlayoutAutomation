@@ -563,7 +563,10 @@ namespace TAS.Server
                 if (_position != value)
                 {
                     _position = value;
-                    PositionChanged?.Invoke(this, new EventPositionEventArgs(value, _duration - TimeSpan.FromTicks(Engine.FrameTicks * value)));
+                    if (PlayState == TPlayState.Scheduled)
+                        PositionChanged?.Invoke(this, new EventPositionEventArgs(value, TimeSpan.Zero));
+                    else
+                        PositionChanged?.Invoke(this, new EventPositionEventArgs(value, _duration - TimeSpan.FromTicks(Engine.FrameTicks * value)));
                 }
             }
         }

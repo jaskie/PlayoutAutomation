@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
@@ -349,54 +350,57 @@ namespace TAS.Client.ViewModels
 
         protected void EventPositionChanged(object sender, EventPositionEventArgs e)
         {
-            TimeLeft = e.TimeToFinish;
+            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
+            {
+                TimeLeft = e.TimeToFinish;
+            });
         }
 
         protected override void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             base.OnEventPropertyChanged(sender, e);
-            if (e.PropertyName == nameof(IEvent.Duration)
-                || e.PropertyName == nameof(IEvent.IsEnabled)
-                || e.PropertyName == nameof(IEvent.IsHold)
-                || e.PropertyName == nameof(IEvent.EventName)
-                || e.PropertyName == nameof(IEvent.IsLoop)
-                || e.PropertyName == nameof(IEvent.Offset)
-                || e.PropertyName == nameof(IEvent.ScheduledDelay)
-                || e.PropertyName == nameof(IEvent.IsForcedNext)
-                || e.PropertyName == nameof(IEvent.ScheduledTime)
-                || e.PropertyName == nameof(IEvent.IsCGEnabled)
-                || e.PropertyName == nameof(IEvent.Crawl)
-                || e.PropertyName == nameof(IEvent.Logo)
-                || e.PropertyName == nameof(IEvent.Parental)
-                || e.PropertyName == nameof(IEvent.EndTime)
-                )
-                NotifyPropertyChanged(e.PropertyName);
-            if (e.PropertyName == nameof(IEvent.ScheduledTc) || e.PropertyName == nameof(IEvent.Duration))
+            switch (e.PropertyName)
             {
-                NotifyPropertyChanged(nameof(IsEnabled));
-                NotifyPropertyChanged(nameof(MediaErrorInfo));
+                case nameof(IEvent.IsEnabled):
+                case nameof(IEvent.IsHold):
+                case nameof(IEvent.EventName):
+                case nameof(IEvent.IsLoop):
+                case nameof(IEvent.Offset):
+                case nameof(IEvent.ScheduledDelay):
+                case nameof(IEvent.IsForcedNext):
+                case nameof(IEvent.ScheduledTime):
+                case nameof(IEvent.IsCGEnabled):
+                case nameof(IEvent.Crawl):
+                case nameof(IEvent.Logo):
+                case nameof(IEvent.Parental):
+                case nameof(IEvent.EndTime):
+                    NotifyPropertyChanged(e.PropertyName);
+                    break;
+                case nameof(IEvent.ScheduledTc):
+                    NotifyPropertyChanged(nameof(MediaErrorInfo));
+                    break;
+                case nameof(IEvent.Duration):
+                    NotifyPropertyChanged(nameof(IsEnabled));
+                    NotifyPropertyChanged(nameof(MediaErrorInfo));
+                    break;
+                case nameof(IEvent.PlayState):
+                    NotifyPropertyChanged(e.PropertyName);
+                    NotifyPropertyChanged(nameof(IsPlaying));
+                    break;
+                case nameof(IEvent.StartType):
+                    NotifyPropertyChanged(nameof(IsStartEvent));
+                    NotifyPropertyChanged(nameof(IsFixedTimeStart));
+                    break;
+                case nameof(IEvent.Media):
+                    Media = Event.Media;
+                    NotifyPropertyChanged(nameof(MediaFileName));
+                    NotifyPropertyChanged(nameof(MediaCategory));
+                    NotifyPropertyChanged(nameof(MediaEmphasis));
+                    NotifyPropertyChanged(nameof(VideoFormat));
+                    NotifyPropertyChanged(nameof(MediaErrorInfo));
+                    break;
             }
-            if (e.PropertyName == nameof(IEvent.PlayState))
-            {
-                NotifyPropertyChanged(e.PropertyName);
-                NotifyPropertyChanged(nameof(IsPlaying));
-            }
-            if (e.PropertyName == nameof(IEvent.StartType))
-            {
-                NotifyPropertyChanged(nameof(IsStartEvent));
-                NotifyPropertyChanged(nameof(IsFixedTimeStart));
-            }
-            if (e.PropertyName == nameof(IEvent.Media))
-            {
-                Media = Event.Media;
-                NotifyPropertyChanged(nameof(MediaFileName));
-                NotifyPropertyChanged(nameof(MediaCategory));
-                NotifyPropertyChanged(nameof(MediaEmphasis));
-                NotifyPropertyChanged(nameof(VideoFormat));
-                NotifyPropertyChanged(nameof(MediaErrorInfo));
-            }
-            }
-
+        }
         protected override void OnDispose()
         {
             base.OnDispose();
