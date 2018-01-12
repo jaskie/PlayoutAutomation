@@ -240,21 +240,18 @@ namespace TAS.Server.Media
         public TMediaStatus MediaStatus
         {
             get { return _mediaStatus; }
-            set
-            {
-                if (SetField(ref _mediaStatus, value))
-                {
-                    if (value == TMediaStatus.Available)
-                        _directory?.NotifyMediaVerified(this);
-                }
-            }
+            set { SetField(ref _mediaStatus, value); }
         }
 
         [JsonProperty]
         public bool IsVerified
         {
             get { return _verified; }
-            set { SetField(ref _verified, value); }
+            internal set
+            {
+                if (SetField(ref _verified, value) && value && _mediaStatus == TMediaStatus.Available)
+                    _directory.NotifyMediaVerified(this);
+            }
         }
 
         [JsonProperty]

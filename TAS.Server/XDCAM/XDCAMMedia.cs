@@ -66,8 +66,8 @@ namespace TAS.Server.XDCAM
                                     TcStart = tcStart;
                                     TcPlay = tcStart;
                                 }
-                                IsVerified = true;
                                 MediaStatus = TMediaStatus.Available;
+                                IsVerified = true;
                             }
                         }
                         var edl = XdcamEdl;
@@ -93,8 +93,8 @@ namespace TAS.Server.XDCAM
                                     TcStart = tcStart;
                                     TcPlay = tcStart;
                                 }
-                                IsVerified = true;
                                 MediaStatus = TMediaStatus.Available;
+                                IsVerified = true;
                             }
 
                         }
