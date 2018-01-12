@@ -1,6 +1,7 @@
 ﻿#undef DEBUG
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
@@ -10,9 +11,10 @@ using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
-namespace TAS.Database
+namespace TAS.Database.MySqlRedundant
 {
-    public class Db
+    [Export(typeof(IDatabase))]
+    public class DatabaseMySqlRedundant : IDatabase
     {
         DbConnectionRedundant _connection;
         private string _connectionStringSecondary;
@@ -86,7 +88,7 @@ namespace TAS.Database
             {
                 // ignored
             }
-            var schemaUpdates = new System.Resources.ResourceManager("TAS.Database.SchemaUpdates", Assembly.GetExecutingAssembly());
+            var schemaUpdates = new System.Resources.ResourceManager("TAS.Database.MySqlRedundant.SchemaUpdates", Assembly.GetExecutingAssembly());
             var resourceEnumerator = schemaUpdates.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true).GetEnumerator();
             while (resourceEnumerator.MoveNext())
             {

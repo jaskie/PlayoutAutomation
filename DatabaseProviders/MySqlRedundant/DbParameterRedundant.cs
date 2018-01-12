@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TAS.Database
+namespace TAS.Database.MySqlRedundant
 {
     public class DbParameterRedundant
     {

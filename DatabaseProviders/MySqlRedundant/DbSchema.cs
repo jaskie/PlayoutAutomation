@@ -1,14 +1,14 @@
 ﻿using System.Data.Common;
 using System.IO;
 
-namespace TAS.Database
+namespace TAS.Database.MySqlRedundant
 {
     static class DbSchema
     {
 
         public static Stream GetSchemaDefinitionStream()
         {
-            return System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TAS.Database.database.sql");
+            return System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TAS.Database.MySqlRedundant.database.sql");
         }
 
         public static bool Update(this DbConnection connection)

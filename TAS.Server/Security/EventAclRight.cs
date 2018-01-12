@@ -1,6 +1,4 @@
-﻿using TAS.Database;
-
-namespace TAS.Server.Security
+﻿namespace TAS.Server.Security
 {
     public class EventAclRight: AclRightBase
     {

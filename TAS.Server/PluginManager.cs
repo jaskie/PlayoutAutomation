@@ -15,27 +15,27 @@ namespace TAS.Server
     {
 
         static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(PluginManager));
-        private static readonly CompositionContainer ServerContainer;
         static readonly IEnumerable<IEnginePluginFactory> _enginePlugins;
-
-
+        
         static PluginManager()
         {
             Logger.Debug("Creating");
-            DirectoryCatalog catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(),  "Plugins"), "TAS.Server.*.dll");
-            ServerContainer = new CompositionContainer(catalog);
-            ServerContainer.ComposeExportedValue("AppSettings", ConfigurationManager.AppSettings);
-            try
+            using (DirectoryCatalog catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), "TAS.Server.*.dll"))
             {
-                _enginePlugins = ServerContainer.GetExportedValues<IEnginePluginFactory>();
-            }
-            catch (ReflectionTypeLoadException e)
-            {
-                Logger.Error(e, "Plugin load failed: {0}", e.LoaderExceptions);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Plugin load failed: {0}", e);
+                var container = new CompositionContainer(catalog);
+                container.ComposeExportedValue("AppSettings", ConfigurationManager.AppSettings);
+                try
+                {
+                    _enginePlugins = container.GetExportedValues<IEnginePluginFactory>();
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    Logger.Error(e, "Plugin load failed: {0}", e.LoaderExceptions);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "Plugin load failed: {0}", e);
+                }
             }
         }
 

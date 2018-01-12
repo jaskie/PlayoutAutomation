@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2010
+VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPlay", "TVPlay\TVPlay.csproj", "{B2FD5EA3-CB51-470B-A58B-E2400983DD79}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -49,6 +49,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Remoting", "TAS.Remoting\TAS.Remoting.csproj", "{15324B69-7D18-49F3-9141-B024079356E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server", "TAS.Server\TAS.Server.csproj", "{F268CD0E-804F-49CD-A3F2-341E5B6A9927}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D} = {4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup", "dependencies\MySqlBackup\MySqlBackup.csproj", "{2625A6B7-505A-43F7-9282-24AFE5A3DB64}"
 EndProject
@@ -74,9 +77,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.NDIVideoPreview"
 		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Database", "TAS.Database\TAS.Database.csproj", "{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Database.MySqlRedundant", "DatabaseProviders\MySqlRedundant\TAS.Database.MySqlRedundant.csproj", "{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "websocket-sharp", "dependencies\websocket-sharp\websocket-sharp\websocket-sharp.csproj", "{B357BAC7-529E-4D81-A0D2-71041B19C8DE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DatabaseProviders", "DatabaseProviders", "{C15B0F59-C4CF-4B2E-8057-9CDFCBD24F6A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -689,6 +694,7 @@ Global
 		{29E2FF1E-7E0D-4CF6-B66A-3A116EB8209F} = {3F966B33-01BF-49D9-9EEC-C6A81308D6F6}
 		{1A1B92CF-3592-47D0-B721-DF40274B7F80} = {3F966B33-01BF-49D9-9EEC-C6A81308D6F6}
 		{41219373-E25E-48C8-AD64-EAB58244E713} = {3F907958-AD04-4245-AE71-DC8D06A473E9}
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D} = {C15B0F59-C4CF-4B2E-8057-9CDFCBD24F6A}
 		{B357BAC7-529E-4D81-A0D2-71041B19C8DE} = {9E587B86-2AD9-446D-8DD5-D710167A7F54}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

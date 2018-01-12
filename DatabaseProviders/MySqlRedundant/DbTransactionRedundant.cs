@@ -1,13 +1,14 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Data;
 using System.Data.Common;
 
-namespace TAS.Database
+namespace TAS.Database.MySqlRedundant
 {
     class DbTransactionRedundant : DbTransaction
     {
-        MySql.Data.MySqlClient.MySqlTransaction _transactionPrimary;
-        MySql.Data.MySqlClient.MySqlTransaction _transactionSecondary;
+        MySqlTransaction _transactionPrimary;
+        MySqlTransaction _transactionSecondary;
         DbConnectionRedundant _connection;
 
         protected override void Dispose(bool disposing)

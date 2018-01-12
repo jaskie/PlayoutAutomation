@@ -4,6 +4,8 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
+using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config
 {
@@ -18,13 +20,13 @@ namespace TAS.Client.Config
         private bool _isBackupInstance;
         private bool _isConnectionStringSecondary;
         private string _uiLanguage;
-        private readonly Database.Db _db;
+        private readonly IDatabase _db;
 
         protected override void OnDispose() { }
         public ConfigFileViewmodel(Model.ConfigFile configFile)
             : base(configFile, typeof(ConfigFileView), $"Config file ({configFile.FileName})")
         {
-            _db = new Database.Db();
+            _db = DatabaseProviderLoader.LoadDatabaseProvider();
             CommandEditConnectionString = new UICommand { ExecuteDelegate = _editConnectionString };
             CommandEditConnectionStringSecondary = new UICommand { ExecuteDelegate = _editConnectionStringSecondary };
             CommandTestConnectivity = new UICommand { ExecuteDelegate = _testConnectivity, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
@@ -100,7 +102,7 @@ namespace TAS.Client.Config
             {
                 vm.Load();
                 if (vm.ShowDialog() == true)
-                    tasConnectionString = vm.ConnectionString;
+                    tasConnectionString = vm.Model.ConnectionString;
             }
         }
     
@@ -110,7 +112,7 @@ namespace TAS.Client.Config
             {
                 vm.Load();
                 if (vm.ShowDialog() == true)
-                    tasConnectionStringSecondary = vm.ConnectionString;
+                    tasConnectionStringSecondary = vm.Model.ConnectionString;
             }
         }
 

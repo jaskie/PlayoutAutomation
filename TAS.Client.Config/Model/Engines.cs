@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
@@ -8,12 +10,12 @@ namespace TAS.Client.Config.Model
         internal readonly ArchiveDirectories ArchiveDirectories;
         public readonly string ConnectionStringPrimary;
         public readonly string ConnectionStringSecondary;
-        private readonly Database.Db _db;
+        private readonly IDatabase _db;
         public Engines(string connectionStringPrimary, string connectionStringSecondary)
         {
             ConnectionStringPrimary = connectionStringPrimary;
             ConnectionStringSecondary = connectionStringSecondary;
-            _db = new Database.Db();
+            _db = DatabaseProviderLoader.LoadDatabaseProvider();
             _db.Open(connectionStringPrimary, connectionStringSecondary);
             ArchiveDirectories = new ArchiveDirectories(_db);
             try

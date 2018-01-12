@@ -203,10 +203,6 @@
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
       <Name>TAS.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TAS.Database\TAS.Database.csproj">
-      <Project>{4703cd4f-fa9b-4e2d-91a1-19bc1a73230d}</Project>
-      <Name>TAS.Database</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

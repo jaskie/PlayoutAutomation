@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition.Hosting;
 using System.Configuration;
+using System.IO;
 using System.Net;
-using TAS.Database;
+using TAS.Common;
+using TAS.Common.Interfaces;
 using TAS.Server.Security;
 
 namespace TAS.Server
@@ -15,15 +18,15 @@ namespace TAS.Server
 
         public static List<Engine> Engines { get; private set; }
 
-        public static Database.Db Database { get; private set; }
+        public static IDatabase Database { get; private set; }
 
         public static void Initialize()
         {
             Logger.Info("Engines initializing");
-            Logger.Debug("Connecting to database");
             ConnectionStringSettings connectionStringPrimary = ConfigurationManager.ConnectionStrings["tasConnectionString"];
             ConnectionStringSettings connectionStringSecondary = ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
-            Database = new Database.Db();
+            Database = DatabaseProviderLoader.LoadDatabaseProvider();
+            Logger.Debug("Connecting to database");
             Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
             _servers = Database.DbLoadServers<CasparServer>();
             _servers.ForEach(s =>

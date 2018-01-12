@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
     public class ArchiveDirectories
     {
         public readonly List<ArchiveDirectory> Directories;
-        private readonly Database.Db _db;
+        private readonly IDatabase _db;
 
-        public ArchiveDirectories(Database.Db db)
+        public ArchiveDirectories(IDatabase db)
         {
             _db = db;
             Directories = db.DbLoadArchiveDirectories<ArchiveDirectory>();

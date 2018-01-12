@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace TAS.Database
+namespace TAS.Database.MySqlRedundant
 {
     public class DbParameterCollectionRedundant: IEnumerable<DbParameterRedundant>
     {

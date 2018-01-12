@@ -6,7 +6,6 @@ using System.Linq;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Database;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server.Security

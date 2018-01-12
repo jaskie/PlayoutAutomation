@@ -36,7 +36,7 @@ namespace TAS.Client.Config
             {
                 vm.Load();
                 if (vm.ShowDialog() == true)
-                    ConnectionString = vm.ConnectionString;
+                    ConnectionString = vm.Model.ConnectionString;
             }
         }
     }

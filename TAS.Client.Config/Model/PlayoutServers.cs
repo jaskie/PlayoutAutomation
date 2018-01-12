@@ -1,13 +1,15 @@
 ﻿using System.Collections.Generic;
+using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
     public class PlayoutServers
     {
-        readonly Database.Db _db;
+        readonly IDatabase _db;
         public PlayoutServers(string connectionStringPrimary, string connectionStringSecondary)
         {
-            _db = new Database.Db();
+            _db = DatabaseProviderLoader.LoadDatabaseProvider();
             _db.Open(connectionStringPrimary, connectionStringSecondary);
             Servers = _db.DbLoadServers<CasparServer>();
             Servers.ForEach(s =>
