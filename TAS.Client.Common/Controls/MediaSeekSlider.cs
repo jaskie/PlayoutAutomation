@@ -58,9 +58,9 @@ namespace TAS.Client.Common.Controls
             double delta = ((Keyboard.Modifiers & ModifierKeys.Control) != ModifierKeys.None) ? TickFrequency :
                             (Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.None ? SmallChange : LargeChange;
             if (e.Delta > 0)
-                Value = Value + delta;
-            else
                 Value = Value - delta;
+            else
+                Value = Value + delta;
             e.Handled = true;
         }
 

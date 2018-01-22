@@ -408,7 +408,7 @@
                                 </DataGridTemplateColumn>
                                 <DataGridTextColumn x:Name="clipNrColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipNr}" Width="50" Visibility="{Binding Data.IsDisplayClipNr, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" Binding="{Binding ClipNr, Mode=OneWay}"  />
                                 <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="*" Binding="{Binding MediaName, Mode=OneWay}" />
-                                <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}"  />
+                                <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}" />
                                 <DataGridTemplateColumn x:Name="tCStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.TcPlay}" Width="80" SortMemberPath="TcPlay" >
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
