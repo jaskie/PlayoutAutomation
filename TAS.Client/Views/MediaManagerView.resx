@@ -135,8 +135,26 @@
   <data name="_grid.Header.Folder" xml:space="preserve">
     <value>Folder</value>
   </data>
+  <data name="_grid.Header.HasSegments.ToolTip" xml:space="preserve">
+    <value>Has segments</value>
+  </data>
   <data name="_grid.Header.IngestDate" xml:space="preserve">
     <value>Ingest date</value>
+  </data>
+  <data name="_grid.Header.IsArchived.ToolTip" xml:space="preserve">
+    <value>Archive status</value>
+  </data>
+  <data name="_grid.Header.IsIngested.ToolTip" xml:space="preserve">
+    <value>Ingest status</value>
+  </data>
+  <data name="_grid.Header.IsTrimmed.ToolTip" xml:space="preserve">
+    <value>Trimmed</value>
+  </data>
+  <data name="_grid.Header.MediaCategory.ToolTip" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="_grid.Header.MediaStatus.ToolTip" xml:space="preserve">
+    <value>Status</value>
   </data>
   <data name="_grid.Header.TcPlay" xml:space="preserve">
     <value>TC play</value>

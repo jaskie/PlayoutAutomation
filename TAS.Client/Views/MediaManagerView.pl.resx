@@ -135,8 +135,26 @@
   <data name="_grid.Header.Folder" xml:space="preserve">
     <value>Folder</value>
   </data>
+  <data name="_grid.Header.HasSegments.ToolTip" xml:space="preserve">
+    <value>Sub-klipy</value>
+  </data>
   <data name="_grid.Header.IngestDate" xml:space="preserve">
     <value>Data ingestu</value>
+  </data>
+  <data name="_grid.Header.IsArchived.ToolTip" xml:space="preserve">
+    <value>Stan archiwizacji</value>
+  </data>
+  <data name="_grid.Header.IsIngested.ToolTip" xml:space="preserve">
+    <value>Stan ingestu</value>
+  </data>
+  <data name="_grid.Header.IsTrimmed.ToolTip" xml:space="preserve">
+    <value>Przycięcie</value>
+  </data>
+  <data name="_grid.Header.MediaCategory.ToolTip" xml:space="preserve">
+    <value>Kategoria</value>
+  </data>
+  <data name="_grid.Header.MediaStatus.ToolTip" xml:space="preserve">
+    <value>Status klipu</value>
   </data>
   <data name="_grid.Header.TcPlay" xml:space="preserve">
     <value>TC Start</value>

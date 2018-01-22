@@ -465,7 +465,7 @@ namespace TAS.Client.ViewModels
                 MediaItems = new ObservableCollection<MediaViewViewmodel>(directory.Directory.GetFiles().Select(f => new MediaViewViewmodel(f)));
                 _mediaView = CollectionViewSource.GetDefaultView(_mediaItems);
                 if (!directory.IsXdcam)
-                    _mediaView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
+                    _mediaView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending));
                 if (!directory.IsArchiveDirectory)
                     _mediaView.Filter = _filter;
                 if (directory.IsXdcam && !directory.IsWan)
