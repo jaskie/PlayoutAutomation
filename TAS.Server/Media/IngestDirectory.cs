@@ -298,10 +298,13 @@ namespace TAS.Server.Media
                 Uri uri = new Uri(Folder + (string.IsNullOrWhiteSpace(subfolder) ? "/" : $"/{subfolder}/") + filename);
                 try
                 {
-                    return client.FileExists(uri.LocalPath);
+                    var fileExists = client.FileExists(uri.LocalPath);
+                    client.Disconnect();
+                    return fileExists;
                 }
                 catch (FtpCommandException)
                 {
+                    client?.Disconnect();
                     return false;
                 }
             }

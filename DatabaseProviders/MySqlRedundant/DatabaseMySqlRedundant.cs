@@ -121,7 +121,7 @@ namespace TAS.Database.MySqlRedundant
             {
                 // ignored
             }
-            var schemaUpdates = new System.Resources.ResourceManager("TAS.Database.SchemaUpdates", Assembly.GetExecutingAssembly());
+            var schemaUpdates = new System.Resources.ResourceManager("TAS.Database.MySqlRedundant.SchemaUpdates", Assembly.GetExecutingAssembly());
             var resourceEnumerator = schemaUpdates.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true).GetEnumerator();
             var updatesPending = new SortedList<int, string>();
             while (resourceEnumerator.MoveNext())

@@ -9,11 +9,11 @@ namespace TAS.Server.Media
     public class TempMedia: MediaBase, ITempMedia
     {
        
-        public TempMedia(TempDirectory directory, IMediaProperties originalMedia): base(directory, originalMedia.MediaGuid)
+        public TempMedia(TempDirectory directory, IMediaProperties originalMedia): base(directory, originalMedia?.MediaGuid ?? Guid.NewGuid())
         {
             OriginalMedia = originalMedia;
-            MediaType = originalMedia.MediaType;
-            FileName = $"{originalMedia.MediaGuid}{Path.GetExtension(originalMedia.FileName)}";
+            MediaType = originalMedia?.MediaType ?? TMediaType.Unknown;
+            FileName = $"{MediaGuid}{Path.GetExtension(originalMedia?.FileName ?? FileUtils.DefaultFileExtension(TMediaType.Unknown))}";
         }
 
         internal IMediaProperties OriginalMedia;
@@ -21,80 +21,80 @@ namespace TAS.Server.Media
 
         public override TAudioChannelMapping AudioChannelMapping
         {
-            get { return OriginalMedia.AudioChannelMapping; }
+            get { return OriginalMedia?.AudioChannelMapping ?? TAudioChannelMapping.Stereo; }
             set { }
         }
 
         public override double AudioLevelIntegrated
         {
-            get { return OriginalMedia.AudioLevelIntegrated; }
+            get { return OriginalMedia?.AudioLevelIntegrated ?? -23d; }
             set {  }
         }
 
         public override double AudioLevelPeak
         {
-            get { return OriginalMedia.AudioLevelPeak; }
+            get { return OriginalMedia?.AudioLevelPeak ?? 0d; }
             set { }
         }
 
         public override double AudioVolume
         {
-            get { return OriginalMedia.AudioVolume; }
+            get { return OriginalMedia?.AudioVolume ?? 1d; }
             set { }
         }
 
         public override TimeSpan Duration
         {
-            get { return OriginalMedia.Duration; }
+            get { return OriginalMedia?.Duration ?? TimeSpan.Zero; }
             set { }
         }
 
         public override TimeSpan DurationPlay
         {
-            get { return OriginalMedia.DurationPlay; }
+            get { return OriginalMedia?.DurationPlay ?? TimeSpan.Zero; }
             set { }
         }
 
         public override TMediaCategory MediaCategory
         {
-            get { return OriginalMedia.MediaCategory; }
+            get { return OriginalMedia?.MediaCategory ?? TMediaCategory.Uncategorized; }
             set {  }
         }
 
         public override byte Parental
         {
-            get { return OriginalMedia.Parental; }
+            get { return OriginalMedia?.Parental ?? 0; }
             set {  }
         }
 
         public override string MediaName
         {
-            get { return OriginalMedia.MediaName; }
+            get { return OriginalMedia?.MediaName ?? string.Empty; }
             set { }
         }
 
 
         public override TimeSpan TcPlay
         {
-            get { return OriginalMedia.TcPlay; }
+            get { return OriginalMedia?.TcPlay ?? TimeSpan.Zero; }
             set { }
         }
 
         public override TimeSpan TcStart
         {
-            get { return OriginalMedia.TcStart; }
+            get { return OriginalMedia?.TcStart ?? TimeSpan.Zero; }
             set { }
         }
 
         public override TVideoFormat VideoFormat
         {
-            get { return OriginalMedia.VideoFormat; }
+            get { return OriginalMedia?.VideoFormat ?? TVideoFormat.Other; }
             set { }
         }
 
         public override bool FieldOrderInverted
         {
-            get { return OriginalMedia.FieldOrderInverted; }
+            get { return OriginalMedia?.FieldOrderInverted ?? false; }
             set { }
         }
         
