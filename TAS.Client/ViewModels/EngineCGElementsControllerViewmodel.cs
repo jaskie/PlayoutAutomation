@@ -16,8 +16,6 @@ namespace TAS.Client.ViewModels
             Crawls = controller.Crawls.Select(element => new CGElementViewmodel(element)).ToList();
             Logos = controller.Logos.Select(element => new CGElementViewmodel(element)).ToList();
             Parentals = controller.Parentals.Select(element => new CGElementViewmodel(element)).ToList();
-            Auxes = controller.Auxes.Select(element => new CGElementViewmodel(element)).ToList();
-            VisibleAuxes = controller.VisibleAuxes;
             controller.PropertyChanged += controller_PropertyChanged;
         }
 
@@ -32,10 +30,6 @@ namespace TAS.Client.ViewModels
         public IEnumerable<CGElementViewmodel> Parentals { get; private set; }
 
         public IEnumerable<CGElementViewmodel> Logos { get; private set; }
-
-        public IEnumerable<CGElementViewmodel> Auxes { get; private set; }
-
-        public byte[] VisibleAuxes { get; private set; }
 
         public bool IsWideScreen { get { return _controller?.IsWideScreen ?? false; } set { if (_controller != null) _controller.IsWideScreen = value; } }
 
@@ -60,10 +54,6 @@ namespace TAS.Client.ViewModels
                 Parentals = _controller.Parentals.Select(element => new CGElementViewmodel(element)).ToList();
             if (e.PropertyName == nameof(ICGElementsController.Logos))
                 Logos = _controller.Logos.Select(element => new CGElementViewmodel(element)).ToList();
-            if (e.PropertyName == nameof(ICGElementsController.Auxes))
-                Auxes = _controller.Auxes.Select(element => new CGElementViewmodel(element)).ToList();
-            if (e.PropertyName == nameof(ICGElementsController.VisibleAuxes))
-                VisibleAuxes = _controller.VisibleAuxes.ToArray();
             NotifyPropertyChanged(e.PropertyName);
         }
 

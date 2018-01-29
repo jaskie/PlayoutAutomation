@@ -78,9 +78,6 @@ namespace TAS.Server
                                 case nameof(Parentals):
                                     _parentals = _deserializeList(reader, nameof(Parentals), nameof(Parental));
                                     break;
-                                case nameof(Auxes):
-                                    _auxes = _deserializeList(reader, nameof(Auxes), "Aux");
-                                    break;
                             }
                         }
                 }
@@ -161,27 +158,7 @@ namespace TAS.Server
         CGElement[] _parentals = new CGElement[0];
         public IEnumerable<ICGElement> Parentals => _parentals;
 
-        [JsonProperty(nameof(VisibleAuxes), ItemTypeNameHandling = TypeNameHandling.Objects)]
-        byte[] _visibleAuxes = new byte[0];
-        public byte[] VisibleAuxes => _visibleAuxes;
-
-        [JsonProperty(nameof(Auxes), ItemTypeNameHandling = TypeNameHandling.Objects)]
-        ICGElement[] _auxes = new ICGElement[0];
-        public IEnumerable<ICGElement> Auxes => _auxes;
-
         public event EventHandler Started;
-
-        public void HideAux(int auxNr)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public void ShowAux(int auxNr)
-        {
-            throw new NotImplementedException();
-        }
-
         public void SetState(ICGElementsState state)
         {
             if (_isCGEnabled && state.IsCGEnabled)
@@ -189,6 +166,16 @@ namespace TAS.Server
                 Logo = state.Logo;
                 Crawl = state.Crawl;
                 Parental = state.Parental;
+            }
+        }
+
+        public void Clear()
+        {
+            if (_isCGEnabled)
+            {
+                Logo = 0;
+                Crawl = 0;
+                Parental = 0;
             }
         }
     }

@@ -630,6 +630,9 @@ namespace TAS.Server
                 ProgramAudioVolume = 1;
                 EngineState = TEngineState.Idle;
                 Playing = null;
+                var cgController = CGElementsController;
+                if (cgController?.IsConnected == true && cgController.IsCGEnabled)
+                    cgController.Clear();
             }
             NotifyEngineOperation(null, TEngineOperation.Clear);
             _previewUnload();

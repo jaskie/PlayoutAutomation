@@ -19,9 +19,6 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(ICGElementsController.Parentals))]
         private List<CGElement> _parentals;
 
-        [JsonProperty(nameof(ICGElementsController.Auxes))]
-        private List<CGElement> _auxes;
-
         [JsonProperty(nameof(ICGElementsController.Crawl))]
         private byte _crawl;
 
@@ -49,9 +46,6 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(ICGElementsController.Parental))]
         private byte _parental;
 
-        [JsonProperty(nameof(ICGElementsController.VisibleAuxes))]
-        private byte[] _visibleAuxes;
-
 
 #pragma warning restore
 
@@ -60,8 +54,6 @@ namespace TAS.Remoting.Model
         public IEnumerable<ICGElement> Logos => _logos;
 
         public IEnumerable<ICGElement> Parentals => _parentals;
-
-        public IEnumerable<ICGElement> Auxes => _auxes;
 
         public byte Crawl { get { return _crawl; } set { Set(value); } }
 
@@ -81,23 +73,16 @@ namespace TAS.Remoting.Model
 
         public byte Parental { get { return _parental; } set { Set(value); }  }
 
-        public byte[] VisibleAuxes => _visibleAuxes;
-
         public event EventHandler Started;
-
-        public void HideAux(int auxNr)
-        {
-            Invoke(parameters: new[] { auxNr });
-        }
 
         public void SetState(ICGElementsState state)
         {
             Invoke(parameters: new object[] { state });
         }
 
-        public void ShowAux(int auxNr)
+        public void Clear()
         {
-            Invoke(parameters: new[] { auxNr });
+            Invoke();
         }
 
         protected override void OnEventNotification(WebSocketMessage message) { }
