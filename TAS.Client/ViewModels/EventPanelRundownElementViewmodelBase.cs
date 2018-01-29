@@ -380,11 +380,12 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(nameof(MediaErrorInfo));
                     break;
                 case nameof(IEvent.Duration):
+                    NotifyPropertyChanged(nameof(Duration));
                     NotifyPropertyChanged(nameof(IsEnabled));
                     NotifyPropertyChanged(nameof(MediaErrorInfo));
                     break;
                 case nameof(IEvent.PlayState):
-                    NotifyPropertyChanged(e.PropertyName);
+                    NotifyPropertyChanged(nameof(PlayState));
                     NotifyPropertyChanged(nameof(IsPlaying));
                     break;
                 case nameof(IEvent.StartType):

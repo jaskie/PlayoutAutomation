@@ -343,9 +343,9 @@ namespace TAS.Client.ViewModels
 
         public bool IsContainer => _event?.EventType == TEventType.Container;
 
-        public bool CanHold => _event != null && _event.Prior != null;
+        public bool CanHold => _event?.Prior != null;
 
-        public bool CanLoop => _event?.EventType == TEventType.Rundown && _event.GetSuccessor() == null;
+        public bool CanLoop => _event!= null && _event.GetSuccessor() == null;
 
         public bool IsEnabled
         {
@@ -1015,7 +1015,6 @@ namespace TAS.Client.ViewModels
             }
             if (e.PropertyName == nameof(IEvent.Next))
             {
-                IsLoop = false;
                 NotifyPropertyChanged(nameof(CanLoop));
             }
             if (e.PropertyName == nameof(IEvent.StartType))
