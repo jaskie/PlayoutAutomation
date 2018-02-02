@@ -110,6 +110,7 @@ namespace TAS.Server
             {
                 sdir.MediaPropertyChanged += _serverMediaPropertyChanged;
                 sdir.PropertyChanged += _onServerDirectoryPropertyChanged;
+                sdir.MediaSaved += _onServerDirectoryMediaSaved;
             }
             AnimationDirectory adir = AnimationDirectoryPRI as AnimationDirectory;
             if (adir != null)
@@ -372,7 +373,7 @@ namespace TAS.Server
         {
             var adirPri = MediaDirectoryPRI;
             var adirSec = MediaDirectorySEC;
-            if (e.Media is ServerMedia
+            if (e.Media is ServerMedia media
                 && (adirPri != null && adirSec != null && adirPri != adirSec)
                 && !string.IsNullOrEmpty(e.PropertyName)
                    && (e.PropertyName == nameof(IServerMedia.DoNotArchive)
@@ -396,15 +397,14 @@ namespace TAS.Server
                     || e.PropertyName == nameof(IServerMedia.IsArchived)
                     || e.PropertyName == nameof(IServerMedia.Protected)
                     || e.PropertyName == nameof(IServerMedia.FieldOrderInverted)
-                    || e.PropertyName == nameof(IServerMedia.GetMediaSegments)
                     ))
             {
-                ServerMedia compMedia = _findComplementaryMedia(e.Media as ServerMedia);
+                ServerMedia compMedia = _findComplementaryMedia(media);
                 if (compMedia != null)
                 {
                     PropertyInfo pi = typeof(ServerMedia).GetProperty(e.PropertyName);
                     if (pi != null)
-                        pi.SetValue(compMedia, pi.GetValue(e.Media, null), null);
+                        pi.SetValue(compMedia, pi.GetValue(media, null), null);
                 }
             }
         }
@@ -474,12 +474,12 @@ namespace TAS.Server
 
         private void _onServerDirectoryMediaSaved(object dir, MediaEventArgs e)
         {
-            ServerMedia priMedia = e.Media as ServerMedia;
-            if (priMedia != null && priMedia.MediaStatus != TMediaStatus.Deleted)
+            if (e.Media is ServerMedia priMedia 
+                && priMedia.MediaStatus != TMediaStatus.Deleted)
             {
                 ServerMedia compMedia = _findComplementaryMedia(priMedia);
-                if (compMedia != null)
-                    ThreadPool.QueueUserWorkItem((o) => compMedia.Save());
+                if (compMedia?.IsModified == true)
+                    ThreadPool.QueueUserWorkItem(o => compMedia.Save());
             }
         }
 
@@ -521,14 +521,14 @@ namespace TAS.Server
 
         private ServerMedia _findComplementaryMedia(ServerMedia originalMedia)
         {
-            var chPRI = (CasparServerChannel)_engine.PlayoutChannelPRI;
-            var chSEC = (CasparServerChannel)_engine.PlayoutChannelSEC;
-            if (chPRI != null && chSEC != null && chPRI.Owner!= chSEC.Owner)
+            var chPri = (CasparServerChannel)_engine.PlayoutChannelPRI;
+            var chSec = (CasparServerChannel)_engine.PlayoutChannelSEC;
+            if (chPri != null && chSec != null && chPri.Owner!= chSec.Owner)
             {
-                if ((originalMedia.Directory as ServerDirectory).Server == chPRI.Owner)
-                    return (ServerMedia)((MediaDirectory)chSEC.Owner.MediaDirectory).FindMediaByMediaGuid(originalMedia.MediaGuid);
-                if ((originalMedia.Directory as ServerDirectory).Server == chSEC.Owner)
-                    return (ServerMedia)((MediaDirectory)chPRI.Owner.MediaDirectory).FindMediaByMediaGuid(originalMedia.MediaGuid);
+                if ((originalMedia.Directory as ServerDirectory)?.Server == chPri.Owner)
+                    return (ServerMedia)((MediaDirectory)chSec.Owner.MediaDirectory).FindMediaByMediaGuid(originalMedia.MediaGuid);
+                if ((originalMedia.Directory as ServerDirectory)?.Server == chSec.Owner)
+                    return (ServerMedia)((MediaDirectory)chPri.Owner.MediaDirectory).FindMediaByMediaGuid(originalMedia.MediaGuid);
             }
             return null;
         }
@@ -593,6 +593,7 @@ namespace TAS.Server
             if (MediaDirectoryPRI != MediaDirectorySEC && sdir != null)
             {
                 sdir.MediaPropertyChanged -= _serverMediaPropertyChanged;
+                sdir.MediaSaved -= _onServerDirectoryMediaSaved;
                 sdir.PropertyChanged -= _onServerDirectoryPropertyChanged;
             }
             AnimationDirectory adir = AnimationDirectoryPRI as AnimationDirectory;

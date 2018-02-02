@@ -75,8 +75,8 @@ namespace TAS.Server.Media
                         IsModified = false;
                     }
                 }
-                if (result && directory != null)
-                    directory.OnMediaSaved(this);
+                if (result)
+                    directory?.OnMediaSaved(this);
             }
             catch (Exception e)
             {
