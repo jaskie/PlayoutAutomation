@@ -74,17 +74,70 @@ namespace TAS {
 			_FFMpegWrapper* wrapper;
 			 String^ _fileName;
 		public:
-			FFMpegWrapper(String^ fileName);
-			~FFMpegWrapper();
-			Int64 GetFrameCount();
-			int GetHeight();
-			int GetWidth();
-			TimeSpan^ GetAudioDuration();
-			FieldOrder GetFieldOrder();
-			Rational^ GetFrameRate();
-			Rational^ GetSAR();
-			String^ GetTimeCode();
-			array<StreamInfo^>^ GetStreamInfo();
+			FFMpegWrapper(String^ fileName)
+			{
+				_fileName = fileName;
+				IntPtr fn = Marshal::StringToHGlobalAnsi(fileName);
+				wrapper = new _FFMpegWrapper((char *)fn.ToPointer());
+				Marshal::FreeHGlobal(fn);
+			}
+
+			~FFMpegWrapper() {
+				delete wrapper;
+			}
+
+
+			Int64 GetFrameCount() {
+				return wrapper->getFrameCount();
+			}
+
+			int GetHeight() {
+				return wrapper->getHeight();
+			}
+			int GetWidth() {
+				return wrapper->getWidth();
+			}
+			TimeSpan^ GetAudioDuration() {
+				return gcnew TimeSpan(wrapper->getAudioDuration() * 10);
+			}
+
+			FieldOrder GetFieldOrder() {
+				return (FieldOrder)(wrapper->getFieldOrder());
+			}
+
+			Rational^ GetFrameRate()
+			{
+				AVRational val = wrapper->getFrameRate();
+				Rational ^ ret = gcnew Rational();
+				ret->Num = val.num;
+				ret->Den = val.den;
+				return ret;
+			}
+
+			Rational^ GetSAR()
+			{
+				AVRational val = wrapper->getSAR();
+				Rational ^ ret = gcnew Rational();
+				ret->Num = val.num;
+				ret->Den = val.den;
+				return ret;
+			}
+			String^ GetTimeCode()
+			{
+				char* tc = wrapper->getTimeCode();
+				if (tc)
+					return gcnew String(tc);
+				else
+					return nullptr;
+			}
+			array<StreamInfo^>^ GetStreamInfo()
+			{
+				auto ret = gcnew array<StreamInfo^>(wrapper->getStreamCount());
+				for (int i = 0; i < ret->Length; i++)
+					ret[i] = wrapper->getStreamInfo(i);
+				return ret;
+			}
+
 		};
 	}
 }

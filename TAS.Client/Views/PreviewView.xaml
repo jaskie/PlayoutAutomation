@@ -43,7 +43,7 @@
                     </Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Command="{Binding CommandTrimSource}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonUpdateSourceTc.ToolTip}">
+                    <Button Command="{Binding CommandTrimSource}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonTrimSource.ToolTip}">
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/time-update.png"  />
                     </Button>
                 </StackPanel>
