@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition.Hosting;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.FtpClient;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Server.Security;
@@ -22,6 +24,7 @@ namespace TAS.Server
 
         public static void Initialize()
         {
+            FtpTrace.AddListener(new NLog.NLogTraceListener());
             Logger.Info("Engines initializing");
             ConnectionStringSettings connectionStringPrimary = ConfigurationManager.ConnectionStrings["tasConnectionString"];
             ConnectionStringSettings connectionStringSecondary = ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];

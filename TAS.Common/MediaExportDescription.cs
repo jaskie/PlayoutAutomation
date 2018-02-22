@@ -1,44 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
+using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 
 namespace TAS.Common
 {
-    [DataContract]
+    [JsonObject]
     public class MediaExportDescription
     {
         public MediaExportDescription(IMedia media, List<IMedia> logos, TimeSpan startTC, TimeSpan duration, double audioVolume)
         {
             Media = media;
-            Logos = logos.ToArray();
+            Logos = logos;
             StartTC = startTC;
             Duration = duration;
             AudioVolume = audioVolume;
         }
-        [DataMember]
+        [JsonProperty]
         public IMedia Media { get; private set; }
-        [DataMember]
-        public IMedia[] Logos { get; private set; }
-        [DataMember]
+        [JsonProperty(ItemIsReference = true, TypeNameHandling = TypeNameHandling.All, ItemTypeNameHandling = TypeNameHandling.All)]
+        public List<IMedia> Logos { get; }
+        [JsonProperty]
         public TimeSpan Duration;
-        [DataMember]
+        [JsonProperty]
         public TimeSpan StartTC;
-        [DataMember]
+        [JsonProperty]
         public double AudioVolume;
 
         public void AddLogo(IMedia logo)
         {
-            var logos = Logos.AsEnumerable().ToList();
-            logos.Add(logo);
-            Logos = logos.ToArray();
+            Logos.Add(logo);
         }
         public void RemoveLogo(IMedia logo)
         {
-            var logos = Logos.AsEnumerable().ToList();
-            logos.Remove(logo);
-            Logos = logos.ToArray();
+            Logos.Remove(logo);
         }
         public override string ToString()
         {

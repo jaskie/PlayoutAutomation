@@ -185,10 +185,10 @@ namespace TAS.Server
                     int audioIndex = index;
                     complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0}]volume={1:F3}dB[a{0}]", audioIndex, e.AudioVolume));
                     index++;
-                    for (int i = 0; i < e.Logos.Length; i++)
+                    var logos = e.Logos.ToArray();
+                    for (int i = 0; i < logos.Length; i++)
                     {
-                        var logo = e.Logos[i] as MediaBase;
-                        if (logo != null)
+                        if (logos[i] is MediaBase logo)
                         {
                             files.Append($" -i \"{logo.FullPath}\"");
                             string newOutputName = $"[v{index}]";
