@@ -5,9 +5,10 @@ It can be used as a simple (even multi-) channel-in-a-box solution, as well as i
 ## Main features 
 ### Playout
 - multiple channels
-- [NEW] multi-user with user rights
+- [NEW] multi-user with rights based on PC network address
 - redundant output for every channel
 - GPI as start source, aspect ratio control and external graphics trigger
+- partial clip playout (via media trimming or logical sub-clips)
 
 ### Rundowns
 - variety of rundown event types: movie, live, graphics, Flash CG templates
@@ -19,19 +20,18 @@ It can be used as a simple (even multi-) channel-in-a-box solution, as well as i
 ### Ingest
 - from watchfolders
 - from ftp's
-- linear (tape) ingest with deck control using our [CasparCG fork](https://github.com/jaskie/Server)
+- linear (tape or live) ingest with deck control using our [CasparCG fork](https://github.com/jaskie/Server)
 - from Sony [XDCAM](http://en.wikipedia.org/wiki/XDCAM) decks, supports metadata and subclip ingest
-- partial movie playout (via media trimming or logical sub-clips)
 - extensive clip playout-related metadata
 
 ### Archiving
-- "shallow" archive for unnecessary media
+- "shallow" archive for temporarily unnecessary media
 - preserving clip metadata
 
 ## System requirements
 They mainly follow [CasparCG] requirements.
-- Windows 7 x64 as stable operating system
-- .NET 4.0 as application platform
+- Windows 7 x64 as base operating system
+- .NET 4.5 as application platform
 - Blackmagic Design [Decklink] as inputs and outputs cards
 
 ## Instalation
