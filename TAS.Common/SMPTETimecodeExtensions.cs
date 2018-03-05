@@ -32,9 +32,9 @@ namespace TAS.Common
                 int seconds = value.Seconds;
                 long frames = ((value.Ticks % TimeSpan.TicksPerSecond) * rate.Num + (rate.Den * TimeSpan.TicksPerSecond / 2)) / (rate.Den * TimeSpan.TicksPerSecond); // rounding
                 if (days > 0)
-                    return string.Format("{0}{1}:{2:D2}:{3:D2}:{4:D2}:{5:D2}", minus ? "-" : "", days, hours, minutes, seconds, frames);
+                    return $"{(minus ? "-" : "")}{days}:{hours:D2}:{minutes:D2}:{seconds:D2}:{frames:D2}";
                 else
-                    return string.Format("{0}{1:D2}:{2:D2}:{3:D2}:{4:D2}", minus ? "-" : "", hours, minutes, seconds, frames);
+                    return $"{(minus ? "-" : "")}{hours:D2}:{minutes:D2}:{seconds:D2}:{frames:D2}";
             }
         }
 
@@ -119,12 +119,11 @@ namespace TAS.Common
 
                 int index = -1;
                 int days = 0;
-                int hours, minutes, seconds, frames;
                 if (!((times.Length == 5 && int.TryParse(times[++index], out days) || times.Length == 4)
-                    && int.TryParse(times[++index], out hours)
-                    && int.TryParse(times[++index], out minutes)
-                    && int.TryParse(times[++index], out seconds)
-                    && int.TryParse(times[++index], out frames)))
+                    && int.TryParse(times[++index], out var hours)
+                    && int.TryParse(times[++index], out var minutes)
+                    && int.TryParse(times[++index], out var seconds)
+                    && int.TryParse(times[++index], out var frames)))
                     return false;
 
                 if ((days != 0 && hours < 0)
@@ -150,18 +149,17 @@ namespace TAS.Common
             }
             else
             {
-                string[] times = timeCode.Split(':');
+                var times = timeCode.Split(':');
                 if (times.Length < 4 || times.Length > 5)
                     throw new FormatException("Bad SMPTE timecode format");
 
-                int index = -1;
-                int days = 0;
-                int hours, minutes, seconds, frames;
+                var index = -1;
+                var days = 0;
                 if (!((times.Length == 5 && int.TryParse(times[++index], out days) || times.Length == 4)
-                    && int.TryParse(times[++index], out hours)
-                    && int.TryParse(times[++index], out minutes)
-                    && int.TryParse(times[++index], out seconds)
-                    && int.TryParse(times[++index], out frames)))
+                    && int.TryParse(times[++index], out var hours)
+                    && int.TryParse(times[++index], out var minutes)
+                    && int.TryParse(times[++index], out var seconds)
+                    && int.TryParse(times[++index], out var frames)))
                     throw new FormatException("Bad SMPTE timecode content");
 
                 if ((days != 0 && hours < 0)
@@ -182,11 +180,11 @@ namespace TAS.Common
             if (!validateLTC.IsMatch(timeCode))
                 throw new FormatException("Bad LTC timecode format");
 
-            int frames = Int32.Parse(timeCode.Substring(0, 2));
-            int seconds = Int32.Parse(timeCode.Substring(2, 2));
-            int minutes = Int32.Parse(timeCode.Substring(4, 2));
-            int hours = Int32.Parse(timeCode.Substring(6));
-            int days = hours / 24;
+            var frames = int.Parse(timeCode.Substring(0, 2));
+            var seconds = int.Parse(timeCode.Substring(2, 2));
+            var minutes = int.Parse(timeCode.Substring(4, 2));
+            var hours = int.Parse(timeCode.Substring(6));
+            var days = hours / 24;
             hours = hours % 24;
 
             if ((hours > 24) || (minutes >= 60) || (seconds >= 60) || (frames >= (int)(rate.Num / rate.Den)))

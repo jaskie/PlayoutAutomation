@@ -10,6 +10,7 @@ using TAS.FFMpegUtils;
 using Newtonsoft.Json;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Server.Dependencies;
@@ -425,7 +426,7 @@ namespace TAS.Server
         {
             base.ProcOutputHandler(sendingProcess, outLine);
             if (!string.IsNullOrEmpty(outLine.Data) 
-                && outLine.Data.Contains("error")) 
+                && outLine.Data.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0) 
                 AddWarningMessage($"FFmpeg error: {outLine.Data}");
         }
 

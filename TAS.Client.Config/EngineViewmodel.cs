@@ -115,7 +115,7 @@ namespace TAS.Client.Config
                 Model.IdServerPRV = ((Model.CasparServer) playoutServerChannelPRV?.Owner)?.Id ?? 0;
                 Model.ServerChannelPRV = playoutServerChannelPRV?.Id ?? 0;
                 Model.Remote = _remoteHostEnabled ? new Model.RemoteHost { ListenPort = RemoteHostListenPort } : null;
-                Model.IdArchive = ((Model.ArchiveDirectory)_archiveDirectory)?.idArchive ?? 0;
+                Model.IdArchive = (_archiveDirectory as ArchiveDirectory)?.idArchive ?? 0;
                 Model.IsModified = true;
             }
             base.Update(destObject);
