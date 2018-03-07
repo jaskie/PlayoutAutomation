@@ -227,26 +227,24 @@ namespace TAS.Client
             }
             return true;
         }
-
-
+        
         private static bool _canPaste(IEventProperties source, IEventProperties dest, TPasteLocation location, ClipboardOperation operation)
         {
             var sourceEvent = source as IEvent;
             var destEvent = dest as IEvent;
-            if (destEvent == null 
-                || source == null
-                || (operation == ClipboardOperation.Cut && sourceEvent?.Engine != destEvent.Engine)
-                || !destEvent.HaveRight(EventRight.Create))
+            if (source == null
+                || (operation == ClipboardOperation.Cut && (destEvent == null || sourceEvent?.Engine != destEvent.Engine))
+                || (destEvent != null && !destEvent.HaveRight(EventRight.Create)))
                 return false;
             if (location == TPasteLocation.Under)
             {
-                if (destEvent.EventType == TEventType.StillImage)
+                if (dest.EventType == TEventType.StillImage)
                     return false;
-                if ((destEvent.EventType == TEventType.Movie || destEvent.EventType == TEventType.Live) && source.EventType != TEventType.StillImage)
+                if ((dest.EventType == TEventType.Movie || dest.EventType == TEventType.Live) && source.EventType != TEventType.StillImage)
                     return false;
-                if (destEvent.EventType == TEventType.Rundown && (source.EventType == TEventType.StillImage || destEvent.SubEventsCount > 0))
+                if (dest.EventType == TEventType.Rundown && (source.EventType == TEventType.StillImage || destEvent?.SubEventsCount > 0))
                     return false;
-                if (destEvent.EventType == TEventType.Container && source.EventType != TEventType.Rundown)
+                if (dest.EventType == TEventType.Container && source.EventType != TEventType.Rundown)
                     return false;
             }
             if (location == TPasteLocation.After || location == TPasteLocation.Before)

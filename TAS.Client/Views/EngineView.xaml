@@ -216,34 +216,34 @@
                         <Button Command="{Binding CommandRescheduleSelected}" ToolTip="{Resx _toolbar.Reschedule}">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png" Stretch="None" />
                         </Button>
-                        <ComboBox Margin="2" SelectedIndex="0" Padding="5" VerticalAlignment="Center" >
+                        <ComboBox x:Name="ClearCombo" Margin="2" SelectedIndex="0" Padding="5" VerticalAlignment="Center" >
                             <ComboBoxItem ToolTip="{Resx _toolbar.ClearAll}" >
-                                <Button Command="{Binding CommandClearAll}" Style="{StaticResource ControlPanelButtons}">
+                                <Button Command="{Binding CommandClearAll}" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
                                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/stop.png" />
                                 </Button>
                             </ComboBoxItem>
                             <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG1}" >
-                                <Button Command="{Binding CommandClearLayer}" CommandParameter="17" Style="{StaticResource ControlPanelButtons}">
+                                <Button Command="{Binding CommandClearLayer}" CommandParameter="17" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
                                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer1.png" />
                                 </Button>
                             </ComboBoxItem>
                             <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG2}" >
-                                <Button Command="{Binding CommandClearLayer}" CommandParameter="18" Style="{StaticResource ControlPanelButtons}">
+                                <Button Command="{Binding CommandClearLayer}" CommandParameter="18" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
                                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer2.png" />
                                 </Button>
                             </ComboBoxItem>
                             <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG3}" >
-                                <Button Command="{Binding CommandClearLayer}" CommandParameter="19" Style="{StaticResource ControlPanelButtons}">
+                                <Button Command="{Binding CommandClearLayer}" CommandParameter="19" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
                                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer3.png" />
                                 </Button>
                             </ComboBoxItem>
                             <ComboBoxItem ToolTip="{Resx _toolbar.ClearAnimations}" >
-                                <Button Command="{Binding CommandClearLayer}" CommandParameter="26" Style="{StaticResource ControlPanelButtons}">
+                                <Button Command="{Binding CommandClearLayer}" CommandParameter="26" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
                                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/LayerA.png" />
                                 </Button>
                             </ComboBoxItem>
                             <ComboBoxItem ToolTip="{Resx _toolbar.ClearMixer}" >
-                                <Button Command="{Binding CommandClearMixer}" Style="{StaticResource ControlPanelButtons}">
+                                <Button Command="{Binding CommandClearMixer}" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
                                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/LayerS.png" />
                                 </Button>
                             </ComboBoxItem>

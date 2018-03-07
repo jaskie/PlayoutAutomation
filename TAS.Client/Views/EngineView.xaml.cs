@@ -29,5 +29,10 @@ namespace TAS.Client.Views
                 SidePanel.Width = xadjust;
             e.Handled = true;
         }
+
+        private void ClearButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            ClearCombo.IsDropDownOpen = false;
+        }
     }
 }

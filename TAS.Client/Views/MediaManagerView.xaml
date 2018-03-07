@@ -145,6 +145,13 @@
                             <toolkit:DropDownButton Name="FolderCombo" VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" ToolTip="{Binding SelectedDirectory.Folder}" Margin="1">
                                 <toolkit:DropDownButton.Resources>
                                     <common:BindingProxy x:Key="Proxy" Data="{Binding}"/>
+                                    <Style x:Key="HoverTextBox" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource {x:Static SystemColors.HotTrackBrushKey}}"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
                                 </toolkit:DropDownButton.Resources>
                                 <toolkit:DropDownButton.DropDownContent>
                                     <controls:TreeViewEx DataContext="{StaticResource Proxy}" MinWidth="120" ItemsSource="{Binding Data.MediaDirectories}" 
@@ -153,7 +160,7 @@
                                                      >
                                         <controls:TreeViewEx.ItemTemplate>
                                             <HierarchicalDataTemplate DataType="{x:Type viewmodels:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
-                                                <TextBlock Text="{Binding DirectoryName}" ToolTip="{Binding Folder}"/>
+                                                <TextBlock Text="{Binding DirectoryName}" ToolTip="{Binding Folder}" Style="{StaticResource HoverTextBox}"/>
                                             </HierarchicalDataTemplate>
                                         </controls:TreeViewEx.ItemTemplate>
                                     </controls:TreeViewEx>
