@@ -148,7 +148,8 @@
                                     <Style x:Key="HoverTextBox" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource {x:Static SystemColors.HotTrackBrushKey}}"/>
+                                                <Setter Property="Background" Value="{StaticResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
+                                                <Setter Property="Foreground" Value="{StaticResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}"/>
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>

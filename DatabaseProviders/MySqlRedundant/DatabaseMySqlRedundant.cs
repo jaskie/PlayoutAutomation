@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -775,10 +775,10 @@ namespace TAS.Database.MySqlRedundant
 
         private static DateTime _minMySqlDate = new DateTime(1000, 01, 01);
         private static DateTime _maxMySQLDate = new DateTime(9999, 12, 31, 23, 59, 59);
-
+        
         private bool _eventFillParamsAndExecute(DbCommandRedundant cmd, IEventPesistent aEvent)
         {
-
+            // TODO: add string length validation
             Debug.WriteLineIf(aEvent.Duration.Days > 1, aEvent, "Duration extremely long");
             cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)aEvent.Engine).Id);
             cmd.Parameters.AddWithValue("@idEventBinding", aEvent.IdEventBinding);

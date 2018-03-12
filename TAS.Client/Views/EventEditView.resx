@@ -157,7 +157,7 @@
     <value>Custom command to execute on server</value>
   </data>
   <data name="_delete.ToolTip" xml:space="preserve">
-    <value>Delete | Ctrl + Del</value>
+    <value>Delete</value>
   </data>
   <data name="_duration" xml:space="preserve">
     <value>Duration</value>

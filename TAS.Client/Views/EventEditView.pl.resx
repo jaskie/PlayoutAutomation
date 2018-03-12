@@ -157,7 +157,7 @@
     <value>Polecenie użytkownika do wykonania na serwerze</value>
   </data>
   <data name="_delete.ToolTip" xml:space="preserve">
-    <value>Usuń | Ctrl + Del</value>
+    <value>Usuń</value>
   </data>
   <data name="_duration" xml:space="preserve">
     <value>Czas trwania</value>
