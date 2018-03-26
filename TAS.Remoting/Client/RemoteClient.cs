@@ -42,7 +42,7 @@ namespace TAS.Remoting.Client
 #if DEBUG
             _serializer.Formatting = Formatting.Indented;
 #endif
-            _clientSocket = new WebSocket($"ws://{host}/Engine") { Compression = CompressionMethod.Deflate, WaitTime = TimeSpan.FromMilliseconds(QueryTimeout), NoDelay = true };
+            _clientSocket = new WebSocket($"ws://{host}/Engine") { Compression = CompressionMethod.None, WaitTime = TimeSpan.FromMilliseconds(QueryTimeout), NoDelay = true };
             _clientSocket.OnOpen += _clientSocket_OnOpen;
             _clientSocket.OnClose += _clientSocket_OnClose;
             _clientSocket.OnMessage += _clientSocket_OnMessage;

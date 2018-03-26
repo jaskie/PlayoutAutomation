@@ -67,7 +67,7 @@
                 </DockPanel>
                 <DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}" >
                     <Label Content="{Resx _ingestTime}" />
-                    <TextBox IsReadOnly="True" Text="{Binding LastUpdated, Mode=OneWay, StringFormat=g}" />
+                    <TextBox IsReadOnly="True" Text="{Binding LastUpdated, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}" />
                 </DockPanel>
                 <DockPanel>
                     <Label Content="{Resx _videoFormat}" />

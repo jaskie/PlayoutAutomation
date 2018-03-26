@@ -13,9 +13,9 @@ namespace TAS.Client.ViewModels
         public EngineCGElementsControllerViewmodel(ICGElementsController controller)
         {
             _controller = controller;
-            Crawls = controller.Crawls.Select(element => new CGElementViewmodel(element)).ToList();
-            Logos = controller.Logos.Select(element => new CGElementViewmodel(element)).ToList();
-            Parentals = controller.Parentals.Select(element => new CGElementViewmodel(element)).ToList();
+            Crawls = controller.Crawls?.Select(element => new CGElementViewmodel(element)).ToList();
+            Logos = controller.Logos?.Select(element => new CGElementViewmodel(element)).ToList();
+            Parentals = controller.Parentals?.Select(element => new CGElementViewmodel(element)).ToList();
             controller.PropertyChanged += controller_PropertyChanged;
         }
 

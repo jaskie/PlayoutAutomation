@@ -124,7 +124,7 @@ namespace TAS.Server
         public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value); } }
 
         [JsonProperty(nameof(Crawls), ItemTypeNameHandling = TypeNameHandling.Objects)]
-        ICGElement[] _crawls = new ICGElement[0];
+        CGElement[] _crawls = new CGElement[0];
         public IEnumerable<ICGElement> Crawls => _crawls;
 
         byte _logo;
