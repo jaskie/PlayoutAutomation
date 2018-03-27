@@ -22,8 +22,7 @@ namespace TAS.Client.ViewModels
         {
             Media = media;
             media.PropertyChanged += OnMediaPropertyChanged;
-            IPersistentMedia pm = media as IPersistentMedia;
-            if (pm != null)
+            if (media is IPersistentMedia pm)
             {
                 _mediaSegments = new Lazy<ObservableCollection<MediaSegmentViewmodel>>(() =>
                 {
@@ -67,7 +66,7 @@ namespace TAS.Client.ViewModels
         public TVideoFormat VideoFormat => Media.VideoFormat;
         public bool IsExpanded
         {
-            get { return _isExpanded; }
+            get => _isExpanded;
             set
             {
                 if (SetField(ref _isExpanded, value))
@@ -80,8 +79,8 @@ namespace TAS.Client.ViewModels
         public bool IsVerified => Media.IsVerified;
         public MediaSegmentViewmodel SelectedSegment
         {
-            get { return _selectedSegment; }
-            set { SetField(ref _selectedSegment, value); }
+            get => _selectedSegment;
+            set => SetField(ref _selectedSegment, value);
         }
         public ObservableCollection<MediaSegmentViewmodel> MediaSegments => _mediaSegments.Value;
 

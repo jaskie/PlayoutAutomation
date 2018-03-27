@@ -21,7 +21,6 @@ namespace TAS.Client.ViewModels
 {
     public class EngineViewmodel : ViewmodelBase
     {
-        private readonly EngineCGElementsControllerViewmodel _cGElementsControllerViewmodel;
         private EventPanelViewmodelBase _selectedEvent;
         private DateTime _currentTime;
         private TimeSpan _timeToAttention;
@@ -73,24 +72,18 @@ namespace TAS.Client.ViewModels
             if (_cGElementsController != null)
             {
                 _cGElementsController.PropertyChanged += _cGElementsController_PropertyChanged;
-                _cGElementsControllerViewmodel = new EngineCGElementsControllerViewmodel(engine.CGElementsController);
+                CGElementsControllerViewmodel = new EngineCGElementsControllerViewmodel(engine.CGElementsController);
             }
         }
 
         private void _engine_VisibleEventRemoved(object sender, EventEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate 
-            {
-                _visibleEvents.Remove(e.Event);
-            });
+            Application.Current.Dispatcher.BeginInvoke((Action)(() => _visibleEvents.Remove(e.Event)));
         }
 
         private void _engine_VisibleEventAdded(object sender, EventEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate 
-            {
-                    _visibleEvents.Add(e.Event);
-            });
+            Application.Current.Dispatcher.BeginInvoke((Action)(() => _visibleEvents.Add(e.Event)));
         }
 
         public ICommand CommandClearAll { get; private set; }
@@ -179,7 +172,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsSearchBoxFocused { get => _isSearchBoxFocused; set => SetField(ref _isSearchBoxFocused, value); }
 
-        public EngineCGElementsControllerViewmodel CGElementsControllerViewmodel => _cGElementsControllerViewmodel;
+        public EngineCGElementsControllerViewmodel CGElementsControllerViewmodel { get; }
 
         public bool IsPropertiesPanelVisible
         {
@@ -189,20 +182,20 @@ namespace TAS.Client.ViewModels
 
         public bool TrackPlayingEvent
         {
-            get { return _trackPlayingEvent; }
+            get => _trackPlayingEvent;
             set
             {
-                if (SetField(ref _trackPlayingEvent, value))
-                    if (value)
-                    {
-                        IEvent cp = Engine.Playing;
-                        if (cp != null)
-                            SetOnTopView(cp);
-                    }
+                if (!SetField(ref _trackPlayingEvent, value))
+                    return;
+                if (!value)
+                    return;
+                IEvent cp = Engine.Playing;
+                if (cp != null)
+                    SetOnTopView(cp);
             }
         }
 
-        public bool IsInterlacedFormat { get; } = true;
+        public bool IsInterlacedFormat { get; }
 
 
         protected override void OnDispose()
@@ -413,31 +406,29 @@ namespace TAS.Client.ViewModels
 
         private bool _canExportMedia(object obj)
         {
+            if (!Engine.HaveRight(EngineRight.MediaExport))
+                return false;
+
             bool exportAll = obj != null;
-            return _multiSelectedEvents.Any(e =>
-                    {
-                        var m = e as EventPanelMovieViewmodel;
-                        return m != null
-                            && (m.IsEnabled || exportAll)
-                            && m.Media?.FileExists() == true;
-                    })
-                    && Engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
+            return _multiSelectedEvents.Any(e => e is EventPanelMovieViewmodel m
+                                                 && (m.IsEnabled || exportAll)
+                                                 && m.Media?.FileExists() == true)
+                   && Engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
         }
 
         private void _exportMedia(object obj)
         {
             bool exportAll = obj != null;
-            var selections = _multiSelectedEvents.Where(e =>
-            {
-                return e is EventPanelMovieViewmodel m
-                    && (m.IsEnabled || exportAll)
-                    && m.Media?.FileExists() == true;
-            }).Select(e => new MediaExportDescription(
-                e.Event.Media, 
-                e.Event.SubEvents.Where(sev => sev.EventType == TEventType.StillImage && sev.Media != null).Select(sev => sev.Media).ToList(),
-                e.Event.ScheduledTc, 
-                e.Event.Duration, 
-                e.Event.GetAudioVolume()));
+            var selections = _multiSelectedEvents.Where(e => e is EventPanelMovieViewmodel m
+                                                             && (m.IsEnabled || exportAll)
+                                                             && m.Media?.FileExists() == true)
+                .Select(e => new MediaExportDescription(
+                    e.Event.Media,
+                    e.Event.SubEvents.Where(sev => sev.EventType == TEventType.StillImage && sev.Media != null)
+                        .Select(sev => sev.Media).ToList(),
+                    e.Event.ScheduledTc,
+                    e.Event.Duration,
+                    e.Event.GetAudioVolume()));
             using (var vm = new ExportViewmodel(Engine, selections))
             {
                 UiServices.ShowDialog<Views.ExportView>(vm);
@@ -1003,12 +994,12 @@ namespace TAS.Client.ViewModels
                 if (a.Event.Layer == VideoLayer.Program)
                 {
                     if (_trackPlayingEvent)
-                        Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+                        Application.Current.Dispatcher.BeginInvoke((Action)(() =>
                         {
                             var pe = Engine.Playing;
                             if (pe != null)
                                 SetOnTopView(pe);
-                        }, null);
+                        }), null);
                     NotifyPropertyChanged(nameof(NextToPlay));
                     NotifyPropertyChanged(nameof(NextWithRequestedStartTime));
                 }
@@ -1063,13 +1054,13 @@ namespace TAS.Client.ViewModels
         
         private void OnEngineRunningEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
             {
                 if (e.Operation == CollectionOperation.Add)
                     _runningEvents.Add(e.Item);
                 else
                     _runningEvents.Remove(e.Item);
-            });
+            }));
 
         }
 

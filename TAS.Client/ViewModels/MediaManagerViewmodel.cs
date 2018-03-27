@@ -256,7 +256,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsAnimationDirectory => _selectedDirectory != null && _selectedDirectory.IsAnimationDirectory;
 
-        public bool IsMediaExportVisible { get { return MediaDirectories.Any(d => d.IsExport); } }
+        public bool IsMediaExportVisible { get { return MediaDirectories.Any(d => d.IsExport) && _engine.HaveRight(EngineRight.MediaExport); } }
 
         public bool DisplayDirectoryInfo => _selectedDirectory != null
                                             && (_selectedDirectory.IsServerDirectory || _selectedDirectory.IsArchiveDirectory || (_selectedDirectory.IsIngestDirectory && (_selectedDirectory.AccessType == TDirectoryAccessType.Direct || _selectedDirectory.IsXdcam)));

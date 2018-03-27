@@ -117,34 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EngineRights_MediaArchive" xml:space="preserve">
+  <data name="EngineRight_MediaArchive" xml:space="preserve">
     <value>Media - archiwizacja</value>
   </data>
-  <data name="EngineRights_MediaDelete" xml:space="preserve">
+  <data name="EngineRight_MediaDelete" xml:space="preserve">
     <value>Media - usuwanie</value>
   </data>
-  <data name="EngineRights_MediaEdit" xml:space="preserve">
+  <data name="EngineRight_MediaEdit" xml:space="preserve">
     <value>Media - zmiana właściwości</value>
   </data>
-  <data name="EngineRights_MediaIngest" xml:space="preserve">
+  <data name="EngineRight_MediaExport" xml:space="preserve">
+    <value>Media - eksport</value>
+  </data>
+  <data name="EngineRight_MediaIngest" xml:space="preserve">
     <value>Media - pobieranie</value>
   </data>
-  <data name="EngineRights_Play" xml:space="preserve">
+  <data name="EngineRight_Play" xml:space="preserve">
     <value>Odtwarzanie playlisty</value>
   </data>
-  <data name="EngineRights_Preview" xml:space="preserve">
+  <data name="EngineRight_Preview" xml:space="preserve">
     <value>Podgląd w kanale</value>
   </data>
-  <data name="EngineRights_Rundown" xml:space="preserve">
+  <data name="EngineRight_Rundown" xml:space="preserve">
     <value>Playlisty - pełny dostęp</value>
   </data>
-  <data name="EventRights_Create" xml:space="preserve">
+  <data name="EventRight_Create" xml:space="preserve">
     <value>Tworzenie</value>
   </data>
-  <data name="EventRights_Delete" xml:space="preserve">
+  <data name="EventRight_Delete" xml:space="preserve">
     <value>Usuwanie</value>
   </data>
-  <data name="EventRights_Modify" xml:space="preserve">
+  <data name="EventRight_Modify" xml:space="preserve">
     <value>Zmiana</value>
+  </data>
+  <data name="IngestFolderRight_Export" xml:space="preserve">
+    <value>Eksport</value>
+  </data>
+  <data name="IngestFolderRight_Ingest" xml:space="preserve">
+    <value>Ingest</value>
   </data>
 </root>

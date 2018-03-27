@@ -329,4 +329,8 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_message_MediaDeleteResult_InsufficientRights" xml:space="preserve">
     <value>Brak uprawnień do usunięcia klipu</value>
   </data>
+  <data name="_query_ClientsConnectedOnExit" xml:space="preserve">
+    <value>Istnieje {0} podłączonynych klientów. Zamknięcie spowoduje przerwanie ich pracy.
+Zamknąć aplikację?</value>
+  </data>
 </root>

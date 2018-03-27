@@ -29,8 +29,8 @@ namespace TAS.Server.Security
         [JsonProperty]
         public string Name
         {
-            get { return _name; }
-            set { SetField(ref _name, value); }
+            get => _name;
+            set => SetField(ref _name, value);
         }
 
         public abstract void Save();

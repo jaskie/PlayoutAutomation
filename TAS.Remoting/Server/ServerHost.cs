@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
 using TAS.Remoting.Server;
@@ -37,6 +38,8 @@ namespace TAS.Server
             }
             return false;
         }
+
+        public int ClientCount => _server.WebSocketServices.Hosts.Sum(h => h.Sessions.Count);
 
         public void Dispose()
         {

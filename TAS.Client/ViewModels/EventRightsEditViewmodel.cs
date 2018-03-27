@@ -40,16 +40,16 @@ namespace TAS.Client.ViewModels
 
         public ISecurityObject SelectedAclObject
         {
-            get { return _selectedAclObject; }
-            set { SetField(ref _selectedAclObject, value, setIsModified: false); }
+            get => _selectedAclObject;
+            set => SetField(ref _selectedAclObject, value, setIsModified: false);
         }
 
         public ObservableCollection<EventRightViewmodel> Rights { get; }
 
         public EventRightViewmodel SelectedRight
         {
-            get { return _selectedRight; }
-            set { SetField(ref _selectedRight, value, setIsModified: false); }
+            get => _selectedRight;
+            set => SetField(ref _selectedRight, value, setIsModified: false);
         }
 
         public void Save()
@@ -61,7 +61,7 @@ namespace TAS.Client.ViewModels
             }
             foreach (var right in _originalRights)
             {
-                if (!Rights.Any(r => r.Right == right))
+                if (Rights.All(r => r.Right != right))
                     _ev.DeleteRight(right);
             }
         }

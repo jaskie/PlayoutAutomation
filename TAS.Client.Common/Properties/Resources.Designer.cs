@@ -236,6 +236,16 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There are {0} clients. This will abort their work.
+        ///Really exit?.
+        /// </summary>
+        public static string _query_ClientsConnectedOnExit {
+            get {
+                return ResourceManager.GetString("_query_ClientsConnectedOnExit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete all graphics elements of this item?.
         /// </summary>
         public static string _query_DeleteAllGraphics {

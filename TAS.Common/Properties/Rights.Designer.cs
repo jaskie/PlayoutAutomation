@@ -19,7 +19,7 @@ namespace TAS.Common.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Rights {
@@ -63,90 +63,117 @@ namespace TAS.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Media - archive.
         /// </summary>
-        public static string EngineRights_MediaArchive {
+        public static string EngineRight_MediaArchive {
             get {
-                return ResourceManager.GetString("EngineRights_MediaArchive", resourceCulture);
+                return ResourceManager.GetString("EngineRight_MediaArchive", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Media - delete.
         /// </summary>
-        public static string EngineRights_MediaDelete {
+        public static string EngineRight_MediaDelete {
             get {
-                return ResourceManager.GetString("EngineRights_MediaDelete", resourceCulture);
+                return ResourceManager.GetString("EngineRight_MediaDelete", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Media - properties edit.
         /// </summary>
-        public static string EngineRights_MediaEdit {
+        public static string EngineRight_MediaEdit {
             get {
-                return ResourceManager.GetString("EngineRights_MediaEdit", resourceCulture);
+                return ResourceManager.GetString("EngineRight_MediaEdit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Media - export.
+        /// </summary>
+        public static string EngineRight_MediaExport {
+            get {
+                return ResourceManager.GetString("EngineRight_MediaExport", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Media - ingest.
         /// </summary>
-        public static string EngineRights_MediaIngest {
+        public static string EngineRight_MediaIngest {
             get {
-                return ResourceManager.GetString("EngineRights_MediaIngest", resourceCulture);
+                return ResourceManager.GetString("EngineRight_MediaIngest", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Play rundowns.
         /// </summary>
-        public static string EngineRights_Play {
+        public static string EngineRight_Play {
             get {
-                return ResourceManager.GetString("EngineRights_Play", resourceCulture);
+                return ResourceManager.GetString("EngineRight_Play", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Preview on channel.
         /// </summary>
-        public static string EngineRights_Preview {
+        public static string EngineRight_Preview {
             get {
-                return ResourceManager.GetString("EngineRights_Preview", resourceCulture);
+                return ResourceManager.GetString("EngineRight_Preview", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Rundowns - full edit access.
         /// </summary>
-        public static string EngineRights_Rundown {
+        public static string EngineRight_Rundown {
             get {
-                return ResourceManager.GetString("EngineRights_Rundown", resourceCulture);
+                return ResourceManager.GetString("EngineRight_Rundown", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Create.
         /// </summary>
-        public static string EventRights_Create {
+        public static string EventRight_Create {
             get {
-                return ResourceManager.GetString("EventRights_Create", resourceCulture);
+                return ResourceManager.GetString("EventRight_Create", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Delete.
         /// </summary>
-        public static string EventRights_Delete {
+        public static string EventRight_Delete {
             get {
-                return ResourceManager.GetString("EventRights_Delete", resourceCulture);
+                return ResourceManager.GetString("EventRight_Delete", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Modify.
         /// </summary>
-        public static string EventRights_Modify {
+        public static string EventRight_Modify {
             get {
-                return ResourceManager.GetString("EventRights_Modify", resourceCulture);
+                return ResourceManager.GetString("EventRight_Modify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export.
+        /// </summary>
+        public static string IngestFolderRight_Export {
+            get {
+                return ResourceManager.GetString("IngestFolderRight_Export", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ingest.
+        /// </summary>
+        public static string IngestFolderRight_Ingest {
+            get {
+                return ResourceManager.GetString("IngestFolderRight_Ingest", resourceCulture);
             }
         }
     }

@@ -176,6 +176,9 @@ namespace TAS.Server
 
         public void Export(IEnumerable<MediaExportDescription> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat)
         {
+            if (!Engine.HaveRight(EngineRight.MediaExport))
+                return;
+            
             if (asSingleFile)
             {
                 _fileManager.Queue(new ExportOperation(_fileManager) { ExportMediaList = exportList, DestMediaName = singleFilename, DestDirectory = directory as IngestDirectory, MXFAudioExportFormat = mXFAudioExportFormat, MXFVideoExportFormat = mXFVideoExportFormat });

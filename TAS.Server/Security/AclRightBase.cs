@@ -16,15 +16,15 @@ namespace TAS.Server.Security
         [JsonProperty]
         public ISecurityObject SecurityObject
         {
-            get { return _securityObject; }
-            set { SetField(ref _securityObject, value); }
+            get => _securityObject;
+            set => SetField(ref _securityObject, value);
         }
 
         [JsonProperty]
         public ulong Acl
         {
-            get { return _acl; }
-            set { SetField(ref _acl, value); }
+            get => _acl;
+            set => SetField(ref _acl, value);
         }
 
         public ulong Id { get; set; }

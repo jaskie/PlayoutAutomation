@@ -150,28 +150,15 @@ namespace TAS.Client.ViewModels
 
         public bool IsAnimationEnabled => EngineViewmodel.IsAnimationDirAvailable;
 
-        public bool IsPlaying
-        {
-            get { return Event != null && Event.PlayState == TPlayState.Playing; }
-        }
+        public bool IsPlaying => Event != null && Event.PlayState == TPlayState.Playing;
 
-        public bool IsForcedNext
-        {
-            get { return Event != null && Event.IsForcedNext; }
-        }
+        public bool IsForcedNext => Event != null && Event.IsForcedNext;
 
-        public bool HasSubItemOnLayer1
-        {
-            get { return _hasSubItemsOnLayer(VideoLayer.CG1); }
-        }
-        public bool HasSubItemOnLayer2
-        {
-            get { return _hasSubItemsOnLayer(VideoLayer.CG2); }
-        }
-        public bool HasSubItemOnLayer3
-        {
-            get { return _hasSubItemsOnLayer(VideoLayer.CG3); }
-        }
+        public bool HasSubItemOnLayer1 => _hasSubItemsOnLayer(VideoLayer.CG1);
+
+        public bool HasSubItemOnLayer2 => _hasSubItemsOnLayer(VideoLayer.CG2);
+
+        public bool HasSubItemOnLayer3 => _hasSubItemsOnLayer(VideoLayer.CG3);
 
 
         public string Layer1SubItemMediaName => _subItemMediaName(VideoLayer.CG1);

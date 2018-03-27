@@ -10,9 +10,9 @@ namespace TAS.Client.ViewModels
     {
         public EventPanelRundownViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
         {
-            CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = o => Event.SubEventsCount == 0 };
-            CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = o => Event.SubEventsCount == 0 };
-            CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive, CanExecuteDelegate = o => Event.SubEventsCount == 0 };
+            CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = _canAddSubEvent  };
+            CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = _canAddSubEvent };
+            CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive, CanExecuteDelegate = _canAddSubEvent };
         }
 
         public ICommand CommandAddSubRundown { get; }
@@ -60,6 +60,11 @@ namespace TAS.Client.ViewModels
         private void _addSubMovie(object obj)
         {
             EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, TMediaType.Movie, VideoLayer.Program, false);
+        }
+
+        private bool _canAddSubEvent(object o)
+        {
+            return Event.SubEventsCount == 0 && Engine.HaveRight(EngineRight.Rundown);
         }
 
     }

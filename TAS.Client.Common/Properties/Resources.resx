@@ -329,4 +329,8 @@ Do you really want to run this BACKUP play-out?</value>
   <data name="_message_MediaDeleteResult_InsufficientRights" xml:space="preserve">
     <value>Insufficient user rights to delete media</value>
   </data>
+  <data name="_query_ClientsConnectedOnExit" xml:space="preserve">
+    <value>There are {0} clients. This will abort their work.
+Really exit?</value>
+  </data>
 </root>

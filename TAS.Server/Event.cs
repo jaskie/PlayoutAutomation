@@ -20,89 +20,48 @@ namespace TAS.Server
     public class Event : DtoBase, IEventPesistent
     {
         bool _isForcedNext;
-
         private bool _isModified;
-
         TPlayState _playState;
-
         private long _position;
-
         [JsonProperty(nameof(IEventPesistent.Engine))]
         private readonly Engine _engine;
-
         private readonly Lazy<SynchronizedCollection<Event>> _subEvents;
-
         private Lazy<PersistentMedia> _serverMediaPRI;
-
         private Lazy<PersistentMedia> _serverMediaSEC;
-
         private Lazy<PersistentMedia> _serverMediaPRV;
-
         private Lazy<Event> _parent;
-
         private Lazy<Event> _prior;
-
         private Lazy<Event> _next;
-
-        private Lazy<List<IAclRight>> _rights;
-
+        private readonly Lazy<List<IAclRight>> _rights;
         private bool _isDeleted;
-
         private bool _isCGEnabled;
-
         private byte _crawl;
-
         private byte _logo;
-
         private byte _parental;
-
         private ulong _idEventBinding;
-
         private double? _audioVolume;
-
         private TimeSpan _duration;
-
         private bool _isEnabled = true;
-
         private TEventType _eventType;
-
         private bool _isHold;
-
         private bool _isLoop;
-
         private string _idAux;
-
         private ulong _idProgramme;
-
         private VideoLayer _layer = VideoLayer.None;
-
         private TimeSpan? _requestedStartTime;
-
         private TimeSpan _scheduledDelay;
-
         private TimeSpan _scheduledTc;
-
         private DateTime _scheduledTime;
-
         private DateTime _startTime;
-
         private TimeSpan _startTc;
-
         private TStartType _startType;
-
         private TimeSpan _transitionTime;
-
         private TimeSpan _transitionPauseTime;
-
         private TTransitionType _transitionType;
-
         private TEasing _transitionEasing;
-
         private AutoStartFlags _autoStartFlags;
-
         private Guid _mediaGuid;
-        
-        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Event));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Event));
 
         #region Constructor
         internal Event(
@@ -572,7 +531,13 @@ namespace TAS.Server
         public IEnumerable<IEvent> SubEvents { get { lock (_subEvents) return _subEvents.Value.ToArray(); } }
 
         [JsonProperty]
-        public int SubEventsCount => _subEvents.Value.Count;
+        public int SubEventsCount
+        {
+            get
+            {
+                lock (_subEvents) return _subEvents.Value.Count;
+            }
+        }
 
         public IEngine Engine => _engine;
 

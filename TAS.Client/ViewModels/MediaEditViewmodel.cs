@@ -104,35 +104,33 @@ namespace TAS.Client.ViewModels
 
         public bool IsVolumeChecking
         {
-            get { return _isVolumeChecking; }
+            get => _isVolumeChecking;
             set
             {
-                if (_isVolumeChecking != value)
-                {
-                    _isVolumeChecking = value;
-                    NotifyPropertyChanged(nameof(IsVolumeChecking));
-                    InvalidateRequerySuggested();
-                }
+                if (_isVolumeChecking == value)
+                    return;
+                _isVolumeChecking = value;
+                NotifyPropertyChanged(nameof(IsVolumeChecking));
+                InvalidateRequerySuggested();
             }
         }
 
         public void Delete()
         {
-            if (Model != null)
-                Model.Delete();
+            Model?.Delete();
         }
 
         public bool ShowButtons { get; }
 
         public string Folder
         {
-            get { return _folder; }
-            set { SetField(ref _folder, value); }
+            get => _folder;
+            set => SetField(ref _folder, value);
         }
 
         public string FileName 
         {
-            get { return _fileName; }
+            get => _fileName;
             set
             {
                 if (SetField(ref _fileName, value))
@@ -142,51 +140,51 @@ namespace TAS.Client.ViewModels
 
         public DateTime LastUpdated
         {
-            get { return _lastUpdated; }
-            set { SetField(ref _lastUpdated, value); }
+            get => _lastUpdated;
+            set => SetField(ref _lastUpdated, value);
         }
 
         public DateTime LastAccess
         {
-            get { return _lastAccess; }
-            set { SetField(ref _lastAccess, value); }
+            get => _lastAccess;
+            set => SetField(ref _lastAccess, value);
         }
 
         public TMediaType MediaType
         {
-            get { return _mediaType; }
-            set { SetField(ref _mediaType, value); }
+            get => _mediaType;
+            set => SetField(ref _mediaType, value);
         }
 
         public TimeSpan Duration
         {
-            get { return _duration; }
-            set { SetField(ref _duration, value); }
+            get => _duration;
+            set => SetField(ref _duration, value);
         }
 
         public TimeSpan DurationPlay
         {
-            get { return _durationPlay; }
-            set { SetField(ref _durationPlay, value); }
+            get => _durationPlay;
+            set => SetField(ref _durationPlay, value);
         }
 
         public TimeSpan TcStart
         {
-            get { return _tcStart; }
-            set { SetField(ref _tcStart, value); }
+            get => _tcStart;
+            set => SetField(ref _tcStart, value);
         }
 
         public TimeSpan TcPlay
         {
-            get { return _tcPlay; }
-            set { SetField(ref _tcPlay, value); }
+            get => _tcPlay;
+            set => SetField(ref _tcPlay, value);
         }
         
         public Array VideoFormats { get; } = Enum.GetValues(typeof(TVideoFormat));
 
         public TVideoFormat VideoFormat
         {
-            get { return _videoFormat; }
+            get => _videoFormat;
             set
             {
                 if (SetField(ref _videoFormat, value))
@@ -196,83 +194,78 @@ namespace TAS.Client.ViewModels
 
         public bool FieldOrderInverted
         {
-            get { return _fieldOrderInverted; }
-            set { SetField(ref _fieldOrderInverted, value); }
+            get => _fieldOrderInverted;
+            set => SetField(ref _fieldOrderInverted, value);
         }
 
         public Array AudioChannelMappings { get; } = Enum.GetValues(typeof(TAudioChannelMapping));
 
         public TAudioChannelMapping AudioChannelMapping
         {
-            get { return _audioChannelMapping; }
-            set { SetField(ref _audioChannelMapping, value); }
+            get => _audioChannelMapping;
+            set => SetField(ref _audioChannelMapping, value);
         }
 
         public double AudioVolume
         {
-            get { return _audioVolume; }
-            set { SetField(ref _audioVolume, value); }
+            get => _audioVolume;
+            set => SetField(ref _audioVolume, value);
         }
 
         public string MediaName
         {
-            get { return _mediaName; }
-            set {
-                if (SetField(ref _mediaName, value))
-                {
-                    if (MediaStatus == TMediaStatus.Required)
-                        FileName = FileUtils.SanitizeFileName(value) + FileUtils.DefaultFileExtension(MediaType);
-                }
+            get => _mediaName;
+            set
+            {
+                if (!SetField(ref _mediaName, value))
+                    return;
+                if (MediaStatus == TMediaStatus.Required)
+                    FileName = FileUtils.SanitizeFileName(value) + FileUtils.DefaultFileExtension(MediaType);
             }
         }
 
         public Array MediaEmphasises { get; } = Enum.GetValues(typeof(TMediaEmphasis));
         public TMediaEmphasis MediaEmphasis
         {
-            get { return _mediaEmphasis; }
-            set { SetField(ref _mediaEmphasis, value); }
+            get => _mediaEmphasis;
+            set => SetField(ref _mediaEmphasis, value);
         }
         
         public DateTime? KillDate
         {
-            get { return _killDate; }
+            get => _killDate;
             set
             {
-                if (_killDate != value)
-                {
-                    if (value == default(DateTime))
-                        _killDate = null;
-                    else
-                        _killDate = value;
-                    IsModified = true;
-                    NotifyPropertyChanged(nameof(IsKillDate));
-                    NotifyPropertyChanged(nameof(KillDate));
-                }
+                if (_killDate == value)
+                    return;
+                _killDate = value == default(DateTime) ? null : value;
+                IsModified = true;
+                NotifyPropertyChanged(nameof(IsKillDate));
+                NotifyPropertyChanged(nameof(KillDate));
             }
         }
 
         public bool IsKillDate
         {
-            get { return _killDate != null; }
+            get => _killDate != null;
             set
             {
-                if (value != IsKillDate)
-                {
-                    if (value)
-                        _killDate = DateTime.UtcNow + TimeSpan.FromDays(30);
-                    else
-                        _killDate = null;
-                    IsModified = true;
-                    NotifyPropertyChanged(nameof(KillDate));
-                    NotifyPropertyChanged(nameof(IsKillDate));
-                }
+                if (value == IsKillDate)
+                    return;
+                if (value)
+                    _killDate = DateTime.UtcNow + TimeSpan.FromDays(30);
+                else
+                    _killDate = null;
+                IsModified = true;
+                NotifyPropertyChanged(nameof(KillDate));
+                NotifyPropertyChanged(nameof(IsKillDate));
             }
         }
 
         public bool Protected
         {
-            get { return _protected; }
-            set { SetField(ref _protected, value); }
+            get => _protected;
+            set => SetField(ref _protected, value);
         }
 
         public TMediaStatus MediaStatus => Model.MediaStatus;
@@ -281,8 +274,8 @@ namespace TAS.Client.ViewModels
         
         public bool DoNotArchive
         {
-            get { return _doNotArchive; }
-            set { SetField(ref _doNotArchive, value); }
+            get => _doNotArchive;
+            set => SetField(ref _doNotArchive, value);
         }
 
         public bool ShowParentalCombo => _mediaManager?.CGElementsController?.Parentals!= null;
@@ -291,22 +284,22 @@ namespace TAS.Client.ViewModels
 
         public byte Parental
         {
-            get { return _parental; }
-            set { SetField(ref _parental, value); }
+            get => _parental;
+            set => SetField(ref _parental, value);
         }
 
         public Array MediaCategories { get; } = Enum.GetValues(typeof(TMediaCategory));
 
         public TMediaCategory MediaCategory
         {
-            get { return _mediaCategory; }
-            set { SetField(ref _mediaCategory, value); }
+            get => _mediaCategory;
+            set => SetField(ref _mediaCategory, value);
         }
 
         public string IdAux
         {
-            get { return _idAux; }
-            set { SetField(ref _idAux, value); }
+            get => _idAux;
+            set => SetField(ref _idAux, value);
         }
 
         #region ITemplatedEdit
@@ -446,7 +439,7 @@ namespace TAS.Client.ViewModels
 
         private string _validateTcPlay()
         {
-            string validationResult = string.Empty;
+            var validationResult = string.Empty;
             if (TcPlay < TcStart
                 || TcPlay > TcStart + Duration)
                 validationResult = resources._validateStartPlayMustBeInsideFile;
@@ -455,7 +448,7 @@ namespace TAS.Client.ViewModels
 
         private string _validateDurationPlay()
         {
-            string validationResult = string.Empty;
+            var validationResult = string.Empty;
             if (DurationPlay + TcPlay > Duration + TcStart)
                 validationResult = resources._validate_DurationInvalid;
             return validationResult;
@@ -470,12 +463,11 @@ namespace TAS.Client.ViewModels
 
         private void _deleteField(object obj)
         {
-            if (SelectedField != null)
-            {
-                var selected = (KeyValuePair<string, string>)SelectedField;
-                _fields.Remove(selected.Key);
-                SelectedField = null;
-            }
+            if (SelectedField == null)
+                return;
+            var selected = (KeyValuePair<string, string>)SelectedField;
+            _fields.Remove(selected.Key);
+            SelectedField = null;
         }
 
         private bool _canAddField(object obj)
@@ -557,21 +549,16 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)(() =>
                 {
-                    if (!string.IsNullOrEmpty(e.PropertyName))
-                    {
-                        PropertyInfo sourcePi = Model.GetType().GetProperty(e.PropertyName);
-                        PropertyInfo destPi = GetType().GetProperty(e.PropertyName);
-                        if (sourcePi != null
-                            && destPi != null
-                            && sourcePi.CanRead
-                            && destPi.CanWrite)
-                        {
-                            bool oldModified = IsModified;
-                            destPi.SetValue(this, sourcePi.GetValue(Model, null), null);
-                            IsModified = oldModified;
-                            NotifyPropertyChanged(e.PropertyName);
-                        }
-                    }
+                    if (string.IsNullOrEmpty(e.PropertyName))
+                        return;
+                    var sourcePi = Model.GetType().GetProperty(e.PropertyName);
+                    var destPi = GetType().GetProperty(e.PropertyName);
+                    if (sourcePi == null || destPi == null || !sourcePi.CanRead || !destPi.CanWrite)
+                        return;
+                    var oldModified = IsModified;
+                    destPi.SetValue(this, sourcePi.GetValue(Model, null), null);
+                    IsModified = oldModified;
+                    NotifyPropertyChanged(e.PropertyName);
                 }),
                 null);
 

@@ -129,6 +129,9 @@
   <data name="_mediaEdit" xml:space="preserve">
     <value>Zmiana właściwości mediów</value>
   </data>
+  <data name="_mediaExport" xml:space="preserve">
+    <value>Eksport klipów</value>
+  </data>
   <data name="_mediaIngest" xml:space="preserve">
     <value>Pobieranie nowych mediów</value>
   </data>

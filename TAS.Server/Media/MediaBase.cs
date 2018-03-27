@@ -48,13 +48,6 @@ namespace TAS.Server.Media
             _directory.MediaAdd(this);
         }
 
-#if DEBUG
-        ~MediaBase()
-        {
-            Debug.WriteLine("{0} finalized: {1}", GetType(), this);
-        }
-#endif
-
         #region IMediaProperties
         [JsonProperty]
         public string Folder

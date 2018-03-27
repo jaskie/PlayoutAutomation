@@ -19,7 +19,7 @@ namespace TAS.Client.ViewModels
 
             CommandHide = new UICommand {ExecuteDelegate = o => IsVisible = false,CanExecuteDelegate = o => _isVisible };
             CommandShow = new UICommand {ExecuteDelegate = o => IsVisible = true, CanExecuteDelegate = o => !_isVisible };
-            CommandAddSubRundown = new UICommand {ExecuteDelegate = _addSubRundown};
+            CommandAddSubRundown = new UICommand {ExecuteDelegate = _addSubRundown, CanExecuteDelegate = o => Engine.HaveRight(EngineRight.Rundown)};
         }
 
         public ICommand CommandHide { get; }
@@ -29,7 +29,7 @@ namespace TAS.Client.ViewModels
 
         public override bool IsVisible
         {
-            get { return _isVisible; }
+            get => _isVisible;
             protected set
             {
                 if (SetField(ref _isVisible, value))

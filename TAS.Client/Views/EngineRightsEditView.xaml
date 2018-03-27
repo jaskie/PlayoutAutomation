@@ -4,7 +4,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance {x:Type vm:EngineRightsEditViewmodel}}"
              Height="400" 
              Width="500"
              Title="{Resx _windowTitle}"
@@ -66,6 +68,11 @@
                 <DataGridCheckBoxColumn Binding="{Binding MediaArchive, UpdateSourceTrigger=PropertyChanged}">
                     <DataGridCheckBoxColumn.Header>
                         <TextBlock Text="MA" ToolTip="{Resx _mediaArchive, ResxName=TAS.Client.Views.EngineRightsEditView}"></TextBlock>
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
+                <DataGridCheckBoxColumn Binding="{Binding MediaExport, UpdateSourceTrigger=PropertyChanged}">
+                    <DataGridCheckBoxColumn.Header>
+                        <TextBlock Text="MX" ToolTip="{Resx _mediaExport, ResxName=TAS.Client.Views.EngineRightsEditView}"></TextBlock>
                     </DataGridCheckBoxColumn.Header>
                 </DataGridCheckBoxColumn>
                 <DataGridTemplateColumn Width="*" Header="{Resx _name, ResxName=TAS.Client.Views.EngineRightsEditView}" >

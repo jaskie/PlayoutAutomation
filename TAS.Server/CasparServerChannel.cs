@@ -365,6 +365,7 @@ namespace TAS.Server
             {
                 channel.ClearMixer();
                 channel.CG.Clear();
+                _outputAspectNarrow.Clear();
             }
         }
 
@@ -388,8 +389,7 @@ namespace TAS.Server
         public void SetAspect(VideoLayer layer, bool narrow)
         {
             var channel = _casparChannel;
-            bool oldAspectNarrow;
-            _outputAspectNarrow.TryGetValue(layer, out oldAspectNarrow);
+            _outputAspectNarrow.TryGetValue(layer, out var oldAspectNarrow);
             if (oldAspectNarrow != narrow
                 && CheckConnected(channel))
             {

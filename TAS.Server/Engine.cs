@@ -58,7 +58,7 @@ namespace TAS.Server
         private IEnumerable<IGpi> _localGpis;
         private IEnumerable<IEnginePlugin> _plugins;
         private TimeSpan _timeCorrection;
-        private bool _isWideScreen;
+        private bool _isWideScreen = true;
         private TEngineState _engineState;
         private double _programAudioVolume = 1;
         private bool _fieldOrderInverted;
@@ -1619,7 +1619,7 @@ namespace TAS.Server
         
         private void _server_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Action<CasparServerChannel, List<Event>> channelConnected = (channel, ve) =>
+            void ChannelConnected(CasparServerChannel channel, List<Event> ve)
             {
                 foreach (Event ev in ve)
                 {
@@ -1633,16 +1633,16 @@ namespace TAS.Server
                             channel.SetAspect(VideoLayer.Program, narrow);
                     }
                 }
-            };
+            }
 
             if (e.PropertyName == nameof(IPlayoutServer.IsConnected) && ((IPlayoutServer)sender).IsConnected)
             {
                 var ve = _visibleEvents.ToList();
                 if (sender == ((CasparServerChannel)PlayoutChannelPRI)?.Owner)
-                    channelConnected(_playoutChannelPRI, ve);
+                    ChannelConnected(_playoutChannelPRI, ve);
                 if (sender == ((CasparServerChannel)PlayoutChannelSEC)?.Owner
                     && PlayoutChannelSEC != PlayoutChannelPRI)
-                    channelConnected(_playoutChannelSEC, ve);
+                    ChannelConnected(_playoutChannelSEC, ve);
             }
         }
 

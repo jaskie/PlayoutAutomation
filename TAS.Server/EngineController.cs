@@ -4,6 +4,7 @@ using System.ComponentModel.Composition.Hosting;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.FtpClient;
 using TAS.Common;
@@ -52,5 +53,7 @@ namespace TAS.Server
                     e.Dispose();
             Logger.Info("Engines shutdown");
         }
+
+        public static int GetConnectedClientCount() => Engines.Sum(e => e.Remote?.ClientCount ?? 0);
     }
 }

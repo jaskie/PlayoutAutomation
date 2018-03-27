@@ -17,6 +17,8 @@ namespace TAS.Client.ViewModels
         private bool _mediaEdit;
         private bool _mediaDelete;
         private bool _mediaArchive;
+        private bool _mediaExport;
+
 
         public EngineRightViewmodel(IAclRight right) : base(right)
         {
@@ -32,7 +34,7 @@ namespace TAS.Client.ViewModels
 
         public bool Play
         {
-            get { return _play; }
+            get => _play;
             set
             {
                 if (SetField(ref _play, value))
@@ -45,7 +47,7 @@ namespace TAS.Client.ViewModels
 
         public bool Preview
         {
-            get { return _preview; }
+            get => _preview;
             set
             {
                 if (SetField(ref _preview, value))
@@ -58,7 +60,7 @@ namespace TAS.Client.ViewModels
 
         public bool Rundown
         {
-            get { return _rundown; }
+            get => _rundown;
             set
             {
                 if (SetField(ref _rundown, value))
@@ -71,7 +73,7 @@ namespace TAS.Client.ViewModels
 
         public bool MediaIngest
         {
-            get { return _mediaIngest; }
+            get => _mediaIngest;
             set
             {
                 if (SetField(ref _mediaIngest, value))
@@ -84,7 +86,7 @@ namespace TAS.Client.ViewModels
 
         public bool MediaEdit
         {
-            get { return _mediaEdit; }
+            get => _mediaEdit;
             set
             {
                 if (SetField(ref _mediaEdit, value))
@@ -97,7 +99,7 @@ namespace TAS.Client.ViewModels
 
         public bool MediaDelete
         {
-            get { return _mediaDelete; }
+            get => _mediaDelete;
             set
             {
                 if (SetField(ref _mediaDelete, value))
@@ -110,7 +112,7 @@ namespace TAS.Client.ViewModels
 
         public bool MediaArchive
         {
-            get { return _mediaArchive; }
+            get => _mediaArchive;
             set
             {
                 if (SetField(ref _mediaArchive, value))
@@ -121,7 +123,19 @@ namespace TAS.Client.ViewModels
             }
         }
 
-
+        public bool MediaExport
+        {
+            get => _mediaExport;
+            set
+            {
+                if (SetField(ref _mediaExport, value))
+                    if (value)
+                        Acl |= (ulong) EngineRight.MediaExport;
+                    else
+                        Acl &= ~(ulong) EngineRight.MediaExport;
+            }
+        }
+        
 
         public ISecurityObject SecurityObject => Right.SecurityObject;
     }

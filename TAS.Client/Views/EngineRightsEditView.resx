@@ -129,6 +129,9 @@
   <data name="_mediaEdit" xml:space="preserve">
     <value>Media properties edit</value>
   </data>
+  <data name="_mediaExport" xml:space="preserve">
+    <value>Export media</value>
+  </data>
   <data name="_mediaIngest" xml:space="preserve">
     <value>Ingest new media</value>
   </data>
