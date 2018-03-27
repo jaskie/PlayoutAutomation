@@ -22,7 +22,7 @@
             <Image Height="20" MaxWidth="50" Margin="1" Source="{Binding Crawl.Image}" ToolTip="{Binding Crawl.Name}"/>
             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
         </StackPanel>
-        <Button Command="{Binding CommandToggleLayer}" CommandParameter="17" ToolTip="{Resx _toggleLayer.ToolTip}">
+        <Button Command="{Binding CommandToggleLayer}" CommandParameter="CG1" ToolTip="{Resx _toggleLayer.ToolTip}">
             <Image>
                 <Image.Style>
                     <Style TargetType="Image">
@@ -39,7 +39,7 @@
             </Image>
         </Button>
         <TextBlock Text="{Binding Layer1SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
-        <Button Command="{Binding CommandToggleLayer}" CommandParameter="18" ToolTip="{Resx _toggleLayer.ToolTip}">
+        <Button Command="{Binding CommandToggleLayer}" CommandParameter="CG2" ToolTip="{Resx _toggleLayer.ToolTip}">
             <Image>
                 <Image.Style>
                     <Style TargetType="Image">
@@ -57,7 +57,7 @@
 
         </Button>
         <TextBlock Text="{Binding Layer2SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
-        <Button Command="{Binding CommandToggleLayer}" CommandParameter="19" ToolTip="{Resx _toggleLayer.ToolTip}">
+        <Button Command="{Binding CommandToggleLayer}" CommandParameter="CG3" ToolTip="{Resx _toggleLayer.ToolTip}">
             <Image>
                 <Image.Style>
                     <Style TargetType="Image">

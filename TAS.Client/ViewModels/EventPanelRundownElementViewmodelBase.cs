@@ -42,7 +42,8 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = l =>
                 {
-                    VideoLayer layer = (VideoLayer) sbyte.Parse((string) l);
+                    if (!(l is string layerName) || !Enum.TryParse(layerName, true, out VideoLayer layer))
+                        return;
                     if (_hasSubItemsOnLayer(layer))
                     {
                         var layerEvent = Event.SubEvents.FirstOrDefault(e => e.Layer == layer);
@@ -78,12 +79,12 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o => EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent,
                     TMediaType.Animation, VideoLayer.Animation, true),
-                CanExecuteDelegate = o => Event.PlayState == TPlayState.Scheduled
+                CanExecuteDelegate = o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             };
             CommandAddCommandScript = new UICommand
             {
                 ExecuteDelegate = o => EngineViewmodel.AddCommandScriptEvent(Event),
-                CanExecuteDelegate = o => Event.PlayState == TPlayState.Scheduled
+                CanExecuteDelegate = o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             };
         }
 
@@ -129,9 +130,9 @@ namespace TAS.Client.ViewModels
 
         bool _canAddNextItem(object o)
         {
-            return Event.HaveRight(EventRight.Create)
-                   && Event.PlayState != TPlayState.Played 
-                   && !Event.IsLoop;
+            return Event.PlayState != TPlayState.Played 
+                   && !Event.IsLoop
+                   && Event.HaveRight(EventRight.Create);
         }
 
         #endregion // Commands

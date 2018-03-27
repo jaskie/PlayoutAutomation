@@ -3,11 +3,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
-using TAS.Remoting.Server;
 using TAS.Common.Interfaces;
 using WebSocketSharp.Server;
 
-namespace TAS.Server
+namespace TAS.Remoting.Server
 {
     public class ServerHost : IDisposable, IRemoteHostConfig
     {

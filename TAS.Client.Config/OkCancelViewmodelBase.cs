@@ -2,8 +2,9 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using TAS.Client.Common;
 
-namespace TAS.Client.Common
+namespace TAS.Client.Config
 {
     public abstract class OkCancelViewmodelBase<TM> : EditViewmodelBase<TM>
     {

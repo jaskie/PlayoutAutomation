@@ -61,7 +61,7 @@ namespace TAS.Client.Views
         private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             var vm = e.NewValue as MediaSearchViewmodel;
-            Width = vm?.PreviewViewmodel == null ? 450 : 750;
+            Width = vm?.PreviewViewmodel == null ? 550 : 950;
         }
 
         private void BtnClose_OnClick(object sender, RoutedEventArgs e)

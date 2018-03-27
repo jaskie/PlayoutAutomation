@@ -87,7 +87,7 @@ namespace TAS.Client.ViewModels
 
         public string SearchText
         {
-            get { return _searchText; }
+            get => _searchText;
             set
             {
                 value = value.ToLower();
@@ -107,7 +107,7 @@ namespace TAS.Client.ViewModels
 
         public object MediaCategory
         {
-            get { return _mediaCategory; }
+            get => _mediaCategory;
             set
             {
                 if (SetField(ref _mediaCategory, value))
@@ -122,7 +122,7 @@ namespace TAS.Client.ViewModels
 
         public MediaViewViewmodel SelectedItem
         {
-            get { return _selectedItem; }
+            get => _selectedItem;
             set
             {
                 if (value != _selectedItem)
@@ -146,22 +146,21 @@ namespace TAS.Client.ViewModels
 
         public bool EnableCGElementsForNewEvents
         {
-            get { return _engine.EnableCGElementsForNewEvents; }
-            set { _engine.EnableCGElementsForNewEvents = value; }
+            get => _engine.EnableCGElementsForNewEvents;
+            set => _engine.EnableCGElementsForNewEvents = value;
         }
 
         public bool CanEnableCGElements => _engine.CGElementsController != null && _mediaType == TMediaType.Movie;
 
         public string OkButtonText
         {
-            get { return _okButtonText; }
+            get => _okButtonText;
             set
             {
-                if (value != _okButtonText)
-                {
-                    _okButtonText = value;
-                    NotifyPropertyChanged(nameof(OkButtonText));
-                }
+                if (value == _okButtonText)
+                    return;
+                _okButtonText = value;
+                NotifyPropertyChanged(nameof(OkButtonText));
             }
         }
 

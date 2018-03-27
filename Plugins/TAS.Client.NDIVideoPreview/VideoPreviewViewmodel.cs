@@ -207,8 +207,8 @@ namespace TAS.Client.NDIVideoPreview
 
         public bool DisplayPopup
         {
-            get { return _displayPopup; }
-            set { SetField(ref _displayPopup, value); }
+            get => _displayPopup;
+            set => SetField(ref _displayPopup, value);
         }
 
         private void RefreshSources(object obj)
