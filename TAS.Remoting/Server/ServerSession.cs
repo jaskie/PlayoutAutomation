@@ -196,7 +196,7 @@ namespace TAS.Remoting.Server
             using (var serialized = SerializeDto(response))
             {
                 var bytes = message.ToByteArray(serialized);
-                Send(bytes);
+                SendAsync(bytes, null);
             }
         }
 
@@ -278,7 +278,7 @@ namespace TAS.Remoting.Server
             using (var serialized = SerializeDto(eventArgs))
             {
                 var bytes = message.ToByteArray(serialized);
-                Send(bytes);
+                SendAsync(bytes, null);
             }
         }
 
@@ -306,7 +306,7 @@ namespace TAS.Remoting.Server
             using (var serialized = SerializeDto(null))
             {
                 var bytes = message.ToByteArray(serialized);
-                Send(bytes);
+                SendAsync(bytes, null);
             }
             Debug.WriteLine($"Server: ObjectDisposed notification on {dto} sent");
         }

@@ -186,14 +186,15 @@ namespace TAS.Remoting.Client
         private void _clientSocket_OnMessage(object sender, MessageEventArgs e)
         {
             WebSocketMessage message = new WebSocketMessage(e.RawData);
+            var proxy = _referenceResolver.ResolveReference(message.DtoGuid) as ProxyBase;
             switch (message.MessageType)
             {
                 case WebSocketMessage.WebSocketMessageType.EventNotification:
-                    var proxy = _referenceResolver.ResolveReference(message.DtoGuid) as ProxyBase;
                     proxy?.OnEventNotificationMessage(message);
                     break;
                 case WebSocketMessage.WebSocketMessageType.ObjectDisposed:
                     _referenceResolver.RemoveReference(message.DtoGuid);
+                    proxy?.Dispose();
                     break;
                 default:
                     _receivedMessages[message.MessageGuid] = message;
