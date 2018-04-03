@@ -165,8 +165,7 @@ namespace TAS.Remoting.Server
                 if (havingDelegate != null)
                 {
                     EventInfo ei = havingDelegate.GetType().GetEvent(d.Item2);
-                    if (_delegates.TryRemove(d, out var delegateToRemove))
-                        ei.RemoveEventHandler(havingDelegate, delegateToRemove);
+                    _removeDelegate(havingDelegate, ei);
                 }
             }
             _referenceResolver.ReferencePropertyChanged -= _referenceResolver_ReferencePropertyChanged;
@@ -289,11 +288,8 @@ namespace TAS.Remoting.Server
             var delegatesToRemove = _delegates.Keys.Where(k => k.Item1 == dto.DtoGuid);
             foreach (var dk in delegatesToRemove)
             {
-                if (!_delegates.TryRemove(dk, out var delegateToRemove))
-                    continue;
-                var ei = dto.GetType().GetEvent(dk.Item2);
-                ei.RemoveEventHandler(dto, delegateToRemove);
-                Debug.WriteLine($"Server: Delegate {dk.Item2}  on {dto} removed;");
+                EventInfo ei = dto.GetType().GetEvent(dk.Item2);
+                _removeDelegate(dto, ei);
             }
             WebSocketMessage message = new WebSocketMessage
             {

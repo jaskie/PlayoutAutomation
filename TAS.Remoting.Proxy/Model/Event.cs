@@ -145,60 +145,56 @@ namespace TAS.Remoting.Model
             ResetSlibbings();
         }
 
-        public ulong Id
-        {
-            get { return _id; }
-            set { _id = value; }
-        }
+        public ulong Id { get => _id; set => _id = value; }
 
-        public double? AudioVolume { get { return _audioVolume; }  set { Set(value); } }
+        public double? AudioVolume { get => _audioVolume; set => Set(value); }
 
-        public AutoStartFlags AutoStartFlags { get { return _autoStartFlags; } set { Set(value); } }
+        public AutoStartFlags AutoStartFlags { get => _autoStartFlags; set => Set(value); }
 
-        public byte Crawl { get { return _crawl; } set { Set(value); } }
+        public byte Crawl { get => _crawl; set => Set(value); }
 
-        public TimeSpan Duration { get { return _duration; } set { Set(value); } }
+        public TimeSpan Duration { get => _duration; set => Set(value); }
         
         public DateTime EndTime => _endTime;
 
         public IEngine Engine => _engine;
 
-        public string EventName { get { return _eventName; } set { Set(value); } }
+        public string EventName { get => _eventName; set => Set(value); }
 
         public TEventType EventType => _eventType;
         
-        public string IdAux { get { return _idAux; } set { Set(value); } }
+        public string IdAux { get => _idAux; set => Set(value); }
         
-        public ulong IdProgramme { get { return _idProgramme; } set { Set(value); } }
+        public ulong IdProgramme { get => _idProgramme; set => Set(value); }
 
-        public bool IsCGEnabled { get { return _isCGEnabled; } set { Set(value); } }
+        public bool IsCGEnabled { get => _isCGEnabled; set => Set(value); }
 
         public bool IsDeleted => _isDeleted;
 
-        public bool IsEnabled { get { return _isEnabled; } set { Set(value); } }
+        public bool IsEnabled { get => _isEnabled; set => Set(value); }
 
         public bool IsForcedNext => _isForcedNext;
 
-        public bool IsHold { get { return _isHold; } set { Set(value); } }
+        public bool IsHold { get => _isHold; set => Set(value); }
 
-        public bool IsLoop { get { return _isLoop; } set { Set(value); } }
+        public bool IsLoop { get => _isLoop; set => Set(value); }
 
-        public bool IsModified { get { return _isModified; } set { Set(value); } }
+        public bool IsModified { get => _isModified; set => Set(value); }
 
-        public VideoLayer Layer { get { return _layer; } set { Set(value); } }
+        public VideoLayer Layer { get => _layer; set => Set(value); }
 
         public TimeSpan Length => _length;
 
-        public byte Logo { get { return _logo; } set { Set(value); } }
+        public byte Logo { get => _logo; set => Set(value); }
 
-        public IMedia Media { get { return _media; } set { Set(value); } }
+        public IMedia Media { get => _media; set => Set(value); }
 
-        public Guid MediaGuid { get { return _mediaGuid; } set { Set(value); } }
+        public Guid MediaGuid { get => _mediaGuid; set => Set(value); }
 
         [JsonProperty]
         public IEvent Next
         {
-            get { return _next.Value; }
+            get => _next.Value;
             set
             {
                 _next = new Lazy<IEvent>(() => value);
@@ -209,7 +205,7 @@ namespace TAS.Remoting.Model
         [JsonProperty]
         public IEvent Parent
         {
-            get { return _parent.Value; }
+            get => _parent.Value;
             set
             {
                 _parent = new Lazy<IEvent>(() => value); 
@@ -220,7 +216,7 @@ namespace TAS.Remoting.Model
         [JsonProperty]
         public IEvent Prior
         {
-            get { return _prior.Value; }
+            get => _prior.Value;
             set
             {
                 _prior = new Lazy<IEvent>(() => value);
@@ -231,36 +227,36 @@ namespace TAS.Remoting.Model
 
         public TimeSpan? Offset => _offset;
 
-        public byte Parental { get { return _parental; } set { Set(value); } }
+        public byte Parental { get => _parental; set => Set(value); }
 
         public TPlayState PlayState => _playState;
 
 
-        public TimeSpan? RequestedStartTime { get { return _requestedStartTime; }  set { Set(value); } }
+        public TimeSpan? RequestedStartTime { get => _requestedStartTime; set => Set(value); }
 
-        public TimeSpan ScheduledDelay { get { return _scheduledDelay; } set { Set(value); } }
+        public TimeSpan ScheduledDelay { get => _scheduledDelay;set => Set(value); }
 
-        public TimeSpan ScheduledTc { get { return _scheduledTc; } set { Set(value); } }
+        public TimeSpan ScheduledTc { get => _scheduledTc; set => Set(value); }
 
-        public DateTime ScheduledTime { get { return _scheduledTime; } set { Set(value); } }
+        public DateTime ScheduledTime { get => _scheduledTime; set => Set(value); }
 
-        public TimeSpan StartTc { get { return _startTc; } set { Set(value); } }
+        public TimeSpan StartTc { get => _startTc; set => Set(value); }
 
         public DateTime StartTime => _startTime;
 
-        public TStartType StartType { get { return _startType; } set { Set(value); } }
+        public TStartType StartType { get => _startType; set => Set(value); }
 
         public IEnumerable<IEvent> SubEvents => _subEvents.Value;
 
         public int SubEventsCount => _subEventsCount;
 
-        public TEasing TransitionEasing { get { return _transitionEasing; } set { Set(value); } }
+        public TEasing TransitionEasing { get => _transitionEasing; set => Set(value); }
 
-        public TimeSpan TransitionPauseTime { get { return _transitionPauseTime; } set { Set(value); } }
+        public TimeSpan TransitionPauseTime { get => _transitionPauseTime; set => Set(value); }
 
-        public TimeSpan TransitionTime { get { return _transitionTime; } set { Set(value); } }
+        public TimeSpan TransitionTime { get => _transitionTime; set => Set(value); }
 
-        public TTransitionType TransitionType { get { return _transitionType; } set { Set(value); } }
+        public TTransitionType TransitionType { get => _transitionType; set => Set(value); }
 
         #region Event handlers
         private event EventHandler<EventPositionEventArgs> _positionChanged;

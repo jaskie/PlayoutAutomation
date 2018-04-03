@@ -28,7 +28,7 @@ namespace TAS.Remoting
 #if DEBUG
             0x1
 #else
-    0x0
+            0x0
 #endif
         };
 
@@ -92,7 +92,11 @@ namespace TAS.Remoting
 
         public override string ToString()
         {
-            return $"WebSocketMessage: {MessageType}:{MemberName}:{MessageGuid}";
+#if DEBUG
+            return $"WebSocketMessage: {MessageType}:{MemberName}:{DtoName}";
+#else
+            return $"WebSocketMessage: {MessageType}:{MemberName}";
+#endif
         }
 
         public byte[] ToByteArray(Stream value)
@@ -141,7 +145,7 @@ namespace TAS.Remoting
         {
 #if DEBUG
             var s = Encoding.UTF8.GetString(_rawData, _valueStartIndex, _rawData.Length - _valueStartIndex);
-            Debug.WriteLine(s);
+            //Debug.WriteLine(s);
 #endif
             return _rawData.Length > _valueStartIndex ? new MemoryStream(_rawData, _valueStartIndex, _rawData.Length - _valueStartIndex) : null;
         }

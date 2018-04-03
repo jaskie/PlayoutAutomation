@@ -17,10 +17,11 @@ namespace TAS.Remoting.Client
     {
         private int _isDisposed;
         private RemoteClient _client;
+        private const int DisposedValue = 1;
 
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _isDisposed, 1) == default(int))
+            if (Interlocked.Exchange(ref _isDisposed, DisposedValue) == default(int))
                 DoDispose();
         }
 
@@ -40,6 +41,8 @@ namespace TAS.Remoting.Client
 
         protected T Get<T>([CallerMemberName] string propertyName = null)
         {
+            if (_isDisposed == DisposedValue)
+                return default(T);
             if (string.IsNullOrEmpty(propertyName))
                 return default(T);
             var result = _client.Get<T>(this, propertyName);
@@ -49,6 +52,8 @@ namespace TAS.Remoting.Client
 
         protected void Set<T>(T value, [CallerMemberName] string propertyName = null)
         {
+            if (_isDisposed == DisposedValue)
+                return;
             Type type = GetType();
             FieldInfo field = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
                 .FirstOrDefault(p =>
@@ -65,11 +70,15 @@ namespace TAS.Remoting.Client
 
         protected void Invoke([CallerMemberName] string methodName = null, params object[] parameters)
         {
+            if (_isDisposed == DisposedValue)
+                return;
             _client.Invoke(this, methodName, parameters);
         }
 
         protected T Query<T>([CallerMemberName] string methodName = "", params object[] parameters)
         {
+            if (_isDisposed == DisposedValue)
+                return default(T);
             return _client.Query<T>(this, methodName, parameters);
         }
 
@@ -83,9 +92,7 @@ namespace TAS.Remoting.Client
         {
             if (handler == null && !DtoGuid.Equals(Guid.Empty))
             {
-                var client = _client;
-                if (client != null)
-                    client.EventRemove(this, eventName);
+                _client?.EventRemove(this, eventName);
             }
         }
 
@@ -110,49 +117,44 @@ namespace TAS.Remoting.Client
 
         protected T Deserialize<T>(WebSocketMessage message)
         {
-            if (_client == null)
-                return default(T);
-            return _client.Deserialize<T>(message);
+            return _client == null ? default(T) : _client.Deserialize<T>(message);
         }
 
         internal void OnEventNotificationMessage(WebSocketMessage message)
         {
             if (message.MemberName == nameof(INotifyPropertyChanged.PropertyChanged))
             {
-                PropertyChangedWithDataEventArgs eav = Deserialize<PropertyChangedWithDataEventArgs>(message);
-                if (eav != null)
+                var eav = Deserialize<PropertyChangedWithDataEventArgs>(message);
+                if (eav == null)
+                    return;
+                Debug.WriteLine($"{this}: property notified {eav.PropertyName}, value {eav.Value}");
+                var type = GetType();
+                var field = GetField(type, eav.PropertyName);
+                if (field == null)
                 {
-                    Debug.WriteLine($"{this}: property notified {eav.PropertyName}, value {eav.Value}");
-                    Type type = GetType();
-                    FieldInfo field = GetField(type, eav.PropertyName);
-                    if (field == null)
-                    {
-                        var property = type.GetProperty(eav.PropertyName);
-                        if (property != null)
-                        {
-                            var value = eav.Value;
-                            MethodParametersAlignment.AlignType(ref value, property.PropertyType);
-                            property.SetValue(this, value);
-                        }
-                    }
-                    else
+                    var property = type.GetProperty(eav.PropertyName);
+                    if (property != null)
                     {
                         var value = eav.Value;
-                        MethodParametersAlignment.AlignType(ref value, field.FieldType);
-                        field.SetValue(this, value);
+                        MethodParametersAlignment.AlignType(ref value, property.PropertyType);
+                        property.SetValue(this, value);
                     }
-                    NotifyPropertyChanged(eav.PropertyName);
                 }
+                else
+                {
+                    var value = eav.Value;
+                    MethodParametersAlignment.AlignType(ref value, field.FieldType);
+                    field.SetValue(this, value);
+                }
+                NotifyPropertyChanged(eav.PropertyName);
             }
             else OnEventNotification(message);
         }
 
         protected FieldInfo GetField(Type t, string fieldName)
         {
-            if (t == null)
-                return null;
-            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-            FieldInfo foundField = t.GetFields(flags).FirstOrDefault(f => f.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a =>((JsonPropertyAttribute)a).PropertyName == fieldName));
+            var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+            var foundField = t.GetFields(flags).FirstOrDefault(f => f.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a =>((JsonPropertyAttribute)a).PropertyName == fieldName));
             return foundField ?? GetField(t.BaseType, fieldName);
         }
     }
