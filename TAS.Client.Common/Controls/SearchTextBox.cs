@@ -162,7 +162,7 @@ namespace TAS.Client.Common.Controls
             {
                 if (allowEmptySearches)
                 {
-                    stb._searchButtonHost.IsEnabled = (stb.Command == null) ? true : stb.Command.CanExecute(stb.CommandParameter);
+                    stb._searchButtonHost.IsEnabled = stb.Command?.CanExecute(stb.CommandParameter) ?? true;
                 }
                 else
                 {
@@ -172,8 +172,7 @@ namespace TAS.Client.Common.Controls
         }
         private static void OnCommandPropsChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
         {
-            SearchTextBox stb = o as SearchTextBox;
-            if (stb != null)
+            if (o is SearchTextBox stb)
             {
                 stb.UpdateSearchButtonCommand();
                 stb.UpdateSearchButtonIsEnabled();
@@ -181,8 +180,7 @@ namespace TAS.Client.Common.Controls
         }
         private static void OnInstantSearchDelayChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
         {
-            SearchTextBox stb = o as SearchTextBox;
-            if (stb != null)
+            if (o is SearchTextBox stb)
             {
                 stb._searchDelayTimer.Interval = ((Duration)e.NewValue).TimeSpan;
                 stb._searchDelayTimer.Stop();
@@ -190,8 +188,7 @@ namespace TAS.Client.Common.Controls
         }
         private static void OnTextPropertyChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
         {
-            SearchTextBox stb = o as SearchTextBox;
-            if (stb != null)
+            if (o is SearchTextBox stb)
             {
                 stb.UpdateSearchButtonIsEnabled();
             }
@@ -209,8 +206,7 @@ namespace TAS.Client.Common.Controls
         /// </summary>
         public SearchTextBox()
         {
-            _searchDelayTimer = new DispatcherTimer();
-            _searchDelayTimer.Interval = TimeSpan.Zero;
+            _searchDelayTimer = new DispatcherTimer {Interval = TimeSpan.Zero};
             _searchDelayTimer.Tick += HandleSearchDelayTimerTick;
         }
 
@@ -226,8 +222,8 @@ namespace TAS.Client.Common.Controls
         [Category("Common Properties")]
         public bool AllowEmptySearches
         {
-            get { return (bool)GetValue(AllowEmptySearchesProperty); }
-            set { SetValue(AllowEmptySearchesProperty, value); }
+            get => (bool)GetValue(AllowEmptySearchesProperty);
+            set => SetValue(AllowEmptySearchesProperty, value);
         }
         /// <summary>
         /// Gets or sets the command to invoke when the search button is pressed or during instant search.
@@ -236,8 +232,8 @@ namespace TAS.Client.Common.Controls
         Localizability(LocalizationCategory.NeverLocalize)]
         public ICommand Command
         {
-            get { return (ICommand)this.GetValue(CommandProperty); }
-            set { this.SetValue(CommandProperty, value); }
+            get => (ICommand)GetValue(CommandProperty);
+            set => SetValue(CommandProperty, value);
         }
         /// <summary>
         /// Gets or sets the parameter to pass to the <see cref="P:Command"/> property.
@@ -246,8 +242,8 @@ namespace TAS.Client.Common.Controls
         Localizability(LocalizationCategory.NeverLocalize)]
         public object CommandParameter
         {
-            get { return this.GetValue(CommandParameterProperty); }
-            set { this.SetValue(CommandParameterProperty, value); }
+            get => GetValue(CommandParameterProperty);
+            set => SetValue(CommandParameterProperty, value);
         }
         /// <summary>
         /// Gets or sets the element on which to raise the specified command.
@@ -255,8 +251,8 @@ namespace TAS.Client.Common.Controls
         [Bindable(true)]
         public IInputElement CommandTarget
         {
-            get { return (IInputElement)this.GetValue(CommandTargetProperty); }
-            set { this.SetValue(CommandTargetProperty, value); }
+            get => (IInputElement)GetValue(CommandTargetProperty);
+            set => SetValue(CommandTargetProperty, value);
         }
         /// <summary>
         /// Gets or sets the element on which to raise the specified command.
@@ -264,8 +260,8 @@ namespace TAS.Client.Common.Controls
         [Bindable(true)]
         public string ButtonToolTip
         {
-            get { return (string)this.GetValue(ButtonToolTipProperty); }
-            set { this.SetValue(ButtonToolTipProperty, value); }
+            get => (string)GetValue(ButtonToolTipProperty);
+            set => SetValue(ButtonToolTipProperty, value);
         }
         /// <summary>
         /// Gets a value indicating whether this control has text entered or not.
@@ -273,8 +269,8 @@ namespace TAS.Client.Common.Controls
         [Browsable(false)]
         public bool HasText
         {
-            get { return (bool)GetValue(HasTextProperty); }
-            private set { SetValue(HasTextPropertyKey, value); }
+            get => (bool)GetValue(HasTextProperty);
+            private set => SetValue(HasTextPropertyKey, value);
         }
         /// <summary>
         /// Gets or sets the delay between firing command during instant search mode.
@@ -282,8 +278,8 @@ namespace TAS.Client.Common.Controls
         [Category("Common Properties")]
         public Duration InstantSearchDelay
         {
-            get { return (Duration)GetValue(InstantSearchDelayProperty); }
-            set { SetValue(InstantSearchDelayProperty, value); }
+            get => (Duration)GetValue(InstantSearchDelayProperty);
+            set => SetValue(InstantSearchDelayProperty, value);
         }
         /// <summary>
         /// Gets or sets content to display as a prompt when the textbox is empty.
@@ -294,16 +290,16 @@ namespace TAS.Client.Common.Controls
         [Category("Common Properties")]
         public object Prompt
         {
-            get { return (object)GetValue(PromptProperty); }
-            set { SetValue(PromptProperty, value); }
+            get => GetValue(PromptProperty);
+            set => SetValue(PromptProperty, value);
         }
         /// <summary>
         /// Gets or sets the template to use for the prompt content.
         /// </summary>
         public DataTemplate PromptTemplate
         {
-            get { return (DataTemplate)GetValue(PromptTemplateProperty); }
-            set { SetValue(PromptTemplateProperty, value); }
+            get => (DataTemplate)GetValue(PromptTemplateProperty);
+            set => SetValue(PromptTemplateProperty, value);
         }
         /// <summary>
         /// Gets or sets the search behavior of the textbox.
@@ -314,16 +310,16 @@ namespace TAS.Client.Common.Controls
         [Category("Common Properties")]
         public SearchTextBoxMode SearchMode
         {
-            get { return (SearchTextBoxMode)GetValue(SearchModeProperty); }
-            set { SetValue(SearchModeProperty, value); }
+            get => (SearchTextBoxMode)GetValue(SearchModeProperty);
+            set => SetValue(SearchModeProperty, value);
         }
         /// <summary>
         /// Occurs when the search button is pressed or during instant search.
         /// </summary>
         public event RoutedEventHandler Search
         {
-            add { AddHandler(SearchEvent, value); }
-            remove { RemoveHandler(SearchEvent, value); }
+            add => AddHandler(SearchEvent, value);
+            remove => RemoveHandler(SearchEvent, value);
         }
 
         /// <summary>

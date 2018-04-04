@@ -142,17 +142,9 @@
                                 </Style>
                             </DockPanel.Resources>
                             <Label Content="{Resx _directory}"/>
-                            <toolkit:DropDownButton Name="FolderCombo" VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" ToolTip="{Binding SelectedDirectory.Folder}" Margin="1">
+                            <toolkit:DropDownButton Name="FolderCombo" VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory.DirectoryName}" ToolTip="{Binding SelectedDirectory.Folder}" Margin="1">
                                 <toolkit:DropDownButton.Resources>
                                     <common:BindingProxy x:Key="Proxy" Data="{Binding}"/>
-                                    <Style x:Key="HoverTextBox" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
-                                                <Setter Property="Foreground" Value="{StaticResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
                                 </toolkit:DropDownButton.Resources>
                                 <toolkit:DropDownButton.DropDownContent>
                                     <controls:TreeViewEx DataContext="{StaticResource Proxy}" MinWidth="120" ItemsSource="{Binding Data.MediaDirectories}" 
@@ -161,14 +153,11 @@
                                                      >
                                         <controls:TreeViewEx.ItemTemplate>
                                             <HierarchicalDataTemplate DataType="{x:Type viewmodels:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
-                                                <TextBlock Text="{Binding DirectoryName}" ToolTip="{Binding Folder}" Style="{StaticResource HoverTextBox}"/>
+                                                <TextBlock Text="{Binding DirectoryName}" ToolTip="{Binding Folder}" />
                                             </HierarchicalDataTemplate>
                                         </controls:TreeViewEx.ItemTemplate>
                                     </controls:TreeViewEx>
                                 </toolkit:DropDownButton.DropDownContent>
-                                <toolkit:DropDownButton.Content>
-                                    <TextBlock Text="{Binding SelectedDirectory.DirectoryName}"/>
-                                </toolkit:DropDownButton.Content>
                             </toolkit:DropDownButton>
 
                             <Button ToolTip="{Resx _refresh}" Margin="0, 2, 5, 2" Command="{Binding CommandRefresh}" VerticalAlignment="Center">
@@ -189,7 +178,7 @@
                             <Button DockPanel.Dock="Right" Margin="1, 2" Style="{StaticResource ClearButton}" Command="{Binding CommandClearFilters}" ToolTip="{Resx _toolbar.Clear.ToolTip}">
                                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
                             </Button>
-                            <controls:SearchTextBox Prompt="{Resx _searchFor}" VerticalAlignment="Center" Margin="0, 1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" SearchMode="Regular" Command="{Binding CommandSearch}" />
+                            <controls:SearchTextBox Prompt="{Resx _searchFor}" Margin="0, 2" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" SearchMode="Regular" Command="{Binding CommandSearch}" />
                         </DockPanel>
                         <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True" Height="35" >
                             <ToolBar.Resources>

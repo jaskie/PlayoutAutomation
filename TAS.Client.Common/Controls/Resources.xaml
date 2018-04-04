@@ -4,10 +4,6 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	>
 
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/TAS.Client.Common;component/Controls/SearchTextBox.xaml"/>
-    </ResourceDictionary.MergedDictionaries>
-
     <Style x:Key="VerticalVolumeGaugeStyle" TargetType="{x:Type ProgressBar}">
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Minimum" Value="-60"/>

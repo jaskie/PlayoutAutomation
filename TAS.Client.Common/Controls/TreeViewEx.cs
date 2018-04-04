@@ -9,6 +9,12 @@ namespace TAS.Client.Common.Controls
 {
     public class TreeViewEx : TreeView
     {
+
+        static TreeViewEx()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(TreeViewEx), new FrameworkPropertyMetadata(typeof(TreeViewEx)));
+        }
+
         public TreeViewEx()
         {
             SelectedItemChanged += TreeViewEx_SelectedItemChanged;

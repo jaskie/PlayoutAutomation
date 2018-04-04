@@ -165,6 +165,9 @@
   <data name="_ingestTime" xml:space="preserve">
     <value>Ingest date/time</value>
   </data>
+  <data name="_killDate" xml:space="preserve">
+    <value>Valid until</value>
+  </data>
   <data name="_mediaGuid" xml:space="preserve">
     <value>File ID</value>
   </data>

@@ -241,7 +241,7 @@ namespace TAS.Client.ViewModels
                 _killDate = value == default(DateTime) ? null : value;
                 IsModified = true;
                 NotifyPropertyChanged(nameof(IsKillDate));
-                NotifyPropertyChanged(nameof(KillDate));
+                NotifyPropertyChanged();
             }
         }
 
@@ -253,12 +253,12 @@ namespace TAS.Client.ViewModels
                 if (value == IsKillDate)
                     return;
                 if (value)
-                    _killDate = DateTime.UtcNow + TimeSpan.FromDays(30);
+                    _killDate = DateTime.UtcNow.Date + TimeSpan.FromDays(30);
                 else
                     _killDate = null;
                 IsModified = true;
                 NotifyPropertyChanged(nameof(KillDate));
-                NotifyPropertyChanged(nameof(IsKillDate));
+                NotifyPropertyChanged();
             }
         }
 
