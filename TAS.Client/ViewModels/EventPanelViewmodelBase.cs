@@ -332,8 +332,8 @@ namespace TAS.Client.ViewModels
             DependencyObject current = View;
             while (current != null)
             {
-                if (current is System.Windows.Controls.TreeViewItem)
-                    return (current as UIElement)?.Focus() == true;
+                if (current is System.Windows.Controls.TreeViewItem item)
+                    return item.Focus();
                 current = System.Windows.Media.VisualTreeHelper.GetParent(current);
             }
             return false;

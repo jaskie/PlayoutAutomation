@@ -72,8 +72,8 @@ namespace TAS.Client.ViewModels
                 .Where(m => _canAddMediaToCollection(m, mediaType))
                 .Select(m => new MediaViewViewmodel(m)));
             _itemsView = CollectionViewSource.GetDefaultView(Items);
-            _itemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName),
-                ListSortDirection.Ascending));
+            _itemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated),
+                ListSortDirection.Descending));
             _itemsView.Filter += _itemsFilter;
         }
 
