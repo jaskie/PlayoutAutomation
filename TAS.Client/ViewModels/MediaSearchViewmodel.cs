@@ -72,8 +72,9 @@ namespace TAS.Client.ViewModels
                 .Where(m => _canAddMediaToCollection(m, mediaType))
                 .Select(m => new MediaViewViewmodel(m)));
             _itemsView = CollectionViewSource.GetDefaultView(Items);
-            _itemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated),
-                ListSortDirection.Descending));
+            _itemsView.SortDescriptions.Add(mediaType == TMediaType.Movie
+                ? new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending)
+                : new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
             _itemsView.Filter += _itemsFilter;
         }
 
@@ -95,9 +96,10 @@ namespace TAS.Client.ViewModels
                 {
                     _searchText = value;
                     _searchTextSplit = value.ToLower().Split(' ');
-                    SelectedItem = null;
                     NotifyPropertyChanged(nameof(SearchText));
                     _itemsView.Refresh();
+                    _itemsView.MoveCurrentToFirst();
+                    SelectedItem = _itemsView.CurrentItem as MediaViewViewmodel;
                 }
             }
         }

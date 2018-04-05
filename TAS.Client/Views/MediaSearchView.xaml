@@ -61,7 +61,7 @@
                 AutoGenerateColumns="False" 
                 ColumnWidth="Auto"
                 ItemsSource="{Binding Items}" 
-                SelectedItem="{Binding SelectedItem, Mode=TwoWay}" 
+                SelectedItem="{Binding SelectedItem}" 
                 SelectionChanged="DataGrid_SelectionChanged" 
                 IsReadOnly="True"
                 RowHeaderWidth="0">

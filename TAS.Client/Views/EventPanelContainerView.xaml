@@ -14,7 +14,7 @@
              FontSize="12" 
              d:DesignWidth="700"
              >
-    <Border Style="{StaticResource EventPanelStyle}">
+    <Border Style="{StaticResource EventPanelBaseStyle}">
         <Grid Height="30">
             <Grid.ContextMenu>
                 <ContextMenu>

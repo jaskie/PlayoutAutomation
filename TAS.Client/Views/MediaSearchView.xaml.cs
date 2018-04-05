@@ -17,29 +17,26 @@ namespace TAS.Client.Views
 
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_selectedMedia != null)
-            {
-                if (e.AddedItems.Count == 0)
-                    _selectedMedia.SelectedSegment = null;
-                else
-                    if (e.AddedItems[0] is MediaSegmentViewmodel 
-                        && e.AddedItems[0] != _selectedMedia.SelectedSegment
-                        && (e.AddedItems[0] as MediaSegmentViewmodel)?.Media == _selectedMedia.Media )
-                        _selectedMedia.SelectedSegment = (MediaSegmentViewmodel)e.AddedItems[0];
-                    else
-                        _selectedMedia.SelectedSegment = null;
-            }
+            if (_selectedMedia == null)
+                return;
+            if (e.AddedItems.Count == 0)
+                _selectedMedia.SelectedSegment = null;
+            else
+            if (e.AddedItems[0] is MediaSegmentViewmodel 
+                && e.AddedItems[0] != _selectedMedia.SelectedSegment
+                && (e.AddedItems[0] as MediaSegmentViewmodel)?.Media == _selectedMedia.Media )
+                _selectedMedia.SelectedSegment = (MediaSegmentViewmodel)e.AddedItems[0];
+            else
+                _selectedMedia.SelectedSegment = null;
         }
 
         private MediaViewViewmodel _selectedMedia;
         private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count > 0 && e.AddedItems[0] is MediaViewViewmodel)
-            {
-                _selectedMedia = (MediaViewViewmodel)e.AddedItems[0];
-                (sender as DataGrid)?.ScrollIntoView(e.AddedItems[0]);
-            }
-
+            if (e.AddedItems.Count <= 0 || !(e.AddedItems[0] is MediaViewViewmodel sm))
+                return;
+            _selectedMedia = sm;
+            (sender as DataGrid)?.ScrollIntoView(sm);
         }
 
         private void tbSearch_KeyDown(object sender, KeyEventArgs e)

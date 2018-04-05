@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Style TargetType="Border" x:Key="EventPanelStyle" >
+    <Style TargetType="Border" x:Key="EventPanelBaseStyle" >
         <Setter Property="Background">
             <Setter.Value>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -14,6 +14,14 @@
         <Setter Property="BorderThickness" Value="0, 0, 0, 1"/>
         <Setter Property="Margin" Value="0"/>
         <Setter Property="BorderBrush" Value="Gray"/>
+    </Style>
+
+    <Style TargetType="Border" x:Key="EventPanelStyle" BasedOn="{StaticResource EventPanelBaseStyle}" >
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                <Setter Property="Background" Value="#30000000"/>
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
     <Style TargetType="Border" x:Key="EventPanelIsHoldBorder" >
