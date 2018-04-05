@@ -195,7 +195,7 @@ namespace TAS.Remoting.Server
             using (var serialized = SerializeDto(response))
             {
                 var bytes = message.ToByteArray(serialized);
-                SendAsync(bytes, null);
+                Send(bytes);
             }
         }
 

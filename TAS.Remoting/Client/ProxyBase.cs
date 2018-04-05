@@ -153,6 +153,8 @@ namespace TAS.Remoting.Client
 
         protected FieldInfo GetField(Type t, string fieldName)
         {
+            if (t == null)
+                return null;
             var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
             var foundField = t.GetFields(flags).FirstOrDefault(f => f.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a =>((JsonPropertyAttribute)a).PropertyName == fieldName));
             return foundField ?? GetField(t.BaseType, fieldName);
