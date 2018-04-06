@@ -30,7 +30,8 @@ namespace TAS.Server
                 }
                 catch (ReflectionTypeLoadException e)
                 {
-                    Logger.Error(e, "Plugin load failed: {0}", e.LoaderExceptions);
+                    foreach (var loaderException in e.LoaderExceptions)
+                        Logger.Error(e, "Plugin load exception: {0}", loaderException);
                 }
                 catch (Exception e)
                 {

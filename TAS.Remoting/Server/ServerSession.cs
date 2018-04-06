@@ -274,11 +274,12 @@ namespace TAS.Remoting.Server
                 DtoName = dto.ToString(),
 #endif
                 MemberName = eventName};
-            using (var serialized = SerializeDto(eventArgs))
-            {
-                var bytes = message.ToByteArray(serialized);
-                SendAsync(bytes, null);
-            }
+            if (State == WebSocketState.Open)
+                using (var serialized = SerializeDto(eventArgs))
+                {
+                    var bytes = message.ToByteArray(serialized);
+                    SendAsync(bytes, null);
+                }
         }
 
         private void _referencedObjectDisposed(object o, EventArgs a)
@@ -299,11 +300,12 @@ namespace TAS.Remoting.Server
                 DtoName = dto.ToString()
 #endif
             };
-            using (var serialized = SerializeDto(null))
-            {
-                var bytes = message.ToByteArray(serialized);
-                SendAsync(bytes, null);
-            }
+            if (State == WebSocketState.Open)
+                using (var serialized = SerializeDto(null))
+                {
+                    var bytes = message.ToByteArray(serialized);
+                    SendAsync(bytes, null);
+                }
             Debug.WriteLine($"Server: ObjectDisposed notification on {dto} sent");
         }
 
