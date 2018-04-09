@@ -8,12 +8,14 @@ using WebSocketSharp;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting.Client
 {
     public class RemoteClient: IDisposable
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(RemoteClient));
         private readonly WebSocket _clientSocket;
         private readonly AutoResetEvent _messageHandler = new AutoResetEvent(false);
         private readonly JsonSerializer _serializer;
@@ -67,7 +69,11 @@ namespace TAS.Remoting.Client
         public event EventHandler Connected;
         public event EventHandler Disconnected;
 
-        public ISerializationBinder Binder { get { return _serializer.SerializationBinder; }  set { _serializer.SerializationBinder = value; } }
+        public ISerializationBinder Binder
+        {
+            get => _serializer.SerializationBinder;
+            set => _serializer.SerializationBinder = value;
+        }
 
         public bool IsConnected => _clientSocket.ReadyState == WebSocketState.Open;
 
@@ -211,26 +217,28 @@ namespace TAS.Remoting.Client
 
         private WebSocketMessage WaitForResponse(WebSocketMessage sendedMessage)
         {
-            Func<WebSocketMessage> resultFunc = () =>
+            try
             {
-                WebSocketMessage response;
-                Stopwatch timeout = Stopwatch.StartNew();
-                if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
-                    return response;
-                do
+                return Task.Run(() =>
                 {
-                    _messageHandler.WaitOne(QueryTimeout);
-                    if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
+                    Stopwatch timeout = Stopwatch.StartNew();
+                    if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out var response))
                         return response;
-                }
-                while (timeout.ElapsedMilliseconds < QueryTimeout);
-                throw new TimeoutException($"Didn't received response from server within {QueryTimeout} milliseconds. Query was {sendedMessage.MessageType}:{sendedMessage.MemberName}");
-            };
-            IAsyncResult funcAsyncResult = resultFunc.BeginInvoke(null, null);
-            funcAsyncResult.AsyncWaitHandle.WaitOne();
-            if (funcAsyncResult.IsCompleted)
-                return resultFunc.EndInvoke(funcAsyncResult);
-            return null;
+                    do
+                    {
+                        _messageHandler.WaitOne(QueryTimeout);
+                        if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
+                            return response;
+                    } while (timeout.ElapsedMilliseconds < QueryTimeout);
+                    throw new TimeoutException(
+                        $"Didn't received response from server within {QueryTimeout} milliseconds. Query was {sendedMessage.MessageType}:{sendedMessage.MemberName}");
+                }).Result;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                throw;
+            }
         }
 
         private WebSocketMessage WebSocketMessageCreate(WebSocketMessage.WebSocketMessageType webSocketMessageType, IDto dto, string memberName, int paramsCount)
