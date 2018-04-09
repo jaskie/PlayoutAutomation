@@ -479,6 +479,7 @@ namespace TAS.Client.ViewModels
         private bool _canLoad(IMedia media)
         {
             return media != null 
+                && media.MediaType == TMediaType.Movie
                 && (media.Directory is IServerDirectory || media.Directory is IArchiveDirectory || (media.Directory is IIngestDirectory && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct))
                 && media.MediaStatus == TMediaStatus.Available 
                 && media.FrameRate().Equals(_preview.FormatDescription.FrameRate);
