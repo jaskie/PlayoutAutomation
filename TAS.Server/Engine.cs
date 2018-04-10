@@ -1198,12 +1198,8 @@ namespace TAS.Server
             if (AspectRatioControl != TAspectRatioControl.GPI &&
                 AspectRatioControl != TAspectRatioControl.GPIandImageResize)
                 return;
-            var cgController = CGElementsController;
-            if (cgController?.IsConnected == true && cgController.IsCGEnabled)
-                cgController.IsWideScreen = !narrow;
-            var lGpis = _localGpis;
-            if (lGpis != null)
-                foreach (var gpi in lGpis)
+            if (_localGpis != null)
+                foreach (var gpi in _localGpis)
                     gpi.IsWideScreen = !narrow;
         }
 
