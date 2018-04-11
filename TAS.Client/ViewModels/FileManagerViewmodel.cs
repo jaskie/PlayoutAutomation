@@ -52,6 +52,8 @@ namespace TAS.Client.ViewModels
 
         private void FileManager_OperationCompleted(object sender, FileOperationEventArgs e)
         {
+            if (e.Operation == null)
+                return;
             Application.Current.Dispatcher.BeginInvoke((Action)(() =>
             {
                 if (_clearFinished && e.Operation.OperationStatus != FileOperationStatus.Failed)
@@ -64,16 +66,17 @@ namespace TAS.Client.ViewModels
                     }
                 }
                 InvalidateRequerySuggested();
-            }), null);
+            }));
         }
 
         private void FileManager_OperationAdded(object sender, FileOperationEventArgs e)
         {
+            if (e.Operation == null)
+                return;
             Application.Current.Dispatcher.BeginInvoke((Action)(() =>
             {
                 OperationList.Insert(0, new FileOperationViewmodel(e.Operation));
-            })
-                , null);
+            }));
         }
 
         private void _clearFinishedOperations(object parameter)

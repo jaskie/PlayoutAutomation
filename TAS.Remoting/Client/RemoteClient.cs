@@ -10,6 +10,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
+using LogLevel = NLog.LogLevel;
 
 namespace TAS.Remoting.Client
 {
@@ -79,29 +80,54 @@ namespace TAS.Remoting.Client
 
         public T GetInitalObject<T>()
         {
-            WebSocketMessage queryMessage = WebSocketMessageCreate(WebSocketMessage.WebSocketMessageType.RootQuery, null, null, 0);
-            return SendAndGetResponse<T>(queryMessage, null);
+            try
+            {
+                WebSocketMessage queryMessage =
+                    WebSocketMessageCreate(WebSocketMessage.WebSocketMessageType.RootQuery, null, null, 0);
+                return SendAndGetResponse<T>(queryMessage, null);
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogLevel.Error, e, "From GetInitialObject");
+                throw;
+            }
         }
 
         public T Query<T>(ProxyBase dto, string methodName, params object[] parameters)
         {
-            WebSocketMessage queryMessage = WebSocketMessageCreate(
-                WebSocketMessage.WebSocketMessageType.Query,
-                dto,
-                methodName,
-                parameters.Length);
-            return SendAndGetResponse<T>(queryMessage, new WebSocketMessageArrayValue {Value = parameters});
+            try
+            {
+                WebSocketMessage queryMessage = WebSocketMessageCreate(
+                    WebSocketMessage.WebSocketMessageType.Query,
+                    dto,
+                    methodName,
+                    parameters.Length);
+                return SendAndGetResponse<T>(queryMessage, new WebSocketMessageArrayValue {Value = parameters});
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogLevel.Error, e, "From Query for {0}", dto);
+                throw;
+            }
         }
 
         public T Get<T>(ProxyBase dto, string propertyName)
         {
-            WebSocketMessage queryMessage = WebSocketMessageCreate(
-                WebSocketMessage.WebSocketMessageType.Get,
-                dto,
-                propertyName,
-                0
-            );
-            return SendAndGetResponse<T>(queryMessage, null);
+            try
+            {
+                WebSocketMessage queryMessage = WebSocketMessageCreate(
+                    WebSocketMessage.WebSocketMessageType.Get,
+                    dto,
+                    propertyName,
+                    0
+                );
+                return SendAndGetResponse<T>(queryMessage, null);
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogLevel.Error, e, "From Get {0}", dto);
+                throw;
+            }
         }
 
         public void Invoke(ProxyBase dto, string methodName, params object[] parameters)
@@ -217,28 +243,20 @@ namespace TAS.Remoting.Client
 
         private WebSocketMessage WaitForResponse(WebSocketMessage sendedMessage)
         {
-            try
+            return Task.Run(() =>
             {
-                return Task.Run(() =>
+                Stopwatch timeout = Stopwatch.StartNew();
+                if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out var response))
+                    return response;
+                do
                 {
-                    Stopwatch timeout = Stopwatch.StartNew();
-                    if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out var response))
+                    _messageHandler.WaitOne(QueryTimeout);
+                    if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
                         return response;
-                    do
-                    {
-                        _messageHandler.WaitOne(QueryTimeout);
-                        if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
-                            return response;
-                    } while (timeout.ElapsedMilliseconds < QueryTimeout);
-                    throw new TimeoutException(
-                        $"Didn't received response from server within {QueryTimeout} milliseconds. Query was {sendedMessage.MessageType}:{sendedMessage.MemberName}");
-                }).Result;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                throw;
-            }
+                } while (timeout.ElapsedMilliseconds < QueryTimeout);
+                throw new TimeoutException(
+                    $"Didn't received response from server within {QueryTimeout} milliseconds. Query was {sendedMessage.MessageType}:{sendedMessage.MemberName}");
+            }).Result;
         }
 
         private WebSocketMessage WebSocketMessageCreate(WebSocketMessage.WebSocketMessageType webSocketMessageType, IDto dto, string memberName, int paramsCount)
