@@ -1,4 +1,38 @@
 EXPORTS
+    Java_java_awt_BDFontMetrics_charWidthN
+    Java_java_awt_BDFontMetrics_charsWidthN
+    Java_java_awt_BDFontMetrics_destroyFontN
+    Java_java_awt_BDFontMetrics_destroyN
+    Java_java_awt_BDFontMetrics_getFontFamilyAndStyleN
+    Java_java_awt_BDFontMetrics_initN
+    Java_java_awt_BDFontMetrics_loadFontN
+    Java_java_awt_BDFontMetrics_resolveFontN
+    Java_java_awt_BDFontMetrics_stringWidthN
+    Java_java_awt_BDFontMetrics_unloadFontConfigN
+    Java_java_awt_BDGraphics_drawStringN
+    Java_org_videolan_Libbluray_cacheBdRomFileN
+    Java_org_videolan_Libbluray_getAacsDataN
+    Java_org_videolan_Libbluray_getBdjoN
+    Java_org_videolan_Libbluray_getPlaylistInfoN
+    Java_org_videolan_Libbluray_getTitleInfosN
+    Java_org_videolan_Libbluray_getUOMaskN
+    Java_org_videolan_Libbluray_listBdFilesN
+    Java_org_videolan_Libbluray_readGPRN
+    Java_org_videolan_Libbluray_readPSRN
+    Java_org_videolan_Libbluray_seekN
+    Java_org_videolan_Libbluray_selectAngleN
+    Java_org_videolan_Libbluray_selectPlaylistN
+    Java_org_videolan_Libbluray_selectRateN
+    Java_org_videolan_Libbluray_selectTitleN
+    Java_org_videolan_Libbluray_setKeyInterestN
+    Java_org_videolan_Libbluray_setUOMaskN
+    Java_org_videolan_Libbluray_setVirtualPackageN
+    Java_org_videolan_Libbluray_soundEffectN
+    Java_org_videolan_Libbluray_tellTimeN
+    Java_org_videolan_Libbluray_updateGraphicN
+    Java_org_videolan_Libbluray_writeGPRN
+    Java_org_videolan_Libbluray_writePSRN
+    Java_org_videolan_Logger_logN
     av_add_index_entry
     av_append_packet
     av_apply_bitstream_filters
@@ -66,6 +100,7 @@ EXPORTS
     av_register_output_format
     av_sdp_create
     av_seek_frame
+    av_stream_add_side_data
     av_stream_get_codec_timebase
     av_stream_get_end_pts
     av_stream_get_parser
@@ -112,11 +147,13 @@ EXPORTS
     avio_close_dir
     avio_close_dyn_buf
     avio_closep
+    avio_context_free
     avio_enum_protocols
     avio_feof
     avio_find_protocol_name
     avio_flush
     avio_free_directory_entry
+    avio_get_dyn_buf
     avio_get_str
     avio_get_str16be
     avio_get_str16le
@@ -137,6 +174,7 @@ EXPORTS
     avio_rb64
     avio_read
     avio_read_dir
+    avio_read_partial
     avio_read_to_bprint
     avio_rl16
     avio_rl24
