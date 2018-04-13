@@ -62,15 +62,15 @@ namespace TAS.Remoting.Model
 
         public bool IsAborted => _isAborted;
 
-        public IMediaProperties DestProperties { get { return _destProperties; } set { Set(value); } }
+        public IMediaProperties DestProperties { get => _destProperties; set => Set(value); }
 
-        public IMediaDirectory DestDirectory { get { return _destDirectory; } set { Set(value); } }
+        public IMediaDirectory DestDirectory { get => _destDirectory; set => Set(value); }
 
         public DateTime FinishedTime => _finishedTime;
 
         public bool IsIndeterminate => _isIndeterminate;
 
-        public TFileOperationKind Kind { get { return _kind; } set { Set(value); } }
+        public TFileOperationKind Kind { get => _kind; set => Set(value); }
 
         public List<string> OperationOutput => _operationOutput;
 
@@ -82,7 +82,7 @@ namespace TAS.Remoting.Model
 
         public DateTime ScheduledTime => _scheduledTime;
 
-        public IMedia Source { get { return _source; } set { Set(value); } }
+        public IMedia Source { get => _source; set => Set(value); }
 
         public DateTime StartTime => _startTime;
 

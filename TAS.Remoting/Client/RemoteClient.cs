@@ -88,7 +88,7 @@ namespace TAS.Remoting.Client
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Error, e, "From GetInitialObject");
+                Logger.Error(e, "From GetInitialObject");
                 throw;
             }
         }
@@ -106,7 +106,7 @@ namespace TAS.Remoting.Client
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Error, e, "From Query for {0}", dto);
+                Logger.Error(e, "From Query for {0}", dto);
                 throw;
             }
         }
@@ -125,7 +125,7 @@ namespace TAS.Remoting.Client
             }
             catch (Exception e)
             {
-                Logger.Log(LogLevel.Error, e, "From Get {0}", dto);
+                Logger.Error(e, "From Get {0}", dto);
                 throw;
             }
         }
@@ -219,14 +219,20 @@ namespace TAS.Remoting.Client
         {
             WebSocketMessage message = new WebSocketMessage(e.RawData);
             var proxy = _referenceResolver.ResolveReference(message.DtoGuid) as ProxyBase;
+            if (proxy == null && message.MessageType != WebSocketMessage.WebSocketMessageType.RootQuery)
+                Logger.Warn("Unknown proxy, MessageType:{0}, MemberName:{1}", message.MessageType, message.MemberName);
             switch (message.MessageType)
             {
                 case WebSocketMessage.WebSocketMessageType.EventNotification:
                     proxy?.OnEventNotificationMessage(message);
                     break;
                 case WebSocketMessage.WebSocketMessageType.ObjectDisposed:
-                    _referenceResolver.RemoveReference(message.DtoGuid);
-                    proxy?.Dispose();
+                    Task.Run(() =>
+                    {
+                        Thread.Sleep(500); // in case when messages are processed out of order
+                        _referenceResolver.RemoveReference(message.DtoGuid);
+                        proxy?.Dispose();
+                    });
                     break;
                 default:
                     _receivedMessages[message.MessageGuid] = message;
