@@ -343,7 +343,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /d /y "$(SolutionDir)ffmpeg57\x64\bin\*" "$(TargetDir)"
+    <PostBuildEvent>xcopy /d /y "$(SolutionDir)ffmpeg\x64\bin\*" "$(TargetDir)"
 </PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

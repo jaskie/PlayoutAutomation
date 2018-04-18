@@ -23,7 +23,6 @@ namespace TAS {
 		// unmanaged object
 		_FFMpegWrapper::_FFMpegWrapper(char* fileName)
 		{
-			av_register_all();			
 			pFormatCtx = std::unique_ptr<AVFormatContext, std::function<void(AVFormatContext *)>>(open_file(fileName), ([](AVFormatContext * ctx)
 			{			
 				avformat_close_input(&ctx);
