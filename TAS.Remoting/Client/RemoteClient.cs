@@ -1,6 +1,7 @@
 ﻿//#undef DEBUG
 using System;
-using System.Collections.Concurrent;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -10,7 +11,6 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
-using LogLevel = NLog.LogLevel;
 
 namespace TAS.Remoting.Client
 {
@@ -21,7 +21,7 @@ namespace TAS.Remoting.Client
         private readonly AutoResetEvent _messageHandler = new AutoResetEvent(false);
         private readonly JsonSerializer _serializer;
         private readonly ReferenceResolver _referenceResolver;
-        private readonly ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
+        private readonly Dictionary<Guid, WebSocketMessage> _receivedMessages = new Dictionary<Guid, WebSocketMessage>();
 
 
         private const int QueryTimeout =
@@ -88,7 +88,7 @@ namespace TAS.Remoting.Client
             }
             catch (Exception e)
             {
-                Logger.Error(e, "From GetInitialObject");
+                Logger.Error(e, "From GetInitialObject:");
                 throw;
             }
         }
@@ -106,7 +106,7 @@ namespace TAS.Remoting.Client
             }
             catch (Exception e)
             {
-                Logger.Error(e, "From Query for {0}", dto);
+                Logger.Error("From Query for {0}: {1}", dto, e);
                 throw;
             }
         }
@@ -125,7 +125,7 @@ namespace TAS.Remoting.Client
             }
             catch (Exception e)
             {
-                Logger.Error(e, "From Get {0}", dto);
+                Logger.Error("From Get {0}: {1}", dto, e);
                 throw;
             }
         }
@@ -235,7 +235,8 @@ namespace TAS.Remoting.Client
                     });
                     break;
                 default:
-                    _receivedMessages[message.MessageGuid] = message;
+                    lock (((IDictionary)_receivedMessages).SyncRoot)
+                        _receivedMessages[message.MessageGuid] = message;
                     _messageHandler.Set();
                     break;
             }
@@ -247,23 +248,6 @@ namespace TAS.Remoting.Client
             Connected?.Invoke(this, EventArgs.Empty);
         }
 
-        private WebSocketMessage WaitForResponse(WebSocketMessage sendedMessage)
-        {
-            return Task.Run(() =>
-            {
-                Stopwatch timeout = Stopwatch.StartNew();
-                if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out var response))
-                    return response;
-                do
-                {
-                    _messageHandler.WaitOne(QueryTimeout);
-                    if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
-                        return response;
-                } while (timeout.ElapsedMilliseconds < QueryTimeout);
-                throw new TimeoutException(
-                    $"Didn't received response from server within {QueryTimeout} milliseconds. Query was {sendedMessage.MessageType}:{sendedMessage.MemberName}");
-            }).Result;
-        }
 
         private WebSocketMessage WebSocketMessageCreate(WebSocketMessage.WebSocketMessageType webSocketMessageType, IDto dto, string memberName, int paramsCount)
         {
@@ -284,11 +268,31 @@ namespace TAS.Remoting.Client
                 {
                     _clientSocket.Send(query.ToByteArray(valueStream));
                 }
-                var response = WaitForResponse(query);
+                var response = WaitForResponse(query).Result;
 
                 return Deserialize<T>(response);
             }
             return default(T);
+        }
+
+
+        private Task<WebSocketMessage> WaitForResponse(WebSocketMessage sendedMessage)
+        {
+            return Task.Run(() =>
+            {
+                while (true)
+                {
+                    lock (((IDictionary) _receivedMessages).SyncRoot)
+                    {
+                        if (_receivedMessages.TryGetValue(sendedMessage.MessageGuid, out var response))
+                        {
+                            _receivedMessages.Remove(sendedMessage.MessageGuid);
+                            return response;
+                        }
+                    }
+                    _messageHandler.WaitOne();
+                }
+            }, new CancellationTokenSource(QueryTimeout).Token);
         }
     }
 }
