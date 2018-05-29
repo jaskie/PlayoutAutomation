@@ -21,3 +21,4 @@ Release
 /.vs
 /*.log
 /TAS.FFMpegUtils/x64
+/TVPlay/bin

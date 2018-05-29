@@ -67,14 +67,14 @@ namespace TAS.Client.Common
 			var isEnabled = (bool)args.NewValue;
 			if(wasEnable)
 			{
-				tree.RemoveHandler(TreeViewItem.MouseDownEvent, new MouseButtonEventHandler(ItemClicked));
-				tree.RemoveHandler(TreeView.KeyDownEvent, new KeyEventHandler(KeyDown));
+				tree.RemoveHandler(UIElement.MouseDownEvent, new MouseButtonEventHandler(ItemClicked));
+				tree.RemoveHandler(UIElement.KeyDownEvent, new KeyEventHandler(KeyDown));
                 tree.RemoveHandler(TreeViewItem.CollapsedEvent, new RoutedEventHandler(ItemColapsed));
             }
 			if(isEnabled)
 			{
-				tree.AddHandler(TreeViewItem.MouseDownEvent, new MouseButtonEventHandler(ItemClicked), true);
-				tree.AddHandler(TreeView.KeyDownEvent, new KeyEventHandler(KeyDown));
+				tree.AddHandler(UIElement.MouseDownEvent, new MouseButtonEventHandler(ItemClicked), true);
+				tree.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler(KeyDown));
                 tree.AddHandler(TreeViewItem.CollapsedEvent, new RoutedEventHandler(ItemColapsed), true);
 			}
 		}
@@ -122,8 +122,7 @@ namespace TAS.Client.Common
 
         static void ItemColapsed(object sender, RoutedEventArgs e)
         {
-            var tree = sender as TreeView;
-            if (tree == null)
+            if (!(sender is TreeView tree))
                 return;
             var selectedItems = GetMultiSelectedItems(tree);
             if (e.OriginalSource is TreeViewItem)
@@ -139,17 +138,15 @@ namespace TAS.Client.Common
         
         static IEnumerable<TreeViewItem> GetSubItems(TreeViewItem item)
         {
-            if (item != null)
+            if (item == null)
+                yield break;
+            for (int i = 0; i < item.Items.Count; i++)
             {
-                for (int i = 0; i < item.Items.Count; i++)
+                if (item.ItemContainerGenerator.ContainerFromIndex(i) is TreeViewItem si)
                 {
-                    TreeViewItem si = item.ItemContainerGenerator.ContainerFromIndex(i) as TreeViewItem;
-                    if (si != null)
-                    {
-                        yield return si;
-                        foreach (TreeViewItem ssi in GetSubItems(si))
-                            yield return ssi;
-                    }
+                    yield return si;
+                    foreach (TreeViewItem ssi in GetSubItems(si))
+                        yield return ssi;
                 }
             }
         }
@@ -208,12 +205,11 @@ namespace TAS.Client.Common
 
 		private static TreeViewItem FindTreeViewItem(object obj)
 		{
-            DependencyObject dpObj = obj as Visual;
-			if(dpObj == null)
+			if (!(obj is Visual visual))
 				return null;
-			if(dpObj is TreeViewItem)
-				return (TreeViewItem)dpObj;
-			return FindTreeViewItem(VisualTreeHelper.GetParent(dpObj));
+			if(obj is TreeViewItem tvi)
+				return tvi;
+			return FindTreeViewItem(VisualTreeHelper.GetParent(visual));
 		}
 
 

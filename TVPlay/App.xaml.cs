@@ -3,7 +3,6 @@ using System.Configuration;
 using System.Security.Principal;
 using System.Threading;
 using System.Windows;
-using System.Windows.Navigation;
 using TAS.Server;
 using Infralution.Localization.Wpf;
 using TAS.Client.Views;
@@ -18,7 +17,7 @@ namespace TAS.Client
     public partial class App : Application
     {
         private static readonly Mutex Mutex = new Mutex(false, "TASClientApplication");
-        bool _isShutdown;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Application));
 
         public App()
         {
@@ -28,21 +27,18 @@ namespace TAS.Client
             Common.WpfHacks.ApplyGridViewRowPresenter_CellMargin();
             #endregion
 
-            string uiCulture = ConfigurationManager.AppSettings["UiLanguage"];
-            if (string.IsNullOrWhiteSpace(uiCulture))
-                CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
-            else
-                CultureManager.UICulture = new System.Globalization.CultureInfo(uiCulture);
+            var uiCulture = ConfigurationManager.AppSettings["UiLanguage"];
+            CultureManager.UICulture = string.IsNullOrWhiteSpace(uiCulture) ? System.Globalization.CultureInfo.CurrentUICulture : new System.Globalization.CultureInfo(uiCulture);
             ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
 
-        public bool IsShutdown => _isShutdown;
+        public bool IsShutdown { get; private set; }
 
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
             EngineController.ShutDown();
-            if (!_isShutdown)
+            if (!IsShutdown)
                 Mutex.ReleaseMutex();
         }
 
@@ -53,6 +49,7 @@ namespace TAS.Client
                 MessageBox.Show(e.Exception.Message, resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             else
                 MessageBox.Show(window, e.Exception.Message, resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+            Logger.Error(e);
             e.Handled = true;
         }
 
@@ -60,15 +57,14 @@ namespace TAS.Client
         {
             try
             {
-                bool isBackupInstance;
-                bool.TryParse(ConfigurationManager.AppSettings["IsBackupInstance"], out isBackupInstance);
+                bool.TryParse(ConfigurationManager.AppSettings["IsBackupInstance"], out var isBackupInstance);
                 if ((!Mutex.WaitOne(5000) &&
                      (MessageBox.Show(resources._query_StartAnotherInstance, resources._caption_Confirmation,
                           MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
                      || (isBackupInstance && MessageBox.Show(resources._query_StartBackupInstance,
                              resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes)))
                 {
-                    _isShutdown = true;
+                    IsShutdown = true;
                     Shutdown(0);
                     return;
                 }
@@ -89,7 +85,7 @@ namespace TAS.Client
             {
                 MessageBox.Show(string.Format(resources._message_CantInitializeEngines, e.InnerException),
                     resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-                _isShutdown = true;
+                IsShutdown = true;
                 Shutdown(1);
             }
             catch (Exception e)
@@ -102,12 +98,12 @@ namespace TAS.Client
 #endif
                 MessageBox.Show(string.Format(resources._message_CantInitializeEngines, message), resources._caption_Error,
                     MessageBoxButton.OK, MessageBoxImage.Error);
-                _isShutdown = true;
+                IsShutdown = true;
                 Shutdown(1);
             }
 
             var splash = MainWindow as SplashScreenView;
-            if (!_isShutdown)
+            if (!IsShutdown)
             {
                 AppDomain.CurrentDomain.SetThreadPrincipal(new GenericPrincipal(new LocalUser(), new string[0]));
                 SplashScreenView.Current?.Notify("Creating views...");
@@ -120,7 +116,7 @@ namespace TAS.Client
         protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
         {
             if (MessageBox.Show(resources._query_ExitApplication, resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                _isShutdown = true;
+                IsShutdown = true;
             else
                 e.Cancel = true;
             base.OnSessionEnding(e);
