@@ -346,4 +346,10 @@ Effective until current clip ends.</value>
   <data name="_propertiesPanelExpander.ToolTip" xml:space="preserve">
     <value>F11</value>
   </data>
+  <data name="_toolbar.AddSecond" xml:space="preserve">
+    <value>Increase by one second</value>
+  </data>
+  <data name="_toolbar.DecreaseSecond" xml:space="preserve">
+    <value>Decrease by one second</value>
+  </data>
 </root>

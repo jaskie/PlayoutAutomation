@@ -11,10 +11,13 @@ namespace TAS.Remoting.Model
 {
     public class Engine : ProxyBase, IEngine
     {
-        #pragma warning disable CS0649 
+#pragma warning disable CS0649
 
         [JsonProperty(nameof(IEngine.CurrentTime))]
         private DateTime _currentTime;
+
+        [JsonProperty(nameof(IEngine.TimeCorrection))]
+        private int _timeCorrection;
 
         [JsonProperty(nameof(IEngine.EngineName))]
         private string _engineName;
@@ -97,14 +100,16 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEngine.Playing))]
         private Event _playing;
 
-        #pragma warning restore
+#pragma warning restore
 
         public Engine()
         {
             Debug.WriteLine("Engine created.");
         }
-        
+
         public DateTime CurrentTime => _currentTime;
+
+        public int TimeCorrection { get => _timeCorrection; set => Set(value); }
 
         public string EngineName => _engineName;
 
@@ -122,17 +127,17 @@ namespace TAS.Remoting.Model
 
         public bool EnableCGElementsForNewEvents
         {
-            get { return _enableCGElementsForNewEvents; }
-            set { Set(value); }
+            get => _enableCGElementsForNewEvents;
+            set => Set(value);
         }
 
         public TCrawlEnableBehavior CrawlEnableBehavior
         {
-            get { return _crawlEnableBehavior; }
-            set { Set(value); }
+            get => _crawlEnableBehavior;
+            set => Set(value);
         }
 
-        public bool FieldOrderInverted { get { return _fieldOrderInverted; } set { Set(value); } }
+        public bool FieldOrderInverted { get => _fieldOrderInverted; set => Set(value); }
 
         public IMediaManager MediaManager => _mediaManager;
 
@@ -152,8 +157,8 @@ namespace TAS.Remoting.Model
 
         public double PreviewAudioVolume
         {
-            get { return _previewAudioVolume; }
-            set { Set(value); }
+            get => _previewAudioVolume;
+            set => Set(value);
         }
 
         public bool PreviewIsPlaying => _previewIsPlaying;
@@ -162,7 +167,7 @@ namespace TAS.Remoting.Model
 
         public IMedia PreviewMedia => _previewMedia;
 
-        public long PreviewPosition { get { return _previewPosition; } set { Set(value); } }
+        public long PreviewPosition { get => _previewPosition; set => Set(value); }
 
         public long PreviewLoadedSeek => _previewSeek;
 
@@ -179,15 +184,15 @@ namespace TAS.Remoting.Model
 
         #endregion IPreview
 
-        public double ProgramAudioVolume { get { return _programAudioVolume; } set { Set(value); } }
+        public double ProgramAudioVolume { get => _programAudioVolume; set => Set(value); }
 
-        public bool Pst2Prv { get { return _pst2Prv; } set { Set(value); } }
+        public bool Pst2Prv { get => _pst2Prv; set => Set(value); }
 
         public IAuthenticationService AuthenticationService => _authenticationService;
 
         public IEnumerable<IEvent> GetRootEvents() { return Query<List<IEvent>>(); }
 
-        public TVideoFormat VideoFormat { get { return _videoFormat; } set { Set(value); } }
+        public TVideoFormat VideoFormat { get => _videoFormat; set => Set(value); }
 
         public ConnectionStateRedundant DatabaseConnectionState => _databaseConnectionState;
 
@@ -250,7 +255,7 @@ namespace TAS.Remoting.Model
 
         public void Clear() { Invoke(); }
 
-        public void Clear(VideoLayer aVideoLayer) { Invoke(parameters: new object[] { aVideoLayer }); } 
+        public void Clear(VideoLayer aVideoLayer) { Invoke(parameters: new object[] { aVideoLayer }); }
 
         public void ClearMixer() { Invoke(); }
 
@@ -272,7 +277,7 @@ namespace TAS.Remoting.Model
         }
 
         public void Start(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
-        
+
         public void StartLoaded() { Invoke(); }
 
         public void ForceNext(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
@@ -290,7 +295,7 @@ namespace TAS.Remoting.Model
 
         public bool HaveRight(EngineRight right)
         {
-            return Query<bool>(parameters: new object[] {right});
+            return Query<bool>(parameters: new object[] { right });
         }
 
         #region Event handling
@@ -382,7 +387,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-#endregion // Event handling
+        #endregion // Event handling
 
         public override string ToString()
         {

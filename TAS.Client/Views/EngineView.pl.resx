@@ -343,4 +343,10 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
   <data name="_show" xml:space="preserve">
     <value>Pokaż</value>
   </data>
+  <data name="_toolbar.AddSecond" xml:space="preserve">
+    <value>Dodaj sekundę</value>
+  </data>
+  <data name="_toolbar.DecreaseSecond" xml:space="preserve">
+    <value>Odejmij sekundę</value>
+  </data>
 </root>

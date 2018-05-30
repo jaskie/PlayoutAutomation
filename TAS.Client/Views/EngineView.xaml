@@ -187,20 +187,32 @@
                             <Setter Property="HorizontalAlignment" Value="Left"/>
                             <Setter Property="VerticalAlignment" Value="Center"/>
                         </Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Width" Value="40"/>
-                            <Setter Property="Height" Value="40"/>
-                            <Setter Property="Margin" Value="8"/>
-                        </Style>
                     </WrapPanel.Resources>
-                    <StackPanel VerticalAlignment="Center" Margin="0, 23, 0, 0" Width="130">
+                    <StackPanel VerticalAlignment="Center" Margin="0, 23, 0, 0" >
                         <Grid>
                             <TextBlock FontSize="13" Text="{Binding CurrentTime, StringFormat=d}" />
                             <TextBlock FontSize="13" HorizontalAlignment="Right" Text="{Binding CurrentTime, StringFormat=(ddd)}" />
                         </Grid>
-                        <TextBlock Text="{Binding CurrentTime, StringFormat=T}" />
+                        <DockPanel>
+                            <UniformGrid Rows="2" DockPanel.Dock="Right">
+                                <Button Command="{Binding CommandSetTimeCorrection}" CommandParameter="1000" ToolTip="{Resx _toolbar.AddSecond}">
+                                    <Image Width="8" Source="/TAS.Client.Common;component/Images/Actions/list-add-3.png"/>
+                                </Button>
+                                <Button Command="{Binding CommandSetTimeCorrection}" CommandParameter="-1000" ToolTip="{Resx _toolbar.DecreaseSecond}">
+                                    <Image Width="8" Source="/TAS.Client.Common;component/Images/Actions/list-remove-3.png"/>
+                                </Button>
+                            </UniformGrid>
+                            <TextBlock Text="{Binding CurrentTime, StringFormat=T}" />
+                        </DockPanel>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0, 23, 0, 0" >
+                        <StackPanel.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Width" Value="40"/>
+                                <Setter Property="Height" Value="40"/>
+                                <Setter Property="Margin" Value="8"/>
+                            </Style>
+                        </StackPanel.Resources>
                         <Button Command="{Binding CommandStartSelected}" ToolTip="{Resx _toolbar.StartSelected}">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/play.png" Stretch="None" />
                         </Button>

@@ -520,6 +520,10 @@
   <ItemGroup>
     <Resource Include="Images\Actions\time-update.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\list-add-3.png" />
+    <Resource Include="Images\Actions\list-remove-3.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

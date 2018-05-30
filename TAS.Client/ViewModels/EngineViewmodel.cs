@@ -114,6 +114,9 @@ namespace TAS.Client.ViewModels
         public ICommand CommandSearchDo { get; private set; }
         public ICommand CommandSearchShowPanel { get; private set; }
         public ICommand CommandSearchHidePanel { get; private set; }
+        public ICommand CommandSetTimeCorrection { get; private set; }
+
+
         #region Single selected commands
         public ICommand CommandEventHide { get; private set; }
         public ICommand CommandAddNextMovie { get; private set; }
@@ -265,6 +268,7 @@ namespace TAS.Client.ViewModels
             CommandSearchDo = new UICommand { ExecuteDelegate = _search, CanExecuteDelegate = _canSearch };
             CommandSearchShowPanel = new UICommand { ExecuteDelegate = _showSearchPanel };
             CommandSearchHidePanel = new UICommand { ExecuteDelegate = _hideSearchPanel };
+            CommandSetTimeCorrection = new UICommand { ExecuteDelegate = _setTimeCorrection };
 
             CommandSaveEdit = new UICommand { ExecuteDelegate = EventEditViewmodel.CommandSaveEdit.Execute };
             CommandUndoEdit = new UICommand { ExecuteDelegate = EventEditViewmodel.CommandUndoEdit.Execute };
@@ -274,6 +278,13 @@ namespace TAS.Client.ViewModels
             CommandUserManager = new UICommand {ExecuteDelegate = _userManager, CanExecuteDelegate = _canUserManager};
 
             CommandEngineRights = new UICommand { ExecuteDelegate = _engineRights, CanExecuteDelegate = _canEngineRights };
+        }
+
+        private void _setTimeCorrection(object obj)
+        {
+            if (!(obj is string strValue && int.TryParse(strValue, out var intValue)))
+                return;
+            Engine.TimeCorrection += intValue;
         }
 
         private bool _canDeleteSelected(object obj) => _multiSelectedEvents.Count > 0 && _multiSelectedEvents.All(e => e.Event.AllowDelete());

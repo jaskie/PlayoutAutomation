@@ -57,7 +57,7 @@ namespace TAS.Server
         private Event _forcedNext;
         private IEnumerable<IGpi> _localGpis;
         private IEnumerable<IEnginePlugin> _plugins;
-        private TimeSpan _timeCorrection;
+        private int _timeCorrection;
         private bool _isWideScreen = true;
         private TEngineState _engineState;
         private double _programAudioVolume = 1;
@@ -155,10 +155,11 @@ namespace TAS.Server
         public TAspectRatioControl AspectRatioControl { get; set; }
         public double VolumeReferenceLoudness { get; set; }
 
+        [JsonProperty]
         public int TimeCorrection
         {
-            get { return (int) _timeCorrection.TotalMilliseconds; }
-            set { _timeCorrection = TimeSpan.FromMilliseconds(value); }
+            get => _timeCorrection;
+            set => SetField(ref _timeCorrection, value);
         }
 
         [XmlIgnore]
@@ -202,7 +203,7 @@ namespace TAS.Server
         [JsonProperty]
         public TEngineState EngineState
         {
-            get { return _engineState; }
+            get => _engineState;
             private set
             {
                 lock (_tickLock)
@@ -234,15 +235,14 @@ namespace TAS.Server
         [JsonProperty]
         public bool FieldOrderInverted
         {
-            get { return _fieldOrderInverted; }
+            get => _fieldOrderInverted;
             set
             {
-                if (SetField(ref _fieldOrderInverted, value))
-                {
-                    _playoutChannelPRI?.SetFieldOrderInverted(VideoLayer.Program, value);
-                    if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
-                        _playoutChannelSEC.SetFieldOrderInverted(VideoLayer.Program, value);
-                }
+                if (!SetField(ref _fieldOrderInverted, value))
+                    return;
+                _playoutChannelPRI?.SetFieldOrderInverted(VideoLayer.Program, value);
+                if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
+                    _playoutChannelSEC.SetFieldOrderInverted(VideoLayer.Program, value);
             }
         }
 
@@ -250,17 +250,16 @@ namespace TAS.Server
         [JsonProperty]
         public double ProgramAudioVolume
         {
-            get { return _programAudioVolume; }
+            get => _programAudioVolume;
             set
             {
-                if (SetField(ref _programAudioVolume, value))
-                {
-                    var playing = Playing;
-                    int transitioDuration = playing == null ? 0 : (int) playing.TransitionTime.ToSMPTEFrames(FrameRate);
-                    _playoutChannelPRI?.SetVolume(VideoLayer.Program, value, transitioDuration);
-                    if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
-                        _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
-                }
+                if (!SetField(ref _programAudioVolume, value))
+                    return;
+                var playing = Playing;
+                int transitioDuration = playing == null ? 0 : (int) playing.TransitionTime.ToSMPTEFrames(FrameRate);
+                _playoutChannelPRI?.SetVolume(VideoLayer.Program, value, transitioDuration);
+                if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
+                    _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
             }
         }
 
@@ -1532,7 +1531,7 @@ namespace TAS.Server
         {
             Debug.WriteLine(this, "Engine thread started");
             Logger.Debug("Started engine thread for {0}", this);
-            CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
+            CurrentTime = AlignDateTime(DateTime.UtcNow + TimeSpan.FromMilliseconds(_timeCorrection));
             _currentTicks = CurrentTime.Ticks;
 
             var playingEvents = EngineController.Database.DbSearchPlaying(this).Cast<Event>().ToArray();
@@ -1573,11 +1572,11 @@ namespace TAS.Server
             {
                 try
                 {
-                    CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
+                    CurrentTime = AlignDateTime(DateTime.UtcNow + TimeSpan.FromMilliseconds(_timeCorrection));
                     QueryUnbiasedInterruptTime(out currentTime);
                     _currentTicks = CurrentTime.Ticks;
                     ulong nFrames = (currentTime - prevTime) / frameDuration;
-                    prevTime += (nFrames * frameDuration);
+                    prevTime += nFrames * frameDuration;
                     _tick((long)nFrames);
                     EngineTick?.Invoke(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
                     if (nFrames > 1)

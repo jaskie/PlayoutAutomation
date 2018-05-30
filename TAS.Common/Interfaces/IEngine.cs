@@ -69,6 +69,7 @@ namespace TAS.Common.Interfaces
         void ForceNext(IEvent aEvent);
         void Execute(string command);
         DateTime CurrentTime { get; }
+        int TimeCorrection { get; set; }
         ICGElementsController CGElementsController { get; }
         void SearchMissingEvents();
         IEvent Playing { get; }
