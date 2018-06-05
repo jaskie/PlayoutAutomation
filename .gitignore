@@ -22,3 +22,4 @@ Release
 /*.log
 /TAS.FFMpegUtils/x64
 /TVPlay/bin
+/TAS.Client.Common/*.DotSettings

@@ -486,7 +486,9 @@ namespace TAS.Common
     {
         copy,
         mpeg2video,
-        libx264
+        libx264,
+        h264_nvenc,
+        hevc_nvenc
     }
 
     public enum TAudioCodec

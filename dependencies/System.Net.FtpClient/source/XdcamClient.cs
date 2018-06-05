@@ -13,12 +13,17 @@ namespace System.Net.FtpClient
     public class XdcamClient : FtpClient
     {
 
+        private readonly string root_;
+
         /// <summary>
         /// Creates a new isntance of XdcamClient
         /// </summary>
-        public XdcamClient()
-            : base()
+        public XdcamClient(Uri uri)
         {
+            Host = uri.Host;
+            root_ = uri.AbsolutePath;
+            if (!root_.EndsWith("/"))
+                root_ += "/";
             EnableThreadSafeDataConnections = false;
             DataConnectionType = FtpDataConnectionType.PASV;
             UngracefullDisconnection = true;
@@ -39,7 +44,7 @@ namespace System.Net.FtpClient
                 // read in one line of raw file listing for the file - it's the only method to get file size
                 try
                 {
-                    using (FtpDataStream stream = OpenDataStream($"LIST {path.GetFtpPath()}", 0))
+                    using (FtpDataStream stream = OpenDataStream($"LIST {root_ + path}", 0))
                     {
                         string buf;
                         try
@@ -124,6 +129,20 @@ namespace System.Net.FtpClient
         }
 
 
+        public override Stream OpenRead(string path, FtpDataType type, long restart)
+        {
+            return base.OpenRead(root_ + path, type, restart);
+        }
+
+        public override Stream OpenWrite(string path, FtpDataType type)
+        {
+            return base.OpenWrite(root_ + path, type);
+        }
+
+        public override Stream OpenAppend(string path, FtpDataType type)
+        {
+            return base.OpenAppend(root_ + path, type);
+        }
 
         /// <summary>
         /// Opens the specified file for segment reading
@@ -138,7 +157,7 @@ namespace System.Net.FtpClient
             try
             {
                 m_lock.WaitOne();
-                stream = OpenDataStream($"SITE REPFL \"{path.GetFtpPath()}\" {startFrame} {frameCount}", 0);
+                stream = OpenDataStream($"SITE REPFL \"{root_ + path}\" {startFrame} {frameCount}", 0);
             }
             finally
             {
@@ -162,9 +181,9 @@ namespace System.Net.FtpClient
                         while (!reader.EndOfStream)
                         {
                             string response = reader.ReadLine();
-                            if (response.StartsWith("others"))
+                            if (response?.StartsWith("others") == true)
                             {
-                                return long.Parse(response.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries)[1]);
+                                return long.Parse(response.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries)[1]);
                             }
                         }
                         return 0L;

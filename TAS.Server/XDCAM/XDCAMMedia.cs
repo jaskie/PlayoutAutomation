@@ -20,7 +20,7 @@ namespace TAS.Server.XDCAM
         {
         }
 
-        public int ClipNr { get { return _clipNr; } set { SetField(ref _clipNr, value); } }
+        public int ClipNr { get => _clipNr; set => SetField(ref _clipNr, value); }
 
         public override Stream GetFileStream(bool forWrite)
         {
@@ -51,7 +51,7 @@ namespace TAS.Server.XDCAM
                         {
                             string clipFileName = XdcamAlias == null ? clip.clipId : XdcamAlias.value;
                             if (!string.IsNullOrWhiteSpace(clipFileName))
-                                clip.ClipMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml($"/Clip/{clipFileName}M01.XML"));
+                                clip.ClipMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml($"Clip/{clipFileName}M01.XML"));
                             if (clip.ClipMeta != null)
                             {
                                 LastUpdated = clip.ClipMeta.lastUpdate == default(DateTime) ? clip.ClipMeta.CreationDate.Value : clip.ClipMeta.lastUpdate;
@@ -76,8 +76,8 @@ namespace TAS.Server.XDCAM
                             string edlFileName = XdcamAlias == null ? edl.editlistId : XdcamAlias.value;
                             if (!string.IsNullOrWhiteSpace(edlFileName))
                             {
-                                edl.EdlMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml($"/Edit/{edlFileName}M01.XML"));
-                                edl.smil = SerializationHelper<Smil>.Deserialize(ReadXml($"/Edit/{edlFileName}E01.SMI"));
+                                edl.EdlMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml($"Edit/{edlFileName}M01.XML"));
+                                edl.smil = SerializationHelper<Smil>.Deserialize(ReadXml($"Edit/{edlFileName}E01.SMI"));
                             }
                             if (edl.EdlMeta != null)
                             {

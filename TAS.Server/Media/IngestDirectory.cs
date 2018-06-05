@@ -73,7 +73,7 @@ namespace TAS.Server.Media
 
         [XmlIgnore]
         [JsonProperty]
-        public int XdcamClipCount { get { return _xdcamClipCount; } protected set { SetField(ref _xdcamClipCount, value); } }
+        public int XdcamClipCount { get => _xdcamClipCount; protected set => SetField(ref _xdcamClipCount, value); }
 
         [JsonProperty]
         public bool IsRecursive { get; set; }
@@ -123,18 +123,17 @@ namespace TAS.Server.Media
         [JsonProperty]
         public string Filter
         {
-            get { return _filter; }
+            get => _filter;
             set
             {
                 if (!value.Equals(_filter))
                 {
                     _filter = value;
-                    if (IsWAN)
-                    {
-                        CancelBeginWatch();
-                        ClearFiles();
-                        BeginWatch(value, IsRecursive, TimeSpan.FromSeconds(10));
-                    }
+                    if (!IsWAN)
+                        return;
+                    CancelBeginWatch();
+                    ClearFiles();
+                    BeginWatch(value, IsRecursive, TimeSpan.FromSeconds(10));
                 }
             }
         }
@@ -249,7 +248,7 @@ namespace TAS.Server.Media
             });
             if (result == null & IsWAN)
                 {
-                    string[] files = Directory.GetFiles(Folder, string.Format("{0}.*", clipName));
+                    string[] files = Directory.GetFiles(Folder, $"{clipName}.*");
                     if (files.Length > 0)
                     {
                         string fileName = files[0];
@@ -332,18 +331,16 @@ namespace TAS.Server.Media
         {
             if (AccessType == TDirectoryAccessType.FTP)
             {
-                var client = GetFtpClient() as XdcamClient;
-                if (client != null)
+                if (!(GetFtpClient() is XdcamClient client))
+                    return;
+                client.Connect();
+                try
                 {
-                    client.Connect();
-                    try
-                    {
-                        VolumeFreeSize = client.GetFreeDiscSpace();
-                    }
-                    finally
-                    {
-                        client.Disconnect();
-                    }
+                    VolumeFreeSize = client.GetFreeDiscSpace();
+                }
+                finally
+                {
+                    client.Disconnect();
                 }
             }
             else
@@ -500,18 +497,17 @@ namespace TAS.Server.Media
         {
             if (_ftpClient == null)
             {
-                FtpClient newClient = Kind == TIngestDirectoryKind.XDCAM ?
-                    new XdcamClient
+                var uri = new Uri(Folder, UriKind.Absolute);
+                _ftpClient = Kind == TIngestDirectoryKind.XDCAM ?
+                    new XdcamClient(uri)
                     {
-                        Host = new Uri(Folder, UriKind.Absolute).Host,
                         Credentials = GetNetworkCredential()
                     }
                     : new FtpClient
                     {
-                        Host = new Uri(Folder, UriKind.Absolute).Host,
+                        Host = uri.Host,
                         Credentials = GetNetworkCredential()
                     };
-                _ftpClient = newClient;
             }
             return _ftpClient;
         }
