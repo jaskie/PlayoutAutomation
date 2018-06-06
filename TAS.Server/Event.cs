@@ -1206,20 +1206,23 @@ namespace TAS.Server
 
         private void _setPlayState(TPlayState newPlayState)
         {
-            if (SetField(ref _playState, newPlayState, nameof(PlayState)))
+            if (!SetField(ref _playState, newPlayState, nameof(PlayState)))
+                return;
+            switch (newPlayState)
             {
-                if (newPlayState == TPlayState.Playing)
-                {
+                case TPlayState.Playing:
                     StartTime = Engine.CurrentTime;
                     StartTc = ScheduledTc + TimeSpan.FromTicks(_position * Engine.FrameTicks);
-                }
-                if (newPlayState == TPlayState.Scheduled)
-                {
+                    break;
+                case TPlayState.Scheduled:
                     StartTime = default(DateTime);
                     StartTc = ScheduledTc;
                     Position = 0;
                     _uppdateScheduledTime();
-                }
+                    break;
+                case TPlayState.Paused:
+                    Position = 0;
+                    break;
             }
         }
 
