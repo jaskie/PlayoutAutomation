@@ -18,8 +18,10 @@ namespace TAS.Server.Media
                     Rational r = ffmpeg.GetFrameRate();
                     RationalNumber frameRate = new RationalNumber(r.Num, r.Den);
                     var videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan(frameRate);
-                    var audioDuration = (TimeSpan)ffmpeg.GetAudioDuration();
+                    var audioDuration = (TimeSpan) ffmpeg.GetAudioDuration();
                     var mediaDuration = ((videoDuration > audioDuration) && (audioDuration > TimeSpan.Zero) ? audioDuration : videoDuration).Round(frameRate);
+                    if (mediaDuration == TimeSpan.Zero)
+                        mediaDuration = (TimeSpan) ffmpeg.GetFileDuration();
                     media.Duration = mediaDuration;
                     if (media.DurationPlay == TimeSpan.Zero || media.DurationPlay > mediaDuration)
                         media.DurationPlay = mediaDuration;
@@ -47,7 +49,7 @@ namespace TAS.Server.Media
                         : (sar.Num == 152 && sar.Den == 135) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL].SAR
                         : new RationalNumber(sar.Num, sar.Den);
                     
-                    var vfd = VideoFormatDescription.Match(new System.Drawing.Size(w, h), new RationalNumber(frameRate.Num, frameRate.Den), sAR, order != FieldOrder.PROGRESSIVE);
+                    var vfd = VideoFormatDescription.Match(new System.Drawing.Size(w, h), frameRate, sAR, order != FieldOrder.PROGRESSIVE);
                     media.VideoFormat = vfd.Format;
                     if (media is IngestMedia ingestMedia)
                         ingestMedia.StreamInfo = ffmpeg.GetStreamInfo();

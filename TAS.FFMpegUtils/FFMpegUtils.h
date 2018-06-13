@@ -57,6 +57,7 @@ namespace TAS {
 		_FFMpegWrapper(char* fileName);
 		int64_t getFrameCount();
 		int64_t getAudioDuration();
+		int64_t getFileDuration();
 		int getHeight();
 		int getWidth();
 		int getStreamCount();
@@ -99,6 +100,11 @@ namespace TAS {
 			}
 			TimeSpan^ GetAudioDuration() {
 				return gcnew TimeSpan(wrapper->getAudioDuration() * 10);
+			}
+
+			TimeSpan^ GetFileDuration()
+			{
+				return gcnew TimeSpan(wrapper->getFileDuration() * 10);
 			}
 
 			FieldOrder GetFieldOrder() {

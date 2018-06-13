@@ -8,8 +8,15 @@ namespace TAS {
 		AVFormatContext * open_file(char * fileName)
 		{
 			AVFormatContext * ctx = nullptr;
-			if (avformat_open_input(&ctx, fileName, NULL, NULL) == 0)
-				avformat_find_stream_info(ctx, NULL);
+			int ret = avformat_open_input(&ctx, fileName, NULL, NULL);
+			if (ret == 0)
+			{
+				ret = avformat_find_stream_info(ctx, NULL);
+				if (ret < 0)
+					OutputDebugString(L"avformat_find_stream_info failed");
+			}
+			else
+				OutputDebugString(L"avformat_open_input failed");
 			return ctx;
 		}
 
@@ -75,6 +82,16 @@ namespace TAS {
 			} 
 			// if not found
 			return 0; 
+		}
+
+		int64_t _FFMpegWrapper::getFileDuration()
+		{
+			if (pFormatCtx)
+			{
+				return pFormatCtx->duration;
+			}
+			// if not found
+			return 0;
 		}
 
 		int _FFMpegWrapper::getHeight()
@@ -220,7 +237,7 @@ namespace TAS {
 				for (unsigned int i = 0; i<pFormatCtx->nb_streams; i++)
 				{
 					if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
-						return av_stream_get_r_frame_rate(pFormatCtx->streams[i]);
+						return pFormatCtx->streams[i]->r_frame_rate;
 				}
 			}
 			return av_make_q(0, 0);
