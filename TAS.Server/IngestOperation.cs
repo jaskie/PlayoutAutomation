@@ -171,11 +171,10 @@ namespace TAS.Server
         private bool ConvertStill(MediaBase localSourceMedia)
         {
             CreateDestMediaIfNotExists();
-            MediaBase destMedia = Dest as MediaBase;
-            if (destMedia == null || string.IsNullOrEmpty(localSourceMedia?.FileName))
+            if (Dest == null || string.IsNullOrEmpty(localSourceMedia?.FileName))
                 return false;
-            destMedia.MediaType = TMediaType.Still;
-            Size destSize = destMedia.VideoFormat == TVideoFormat.Other ? VideoFormatDescription.Descriptions[TVideoFormat.HD1080i5000].ImageSize : destMedia.FormatDescription().ImageSize;
+            Dest.MediaType = TMediaType.Still;
+            Size destSize = Dest.VideoFormat == TVideoFormat.Other ? VideoFormatDescription.Descriptions[TVideoFormat.HD1080i5000].ImageSize : Dest.FormatDescription().ImageSize;
             Image bmp = new Bitmap(destSize.Width, destSize.Height, PixelFormat.Format32bppArgb);
             Graphics graphics = Graphics.FromImage(bmp);
             graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -192,9 +191,9 @@ namespace TAS.Server
             System.Drawing.Imaging.Encoder encoder = System.Drawing.Imaging.Encoder.Quality;
             EncoderParameter encoderParameter = new EncoderParameter(encoder, 90L);
             EncoderParameters encoderParameters = new EncoderParameters(1) {Param = {[0] = encoderParameter}};
-            bmp.Save(destMedia.FullPath, imageCodecInfo, encoderParameters);
-            destMedia.MediaStatus = TMediaStatus.Copied;
-            destMedia.Verify();
+            bmp.Save(Dest.FullPath, imageCodecInfo, encoderParameters);
+            Dest.MediaStatus = TMediaStatus.Copied;
+            Dest.Verify();
             OperationStatus = FileOperationStatus.Finished;
             return true;
         }
@@ -202,19 +201,15 @@ namespace TAS.Server
         #region Movie conversion
         private void AddConversion(MediaConversion conversion, List<string> filters)
         {
-            if (conversion != null)
-            {
-                if (!string.IsNullOrWhiteSpace(conversion.FFMpegFilter))
-                    filters.Add(conversion.FFMpegFilter);
-            }
+            if (!string.IsNullOrWhiteSpace(conversion?.FFMpegFilter))
+                filters.Add(conversion.FFMpegFilter);
         }
 
         private string GetEncodeParameters(MediaBase inputMedia, StreamInfo[] inputStreams)
         {
-            List<string> videoFilters = new List<string>();
-            StringBuilder ep = new StringBuilder();
-            var sourceDir = Source.Directory as IngestDirectory;
-            if (sourceDir == null)
+            var videoFilters = new List<string>();
+            var ep = new StringBuilder();
+            if (!(Source.Directory is IngestDirectory sourceDir))
                 return string.Empty;
             #region Video
             ep.AppendFormat(" -c:v {0}", sourceDir.VideoCodec);
@@ -268,7 +263,7 @@ namespace TAS.Server
                 if (!string.IsNullOrWhiteSpace(additionalEncodeParams))
                     ep.Append(" ").Append(additionalEncodeParams.Trim());
             }
-            int lastFilterIndex = videoFilters.Count() - 1;
+            int lastFilterIndex = videoFilters.Count - 1;
             if (lastFilterIndex >= 0)
             {
                 videoFilters[lastFilterIndex] = $"{videoFilters[lastFilterIndex]}[v]";
@@ -323,12 +318,13 @@ namespace TAS.Server
                         audioFilters.Add($"{pf}amerge=inputs={audioStreams.Length}");
                     }
                     AddConversion(audiChannelMappingConversion, audioFilters);
-                    if (Math.Abs(AudioVolume) > Double.Epsilon)
+                    ep.Append(" -ac 2");
+                    if (Math.Abs(AudioVolume) > double.Epsilon)
                         AddConversion(new MediaConversion(AudioVolume), audioFilters);
                     ep.Append(" -ar 48000");
                 }
             }
-            lastFilterIndex = audioFilters.Count() - 1;
+            lastFilterIndex = audioFilters.Count - 1;
             if (lastFilterIndex >= 0)
             {
                 audioFilters[lastFilterIndex] = $"{audioFilters[lastFilterIndex]}[a]";
@@ -370,8 +366,8 @@ namespace TAS.Server
             destMedia.MediaStatus = TMediaStatus.Copying;
             string encodeParams = GetEncodeParameters(localSourceMedia, streams);
             string ingestRegion = IsTrimmed() ?
-                string.Format(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - Source.TcStart, Duration) : string.Empty;
-            string Params = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                string.Format(CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - Source.TcStart, Duration) : string.Empty;
+            string Params = string.Format(CultureInfo.InvariantCulture,
                 " -i \"{1}\"{0} -vsync cfr{2} -timecode {3} -y \"{4}\"",
                 ingestRegion,
                 localSourceMedia.FullPath,
@@ -397,7 +393,7 @@ namespace TAS.Server
                 }
                 else
                 {
-                    if ((Source.Directory is IngestDirectory) && ((IngestDirectory)Source.Directory).DeleteSource)
+                    if ((Source.Directory is IngestDirectory directory) && directory.DeleteSource)
                         ThreadPool.QueueUserWorkItem( o =>
                         {
                             Thread.Sleep(2000);
