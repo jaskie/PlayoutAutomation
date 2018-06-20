@@ -1,5 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Remoting.Client;
 
@@ -16,11 +15,11 @@ namespace TAS.Remoting.Model.Security
         [JsonProperty(nameof(IAclRight.Acl))]
         private ulong _acl;
 
-        public IPersistent Owner { get { return _owner; } set {Set(value);} }
+        public IPersistent Owner { get => _owner; set => Set(value); }
 
-        public ISecurityObject SecurityObject { get { return _securityObject; } set {Set(value);} }
+        public ISecurityObject SecurityObject { get => _securityObject; set => Set(value); }
 
-        public ulong Acl { get { return _acl; } set {Set(value);} }
+        public ulong Acl { get => _acl; set => Set(value); }
 
         protected override void OnEventNotification(WebSocketMessage message)
         {

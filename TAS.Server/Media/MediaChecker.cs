@@ -8,7 +8,7 @@ namespace TAS.Server.Media
 {
     public static class MediaChecker
     {
-        internal static void Check(MediaBase media)
+        internal static void Check(this MediaBase media)
         {
             if (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Unknown)
             {

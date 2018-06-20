@@ -32,19 +32,19 @@ namespace TAS.Remoting.Model
 
         #pragma warning restore
 
-        public TMediaEmphasis MediaEmphasis { get { return _mediaEmphasis; } set { Set(value); } }
+        public TMediaEmphasis MediaEmphasis { get => _mediaEmphasis; set => Set(value); }
 
-        public string IdAux { get { return _idAux; } set { Set(value); } }
+        public string IdAux { get => _idAux; set => Set(value); }
 
-        public DateTime KillDate { get { return _killDate; } set { Set(value); } }
+        public DateTime KillDate { get => _killDate; set => Set(value); }
 
-        public ulong IdProgramme { get { return _idProgramme; } set { Set(value); } }
+        public ulong IdProgramme { get => _idProgramme; set => Set(value); }
 
-        public ulong IdPersistentMedia { get; set; }
+        public ulong IdPersistentMedia { get => _idPersistentMedia; set => Set(value); }
 
-        public bool IsModified { get { return _isModified; } set { Set(value); } }
+        public bool IsModified { get => _isModified; set => Set(value); }
 
-        public bool Protected { get { return _protected; } set { Set(value); } }
+        public bool Protected { get => _protected; set => Set(value); }
 
         public IMediaSegments GetMediaSegments() { return Query<MediaSegments>(); } 
 

@@ -448,16 +448,15 @@ namespace TAS.Server
         [XmlIgnore, JsonProperty]
         public bool Pst2Prv
         {
-            get { return _pst2Prv; }
+            get => _pst2Prv;
             set
             {
-                if (SetField(ref _pst2Prv, value))
-                {
-                    if (value)
-                        _loadPST();
-                    else
-                        _playoutChannelPRV?.Clear(VideoLayer.Preset);
-                }
+                if (!SetField(ref _pst2Prv, value))
+                    return;
+                if (value)
+                    _loadPST();
+                else
+                    _playoutChannelPRV?.Clear(VideoLayer.Preset);
             }
         }
 

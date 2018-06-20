@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientTypeNameBinder.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Model\AnimatedEvent.cs" />
     <Compile Include="Model\AnimatedMedia.cs" />
     <Compile Include="Model\AnimationDirectory.cs" />

@@ -371,11 +371,11 @@ namespace TAS.Server.Media
                     || !LastUpdated.DateTimeEqualToDays(fi.LastWriteTimeUtc)
                     ))
                 {
-                    FileSize = (UInt64)fi.Length;
+                    FileSize = (ulong)fi.Length;
                     LastUpdated = DateTimeExtensions.FromFileTime(fi.LastWriteTimeUtc, DateTimeKind.Utc);
                     //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
 
-                    MediaChecker.Check(this);
+                    this.Check();
                 }                
                 IsVerified = true;
             }
@@ -388,7 +388,13 @@ namespace TAS.Server.Media
 
         public void GetLoudness()
         {
-            _directory.MediaManager.FileManager.Queue(new LoudnessOperation((FileManager)_directory.MediaManager.FileManager) { Source = this, MeasureStart = TcPlay - TcStart, MeasureDuration = DurationPlay }, false);
+            _directory.MediaManager.FileManager.Queue(
+                new LoudnessOperation((FileManager) _directory.MediaManager.FileManager)
+                {
+                    Source = this,
+                    MeasureStart = TcPlay - TcStart,
+                    MeasureDuration = DurationPlay
+                }, false);
         }
 
         protected override void DoDispose()

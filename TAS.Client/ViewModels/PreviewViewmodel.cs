@@ -163,8 +163,13 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan Position
         {
-            get => _preview.PreviewMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((_preview.PreviewPosition + _preview.PreviewLoadedSeek) * TimeSpan.TicksPerSecond * _formatDescription.FrameRate.Den / _formatDescription.FrameRate.Num + _loadedMedia.TcStart.Ticks);
-            set => _preview.PreviewPosition = (value.Ticks - _loadedMedia?.TcStart.Ticks) / _formatDescription.FrameTicks - _preview.PreviewLoadedSeek ?? 0;
+            get => _loadedMedia == null || _preview.PreviewMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((_preview.PreviewPosition + _preview.PreviewLoadedSeek) * TimeSpan.TicksPerSecond * _formatDescription.FrameRate.Den / _formatDescription.FrameRate.Num + _loadedMedia.TcStart.Ticks);
+            set
+            {
+                if (_loadedMedia == null)
+                    return;
+                _preview.PreviewPosition = (long) ((value.Ticks - _loadedMedia?.TcStart.Ticks) / _formatDescription.FrameTicks - _preview.PreviewLoadedSeek);
+            }
         }
 
         public bool IsLoaded => LoadedMedia != null;
@@ -183,8 +188,13 @@ namespace TAS.Client.ViewModels
 
         public long SliderPosition
         {
-            get => _preview.PreviewMedia == null ? 0 : _preview.PreviewPosition;
-            set => _preview.PreviewPosition = value;
+            get => _loadedMedia == null || _preview.PreviewMedia == null  ? 0 : _preview.PreviewPosition;
+            set
+            {
+                if (_loadedMedia == null)
+                    return;
+                _preview.PreviewPosition = value;
+            }
         }
 
         public long FramesPerSecond => _formatDescription.FrameRate.Num / _formatDescription.FrameRate.Den;
@@ -524,7 +534,7 @@ namespace TAS.Client.ViewModels
                         MediaSegments.Add(new MediaSegmentViewmodel((IPersistentMedia)media, ms));
                 }
                 var seek = (tcIn.Ticks - media.TcStart.Ticks) / _formatDescription.FrameTicks;
-                long newPosition = _preview.PreviewLoaded ? _preview.PreviewLoadedSeek + _preview.PreviewPosition - seek : 0;
+                long newPosition = _preview.PreviewLoaded && _loadedMedia != null ? _preview.PreviewLoadedSeek + _preview.PreviewPosition - seek : 0;
                 if (newPosition < 0)
                     newPosition = 0;
                 LoadedDuration = duration.Ticks / _formatDescription.FrameTicks;
