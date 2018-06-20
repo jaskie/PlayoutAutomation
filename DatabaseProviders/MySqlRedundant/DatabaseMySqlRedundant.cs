@@ -16,22 +16,52 @@ namespace TAS.Database.MySqlRedundant
     [Export(typeof(IDatabase))]
     public class DatabaseMySqlRedundant : IDatabase
     {
-        DbConnectionRedundant _connection;
-        private string _connectionStringSecondary;
-        private string _connectionStringPrimary;
+        private static readonly DateTime MinMySqlDate = new DateTime(1000, 01, 01);
+        private static readonly DateTime MaxMySqlDate = new DateTime(9999, 12, 31, 23, 59, 59);
+
+        private DbConnectionRedundant _connection;
+
+        private Dictionary<string, Dictionary<string, int>> _tablesStringFieldsLenghts;
 
         public void Open(string connectionStringPrimary = null, string connectionStringSecondary = null)
         {
             if (connectionStringPrimary != null)
             {
-                _connectionStringPrimary = connectionStringPrimary;
-                _connectionStringSecondary = connectionStringSecondary;
+                ConnectionStringPrimary = connectionStringPrimary;
+                ConnectionStringSecondary = connectionStringSecondary;
             }
-            _connection = new DbConnectionRedundant(_connectionStringPrimary, _connectionStringSecondary);
+            _connection = new DbConnectionRedundant(ConnectionStringPrimary, ConnectionStringSecondary);
             _connection.StateRedundantChange += _connection_StateRedundantChange;
             _connection.Open();
+            if ((_connection.StateRedundant & ConnectionStateRedundant.Open) != ConnectionStateRedundant.Closed)
+                _tablesStringFieldsLenghts = ReadTablesStringFieldLenghts();
         }
 
+        private Dictionary<string, Dictionary<string, int>> ReadTablesStringFieldLenghts()
+        {
+            var tables = _connection.GetSchema("Tables");
+            var columns = _connection.GetSchema("Columns");
+            var tableNames = tables.Rows.Cast<DataRow>().Select(r => r["TABLE_NAME"].ToString());
+            var result = tableNames.ToDictionary(tableName => tableName, tableName => new Dictionary<string, int>());
+            foreach (DataRow row in columns.Rows)
+            {
+                var tableName = row["TABLE_NAME"].ToString();
+                if (!result.ContainsKey(tableName))
+                    continue;
+                if (!int.TryParse(row["CHARACTER_MAXIMUM_LENGTH"].ToString(), out var charLength))
+                    continue;
+                result[tableName].Add(row["COLUMN_NAME"].ToString(), charLength);
+            }
+            return result;
+        }
+
+        private string TrimText(string tableName, string columnName, string value)
+        {
+            return _tablesStringFieldsLenghts[tableName][columnName] < value.Length 
+                ? value.Substring(0, _tablesStringFieldsLenghts[tableName][columnName]) 
+                : value;
+        }
+        
         private void _connection_StateRedundantChange(object sender, RedundantConnectionStateEventArgs e)
         {
             ConnectionStateChanged?.Invoke(sender, e);
@@ -44,8 +74,8 @@ namespace TAS.Database.MySqlRedundant
             _connection.Close();
         }
 
-        public string ConnectionStringPrimary => _connectionStringPrimary;
-        public string ConnectionStringSecondary => _connectionStringSecondary;
+        public string ConnectionStringPrimary { get; private set; }
+        public string ConnectionStringSecondary { get; private set; }
 
         public ConnectionStateRedundant ConnectionState => _connection.StateRedundant;
 
@@ -74,10 +104,10 @@ namespace TAS.Database.MySqlRedundant
         public bool UpdateRequired()
         {
             var command = new DbCommandRedundant("select `value` from `params` where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);
-            string dbVersionStr;
-            int dbVersionNr = 0; int resVersionNr;
+            var dbVersionNr = 0;
             try
             {
+                string dbVersionStr;
                 lock (_connection)
                     dbVersionStr = (string)command.ExecuteScalar();
                 var regexMatchDb = System.Text.RegularExpressions.Regex.Match(dbVersionStr, @"\d+");
@@ -92,14 +122,13 @@ namespace TAS.Database.MySqlRedundant
             var resourceEnumerator = schemaUpdates.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true).GetEnumerator();
             while (resourceEnumerator.MoveNext())
             {
-                if (resourceEnumerator.Key is string && resourceEnumerator.Value is string)
-                {
-                    var regexMatchRes = System.Text.RegularExpressions.Regex.Match((string)resourceEnumerator.Key, @"\d+");
-                    if (regexMatchRes.Success
-                        && int.TryParse(regexMatchRes.Value, out resVersionNr)
-                        && resVersionNr > dbVersionNr)
-                        return true;
-                }
+                if (!(resourceEnumerator.Key is string) || !(resourceEnumerator.Value is string))
+                    continue;
+                var regexMatchRes = System.Text.RegularExpressions.Regex.Match((string)resourceEnumerator.Key, @"\d+");
+                if (regexMatchRes.Success
+                    && int.TryParse(regexMatchRes.Value, out var resVersionNr)
+                    && resVersionNr > dbVersionNr)
+                    return true;
             }
             return false;
         }
@@ -126,12 +155,11 @@ namespace TAS.Database.MySqlRedundant
             var updatesPending = new SortedList<int, string>();
             while (resourceEnumerator.MoveNext())
             {
-                if (resourceEnumerator.Key is string && resourceEnumerator.Value is string)
+                if (resourceEnumerator.Key is string s && resourceEnumerator.Value is string)
                 {
-                    var regexMatchRes = System.Text.RegularExpressions.Regex.Match((string)resourceEnumerator.Key, @"\d+");
-                    int resVersionNr;
+                    var regexMatchRes = System.Text.RegularExpressions.Regex.Match(s, @"\d+");
                     if (regexMatchRes.Success
-                        && int.TryParse(regexMatchRes.Value, out resVersionNr)
+                        && int.TryParse(regexMatchRes.Value, out var resVersionNr)
                         && resVersionNr > dbVersionNr)
                         updatesPending.Add(resVersionNr, (string)resourceEnumerator.Value);
                 }
@@ -144,7 +172,7 @@ namespace TAS.Database.MySqlRedundant
                     {
                         if (_connection.ExecuteScript(kvp.Value))
                         {
-                            var cmdUpdateVersion = new DbCommandRedundant(string.Format("update `params` set `value` = \"{0}\" where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", kvp.Key), _connection);
+                            var cmdUpdateVersion = new DbCommandRedundant($"update `params` set `value` = \"{kvp.Key}\" where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);
                             cmdUpdateVersion.ExecuteNonQuery();
                             tran.Commit();
                         }
@@ -165,17 +193,17 @@ namespace TAS.Database.MySqlRedundant
 
         public List<T> DbLoadServers<T>() where T : IPlayoutServerProperties
         {
-            List<T> servers = new List<T>();
+            var servers = new List<T>();
             lock (_connection)
             {
-                DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM server;", _connection);
-                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                var cmd = new DbCommandRedundant("SELECT * FROM server;", _connection);
+                using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
                     {
-                        StringReader reader = new StringReader(dataReader.GetString("Config"));
-                        XmlSerializer serializer = new XmlSerializer(typeof(T));
-                        T server = (T)serializer.Deserialize(reader);
+                        var reader = new StringReader(dataReader.GetString("Config"));
+                        var serializer = new XmlSerializer(typeof(T));
+                        var server = (T)serializer.Deserialize(reader);
                         server.Id = dataReader.GetUInt64("idServer");
                         servers.Add(server);
                     }
@@ -190,8 +218,8 @@ namespace TAS.Database.MySqlRedundant
             lock (_connection)
             {
                 {
-                    DbCommandRedundant cmd = new DbCommandRedundant(@"INSERT INTO server set typServer=0, Config=@Config", _connection);
-                    XmlSerializer serializer = new XmlSerializer(server.GetType());
+                    var cmd = new DbCommandRedundant(@"INSERT INTO server set typServer=0, Config=@Config", _connection);
+                    var serializer = new XmlSerializer(server.GetType());
                     using (var writer = new StringWriter())
                     {
                         serializer.Serialize(writer, server);
@@ -208,9 +236,9 @@ namespace TAS.Database.MySqlRedundant
             lock (_connection)
             {
 
-                DbCommandRedundant cmd = new DbCommandRedundant("UPDATE server SET Config=@Config WHERE idServer=@idServer;", _connection);
+                var cmd = new DbCommandRedundant("UPDATE server SET Config=@Config WHERE idServer=@idServer;", _connection);
                 cmd.Parameters.AddWithValue("@idServer", server.Id);
-                XmlSerializer serializer = new XmlSerializer(server.GetType());
+                var serializer = new XmlSerializer(server.GetType());
                 using (var writer = new StringWriter())
                 {
                     serializer.Serialize(writer, server);
@@ -224,7 +252,7 @@ namespace TAS.Database.MySqlRedundant
         {
             lock (_connection)
             {
-                DbCommandRedundant cmd = new DbCommandRedundant("DELETE FROM server WHERE idServer=@idServer;", _connection);
+                var cmd = new DbCommandRedundant("DELETE FROM server WHERE idServer=@idServer;", _connection);
                 cmd.Parameters.AddWithValue("@idServer", server.Id);
                 cmd.ExecuteNonQuery();
             }
@@ -236,7 +264,7 @@ namespace TAS.Database.MySqlRedundant
 
         public List<T> DbLoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
         {
-            List<T> engines = new List<T>();
+            var engines = new List<T>();
             lock (_connection)
             {
                 DbCommandRedundant cmd;
@@ -247,13 +275,13 @@ namespace TAS.Database.MySqlRedundant
                     cmd = new DbCommandRedundant("SELECT * FROM engine where Instance=@Instance;", _connection);
                     cmd.Parameters.AddWithValue("@Instance", instance);
                 }
-                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
                     {
-                        StringReader reader = new StringReader(dataReader.GetString("Config"));
-                        XmlSerializer serializer = new XmlSerializer(typeof(T));
-                        T engine = (T)serializer.Deserialize(reader);
+                        var reader = new StringReader(dataReader.GetString("Config"));
+                        var serializer = new XmlSerializer(typeof(T));
+                        var engine = (T)serializer.Deserialize(reader);
                         engine.Id = dataReader.GetUInt64("idEngine");
                         engine.IdServerPRI = dataReader.GetUInt64("idServerPRI");
                         engine.ServerChannelPRI = dataReader.GetInt32("ServerChannelPRI");
@@ -276,7 +304,7 @@ namespace TAS.Database.MySqlRedundant
             lock (_connection)
             {
                 {
-                    DbCommandRedundant cmd = new DbCommandRedundant(@"INSERT INTO engine set Instance=@Instance, idServerPRI=@idServerPRI, ServerChannelPRI=@ServerChannelPRI, idServerSEC=@idServerSEC, ServerChannelSEC=@ServerChannelSEC,  idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config;", _connection);
+                    var cmd = new DbCommandRedundant(@"INSERT INTO engine set Instance=@Instance, idServerPRI=@idServerPRI, ServerChannelPRI=@ServerChannelPRI, idServerSEC=@idServerSEC, ServerChannelSEC=@ServerChannelSEC,  idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config;", _connection);
                     cmd.Parameters.AddWithValue("@Instance", engine.Instance);
                     cmd.Parameters.AddWithValue("@idServerPRI", engine.IdServerPRI);
                     cmd.Parameters.AddWithValue("@ServerChannelPRI", engine.ServerChannelPRI);
@@ -285,7 +313,7 @@ namespace TAS.Database.MySqlRedundant
                     cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
                     cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
                     cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
-                    XmlSerializer serializer = new XmlSerializer(engine.GetType());
+                    var serializer = new XmlSerializer(engine.GetType());
                     using (var writer = new StringWriter())
                     {
                         serializer.Serialize(writer, engine);
@@ -301,7 +329,7 @@ namespace TAS.Database.MySqlRedundant
         {
             lock (_connection)
             {
-                DbCommandRedundant cmd = new DbCommandRedundant(@"UPDATE engine set Instance=@Instance, idServerPRI=@idServerPRI, ServerChannelPRI=@ServerChannelPRI, idServerSEC=@idServerSEC, ServerChannelSEC=@ServerChannelSEC, idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config where idEngine=@idEngine", _connection);
+                var cmd = new DbCommandRedundant(@"UPDATE engine set Instance=@Instance, idServerPRI=@idServerPRI, ServerChannelPRI=@ServerChannelPRI, idServerSEC=@idServerSEC, ServerChannelSEC=@ServerChannelSEC, idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config where idEngine=@idEngine", _connection);
                 cmd.Parameters.AddWithValue("@idEngine", engine.Id);
                 cmd.Parameters.AddWithValue("@Instance", engine.Instance);
                 cmd.Parameters.AddWithValue("@idServerPRI", engine.IdServerPRI);
@@ -311,7 +339,7 @@ namespace TAS.Database.MySqlRedundant
                 cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
                 cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
                 cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
-                XmlSerializer serializer = new XmlSerializer(engine.GetType());
+                var serializer = new XmlSerializer(engine.GetType());
                 using (var writer = new StringWriter())
                 {
                     serializer.Serialize(writer, engine);
@@ -325,7 +353,7 @@ namespace TAS.Database.MySqlRedundant
         {
             lock (_connection)
             {
-                DbCommandRedundant cmd = new DbCommandRedundant("DELETE FROM engine WHERE idEngine=@idEngine;", _connection);
+                var cmd = new DbCommandRedundant("DELETE FROM engine WHERE idEngine=@idEngine;", _connection);
                 cmd.Parameters.AddWithValue("@idEngine", engine.Id);
                 cmd.ExecuteNonQuery();
             }
@@ -335,12 +363,12 @@ namespace TAS.Database.MySqlRedundant
         {
             lock (_connection)
             {
-                DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where typStart in (@StartTypeManual, @StartTypeOnFixedTime, @StartTypeNone) and idEventBinding=0 and idEngine=@idEngine order by ScheduledTime, EventName", _connection);
+                var cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where typStart in (@StartTypeManual, @StartTypeOnFixedTime, @StartTypeNone) and idEventBinding=0 and idEngine=@idEngine order by ScheduledTime, EventName", _connection);
                 cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
                 cmd.Parameters.AddWithValue("@StartTypeManual", (byte)TStartType.Manual);
                 cmd.Parameters.AddWithValue("@StartTypeOnFixedTime", (byte)TStartType.OnFixedTime);
                 cmd.Parameters.AddWithValue("@StartTypeNone", (byte)TStartType.None);
-                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
                     {
@@ -358,23 +386,21 @@ namespace TAS.Database.MySqlRedundant
             {
                 lock (_connection)
                 {
-                    DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM rundownevent m WHERE m.idEngine=@idEngine and (SELECT s.idRundownEvent FROM rundownevent s WHERE m.idEventBinding = s.idRundownEvent) IS NULL", _connection);
+                    var cmd = new DbCommandRedundant("SELECT * FROM rundownevent m WHERE m.idEngine=@idEngine and (SELECT s.idRundownEvent FROM rundownevent s WHERE m.idEventBinding = s.idRundownEvent) IS NULL", _connection);
                     cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
-                    IEvent newEvent;
-                    List<IEvent> foundEvents = new List<IEvent>();
-                    using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                    var foundEvents = new List<IEvent>();
+                    using (var dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
                         {
-                            if (!engine.GetRootEvents().Any(e => (e as IEventPesistent)?.Id == dataReader.GetUInt64("idRundownEvent")))
-                            {
-                                newEvent = _eventRead(engine, dataReader);
-                                foundEvents.Add(newEvent);
-                            }
+                            if (engine.GetRootEvents().Any(e => (e as IEventPesistent)?.Id == dataReader.GetUInt64("idRundownEvent")))
+                                continue;
+                            var newEvent = _eventRead(engine, dataReader);
+                            foundEvents.Add(newEvent);
                         }
                         dataReader.Close();
                     }
-                    foreach (IEvent e in foundEvents)
+                    foreach (var e in foundEvents)
                     {
                         if (e is ITemplated && e is IEventPesistent)
                             _readAnimatedEvent(((IEventPesistent)e).Id, e as ITemplated);
@@ -392,11 +418,11 @@ namespace TAS.Database.MySqlRedundant
             {
                 lock (_connection)
                 {
-                    DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM rundownevent WHERE idEngine=@idEngine and PlayState=@PlayState", _connection);
+                    var cmd = new DbCommandRedundant("SELECT * FROM rundownevent WHERE idEngine=@idEngine and PlayState=@PlayState", _connection);
                     cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
                     cmd.Parameters.AddWithValue("@PlayState", TPlayState.Playing);
-                    List<IEvent> foundEvents = new List<IEvent>();
-                    using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                    var foundEvents = new List<IEvent>();
+                    using (var dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
                         {
@@ -418,14 +444,13 @@ namespace TAS.Database.MySqlRedundant
 
         public MediaDeleteResult DbMediaInUse(IEngine engine, IServerMedia serverMedia)
         {
-            MediaDeleteResult reason = MediaDeleteResult.NoDeny;
+            var reason = MediaDeleteResult.NoDeny;
             lock (_connection)
             {
-                string query = "select * from rundownevent where MediaGuid=@MediaGuid and ADDTIME(ScheduledTime, Duration) > UTC_TIMESTAMP();";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                var cmd = new DbCommandRedundant("select * from rundownevent where MediaGuid=@MediaGuid and ADDTIME(ScheduledTime, Duration) > UTC_TIMESTAMP();", _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", serverMedia.MediaGuid);
                 IEvent futureScheduled = null;
-                using (DbDataReaderRedundant reader = cmd.ExecuteReader())
+                using (var reader = cmd.ExecuteReader())
                     if (reader.Read())
                         futureScheduled = _eventRead(engine, reader);
                 if (futureScheduled is ITemplated && futureScheduled is IEventPesistent)
@@ -434,7 +459,7 @@ namespace TAS.Database.MySqlRedundant
                     futureScheduled.IsModified = false;
                 }
                 if (futureScheduled != null)
-                    return new MediaDeleteResult() { Result = MediaDeleteResult.MediaDeleteResultEnum.InFutureSchedule, Media = serverMedia, Event = futureScheduled };
+                    return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InFutureSchedule, Media = serverMedia, Event = futureScheduled };
             }
             return reason;
         }
@@ -444,18 +469,19 @@ namespace TAS.Database.MySqlRedundant
         #region ArchiveDirectory
         public List<T> DbLoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
         {
-            List<T> directories = new List<T>();
+            var directories = new List<T>();
             lock (_connection)
             {
-                DbCommandRedundant cmd;
-                cmd = new DbCommandRedundant("SELECT * FROM archive;", _connection);
-                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                var cmd = new DbCommandRedundant("SELECT * FROM archive;", _connection);
+                using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
                     {
-                        var dir = new T();
-                        dir.idArchive = dataReader.GetUInt64("idArchive");
-                        dir.Folder = dataReader.GetString("Folder");
+                        var dir = new T
+                        {
+                            idArchive = dataReader.GetUInt64("idArchive"),
+                            Folder = dataReader.GetString("Folder")
+                        };
                         directories.Add(dir);
                     }
                     dataReader.Close();
@@ -469,7 +495,7 @@ namespace TAS.Database.MySqlRedundant
             lock (_connection)
             {
                 {
-                    DbCommandRedundant cmd = new DbCommandRedundant(@"INSERT INTO archive set Folder=@Folder", _connection);
+                    var cmd = new DbCommandRedundant(@"INSERT INTO archive set Folder=@Folder", _connection);
                     cmd.Parameters.AddWithValue("@Folder", dir.Folder);
                     cmd.ExecuteNonQuery();
                     dir.idArchive = (ulong)cmd.LastInsertedId;
@@ -481,7 +507,7 @@ namespace TAS.Database.MySqlRedundant
         {
             lock (_connection)
             {
-                DbCommandRedundant cmd = new DbCommandRedundant(@"UPDATE archive set Folder=@Folder where idArchive=@idArchive", _connection);
+                var cmd = new DbCommandRedundant(@"UPDATE archive set Folder=@Folder where idArchive=@idArchive", _connection);
                 cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
                 cmd.Parameters.AddWithValue("@Folder", dir.Folder);
                 cmd.ExecuteNonQuery();
@@ -492,7 +518,7 @@ namespace TAS.Database.MySqlRedundant
         {
             lock (_connection)
             {
-                DbCommandRedundant cmd = new DbCommandRedundant("DELETE FROM archive WHERE idArchive=@idArchive;", _connection);
+                var cmd = new DbCommandRedundant("DELETE FROM archive WHERE idArchive=@idArchive;", _connection);
                 cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
                 cmd.ExecuteNonQuery();
             }
@@ -533,7 +559,7 @@ namespace TAS.Database.MySqlRedundant
                     cmd.Parameters.AddWithValue("@Category", (uint)dir.SearchMediaCategory);
                 }
                 cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
-                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
                         _readArchiveMedia<T>(dataReader, dir);
@@ -543,34 +569,33 @@ namespace TAS.Database.MySqlRedundant
         }
 
         private ConstructorInfo _archiveDirectoryConstructorInfo;
+
         public IArchiveDirectory LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectory
         {
             lock (_connection)
             {
                 if (_archiveDirectoryConstructorInfo == null)
                     _archiveDirectoryConstructorInfo = typeof(T).GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, CallingConventions.Any,  new[] { typeof(IMediaManager), typeof(ulong), typeof(string) }, null);
-                string query = "SELECT Folder FROM archive WHERE idArchive=@idArchive;";
-                string folder;
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                if (_archiveDirectoryConstructorInfo == null)
+                    throw new ApplicationException("Cannot obtain constructor for ArchiveDirectory");
+                var cmd = new DbCommandRedundant("SELECT Folder FROM archive WHERE idArchive=@idArchive;", _connection);
                 cmd.Parameters.AddWithValue("@idArchive", idArchive);
-                folder = (string)cmd.ExecuteScalar();
-                if (!string.IsNullOrEmpty(folder))
-                {
-                    T directory = (T)_archiveDirectoryConstructorInfo.Invoke(new object[] { manager, idArchive, folder });
-                    return directory;
-                }
-                return null;
+                var folder = (string)cmd.ExecuteScalar();
+                if (string.IsNullOrEmpty(folder))
+                    return null;
+                var directory = (T)_archiveDirectoryConstructorInfo.Invoke(new object[] { manager, idArchive, folder });
+                return directory;
             }
         }
 
         public IEnumerable<IArchiveMedia> DbFindStaleMedia<T>(IArchiveDirectory dir) where T: IArchiveMedia
         {
-            List<IArchiveMedia> returnList = new List<IArchiveMedia>();
+            var returnList = new List<IArchiveMedia>();
             lock (_connection)
             {
-                DbCommandRedundant cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and KillDate<CURRENT_DATE and KillDate>'2000-01-01' LIMIT 0, 1000;", _connection);
+                var cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and KillDate<CURRENT_DATE and KillDate>'2000-01-01' LIMIT 0, 1000;", _connection);
                 cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
-                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
                         returnList.Add(_readArchiveMedia<T>(dataReader, dir));
@@ -582,21 +607,19 @@ namespace TAS.Database.MySqlRedundant
 
         public T DbMediaFind<T>(IArchiveDirectory dir, IMediaProperties media) where T: IArchiveMedia
         {
-            T result = default(T);
+            var result = default(T);
+            if (media.MediaGuid == Guid.Empty)
+                return result;
             lock (_connection)
             {
-                DbCommandRedundant cmd;
-                if (media.MediaGuid != Guid.Empty)
+                var cmd = new DbCommandRedundant("SELECT * FROM archivemedia WHERE idArchive=@idArchive && MediaGuid=@MediaGuid;", _connection);
+                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                using (var dataReader = cmd.ExecuteReader(CommandBehavior.SingleRow))
                 {
-                    cmd = new DbCommandRedundant("SELECT * FROM archivemedia WHERE idArchive=@idArchive && MediaGuid=@MediaGuid;", _connection);
-                    cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
-                    cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
-                    using (DbDataReaderRedundant dataReader = cmd.ExecuteReader(CommandBehavior.SingleRow))
-                    {
-                        if (dataReader.Read())
-                            result = _readArchiveMedia<T>(dataReader, dir);
-                        dataReader.Close();
-                    }
+                    if (dataReader.Read())
+                        result = _readArchiveMedia<T>(dataReader, dir);
+                    dataReader.Close();
                 }
             }
             return result;
@@ -604,18 +627,15 @@ namespace TAS.Database.MySqlRedundant
 
         public bool DbArchiveContainsMedia(IArchiveDirectory dir, IMediaProperties media)
         {
+            if (media.MediaGuid == Guid.Empty)
+                return false;
             lock (_connection)
             {
-                DbCommandRedundant cmd;
-                if (media.MediaGuid != Guid.Empty)
-                {
-                    cmd = new DbCommandRedundant("SELECT count(*) FROM archivemedia WHERE idArchive=@idArchive && MediaGuid=@MediaGuid;", _connection);
-                    cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
-                    cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
-                    object result = cmd.ExecuteScalar();
-                    return result != null && (long)result > 0;
-                }
-                return false;
+                var cmd = new DbCommandRedundant("SELECT count(*) FROM archivemedia WHERE idArchive=@idArchive && MediaGuid=@MediaGuid;", _connection);
+                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                var result = cmd.ExecuteScalar();
+                return result != null && (long)result > 0;
             }
         }
 
@@ -624,120 +644,109 @@ namespace TAS.Database.MySqlRedundant
         #region IEvent
         public List<IEvent> DbReadSubEvents(IEngine engine, IEventPesistent eventOwner)
         {
+            if (eventOwner == null)
+                return null;
             lock (_connection)
             {
-                DbCommandRedundant cmd;
-                if (eventOwner != null)
+                var cmd = new DbCommandRedundant("SELECT * FROM RundownEvent WHERE idEventBinding = @idEventBinding AND (typStart=@StartTypeManual OR typStart=@StartTypeOnFixedTime);", _connection);
+                if (eventOwner.EventType == TEventType.Container)
                 {
-                    cmd = new DbCommandRedundant("SELECT * FROM RundownEvent WHERE idEventBinding = @idEventBinding AND (typStart=@StartTypeManual OR typStart=@StartTypeOnFixedTime);", _connection);
-                    if (eventOwner.EventType == TEventType.Container)
-                    {
-                        cmd.Parameters.AddWithValue("@StartTypeManual", TStartType.Manual);
-                        cmd.Parameters.AddWithValue("@StartTypeOnFixedTime", TStartType.OnFixedTime);
-                    }
-                    else
-                    {
-                        cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idEventBinding = @idEventBinding and typStart in (@StartTypeWithParent, @StartTypeWithParentFromEnd);", _connection);
-                        cmd.Parameters.AddWithValue("@StartTypeWithParent", TStartType.WithParent);
-                        cmd.Parameters.AddWithValue("@StartTypeWithParentFromEnd", TStartType.WithParentFromEnd);
-                    }
-                    cmd.Parameters.AddWithValue("@idEventBinding", eventOwner.Id);
-                    List<IEvent> subevents = new List<IEvent>();
-                    using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
-                    {
-                        while (dataReader.Read())
-                            subevents.Add(_eventRead(engine, dataReader));
-                    }
-                    foreach (var e in subevents)
-                        if (e is ITemplated)
-                        {
-                            _readAnimatedEvent(e.Id, e as ITemplated);
-                            e.IsModified = false;
-                        }
-                    return subevents;
+                    cmd.Parameters.AddWithValue("@StartTypeManual", TStartType.Manual);
+                    cmd.Parameters.AddWithValue("@StartTypeOnFixedTime", TStartType.OnFixedTime);
                 }
-                return null;
+                else
+                {
+                    cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idEventBinding = @idEventBinding and typStart in (@StartTypeWithParent, @StartTypeWithParentFromEnd);", _connection);
+                    cmd.Parameters.AddWithValue("@StartTypeWithParent", TStartType.WithParent);
+                    cmd.Parameters.AddWithValue("@StartTypeWithParentFromEnd", TStartType.WithParentFromEnd);
+                }
+                cmd.Parameters.AddWithValue("@idEventBinding", eventOwner.Id);
+                var subevents = new List<IEvent>();
+                using (var dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                        subevents.Add(_eventRead(engine, dataReader));
+                }
+                foreach (var e in subevents)
+                    if (e is ITemplated)
+                    {
+                        _readAnimatedEvent(e.Id, e as ITemplated);
+                        e.IsModified = false;
+                    }
+                return subevents;
             }
         }
 
         public IEvent DbReadNext(IEngine engine, IEventPesistent aEvent) 
         {
+            if (aEvent == null)
+                return null;
             lock (_connection)
             {
-                if (aEvent != null)
+                IEvent next = null;
+                var cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idEventBinding = @idEventBinding and typStart=@StartType;", _connection);
+                cmd.Parameters.AddWithValue("@idEventBinding", aEvent.Id);
+                cmd.Parameters.AddWithValue("@StartType", TStartType.After);
+                using (var reader = cmd.ExecuteReader())
                 {
-                    IEvent next = null;
-                    DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idEventBinding = @idEventBinding and typStart=@StartType;", _connection);
-                    cmd.Parameters.AddWithValue("@idEventBinding", aEvent.Id);
-                    cmd.Parameters.AddWithValue("@StartType", TStartType.After);
-                    using (DbDataReaderRedundant reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                            next = _eventRead(engine, reader);
-                    }
-                    if (next is ITemplated && next is IEventPesistent)
-                    {
-                        _readAnimatedEvent(((IEventPesistent)next).Id, next as ITemplated);
-                        next.IsModified = false;
-                    }
-                    return next;
+                    if (reader.Read())
+                        next = _eventRead(engine, reader);
                 }
-                return null;
+                if (!(next is ITemplated) || !(next is IEventPesistent))
+                    return next;
+                _readAnimatedEvent(((IEventPesistent)next).Id, next as ITemplated);
+                next.IsModified = false;
+                return next;
             }
         }
 
         private void _readAnimatedEvent(ulong id, ITemplated animatedEvent)
         {
-            DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM `rundownevent_templated` where `idrundownevent_templated` = @id;", _connection);
+            var cmd = new DbCommandRedundant("SELECT * FROM `rundownevent_templated` where `idrundownevent_templated` = @id;", _connection);
             cmd.Parameters.AddWithValue("@id", id);
-            using (DbDataReaderRedundant reader = cmd.ExecuteReader())
+            using (var reader = cmd.ExecuteReader())
             {
-                if (reader.Read())
-                {
-                    animatedEvent.Method = (TemplateMethod)reader.GetByte("Method");
-                    animatedEvent.TemplateLayer = reader.GetInt16("TemplateLayer");
-                    string templateFields = reader.GetString("Fields");
-                    if (!string.IsNullOrWhiteSpace(templateFields))
-                    {
-                        var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
-                        if (fieldsDeserialized != null)
-                            animatedEvent.Fields = fieldsDeserialized;
-                    }
-                }
+                if (!reader.Read())
+                    return;
+                animatedEvent.Method = (TemplateMethod)reader.GetByte("Method");
+                animatedEvent.TemplateLayer = reader.GetInt16("TemplateLayer");
+                var templateFields = reader.GetString("Fields");
+                if (string.IsNullOrWhiteSpace(templateFields))
+                    return;
+                var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
+                if (fieldsDeserialized != null)
+                    animatedEvent.Fields = fieldsDeserialized;
             }
         }
 
         public IEvent DbReadEvent(IEngine engine, UInt64 idRundownEvent)
         {
+            if (idRundownEvent <= 0)
+                return null;
             lock (_connection)
             {
-                if (idRundownEvent > 0)
+                IEvent result = null;
+                var cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idRundownEvent = @idRundownEvent", _connection);
+                cmd.Parameters.AddWithValue("@idRundownEvent", idRundownEvent);
+                using (var reader = cmd.ExecuteReader())
                 {
-                    IEvent result = null;
-                    DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idRundownEvent = @idRundownEvent", _connection);
-                    cmd.Parameters.AddWithValue("@idRundownEvent", idRundownEvent);
-                    using (DbDataReaderRedundant reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                            result = _eventRead(engine, reader);
-                    }
-                    if (result is ITemplated && result is IEventPesistent)
-                    {
-                        _readAnimatedEvent(((IEventPesistent)result).Id, result as ITemplated);
-                        result.IsModified = false;
-                    }
-                    return result;
+                    if (reader.Read())
+                        result = _eventRead(engine, reader);
                 }
-                return null;
+                if (!(result is ITemplated) || !(result is IEventPesistent))
+                    return result;
+                _readAnimatedEvent(((IEventPesistent)result).Id, result as ITemplated);
+                result.IsModified = false;
+                return result;
             }
         }
 
         private IEvent _eventRead(IEngine engine, DbDataReaderRedundant dataReader)
         {
-            uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flagsEvent")) ? 0 : dataReader.GetUInt32("flagsEvent");
-            ushort transitionType = dataReader.GetUInt16("typTransition");
-            TEventType eventType = (TEventType)dataReader.GetByte("typEvent");
-            IEvent newEvent = engine.CreateNewEvent(
+            var flags = dataReader.IsDBNull(dataReader.GetOrdinal("flagsEvent")) ? 0 : dataReader.GetUInt32("flagsEvent");
+            var transitionType = dataReader.GetUInt16("typTransition");
+            var eventType = (TEventType)dataReader.GetByte("typEvent");
+            var newEvent = engine.CreateNewEvent(
                 dataReader.GetUInt64("idRundownEvent"),
                 dataReader.GetUInt64("idEventBinding"),
                 (VideoLayer)dataReader.GetSByte("Layer"),
@@ -773,19 +782,15 @@ namespace TAS.Database.MySqlRedundant
             return newEvent;
         }
 
-        private static DateTime _minMySqlDate = new DateTime(1000, 01, 01);
-        private static DateTime _maxMySQLDate = new DateTime(9999, 12, 31, 23, 59, 59);
-        
         private bool _eventFillParamsAndExecute(DbCommandRedundant cmd, IEventPesistent aEvent)
         {
-            // TODO: add string length validation
             Debug.WriteLineIf(aEvent.Duration.Days > 1, aEvent, "Duration extremely long");
             cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)aEvent.Engine).Id);
             cmd.Parameters.AddWithValue("@idEventBinding", aEvent.IdEventBinding);
             cmd.Parameters.AddWithValue("@Layer", (sbyte)aEvent.Layer);
             cmd.Parameters.AddWithValue("@typEvent", aEvent.EventType);
             cmd.Parameters.AddWithValue("@typStart", aEvent.StartType);
-            if (aEvent.ScheduledTime < _minMySqlDate || aEvent.ScheduledTime > _maxMySQLDate)
+            if (aEvent.ScheduledTime < MinMySqlDate || aEvent.ScheduledTime > MaxMySqlDate)
             {
                 cmd.Parameters.AddWithValue("@ScheduledTime", DBNull.Value);
             }
@@ -801,9 +806,9 @@ namespace TAS.Database.MySqlRedundant
                 cmd.Parameters.AddWithValue("@MediaGuid", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@MediaGuid", aEvent.MediaGuid);
-            cmd.Parameters.AddWithValue("@EventName", aEvent.EventName);
+            cmd.Parameters.AddWithValue("@EventName", TrimText("rundownevent", "EventName", aEvent.EventName));
             cmd.Parameters.AddWithValue("@PlayState", aEvent.PlayState);
-            if (aEvent.StartTime < _minMySqlDate || aEvent.StartTime > _maxMySQLDate)
+            if (aEvent.StartTime < MinMySqlDate || aEvent.StartTime > MaxMySqlDate)
                 cmd.Parameters.AddWithValue("@StartTime", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@StartTime", aEvent.StartTime);
@@ -824,8 +829,8 @@ namespace TAS.Database.MySqlRedundant
             else
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent.AudioVolume);
             cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
-            object command = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript
-                ? (object)(aEvent as ICommandScript).Command
+            var command = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript
+                ? (object)((ICommandScript) aEvent).Command
                 : DBNull.Value;
             cmd.Parameters.AddWithValue("@Commands", command);
             return cmd.ExecuteNonQuery() == 1;
@@ -833,15 +838,16 @@ namespace TAS.Database.MySqlRedundant
 
         private void _eventAnimatedSave(ulong id,  ITemplated e, bool inserting)
         {
-            string query = inserting ?
+            var query = inserting ?
                 @"INSERT INTO `rundownevent_templated` (`idrundownevent_templated`, `Method`, `TemplateLayer`, `Fields`) VALUES (@idrundownevent_templated, @Method, @TemplateLayer, @Fields);" :
                 @"UPDATE `rundownevent_templated` SET  `Method`=@Method, `TemplateLayer`=@TemplateLayer, `Fields`=@Fields WHERE `idrundownevent_templated`=@idrundownevent_templated;";
-            using (DbCommandRedundant cmd = new DbCommandRedundant(query, _connection))
+            using (var cmd = new DbCommandRedundant(query, _connection))
             {
                 cmd.Parameters.AddWithValue("@idrundownevent_templated", id);
                 cmd.Parameters.AddWithValue("@Method", (byte)e.Method);
                 cmd.Parameters.AddWithValue("@TemplateLayer", e.TemplateLayer);
-                cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(e.Fields));
+                var fields = Newtonsoft.Json.JsonConvert.SerializeObject(e.Fields);
+                cmd.Parameters.AddWithValue("@Fields", fields);
                 cmd.ExecuteNonQuery();
             }
         }
@@ -853,18 +859,17 @@ namespace TAS.Database.MySqlRedundant
             {
                 using (var transaction = _connection.BeginTransaction())
                 {
-                    string query =
-@"INSERT INTO RundownEvent 
+                    const string query = @"INSERT INTO RundownEvent 
 (idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, TransitionPauseTime, typTransition, AudioVolume, idProgramme, flagsEvent, Commands) 
 VALUES 
 (@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @TransitionPauseTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent, @Commands);";
-                    using (DbCommandRedundant cmd = new DbCommandRedundant(query, _connection))
+                    using (var cmd = new DbCommandRedundant(query, _connection))
                         if (_eventFillParamsAndExecute(cmd, aEvent))
                         {
                             aEvent.Id = (ulong)cmd.LastInsertedId;
                             Debug.WriteLine("DbInsertEvent Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
-                            if (aEvent is ITemplated)
-                                _eventAnimatedSave(aEvent.Id, aEvent as ITemplated, true);
+                            if (aEvent is ITemplated eventTemplated)
+                                _eventAnimatedSave(aEvent.Id, eventTemplated, true);
                             transaction.Commit();
                             return true;
                         }
@@ -879,8 +884,7 @@ VALUES
             {
                 using (var transaction = _connection.BeginTransaction())
                 {
-                    string query =
-@"UPDATE RundownEvent 
+                    const string query = @"UPDATE rundownevent 
 SET 
 idEngine=@idEngine, 
 idEventBinding=@idEventBinding, 
@@ -905,29 +909,26 @@ idProgramme=@idProgramme,
 flagsEvent=@flagsEvent,
 Commands=@Commands
 WHERE idRundownEvent=@idRundownEvent;";
-                    using (DbCommandRedundant cmd = new DbCommandRedundant(query, _connection))
+                    using (var cmd = new DbCommandRedundant(query, _connection))
                     {
                         cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
-                        if (_eventFillParamsAndExecute(cmd, aEvent))
-                        {
-                            Debug.WriteLine("DbUpdateEvent Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
-                            if (aEvent is ITemplated)
-                                _eventAnimatedSave(aEvent.Id, aEvent as ITemplated, false);
-                            transaction.Commit();
-                            return true;
-                        }
+                        if (!_eventFillParamsAndExecute(cmd, aEvent))
+                            return false;
+                        Debug.WriteLine("DbUpdateEvent Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
+                        if (aEvent is ITemplated eventTemplated)
+                            _eventAnimatedSave(aEvent.Id, eventTemplated, false);
+                        transaction.Commit();
+                        return true;
                     }
                 }
             }
-            return false;
         }
 
         public bool DbDeleteEvent(IEventPesistent aEvent)
         {
             lock (_connection)
             {
-                string query = "DELETE FROM RundownEvent WHERE idRundownEvent=@idRundownEvent;";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                var cmd = new DbCommandRedundant("DELETE FROM RundownEvent WHERE idRundownEvent=@idRundownEvent;", _connection);
                 cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
                 cmd.ExecuteNonQuery();
                 Debug.WriteLine("DbDeleteEvent Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
@@ -941,7 +942,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             {
                 lock (_connection)
                 {
-                    DbCommandRedundant cmd = new DbCommandRedundant(
+                    var cmd = new DbCommandRedundant(
 @"INSERT INTO asrunlog (
 ExecuteTime, 
 MediaName, 
@@ -971,12 +972,12 @@ VALUES
 );", _connection);
 
                     cmd.Parameters.AddWithValue("@ExecuteTime", e.StartTime);
-                    IMedia media = e.Media;
+                    var media = e.Media;
                     if (media != null)
                     {
-                        cmd.Parameters.AddWithValue("@MediaName", media.MediaName);
+                        cmd.Parameters.AddWithValue("@MediaName", TrimText("asrunlog", "MediaName", media.MediaName));
                         if (media is IPersistentMedia)
-                            cmd.Parameters.AddWithValue("@idAuxMedia", (media as IPersistentMedia).IdAux);
+                            cmd.Parameters.AddWithValue("@idAuxMedia", TrimText("asrunlog", "idAuxMedia", (media as IPersistentMedia).IdAux));
                         else
                             cmd.Parameters.AddWithValue("@idAuxMedia", DBNull.Value);
                         cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
@@ -995,8 +996,8 @@ VALUES
                     cmd.Parameters.AddWithValue("@StartTC", e.StartTc);
                     cmd.Parameters.AddWithValue("@Duration", e.Duration);
                     cmd.Parameters.AddWithValue("@idProgramme", e.IdProgramme);
-                    cmd.Parameters.AddWithValue("@idAuxRundown", e.IdAux);
-                    cmd.Parameters.AddWithValue("@SecEvents", string.Join(";", e.SubEvents.Select(se => se.EventName)));
+                    cmd.Parameters.AddWithValue("@idAuxRundown", TrimText("asrunlog", "idAuxRundown", e.IdAux));
+                    cmd.Parameters.AddWithValue("@SecEvents", TrimText("asrunlog", "SecEvents", string.Join(";", e.SubEvents.Select(se => se.EventName))));
                     cmd.Parameters.AddWithValue("@Flags", e.ToFlags());
                     cmd.ExecuteNonQuery();
                 }
@@ -1018,12 +1019,10 @@ VALUES
                 return null;
             lock (_connection)
             {
-                DbCommandRedundant cmd =
-                    new DbCommandRedundant("SELECT * FROM rundownevent_acl WHERE idRundownEvent = @idRundownEvent;",
-                        _connection);
+                var cmd = new DbCommandRedundant("SELECT * FROM rundownevent_acl WHERE idRundownEvent = @idRundownEvent;", _connection);
                 cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
-                List<IAclRight> acl = new List<IAclRight>();
-                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                var acl = new List<IAclRight>();
+                using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
                     {
@@ -1047,13 +1046,13 @@ VALUES
                 return false;
             lock (_connection)
             {
-                using (DbCommandRedundant cmd =
+                using (var cmd =
                     new DbCommandRedundant(
                         "INSERT INTO rundownevent_acl (idRundownEvent, idACO, ACL) VALUES (@idRundownEvent, @idACO, @ACL);",
                         _connection))
                 {
                     cmd.Parameters.AddWithValue("@idRundownEvent", acl.Owner.Id);
-                    cmd.Parameters.AddWithValue("@idACO", ((IPersistent)acl.SecurityObject).Id);
+                    cmd.Parameters.AddWithValue("@idACO", acl.SecurityObject.Id);
                     cmd.Parameters.AddWithValue("@ACL", acl.Acl);
                     if (cmd.ExecuteNonQuery() == 1)
                         acl.Id = (ulong) cmd.LastInsertedId;
@@ -1066,7 +1065,7 @@ VALUES
         {
             lock (_connection)
             {
-                using (DbCommandRedundant cmd =
+                using (var cmd =
                     new DbCommandRedundant(
                         "UPDATE rundownevent_acl SET ACL=@ACL WHERE idRundownevent_ACL=@idRundownevent_ACL;",
                         _connection))
@@ -1082,8 +1081,8 @@ VALUES
         {
             lock (_connection)
             {
-                string query = "DELETE FROM rundownevent_acl WHERE idRundownevent_ACL=@idRundownevent_ACL;";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                var query = "DELETE FROM rundownevent_acl WHERE idRundownevent_ACL=@idRundownevent_ACL;";
+                var cmd = new DbCommandRedundant(query, _connection);
                 cmd.Parameters.AddWithValue("@idRundownevent_ACL", acl.Id);
                 return cmd.ExecuteNonQuery() == 1;
             }
@@ -1094,16 +1093,16 @@ VALUES
         {
             lock (_connection)
             {
-                DbCommandRedundant cmd =
+                var cmd =
                     new DbCommandRedundant("SELECT * FROM engine_acl WHERE idEngine=@idEngine;",
                         _connection);
                 cmd.Parameters.AddWithValue("@idEngine", engine.Id);
-                List<IAclRight> acl = new List<IAclRight>();
-                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                var acl = new List<IAclRight>();
+                using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
                     {
-                        var item = new TEngineAcl()
+                        var item = new TEngineAcl
                         {
                             Id = dataReader.GetUInt64("idEngine_ACL"),
                             Owner = engine,
@@ -1123,13 +1122,13 @@ VALUES
                 return false;
             lock (_connection)
             {
-                using (DbCommandRedundant cmd =
+                using (var cmd =
                     new DbCommandRedundant(
                         "INSERT INTO engine_acl (idEngine, idACO, ACL) VALUES (@idEngine, @idACO, @ACL);",
                         _connection))
                 {
                     cmd.Parameters.AddWithValue("@idEngine", acl.Owner.Id);
-                    cmd.Parameters.AddWithValue("@idACO", ((IPersistent)acl.SecurityObject).Id);
+                    cmd.Parameters.AddWithValue("@idACO", acl.SecurityObject.Id);
                     cmd.Parameters.AddWithValue("@ACL", acl.Acl);
                     if (cmd.ExecuteNonQuery() == 1)
                         acl.Id = (ulong)cmd.LastInsertedId;
@@ -1142,7 +1141,7 @@ VALUES
         {
             lock (_connection)
             {
-                using (DbCommandRedundant cmd =
+                using (var cmd =
                     new DbCommandRedundant(
                         "UPDATE engine_acl SET ACL=@ACL WHERE idEngine_ACL=@idEngine_ACL;",
                         _connection))
@@ -1158,8 +1157,7 @@ VALUES
         {
             lock (_connection)
             {
-                string query = "DELETE FROM engine_acl WHERE idEngine_ACL=@idEngine_ACL;";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                var cmd = new DbCommandRedundant("DELETE FROM engine_acl WHERE idEngine_ACL=@idEngine_ACL;", _connection);
                 cmd.Parameters.AddWithValue("@idEngine_ACL", acl.Id);
                 return cmd.ExecuteNonQuery() == 1;
             }
@@ -1168,10 +1166,10 @@ VALUES
         #endregion //ACL
 
         #region Media
-        private void _mediaFillParamsAndExecute(DbCommandRedundant cmd, IPersistentMedia media, ulong serverId)
+        private void _mediaFillParamsAndExecute(DbCommandRedundant cmd, string tableName, IPersistentMedia media, ulong serverId)
         {
             cmd.Parameters.AddWithValue("@idProgramme", media.IdProgramme);
-            cmd.Parameters.AddWithValue("@idAux", media.IdAux);
+            cmd.Parameters.AddWithValue("@idAux", TrimText(tableName, "idAux", media.IdAux));
             if (media.MediaGuid == Guid.Empty)
                 cmd.Parameters.AddWithValue("@MediaGuid", DBNull.Value);
             else
@@ -1180,7 +1178,7 @@ VALUES
                 cmd.Parameters.AddWithValue("@KillDate", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@KillDate", media.KillDate);
-            uint flags = ((media is IServerMedia && (media as IServerMedia).DoNotArchive) ? 0x1 : (uint)0x0)
+            var flags = ((media is IServerMedia serverMedia && serverMedia.DoNotArchive) ? 0x1 : (uint)0x0)
                         | (media.Protected ? 0x2 : (uint)0x0)
                         | (media.FieldOrderInverted ? 0x4 : (uint)0x0)
                         | ((uint)media.MediaCategory << 4) // bits 4-7 of 1st byte
@@ -1198,12 +1196,12 @@ VALUES
                 cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typVideo", DBNull.Value);
             }
-            if (media is IArchiveMedia && media.Directory is IArchiveDirectory)
+            if (media is IArchiveMedia && media.Directory is IArchiveDirectory archiveDirectory)
             {
-                cmd.Parameters.AddWithValue("@idArchive", ((IArchiveDirectory)((IArchiveMedia)media).Directory).idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", archiveDirectory.idArchive);
                 cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
             }
-            cmd.Parameters.AddWithValue("@MediaName", media.MediaName);
+            cmd.Parameters.AddWithValue("@MediaName", TrimText(tableName, "MediaName", media.MediaName));
             cmd.Parameters.AddWithValue("@Duration", media.Duration);
             cmd.Parameters.AddWithValue("@DurationPlay", media.DurationPlay);
             cmd.Parameters.AddWithValue("@Folder", media.Folder);
@@ -1231,7 +1229,7 @@ VALUES
 
         private void _mediaReadFields(IPersistentMedia media, DbDataReaderRedundant dataReader)
         {
-            uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flags")) ? 0 : dataReader.GetUInt32("flags");
+            var flags = dataReader.IsDBNull(dataReader.GetOrdinal("flags")) ? 0 : dataReader.GetUInt32("flags");
             media.MediaName = dataReader.IsDBNull(dataReader.GetOrdinal("MediaName")) ? string.Empty : dataReader.GetString("MediaName");
             media.Duration = dataReader.IsDBNull(dataReader.GetOrdinal("Duration")) ? default(TimeSpan) : dataReader.GetTimeSpan("Duration");
             media.DurationPlay = dataReader.IsDBNull(dataReader.GetOrdinal("DurationPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("DurationPlay");
@@ -1253,8 +1251,8 @@ VALUES
             media.KillDate = dataReader.GetDateTime("KillDate");
             media.MediaEmphasis = (TMediaEmphasis)((flags >> 8) & 0xF);
             media.Parental = (byte)((flags >> 12) & 0xF);
-            if (media is IServerMedia)
-                ((IServerMedia)media).DoNotArchive = (flags & 0x1) != 0;
+            if (media is IServerMedia serverMedia)
+                serverMedia.DoNotArchive = (flags & 0x1) != 0;
             media.Protected = (flags & 0x2) != 0;
             media.FieldOrderInverted = (flags & 0x4) != 0;
             media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
@@ -1282,22 +1280,22 @@ VALUES
                         while (dataReader.Read())
                         {
 
-                            T nm = (T)_animatedMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia")});
-                            _mediaReadFields(nm, dataReader);
+                            var media = (T)_animatedMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia")});
+                            _mediaReadFields(media, dataReader);
                             string templateFields = dataReader.GetString("Fields");
                             if (!string.IsNullOrWhiteSpace(templateFields))
                             {
                                 var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
                                 if (fieldsDeserialized != null)
-                                    nm.Fields = fieldsDeserialized;
+                                    media.Fields = fieldsDeserialized;
                             }
-                            nm.Method = (TemplateMethod)dataReader.GetByte("Method");
-                            nm.TemplateLayer = dataReader.GetInt32("TemplateLayer");
-                            nm.IsModified = false;
-                            if (nm.MediaStatus != TMediaStatus.Available)
+                            media.Method = (TemplateMethod)dataReader.GetByte("Method");
+                            media.TemplateLayer = dataReader.GetInt32("TemplateLayer");
+                            media.IsModified = false;
+                            if (media.MediaStatus != TMediaStatus.Available)
                             {
-                                nm.MediaStatus = TMediaStatus.Unknown;
-                                nm.ReVerify();
+                                media.MediaStatus = TMediaStatus.Unknown;
+                                media.ReVerify();
                             }
                         }
                     }
@@ -1320,23 +1318,23 @@ VALUES
                 if (_serverMediaConstructorInfo == null)
                     throw new ApplicationException("No constructor found for IServerMedia");
 
-                DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM serverMedia WHERE idServer=@idServer and typMedia in (@typMediaMovie, @typMediaStill)", _connection);
+                var cmd = new DbCommandRedundant("SELECT * FROM serverMedia WHERE idServer=@idServer and typMedia in (@typMediaMovie, @typMediaStill)", _connection);
                 cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typMediaMovie", TMediaType.Movie);
                 cmd.Parameters.AddWithValue("@typMediaStill", TMediaType.Still);
                 try
                 {
-                    using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                    using (var dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
                         {
-                            T nm = (T)_serverMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia"), archiveDirectory});
-                            _mediaReadFields(nm, dataReader);
-                            nm.IsModified = false;
-                            if (nm.MediaStatus != TMediaStatus.Available)
+                            var media = (T)_serverMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia"), archiveDirectory});
+                            _mediaReadFields(media, dataReader);
+                            media.IsModified = false;
+                            if (media.MediaStatus != TMediaStatus.Available)
                             {
-                                nm.MediaStatus = TMediaStatus.Unknown;
-                                nm.ReVerify();
+                                media.MediaStatus = TMediaStatus.Unknown;
+                                media.ReVerify();
                             }
                         }
                     }
@@ -1353,8 +1351,7 @@ VALUES
         {
             try
             {
-                string query = @"INSERT IGNORE INTO media_templated (MediaGuid, Fields, TemplateLayer, Method) VALUES (@MediaGuid, @Fields, @TemplateLayer, @Method);";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                var cmd = new DbCommandRedundant(@"INSERT IGNORE INTO media_templated (MediaGuid, Fields, TemplateLayer, Method) VALUES (@MediaGuid, @Fields, @TemplateLayer, @Method);", _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
                 cmd.Parameters.AddWithValue("@TemplateLayer", media.TemplateLayer);
                 cmd.Parameters.AddWithValue("@Method", (byte)media.Method);
@@ -1365,7 +1362,7 @@ VALUES
             }
             catch (Exception e)
             {
-                Debug.WriteLine("_insert_media_templated failed with {0}", e.Message, null);
+                Debug.WriteLine($"_insert_media_templated failed with {e.Message}");
                 return false;
             }
         }
@@ -1374,8 +1371,7 @@ VALUES
         {
             try
             {
-                string query = @"UPDATE media_templated SET Fields = @Fields, TemplateLayer=@TemplateLayer, Method=@Method WHERE MediaGuid = @MediaGuid;";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                var cmd = new DbCommandRedundant(@"UPDATE media_templated SET Fields = @Fields, TemplateLayer=@TemplateLayer, Method=@Method WHERE MediaGuid = @MediaGuid;", _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
                 cmd.Parameters.AddWithValue("@TemplateLayer", media.TemplateLayer);
                 cmd.Parameters.AddWithValue("@Method", (byte)media.Method);
@@ -1384,7 +1380,7 @@ VALUES
             }
             catch (Exception e)
             {
-                Debug.WriteLine("_update_media_templated failed with {0}", e.Message, null);
+                Debug.WriteLine($"_update_media_templated failed with {e.Message}");
             }
         }
 
@@ -1392,22 +1388,21 @@ VALUES
         {
             try
             {
-                string query = @"DELETE FROM media_templated WHERE MediaGuid = @MediaGuid;";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                var cmd = new DbCommandRedundant(@"DELETE FROM media_templated WHERE MediaGuid = @MediaGuid;", _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
                 cmd.ExecuteNonQuery();
                 return true;
             }
             catch (Exception e)
             {
-                Debug.WriteLine("_delete_media_templated failed with {0}", e.Message, null);
+                Debug.WriteLine($"_delete_media_templated failed with {e.Message}");
                 return false;
             }
         }
 
         public bool DbInsertMedia(IAnimatedMedia animatedMedia, ulong serverId )
         {
-            bool result = false;
+            var result = false;
             lock (_connection)
             {
                 using (var transaction = _connection.BeginTransaction())
@@ -1438,14 +1433,12 @@ VALUES
 
         private bool _dbInsertMedia(IPersistentMedia media, ulong serverId)
         {
-            string query =
-@"INSERT INTO servermedia 
+            var cmd = new DbCommandRedundant(@"INSERT INTO servermedia 
 (idServer, MediaName, Folder, FileName, FileSize, LastUpdated, Duration, DurationPlay, idProgramme, statusMedia, typMedia, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
 VALUES 
-(@idServer, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);";
-            DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-            _mediaFillParamsAndExecute(cmd, media, serverId);
-            media.IdPersistentMedia = (UInt64)cmd.LastInsertedId;
+(@idServer, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);", _connection);
+            _mediaFillParamsAndExecute(cmd, "servermedia", media, serverId);
+            media.IdPersistentMedia = (ulong)cmd.LastInsertedId;
             Debug.WriteLine(media, "ServerMediaInserte-d");
             return true;
         }
@@ -1454,14 +1447,12 @@ VALUES
         {
             lock (_connection)
             {
-                string query =
-@"INSERT INTO archivemedia 
+                var cmd = new DbCommandRedundant(@"INSERT INTO archivemedia 
 (idArchive, MediaName, Folder, FileName, FileSize, LastUpdated, Duration, DurationPlay, idProgramme, statusMedia, typMedia, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
 VALUES 
-(@idArchive, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                _mediaFillParamsAndExecute(cmd, archiveMedia, serverid);
-                archiveMedia.IdPersistentMedia = (UInt64)cmd.LastInsertedId;
+(@idArchive, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);", _connection);
+                _mediaFillParamsAndExecute(cmd, "archivemedia", archiveMedia, serverid);
+                archiveMedia.IdPersistentMedia = (ulong)cmd.LastInsertedId;
             }
             return true;
         }
@@ -1478,7 +1469,7 @@ VALUES
         {
             lock (_connection)
             {
-                bool result = false;
+                var result = false;
                 using (var transaction = _connection.BeginTransaction())
                 {
                     try
@@ -1498,12 +1489,10 @@ VALUES
                 return result;
             }
         }
-
-
+        
         private bool _dbDeleteMedia(IPersistentMedia serverMedia)
         {
-            string query = "DELETE FROM ServerMedia WHERE idServerMedia=@idServerMedia;";
-            DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+            var cmd = new DbCommandRedundant("DELETE FROM ServerMedia WHERE idServerMedia=@idServerMedia;", _connection);
             cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
             return cmd.ExecuteNonQuery() == 1;
         }
@@ -1512,8 +1501,7 @@ VALUES
         {
             lock (_connection)
             {
-                string query = "DELETE FROM archivemedia WHERE idArchiveMedia=@idArchiveMedia;";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                var cmd = new DbCommandRedundant("DELETE FROM archivemedia WHERE idArchiveMedia=@idArchiveMedia;", _connection);
                 cmd.Parameters.AddWithValue("@idArchiveMedia", archiveMedia.IdPersistentMedia);
                 return cmd.ExecuteNonQuery() == 1;
             }
@@ -1548,8 +1536,7 @@ VALUES
 
         private void _dbUpdateMedia(IPersistentMedia serverMedia, ulong serverId)
         {
-            string query =
-                @"UPDATE ServerMedia SET 
+            var cmd = new DbCommandRedundant(@"UPDATE ServerMedia SET 
 idServer=@idServer, 
 MediaName=@MediaName, 
 Folder=@Folder, 
@@ -1572,10 +1559,9 @@ idAux=@idAux,
 KillDate=@KillDate, 
 MediaGuid=@MediaGuid, 
 flags=@flags 
-WHERE idServerMedia=@idServerMedia;";
-            DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+WHERE idServerMedia=@idServerMedia;", _connection);
             cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
-            _mediaFillParamsAndExecute(cmd, serverMedia, serverId);
+            _mediaFillParamsAndExecute(cmd, "servermedia", serverMedia, serverId);
             Debug.WriteLine(serverMedia, "ServerMediaUpdate-d");
         }
 
@@ -1583,8 +1569,7 @@ WHERE idServerMedia=@idServerMedia;";
         {
             lock (_connection)
             {
-                string query =
-@"UPDATE archivemedia SET 
+                var cmd = new DbCommandRedundant(@"UPDATE archivemedia SET 
 idArchive=@idArchive, 
 MediaName=@MediaName, 
 Folder=@Folder, 
@@ -1607,10 +1592,9 @@ idAux=@idAux,
 KillDate=@KillDate, 
 MediaGuid=@MediaGuid, 
 flags=@flags 
-WHERE idArchiveMedia=@idArchiveMedia;";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+WHERE idArchiveMedia=@idArchiveMedia;", _connection);
                 cmd.Parameters.AddWithValue("@idArchiveMedia", archiveMedia.IdPersistentMedia);
-                _mediaFillParamsAndExecute(cmd, archiveMedia, serverId);
+                _mediaFillParamsAndExecute(cmd, "archivemedia", archiveMedia, serverId);
                 Debug.WriteLine(archiveMedia, "ArchiveMediaUpdate-d");
             }
         }
@@ -1619,18 +1603,16 @@ WHERE idArchiveMedia=@idArchiveMedia;";
         #endregion // Media
 
         #region MediaSegment
-        private System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference> _mediaSegments = new System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference>();
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference> _mediaSegments = new System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference>();
+
         private ConstructorInfo _mediaSegmentsConstructorInfo;
         private IMediaSegments _findInDictionary(Guid mediaGuid)
         {
-            WeakReference existingRef;
-            if (_mediaSegments.TryGetValue(mediaGuid, out existingRef))
-            {
-                if (existingRef.IsAlive)
-                    return (IMediaSegments)existingRef.Target;
-                else
-                    _mediaSegments.TryRemove(mediaGuid, out existingRef);
-            }
+            if (!_mediaSegments.TryGetValue(mediaGuid, out var existingRef))
+                return null;
+            if (existingRef.IsAlive)
+                return (IMediaSegments)existingRef.Target;
+            _mediaSegments.TryRemove(mediaGuid, out existingRef);
             return null;
         }
 
@@ -1644,16 +1626,16 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                 if (_mediaSegmentsConstructorInfo == null)
                     throw new ApplicationException("No constructor found for IMediaSegments");
 
-                Guid mediaGuid = media.MediaGuid;
-                DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM MediaSegments where MediaGuid = @MediaGuid;", _connection);
+                var mediaGuid = media.MediaGuid;
+                var cmd = new DbCommandRedundant("SELECT * FROM MediaSegments where MediaGuid = @MediaGuid;", _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
-                IMediaSegments segments = _findInDictionary(mediaGuid);
+                var segments = _findInDictionary(mediaGuid);
                 if (segments == null)
                 {
                     segments = (IMediaSegments)_mediaSegmentsConstructorInfo.Invoke(new object[] { mediaGuid });
                     _mediaSegments.TryAdd(mediaGuid, new WeakReference(segments));
                 }
-                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
                     {
@@ -1662,7 +1644,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                             dataReader.IsDBNull(dataReader.GetOrdinal("TCOut")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCOut"),
                             dataReader.IsDBNull(dataReader.GetOrdinal("SegmentName")) ? string.Empty : dataReader.GetString("SegmentName")
                             );
-                        ((IPersistent)newSegment).Id = dataReader.GetUInt64("idMediaSegment");
+                        newSegment.Id = dataReader.GetUInt64("idMediaSegment");
                     }
                     dataReader.Close();
                 }
@@ -1672,24 +1654,18 @@ WHERE idArchiveMedia=@idArchiveMedia;";
 
         public void DbDeleteMediaSegment(IMediaSegment mediaSegment)
         {
-            var ps = mediaSegment as IPersistent;
-            if (ps != null && ps.Id!= 0)
+            if (!(mediaSegment is IPersistent ps) || ps.Id == 0)
+                return;
+            lock (_connection)
             {
-                lock (_connection)
-                {
-                    string query = "DELETE FROM mediasegments WHERE idMediaSegment=@idMediaSegment;";
-                    DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                    cmd.Parameters.AddWithValue("@idMediaSegment", ps.Id);
-                    cmd.ExecuteNonQuery();
-                }
+                var cmd = new DbCommandRedundant("DELETE FROM mediasegments WHERE idMediaSegment=@idMediaSegment;", _connection);
+                cmd.Parameters.AddWithValue("@idMediaSegment", ps.Id);
+                cmd.ExecuteNonQuery();
             }
         }
-
-
         public ulong DbSaveMediaSegment(IMediaSegment mediaSegment)
         {
-            var ps = mediaSegment as IPersistent;
-            if (ps == null)
+            if (!(mediaSegment is IPersistent ps))
                 return 0;
             lock (_connection)
             {
@@ -1717,14 +1693,12 @@ WHERE idArchiveMedia=@idArchiveMedia;";
 
         public void DbInsertSecurityObject(ISecurityObject aco)
         {
-            var pAco = aco as IPersistent;
-            if (pAco == null)
+            if (!(aco is IPersistent pAco))
             {
 #pragma warning disable CS0162
 #if  DEBUG
-                throw new ArgumentNullException("DbInsertSecurityObject: operation on null");
+                throw new ArgumentNullException(nameof(aco));
 #endif
-                return;
 #pragma warning restore
             }
             lock (_connection)
@@ -1746,14 +1720,12 @@ WHERE idArchiveMedia=@idArchiveMedia;";
 
         public void DbDeleteSecurityObject(ISecurityObject aco)
         {
-            var pAco = aco as IPersistent;
-            if (pAco == null || pAco.Id == 0)
+            if (!(aco is IPersistent pAco) || pAco.Id == 0)
             {
 #pragma warning disable CS0162
 #if  DEBUG
-                throw new ArgumentNullException("DbDeleteMediaSegment: operation on null or not saved object");
+                throw new ArgumentNullException(nameof(aco));
 #endif
-                return;
 #pragma warning restore
             }
             lock (_connection)
@@ -1768,14 +1740,12 @@ WHERE idArchiveMedia=@idArchiveMedia;";
 
         public void DbUpdateSecurityObject(ISecurityObject aco)
         {
-            var pAco = aco as IPersistent;
-            if (pAco == null || pAco.Id == 0)
+            if (!(aco is IPersistent pAco) || pAco.Id == 0)
             {
 #pragma warning disable CS0162
 #if DEBUG
-                throw new ArgumentNullException("DbUpdateSecurityObject: operation on null or not saved object");
+                throw new ArgumentNullException(nameof(aco));
 #endif
-                return;
 #pragma warning restore
             }
             lock (_connection)
@@ -1811,8 +1781,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                         var reader = new StringReader(dataReader.GetString("Config"));
                         var serializer = new XmlSerializer(typeof(T));
                         var user = (T)serializer.Deserialize(reader);
-                        var pUser = user as IPersistent;
-                        if (pUser != null)
+                        if (user is IPersistent pUser)
                             pUser.Id = dataReader.GetUInt64("idACO");
                         users.Add(user);
                     }

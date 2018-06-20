@@ -9,7 +9,7 @@ namespace TAS.Database.MySqlRedundant
 {
 
     [DesignerCategory("Code")]
-    public class DbCommandRedundant : DbCommand
+    internal class DbCommandRedundant : DbCommand
     {
         private enum StatementType
         {
@@ -20,8 +20,6 @@ namespace TAS.Database.MySqlRedundant
             Other
         }
 
-        private readonly MySqlCommand _commandPrimary;
-        private readonly MySqlCommand _commandSecondary;
         private DbParameterCollectionRedundant _parameters;
         private StatementType _statementType;
         private CommandType _commandType;
@@ -36,16 +34,16 @@ namespace TAS.Database.MySqlRedundant
 
         public DbCommandRedundant()
         {
-            _commandPrimary = new MySqlCommand();
-            _commandSecondary = new MySqlCommand();
+            CommandPrimary = new MySqlCommand();
+            CommandSecondary = new MySqlCommand();
         }
 
         public DbCommandRedundant(string commandText)
         {
             _commandText = commandText.Trim();
             _statementType = _determineStatementType(commandText);
-            _commandPrimary = new MySqlCommand(commandText);
-            _commandSecondary = new MySqlCommand(commandText);
+            CommandPrimary = new MySqlCommand(commandText);
+            CommandSecondary = new MySqlCommand(commandText);
         }
 
         public DbCommandRedundant(string commandText, DbConnectionRedundant connection)
@@ -53,15 +51,15 @@ namespace TAS.Database.MySqlRedundant
             _dbConnection = connection;
             _commandText = commandText.Trim();
             _statementType = _determineStatementType(commandText);
-            _commandPrimary = new MySqlCommand(commandText, connection.ConnectionPrimary);
-            _commandSecondary = new MySqlCommand(commandText, connection.ConnectionSecondary);
+            CommandPrimary = new MySqlCommand(commandText, connection.ConnectionPrimary);
+            CommandSecondary = new MySqlCommand(commandText, connection.ConnectionSecondary);
         }
 
         internal DbCommandRedundant(DbConnectionRedundant connection)
         {
             _dbConnection = connection;
-            _commandPrimary = new MySqlCommand() { Connection = connection.ConnectionPrimary };
-            _commandSecondary = new MySqlCommand() { Connection = connection.ConnectionSecondary };
+            CommandPrimary = new MySqlCommand { Connection = connection.ConnectionPrimary };
+            CommandSecondary = new MySqlCommand { Connection = connection.ConnectionSecondary };
         }
 
         #endregion //Constructors
@@ -70,100 +68,83 @@ namespace TAS.Database.MySqlRedundant
 
         public override string CommandText
         {
-            get { return _commandText; }
+            get => _commandText;
             set
             {
                 if (_commandText != value)
                 {
                     _commandText = value.Trim();
                     _statementType = _determineStatementType(value);
-                    if (_commandPrimary != null)
-                        _commandPrimary.CommandText = value;
-                    if (_commandSecondary != null)
-                        _commandSecondary.CommandText = value;
+                    if (CommandPrimary != null)
+                        CommandPrimary.CommandText = value;
+                    if (CommandSecondary != null)
+                        CommandSecondary.CommandText = value;
                 }
             }
         }
 
         public override int CommandTimeout
         {
-            get { return _commandTimeout; }
+            get => _commandTimeout;
             set
             {
-                if (_commandTimeout != value)
-                {
-                    _commandTimeout = value;
-                    _commandPrimary.CommandTimeout = value;
-                    _commandSecondary.CommandTimeout = value;
-                }
+                if (_commandTimeout == value) return;
+                _commandTimeout = value;
+                CommandPrimary.CommandTimeout = value;
+                CommandSecondary.CommandTimeout = value;
             }
         }
 
         public override CommandType CommandType
         {
-            get { return _commandType; }
+            get => _commandType;
             set
             {
-                if (_commandType != value)
-                {
-                    _commandType = value;
-                    _commandPrimary.CommandType = value;
-                    _commandSecondary.CommandType = value;
-                }
+                if (_commandType == value) return;
+                _commandType = value;
+                CommandPrimary.CommandType = value;
+                CommandSecondary.CommandType = value;
             }
         }
 
         public override bool DesignTimeVisible
         {
-            get { return _designTimeVisible; }
+            get => _designTimeVisible;
             set
             {
-                if (_designTimeVisible != value)
-                {
-                    _designTimeVisible = value;
-                    _commandPrimary.DesignTimeVisible = value;
-                    _commandSecondary.DesignTimeVisible = value;
-                }
+                if (_designTimeVisible == value) return;
+                _designTimeVisible = value;
+                CommandPrimary.DesignTimeVisible = value;
+                CommandSecondary.DesignTimeVisible = value;
             }
         }
 
         public override UpdateRowSource UpdatedRowSource
         {
-            get { return _updatedRowSource; }
+            get => _updatedRowSource;
             set
             {
-                if (_updatedRowSource != value)
-                {
-                    _updatedRowSource = value;
-                    _commandPrimary.UpdatedRowSource = value;
-                    _commandSecondary.UpdatedRowSource = value;
-                }
+                if (_updatedRowSource == value) return;
+                _updatedRowSource = value;
+                CommandPrimary.UpdatedRowSource = value;
+                CommandSecondary.UpdatedRowSource = value;
             }
         }
 
         protected override DbConnection DbConnection
         {
-            get { return _dbConnection; }
+            get => _dbConnection;
             set
             {
-                var connectionRedundant = value as DbConnectionRedundant;
-                if (_dbConnection != value && connectionRedundant != null)
-                {
-                    _dbConnection = connectionRedundant;
-                    _commandPrimary.Connection = connectionRedundant.ConnectionPrimary;
-                    _commandSecondary.Connection = connectionRedundant.ConnectionSecondary;
-                }
+                if (_dbConnection == value || !(value is DbConnectionRedundant connectionRedundant)) return;
+                _dbConnection = connectionRedundant;
+                CommandPrimary.Connection = connectionRedundant.ConnectionPrimary;
+                CommandSecondary.Connection = connectionRedundant.ConnectionSecondary;
             }
         }
 
-        protected override DbParameterCollection DbParameterCollection
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-       
+        protected override DbParameterCollection DbParameterCollection => throw new NotImplementedException();
+
         public new DbParameterCollectionRedundant Parameters => _parameters ?? (_parameters = new DbParameterCollectionRedundant());
 
         protected override DbTransaction DbTransaction { get; set; }
@@ -176,15 +157,14 @@ namespace TAS.Database.MySqlRedundant
         public override int ExecuteNonQuery()
         {
             FillParameters();
-            int retPrimary = 0;
-            if (IsConnectionValid(_commandPrimary.Connection))
-                retPrimary = _commandPrimary.ExecuteNonQuery();
-            if (_statementType != StatementType.Select && IsConnectionValid(_commandSecondary.Connection))
-            {
-                var retSecondary = _commandSecondary.ExecuteNonQuery();
-                if (retSecondary != retPrimary)
-                    _dbConnection.StateRedundant |= ConnectionStateRedundant.Desynchronized;
-            }
+            var retPrimary = 0;
+            if (IsConnectionValid(CommandPrimary.Connection))
+                retPrimary = CommandPrimary.ExecuteNonQuery();
+            if (_statementType == StatementType.Select || !IsConnectionValid(CommandSecondary.Connection))
+                return retPrimary;
+            var retSecondary = CommandSecondary.ExecuteNonQuery();
+            if (retSecondary != retPrimary)
+                _dbConnection.StateRedundant |= ConnectionStateRedundant.Desynchronized;
             return retPrimary;
         }
 
@@ -192,25 +172,24 @@ namespace TAS.Database.MySqlRedundant
         {
             FillParameters();
             object retPrimary = null;
-            if (IsConnectionValid(_commandPrimary.Connection))
-                retPrimary = _commandPrimary.ExecuteScalar();
-            if (_statementType != StatementType.Select && IsConnectionValid(_commandSecondary.Connection))
-            {
-                var retSecondary = _commandSecondary.ExecuteScalar();
-                if (retSecondary != retPrimary)
-                    _dbConnection.StateRedundant |= ConnectionStateRedundant.Desynchronized;
-                _commandSecondary.ExecuteScalar();
-            }
+            if (IsConnectionValid(CommandPrimary.Connection))
+                retPrimary = CommandPrimary.ExecuteScalar();
+            if (_statementType == StatementType.Select || !IsConnectionValid(CommandSecondary.Connection))
+                return retPrimary;
+            var retSecondary = CommandSecondary.ExecuteScalar();
+            if (retSecondary != retPrimary)
+                _dbConnection.StateRedundant |= ConnectionStateRedundant.Desynchronized;
+            CommandSecondary.ExecuteScalar();
             return retPrimary;
         }
 
         public override void Prepare()
         {
             FillParameters();
-            if (IsConnectionValid(_commandPrimary.Connection))
-                _commandPrimary.Prepare();
-            if (_statementType != StatementType.Select && IsConnectionValid(_commandSecondary.Connection))
-                _commandSecondary.Prepare();
+            if (IsConnectionValid(CommandPrimary.Connection))
+                CommandPrimary.Prepare();
+            if (_statementType != StatementType.Select && IsConnectionValid(CommandSecondary.Connection))
+                CommandSecondary.Prepare();
         }
 
         protected override DbParameter CreateDbParameter()
@@ -221,13 +200,11 @@ namespace TAS.Database.MySqlRedundant
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
             FillParameters();
-            if (IsConnectionValid(_commandPrimary.Connection))
-                return new DbDataReaderRedundant(_commandPrimary, behavior);
-            else
-            if (IsConnectionValid(_commandSecondary.Connection))
-                return new DbDataReaderRedundant(_commandSecondary, behavior);
-            else
-                throw new DataException("No valid connection to execute reader");
+            if (IsConnectionValid(CommandPrimary.Connection))
+                return new DbDataReaderRedundant(CommandPrimary, behavior);
+            if (IsConnectionValid(CommandSecondary.Connection))
+                return new DbDataReaderRedundant(CommandSecondary, behavior);
+            throw new DataException("No valid connection to execute reader");
         }
 
         public new DbDataReaderRedundant ExecuteReader()
@@ -246,22 +223,23 @@ namespace TAS.Database.MySqlRedundant
         {
             get
             {
-                var primaryId = _commandPrimary.LastInsertedId;
-                if (IsConnectionValid(_commandSecondary.Connection) && _commandSecondary.LastInsertedId != primaryId)
+                var primaryId = CommandPrimary.LastInsertedId;
+                if (IsConnectionValid(CommandSecondary.Connection) && CommandSecondary.LastInsertedId != primaryId)
                     _dbConnection.StateRedundant |= ConnectionStateRedundant.Desynchronized;
                 return primaryId;
             }
         }
 
-        internal MySqlCommand CommandPrimary => _commandPrimary;
-        internal MySqlCommand CommandSecondary => _commandSecondary;
+        internal MySqlCommand CommandPrimary { get; }
+
+        internal MySqlCommand CommandSecondary { get; }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                _commandPrimary.Dispose();
-                _commandSecondary.Dispose();
+                CommandPrimary.Dispose();
+                CommandSecondary.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -301,8 +279,8 @@ namespace TAS.Database.MySqlRedundant
                         convertedValue = DBNull.Value;
                     if (parameter.Value is Guid)
                         convertedValue = ((Guid)parameter.Value).ToByteArray();
-                    _commandPrimary.Parameters.AddWithValue(parameter.Key, convertedValue);
-                    _commandSecondary.Parameters.AddWithValue(parameter.Key, convertedValue);
+                    CommandPrimary.Parameters.AddWithValue(parameter.Key, convertedValue);
+                    CommandSecondary.Parameters.AddWithValue(parameter.Key, convertedValue);
                 }
         }
 
