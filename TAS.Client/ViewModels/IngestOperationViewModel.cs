@@ -13,7 +13,6 @@ namespace TAS.Client.ViewModels
     {
         private readonly IIngestOperation _ingestOperation;
         private readonly IEngine _engine;
-        private readonly PreviewViewmodel _previewVm;
         private readonly IPersistentMediaProperties _destMediaProperties;
 
         private TAspectConversion _aspectConversion;
@@ -48,7 +47,7 @@ namespace TAS.Client.ViewModels
             AspectConversionsEnforce = new TAspectConversion[3];
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             if (preview != null)
-                _previewVm = new PreviewViewmodel(engine, preview) { SelectedIngestOperation = operation };
+                PreviewViewmodel = new PreviewViewmodel(engine, preview) { SelectedIngestOperation = operation };
         }
 
         public Array Categories { get; } = Enum.GetValues(typeof(TMediaCategory));
@@ -190,9 +189,9 @@ namespace TAS.Client.ViewModels
 
         public bool CanTrim => EncodeVideo && EncodeAudio && _ingestOperation.Source.MediaStatus == TMediaStatus.Available && _ingestOperation.Source.Duration > TimeSpan.Zero;
 
-        public PreviewViewmodel PreviewViewmodel => _previewVm;
+        public PreviewViewmodel PreviewViewmodel { get; }
 
-        public bool CanPreview => (_previewVm != null && ((IIngestDirectory)_ingestOperation.Source.Directory).AccessType == TDirectoryAccessType.Direct);
+        public bool CanPreview => (PreviewViewmodel != null && ((IIngestDirectory)_ingestOperation.Source.Directory).AccessType == TDirectoryAccessType.Direct);
 
         public bool LoudnessCheck {
             get => _loudnessCheck;
@@ -222,19 +221,24 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                string validationResult = null;
                 switch (propertyName)
                 {
                     case nameof(DestFileName):
-                        validationResult = ValidateDestFileName();
-                        break;
+                        return ValidateDestFileName();
                     case nameof(StartTC):
                     case nameof(EndTC):
                     case nameof(Duration):
-                        validationResult = ValidateTc();
+                        return ValidateTc();
+                    case nameof(DestMediaName):
+                        if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.MediaName), out var mnLength) && DestMediaName.Length > mnLength)
+                            return resources._validate_TextTooLong;
+                        break;
+                    case nameof(IdAux):
+                        if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.IdAux), out var iaLength) && IdAux.Length > iaLength)
+                            return resources._validate_TextTooLong;
                         break;
                 }
-                return validationResult;
+                return null;
             }
         }
 
@@ -292,7 +296,7 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             _ingestOperation.Source.PropertyChanged -= OnSourceMediaPropertyChanged;
-            _previewVm?.Dispose();
+            PreviewViewmodel?.Dispose();
             base.OnDispose();
         }
 
@@ -327,6 +331,8 @@ namespace TAS.Client.ViewModels
                 return resources._validate_FileNameCanNotStartOrEndWithSpace;
             if (_destMediaProperties.FileName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
                 return resources._validate_FileNameCanNotContainSpecialCharacters;
+            if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.FileName), out var length) && _destMediaProperties.FileName.Length > length)
+                return resources._validate_TextTooLong;
             var newName = _destMediaProperties.FileName.ToLowerInvariant();
             if (dir.FileExists(newName, _destMediaProperties.Folder))
                 return resources._validate_FileAlreadyExists;

@@ -38,11 +38,13 @@ namespace TAS.Server.Media
         [JsonProperty]
         public int TemplateLayer { get => _templateLayer; set => SetField(ref _templateLayer, value); }
 
+        [JsonProperty]
+        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ServerMediaFieldLengths;
+
         public override bool Save()
         {
-            bool result = false;
-            var directory = Directory as AnimationDirectory;
-            if (directory != null)
+            var result = false;
+            if (Directory is AnimationDirectory directory)
             {
                 if (MediaStatus == TMediaStatus.Deleted)
                 {

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Remoting.Server;
 
@@ -28,6 +29,8 @@ namespace TAS.Server.Security
         }
 
         public ulong Id { get; set; }
+
+        public IDictionary<string, int> FieldLengths { get; } = new Dictionary<string, int>();
 
         public abstract void Save();
 

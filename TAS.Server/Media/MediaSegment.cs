@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common.Interfaces;
@@ -14,6 +15,7 @@ namespace TAS.Server.Media
         public MediaSegment(IMediaSegments owner)
         {
             Owner = owner;
+            FieldLengths = EngineController.Database.MediaSegmentFieldLengths;
         }
 
         public IMediaSegments Owner { get; }
@@ -23,22 +25,26 @@ namespace TAS.Server.Media
         [JsonProperty]
         public string SegmentName
         {
-            get { return _segmentName; }
-            set { SetField(ref _segmentName, value); }
+            get => _segmentName;
+            set => SetField(ref _segmentName, value);
         }
         [JsonProperty]
         public TimeSpan TcIn
         {
-            get { return _tcIn; }
-            set { SetField(ref _tcIn, value); }
+            get => _tcIn;
+            set => SetField(ref _tcIn, value);
         }
 
         [JsonProperty]
         public TimeSpan TcOut
         {
-            get { return _tcOut; }
-            set { SetField(ref _tcOut, value); }
+            get => _tcOut;
+            set => SetField(ref _tcOut, value);
         }
+
+
+        public IDictionary<string, int> FieldLengths { get; }
+
 
         public void Save()
         {

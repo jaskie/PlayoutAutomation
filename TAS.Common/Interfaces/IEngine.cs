@@ -18,6 +18,8 @@ namespace TAS.Common.Interfaces
         IEnumerable<IEvent> GetRootEvents();
         void AddRootEvent(IEvent aEvent);
         List<IEvent> FixedTimeEvents { get; }
+        IDictionary<string, int> ServerMediaFieldLengths { get; }
+        IDictionary<string, int> ArchiveMediaFieldLengths { get; }
 
         IEvent CreateNewEvent(
             ulong idRundownEvent = 0,

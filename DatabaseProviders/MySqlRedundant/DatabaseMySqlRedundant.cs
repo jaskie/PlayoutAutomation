@@ -35,6 +35,34 @@ namespace TAS.Database.MySqlRedundant
             _connection.Open();
             if ((_connection.StateRedundant & ConnectionStateRedundant.Open) != ConnectionStateRedundant.Closed)
                 _tablesStringFieldsLenghts = ReadTablesStringFieldLenghts();
+
+            ServerMediaFieldLengths = new Dictionary<string, int>
+            {
+                { nameof(IServerMedia.MediaName), _tablesStringFieldsLenghts["servermedia"]["MediaName"] },
+                { nameof(IServerMedia.FileName), _tablesStringFieldsLenghts["servermedia"]["FileName"] },
+                { nameof(IServerMedia.Folder), _tablesStringFieldsLenghts["servermedia"]["Folder"] },
+                { nameof(IServerMedia.IdAux), _tablesStringFieldsLenghts["servermedia"]["idAux"] } 
+            };
+
+            ArchiveMediaFieldLengths = new Dictionary<string, int>
+            {
+                { nameof(IArchiveMedia.MediaName), _tablesStringFieldsLenghts["archivemedia"]["MediaName"] },
+                { nameof(IArchiveMedia.FileName), _tablesStringFieldsLenghts["archivemedia"]["FileName"] },
+                { nameof(IArchiveMedia.Folder), _tablesStringFieldsLenghts["archivemedia"]["Folder"] },
+                { nameof(IArchiveMedia.IdAux), _tablesStringFieldsLenghts["archivemedia"]["idAux"] }
+            };
+
+            EventFieldLengths = new Dictionary<string, int>
+            {
+                { nameof(IEvent.EventName), _tablesStringFieldsLenghts["rundownevent"]["EventName"] },
+                { nameof(IEvent.IdAux), _tablesStringFieldsLenghts["rundownevent"]["idAux"] },
+                { nameof(ICommandScript.Command), _tablesStringFieldsLenghts["rundownevent"]["Commands"] }
+            };
+            
+            MediaSegmentFieldLengths = new Dictionary<string, int>
+            {
+                { nameof(IMediaSegment.SegmentName), _tablesStringFieldsLenghts["mediasegments"]["SegmentName"] },
+            };
         }
 
         private Dictionary<string, Dictionary<string, int>> ReadTablesStringFieldLenghts()
@@ -42,7 +70,7 @@ namespace TAS.Database.MySqlRedundant
             var tables = _connection.GetSchema("Tables");
             var columns = _connection.GetSchema("Columns");
             var tableNames = tables.Rows.Cast<DataRow>().Select(r => r["TABLE_NAME"].ToString());
-            var result = tableNames.ToDictionary(tableName => tableName, tableName => new Dictionary<string, int>());
+            var result = tableNames.ToDictionary(tableName => tableName, tableName => new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase), StringComparer.OrdinalIgnoreCase);
             foreach (DataRow row in columns.Rows)
             {
                 var tableName = row["TABLE_NAME"].ToString();
@@ -57,11 +85,11 @@ namespace TAS.Database.MySqlRedundant
 
         private string TrimText(string tableName, string columnName, string value)
         {
-            return _tablesStringFieldsLenghts[tableName][columnName] < value.Length 
-                ? value.Substring(0, _tablesStringFieldsLenghts[tableName][columnName]) 
+            return _tablesStringFieldsLenghts[tableName][columnName] < value.Length
+                ? value.Substring(0, _tablesStringFieldsLenghts[tableName][columnName])
                 : value;
         }
-        
+
         private void _connection_StateRedundantChange(object sender, RedundantConnectionStateEventArgs e)
         {
             ConnectionStateChanged?.Invoke(sender, e);
@@ -80,11 +108,12 @@ namespace TAS.Database.MySqlRedundant
         public ConnectionStateRedundant ConnectionState => _connection.StateRedundant;
 
         #region Configuration Functions
+
         public bool TestConnect(string connectionString)
         {
             return DbConnectionRedundant.TestConnect(connectionString);
         }
-        
+
         public bool CreateEmptyDatabase(string connectionString, string collate)
         {
             return DbConnectionRedundant.CreateEmptyDatabase(connectionString, collate);
@@ -100,16 +129,18 @@ namespace TAS.Database.MySqlRedundant
             DbConnectionRedundant.CloneDatabase(connectionStringSource, connectionStringDestination);
             return DbConnectionRedundant.TestConnect(connectionStringDestination);
         }
-                
+
         public bool UpdateRequired()
         {
-            var command = new DbCommandRedundant("select `value` from `params` where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);
+            var command =
+                new DbCommandRedundant(
+                    "select `value` from `params` where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);
             var dbVersionNr = 0;
             try
             {
                 string dbVersionStr;
                 lock (_connection)
-                    dbVersionStr = (string)command.ExecuteScalar();
+                    dbVersionStr = (string) command.ExecuteScalar();
                 var regexMatchDb = System.Text.RegularExpressions.Regex.Match(dbVersionStr, @"\d+");
                 if (regexMatchDb.Success)
                     int.TryParse(regexMatchDb.Value, out dbVersionNr);
@@ -118,13 +149,15 @@ namespace TAS.Database.MySqlRedundant
             {
                 // ignored
             }
-            var schemaUpdates = new System.Resources.ResourceManager("TAS.Database.MySqlRedundant.SchemaUpdates", Assembly.GetExecutingAssembly());
-            var resourceEnumerator = schemaUpdates.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true).GetEnumerator();
+            var schemaUpdates = new System.Resources.ResourceManager("TAS.Database.MySqlRedundant.SchemaUpdates",
+                Assembly.GetExecutingAssembly());
+            var resourceEnumerator = schemaUpdates
+                .GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true).GetEnumerator();
             while (resourceEnumerator.MoveNext())
             {
                 if (!(resourceEnumerator.Key is string) || !(resourceEnumerator.Value is string))
                     continue;
-                var regexMatchRes = System.Text.RegularExpressions.Regex.Match((string)resourceEnumerator.Key, @"\d+");
+                var regexMatchRes = System.Text.RegularExpressions.Regex.Match((string) resourceEnumerator.Key, @"\d+");
                 if (regexMatchRes.Success
                     && int.TryParse(regexMatchRes.Value, out var resVersionNr)
                     && resVersionNr > dbVersionNr)
@@ -132,6 +165,21 @@ namespace TAS.Database.MySqlRedundant
             }
             return false;
         }
+
+        public IDictionary<string, int> ServerMediaFieldLengths { get; private set; }
+
+        public IDictionary<string, int> ArchiveMediaFieldLengths { get; private set; }
+
+        public IDictionary<string, int> EventFieldLengths { get; private set; }
+
+        public IDictionary<string, int> MediaSegmentFieldLengths { get; private set; }
+
+        public IDictionary<string, int> EngineFieldLengths { get; } = new Dictionary<string, int>();
+
+        public IDictionary<string, int> ServerFieldLengths { get; } = new Dictionary<string, int>();
+
+        public IDictionary<string, int> SecurityObjectFieldLengths { get; } = new Dictionary<string, int>();
+
 
         public bool UpdateDb()
         {

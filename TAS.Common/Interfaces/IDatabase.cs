@@ -75,5 +75,12 @@ namespace TAS.Common.Interfaces
         bool TestConnect(string connectionString);
         bool UpdateDb();
         bool UpdateRequired();
+        IDictionary<string, int> ServerMediaFieldLengths { get; }
+        IDictionary<string, int> ArchiveMediaFieldLengths { get; }
+        IDictionary<string, int> EventFieldLengths { get; }
+        IDictionary<string, int> SecurityObjectFieldLengths { get; }
+        IDictionary<string, int> MediaSegmentFieldLengths { get; }
+        IDictionary<string, int> EngineFieldLengths { get; }
+        IDictionary<string, int> ServerFieldLengths { get; }
     }
 }

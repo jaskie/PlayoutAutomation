@@ -13,7 +13,7 @@ namespace TAS.Remoting.Model
     [DebuggerDisplay("{" + nameof(EventName) + "}")]
     public class Event : ProxyBase, IEvent
     {
-        #pragma warning disable CS0649 
+#pragma warning disable CS0649
 
         [JsonProperty(nameof(IEvent.Id))]
         private ulong _id;
@@ -137,7 +137,10 @@ namespace TAS.Remoting.Model
 
         private Lazy<IEnumerable<IEvent>> _subEvents;
 
-        #pragma warning restore
+        [JsonProperty(nameof(IEvent.FieldLengths))]
+        private IDictionary<string, int> _fieldLengths;
+
+#pragma warning restore
 
         public Event()
         {
@@ -154,7 +157,7 @@ namespace TAS.Remoting.Model
         public byte Crawl { get => _crawl; set => Set(value); }
 
         public TimeSpan Duration { get => _duration; set => Set(value); }
-        
+
         public DateTime EndTime => _endTime;
 
         public IEngine Engine => _engine;
@@ -162,9 +165,9 @@ namespace TAS.Remoting.Model
         public string EventName { get => _eventName; set => Set(value); }
 
         public TEventType EventType => _eventType;
-        
+
         public string IdAux { get => _idAux; set => Set(value); }
-        
+
         public ulong IdProgramme { get => _idProgramme; set => Set(value); }
 
         public bool IsCGEnabled { get => _isCGEnabled; set => Set(value); }
@@ -208,7 +211,7 @@ namespace TAS.Remoting.Model
             get => _parent.Value;
             set
             {
-                _parent = new Lazy<IEvent>(() => value); 
+                _parent = new Lazy<IEvent>(() => value);
                 Debug.Write($"New Parent for: {this} is {value}");
             }
         }
@@ -234,7 +237,7 @@ namespace TAS.Remoting.Model
 
         public TimeSpan? RequestedStartTime { get => _requestedStartTime; set => Set(value); }
 
-        public TimeSpan ScheduledDelay { get => _scheduledDelay;set => Set(value); }
+        public TimeSpan ScheduledDelay { get => _scheduledDelay; set => Set(value); }
 
         public TimeSpan ScheduledTc { get => _scheduledTc; set => Set(value); }
 
@@ -315,11 +318,13 @@ namespace TAS.Remoting.Model
 
         public bool InsertUnder(IEvent se, bool fromEnd) { return Query<bool>(parameters: new object[] { se, fromEnd }); }
 
-        public bool MoveDown() { return Query <bool>(); }
+        public bool MoveDown() { return Query<bool>(); }
 
         public bool MoveUp() { return Query<bool>(); }
 
         public void Remove() { Invoke(); }
+
+        public IDictionary<string, int> FieldLengths { get => _fieldLengths; set => Set(value); }
 
         public void Save()
         {
@@ -336,7 +341,7 @@ namespace TAS.Remoting.Model
         {
             return Query<bool>(parameters: new object[] { right });
         }
-        
+
         private void ResetSlibbings()
         {
             _parent = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Parent)));

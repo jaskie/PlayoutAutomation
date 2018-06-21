@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using System.Collections.Generic;
+using System.Xml.Serialization;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common;
@@ -16,6 +17,7 @@ namespace TAS.Server.Security
         protected SecurityObjectBase(IAuthenticationService authenticationService)
         {
             AuthenticationService = authenticationService;
+            FieldLengths = EngineController.Database.SecurityObjectFieldLengths;
         }
 
         public abstract SecurityObjectType SecurityObjectTypeType { get; }
@@ -33,7 +35,10 @@ namespace TAS.Server.Security
             set => SetField(ref _name, value);
         }
 
+        public IDictionary<string, int> FieldLengths { get; }
+
         public abstract void Save();
+
         public abstract void Delete();
 
     }

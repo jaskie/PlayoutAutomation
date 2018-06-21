@@ -15,10 +15,11 @@ namespace TAS.Client.ViewModels
 {
     public class RecordersViewmodel : ViewmodelBase, IDataErrorInfo
     {
+        private readonly IEngine _engine;
         private string _mediaName;
         private string _idAux;
         private IRecorder _recorder;
-        private IEnumerable<IPlayoutServerChannel> _channels;
+        private List<IPlayoutServerChannel> _channels;
         private IPlayoutServerChannel _channel;
         private TimeSpan _tcIn;
         private bool _isNarrowMode;
@@ -32,8 +33,9 @@ namespace TAS.Client.ViewModels
         private TimeSpan _recorderTimeLeft;
         private TMovieContainerFormat _fileFormat;
 
-        public RecordersViewmodel(IEnumerable<IRecorder> recorders)
+        public RecordersViewmodel(IEngine engine, IEnumerable<IRecorder> recorders)
         {
+            _engine = engine;
             CreateCommands();
             Recorders = recorders;
             Recorder = Recorders.FirstOrDefault();
@@ -53,7 +55,7 @@ namespace TAS.Client.ViewModels
 
         public string MediaName
         {
-            get { return _mediaName; }
+            get => _mediaName;
             set
             {
                 if (SetField(ref _mediaName, value))
@@ -63,7 +65,7 @@ namespace TAS.Client.ViewModels
 
         public string IdAux
         {
-            get { return _idAux; }
+            get => _idAux;
             set
             {
                 if (SetField(ref _idAux, value))
@@ -75,7 +77,7 @@ namespace TAS.Client.ViewModels
 
         public IRecorder Recorder
         {
-            get { return _recorder; }
+            get => _recorder;
             set
             {
                 var oldRecorder = _recorder;
@@ -92,15 +94,15 @@ namespace TAS.Client.ViewModels
 
         public IEnumerable<IRecorder> Recorders { get; }
 
-        public IEnumerable<IPlayoutServerChannel> Channels
+        public List<IPlayoutServerChannel> Channels
         {
-            get { return _channels; }
-            private set { SetField(ref _channels, value); }
+            get => _channels;
+            private set => SetField(ref _channels, value);
         }
 
         public IPlayoutServerChannel Channel
         {
-            get { return _channel; }
+            get => _channel;
             set
             {
                 if (SetField(ref _channel, value))
@@ -112,7 +114,7 @@ namespace TAS.Client.ViewModels
 
         public TMovieContainerFormat FileFormat
         {
-            get { return _fileFormat; }
+            get => _fileFormat;
             set
             {
                 if (SetField(ref _fileFormat, value))
@@ -122,43 +124,43 @@ namespace TAS.Client.ViewModels
 
         public bool IsNarrowMode
         {
-            get { return _isNarrowMode; }
-            set { SetField(ref _isNarrowMode, value); }
+            get => _isNarrowMode;
+            set => SetField(ref _isNarrowMode, value);
         }
 
         public TimeSpan TcIn
         {
-            get { return _tcIn; }
-            set { SetField(ref _tcIn, value); }
+            get => _tcIn;
+            set => SetField(ref _tcIn, value);
         }
 
         public TimeSpan TcOut
         {
-            get { return _tcOut; }
-            set { SetField(ref _tcOut, value); }
+            get => _tcOut;
+            set => SetField(ref _tcOut, value);
         }
 
         public TimeSpan CurrentTc
         {
-            get { return _currentTc; }
-            set { SetField(ref _currentTc, value); }
+            get => _currentTc;
+            set => SetField(ref _currentTc, value);
         }
 
         public TimeSpan TimeLimit
         {
-            get { return _timeLimit; }
-            set { SetField(ref _timeLimit, value); }
+            get => _timeLimit;
+            set => SetField(ref _timeLimit, value);
         }
 
         public TimeSpan RecorderTimeLeft
         {
-            get { return _recorderTimeLeft; }
-            private set { SetField(ref _recorderTimeLeft, value); }
+            get => _recorderTimeLeft;
+            private set => SetField(ref _recorderTimeLeft, value);
         }
 
         public TDeckState DeckState
         {
-            get { return _deckState; }
+            get => _deckState;
             private set
             {
                 if (SetField(ref _deckState, value))
@@ -168,7 +170,7 @@ namespace TAS.Client.ViewModels
 
         public TDeckControl DeckControl
         {
-            get { return _deckControl; }
+            get => _deckControl;
             private set
             {
                 if (SetField(ref _deckControl, value))
@@ -178,31 +180,29 @@ namespace TAS.Client.ViewModels
 
         public TVideoFormat VideoFormat
         {
-            get { return _videoFormat; }
+            get => _videoFormat;
             private set
             {
-                if (SetField(ref _videoFormat, value))
-                {
-                    NotifyPropertyChanged(nameof(IsStandardDefinition));
-                    NotifyPropertyChanged(nameof(IsNarrowMode));
-                }
+                if (!SetField(ref _videoFormat, value))
+                    return;
+                NotifyPropertyChanged(nameof(IsStandardDefinition));
+                NotifyPropertyChanged(nameof(IsNarrowMode));
             }
         }
 
         public IMedia RecordingMedia
         {
-            get { return _recorder?.RecordingMedia; }
+            get => _recorder?.RecordingMedia;
             private set
             {
                 var oldRecordMedia = _recordMedia;
-                if (SetField(ref _recordMedia, value))
-                {
-                    if (oldRecordMedia != null)
-                        oldRecordMedia.PropertyChanged -= RecordMedia_PropertyChanged;
-                    if (value != null)
-                        value.PropertyChanged += RecordMedia_PropertyChanged;
-                    InvalidateRequerySuggested();
-                }
+                if (!SetField(ref _recordMedia, value))
+                    return;
+                if (oldRecordMedia != null)
+                    oldRecordMedia.PropertyChanged -= RecordMedia_PropertyChanged;
+                if (value != null)
+                    value.PropertyChanged += RecordMedia_PropertyChanged;
+                InvalidateRequerySuggested();
             }
         }
 
@@ -215,14 +215,19 @@ namespace TAS.Client.ViewModels
                 switch (propertyName)
                 {
                     case nameof(MediaName):
-                        return string.IsNullOrWhiteSpace(MediaName)
-                            ? resources._validate_FileNameEmpty
-                            : string.Empty;
+                        if (string.IsNullOrWhiteSpace(MediaName))
+                            return resources._validate_FileNameEmpty;
+                        if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.MediaName), out var mnLength) && MediaName.Length > mnLength)
+                            return resources._validate_TextTooLong;
+                        break;
                     case nameof(FileName):
-                        return 
-                            string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(FileName)) || _recorder?.RecordingDirectory.FileExists(FileName) == true
-                            ? resources._validate_FileAlreadyExists
-                            : string.Empty;
+                        if (string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(FileName)))
+                            return resources._validate_FileNameEmpty;
+                          if (_recorder?.RecordingDirectory.FileExists(FileName) == true)
+                            return resources._validate_FileAlreadyExists;
+                        if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.FileName), out var fnLength) && FileName.Length > fnLength)
+                            return resources._validate_TextTooLong;
+                        break;
                 }
                 return string.Empty;
             }

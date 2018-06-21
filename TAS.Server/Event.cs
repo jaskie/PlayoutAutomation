@@ -33,21 +33,19 @@ namespace TAS.Server
         private Lazy<Event> _prior;
         private Lazy<Event> _next;
         private readonly Lazy<List<IAclRight>> _rights;
-        private bool _isDeleted;
         private bool _isCGEnabled;
         private byte _crawl;
         private byte _logo;
         private byte _parental;
-        private ulong _idEventBinding;
         private double? _audioVolume;
         private TimeSpan _duration;
-        private bool _isEnabled = true;
+        private bool _isEnabled;
         private TEventType _eventType;
         private bool _isHold;
         private bool _isLoop;
         private string _idAux;
         private ulong _idProgramme;
-        private VideoLayer _layer = VideoLayer.None;
+        private VideoLayer _layer;
         private TimeSpan? _requestedStartTime;
         private TimeSpan _scheduledDelay;
         private TimeSpan _scheduledTc;
@@ -99,7 +97,7 @@ namespace TAS.Server
         {
             _engine = engine;
             Id = idRundownEvent;
-            _idEventBinding = idEventBinding;
+            IdEventBinding = idEventBinding;
             _layer = videoLayer;
             _eventType = eventType;
             _startType = startType;
@@ -154,8 +152,8 @@ namespace TAS.Server
             _prior = new Lazy<Event>(() =>
             {
                 Event prior = null;
-                if (startType == TStartType.After && _idEventBinding > 0)
-                    prior = (Event)EngineController.Database.DbReadEvent(_engine, _idEventBinding);
+                if (startType == TStartType.After && IdEventBinding > 0)
+                    prior = (Event)EngineController.Database.DbReadEvent(_engine, IdEventBinding);
                 if (prior != null)
                     prior.Next = this;
                 return prior;
@@ -163,12 +161,13 @@ namespace TAS.Server
 
             _parent = new Lazy<Event>(() =>
             {
-                if ((startType == TStartType.WithParent || startType == TStartType.WithParentFromEnd) && _idEventBinding > 0)
-                    return (Event)EngineController.Database.DbReadEvent(_engine, _idEventBinding);
+                if ((startType == TStartType.WithParent || startType == TStartType.WithParentFromEnd) && IdEventBinding > 0)
+                    return (Event)EngineController.Database.DbReadEvent(_engine, IdEventBinding);
                 return null;
             });
 
             _rights = new Lazy<List<IAclRight>>(() => EngineController.Database.DbReadEventAclList<EventAclRight>(this, _engine.AuthenticationService as IAuthenticationServicePersitency));
+            FieldLengths = EngineController.Database.EventFieldLengths;
         }
         #endregion //Constructor
 
@@ -184,7 +183,7 @@ namespace TAS.Server
         [JsonProperty]
         public ulong Id {get; set; }
 
-        public ulong IdEventBinding => _idEventBinding;
+        public ulong IdEventBinding { get; private set; }
 
         #endregion
 
@@ -496,11 +495,10 @@ namespace TAS.Server
             get => _isModified;
             set
             {
-                if (_isModified != value)
-                {
-                    _isModified = value;
-                    NotifyPropertyChanged(nameof(IsModified));
-                }
+                if (_isModified == value)
+                    return;
+                _isModified = value;
+                NotifyPropertyChanged(nameof(IsModified));
             }
         }
 
@@ -517,14 +515,13 @@ namespace TAS.Server
             get => _position;
             set
             {
-                if (_position != value)
-                {
-                    _position = value;
-                    if (PlayState == TPlayState.Scheduled)
-                        PositionChanged?.Invoke(this, new EventPositionEventArgs(value, TimeSpan.Zero));
-                    else
-                        PositionChanged?.Invoke(this, new EventPositionEventArgs(value, _duration - TimeSpan.FromTicks(Engine.FrameTicks * value)));
-                }
+                if (_position == value)
+                    return;
+                _position = value;
+                if (PlayState == TPlayState.Scheduled)
+                    PositionChanged?.Invoke(this, new EventPositionEventArgs(value, TimeSpan.Zero));
+                else
+                    PositionChanged?.Invoke(this, new EventPositionEventArgs(value, _duration - TimeSpan.FromTicks(Engine.FrameTicks * value)));
             }
         }
 
@@ -575,11 +572,10 @@ namespace TAS.Server
         {
             get => _parent.Value;
             private set            {
-                if (_parent.IsValueCreated || value != _parent.Value)
-                {
-                    _parent = new Lazy<Event>(() => (Event)value);
-                    NotifyPropertyChanged(nameof(Parent));
-                }
+                if (!_parent.IsValueCreated && value == _parent.Value)
+                    return;
+                _parent = new Lazy<Event>(() => (Event)value);
+                NotifyPropertyChanged(nameof(Parent));
             }
         }
 
@@ -588,11 +584,10 @@ namespace TAS.Server
             get => _prior.Value;
             private set
             {
-                if (!_prior.IsValueCreated || value != _prior.Value)
-                {
-                    _prior = new Lazy<Event>(() => (Event)value);
-                    NotifyPropertyChanged(nameof(Prior));
-                }
+                if (_prior.IsValueCreated && value == _prior.Value)
+                    return;
+                _prior = new Lazy<Event>(() => (Event)value);
+                NotifyPropertyChanged(nameof(Prior));
             }
         }
 
@@ -601,13 +596,12 @@ namespace TAS.Server
             get => _next.Value;
             private set
             {
-                if (!_next.IsValueCreated || value != _next.Value)
-                {
-                    _next = new Lazy<Event>(() => (Event)value);
-                    NotifyPropertyChanged(nameof(Next));
-                    if (value != null)
-                        IsLoop = false;
-                }
+                if (_next.IsValueCreated && value == _next.Value)
+                    return;
+                _next = new Lazy<Event>(() => (Event)value);
+                NotifyPropertyChanged(nameof(Next));
+                if (value != null)
+                    IsLoop = false;
             }
         }
 
@@ -624,12 +618,12 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public bool IsDeleted => _isDeleted;
+        public bool IsDeleted { get; private set; }
 
         [JsonProperty]
         public bool IsCGEnabled
         {
-            get { return _isCGEnabled; }
+            get => _isCGEnabled;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -641,7 +635,7 @@ namespace TAS.Server
         [JsonProperty]
         public byte Crawl
         {
-            get { return _crawl; }
+            get => _crawl;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -653,7 +647,7 @@ namespace TAS.Server
         [JsonProperty]
         public byte Logo
         {
-            get { return _logo; }
+            get => _logo;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -665,7 +659,7 @@ namespace TAS.Server
         [JsonProperty]
         public byte Parental
         {
-            get { return _parental; }
+            get => _parental;
             set
             {
                 if (!HaveRight(EventRight.Modify))
@@ -722,7 +716,7 @@ namespace TAS.Server
             Next = null;
             Prior = null;
             Parent = null;
-            _idEventBinding = 0;
+            IdEventBinding = 0;
             StartType = TStartType.None;
         }
 
@@ -758,7 +752,7 @@ namespace TAS.Server
                 AutoStartFlags = e2.AutoStartFlags;
                 Prior = e2Prior;
                 Parent = e2Parent;
-                _idEventBinding = e2._idEventBinding;
+                IdEventBinding = e2.IdEventBinding;
                 e2.Prior = this;
                 e2.StartType = TStartType.After;
                 e2.Next = e4;
@@ -807,7 +801,7 @@ namespace TAS.Server
                 e3.AutoStartFlags = _autoStartFlags;
                 e3.Prior = e2Prior;
                 e3.Parent = e2Parent;
-                e3._idEventBinding = _idEventBinding;
+                e3.IdEventBinding = IdEventBinding;
                 StartType = TStartType.After;
                 e3.Next = this;
                 Parent = null;
@@ -962,7 +956,7 @@ namespace TAS.Server
                 lastToInsert.NotifyLocated();
                 lastToInsert = lastToInsert.Next as Event;
             }
-            if (_idEventBinding == 0)
+            if (IdEventBinding == 0)
                 Save();
             subEventToAdd.Save();
             return true;
@@ -1032,15 +1026,17 @@ namespace TAS.Server
             return MediaDeleteResult.NoDeny;
         }
 
+        public IDictionary<string, int> FieldLengths { get; }
+
         public void Save()
         {
             switch (_startType)
             {
                 case TStartType.After:
-                    _idEventBinding = Prior?.Id ?? 0;
+                    IdEventBinding = Prior?.Id ?? 0;
                     break;
                 default:
-                    _idEventBinding = Parent?.Id ?? 0;
+                    IdEventBinding = Parent?.Id ?? 0;
                     break;
             }
             try
@@ -1196,7 +1192,7 @@ namespace TAS.Server
                 (se as Event)?._delete();
             }
             Remove();
-            _isDeleted = true;
+            IsDeleted = true;
             EngineController.Database.DbDeleteEvent(this);
             _engine.RemoveEvent(this);
             _engine.NotifyEventDeleted(this);

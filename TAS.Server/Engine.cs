@@ -85,6 +85,9 @@ namespace TAS.Server
             _mediaManager = new MediaManager(this);
             EngineController.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
             _rights = new Lazy<List<IAclRight>>(() => EngineController.Database.DbReadEngineAclList<EngineAclRight>(this, AuthenticationService as IAuthenticationServicePersitency));
+            FieldLengths = EngineController.Database.EngineFieldLengths;
+            ServerMediaFieldLengths = EngineController.Database.ServerMediaFieldLengths;
+            ArchiveMediaFieldLengths = EngineController.Database.ArchiveMediaFieldLengths;
         }
 
         public event EventHandler<EngineTickEventArgs> EngineTick;
@@ -841,6 +844,15 @@ namespace TAS.Server
 
         [XmlIgnore]
         public IAuthenticationService AuthenticationService => _authenticationService;
+
+        [JsonProperty]
+        public IDictionary<string, int> FieldLengths { get; }
+
+        [JsonProperty]
+        public IDictionary<string, int> ServerMediaFieldLengths { get; }
+
+        [JsonProperty]
+        public IDictionary<string, int> ArchiveMediaFieldLengths { get; }
 
         public void Save()
         {

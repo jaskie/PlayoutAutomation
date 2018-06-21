@@ -333,4 +333,7 @@ Do you really want to run this BACKUP play-out?</value>
     <value>There are {0} clients. This will abort their work.
 Really exit?</value>
   </data>
+  <data name="_validate_TextTooLong" xml:space="preserve">
+    <value>Entered text is too long.</value>
+  </data>
 </root>

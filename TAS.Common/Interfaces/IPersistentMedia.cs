@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TAS.Common.Interfaces
 {
     public interface IPersistentMedia: IMedia, IPersistentMediaProperties
     {
         bool IsModified { get; set; }
+        IDictionary<string, int> FieldLengths { get; }
         IMediaSegments GetMediaSegments();
         bool Save();
     }

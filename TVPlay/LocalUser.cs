@@ -24,6 +24,8 @@ namespace TAS.Client
 
         public ulong Id { get; set; }
 
+        public IDictionary<string, int> FieldLengths { get; } = new Dictionary<string, int>();
+
         public void Save()
         {
             throw new NotImplementedException();

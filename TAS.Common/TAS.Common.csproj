@@ -108,7 +108,6 @@
     <Compile Include="Interfaces\IPreview.cs" />
     <Compile Include="Interfaces\IRecorder.cs" />
     <Compile Include="Interfaces\IRemoteHostConfig.cs" />
-    <Compile Include="Interfaces\ICommandScriptItem.cs" />
     <Compile Include="Interfaces\IServerDirectory.cs" />
     <Compile Include="Interfaces\IInitializable.cs" />
     <Compile Include="Interfaces\IServerMedia.cs" />

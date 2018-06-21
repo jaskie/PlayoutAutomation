@@ -16,7 +16,7 @@
                 <Trigger Property="Validation.HasError" Value="true">
                     <Setter Property="ToolTip"
                     Value="{Binding RelativeSource={RelativeSource Self}, 
-                           Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                           Path=(Validation.Errors)/ErrorContent}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -25,7 +25,7 @@
                 <Trigger Property="Validation.HasError" Value="true">
                     <Setter Property="ToolTip"
                     Value="{Binding RelativeSource={RelativeSource Self}, 
-                           Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                           Path=(Validation.Errors)/ErrorContent}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -35,9 +35,9 @@
             <Label Content="{Resx _sourceFileName}"/>
             <TextBox Text="{Binding SourceFileName, Mode=OneWay}" IsReadOnly="True" IsEnabled="False" />
             <Label Content="{Resx _destMediaName}"/>
-            <TextBox Text="{Binding DestMediaName, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox Text="{Binding DestMediaName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
             <Label Content="{Resx _idAux}"/>
-            <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
             <Label Content="{Resx _destFileName}" />
             <TextBox Text="{Binding DestFileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
             <StackPanel Visibility="{Binding IsStill, Converter={StaticResource BoolToVis}}">

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -7,7 +8,7 @@ namespace TAS.Remoting.Model
 {
     public class PersistentMedia : MediaBase, IPersistentMedia
     {
-        #pragma warning disable CS0649 
+#pragma warning disable CS0649
 
         [JsonProperty(nameof(IPersistentMedia.MediaEmphasis))]
         private TMediaEmphasis _mediaEmphasis;
@@ -30,7 +31,10 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IPersistentMedia.Protected))]
         private bool _protected;
 
-        #pragma warning restore
+        [JsonProperty(nameof(FieldLengths))]
+        private Dictionary<string, int> _fieldsLengths;
+
+#pragma warning restore
 
         public TMediaEmphasis MediaEmphasis { get => _mediaEmphasis; set => Set(value); }
 
@@ -46,7 +50,9 @@ namespace TAS.Remoting.Model
 
         public bool Protected { get => _protected; set => Set(value); }
 
-        public IMediaSegments GetMediaSegments() { return Query<MediaSegments>(); } 
+        public IDictionary<string, int> FieldLengths { get => _fieldsLengths; set => Set(value); }
+
+        public IMediaSegments GetMediaSegments() { return Query<MediaSegments>(); }
 
         public bool Save()
         {

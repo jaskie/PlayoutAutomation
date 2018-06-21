@@ -1,6 +1,7 @@
 ﻿//#undef DEBUG
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -156,74 +157,74 @@ namespace TAS.Server.Media
         [JsonProperty]
         public virtual TimeSpan TcPlay
         {
-            get { return _tcPlay; }
-            set { SetField(ref _tcPlay, value); }
+            get => _tcPlay;
+            set => SetField(ref _tcPlay, value);
         }
 
         [JsonProperty]
         public virtual TVideoFormat VideoFormat
         {
-            get { return _videoFormat; }
-            set { SetField(ref _videoFormat, value); }
+            get => _videoFormat;
+            set => SetField(ref _videoFormat, value);
         }
 
         [JsonProperty]
         public virtual bool FieldOrderInverted
         {
-            get { return _fieldOrderInverted; }
-            set { SetField(ref _fieldOrderInverted, value); }
+            get => _fieldOrderInverted;
+            set => SetField(ref _fieldOrderInverted, value);
         }
 
         [JsonProperty]
         [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public virtual TAudioChannelMapping AudioChannelMapping 
         {
-            get { return _audioChannelMapping; }
-            set { SetField(ref _audioChannelMapping, value); }
+            get => _audioChannelMapping;
+            set => SetField(ref _audioChannelMapping, value);
         }
 
         [JsonProperty]
         public virtual double AudioVolume // correction amount on play
         {
-            get { return _audioVolume; }
-            set { SetField(ref _audioVolume, value); }
+            get => _audioVolume;
+            set => SetField(ref _audioVolume, value);
         }
 
         [JsonProperty]
         public virtual double AudioLevelIntegrated //measured
         {
-            get { return _audioLevelIntegrated; }
-            set { SetField(ref _audioLevelIntegrated, value); }
+            get => _audioLevelIntegrated;
+            set => SetField(ref _audioLevelIntegrated, value);
         }
 
         [JsonProperty]
         public virtual double AudioLevelPeak //measured
         {
-            get { return _audioLevelPeak; }
-            set { SetField(ref _audioLevelPeak, value); }
+            get => _audioLevelPeak;
+            set => SetField(ref _audioLevelPeak, value);
         }
 
         [JsonProperty]
         public virtual TMediaCategory MediaCategory
         {
-            get { return _mediaCategory; }
-            set { SetField(ref _mediaCategory, value); }
+            get => _mediaCategory;
+            set => SetField(ref _mediaCategory, value);
         }
 
         [JsonProperty]
         public virtual byte Parental
         {
-            get { return _parental; }
-            set { SetField(ref _parental, value); }
+            get => _parental;
+            set => SetField(ref _parental, value);
         }
         
         [JsonProperty]
         public Guid MediaGuid
         {
-            get { return _mediaGuid; }
+            get => _mediaGuid;
             internal set
             {
-                Guid oldGuid = _mediaGuid;
+                var oldGuid = _mediaGuid;
                 if (SetField(ref _mediaGuid, value))
                     _directory.UpdateMediaGuid(oldGuid, this);
             }
@@ -232,14 +233,14 @@ namespace TAS.Server.Media
         [JsonProperty]
         public TMediaStatus MediaStatus
         {
-            get { return _mediaStatus; }
-            set { SetField(ref _mediaStatus, value); }
+            get => _mediaStatus;
+            set => SetField(ref _mediaStatus, value);
         }
 
         [JsonProperty]
         public bool IsVerified
         {
-            get { return _verified; }
+            get => _verified;
             internal set
             {
                 if (SetField(ref _verified, value) && value && _mediaStatus == TMediaStatus.Available)
@@ -254,7 +255,7 @@ namespace TAS.Server.Media
 
         public string FullPath
         {
-            get { return _getFullPath(_fileName); }
+            get => _getFullPath(_fileName);
             internal set
             {
                 string relativeName = value.Substring(_directory.Folder.Length);

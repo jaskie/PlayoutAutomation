@@ -31,7 +31,7 @@
                         <Setter Property="Margin" Value="5, 3" />
                         <Style.Triggers>
                             <Trigger Property="Validation.HasError" Value="true">
-                                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)/ErrorContent}"/>
                             </Trigger>
                             <Trigger Property="IsReadOnly" Value="True">
                                 <Setter Property="Background" Value="#F0F0F0" />
@@ -42,7 +42,7 @@
                         <Setter Property="Margin" Value="5, 3" />
                         <Style.Triggers>
                             <Trigger Property="Validation.HasError" Value="True">
-                                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)/ErrorContent}"/>
                             </Trigger>
                             <Trigger Property="IsReadOnly" Value="True">
                                 <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}" />
@@ -57,14 +57,14 @@
                         <Setter Property="Margin" Value="5, 3" />
                         <Style.Triggers>
                             <Trigger Property="Validation.HasError" Value="true">
-                                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)/ErrorContent}"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
                 </StackPanel.Resources>
                 <DockPanel>
                     <Label Content="{Resx _clipName}"/>
-                    <TextBox IsReadOnly="{Binding IsPersistentMedia, Converter={StaticResource InvertedBoolToVis}}" Text="{Binding MediaName, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox IsReadOnly="{Binding IsPersistentMedia, Converter={StaticResource InvertedBoolToVis}}" Text="{Binding MediaName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
                 </DockPanel>
                 <DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}" >
                     <Label Content="{Resx _ingestTime}" />

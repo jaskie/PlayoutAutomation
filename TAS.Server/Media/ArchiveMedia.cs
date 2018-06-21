@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -11,6 +13,10 @@ namespace TAS.Server.Media
 
         public ArchiveMedia(IArchiveDirectory directory, Guid guid, ulong idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
 
+        [JsonProperty]
+        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ArchiveMediaFieldLengths;
+
+
         public TIngestStatus IngestStatus
         {
             get
@@ -22,7 +28,7 @@ namespace TAS.Server.Media
                     _ingestStatus = TIngestStatus.Ready;
                 return _ingestStatus;
             }
-            set { SetField(ref _ingestStatus, value); }
+            set => SetField(ref _ingestStatus, value);
         }
 
         public override bool Save()

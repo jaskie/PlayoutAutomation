@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -18,6 +19,7 @@ namespace TAS.Server.Media
         {
             IdPersistentMedia = idPersistentMedia;
             _mediaSegments = new Lazy<MediaSegments>(() => EngineController.Database.DbMediaSegmentsRead<MediaSegments>(this));
+            
         }
         public UInt64 IdPersistentMedia { get; set; }
 
@@ -26,46 +28,48 @@ namespace TAS.Server.Media
         [JsonProperty]
         public DateTime KillDate
         {
-            get { return _killDate; }
-            set { SetField(ref _killDate, value); }
+            get => _killDate;
+            set => SetField(ref _killDate, value);
         }
 
         // content properties
         [JsonProperty]
         public ulong IdProgramme { get; set; }
+
         [JsonProperty]
         public string IdAux
         {
-            get { return _idAux; }
-            set { SetField(ref _idAux, value); }
+            get => _idAux;
+            set => SetField(ref _idAux, value);
         } // auxiliary Id from external system
 
         [JsonProperty]
         public TMediaEmphasis MediaEmphasis
         {
-            get { return _mediaEmphasis; }
-            set { SetField(ref _mediaEmphasis, value); }
+            get => _mediaEmphasis;
+            set => SetField(ref _mediaEmphasis, value);
         }
 
         [JsonProperty]
         public bool Protected
         {
-            get { return _protected; }
-            set { SetField(ref _protected, value); }
+            get => _protected;
+            set => SetField(ref _protected, value);
         }
 
         public IMediaSegments GetMediaSegments() => _mediaSegments.Value;
 
+        public abstract IDictionary<string, int> FieldLengths { get; } 
+
+
         public override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
-            var properties = fromMedia as IPersistentMediaProperties;
-            if (properties != null)
-            {
-                IdAux = properties.IdAux;
-                IdProgramme = properties.IdProgramme;
-                MediaEmphasis = properties.MediaEmphasis;
-            }
+            if (!(fromMedia is IPersistentMediaProperties properties))
+                return;
+            IdAux = properties.IdAux;
+            IdProgramme = properties.IdProgramme;
+            MediaEmphasis = properties.MediaEmphasis;
         }
 
         public abstract bool Save();

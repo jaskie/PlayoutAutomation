@@ -108,32 +108,31 @@ namespace TAS.Client.ViewModels
             get => _event;
             set
             {
-                IEvent ev = _event;
+                var ev = _event;
                 if (ev != null && ev.Engine != _engine)
                     throw new InvalidOperationException("Edit event engine invalid");
-                if (value != ev)
+                if (value == ev)
+                    return;
+                if (IsModified
+                    && MessageBox.Show(String.Format(resources._query_SaveChangedData, this),
+                        resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    _save(null);
+                if (ev != null)
                 {
-                    if (IsModified
-                        && MessageBox.Show(String.Format(resources._query_SaveChangedData, this),
-                            resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                        _save(null);
-                    if (ev != null)
-                    {
-                        ev.PropertyChanged -= _eventPropertyChanged;
-                        ev.SubEventChanged -= _onSubeventChanged;
-                    }
-                    _event = value;
-                    if (value != null)
-                    {
-                        value.PropertyChanged += _eventPropertyChanged;
-                        value.SubEventChanged += _onSubeventChanged;
-                    }
-                    _load(null);
+                    ev.PropertyChanged -= _eventPropertyChanged;
+                    ev.SubEventChanged -= _onSubeventChanged;
                 }
+                _event = value;
+                if (value != null)
+                {
+                    value.PropertyChanged += _eventPropertyChanged;
+                    value.SubEventChanged += _onSubeventChanged;
+                }
+                _load(null);
             }
         }
 
-        public string Error => string.Empty;
+        public string Error => null;
 
         public string this[string propertyName]
         {
@@ -162,6 +161,9 @@ namespace TAS.Client.ViewModels
                     case nameof(ScheduledDelay):
                         validationResult = _validateScheduledDelay();
                         break;
+                    case nameof(EventName):
+                        validationResult = _validateEventName();
+                        break;
                     case nameof(Command):
                         validationResult = IsValidCommand(_command)
                             ? string.Empty
@@ -174,13 +176,13 @@ namespace TAS.Client.ViewModels
 
         public IMedia Media
         {
-            get { return _media; }
-            set { SetField(ref _media, value); }
+            get => _media;
+            set => SetField(ref _media, value);
         }
 
         public bool IsVolumeChecking
         {
-            get { return _isVolumeChecking; }
+            get => _isVolumeChecking;
             set
             {
                 if (base.SetField(ref _isVolumeChecking, value)) //not set Modified
@@ -190,14 +192,14 @@ namespace TAS.Client.ViewModels
 
         public TEventType EventType
         {
-            get { return _eventType; }
-            set { SetField(ref _eventType, value); }
+            get => _eventType;
+            set => SetField(ref _eventType, value);
         }
 
         public string EventName
         {
-            get { return _eventName; }
-            set { SetField(ref _eventName, value); }
+            get => _eventName;
+            set => SetField(ref _eventName, value);
         }
 
         public bool IsEditEnabled
@@ -941,6 +943,7 @@ namespace TAS.Client.ViewModels
         {
             return _event != null
                    && (IsModified || _event.IsModified)
+                   && IsValid
                    && _event.HaveRight(EventRight.Modify);
         }
 
@@ -1042,6 +1045,15 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(IsStartEvent));
         }
 
+
+        private string _validateEventName()
+        {
+            var ev = _event;
+            if (ev != null && ev.FieldLengths.TryGetValue(nameof(IEvent.EventName), out var length) && EventName.Length > length)
+                return resources._validate_TextTooLong;
+            return null;
+        }
+
         private string _validateScheduledDelay()
         {
             var ev = _event;
@@ -1060,7 +1072,7 @@ namespace TAS.Client.ViewModels
             if (ev != null && ((_startType == TStartType.OnFixedTime && (_autoStartFlags & AutoStartFlags.Daily) == AutoStartFlags.None)
                                || _startType == TStartType.Manual) && ev.PlayState == TPlayState.Scheduled && _scheduledTime < ev.Engine.CurrentTime)
                 return resources._validate_StartTimePassed;
-            return string.Empty;
+            return null;
         }
 
         private string _validateScheduledTc()
@@ -1099,18 +1111,16 @@ namespace TAS.Client.ViewModels
 
         private string _validateTransitionPauseTime()
         {
-            string validationResult = string.Empty;
             if (_transitionPauseTime > _transitionTime)
-                validationResult = resources._validate_TransitionPauseTimeInvalid;
-            return validationResult;
+                return resources._validate_TransitionPauseTimeInvalid;
+            return null;
         }
 
         private string _validateTransitionTime()
         {
-            string validationResult = string.Empty;
             if (_transitionTime > _duration)
-                validationResult = resources._validate_TransitionTimeInvalid;
-            return validationResult;
+                return resources._validate_TransitionTimeInvalid;
+            return null;
         }
 
         private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType,
@@ -1140,15 +1150,17 @@ namespace TAS.Client.ViewModels
 
         }
 
+        public bool IsValid => (from pi in GetType().GetProperties() select this[pi.Name]).All(string.IsNullOrEmpty);
+
         private bool IsValidCommand(string commandText)
         {
-            return !string.IsNullOrWhiteSpace(commandText)
-                   && (RegexPlay.IsMatch(commandText)
-                       || RegexMixerFill.IsMatch(commandText)
-                       || RegexMixerClip.IsMatch(commandText)
-                       || RegexMixerClear.IsMatch(commandText)
-                       || RegexCg.IsMatch(commandText)
-                   );
+            return string.IsNullOrWhiteSpace(commandText)
+                   || RegexPlay.IsMatch(commandText)
+                   || RegexMixerFill.IsMatch(commandText)
+                   || RegexMixerClip.IsMatch(commandText)
+                   || RegexMixerClear.IsMatch(commandText)
+                   || RegexCg.IsMatch(commandText)
+                ;
         }
 
         private void Rights_Modified(object sender, EventArgs e)

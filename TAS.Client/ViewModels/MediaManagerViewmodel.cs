@@ -70,7 +70,7 @@ namespace TAS.Client.ViewModels
             SelectedDirectory = MediaDirectories.FirstOrDefault();
             if (_mediaManager.FileManager != null)
                 FileManagerViewmodel = new FileManagerViewmodel(_mediaManager.FileManager);
-            RecordersViewmodel = new RecordersViewmodel(_mediaManager.Recorders);
+            RecordersViewmodel = new RecordersViewmodel(_engine, _mediaManager.Recorders);
             RecordersViewmodel.PropertyChanged += _recordersViewmodel_PropertyChanged;
             ComposePlugins();
             VideoPreview?.SetSource(RecordersViewmodel.Channel?.PreviewUrl);

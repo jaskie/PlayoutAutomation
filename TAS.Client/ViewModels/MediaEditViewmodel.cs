@@ -363,6 +363,9 @@ namespace TAS.Client.ViewModels
                 string validationResult = null;
                 switch (propertyName)
                 {
+                    case nameof(MediaName):
+                        validationResult = _validateMediaName();
+                        break;
                     case nameof(FileName):
                         validationResult = _validateFileName();
                         break;
@@ -377,11 +380,12 @@ namespace TAS.Client.ViewModels
             }
         }
 
+
         public bool IsValid => (from pi in GetType().GetProperties() select this[pi.Name]).All(string.IsNullOrEmpty);
 
         public override string ToString()
         {
-            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(MediaType)} - {_mediaName}";
+            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(MediaType)} - {MediaName}";
         }
 
         protected override void OnDispose()
@@ -395,46 +399,47 @@ namespace TAS.Client.ViewModels
         {
             IsModified = true;
         }
+        
+        private string _validateMediaName()
+        {
+            if (Model is IPersistentMedia pm && pm.FieldLengths.TryGetValue(nameof(IMedia.MediaName), out var mnLength) && MediaName.Length > mnLength)
+                return resources._validate_TextTooLong;
+            return string.Empty;
+        }
 
         private string _validateFileName()
         {
-            string validationResult = string.Empty;
             var dir = Model.Directory;
-            string newName = _fileName;
-            if (dir != null && _fileName != null)
+            if (dir == null || _fileName == null)
+                return string.Empty;
+            if (FileName.StartsWith(" ") || FileName.EndsWith(" "))
+                return resources._validate_FileNameCanNotStartOrEndWithSpace;
+            if (FileName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
+                return resources._validate_FileNameCanNotContainSpecialCharacters;
+            FileName = FileName.ToLowerInvariant();
+            if ((Model.MediaStatus == TMediaStatus.Required || FileName != Model.FileName.ToLowerInvariant())
+                && dir.FileExists(FileName, Model.Folder))
+                return resources._validate_FileAlreadyExists;
+            if (Model is IPersistentMedia pm)
             {
-                if (newName.StartsWith(" ") || newName.EndsWith(" "))
-                    validationResult = resources._validate_FileNameCanNotStartOrEndWithSpace;
-                else
-                if (newName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
-                    validationResult = resources._validate_FileNameCanNotContainSpecialCharacters;
-                else
-                {
-                    newName = newName.ToLowerInvariant();
-                    if ((Model.MediaStatus == TMediaStatus.Required || newName != Model.FileName.ToLowerInvariant())
-                        && dir.FileExists(newName, Model.Folder))
-                        validationResult = resources._validate_FileAlreadyExists;
-                    else
-                    if (Model is IPersistentMedia)
-                    {
-                        if (Model.MediaType == TMediaType.Movie
-                            && !FileUtils.VideoFileTypes.Contains(Path.GetExtension(newName).ToLower()))
-                            validationResult = string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.VideoFileTypes));
-                        if (Model.MediaType == TMediaType.Still
-                            && !FileUtils.StillFileTypes.Contains(Path.GetExtension(newName).ToLower()))
-                            validationResult = string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.StillFileTypes));
-                    }
-                }
-                //if (dir is ArchiveDirectory)
-                //{
-                //    if (DatabaseConnector.ArchiveFileExists(dir, _fileName))
-                //        validationResult = "Plik o takiej nazwie archiwizowano już w tym miesiącu";
-                //}
-                //else
-                //    if (dir.Files.Where(m => m != media && m.FileName == _fileName).Count() > 0)
-                //        validationResult = "Plik o takiej nazwie już istnieje";
+                if (pm.FieldLengths.TryGetValue(nameof(IMedia.FileName), out var length) && FileName.Length > length)
+                    return resources._validate_TextTooLong;
+                if (pm.MediaType == TMediaType.Movie
+                    && !FileUtils.VideoFileTypes.Contains(Path.GetExtension(FileName).ToLower()))
+                    return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.VideoFileTypes));
+                if (pm.MediaType == TMediaType.Still
+                    && !FileUtils.StillFileTypes.Contains(Path.GetExtension(FileName).ToLower()))
+                    return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.StillFileTypes));
             }
-            return validationResult;
+            //if (dir is ArchiveDirectory)
+            //{
+            //    if (DatabaseConnector.ArchiveFileExists(dir, _fileName))
+            //        validationResult = "Plik o takiej nazwie archiwizowano już w tym miesiącu";
+            //}
+            //else
+            //    if (dir.Files.Where(m => m != media && m.FileName == _fileName).Count() > 0)
+            //        validationResult = "Plik o takiej nazwie już istnieje";
+            return string.Empty;
         }
 
         private string _validateTcPlay()

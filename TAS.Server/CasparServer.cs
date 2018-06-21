@@ -29,6 +29,8 @@ namespace TAS.Server
         [JsonProperty]
         public ulong Id { get; set; }
 
+        public IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ServerFieldLengths;
+
         public void Save()
         {
             throw new NotImplementedException();

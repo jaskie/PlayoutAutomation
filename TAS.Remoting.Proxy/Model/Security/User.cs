@@ -27,11 +27,11 @@ namespace TAS.Remoting.Model.Security
         private string _authenticationObject;
 #pragma warning restore
 
-        public string Name { get { return _name; } set { Set(value); } }
+        public string Name { get => _name; set => Set(value); }
 
-        public string AuthenticationType { get { return _authenticationType; } set { Set(value); } }
+        public string AuthenticationType { get => _authenticationType; set => Set(value); }
 
-        public bool IsAuthenticated { get { return _isAuthenticated; } set { Set(value); } }
+        public bool IsAuthenticated { get => _isAuthenticated; set => Set(value); }
 
         public ReadOnlyCollection<IGroup> GetGroups()
         {

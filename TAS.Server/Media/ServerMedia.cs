@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -15,22 +16,25 @@ namespace TAS.Server.Media
         public ServerMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia, IArchiveDirectory archiveDirectory) : base(directory, guid, idPersistentMedia)
         {
             IdPersistentMedia = idPersistentMedia;
-            _isArchived = new Lazy<bool>(() => (archiveDirectory != null)? EngineController.Database.DbArchiveContainsMedia(archiveDirectory, this) : false);
+            _isArchived = new Lazy<bool>(() => archiveDirectory != null && EngineController.Database.DbArchiveContainsMedia(archiveDirectory, this));
         }
 
+        [JsonProperty]
+        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ServerMediaFieldLengths;
+
         // media properties
-        public bool IsPRI { get { return _isPRI; } set { if (value) _isPRI = true; } } //one-way to true only
+        public bool IsPRI { get => _isPRI; set { if (value) _isPRI = true; } } //one-way to true only
 
         [JsonProperty]
         public bool DoNotArchive
         {
-            get { return _doNotArchive; }
-            set { SetField(ref _doNotArchive, value); }
+            get => _doNotArchive;
+            set => SetField(ref _doNotArchive, value);
         }
 
         public bool IsArchived
         {
-            get { return _isArchived.Value; }
+            get => _isArchived.Value;
             set
             {
                 if (_isArchived.IsValueCreated && _isArchived.Value != value)
@@ -41,10 +45,8 @@ namespace TAS.Server.Media
         public override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
-            if (fromMedia is IServerMediaProperties)
-            {
-                DoNotArchive = (fromMedia as IServerMediaProperties).DoNotArchive;
-            }
+            if (fromMedia is IServerMediaProperties serverMediaProperties)
+                DoNotArchive = serverMediaProperties.DoNotArchive;
         }
 
         public override bool Save()

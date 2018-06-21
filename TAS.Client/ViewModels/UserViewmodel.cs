@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using resources = TAS.Client.Common.Properties.Resources;
+
 
 namespace TAS.Client.ViewModels
 {
-    public class UserViewmodel: EditViewmodelBase<IUser>
+    public class UserViewmodel: EditViewmodelBase<IUser>, IDataErrorInfo
     {
         private string _name;
         private readonly UserManagerViewmodel _owner;
@@ -28,28 +29,28 @@ namespace TAS.Client.ViewModels
 
         public string Name
         {
-            get { return _name; }
-            set { SetField(ref _name, value); }
+            get => _name;
+            set => SetField(ref _name, value);
         }
 
         public AuthenticationSource AuthenticationSource
         {
-            get { return _authenticationSource; }
-            set { SetField(ref _authenticationSource, value); }
+            get => _authenticationSource;
+            set => SetField(ref _authenticationSource, value);
         }
 
         public AuthenticationSource[] AuthenticationSources { get; } = Enum.GetValues(typeof(AuthenticationSource)).Cast<AuthenticationSource>().Where(a => a != AuthenticationSource.Console).ToArray();
 
         public string AuthenticationObject
         {
-            get { return _authenticationObject; }
-            set { SetField(ref _authenticationObject, value); }
+            get => _authenticationObject;
+            set => SetField(ref _authenticationObject, value);
         }
 
         public bool IsAdmin
         {
-            get { return _isAdmin; }
-            set { SetField(ref _isAdmin, value); }
+            get => _isAdmin;
+            set => SetField(ref _isAdmin, value);
         }
 
         public override void Update(object destObject = null)
@@ -84,5 +85,25 @@ namespace TAS.Client.ViewModels
             IsModified = true;
         }
 
+        public string this[string columnName]
+        {
+            get
+            {
+                switch (columnName)
+                {
+                    case nameof(Name):
+                        if (Model.FieldLengths.TryGetValue(nameof(IUser.Name), out var nameLength) && Name.Length > nameLength)
+                            return resources._validate_TextTooLong;
+                        break;
+                    case nameof(AuthenticationObject):
+                        if (Model.FieldLengths.TryGetValue(nameof(IUser.AuthenticationObject), out var aoLength) && AuthenticationObject.Length > aoLength)
+                            return resources._validate_TextTooLong;
+                        break;
+                }
+                return null;
+            }
+        }
+
+        public string Error { get; } = null;
     }
 }

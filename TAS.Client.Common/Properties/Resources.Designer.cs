@@ -652,6 +652,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entered text is too long..
+        /// </summary>
+        public static string _validate_TextTooLong {
+            get {
+                return ResourceManager.GetString("_validate_TextTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Transition pause cannot be longer than transition itself..
         /// </summary>
         public static string _validate_TransitionPauseTimeInvalid {

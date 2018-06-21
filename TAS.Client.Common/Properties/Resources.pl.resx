@@ -333,4 +333,7 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
     <value>Istnieje {0} podłączonynych klientów. Zamknięcie spowoduje przerwanie ich pracy.
 Zamknąć aplikację?</value>
   </data>
+  <data name="_validate_TextTooLong" xml:space="preserve">
+    <value>Wprowadzony tekst jest za długi.</value>
+  </data>
 </root>

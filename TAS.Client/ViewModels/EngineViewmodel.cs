@@ -522,7 +522,7 @@ namespace TAS.Client.ViewModels
                 eventType: TEventType.Rundown,
                 eventName: resources._title_NewRundown,
                 startType: TStartType.Manual,
-                scheduledTime: _currentTime);
+                scheduledTime: DateTime.Today.AddDays(1) + new TimeSpan(DateTime.Now.Hour, 0, 0));
             Engine.AddRootEvent(newEvent);
             newEvent.Save();
             LastAddedEvent = newEvent;
