@@ -116,12 +116,11 @@ namespace TAS.Client.ViewModels
         private void _deleteRight(object obj)
         {
             var rightToDelete = SelectedRight;
-            if (Rights.Remove(rightToDelete))
-            {
-                rightToDelete.Dispose();
-                rightToDelete.ModifiedChanged -= EventRightViewmodelModifiedChanged;
-                IsModified = true;
-            }
+            if (!Rights.Remove(rightToDelete))
+                return;
+            rightToDelete.Dispose();
+            rightToDelete.ModifiedChanged -= EventRightViewmodelModifiedChanged;
+            IsModified = true;
         }
 
         private void EventRightViewmodelModifiedChanged(object sender, EventArgs e)

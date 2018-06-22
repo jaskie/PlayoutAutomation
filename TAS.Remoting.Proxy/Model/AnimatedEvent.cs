@@ -21,10 +21,10 @@ namespace TAS.Remoting.Model
 
 #pragma warning restore
 
-        public IDictionary<string, string> Fields { get { return _fields; }  set { Set(value); } }
+        public Dictionary<string, string> Fields { get => _fields; set => Set(value); }
 
-        public TemplateMethod Method { get { return _method; } set { Set(value); } }
+        public TemplateMethod Method { get => _method; set => Set(value); }
 
-        public int TemplateLayer { get { return _templateLayer; } set { Set(value); } }
+        public int TemplateLayer { get => _templateLayer; set => Set(value); }
     }
 }

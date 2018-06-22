@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -11,7 +10,7 @@ namespace TAS.Server
     {
         private int _templateLayer;
         private TemplateMethod _method;
-        private readonly Dictionary<string, string> _fields;
+        private Dictionary<string, string> _fields;
         
         internal AnimatedEvent(
                     Engine engine,
@@ -67,23 +66,10 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public IDictionary<string, string> Fields
+        public Dictionary<string, string> Fields
         {
-            get
-            {
-                lock (((IDictionary) _fields).SyncRoot)
-                    return new Dictionary<string, string>(_fields);
-            }
-            set
-            {
-                lock (((IDictionary) _fields).SyncRoot)
-                {
-                    _fields.Clear();
-                    foreach (var kvp in value)
-                        _fields.Add(kvp.Key, kvp.Value);
-                }
-                IsModified = true;
-            }
+            get => _fields;
+            set => SetField(ref _fields, value);
         }
 
         [JsonProperty]

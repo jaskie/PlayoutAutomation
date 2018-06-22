@@ -466,7 +466,13 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Thumb Name="SidePanelResizer" HorizontalAlignment="Left" Width="3"  BorderThickness="0" Background="DarkGray" Grid.Column="0" Grid.RowSpan="3" Cursor="SizeWE" DragDelta="SidePanelResizer_DragDelta"/>
-                    <views:EventEditView DataContext="{Binding EventEditViewmodel}" Margin="3, 0, 0, 0"/>
+                    <ContentControl Content="{Binding SelectedEventEditViewmodel}" Margin="3, 0, 0, 0">
+                        <ContentControl.Resources>
+                            <DataTemplate DataType="{x:Type vievmodels:EventEditViewmodel}">
+                                <views:EventEditView/>
+                            </DataTemplate>
+                        </ContentControl.Resources>
+                    </ContentControl>
                     <GridSplitter Grid.Row="0" Visibility="{Binding PreviewViewmodel, Converter={StaticResource NullToVis}}"  HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
                     <ContentControl Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding PreviewViewmodel}">
                         <ContentControl.Resources>

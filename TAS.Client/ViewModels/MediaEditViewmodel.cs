@@ -279,9 +279,9 @@ namespace TAS.Client.ViewModels
 
         #region ITemplatedEdit
 
-        public IDictionary<string, string> Fields
+        public Dictionary<string, string> Fields
         {
-            get => _fields;
+            get => new Dictionary<string, string>(_fields);
             set
             {
                 _fields.Clear();

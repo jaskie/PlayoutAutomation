@@ -21,7 +21,7 @@ namespace TAS.Remoting.Model
 
         #pragma warning restore
 
-        public IDictionary<string, string> Fields { get => _fields; set => Set(value); }
+        public Dictionary<string, string> Fields { get => _fields; set => Set(value); }
 
         public TemplateMethod Method { get => _method; set => Set(value); }
 

@@ -2,29 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Reflection;
 using System.ComponentModel;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventEditViewmodel : ModifyableViewModelBase, ITemplatedEdit, IDataErrorInfo
+    public class EventEditViewmodel : EditViewmodelBase<IEvent>, ITemplatedEdit, IDataErrorInfo
     {
-        private readonly IEngine _engine;
         private readonly EngineViewmodel _engineViewModel;
-        private EventRightsEditViewmodel _eventRightsEditViewmodel;
-        private IEvent _event;
-        private bool _isLoading;
         private IMedia _media;
         private bool _isVolumeChecking;
-        private TEventType _eventType;
-        private string _eventName;
+        private TEventType ModelType;
+        private string ModelName;
         private string _command;
         private bool _isEnabled;
         private bool _isHold;
@@ -50,14 +44,18 @@ namespace TAS.Client.ViewModels
         public static readonly Regex RegexPlay = new Regex(EventExtensions.PlayCommand, RegexOptions.IgnoreCase);
         public static readonly Regex RegexCg = new Regex(EventExtensions.CgCommand, RegexOptions.IgnoreCase);
 
-        public EventEditViewmodel(EngineViewmodel engineViewModel)
+        public EventEditViewmodel(IEvent @event, EngineViewmodel engineViewModel): base(@event)
         {
             _engineViewModel = engineViewModel;
-            _engine = engineViewModel.Engine;
-            _engine.EventLocated += OnLocated;
             _fields.CollectionChanged += _fields_or_commands_CollectionChanged;
-            CommandSaveEdit = new UICommand {ExecuteDelegate = _save, CanExecuteDelegate = _canSave};
-            CommandUndoEdit = new UICommand {ExecuteDelegate = _load, CanExecuteDelegate = o => IsModified};
+            Model.PropertyChanged += ModelPropertyChanged;
+            if (@event.EventType == TEventType.Container)
+            {
+                EventRightsEditViewmodel = new EventRightsEditViewmodel(@event, engineViewModel.Engine.AuthenticationService);
+                EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
+            }
+            CommandSaveEdit = new UICommand {ExecuteDelegate = Update, CanExecuteDelegate = _canSave};
+            CommandUndoEdit = new UICommand {ExecuteDelegate = Load, CanExecuteDelegate = o => IsModified};
             CommandChangeMovie = new UICommand {ExecuteDelegate = _changeMovie, CanExecuteDelegate = _canChangeMovie};
             CommandEditMovie = new UICommand {ExecuteDelegate = _editMovie, CanExecuteDelegate = _canEditMovie};
             CommandCheckVolume = new UICommand {ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume};
@@ -69,28 +67,44 @@ namespace TAS.Client.ViewModels
             };
             CommandMoveUp = new UICommand
             {
-                ExecuteDelegate = o => _event?.MoveUp(),
-                CanExecuteDelegate = _canMoveUp
+                ExecuteDelegate = o => Model?.MoveUp(),
+                CanExecuteDelegate = o => Model.CanMoveUp()
             };
             CommandMoveDown = new UICommand
             {
-                ExecuteDelegate = o => _event?.MoveDown(),
-                CanExecuteDelegate = _canMoveDown
+                ExecuteDelegate = o => Model?.MoveDown(),
+                CanExecuteDelegate = o => Model.CanMoveDown()
             };
             CommandDelete = new UICommand
             {
                 ExecuteDelegate = o =>
                 {
-                    if (_event != null && MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation,
-                            MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-                    {
-                        EventClipboard.SaveUndo(new List<IEvent> {_event},
-                            _event.StartType == TStartType.After ? _event.Prior : _event.Parent);
-                        _event.Delete();
-                    }
+                    if (MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
+                        return;
+                    EventClipboard.SaveUndo(new List<IEvent> {Model},
+                        Model.StartType == TStartType.After ? Model.Prior : Model.Parent);
+                    Model.Delete();
                 },
-                CanExecuteDelegate = o => _event?.AllowDelete() == true
+                CanExecuteDelegate = o => Model?.AllowDelete() == true
             };
+        }
+
+        public void Save()
+        {
+            Update();
+        }
+
+        public void UndoEdit()
+        {
+            Load();
+        }
+        
+        protected override void Update(object destObject = null)
+        {
+            base.Update(Model);
+            if (EventRightsEditViewmodel?.IsModified == true)
+                EventRightsEditViewmodel.Save();
+            Model.Save();
         }
 
         public ICommand CommandUndoEdit { get; }
@@ -102,35 +116,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCheckVolume { get; }
         public ICommand CommandTriggerStartType { get; }
         public ICommand CommandDelete { get; }
-
-        public IEvent Event
-        {
-            get => _event;
-            set
-            {
-                var ev = _event;
-                if (ev != null && ev.Engine != _engine)
-                    throw new InvalidOperationException("Edit event engine invalid");
-                if (value == ev)
-                    return;
-                if (IsModified
-                    && MessageBox.Show(String.Format(resources._query_SaveChangedData, this),
-                        resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                    _save(null);
-                if (ev != null)
-                {
-                    ev.PropertyChanged -= _eventPropertyChanged;
-                    ev.SubEventChanged -= _onSubeventChanged;
-                }
-                _event = value;
-                if (value != null)
-                {
-                    value.PropertyChanged += _eventPropertyChanged;
-                    value.SubEventChanged += _onSubeventChanged;
-                }
-                _load(null);
-            }
-        }
 
         public string Error => null;
 
@@ -192,22 +177,22 @@ namespace TAS.Client.ViewModels
 
         public TEventType EventType
         {
-            get => _eventType;
-            set => SetField(ref _eventType, value);
+            get => ModelType;
+            set => SetField(ref ModelType, value);
         }
 
         public string EventName
         {
-            get => _eventName;
-            set => SetField(ref _eventName, value);
+            get => ModelName;
+            set => SetField(ref ModelName, value);
         }
 
         public bool IsEditEnabled
         {
             get
             {
-                var ev = _event;
-                return ev != null && ev.PlayState == TPlayState.Scheduled && _event.HaveRight(EventRight.Modify);
+                var ev = Model;
+                return ev != null && ev.PlayState == TPlayState.Scheduled && Model.HaveRight(EventRight.Modify);
             }
         }
 
@@ -217,7 +202,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var et = _event?.EventType;
+                var et = Model?.EventType;
                 return et == TEventType.Movie || et == TEventType.Live;
             }
         }
@@ -226,8 +211,8 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var et = _event?.EventType;
-                var st = _event?.StartType;
+                var et = Model?.EventType;
+                var st = Model?.StartType;
                 return (et == TEventType.Movie || et == TEventType.Live || et == TEventType.Rundown)
                        && (st == TStartType.After || st == TStartType.WithParent || st == TStartType.WithParentFromEnd);
             }
@@ -235,10 +220,10 @@ namespace TAS.Client.ViewModels
 
         public bool IsAnimation
         {
-            get { return _eventType == TEventType.Animation; }
+            get { return ModelType == TEventType.Animation; }
         }
 
-        public bool IsCommandScript => _event is ICommandScript;
+        public bool IsCommandScript => Model is ICommandScript;
 
         #region ICGElementsState
 
@@ -289,9 +274,9 @@ namespace TAS.Client.ViewModels
 
         private readonly ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
 
-        public IDictionary<string, string> Fields
+        public Dictionary<string, string> Fields
         {
-            get { return _fields; }
+            get => new Dictionary<string, string>(_fields);
             set
             {
                 _fields.Clear();
@@ -326,28 +311,28 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _command, value); }
         }
 
-        public bool IsMovie => _event?.EventType == TEventType.Movie;
+        public bool IsMovie => Model?.EventType == TEventType.Movie;
 
-        public bool IsStillImage => _event?.EventType == TEventType.StillImage;
+        public bool IsStillImage => Model?.EventType == TEventType.StillImage;
 
         public bool IsTransitionPanelEnabled
         {
             get
             {
-                var et = _event?.EventType;
+                var et = Model?.EventType;
                 return !_isHold && (et == TEventType.Live || et == TEventType.Movie);
             }
         }
 
         public bool IsTransitionPropertiesVisible => _transitionType != TTransitionType.Cut;
 
-        public bool IsEmpty => _event == null;
+        public bool IsEmpty => Model == null;
 
-        public bool IsContainer => _event?.EventType == TEventType.Container;
+        public bool IsContainer => Model?.EventType == TEventType.Container;
 
-        public bool CanHold => _event?.Prior != null;
+        public bool CanHold => Model?.Prior != null;
 
-        public bool CanLoop => _event!= null && _event.GetSuccessor() == null;
+        public bool CanLoop => Model!= null && Model.GetSuccessor() == null;
 
         public bool IsEnabled
         {
@@ -404,7 +389,7 @@ namespace TAS.Client.ViewModels
 
         public bool AutoStartForced
         {
-            get { return (_autoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None; }
+            get => (_autoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None;
             set
             {
                 if (value)
@@ -433,14 +418,11 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                IEvent ev = Event;
-                if (ev == null)
-                    return string.Empty;
-                TStartType st = ev.StartType;
-                IEvent boundEvent = st == TStartType.WithParent || st == TStartType.WithParentFromEnd
-                    ? ev.Parent
+                var st = Model.StartType;
+                var boundEvent = st == TStartType.WithParent || st == TStartType.WithParentFromEnd
+                    ? Model.Parent
                     : (st == TStartType.After)
-                        ? ev.Prior
+                        ? Model.Prior
                         : null;
                 return boundEvent == null ? string.Empty : boundEvent.EventName;
             }
@@ -472,8 +454,8 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                return (_eventType == TEventType.Animation || _eventType == TEventType.CommandScript ||
-                        _eventType == TEventType.StillImage)
+                return (ModelType == TEventType.Animation || ModelType == TEventType.CommandScript ||
+                        ModelType == TEventType.StillImage)
                        && (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd);
             }
         }
@@ -529,40 +511,37 @@ namespace TAS.Client.ViewModels
 
         public double? AudioVolume
         {
-            get { return _audioVolume; }
+            get => _audioVolume;
             set
             {
-                if (SetField(ref _audioVolume, value))
-                {
-                    NotifyPropertyChanged(nameof(HasAudioVolume));
-                    NotifyPropertyChanged(nameof(AudioVolumeLevel));
-                }
+                if (!SetField(ref _audioVolume, value))
+                    return;
+                NotifyPropertyChanged(nameof(HasAudioVolume));
+                NotifyPropertyChanged(nameof(AudioVolumeLevel));
             }
         }
 
         public double AudioVolumeLevel
         {
-            get { return _audioVolume != null ? (double) _audioVolume : _media != null ? _media.AudioVolume : 0; }
+            get => _audioVolume ?? (_media?.AudioVolume ?? 0);
             set
             {
-                if (SetField(ref _audioVolume, value))
-                {
-                    NotifyPropertyChanged(nameof(HasAudioVolume));
-                    NotifyPropertyChanged(nameof(AudioVolume));
-                }
+                if (!SetField(ref _audioVolume, value))
+                    return;
+                NotifyPropertyChanged(nameof(HasAudioVolume));
+                NotifyPropertyChanged(nameof(AudioVolume));
             }
         }
 
         public bool HasAudioVolume
         {
-            get { return _audioVolume != null; }
+            get => _audioVolume != null;
             set
             {
-                if (SetField(ref _audioVolume, value ? (_media != null ? (double?) _media.AudioVolume : 0) : null))
-                {
-                    NotifyPropertyChanged(nameof(AudioVolume));
-                    NotifyPropertyChanged(nameof(AudioVolumeLevel));
-                }
+                if (!SetField(ref _audioVolume,
+                    value ? (_media != null ? (double?) _media.AudioVolume : 0) : null)) return;
+                NotifyPropertyChanged(nameof(AudioVolume));
+                NotifyPropertyChanged(nameof(AudioVolumeLevel));
             }
         }
 
@@ -631,113 +610,28 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _layer, value); }
         }
 
-        public bool HasSubItemOnLayer1
-        {
-            get
-            {
-                IEvent ev = Event;
-                return (ev == null)
-                    ? false
-                    : (ev.EventType == TEventType.StillImage)
-                        ? ev.Layer == VideoLayer.CG1
-                        : ev.SubEvents.Any(e => e.Layer == VideoLayer.CG1 && e.EventType == TEventType.StillImage);
-            }
-        }
-
-        public bool HasSubItemOnLayer2
-        {
-            get
-            {
-                IEvent ev = Event;
-                return (ev == null)
-                    ? false
-                    : (ev.EventType == TEventType.StillImage)
-                        ? ev.Layer == VideoLayer.CG2
-                        : ev.SubEvents.Any(e => e.Layer == VideoLayer.CG2 && e.EventType == TEventType.StillImage);
-            }
-        }
-
-        public bool HasSubItemOnLayer3
-        {
-            get
-            {
-                IEvent ev = Event;
-                return (ev == null)
-                    ? false
-                    : (ev.EventType == TEventType.StillImage)
-                        ? ev.Layer == VideoLayer.CG3
-                        : ev.SubEvents.Any(e => e.Layer == VideoLayer.CG3 && e.EventType == TEventType.StillImage);
-            }
-        }
-
-        public bool HasSubItems
-        {
-            get
-            {
-                IEvent ev = Event;
-                return (ev == null || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
-                    ? false
-                    : ev.SubEvents.Any(e => e.EventType == TEventType.StillImage);
-            }
-        }
-
         public bool IsStartEvent
         {
             get
             {
-                var st = Event?.StartType;
+                var st = Model?.StartType;
                 return (st == TStartType.OnFixedTime || st == TStartType.Manual);
             }
         }
 
-        public bool IsDurationEnabled
-        {
-            get
-            {
-                IEvent ev = Event;
-                return (ev != null) && ev.EventType != TEventType.Rundown;
-            }
-        }
+        public bool IsDurationEnabled => Model.EventType != TEventType.Rundown;
 
-        public bool IsCGElementsEnabled
-        {
-            get
-            {
-                IEvent ev = Event;
-                if (ev == null)
-                    return false;
-                IEngine engine = ev.Engine;
-                return engine != null
-                        && (ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
-                        && engine.CGElementsController != null;
-            }
-        }
+        public bool IsCGElementsEnabled => Model.EventType == TEventType.Live || Model.EventType == TEventType.Movie;
 
-        public bool IsDisplayCGElements
-        {
-            get { return _engine.CGElementsController != null; }
-        }
+        public bool IsDisplayCGElements => Model.Engine.CGElementsController != null;
 
-        public IEnumerable<ICGElement> Logos => _engine.CGElementsController?.Logos;
+        public IEnumerable<ICGElement> Logos => Model.Engine.CGElementsController?.Logos;
 
-        public IEnumerable<ICGElement> Crawls => _engine.CGElementsController?.Crawls;
+        public IEnumerable<ICGElement> Crawls => Model.Engine.CGElementsController?.Crawls;
 
-        public IEnumerable<ICGElement> Parentals => _engine.CGElementsController?.Parentals;
+        public IEnumerable<ICGElement> Parentals => Model.Engine.CGElementsController?.Parentals;
 
-        public EventRightsEditViewmodel EventRightsEditViewmodel
-        {
-            get => _eventRightsEditViewmodel;
-            private set
-            {
-                var oldValue = _eventRightsEditViewmodel;
-                if (!SetField(ref _eventRightsEditViewmodel, value))
-                    return;
-                if (value != null)
-                    value.ModifiedChanged += RightsModifiedChanged;
-                if (oldValue != null)
-                    oldValue.ModifiedChanged -= RightsModifiedChanged;
-            }
-        }
+        public EventRightsEditViewmodel EventRightsEditViewmodel { get; }
 
         public override string ToString()
         {
@@ -750,94 +644,15 @@ namespace TAS.Client.ViewModels
                 InvalidateRequerySuggested();
         }
 
-        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (base.SetField(ref field, value, propertyName))
-            {
-                if (!_isLoading &&
-                    (propertyName != nameof(ScheduledTime) || IsStartEvent))
-                    IsModified = true;
-                return true;
-            }
-            return false;
-        }
-
         protected override void OnDispose()
         {
-            if (_event != null)
-                Event = null;
-            _engine.EventLocated -= OnLocated;
-            _fields.CollectionChanged -= _fields_or_commands_CollectionChanged;
+            Model.PropertyChanged -= ModelPropertyChanged;
+            if (EventRightsEditViewmodel == null)
+                return;
+            EventRightsEditViewmodel.ModifiedChanged -= RightsModifiedChanged;
+            EventRightsEditViewmodel.Dispose();
         }
-
-        private void _save(object o)
-        {
-            IEvent e2Save = Event;
-            if (IsModified && e2Save != null)
-            {
-                PropertyInfo[] copiedProperties = GetType().GetProperties();
-                foreach (PropertyInfo copyPi in copiedProperties)
-                {
-                    PropertyInfo destPi = e2Save.GetType().GetProperty(copyPi.Name);
-                    if (destPi != null)
-                    {
-                        if (destPi.GetValue(e2Save, null) != copyPi.GetValue(this, null)
-                            && destPi.CanWrite
-                            && destPi.PropertyType.Equals(copyPi.PropertyType))
-                            destPi.SetValue(e2Save, copyPi.GetValue(this, null), null);
-                    }
-                }
-                IsModified = false;
-            }
-            if (e2Save != null && e2Save.IsModified)
-            {
-                e2Save.Save();
-                if (EventRightsEditViewmodel?.IsModified == true)
-                    EventRightsEditViewmodel.Save();
-                _load(null);
-            }
-        }
-
-        private void _load(object o)
-        {
-            _isLoading = true;
-            try
-            {
-                IEvent e2Load = _event;
-                if (e2Load != null)
-                {
-                    PropertyInfo[] copiedProperties = GetType().GetProperties();
-                    foreach (PropertyInfo copyPi in copiedProperties)
-                    {
-                        PropertyInfo sourcePi = e2Load.GetType().GetProperty(copyPi.Name);
-                        if (sourcePi != null
-                            && copyPi.Name != nameof(IsModified)
-                            && sourcePi.PropertyType.Equals(copyPi.PropertyType)
-                            && copyPi.CanWrite
-                            && sourcePi.CanRead)
-                            copyPi.SetValue(this, sourcePi.GetValue(e2Load, null), null);
-                    }
-                }
-                else // _event is null
-                {
-                    PropertyInfo[] zeroedProperties = GetType().GetProperties();
-                    foreach (PropertyInfo zeroPi in zeroedProperties)
-                    {
-                        PropertyInfo sourcePi = typeof(IEvent).GetProperty(zeroPi.Name);
-                        if (sourcePi != null)
-                            zeroPi.SetValue(this, null, null);
-                    }
-                }
-                EventRightsEditViewmodel = e2Load?.EventType == TEventType.Container ? new EventRightsEditViewmodel(e2Load, _engineViewModel.Engine.AuthenticationService) : null;
-            }
-            finally
-            {
-                _isLoading = false;
-                IsModified = false;
-            }
-            NotifyPropertyChanged(null);
-        }
-
+       
         #region Command methods
 
         private void _triggerStartType(object obj)
@@ -851,7 +666,7 @@ namespace TAS.Client.ViewModels
         private bool _canTriggerStartType(object obj)
         {
             return (StartType == TStartType.Manual || StartType == TStartType.OnFixedTime)
-                   && _event.HaveRight(EventRight.Modify);
+                   && Model.HaveRight(EventRight.Modify);
         }
 
         private void _editField(object obj)
@@ -869,7 +684,7 @@ namespace TAS.Client.ViewModels
 
         private void _changeMovie(object o)
         {
-            IEvent ev = _event;
+            IEvent ev = Model;
             if (ev != null
                 && ev.EventType == TEventType.Movie)
             {
@@ -879,7 +694,7 @@ namespace TAS.Client.ViewModels
 
         private void _editMovie(object obj)
         {
-            using (var evm = new MediaEditWindowViewmodel(_event.Media, _engine.MediaManager) )
+            using (var evm = new MediaEditWindowViewmodel(Model.Media, Model.Engine.MediaManager) )
             {
                 if (UiServices.ShowDialog<Views.MediaEditWindowView>(evm) == true)
                     evm.Editor.Save();
@@ -891,11 +706,11 @@ namespace TAS.Client.ViewModels
             if (_media == null)
                 return;
             IsVolumeChecking = true;
-            var fileManager = _engine.MediaManager.FileManager;
+            var fileManager = Model.Engine.MediaManager.FileManager;
             var operation = fileManager.CreateLoudnessOperation();
-            operation.Source = _event.Media;
-            operation.MeasureStart = _event.ScheduledTc - _media.TcStart;
-            operation.MeasureDuration = _event.Duration;
+            operation.Source = Model.Media;
+            operation.MeasureStart = Model.ScheduledTc - _media.TcStart;
+            operation.MeasureDuration = Model.Duration;
             operation.AudioVolumeMeasured += _audioVolumeMeasured;
             operation.Finished += _audioVolumeFinished;
             fileManager.Queue(operation, true);
@@ -915,20 +730,18 @@ namespace TAS.Client.ViewModels
 
         private bool _canChangeMovie(object o)
         {
-            return _event != null
-                   && _event.PlayState == TPlayState.Scheduled
-                   && _event.EventType == TEventType.Movie
-                   && _event.HaveRight(EventRight.Modify);
+            return Model != null
+                   && Model.PlayState == TPlayState.Scheduled
+                   && Model.EventType == TEventType.Movie
+                   && Model.HaveRight(EventRight.Modify);
         }
 
         private bool _canEditMovie(object o)
         {
-            IEvent ev = _event;
-            return ev != null
-                   && ev.Media != null
-                   && ev.PlayState == TPlayState.Scheduled
-                   && ev.EventType == TEventType.Movie
-                   && _engine.HaveRight(EngineRight.MediaEdit);
+            return Model.Media != null
+                   && Model.PlayState == TPlayState.Scheduled
+                   && Model.EventType == TEventType.Movie
+                   && Model.Engine.HaveRight(EngineRight.MediaEdit);
         }
 
         private bool _canCheckVolume(object o)
@@ -938,15 +751,15 @@ namespace TAS.Client.ViewModels
 
         private bool _canSave(object o)
         {
-            return _event != null
-                   && (IsModified || _event.IsModified)
+            return Model != null
+                   && (IsModified || Model.IsModified)
                    && IsValid
-                   && _event.HaveRight(EventRight.Modify);
+                   && Model.HaveRight(EventRight.Modify);
         }
 
         private void _setCGElements(IMedia media)
         {
-            IsCGEnabled = _engine.EnableCGElementsForNewEvents;
+            IsCGEnabled = Model.Engine.EnableCGElementsForNewEvents;
             if (media != null)
             {
                 var category = media.MediaCategory;
@@ -959,93 +772,147 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private bool _canMoveUp(object o)
-        {
-            IEvent prior = _event?.Prior;
-            return prior != null && prior.PlayState == TPlayState.Scheduled &&
-                   _event.PlayState == TPlayState.Scheduled && !IsLoop
-                   && (prior.StartType == TStartType.After || !IsHold)
-                   && _event.HaveRight(EventRight.Modify);
-        }
-
-        private bool _canMoveDown(object o)
-        {
-            IEvent next = _event?.Next;
-            return next != null && next.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled &&
-                   !next.IsLoop
-                   && (_event.StartType == TStartType.After || !next.IsHold)
-                   && _event.HaveRight(EventRight.Modify);
-        }
-
         #endregion // command methods
 
-        private void _fields_or_commands_CollectionChanged(object sender,
-            System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void _fields_or_commands_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             IsModified = true;
         }
 
-        private void _eventPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void ModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            if (!(sender is IEvent s))
+                return;
             Application.Current.Dispatcher.BeginInvoke((Action) delegate
             {
-                bool oldModified = IsModified;
-                PropertyInfo sourcePi = sender.GetType().GetProperty(e.PropertyName);
-                PropertyInfo destPi = GetType().GetProperty(e.PropertyName);
-                if (sourcePi != null && destPi != null
-                    && sourcePi.PropertyType == destPi.PropertyType)
-                    destPi.SetValue(this, sourcePi.GetValue(sender, null), null);
-                IsModified = oldModified;
+                switch (e.PropertyName)
+                {
+                    case nameof(IEvent.AudioVolume):
+                        _audioVolume = s.AudioVolume;
+                        NotifyPropertyChanged(nameof(AudioVolume));
+                        NotifyPropertyChanged(nameof(AudioVolumeLevel));
+                        NotifyPropertyChanged(nameof(HasAudioVolume));
+                        break;
+                    case nameof(IEvent.AutoStartFlags):
+                        _autoStartFlags = s.AutoStartFlags;
+                        NotifyPropertyChanged(nameof(AutoStartForced));
+                        NotifyPropertyChanged(nameof(AutoStartDaily));
+                        break;
+                    case nameof(IEvent.Crawl):
+                        _crawl = s.Crawl;
+                        NotifyPropertyChanged(nameof(Crawl));
+                        break;
+                    case nameof(IEvent.Logo):
+                        _logo = s.Logo;
+                        NotifyPropertyChanged(nameof(Logo));
+                        break;
+                    case nameof(IEvent.Parental):
+                        _parental = s.Parental;
+                        NotifyPropertyChanged(nameof(Parental));
+                        break;
+                    case nameof(IEvent.Duration):
+                        _duration = s.Duration;
+                        NotifyPropertyChanged(nameof(Duration));
+                        break;
+                    case nameof(IEvent.EventName):
+                        ModelName = s.EventName;
+                        NotifyPropertyChanged(nameof(EventName));
+                        break;
+                    case nameof(IEvent.IdAux):
+                    case nameof(IEvent.IdProgramme):
+                        break;
+                    case nameof(IEvent.IsCGEnabled):
+                        _isCGEnabled = s.IsCGEnabled;
+                        NotifyPropertyChanged(nameof(IsCGEnabled));
+                        break;
+                    case nameof(IEvent.IsEnabled):
+                        _isEnabled = s.IsEnabled;
+                        NotifyPropertyChanged(nameof(_isEnabled));
+                        break;
+                    case nameof(IEvent.IsHold):
+                        _isHold = s.IsHold;
+                        NotifyPropertyChanged(nameof(IsHold));
+                        break;
+                    case nameof(IEvent.Media):
+                        _media = s.Media;
+                        NotifyPropertyChanged(nameof(Media));
+                        break;
+                    case nameof(IEvent.IsLoop):
+                        _isLoop = s.IsLoop;
+                        NotifyPropertyChanged(nameof(IsLoop));
+                        InvalidateRequerySuggested();
+                        break;
+                    case nameof(IEvent.RequestedStartTime):
+                        _requestedStartTime = s.RequestedStartTime;
+                        NotifyPropertyChanged(nameof(RequestedStartTime));
+                        break;
+                    case nameof(IEvent.Offset):
+                        break;
+                    case nameof(IEvent.ScheduledTime):
+                        _scheduledTime = s.ScheduledTime;
+                        NotifyPropertyChanged(nameof(ScheduledTime));
+                        break;
+                    case nameof(IEvent.ScheduledTc):
+                        _scheduledTc = s.ScheduledTc;
+                        NotifyPropertyChanged(nameof(ScheduledTc));
+                        break;
+                    case nameof(IEvent.ScheduledDelay):
+                        _scheduledDelay = s.ScheduledDelay;
+                        NotifyPropertyChanged(nameof(ScheduledDelay));
+                        break;
+                    case nameof(IEvent.PlayState):
+                        NotifyPropertyChanged(nameof(IsEditEnabled));
+                        break;
+                    case nameof(IEvent.StartType):
+                        _startType = s.StartType;
+                        NotifyPropertyChanged(nameof(StartType));
+                        NotifyPropertyChanged(nameof(IsAutoStartEvent));
+                        break;
+                    case nameof(IEvent.TransitionEasing):
+                        _transitionEasing = s.TransitionEasing;
+                        NotifyPropertyChanged(nameof(TransitionEasing));
+                        break;
+                    case nameof(IEvent.TransitionType):
+                        _transitionType = s.TransitionType;
+                        NotifyPropertyChanged(nameof(TransitionType));
+                        break;
+                    case nameof(IEvent.TransitionTime):
+                        _transitionTime = s.TransitionTime;
+                        NotifyPropertyChanged(nameof(TransitionTime));
+                        break;
+                    case nameof(IEvent.TransitionPauseTime):
+                        _transitionPauseTime = s.TransitionPauseTime;
+                        NotifyPropertyChanged(nameof(TransitionPauseTime));
+                        break;
+                    case nameof(IEvent.Prior):
+                    case nameof(IEvent.Parent):
+                        NotifyPropertyChanged(nameof(BoundEventName));
+                        break;
+                }
+                if (s is ITemplated t)
+                    switch (e.PropertyName)
+                    {
+                        case nameof(ITemplated.Method):
+                            _method = t.Method;
+                            NotifyPropertyChanged(nameof(Method));
+                            break;
+                        case nameof(ITemplated.TemplateLayer):
+                            _templateLayer = t.TemplateLayer;
+                            NotifyPropertyChanged(nameof(TemplateLayer));
+                            break;
+                        case nameof(ITemplated.Fields):
+                            _fields.Clear();
+                            if (t.Fields != null)
+                                _fields.AddRange(t.Fields);
+                            break;
+                    }
             });
-            if (e.PropertyName == nameof(IEvent.PlayState))
-            {
-                NotifyPropertyChanged(nameof(IsEditEnabled));
-                NotifyPropertyChanged(nameof(IsMovieOrLive));
-                InvalidateRequerySuggested();
-            }
-            if (e.PropertyName == nameof(IEvent.AudioVolume))
-            {
-                NotifyPropertyChanged(nameof(AudioVolumeLevel));
-                NotifyPropertyChanged(nameof(HasAudioVolume));
-                NotifyPropertyChanged(nameof(AudioVolume));
-            }
-            if (e.PropertyName == nameof(IEvent.IsLoop))
-            {
-                InvalidateRequerySuggested();
-            }
-            if (e.PropertyName == nameof(IEvent.Next))
-            {
-                NotifyPropertyChanged(nameof(CanLoop));
-            }
-            if (e.PropertyName == nameof(IEvent.StartType))
-                NotifyPropertyChanged(nameof(IsAutoStartEvent));
-            if (e.PropertyName == nameof(IEvent.AutoStartFlags))
-            {
-                NotifyPropertyChanged(nameof(AutoStartForced));
-                NotifyPropertyChanged(nameof(AutoStartDaily));
-            }
-        }
-
-        private void _onSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
-        {
-        }
-
-        private void OnLocated(object o, EventEventArgs e)
-        {
-            if (e.Event != Event)
-                return;
-            NotifyPropertyChanged(nameof(StartType));
-            NotifyPropertyChanged(nameof(BoundEventName));
-            NotifyPropertyChanged(nameof(ScheduledTime));
-            NotifyPropertyChanged(nameof(ScheduledTimeOfDay));
-            NotifyPropertyChanged(nameof(ScheduledDate));
-            NotifyPropertyChanged(nameof(IsStartEvent));
         }
 
 
         private string _validateEventName()
         {
-            var ev = _event;
+            var ev = Model;
             if (ev != null && ev.FieldLengths.TryGetValue(nameof(IEvent.EventName), out var length) && EventName.Length > length)
                 return resources._validate_TextTooLong;
             return null;
@@ -1053,7 +920,7 @@ namespace TAS.Client.ViewModels
 
         private string _validateScheduledDelay()
         {
-            var ev = _event;
+            var ev = Model;
             if (ev == null || 
                 (ev.EventType != TEventType.StillImage && ev.EventType != TEventType.CommandScript))
                 return null;
@@ -1065,7 +932,7 @@ namespace TAS.Client.ViewModels
 
         private string _validateScheduledTime()
         {
-            var ev = _event;
+            var ev = Model;
             if (ev != null && ((_startType == TStartType.OnFixedTime && (_autoStartFlags & AutoStartFlags.Daily) == AutoStartFlags.None)
                                || _startType == TStartType.Manual) && ev.PlayState == TPlayState.Scheduled && _scheduledTime < ev.Engine.CurrentTime)
                 return resources._validate_StartTimePassed;
@@ -1074,27 +941,27 @@ namespace TAS.Client.ViewModels
 
         private string _validateScheduledTc()
         {
-            var ev = _event;
+            var ev = Model;
             if (ev == null)
                 return null;
-            var media = _event.Media;
+            var media = Model.Media;
             if (ev.EventType != TEventType.Movie || media == null)
                 return null;
             if (_scheduledTc > media.Duration + media.TcStart)
                 return string.Format(resources._validate_StartTCAfterFile,
-                    (media.Duration + media.TcStart).ToSMPTETimecodeString(_engine.VideoFormat));
+                    (media.Duration + media.TcStart).ToSMPTETimecodeString(Model.Engine.VideoFormat));
             if (_scheduledTc < media.TcStart)
                 return string.Format(resources._validate_StartTCBeforeFile,
-                    media.TcStart.ToSMPTETimecodeString(_engine.VideoFormat));
+                    media.TcStart.ToSMPTETimecodeString(Model.Engine.VideoFormat));
             return null;
         }
 
         private string _validateDuration()
         {
-            var ev = _event;
+            var ev = Model;
             if (ev == null)
                 return null;
-            var media = _event.Media;
+            var media = Model.Media;
             if (ev.EventType == TEventType.Movie && media != null
                 && _duration + _scheduledTc > media.Duration + media.TcStart)
                 return resources._validate_DurationInvalid;
@@ -1125,7 +992,7 @@ namespace TAS.Client.ViewModels
         {
             using (var vm = new MediaSearchViewmodel(
                 _engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine : null,
-                _event.Engine,
+                Model.Engine,
                 mediaType, VideoLayer.Program, true, videoFormatDescription)
             {
                 BaseEvent = baseEvent,

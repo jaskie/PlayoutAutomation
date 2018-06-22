@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common;
@@ -11,7 +10,7 @@ namespace TAS.Server.Media
     {
         private TemplateMethod _method;
         private int _templateLayer;
-        private readonly ConcurrentDictionary<string, string> _fields = new ConcurrentDictionary<string, string>();
+        private Dictionary<string, string> _fields;
 
 
         public AnimatedMedia(IMediaDirectory directory, Guid guid, ulong idPersistentMedia) : base(directory, guid, idPersistentMedia)
@@ -20,16 +19,10 @@ namespace TAS.Server.Media
         }
 
         [JsonProperty]
-        public IDictionary<string, string> Fields
+        public Dictionary<string, string> Fields
         {
-            get => new Dictionary<string, string>(_fields);
-            set
-            {
-                _fields.Clear();
-                foreach (var kvp in value)
-                    _fields.TryAdd(kvp.Key, kvp.Value);
-                IsModified = true;
-            }
+            get => _fields;
+            set => SetField(ref _fields, value);
         }
 
         [JsonProperty]
