@@ -19,7 +19,7 @@ using TAS.Client.NDIVideoPreview.Interop;
 namespace TAS.Client.NDIVideoPreview
 {
     [Export(typeof(Common.Plugin.IVideoPreview))]
-    public class VideoPreviewViewmodel : ViewmodelBase, Common.Plugin.IVideoPreview
+    public class VideoPreviewViewmodel : ViewModelBase, Common.Plugin.IVideoPreview
     {
         private const double MinAudioLevel = -60;
         private Dictionary<string, NDIlib_source_t> _ndiSources;

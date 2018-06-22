@@ -10,12 +10,20 @@ namespace TAS.Client.Config
 
         public CreateDatabaseViewmodel(): base(new Model.CreateDatabase(), typeof(CreateDatabaseView), "Create database") 
         {
-            CommandEditConnectionString = new UICommand() { ExecuteDelegate = _editConnectionString };
+            CommandEditConnectionString = new UICommand { ExecuteDelegate = _editConnectionString };
         }
 
-        public string ConnectionString { get { return _connectionString; } set { SetField(ref _connectionString, value); } }
+        public string ConnectionString
+        {
+            get => _connectionString;
+            set => SetField(ref _connectionString, value);
+        }
 
-        public string Collation { get { return _collation; } set { SetField(ref _collation, value); } }
+        public string Collation
+        {
+            get => _collation;
+            set => SetField(ref _collation, value);
+        }
 
         public static string[] Collations => Config.Model.CreateDatabase.Collations;
 
@@ -34,7 +42,6 @@ namespace TAS.Client.Config
         {
             using (var vm = new ConnectionStringViewmodel(ConnectionString))
             {
-                vm.Load();
                 if (vm.ShowDialog() == true)
                     ConnectionString = vm.Model.ConnectionString;
             }

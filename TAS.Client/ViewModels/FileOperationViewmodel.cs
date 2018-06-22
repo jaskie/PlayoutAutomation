@@ -8,7 +8,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class FileOperationViewmodel: ViewmodelBase
+    public class FileOperationViewmodel: ViewModelBase
     {
         private bool _isWarning;
 

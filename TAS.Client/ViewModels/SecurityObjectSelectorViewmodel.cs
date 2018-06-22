@@ -6,7 +6,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class SecurityObjectSelectorViewmodel: ViewmodelBase
+    public class SecurityObjectSelectorViewmodel: ViewModelBase
     {
         private ISecurityObject _selectedSecurityObject;
         

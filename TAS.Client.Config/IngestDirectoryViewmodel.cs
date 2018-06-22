@@ -45,12 +45,7 @@ namespace TAS.Client.Config
         {
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             OwnerCollection = ownerCollection;
-            SubDirectoriesVM = new ObservableCollection<IngestDirectoryViewmodel>(model.SubDirectoriesSerialized.Select(s =>
-            {
-                var newVm = new IngestDirectoryViewmodel(s, SubDirectoriesVM);
-                newVm.Load();
-                return newVm;
-            }));
+            SubDirectoriesVM = new ObservableCollection<IngestDirectoryViewmodel>(model.SubDirectoriesSerialized.Select(s => new IngestDirectoryViewmodel(s, SubDirectoriesVM)));
         }
         
         #region Enumerations
@@ -68,23 +63,52 @@ namespace TAS.Client.Config
         #endregion // Enumerations
         
         #region IIngestDirectoryProperties
-        public string DirectoryName { get { return _directoryName; } set { SetField(ref _directoryName, value); } }
 
-        public string Folder { get { return _folder; } set { SetField(ref _folder, value); } }
+        public string DirectoryName
+        {
+            get => _directoryName;
+            set => SetField(ref _directoryName, value);
+        }
 
-        public string Username { get { return _username; } set { SetField(ref _username, value); } }
+        public string Folder
+        {
+            get => _folder;
+            set => SetField(ref _folder, value);
+        }
 
-        public string Password { get { return _password; } set { SetField(ref _password, value); } }
+        public string Username
+        {
+            get => _username;
+            set => SetField(ref _username, value);
+        }
 
-        public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value); } }
+        public string Password
+        {
+            get => _password;
+            set => SetField(ref _password, value);
+        }
 
-        public double AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value); } }
+        public TAspectConversion AspectConversion
+        {
+            get => _aspectConversion;
+            set => SetField(ref _aspectConversion, value);
+        }
 
-        public bool DeleteSource { get { return _deleteSource; } set { SetField(ref _deleteSource, value); } }
+        public double AudioVolume
+        {
+            get => _audioVolume;
+            set => SetField(ref _audioVolume, value);
+        }
+
+        public bool DeleteSource
+        {
+            get => _deleteSource;
+            set => SetField(ref _deleteSource, value);
+        }
 
         public TIngestDirectoryKind Kind
         {
-            get { return _kind; }
+            get => _kind;
             set
             {
                 if (SetField(ref _kind, value))
@@ -92,49 +116,109 @@ namespace TAS.Client.Config
             }
         }
 
-        public bool IsWAN { get { return _isWAN; } set { SetField(ref _isWAN, value); } }
+        public bool IsWAN
+        {
+            get => _isWAN;
+            set => SetField(ref _isWAN, value);
+        }
 
-        public bool IsRecursive { get { return _isRecursive; }  set { SetField(ref _isRecursive, value); } }
+        public bool IsRecursive
+        {
+            get => _isRecursive;
+            set => SetField(ref _isRecursive, value);
+        }
 
-        public bool IsExport { get { return _isExport; }  set { SetField(ref _isExport, value); } }
+        public bool IsExport
+        {
+            get => _isExport;
+            set => SetField(ref _isExport, value);
+        }
 
-        public bool IsImport { get { return _isImport; } set { SetField(ref _isImport, value); } }
+        public bool IsImport
+        {
+            get => _isImport;
+            set => SetField(ref _isImport, value);
+        }
 
-        public TMediaCategory MediaCategory { get { return _mediaCategory; } set { SetField(ref _mediaCategory, value); } }
+        public TMediaCategory MediaCategory
+        {
+            get => _mediaCategory;
+            set => SetField(ref _mediaCategory, value);
+        }
 
-        public bool MediaDoNotArchive { get { return _mediaDoNotArchive; } set { SetField(ref _mediaDoNotArchive, value); } }
+        public bool MediaDoNotArchive
+        {
+            get => _mediaDoNotArchive;
+            set => SetField(ref _mediaDoNotArchive, value);
+        }
 
-        public int MediaRetnentionDays { get { return _mediaRetentionDays; } set { SetField(ref _mediaRetentionDays, value); } }
+        public int MediaRetnentionDays
+        {
+            get => _mediaRetentionDays;
+            set => SetField(ref _mediaRetentionDays, value);
+        }
 
-        public bool MediaLoudnessCheckAfterIngest { get { return _mediaLoudnessCheckAfterIngest; } set { SetField(ref _mediaLoudnessCheckAfterIngest, value); } }
+        public bool MediaLoudnessCheckAfterIngest
+        {
+            get => _mediaLoudnessCheckAfterIngest;
+            set => SetField(ref _mediaLoudnessCheckAfterIngest, value);
+        }
 
-        public TFieldOrder SourceFieldOrder { get { return _sourceFieldOrder; } set { SetField(ref _sourceFieldOrder, value); } }
+        public TFieldOrder SourceFieldOrder
+        {
+            get => _sourceFieldOrder;
+            set => SetField(ref _sourceFieldOrder, value);
+        }
 
-        public TmXFAudioExportFormat MXFAudioExportFormat { get { return _mXFAudioExportFormat; } set { SetField(ref _mXFAudioExportFormat, value); } }
+        public TmXFAudioExportFormat MXFAudioExportFormat
+        {
+            get => _mXFAudioExportFormat;
+            set => SetField(ref _mXFAudioExportFormat, value);
+        }
 
-        public TmXFVideoExportFormat MXFVideoExportFormat { get { return _mXFVideoExportFormat; } set { SetField(ref _mXFVideoExportFormat, value); } }
+        public TmXFVideoExportFormat MXFVideoExportFormat
+        {
+            get => _mXFVideoExportFormat;
+            set => SetField(ref _mXFVideoExportFormat, value);
+        }
 
-        public string EncodeParams { get { return _encodeParams; } set { SetField(ref _encodeParams, value); } }
+        public string EncodeParams
+        {
+            get => _encodeParams;
+            set => SetField(ref _encodeParams, value);
+        }
 
         public TMovieContainerFormat ExportContainerFormat
         {
-            get { return _exportFormat; }
+            get => _exportFormat;
             set
             {
                 if (SetField(ref _exportFormat, value))
                     NotifyPropertyChanged(nameof(IsMxf));
             }
         }
-        
-        public TVideoFormat ExportVideoFormat { get { return _exportVideoFormat; } set { SetField(ref _exportVideoFormat, value); } }
 
-        public string ExportParams { get { return _exportParams; }  set { SetField(ref _exportParams, value); } }
-        
-        public string[] Extensions { get { return _extensions; } set { SetField(ref _extensions, value); } }
+        public TVideoFormat ExportVideoFormat
+        {
+            get => _exportVideoFormat;
+            set => SetField(ref _exportVideoFormat, value);
+        }
+
+        public string ExportParams
+        {
+            get => _exportParams;
+            set => SetField(ref _exportParams, value);
+        }
+
+        public string[] Extensions
+        {
+            get => _extensions;
+            set => SetField(ref _extensions, value);
+        }
 
         public TVideoCodec VideoCodec
         {
-            get { return _videoCodec; }
+            get => _videoCodec;
             set
             {
                 if (SetField(ref _videoCodec, value))
@@ -144,7 +228,7 @@ namespace TAS.Client.Config
 
         public TAudioCodec AudioCodec
         {
-            get { return _audioCodec; }
+            get => _audioCodec;
             set
             {
                 if (SetField(ref _audioCodec, value))
@@ -152,9 +236,17 @@ namespace TAS.Client.Config
             }
         }
 
-        public double VideoBitrateRatio { get { return _videoBitrateRatio; } set { SetField(ref _videoBitrateRatio, value); }}
+        public double VideoBitrateRatio
+        {
+            get => _videoBitrateRatio;
+            set => SetField(ref _videoBitrateRatio, value);
+        }
 
-        public double AudioBitrateRatio { get { return _audioBitrateRatio; } set { SetField(ref _audioBitrateRatio, value); } }
+        public double AudioBitrateRatio
+        {
+            get => _audioBitrateRatio;
+            set => SetField(ref _audioBitrateRatio, value);
+        }
 
         public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return SubDirectoriesVM.Select(vm => vm.Model); } }
 
@@ -166,7 +258,7 @@ namespace TAS.Client.Config
 
         public bool AudioDoNotEncode => _audioCodec == TAudioCodec.copy;
 
-        public override void Update(object destObject = null)
+        protected override void Update(object destObject = null)
         {
             base.Update();
             foreach (var vm in SubDirectoriesVM)
@@ -180,10 +272,7 @@ namespace TAS.Client.Config
             {
                 return base.IsModified || SubDirectoriesVM.Any(d => d.IsModified);
             }
-            protected set
-            {
-                base.IsModified = value;
-            }
+            set => base.IsModified = value;
         }
 
         public override string ToString()
@@ -195,7 +284,7 @@ namespace TAS.Client.Config
 
         public IngestDirectoryViewmodel AddSubdirectory()
         {
-            var dir = new IngestDirectory() { DirectoryName = Common.Properties.Resources._title_NewDirectory };
+            var dir = new IngestDirectory { DirectoryName = Common.Properties.Resources._title_NewDirectory };
             var dirVM = new IngestDirectoryViewmodel(dir, SubDirectoriesVM);
             SubDirectoriesVM.Add(dirVM);
             IsModified = true;
@@ -206,5 +295,9 @@ namespace TAS.Client.Config
 
         protected override void OnDispose() { }
 
+        public void SaveToModel()
+        {
+            Update(Model);
+        }
     }
 }

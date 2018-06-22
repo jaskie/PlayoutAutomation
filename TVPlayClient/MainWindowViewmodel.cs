@@ -9,11 +9,11 @@ using TAS.Common;
 
 namespace TVPlayClient
 {
-    public class MainWindowViewmodel : ViewmodelBase
+    public class MainWindowViewmodel : ViewModelBase
     {
         private const string ConfigurationFileName = "Channels.xml";
         private readonly string _configurationFile;
-        private ViewmodelBase _content;
+        private ViewModelBase _content;
         private bool _showConfigButton = true;
 
         public MainWindowViewmodel()
@@ -29,7 +29,7 @@ namespace TVPlayClient
 
         public ICommand CommandConfigure { get; }
 
-        public ViewmodelBase Content { get { return _content; } private set { SetField(ref _content, value); } }
+        public ViewModelBase Content { get { return _content; } private set { SetField(ref _content, value); } }
 
         public bool ShowConfigButton { get { return _showConfigButton; } private set { SetField(ref _showConfigButton, value); } }
 

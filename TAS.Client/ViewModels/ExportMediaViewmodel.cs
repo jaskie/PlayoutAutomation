@@ -7,7 +7,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class ExportMediaViewmodel : ViewmodelBase
+    public class ExportMediaViewmodel : ViewModelBase
     {
         private readonly IEngine _engine;
 

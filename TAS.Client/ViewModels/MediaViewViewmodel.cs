@@ -10,7 +10,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaViewViewmodel: ViewmodelBase
+    public class MediaViewViewmodel: ViewModelBase
     {
         public readonly IMedia Media;
         private readonly Lazy<ObservableCollection<MediaSegmentViewmodel>> _mediaSegments;

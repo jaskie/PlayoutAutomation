@@ -9,7 +9,6 @@ namespace TAS.Server.Media
     public class ServerMedia: PersistentMedia, IServerMedia
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ServerMedia));
-        private bool _isPRI;
         private bool _doNotArchive;
         Lazy<bool> _isArchived;
 
@@ -21,9 +20,6 @@ namespace TAS.Server.Media
 
         [JsonProperty]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ServerMediaFieldLengths;
-
-        // media properties
-        public bool IsPRI { get => _isPRI; set { if (value) _isPRI = true; } } //one-way to true only
 
         [JsonProperty]
         public bool DoNotArchive

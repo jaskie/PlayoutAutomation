@@ -19,11 +19,11 @@ namespace TAS.Client.ViewModels
 
         public string Name
         {
-            get { return _name; }
-            set { SetField(ref _name, value); }
+            get => _name;
+            set => SetField(ref _name, value);
         }
 
-        public override void Update(object destObject = null)
+        protected override void Update(object destObject = null)
         {
             base.Update(destObject);
             Model.Save();

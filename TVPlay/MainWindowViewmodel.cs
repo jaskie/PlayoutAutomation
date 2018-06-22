@@ -9,14 +9,14 @@ using TAS.Server;
 
 namespace TAS.Client
 {
-    public class MainWindowViewmodel : ViewmodelBase
+    public class MainWindowViewmodel : ViewModelBase
     {
 
         public MainWindowViewmodel()
         {
             if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
             {
-                Tabs = new List<ViewmodelBase>(
+                Tabs = new List<ViewModelBase>(
                     EngineController.Engines.Select(engine => 
                     {
                         SplashScreenView.Current?.Notify($"Creating {engine.EngineName}...");
@@ -25,7 +25,7 @@ namespace TAS.Client
             }
         }
 
-        public List<ViewmodelBase> Tabs { get; } = new List<ViewmodelBase>();
+        public List<ViewModelBase> Tabs { get; } = new List<ViewModelBase>();
 
         protected override void OnDispose()
         {

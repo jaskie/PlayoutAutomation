@@ -15,7 +15,11 @@ namespace TAS.Remoting.Model
 
         #pragma warning restore
 
-        public bool DoNotArchive { get { return _doNotArchive; } set { Set(value); } }
+        public bool DoNotArchive
+        {
+            get => _doNotArchive;
+            set => Set(value);
+        }
         public bool IsArchived => _isArchived;
     }
 }

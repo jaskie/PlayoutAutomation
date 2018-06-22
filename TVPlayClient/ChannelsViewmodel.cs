@@ -4,7 +4,7 @@ using TAS.Client.Common;
 
 namespace TVPlayClient
 {
-    public class ChannelsViewmodel : ViewmodelBase
+    public class ChannelsViewmodel : ViewModelBase
     {
         private readonly List<ChannelWrapperViewmodel> _channels;
 

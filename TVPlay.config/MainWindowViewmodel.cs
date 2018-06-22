@@ -4,7 +4,7 @@ using TAS.Client.Common;
 
 namespace TAS.Client.Config
 {
-    public class MainWindowViewmodel: ViewmodelBase
+    public class MainWindowViewmodel: ViewModelBase
     {
         private Model.ConfigFile _configFile;
 
@@ -27,8 +27,8 @@ namespace TAS.Client.Config
 
         public Model.ConfigFile ConfigFile
         {
-            get { return _configFile; }
-            set { SetField(ref _configFile, value); }
+            get => _configFile;
+            set => SetField(ref _configFile, value);
         }
 
         protected override void OnDispose() { }
@@ -38,7 +38,6 @@ namespace TAS.Client.Config
             using (var vm = new EnginesViewmodel(_configFile.connectionStrings.tasConnectionString,
                 _configFile.connectionStrings.tasConnectionStringSecondary))
             {
-                vm.Load();
                 vm.ShowDialog();
             }
         }
@@ -48,7 +47,6 @@ namespace TAS.Client.Config
             using (var vm = new PlayoutServersViewmodel(_configFile.connectionStrings.tasConnectionString,
                 _configFile.connectionStrings.tasConnectionStringSecondary))
             {
-                vm.Load();
                 vm.ShowDialog();
             }
         }
@@ -63,14 +61,12 @@ namespace TAS.Client.Config
         private void _configFileEdit(object obj)
         {
             ConfigFileViewmodel vm = new ConfigFileViewmodel(_configFile);
-            vm.Load();
             vm.ShowDialog();
         }
 
         private void _ingestFoldersSetup(object obj)
         {
             IngestDirectoriesViewmodel vm = new IngestDirectoriesViewmodel(_configFile.appSettings.IngestFolders);
-            vm.Load();
             vm.ShowDialog();
         }
 

@@ -5,7 +5,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class EngineCGElementsControllerViewmodel : ViewmodelBase, ICGElementsState
+    public class EngineCGElementsControllerViewmodel : ViewModelBase, ICGElementsState
     {
         private const byte None = 0;
         private readonly ICGElementsController _controller;

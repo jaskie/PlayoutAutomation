@@ -44,7 +44,7 @@ namespace TAS.Client.Config.Model
 
         public TVideoFormat VideoFormat { get; set; }
 
-        public double VolumeReferenceLoudness { get; set; }
+        public double VolumeReferenceLoudness { get; set; } = -23;
 
         public RemoteHost Remote { get; set; }
 
@@ -59,6 +59,9 @@ namespace TAS.Client.Config.Model
 
         [XmlIgnore]
         public bool IsNew = true;
+
+        [XmlIgnore]
+        public IDictionary<string, int> FieldLengths { get; set; }
 
         public void Save()
         {

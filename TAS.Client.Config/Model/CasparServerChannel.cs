@@ -5,13 +5,9 @@ namespace TAS.Client.Config.Model
 {
     public class CasparServerChannel: IPlayoutServerChannelProperties
     {
-        public CasparServerChannel()
-        {
-            MasterVolume = 1;
-        }
         public int Id { get; set; }
         public string ChannelName { get; set; }
-        public double MasterVolume { get; set; } 
+        public double MasterVolume { get; set; } = 1;
         public string LiveDevice { get; set; }
         public string PreviewUrl { get; set; }
 

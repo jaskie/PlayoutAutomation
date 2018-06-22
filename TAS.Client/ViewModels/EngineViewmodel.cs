@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Threading;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -19,7 +18,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class EngineViewmodel : ViewmodelBase
+    public class EngineViewmodel : ViewModelBase
     {
         private EventPanelViewmodelBase _selectedEvent;
         private DateTime _currentTime;
@@ -932,13 +931,12 @@ namespace TAS.Client.ViewModels
             try
             {
                 var pluginPath = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
-                if (Directory.Exists(pluginPath))
-                {
-                    DirectoryCatalog catalog = new DirectoryCatalog(pluginPath);
-                    _uiContainer = new CompositionContainer(catalog);
-                    _uiContainer.ComposeExportedValue<Func<PluginExecuteContext>>(_getPluginContext);
-                    _uiContainer.SatisfyImportsOnce(this);
-                }
+                if (!Directory.Exists(pluginPath))
+                    return;
+                DirectoryCatalog catalog = new DirectoryCatalog(pluginPath);
+                _uiContainer = new CompositionContainer(catalog);
+                _uiContainer.ComposeExportedValue<Func<PluginExecuteContext>>(_getPluginContext);
+                _uiContainer.SatisfyImportsOnce(this);
             }
             catch (Exception e)
             {

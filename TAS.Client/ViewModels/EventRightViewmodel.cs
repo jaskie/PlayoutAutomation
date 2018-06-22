@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TAS.Common;
+﻿using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
@@ -24,41 +19,43 @@ namespace TAS.Client.ViewModels
 
         public bool Create
         {
-            get { return _create; }
+            get => _create;
             set
             {
-                if (SetField(ref _create, value))
-                    if (value)
-                        Acl |= (ulong)EventRight.Create;
-                    else
-                        Acl &= ~(ulong)EventRight.Create;
+                if (!SetField(ref _create, value))
+                    return;
+                if (value)
+                    Acl |= (ulong)EventRight.Create;
+                else
+                    Acl &= ~(ulong)EventRight.Create;
             }
         }
 
         public bool Delete
         {
-            get { return _delete; }
+            get => _delete;
             set
             {
-                if (SetField(ref _delete, value))
-                    if (value)
-                        Acl |= (ulong)EventRight.Delete;
-                    else
-                        Acl &= ~(ulong)EventRight.Delete;
+                if (!SetField(ref _delete, value))
+                    return;
+                if (value)
+                    Acl |= (ulong)EventRight.Delete;
+                else
+                    Acl &= ~(ulong)EventRight.Delete;
             }
         }
 
         public bool Modify
         {
-            get { return _modify; }
+            get => _modify;
             set
             {
-                if (SetField(ref _modify, value))
-                    if (value)
-                        Acl |= (ulong)EventRight.Modify;
-                    else
-                        Acl &= ~(ulong)EventRight.Modify;
-
+                if (!SetField(ref _modify, value))
+                    return;
+                if (value)
+                    Acl |= (ulong)EventRight.Modify;
+                else
+                    Acl &= ~(ulong)EventRight.Modify;
             }
         }
 

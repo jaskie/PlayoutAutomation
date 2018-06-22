@@ -9,7 +9,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    internal class IngestEditorViewmodel : ViewmodelBase
+    internal class IngestEditorViewmodel : ModifyableViewModelBase
     {
         private readonly IEngine _engine;
         private IngestOperationViewModel _selectedOperation;
@@ -70,7 +70,7 @@ namespace TAS.Client.ViewModels
             {
                 operation.PropertyChanged -= _convertOperationPropertyChanged;
                 operation.Dispose();
-                OnModified();
+                OnModifiedChanged();
                 SelectedOperation = OperationList[Math.Min(OperationList.Count - 1, operaionIndex)];
                 NotifyPropertyChanged(nameof(ShowMediaList));
             }

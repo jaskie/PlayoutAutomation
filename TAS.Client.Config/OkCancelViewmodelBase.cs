@@ -9,9 +9,7 @@ namespace TAS.Client.Config
     public abstract class OkCancelViewmodelBase<TM> : EditViewmodelBase<TM>
     {
         public delegate bool OnOkDelegate(object parameter);
-        private bool? _showResult;
         private OkCancelView _currentWindow;
-        private string _title;
 
         protected OkCancelViewmodelBase(TM model, Type editor, string windowTitle) : base(model)
         {
@@ -21,7 +19,7 @@ namespace TAS.Client.Config
             Editor = (UserControl)Activator.CreateInstance(editor);
         }
 
-        public string Title { get { return _title; } set { SetField(ref _title, value, setIsModified: false); } }
+        public string Title { get; }
 
         public UserControl Editor { get; }
 
@@ -45,11 +43,9 @@ namespace TAS.Client.Config
                 ShowInTaskbar = false,
                 ResizeMode = ResizeMode.NoResize
             };
-            _showResult = _currentWindow.ShowDialog();
+            ShowResult = _currentWindow.ShowDialog();
             _currentWindow = null;
-            if (_showResult == false)
-                Load();
-            return _showResult;
+            return ShowResult;
         }
 
         public virtual MessageBoxResult ShowMessage(string messageBoxText, string caption, MessageBoxButton button, MessageBoxImage icon)
@@ -59,7 +55,7 @@ namespace TAS.Client.Config
             return MessageBox.Show(_currentWindow, messageBoxText, caption, button, icon);
         }
 
-        public bool? ShowResult => _showResult;
+        public bool? ShowResult { get; private set; }
 
         protected virtual void Close(object parameter)
         {

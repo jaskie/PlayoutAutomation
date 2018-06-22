@@ -23,7 +23,6 @@ namespace TAS.Client.Config
         {
             foreach (var item in Model.Select(d => new IngestDirectoryViewmodel(d, Directories)))
             {
-                item.Load();
                 Directories.Add(item);
             }
             _fileName = fileName;
@@ -44,22 +43,21 @@ namespace TAS.Client.Config
         
         public IngestDirectoryViewmodel SelectedDirectory
         {
-            get { return _selectedDirectory; }
+            get => _selectedDirectory;
             set
             {
-                if (_selectedDirectory != value)
-                {
-                    _selectedDirectory = value;
-                    NotifyPropertyChanged();
-                }
+                if (_selectedDirectory == value)
+                    return;
+                _selectedDirectory = value;
+                NotifyPropertyChanged();
             }
         }
         
         public override bool IsModified { get { return _added || _deleted || _moved|| Directories.Any(d => d.IsModified); } }
 
-        public override void Update(object parameter = null)
+        protected override void Update(object parameter = null)
         {
-            Directories.Where(d => d.IsModified).ToList().ForEach(d => d.Update());
+            Directories.Where(d => d.IsModified).ToList().ForEach(d => d.SaveToModel());
             XmlSerializer writer = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(_fileName))
             {

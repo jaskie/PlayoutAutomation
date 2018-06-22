@@ -53,7 +53,7 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _isAdmin, value);
         }
 
-        public override void Update(object destObject = null)
+        protected override void Update(object destObject = null)
         {
             var actualGroups = Model.GetGroups();
             foreach (var group in AllGroups)

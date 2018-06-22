@@ -24,7 +24,6 @@ namespace TAS.Client.Config
             PlayoutServerChannels = new ObservableCollection<PlayoutServerChannelViewmodel>(playoutServer.Channels.Select(p =>
                 {
                     var newVm = new PlayoutServerChannelViewmodel(p);
-                    newVm.Load();
                     return newVm;
                 }));
             PlayoutServerChannels.CollectionChanged += _playoutServerChannels_CollectionChanged;
@@ -34,7 +33,6 @@ namespace TAS.Client.Config
             PlayoutServerRecorders = new ObservableCollection<PlayoutRecorderViewmodel>(playoutServer.Recorders.Select(r =>
             {
                 var newVm = new PlayoutRecorderViewmodel(r);
-                newVm.Load();
                 return newVm;
             }));
             PlayoutServerRecorders.CollectionChanged += _playoutRecorders_CollectionChanged;
@@ -53,17 +51,33 @@ namespace TAS.Client.Config
         
         public bool IsRecordersVisible => _serverType == TServerType.CasparTVP;
 
-        public string ServerAddress { get { return _serverAddress; } set { SetField(ref _serverAddress, value); } }
+        public string ServerAddress
+        {
+            get => _serverAddress;
+            set => SetField(ref _serverAddress, value);
+        }
 
-        public int OscPort { get { return _oscPort; } set{ SetField(ref _oscPort, value); } }
+        public int OscPort
+        {
+            get => _oscPort;
+            set => SetField(ref _oscPort, value);
+        }
 
-        public string MediaFolder { get { return _mediaFolder; } set { SetField(ref _mediaFolder, value); } }
+        public string MediaFolder
+        {
+            get => _mediaFolder;
+            set => SetField(ref _mediaFolder, value);
+        }
 
-        public string AnimationFolder { get { return _animationFolder; } set { SetField(ref _animationFolder, value); } }
+        public string AnimationFolder
+        {
+            get => _animationFolder;
+            set => SetField(ref _animationFolder, value);
+        }
 
         public TServerType ServerType
         {
-            get { return _serverType; }
+            get => _serverType;
             set
             {
                 if (SetField(ref _serverType, value))
@@ -75,8 +89,14 @@ namespace TAS.Client.Config
 
         public PlayoutServerChannelViewmodel SelectedPlayoutServerChannel
         {
-            get { return _selectedPlayoutServerChannel; }
-            set { SetField(ref _selectedPlayoutServerChannel, value); }
+            get => _selectedPlayoutServerChannel;
+            set
+            {
+                if (_selectedPlayoutServerChannel == value)
+                    return;
+                _selectedPlayoutServerChannel = value;
+                NotifyPropertyChanged();
+            }
         }
 
         public ObservableCollection<PlayoutServerChannelViewmodel> PlayoutServerChannels { get; }
@@ -85,19 +105,22 @@ namespace TAS.Client.Config
 
         public PlayoutRecorderViewmodel SelectedPlayoutRecorder
         {
-            get { return _selectedPlayoutRecorder; }
+            get => _selectedPlayoutRecorder;
             set
             {
-                SetField(ref _selectedPlayoutRecorder, value);
+                if (_selectedPlayoutRecorder == value)
+                    return;
+                _selectedPlayoutRecorder = value;
+                NotifyPropertyChanged();
             }
         }
 
-        public override void Update(object destObject = null)
+        protected override void Update(object destObject = null)
         {
             foreach (var ch in PlayoutServerChannels)
-                ch.Update();
+                ch.Save();
             foreach (var r in PlayoutServerRecorders)
-                r.Update();
+                r.Save();
             base.Update(destObject);
         }
 
@@ -157,5 +180,9 @@ namespace TAS.Client.Config
         }
 
 
+        public void Save()
+        {
+            Update(Model);
+        }
     }
 }

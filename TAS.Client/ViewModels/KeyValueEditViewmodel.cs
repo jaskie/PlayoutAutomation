@@ -4,7 +4,7 @@ using TAS.Client.Common;
 
 namespace TAS.Client.ViewModels
 {
-    public class KeyValueEditViewmodel : ViewmodelBase
+    public class KeyValueEditViewmodel : ViewModelBase
     {
 
         private string _key;

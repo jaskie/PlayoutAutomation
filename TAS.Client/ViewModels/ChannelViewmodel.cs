@@ -5,7 +5,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class ChannelViewmodel : ViewmodelBase
+    public class ChannelViewmodel : ViewModelBase
     {
         private int _selectedTabIndex;
 

@@ -10,7 +10,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class PreviewViewmodel : ViewmodelBase
+    public class PreviewViewmodel : ViewModelBase
     {
         private IMedia _selectedMedia;
         private IEvent _selectedEvent;

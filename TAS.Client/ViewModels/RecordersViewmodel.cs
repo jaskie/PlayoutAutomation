@@ -13,13 +13,13 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class RecordersViewmodel : ViewmodelBase, IDataErrorInfo
+    public class RecordersViewmodel : ViewModelBase, IDataErrorInfo
     {
         private readonly IEngine _engine;
         private string _mediaName;
         private string _idAux;
         private IRecorder _recorder;
-        private List<IPlayoutServerChannel> _channels;
+        private IEnumerable<IPlayoutServerChannel> _channels;
         private IPlayoutServerChannel _channel;
         private TimeSpan _tcIn;
         private bool _isNarrowMode;
@@ -94,7 +94,7 @@ namespace TAS.Client.ViewModels
 
         public IEnumerable<IRecorder> Recorders { get; }
 
-        public List<IPlayoutServerChannel> Channels
+        public IEnumerable<IPlayoutServerChannel> Channels
         {
             get => _channels;
             private set => SetField(ref _channels, value);

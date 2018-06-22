@@ -16,15 +16,32 @@ namespace TAS.Client.Config
             _recorderName = r.RecorderName;
         }
 
-        public int Id { get { return _id; } set { SetField(ref _id, value); } }
+        public int Id
+        {
+            get => _id;
+            set => SetField(ref _id, value);
+        }
 
-        public string RecorderName { get { return _recorderName; } set { SetField(ref _recorderName, value); } }
+        public string RecorderName
+        {
+            get => _recorderName;
+            set => SetField(ref _recorderName, value);
+        }
 
-        public int DefaultChannel { get { return _defaultChannel; } set { SetField(ref _defaultChannel, value); } }
+        public int DefaultChannel
+        {
+            get => _defaultChannel;
+            set => SetField(ref _defaultChannel, value);
+        }
 
         protected override void OnDispose()
         {
             
+        }
+
+        public void Save()
+        {
+            Update(Model);
         }
     }
 }

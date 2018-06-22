@@ -13,7 +13,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 namespace TAS.Client.ViewModels
 {
     [DebuggerDisplay("{" + nameof(EventName) + "}")]
-    public abstract class EventPanelViewmodelBase : ViewmodelBase
+    public abstract class EventPanelViewmodelBase : ViewModelBase
     {
         protected readonly IEngine Engine;
         protected readonly EngineViewmodel EngineViewmodel;

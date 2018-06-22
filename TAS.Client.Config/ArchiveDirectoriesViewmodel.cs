@@ -47,8 +47,18 @@ namespace TAS.Client.Config
         public ObservableCollection<ArchiveDirectory> Directories { get; }
 
         ArchiveDirectory _selectedDirectory;
-        
-        public ArchiveDirectory SelectedDirectory { get { return _selectedDirectory; } set { SetField(ref _selectedDirectory, value); } }
+
+        public ArchiveDirectory SelectedDirectory
+        {
+            get => _selectedDirectory;
+            set
+            {
+                if (_selectedDirectory == value)
+                    return;
+                _selectedDirectory = value;
+                NotifyPropertyChanged();
+            }
+        }
         
         protected override void OnDispose()
         {
@@ -56,7 +66,7 @@ namespace TAS.Client.Config
         
         public override bool IsModified { get { return Model.Directories.Any(d => d.IsModified || d.IsDeleted | d.IsNew); } }
 
-        public override void Update(object parameter = null)
+        protected override void Update(object parameter = null)
         {
             Model.Save();
         }

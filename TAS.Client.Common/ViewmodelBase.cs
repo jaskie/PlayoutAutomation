@@ -15,12 +15,11 @@ namespace TAS.Client.Common
     /// It provides support for property change notifications 
     /// and has a DisplayName property.  This class is abstract.
     /// </summary>
-    public abstract class ViewmodelBase : INotifyPropertyChanged, IDisposable
+    public abstract class ViewModelBase : INotifyPropertyChanged, IDisposable
     {
 
         private bool _disposed;
-        private bool _isModified;
-
+        
 
         #region Constructor / Destructor
 
@@ -28,7 +27,7 @@ namespace TAS.Client.Common
         /// <summary>
         /// Useful for ensuring that ViewModel objects are properly garbage collected.
         /// </summary>
-        ~ViewmodelBase()
+        ~ViewModelBase()
         {
             Debug.WriteLine($"{GetType().Name} ({this}) ({GetHashCode()}) Finalized");
         }
@@ -112,39 +111,14 @@ namespace TAS.Client.Common
 
         #endregion // IDisposable Members
 
-        protected virtual void OnModified()
-        {
-            Modified?.Invoke(this, EventArgs.Empty);
-            InvalidateRequerySuggested();
-            NotifyPropertyChanged(nameof(IsModified));
-        }
-
-        public virtual bool IsModified
-        {
-            get { return _isModified; }
-            protected set
-            {
-                if (_isModified == value)
-                    return;
-                _isModified = value;
-                if (value)
-                    OnModified();
-            }
-        }
-
-        public event EventHandler Modified;
-
-        protected virtual bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null, bool setIsModified = true)
+        protected virtual bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             VerifyPropertyName(propertyName);
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
             field = value;
             NotifyPropertyChanged(propertyName);
-            if (setIsModified)
-                IsModified = true;
             return true;
         }
-
         protected virtual void InvalidateRequerySuggested()
         {
             Application.Current?.Dispatcher.BeginInvoke((Action)CommandManager.InvalidateRequerySuggested);

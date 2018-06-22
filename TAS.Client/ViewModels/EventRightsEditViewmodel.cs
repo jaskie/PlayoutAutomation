@@ -4,12 +4,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
-using resources = TAS.Client.Common.Properties.Resources;
 
 
 namespace TAS.Client.ViewModels
 {
-    public class EventRightsEditViewmodel: ViewmodelBase
+    public class EventRightsEditViewmodel: ModifyableViewModelBase
     {
         private readonly IEvent _ev;
         private readonly IAuthenticationService _authenticationService;
@@ -26,7 +25,7 @@ namespace TAS.Client.ViewModels
             Rights = new ObservableCollection<EventRightViewmodel>(_originalRights.Select(r => new EventRightViewmodel(r)));
             foreach (var eventRightViewmodel in Rights)
             {
-                eventRightViewmodel.Modified += EventRightViewmodel_Modified;
+                eventRightViewmodel.ModifiedChanged += EventRightViewmodelModifiedChanged;
             }
             CommandAddRight = new UICommand {ExecuteDelegate = _addRight, CanExecuteDelegate = _canAddRight};
             CommandDeleteRight = new UICommand { ExecuteDelegate = _deleteRight, CanExecuteDelegate = _canDeleteRight };
@@ -41,7 +40,13 @@ namespace TAS.Client.ViewModels
         public ISecurityObject SelectedAclObject
         {
             get => _selectedAclObject;
-            set => SetField(ref _selectedAclObject, value, setIsModified: false);
+            set
+            {
+                if (_selectedAclObject ==  value)
+                    return;
+                _selectedAclObject = value;
+                NotifyPropertyChanged();
+            }
         }
 
         public ObservableCollection<EventRightViewmodel> Rights { get; }
@@ -49,7 +54,13 @@ namespace TAS.Client.ViewModels
         public EventRightViewmodel SelectedRight
         {
             get => _selectedRight;
-            set => SetField(ref _selectedRight, value, setIsModified: false);
+            set
+            {
+                if (_selectedRight == value)
+                    return;
+                _selectedRight = value;
+                NotifyPropertyChanged();
+            }
         }
 
         public void Save()
@@ -71,7 +82,7 @@ namespace TAS.Client.ViewModels
             foreach (var aclRightViewmodel in Rights)
             {
                 aclRightViewmodel.Dispose();
-                aclRightViewmodel.Modified -= EventRightViewmodel_Modified;
+                aclRightViewmodel.ModifiedChanged -= EventRightViewmodelModifiedChanged;
             }
         }
 
@@ -87,7 +98,7 @@ namespace TAS.Client.ViewModels
                 var newRightVm = new EventRightViewmodel(right);
                 Rights.Add(newRightVm);
                 SelectedRight = newRightVm;
-                SelectedRight.Modified += EventRightViewmodel_Modified;
+                SelectedRight.ModifiedChanged += EventRightViewmodelModifiedChanged;
                 IsModified = true;
             }
         }
@@ -108,12 +119,12 @@ namespace TAS.Client.ViewModels
             if (Rights.Remove(rightToDelete))
             {
                 rightToDelete.Dispose();
-                rightToDelete.Modified -= EventRightViewmodel_Modified;
+                rightToDelete.ModifiedChanged -= EventRightViewmodelModifiedChanged;
                 IsModified = true;
             }
         }
 
-        private void EventRightViewmodel_Modified(object sender, EventArgs e)
+        private void EventRightViewmodelModifiedChanged(object sender, EventArgs e)
         {
             IsModified = true;
         }

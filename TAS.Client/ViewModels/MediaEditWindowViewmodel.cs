@@ -4,7 +4,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditWindowViewmodel : ViewmodelBase
+    public class MediaEditWindowViewmodel : ViewModelBase
     {
         public MediaEditViewmodel Editor { get; }
 

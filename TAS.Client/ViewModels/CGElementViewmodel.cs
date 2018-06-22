@@ -6,7 +6,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class CGElementViewmodel : ViewmodelBase
+    public class CGElementViewmodel : ViewModelBase
     {
         private readonly ICGElement _element;
 

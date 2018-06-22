@@ -71,35 +71,14 @@ namespace TAS.Client.ViewModels
         public ICommand CommandRefreshStatus { get; }
         public ICommand CommandCheckVolume { get; }
 
-        public override void Update(object destObject = null)
+        public void Save()
         {
-            if (IsModified)
-            {
-                PropertyInfo[] copiedProperties = GetType().GetProperties();
-                foreach (PropertyInfo copyPi in copiedProperties)
-                {
-                    PropertyInfo destPi = (destObject ?? Model).GetType().GetProperty(copyPi.Name);
-                    if (destPi != null)
-                    {
-                        if (destPi.GetValue(destObject ?? Model, null) != copyPi.GetValue(this, null)
-                            && destPi.CanWrite)
-                            destPi.SetValue(destObject ?? Model, copyPi.GetValue(this, null), null);
-                    }
-                }
-                IsModified = false;
-            }
-            if (Model is IPersistentMedia)
-                ((IPersistentMedia)Model).Save();
+            Update(Model);
         }
 
         public bool CanSave()
         {
             return IsModified && IsValid && Model.MediaStatus == TMediaStatus.Available;
-        }
-
-        public void Revert()
-        {
-            Load();
         }
 
         public bool IsVolumeChecking
@@ -115,10 +94,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public void Delete()
-        {
-            Model?.Delete();
-        }
 
         public bool ShowButtons { get; }
 
@@ -388,6 +363,12 @@ namespace TAS.Client.ViewModels
             return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(MediaType)} - {MediaName}";
         }
 
+        protected override void Update(object destObject = null)
+        {
+            base.Update(Model);
+            (Model as IPersistentMedia)?.Save();
+        }
+
         protected override void OnDispose()
         {
             Model.PropertyChanged -= OnMediaPropertyChanged;
@@ -402,61 +383,51 @@ namespace TAS.Client.ViewModels
         
         private string _validateMediaName()
         {
-            if (Model is IPersistentMedia pm && pm.FieldLengths.TryGetValue(nameof(IMedia.MediaName), out var mnLength) && MediaName.Length > mnLength)
+            if (Model is IPersistentMedia pm 
+                && MediaName != null
+                && pm.FieldLengths.TryGetValue(nameof(IMedia.MediaName), out var mnLength) 
+                && MediaName.Length > mnLength)
                 return resources._validate_TextTooLong;
-            return string.Empty;
+            return null;
         }
 
         private string _validateFileName()
         {
             var dir = Model.Directory;
             if (dir == null || _fileName == null)
-                return string.Empty;
+                return null;
             if (FileName.StartsWith(" ") || FileName.EndsWith(" "))
                 return resources._validate_FileNameCanNotStartOrEndWithSpace;
             if (FileName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
                 return resources._validate_FileNameCanNotContainSpecialCharacters;
-            FileName = FileName.ToLowerInvariant();
-            if ((Model.MediaStatus == TMediaStatus.Required || FileName != Model.FileName.ToLowerInvariant())
+            var fileName = FileName.ToLowerInvariant();
+            if ((Model.MediaStatus == TMediaStatus.Required || fileName != Model.FileName.ToLowerInvariant())
                 && dir.FileExists(FileName, Model.Folder))
                 return resources._validate_FileAlreadyExists;
-            if (Model is IPersistentMedia pm)
-            {
-                if (pm.FieldLengths.TryGetValue(nameof(IMedia.FileName), out var length) && FileName.Length > length)
-                    return resources._validate_TextTooLong;
-                if (pm.MediaType == TMediaType.Movie
-                    && !FileUtils.VideoFileTypes.Contains(Path.GetExtension(FileName).ToLower()))
-                    return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.VideoFileTypes));
-                if (pm.MediaType == TMediaType.Still
-                    && !FileUtils.StillFileTypes.Contains(Path.GetExtension(FileName).ToLower()))
-                    return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.StillFileTypes));
-            }
-            //if (dir is ArchiveDirectory)
-            //{
-            //    if (DatabaseConnector.ArchiveFileExists(dir, _fileName))
-            //        validationResult = "Plik o takiej nazwie archiwizowano już w tym miesiącu";
-            //}
-            //else
-            //    if (dir.Files.Where(m => m != media && m.FileName == _fileName).Count() > 0)
-            //        validationResult = "Plik o takiej nazwie już istnieje";
-            return string.Empty;
+            if (!(Model is IPersistentMedia pm))
+                return null;
+            if (pm.FieldLengths.TryGetValue(nameof(IMedia.FileName), out var length) && fileName.Length > length)
+                return resources._validate_TextTooLong;
+            if (pm.MediaType == TMediaType.Movie
+                && !FileUtils.VideoFileTypes.Contains(Path.GetExtension(fileName).ToLower()))
+                return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.VideoFileTypes));
+            if (pm.MediaType == TMediaType.Still
+                && !FileUtils.StillFileTypes.Contains(Path.GetExtension(fileName).ToLower()))
+                return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.StillFileTypes));
+            return null;
         }
 
         private string _validateTcPlay()
         {
-            var validationResult = string.Empty;
-            if (TcPlay < TcStart
-                || TcPlay > TcStart + Duration)
-                validationResult = resources._validateStartPlayMustBeInsideFile;
-            return validationResult;
+            return TcPlay < TcStart
+                   || TcPlay > TcStart + Duration
+                ? resources._validateStartPlayMustBeInsideFile
+                : null;
         }
 
         private string _validateDurationPlay()
         {
-            var validationResult = string.Empty;
-            if (DurationPlay + TcPlay > Duration + TcStart)
-                validationResult = resources._validate_DurationInvalid;
-            return validationResult;
+            return DurationPlay + TcPlay > Duration + TcStart ? resources._validate_DurationInvalid : null;
         }
         
         #region Command methods
@@ -506,13 +477,13 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        void _refreshStatus(object o)
+        private void _refreshStatus(object o)
         {
             Model.ReVerify();
         }
 
-        AutoResetEvent _checkVolumeSignal;
-        void _checkVolume(object o)
+        private AutoResetEvent _checkVolumeSignal;
+        private void _checkVolume(object o)
         {
             if (_isVolumeChecking)
                 return;
@@ -577,7 +548,7 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(e.PropertyName);
             }
         }
-        
+
 
     }
 

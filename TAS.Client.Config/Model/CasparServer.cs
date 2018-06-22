@@ -24,6 +24,8 @@ namespace TAS.Client.Config.Model
             return ServerAddress;
         }
 
+        public IDictionary<string, int> FieldLengths { get; }
+
         public void Save()
         {
             throw new NotImplementedException();

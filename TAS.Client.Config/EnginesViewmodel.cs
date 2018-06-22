@@ -15,12 +15,7 @@ namespace TAS.Client.Config
         public EnginesViewmodel(string connectionString, string connectionStringSecondary)
             : base(new Model.Engines(connectionString, connectionStringSecondary), typeof(EnginesView), "Engines")
         {
-            Engines = new ObservableCollection<EngineViewmodel>(Model.EngineList.Select(e =>
-            {
-                var newVm = new EngineViewmodel(e);
-                newVm.Load();
-                return newVm;
-            }));
+            Engines = new ObservableCollection<EngineViewmodel>(Model.EngineList.Select(e => new EngineViewmodel(e)));
             Engines.CollectionChanged += _engines_CollectionChanged;
             CommandAdd = new UICommand { ExecuteDelegate = _add };
             CommandDelete = new UICommand { ExecuteDelegate = o => Engines.Remove(_selectedEngine), CanExecuteDelegate = o => _selectedEngine != null };
@@ -32,12 +27,22 @@ namespace TAS.Client.Config
 
         public ObservableCollection<EngineViewmodel> Engines { get; }
 
-        public EngineViewmodel SelectedEngine { get { return _selectedEngine; } set { SetField(ref _selectedEngine, value); } }
+        public EngineViewmodel SelectedEngine
+        {
+            get => _selectedEngine;
+            set
+            {
+                if (_selectedEngine == value)
+                    return;
+                _selectedEngine = value;
+                NotifyPropertyChanged();
+            }
+        }
 
-        public override void Update(object destObject = null)
+        protected override void Update(object destObject = null)
         {
             foreach (var e in Engines)
-                e.Update();
+                e.Save();
             Model.Save();
             base.Update(destObject);
         }

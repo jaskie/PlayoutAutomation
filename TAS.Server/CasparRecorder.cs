@@ -68,7 +68,7 @@ namespace TAS.Server
         public bool IsServerConnected { get => _isServerConnected; internal set => SetField(ref _isServerConnected, value); }
 
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects), XmlIgnore]
-        public List<IPlayoutServerChannel> Channels => _ownerServer.Channels.ToList();
+        public IEnumerable<IPlayoutServerChannel> Channels => _ownerServer.Channels.ToList();
 
         [JsonProperty, XmlIgnore]
         public IMedia RecordingMedia { get => _recordingMedia; private set => SetField(ref _recordingMedia, value); }

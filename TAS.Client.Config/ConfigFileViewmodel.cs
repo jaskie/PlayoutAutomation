@@ -33,25 +33,64 @@ namespace TAS.Client.Config
             CommandTestConnectivitySecodary = new UICommand { ExecuteDelegate = _testConnectivitySecondary, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionStringSecondary) && _isConnectionStringSecondary };
             CommandCreateDatabase = new UICommand { ExecuteDelegate = _createDatabase, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
             CommandCloneDatabase = new UICommand { ExecuteDelegate = _clonePrimaryDatabase, CanExecuteDelegate = o => !(string.IsNullOrWhiteSpace(tasConnectionString) || string.IsNullOrWhiteSpace(tasConnectionStringSecondary)) };
+            Load(Model.appSettings);
+            Load(Model.connectionStrings);
+            _isConnectionStringSecondary = !string.IsNullOrWhiteSpace(tasConnectionStringSecondary);
         }
 
-        public string IngestFolders { get { return _ingestFolders; } set { SetField(ref _ingestFolders, value); } }
+        public string IngestFolders
+        {
+            get => _ingestFolders;
+            set => SetField(ref _ingestFolders, value);
+        }
 
-        public string LocalDevices { get { return _localDevices; } set { SetField(ref _localDevices, value); } }
+        public string LocalDevices
+        {
+            get => _localDevices;
+            set => SetField(ref _localDevices, value);
+        }
 
-        public string TempDirectory { get { return _tempDirectory; } set { SetField(ref _tempDirectory, value); } }
+        public string TempDirectory
+        {
+            get => _tempDirectory;
+            set => SetField(ref _tempDirectory, value);
+        }
 
-        public int Instance { get { return _instance; } set { SetField(ref _instance, value); } }
+        public int Instance
+        {
+            get => _instance;
+            set => SetField(ref _instance, value);
+        }
 
-        public string tasConnectionString { get { return _tasConnectionString; } set { SetField(ref _tasConnectionString, value); } }
+        public string tasConnectionString
+        {
+            get => _tasConnectionString;
+            set => SetField(ref _tasConnectionString, value);
+        }
 
-        public string tasConnectionStringSecondary { get { return _tasConnectionStringSecondary; } set { SetField(ref _tasConnectionStringSecondary, value); } }
+        public string tasConnectionStringSecondary
+        {
+            get => _tasConnectionStringSecondary;
+            set => SetField(ref _tasConnectionStringSecondary, value);
+        }
 
-        public bool IsBackupInstance { get { return _isBackupInstance; } set { SetField(ref _isBackupInstance, value); } }
+        public bool IsBackupInstance
+        {
+            get => _isBackupInstance;
+            set => SetField(ref _isBackupInstance, value);
+        }
 
-        public bool IsSConnectionStringSecondary { get { return _isConnectionStringSecondary; } set { SetField(ref _isConnectionStringSecondary, value); } }
+        public bool IsSConnectionStringSecondary
+        {
+            get => _isConnectionStringSecondary;
+            set => SetField(ref _isConnectionStringSecondary, value);
+        }
 
-        public string UiLanguage { get { return _uiLanguage; } set { SetField(ref _uiLanguage, value); } }
+        public string UiLanguage
+        {
+            get => _uiLanguage;
+            set => SetField(ref _uiLanguage, value);
+        }
 
         public string ExeDirectory => Path.GetDirectoryName(Model.FileName);
 
@@ -60,7 +99,6 @@ namespace TAS.Client.Config
         {
             using (var vm = new CreateDatabaseViewmodel {ConnectionString = tasConnectionString})
             {
-                vm.Load();
                 if (vm.ShowDialog() != true)
                     return;
                 if (vm.ConnectionString == tasConnectionString)
@@ -72,14 +110,7 @@ namespace TAS.Client.Config
             }
         }
 
-        public override void Load(object source = null)
-        {
-            base.Load(Model.appSettings);
-            base.Load(Model.connectionStrings);
-            _isConnectionStringSecondary = !string.IsNullOrWhiteSpace(tasConnectionStringSecondary);
-        }
-
-        public override void Update(object destObject = null)
+        protected override void Update(object destObject = null)
         {
             base.Update(Model.appSettings);
             if (!_isConnectionStringSecondary)
@@ -100,7 +131,6 @@ namespace TAS.Client.Config
         {
             using (var vm = new ConnectionStringViewmodel(_tasConnectionString))
             {
-                vm.Load();
                 if (vm.ShowDialog() == true)
                     tasConnectionString = vm.Model.ConnectionString;
             }
@@ -110,7 +140,6 @@ namespace TAS.Client.Config
         {
             using (var vm = new ConnectionStringViewmodel(_tasConnectionStringSecondary))
             {
-                vm.Load();
                 if (vm.ShowDialog() == true)
                     tasConnectionStringSecondary = vm.Model.ConnectionString;
             }

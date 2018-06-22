@@ -29,7 +29,7 @@ namespace TAS.Client.Common
         /// </summary>
         /// <typeparam name="TView">type of UserControl class to show content</typeparam>
         /// <param name="viewmodel">DataContext of the view</param>
-        public static TView ShowWindow<TView>(ViewmodelBase viewmodel) where TView: Window, new()
+        public static TView ShowWindow<TView>(ViewModelBase viewmodel) where TView: Window, new()
         {
             var newWindow = new TView
             {
@@ -45,7 +45,7 @@ namespace TAS.Client.Common
         /// </summary>
         /// <typeparam name="TView">type of UserControl class to show content</typeparam>
         /// <param name="viewmodel">DataContext of the view</param>
-        public static bool? ShowDialog<TView>(ViewmodelBase viewmodel)
+        public static bool? ShowDialog<TView>(ViewModelBase viewmodel)
             where TView : Window, new()
         {
             var newWindow = new TView

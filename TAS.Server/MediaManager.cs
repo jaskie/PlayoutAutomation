@@ -112,8 +112,7 @@ namespace TAS.Server
                 sdir.PropertyChanged += _onServerDirectoryPropertyChanged;
                 sdir.MediaSaved += _onServerDirectoryMediaSaved;
             }
-            AnimationDirectory adir = AnimationDirectoryPRI as AnimationDirectory;
-            if (adir != null)
+            if (AnimationDirectoryPRI is AnimationDirectory adir)
             {
                 adir.PropertyChanged += _onAnimationDirectoryPropertyChanged;
                 adir.MediaAdded += _onAnimationDirectoryMediaAdded;
@@ -141,12 +140,12 @@ namespace TAS.Server
             }
         }
 
-        public IEnumerable<MediaDeleteResult> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
+        public List<MediaDeleteResult> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
         {
             if (!Engine.HaveRight(EngineRight.MediaDelete))
                 return new List<MediaDeleteResult>(mediaList.Select(m => new MediaDeleteResult() {Media = m, Result = MediaDeleteResult.MediaDeleteResultEnum.InsufficentRights }));
 
-            List<MediaDeleteResult> result = new List<MediaDeleteResult>();
+            var result = new List<MediaDeleteResult>();
             foreach (var media in mediaList)
                 result.Add(_deleteMedia(media, forceDelete));
             return result;

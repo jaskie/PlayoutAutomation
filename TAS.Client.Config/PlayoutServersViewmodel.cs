@@ -14,12 +14,7 @@ namespace TAS.Client.Config
         public PlayoutServersViewmodel(string connectionString, string connectionStringSecondary)
             : base(new Model.PlayoutServers(connectionString, connectionStringSecondary), typeof(PlayoutServersView), "Playout servers")
         {
-            PlayoutServers = new ObservableCollection<PlayoutServerViewmodel>(Model.Servers.Select(s =>
-                {
-                    var vm = new PlayoutServerViewmodel(s);
-                    vm.Load();
-                    return vm;
-                }));
+            PlayoutServers = new ObservableCollection<PlayoutServerViewmodel>(Model.Servers.Select(s => new PlayoutServerViewmodel(s)));
             PlayoutServers.CollectionChanged += PlayoutServers_CollectionChanged;
             CommandAdd = new UICommand { ExecuteDelegate = Add };
             CommandDelete = new UICommand { ExecuteDelegate = o => PlayoutServers.Remove(_selectedServer), CanExecuteDelegate = o => _selectedServer != null };
@@ -31,14 +26,24 @@ namespace TAS.Client.Config
 
         public ICommand CommandDelete { get; }
 
-        public PlayoutServerViewmodel SelectedServer { get { return _selectedServer; } set { SetField(ref _selectedServer, value); } }
+        public PlayoutServerViewmodel SelectedServer
+        {
+            get => _selectedServer;
+            set
+            {
+                if (_selectedServer == value)
+                    return;
+                _selectedServer = value;
+                NotifyPropertyChanged();
+            }
+        }
 
         public ObservableCollection<PlayoutServerViewmodel> PlayoutServers { get; }
 
-        public override void Update(object destObject = null)
+        protected override void Update(object destObject = null)
         {
             foreach (PlayoutServerViewmodel s in PlayoutServers)
-                s.Update();
+                s.Save();
             Model.Save();
             base.Update(destObject);
         }

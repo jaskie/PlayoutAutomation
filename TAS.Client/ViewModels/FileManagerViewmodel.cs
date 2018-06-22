@@ -10,7 +10,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class FileManagerViewmodel : ViewmodelBase
+    public class FileManagerViewmodel : ViewModelBase
     {
         private readonly IFileManager _fileManager;
 

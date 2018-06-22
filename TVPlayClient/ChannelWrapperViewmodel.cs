@@ -11,7 +11,7 @@ using TAS.Remoting.Model;
 
 namespace TVPlayClient
 {
-    public class ChannelWrapperViewmodel : ViewmodelBase
+    public class ChannelWrapperViewmodel : ViewModelBase
     {
 
         private readonly ConfigurationChannel _configurationChannel;

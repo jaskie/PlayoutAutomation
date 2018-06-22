@@ -15,8 +15,7 @@ namespace TAS.Server.Media
 
         [JsonProperty]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ArchiveMediaFieldLengths;
-
-
+        
         public TIngestStatus IngestStatus
         {
             get

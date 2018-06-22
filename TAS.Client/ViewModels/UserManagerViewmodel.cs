@@ -9,7 +9,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class UserManagerViewmodel: ViewmodelBase
+    public class UserManagerViewmodel: ViewModelBase
     {
         private readonly IAuthenticationService _authenticationService;
         private UserViewmodel _selectedUser;
@@ -18,18 +18,8 @@ namespace TAS.Client.ViewModels
         public UserManagerViewmodel(IAuthenticationService authenticationService)
         {
             _authenticationService = authenticationService;
-            Groups = new ObservableCollection<GroupViewmodel>(authenticationService.Groups.Select(g =>
-            {
-                var newVm = new GroupViewmodel(g);
-                newVm.Load();
-                return newVm;
-            }));
-            Users = new ObservableCollection<UserViewmodel>(authenticationService.Users.Select(u =>
-                {
-                    var newVm = new UserViewmodel(u, this);
-                    newVm.Load();
-                    return newVm;
-                }));
+            Groups = new ObservableCollection<GroupViewmodel>(authenticationService.Groups.Select(g => new GroupViewmodel(g)));
+            Users = new ObservableCollection<UserViewmodel>(authenticationService.Users.Select(u => new UserViewmodel(u, this)));
             CommandAddUser = new UICommand {ExecuteDelegate = AddUser };
             CommandDeleteUser = new UICommand {ExecuteDelegate = DeleteUser, CanExecuteDelegate = CanDeleteUser};
             CommandAddGroup = new UICommand { ExecuteDelegate = AddGroup };
@@ -40,11 +30,17 @@ namespace TAS.Client.ViewModels
         
         public ObservableCollection<UserViewmodel> Users { get; }
 
-        public UserViewmodel SelectedUser { get { return _selectedUser; }  set { SetField(ref _selectedUser, value); } }
+        public UserViewmodel SelectedUser {
+            get => _selectedUser;
+            set => SetField(ref _selectedUser, value);
+        }
 
         public ObservableCollection<GroupViewmodel> Groups { get; }
 
-        public GroupViewmodel SelectedGroup { get { return _selectedGroup; } set { SetField(ref _selectedGroup, value); } }
+        public GroupViewmodel SelectedGroup {
+            get => _selectedGroup;
+            set => SetField(ref _selectedGroup, value);
+        }
 
         public ICommand CommandAddUser { get; }
 
@@ -104,19 +100,14 @@ namespace TAS.Client.ViewModels
                 if (e.Operation == CollectionOperation.Add)
                 {
                     if (vm == null)
-                    {
-                        vm = new UserViewmodel(e.Item, this);
-                        vm.Load();
-                        Users.Add(vm);
-                    }
+                        Users.Add(new UserViewmodel(e.Item, this));
                 }
                 else
                 {
-                    if (vm != null)
-                    {
-                        Users.Remove(vm);
-                        vm.Dispose();
-                    }
+                    if (vm == null)
+                        return;
+                    Users.Remove(vm);
+                    vm.Dispose();
                 }
             });
         }
@@ -125,23 +116,15 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate
             {
-                var vm = Groups.FirstOrDefault(u => u.Model == e.Item);
                 if (e.Operation == CollectionOperation.Add)
-                {
-                    if (vm == null)
-                    {
-                        vm = new GroupViewmodel(e.Item);
-                        vm.Load();
-                        Groups.Add(vm);
-                    }
-                }
+                    Groups.Add(new GroupViewmodel(e.Item));
                 else
                 {
-                    if (vm != null)
-                    {
-                        Groups.Remove(vm);
-                        vm.Dispose();
-                    }
+                    var vm = Groups.FirstOrDefault(u => u.Model == e.Item);
+                    if (vm == null)
+                        return;
+                    Groups.Remove(vm);
+                    vm.Dispose();
                 }
             });
         }

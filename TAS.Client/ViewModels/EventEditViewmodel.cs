@@ -14,7 +14,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventEditViewmodel : ViewmodelBase, ITemplatedEdit, IDataErrorInfo
+    public class EventEditViewmodel : ModifyableViewModelBase, ITemplatedEdit, IDataErrorInfo
     {
         private readonly IEngine _engine;
         private readonly EngineViewmodel _engineViewModel;
@@ -726,17 +726,16 @@ namespace TAS.Client.ViewModels
 
         public EventRightsEditViewmodel EventRightsEditViewmodel
         {
-            get { return _eventRightsEditViewmodel; }
+            get => _eventRightsEditViewmodel;
             private set
             {
                 var oldValue = _eventRightsEditViewmodel;
-                if (SetField(ref _eventRightsEditViewmodel, value, setIsModified: false))
-                {
-                    if (value != null)
-                        value.Modified += Rights_Modified;
-                    if (oldValue != null)
-                        oldValue.Modified -= Rights_Modified;
-                }
+                if (!SetField(ref _eventRightsEditViewmodel, value))
+                    return;
+                if (value != null)
+                    value.ModifiedChanged += RightsModifiedChanged;
+                if (oldValue != null)
+                    oldValue.ModifiedChanged -= RightsModifiedChanged;
             }
         }
 
@@ -751,10 +750,9 @@ namespace TAS.Client.ViewModels
                 InvalidateRequerySuggested();
         }
 
-        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null,
-            bool setIsModified = true)
+        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
-            if (base.SetField(ref field, value, propertyName, setIsModified))
+            if (base.SetField(ref field, value, propertyName))
             {
                 if (!_isLoading &&
                     (propertyName != nameof(ScheduledTime) || IsStartEvent))
@@ -883,9 +881,8 @@ namespace TAS.Client.ViewModels
         {
             using (var evm = new MediaEditWindowViewmodel(_event.Media, _engine.MediaManager) )
             {
-                evm.Editor.Load();
                 if (UiServices.ShowDialog<Views.MediaEditWindowView>(evm) == true)
-                    evm.Editor.Update();
+                    evm.Editor.Save();
             }
         }
 
@@ -1163,7 +1160,7 @@ namespace TAS.Client.ViewModels
                 ;
         }
 
-        private void Rights_Modified(object sender, EventArgs e)
+        private void RightsModifiedChanged(object sender, EventArgs e)
         {
             IsModified = true;
         }
