@@ -32,11 +32,11 @@ namespace TAS.Remoting.Model
 
         #pragma warning restore
 
-        public string DirectoryName { get { return _directoryName; } set { Set(value); } }
+        public string DirectoryName { get => _directoryName; set => Set(value); }
 
-        public abstract IEnumerable<IMedia> GetFiles();
+        public abstract IList<IMedia> GetFiles();
         
-        public string Folder { get { return _folder; } set { Set(value); } }
+        public string Folder { get => _folder; set => Set(value); }
 
         public char PathSeparator => _pathSeparator;
 

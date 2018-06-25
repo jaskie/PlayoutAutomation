@@ -66,9 +66,6 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEvent.IsLoop))]
         private bool _isLoop;
 
-        [JsonProperty(nameof(IEvent.IsModified))]
-        private bool _isModified;
-
         [JsonProperty(nameof(IEvent.Layer))]
         private VideoLayer _layer;
 
@@ -181,8 +178,6 @@ namespace TAS.Remoting.Model
         public bool IsHold { get => _isHold; set => Set(value); }
 
         public bool IsLoop { get => _isLoop; set => Set(value); }
-
-        public bool IsModified { get => _isModified; set => Set(value); }
 
         public VideoLayer Layer { get => _layer; set => Set(value); }
 

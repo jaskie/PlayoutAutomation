@@ -7,6 +7,7 @@ namespace TAS.Common.Interfaces
     public interface IEventPesistent: IEvent
     {
         ulong IdEventBinding { get; }
+        bool IsModified { get; set; }
     }
 
     public interface IEvent: IEventProperties, IAclObject, IPersistent, INotifyPropertyChanged
@@ -32,7 +33,6 @@ namespace TAS.Common.Interfaces
         bool MoveDown();
         void Remove();
         bool AllowDelete();
-        bool IsModified { get; set; }
         bool IsDeleted { get; }
         bool IsForcedNext { get; }
         bool HaveRight(EventRight right);

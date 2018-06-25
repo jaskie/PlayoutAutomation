@@ -453,7 +453,7 @@ namespace TAS.Database.MySqlRedundant
                         if (e is ITemplated && e is IEventPesistent)
                             _readAnimatedEvent(((IEventPesistent)e).Id, e as ITemplated);
                         e.StartType = TStartType.Manual;
-                        e.IsModified = false;
+                        ((IEventPesistent)e).IsModified = false;
                         engine.AddRootEvent(e);
                         e.Save();
                     }
@@ -483,7 +483,7 @@ namespace TAS.Database.MySqlRedundant
                         if (ev is ITemplated && ev is IEventPesistent)
                         {
                             _readAnimatedEvent(((IEventPesistent)ev).Id, ev as ITemplated);
-                            ev.IsModified = false;
+                            ((IEventPesistent)ev).IsModified = false;
                         }
                     return foundEvents;
                 }
@@ -504,7 +504,7 @@ namespace TAS.Database.MySqlRedundant
                 if (futureScheduled is ITemplated && futureScheduled is IEventPesistent)
                 {
                     _readAnimatedEvent(((IEventPesistent)futureScheduled).Id, futureScheduled as ITemplated);
-                    futureScheduled.IsModified = false;
+                    ((IEventPesistent)futureScheduled).IsModified = false;
                 }
                 if (futureScheduled != null)
                     return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InFutureSchedule, Media = serverMedia, Event = futureScheduled };
@@ -719,7 +719,7 @@ namespace TAS.Database.MySqlRedundant
                     if (e is ITemplated)
                     {
                         _readAnimatedEvent(e.Id, e as ITemplated);
-                        e.IsModified = false;
+                        ((IEventPesistent)e).IsModified = false;
                     }
                 return subevents;
             }
@@ -743,7 +743,7 @@ namespace TAS.Database.MySqlRedundant
                 if (!(next is ITemplated) || !(next is IEventPesistent))
                     return next;
                 _readAnimatedEvent(((IEventPesistent)next).Id, next as ITemplated);
-                next.IsModified = false;
+                ((IEventPesistent)next).IsModified = false;
                 return next;
             }
         }
@@ -784,7 +784,7 @@ namespace TAS.Database.MySqlRedundant
                 if (!(result is ITemplated) || !(result is IEventPesistent))
                     return result;
                 _readAnimatedEvent(((IEventPesistent)result).Id, result as ITemplated);
-                result.IsModified = false;
+                ((IEventPesistent)result).IsModified = false;
                 return result;
             }
         }

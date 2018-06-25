@@ -7,7 +7,7 @@ namespace TAS.Remoting.Model
 {
     public class ServerDirectory : MediaDirectory, IServerDirectory
     {
-        public override IEnumerable<IMedia> GetFiles()
+        public override IList<IMedia> GetFiles()
         {
             return Query<ReadOnlyCollection<IMedia>>();
         }

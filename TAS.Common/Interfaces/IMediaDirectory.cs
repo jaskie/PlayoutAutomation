@@ -12,7 +12,7 @@ namespace TAS.Common.Interfaces
         char PathSeparator { get; }
 
         bool DirectoryExists();
-        IEnumerable<IMedia> GetFiles();
+        IList<IMedia> GetFiles();
         void Refresh();
         void SweepStaleMedia();
         IMedia CreateMedia(IMediaProperties mediaProperties);

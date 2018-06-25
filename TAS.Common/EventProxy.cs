@@ -45,28 +45,28 @@ namespace TAS.Common
         public IDictionary<string, string> Fields { get; set; }
 
 
-        public IEvent InsertAfter(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertAfter(IEvent prior, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
             prior.InsertAfter(newEvent);
             return newEvent;
         }
 
-        public IEvent InsertUnder(IEvent parent, bool fromEnd, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertUnder(IEvent parent, bool fromEnd, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(parent.Engine, mediaFiles, animationFiles);
             parent.InsertUnder(newEvent, fromEnd);
             return newEvent;
         }
 
-        public IEvent InsertBefore(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertBefore(IEvent prior, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
             prior.InsertBefore(newEvent);
             return newEvent;
         }
 
-        public IEvent InsertRoot(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertRoot(IEngine engine, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(engine, mediaFiles, animationFiles);
             engine.AddRootEvent(newEvent);
@@ -74,7 +74,7 @@ namespace TAS.Common
         }
 
 
-        private IEvent _toEvent(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        private IEvent _toEvent(IEngine engine, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
         {
             IEvent result = null;
             try
@@ -160,7 +160,7 @@ namespace TAS.Common
                         case TStartType.After:
                             if (ne != null)
                             {
-                                IEvent e = seProxy._toEvent(engine, mediaFiles, animationFiles);
+                                var e = seProxy._toEvent(engine, mediaFiles, animationFiles);
                                 ne.InsertAfter(e);
                                 ne = e;
                             }
@@ -174,8 +174,7 @@ namespace TAS.Common
             }
             catch
             {
-                if (result != null)
-                    result.Delete();
+                result?.Delete();
                 throw;
             }
             return result;

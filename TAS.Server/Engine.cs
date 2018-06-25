@@ -46,7 +46,7 @@ namespace TAS.Server
         private readonly object _tickLock = new object();
 
         private readonly SynchronizedCollection<Event> _visibleEvents = new SynchronizedCollection<Event>(); // list of visible events
-        private readonly List<IEvent> _runningEvents = new List<IEvent>(); // list of events loaded and playing 
+        private readonly List<Event> _runningEvents = new List<Event>(); // list of events loaded and playing 
         private readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents = new ConcurrentDictionary<VideoLayer, IEvent>();
         private readonly SynchronizedCollection<Event> _rootEvents = new SynchronizedCollection<Event>();
         private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();

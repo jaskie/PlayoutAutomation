@@ -47,7 +47,6 @@ namespace TAS.Client.ViewModels
         public EventEditViewmodel(IEvent @event, EngineViewmodel engineViewModel): base(@event)
         {
             _engineViewModel = engineViewModel;
-            _fields.CollectionChanged += _fields_or_commands_CollectionChanged;
             Model.PropertyChanged += ModelPropertyChanged;
             if (@event.EventType == TEventType.Container)
             {
@@ -170,8 +169,11 @@ namespace TAS.Client.ViewModels
             get => _isVolumeChecking;
             set
             {
-                if (base.SetField(ref _isVolumeChecking, value)) //not set Modified
-                    InvalidateRequerySuggested();
+                if (_isVolumeChecking != value)
+                    return;
+                _isVolumeChecking = value;
+                NotifyPropertyChanged();
+                InvalidateRequerySuggested();
             }
         }
 
@@ -676,8 +678,12 @@ namespace TAS.Client.ViewModels
             {
                 using (var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>) editObject, false))
                 {
-                    if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) == true)
-                        _fields[kve.Key] = kve.Value;
+                    if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) != true
+                        || _fields[kve.Key] == kve.Value)
+                        return;
+                    _fields[kve.Key] = kve.Value;
+                    NotifyPropertyChanged(nameof(Fields));
+                    IsModified = true;
                 }
             }
         }
@@ -751,10 +757,9 @@ namespace TAS.Client.ViewModels
 
         private bool _canSave(object o)
         {
-            return Model != null
-                   && (IsModified || Model.IsModified)
+            return IsModified
                    && IsValid
-                   && Model.HaveRight(EventRight.Modify);
+                   && Model?.HaveRight(EventRight.Modify) == true;
         }
 
         private void _setCGElements(IMedia media)
@@ -774,10 +779,6 @@ namespace TAS.Client.ViewModels
 
         #endregion // command methods
 
-        private void _fields_or_commands_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            IsModified = true;
-        }
 
         private void ModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -904,6 +905,7 @@ namespace TAS.Client.ViewModels
                             _fields.Clear();
                             if (t.Fields != null)
                                 _fields.AddRange(t.Fields);
+                            NotifyPropertyChanged(nameof(Fields));
                             break;
                     }
             });

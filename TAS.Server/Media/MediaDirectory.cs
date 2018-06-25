@@ -52,36 +52,22 @@ namespace TAS.Server.Media
         [XmlIgnore, JsonProperty]
         public virtual long VolumeFreeSize
         {
-            get { return _volumeFreeSize; }
-            protected set
-            {
-                if (_volumeFreeSize != value)
-                {
-                    _volumeFreeSize = value;
-                    NotifyPropertyChanged(nameof(VolumeFreeSize));
-                }
-            }
+            get => _volumeFreeSize;
+            protected set => SetField(ref _volumeFreeSize, value);
         }
 
         [XmlIgnore, JsonProperty]
         public virtual long VolumeTotalSize
         {
-            get { return _volumeTotalSize; }
-            protected set
-            {
-                if (_volumeTotalSize != value)
-                {
-                    _volumeTotalSize = value;
-                    NotifyPropertyChanged(nameof(VolumeTotalSize));
-                }
-            }
+            get => _volumeTotalSize;
+            protected set => SetField(ref _volumeTotalSize, value);
         }
 
         [JsonProperty]
         public string Folder
         {
-            get { return _folder; }
-            set { SetField(ref _folder, value); }
+            get => _folder;
+            set => SetField(ref _folder, value);
         }
 
         [JsonProperty]
@@ -90,8 +76,8 @@ namespace TAS.Server.Media
         [XmlIgnore, JsonProperty]
         public bool IsInitialized
         {
-            get { return _isInitialized; }
-            protected set { SetField(ref _isInitialized, value); }
+            get => _isInitialized;
+            protected set => SetField(ref _isInitialized, value);
         }
 
         [JsonProperty]
@@ -122,7 +108,7 @@ namespace TAS.Server.Media
      
         public abstract void Refresh();
 
-        public virtual IEnumerable<IMedia> GetFiles()
+        public virtual IList<IMedia> GetFiles()
         {
             lock (((IDictionary)Files).SyncRoot)
                 return Files.Values.Cast<IMedia>().ToList().AsReadOnly();
