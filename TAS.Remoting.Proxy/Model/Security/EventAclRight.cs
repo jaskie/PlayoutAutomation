@@ -6,6 +6,7 @@ namespace TAS.Remoting.Model.Security
 {
     public class EventAclRight: ProxyBase, IAclRight
     {
+#pragma warning disable CS0649
         [JsonProperty(nameof(IAclRight.Owner))]
         private Event _owner;
 
@@ -14,12 +15,13 @@ namespace TAS.Remoting.Model.Security
 
         [JsonProperty(nameof(IAclRight.Acl))]
         private ulong _acl;
+#pragma warning restore
 
-        public IPersistent Owner { get { return _owner; } set {Set(value);} }
+        public IPersistent Owner { get => _owner; set => Set(value); }
 
-        public ISecurityObject SecurityObject { get { return _securityObject; } set {Set(value);} }
+        public ISecurityObject SecurityObject { get => _securityObject; set => Set(value); }
 
-        public ulong Acl { get { return _acl; } set {Set(value);} }
+        public ulong Acl { get => _acl; set => Set(value); }
 
         protected override void OnEventNotification(WebSocketMessage message)
         {

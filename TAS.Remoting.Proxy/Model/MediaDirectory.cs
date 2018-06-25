@@ -34,7 +34,7 @@ namespace TAS.Remoting.Model
 
         public string DirectoryName { get => _directoryName; set => Set(value); }
 
-        public abstract IList<IMedia> GetFiles();
+        public abstract IEnumerable<IMedia> GetFiles();
         
         public string Folder { get => _folder; set => Set(value); }
 

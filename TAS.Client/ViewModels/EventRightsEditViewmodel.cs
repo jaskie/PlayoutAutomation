@@ -65,6 +65,8 @@ namespace TAS.Client.ViewModels
 
         public void Save()
         {
+            if (!IsModified)
+                return;
             foreach (var aclRightViewmodel in Rights)
             {
                 if (aclRightViewmodel.IsModified)

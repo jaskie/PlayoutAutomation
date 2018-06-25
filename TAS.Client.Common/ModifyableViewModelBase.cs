@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TAS.Client.Common
 {
@@ -18,7 +14,7 @@ namespace TAS.Client.Common
             get => _isModified;
             set
             {
-                if (_isModified == value)
+                if (IsLoading || _isModified == value)
                     return;
                 _isModified = value;
                 if (value)
@@ -39,8 +35,7 @@ namespace TAS.Client.Common
         {
             if (!base.SetField(ref field, value, propertyName))
                 return false;
-            if (!IsLoading)
-                IsModified = true;
+            IsModified = true;
             return true;
         }
     }

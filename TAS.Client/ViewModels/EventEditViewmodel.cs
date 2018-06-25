@@ -12,13 +12,13 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventEditViewmodel : EditViewmodelBase<IEvent>, ITemplatedEdit, IDataErrorInfo
+    public class EventEditViewmodel : EditViewmodelBase<IEvent>, IDataErrorInfo
     {
         private readonly EngineViewmodel _engineViewModel;
         private IMedia _media;
         private bool _isVolumeChecking;
-        private TEventType ModelType;
-        private string ModelName;
+        private TEventType _eventType;
+        private string _eventName;
         private string _command;
         private bool _isEnabled;
         private bool _isHold;
@@ -53,12 +53,11 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel = new EventRightsEditViewmodel(@event, engineViewModel.Engine.AuthenticationService);
                 EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
-            CommandSaveEdit = new UICommand {ExecuteDelegate = Update, CanExecuteDelegate = _canSave};
-            CommandUndoEdit = new UICommand {ExecuteDelegate = Load, CanExecuteDelegate = o => IsModified};
+            CommandSaveEdit = new UICommand {ExecuteDelegate = o => Save(), CanExecuteDelegate = _canSave};
+            CommandUndoEdit = new UICommand {ExecuteDelegate = o => UndoEdit(), CanExecuteDelegate = o => IsModified};
             CommandChangeMovie = new UICommand {ExecuteDelegate = _changeMovie, CanExecuteDelegate = _canChangeMovie};
             CommandEditMovie = new UICommand {ExecuteDelegate = _editMovie, CanExecuteDelegate = _canEditMovie};
             CommandCheckVolume = new UICommand {ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume};
-            CommandEditField = new UICommand {ExecuteDelegate = _editField};
             CommandTriggerStartType = new UICommand
             {
                 ExecuteDelegate = _triggerStartType,
@@ -86,6 +85,11 @@ namespace TAS.Client.ViewModels
                 },
                 CanExecuteDelegate = o => Model?.AllowDelete() == true
             };
+            if (@event is ITemplated templated)
+            {
+                TemplatedEditViewmodel = new TemplatedEditViewmodel(templated, true, true, engineViewModel.VideoFormat);
+                TemplatedEditViewmodel.ModifiedChanged += TemplatedEditViewmodel_ModifiedChanged;
+            }
         }
 
         public void Save()
@@ -96,13 +100,14 @@ namespace TAS.Client.ViewModels
         public void UndoEdit()
         {
             Load();
+            TemplatedEditViewmodel?.UndoEdit();
         }
         
         protected override void Update(object destObject = null)
         {
             base.Update(Model);
-            if (EventRightsEditViewmodel?.IsModified == true)
-                EventRightsEditViewmodel.Save();
+            EventRightsEditViewmodel?.Save();
+            TemplatedEditViewmodel?.Save();
             Model.Save();
         }
 
@@ -179,24 +184,17 @@ namespace TAS.Client.ViewModels
 
         public TEventType EventType
         {
-            get => ModelType;
-            set => SetField(ref ModelType, value);
+            get => _eventType;
+            set => SetField(ref _eventType, value);
         }
 
         public string EventName
         {
-            get => ModelName;
-            set => SetField(ref ModelName, value);
+            get => _eventName;
+            set => SetField(ref _eventName, value);
         }
 
-        public bool IsEditEnabled
-        {
-            get
-            {
-                var ev = Model;
-                return ev != null && ev.PlayState == TPlayState.Scheduled && Model.HaveRight(EventRight.Modify);
-            }
-        }
+        public bool IsEditEnabled => Model.PlayState == TPlayState.Scheduled && Model.HaveRight(EventRight.Modify);
 
         public bool IsAutoStartEvent => _startType == TStartType.OnFixedTime;
 
@@ -220,11 +218,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsAnimation
-        {
-            get { return ModelType == TEventType.Animation; }
-        }
-
         public bool IsCommandScript => Model is ICommandScript;
 
         #region ICGElementsState
@@ -236,81 +229,35 @@ namespace TAS.Client.ViewModels
 
         public bool IsCGEnabled
         {
-            get { return _isCGEnabled; }
-            set { SetField(ref _isCGEnabled, value); }
+            get => _isCGEnabled;
+            set => SetField(ref _isCGEnabled, value);
         }
 
         public byte Crawl
         {
-            get { return _crawl; }
-            set { SetField(ref _crawl, value); }
+            get => _crawl;
+            set => SetField(ref _crawl, value);
         }
 
         public byte Logo
         {
-            get { return _logo; }
-            set { SetField(ref _logo, value); }
+            get => _logo;
+            set => SetField(ref _logo, value);
         }
 
         public byte Parental
         {
-            get { return _parental; }
-            set { SetField(ref _parental, value); }
+            get => _parental;
+            set => SetField(ref _parental, value);
         }
 
         #endregion ICGElementsState
 
-        #region ITemplatedEdit
-
-        private int _templateLayer;
-
-        public bool IsDisplayCgMethod { get; } = true;
-
-        public int TemplateLayer
-        {
-            get { return _templateLayer; }
-            set { SetField(ref _templateLayer, value); }
-        }
-
-        public object SelectedField { get; set; }
-
-        private readonly ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
-
-        public Dictionary<string, string> Fields
-        {
-            get => new Dictionary<string, string>(_fields);
-            set
-            {
-                _fields.Clear();
-                if (value != null)
-                    _fields.AddRange(value);
-            }
-        }
-
-        public Array Methods { get; } = Enum.GetValues(typeof(TemplateMethod));
-
-        private TemplateMethod _method;
-
-        public TemplateMethod Method
-        {
-            get => _method;
-            set => SetField(ref _method, value);
-        }
-
-        public bool IsKeyReadOnly => true;
-
-        public ICommand CommandEditField { get; }
-
-        public ICommand CommandAddField { get; } = null;
-
-        public ICommand CommandDeleteField { get; } = null;
-
-        #endregion //ITemplatedEdit
-
+        
         public string Command
         {
-            get { return _command; }
-            set { SetField(ref _command, value); }
+            get => _command;
+            set => SetField(ref _command, value);
         }
 
         public bool IsMovie => Model?.EventType == TEventType.Movie;
@@ -328,8 +275,6 @@ namespace TAS.Client.ViewModels
 
         public bool IsTransitionPropertiesVisible => _transitionType != TTransitionType.Cut;
 
-        public bool IsEmpty => Model == null;
-
         public bool IsContainer => Model?.EventType == TEventType.Container;
 
         public bool CanHold => Model?.Prior != null;
@@ -338,54 +283,52 @@ namespace TAS.Client.ViewModels
 
         public bool IsEnabled
         {
-            get { return _isEnabled; }
-            set { SetField(ref _isEnabled, value); }
+            get => _isEnabled;
+            set => SetField(ref _isEnabled, value);
         }
 
         public bool IsHold
         {
-            get { return _isHold; }
+            get => _isHold;
             set
             {
-                if (SetField(ref _isHold, value))
-                {
-                    if (value)
-                        TransitionTime = TimeSpan.Zero;
-                    NotifyPropertyChanged(nameof(IsTransitionPanelEnabled));
-                }
+                if (!SetField(ref _isHold, value))
+                    return;
+                if (value)
+                    TransitionTime = TimeSpan.Zero;
+                NotifyPropertyChanged(nameof(IsTransitionPanelEnabled));
             }
         }
 
         public bool IsLoop
         {
-            get { return _isLoop; }
-            set { SetField(ref _isLoop, value); }
+            get => _isLoop;
+            set => SetField(ref _isLoop, value);
         }
 
         public TStartType StartType
         {
-            get { return _startType; }
+            get => _startType;
             set
             {
-                if (SetField(ref _startType, value))
-                {
-                    BindToEnd = value == TStartType.WithParentFromEnd;
-                    NotifyPropertyChanged(nameof(IsAutoStartEvent));
-                }
+                if (!SetField(ref _startType, value))
+                    return;
+                _bindToEnd = value == TStartType.WithParentFromEnd;
+                NotifyPropertyChanged(nameof(BindToEnd));
+                NotifyPropertyChanged(nameof(IsAutoStartEvent));
             }
         }
 
         public AutoStartFlags AutoStartFlags
         {
-            get { return _autoStartFlags; }
+            get => _autoStartFlags;
             set
             {
-                if (SetField(ref _autoStartFlags, value))
-                {
-                    NotifyPropertyChanged(nameof(AutoStartForced));
-                    NotifyPropertyChanged(nameof(AutoStartDaily));
-                    NotifyPropertyChanged(nameof(IsScheduledDateVisible));
-                }
+                if (!SetField(ref _autoStartFlags, value))
+                    return;
+                NotifyPropertyChanged(nameof(AutoStartForced));
+                NotifyPropertyChanged(nameof(AutoStartDaily));
+                NotifyPropertyChanged(nameof(IsScheduledDateVisible));
             }
         }
 
@@ -394,6 +337,8 @@ namespace TAS.Client.ViewModels
             get => (_autoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None;
             set
             {
+                if (value == AutoStartForced)
+                    return;
                 if (value)
                     AutoStartFlags = AutoStartFlags | AutoStartFlags.Force;
                 else
@@ -403,16 +348,15 @@ namespace TAS.Client.ViewModels
 
         public bool AutoStartDaily
         {
-            get { return (_autoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None; }
+            get => (_autoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None;
             set
             {
-                if (value != AutoStartDaily)
-                {
-                    if (value)
-                        AutoStartFlags = AutoStartFlags | AutoStartFlags.Daily;
-                    else
-                        AutoStartFlags = AutoStartFlags & ~AutoStartFlags.Daily;
-                }
+                if (value == AutoStartDaily)
+                    return;
+                if (value)
+                    AutoStartFlags = AutoStartFlags | AutoStartFlags.Daily;
+                else
+                    AutoStartFlags = AutoStartFlags & ~AutoStartFlags.Daily;
             }
         }
 
@@ -432,39 +376,21 @@ namespace TAS.Client.ViewModels
 
         public bool BindToEnd
         {
-            get { return _bindToEnd; }
+            get => _bindToEnd;
             set
             {
-                if (SetField(ref _bindToEnd, value))
-                {
-                    if (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd)
-                    {
-                        if (value)
-                        {
-                            StartType = TStartType.WithParentFromEnd;
-                        }
-                        else
-                        {
-                            StartType = TStartType.WithParent;
-                        }
-                    }
-                }
+                if (!SetField(ref _bindToEnd, value)) return;
+                if (_startType != TStartType.WithParent && _startType != TStartType.WithParentFromEnd) return;
+                StartType = value ? TStartType.WithParentFromEnd : TStartType.WithParent;
             }
         }
 
-        public bool IsDisplayBindToEnd
-        {
-            get
-            {
-                return (ModelType == TEventType.Animation || ModelType == TEventType.CommandScript ||
-                        ModelType == TEventType.StillImage)
-                       && (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd);
-            }
-        }
+        public bool IsDisplayBindToEnd => (_eventType == TEventType.CommandScript || _eventType == TEventType.StillImage)
+                                          && (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd);
 
         public TimeSpan ScheduledTc
         {
-            get { return _scheduledTc; }
+            get => _scheduledTc;
             set
             {
                 SetField(ref _scheduledTc, value);
@@ -478,7 +404,7 @@ namespace TAS.Client.ViewModels
 
         public TTransitionType TransitionType
         {
-            get { return _transitionType; }
+            get => _transitionType;
             set
             {
                 if (SetField(ref _transitionType, value))
@@ -495,20 +421,20 @@ namespace TAS.Client.ViewModels
 
         public TEasing TransitionEasing
         {
-            get { return _transitionEasing; }
-            set { SetField(ref _transitionEasing, value); }
+            get => _transitionEasing;
+            set => SetField(ref _transitionEasing, value);
         }
 
         public TimeSpan TransitionTime
         {
-            get { return _transitionTime; }
-            set { SetField(ref _transitionTime, value); }
+            get => _transitionTime;
+            set => SetField(ref _transitionTime, value);
         }
 
         public TimeSpan TransitionPauseTime
         {
-            get { return _transitionPauseTime; }
-            set { SetField(ref _transitionPauseTime, value); }
+            get => _transitionPauseTime;
+            set => SetField(ref _transitionPauseTime, value);
         }
 
         public double? AudioVolume
@@ -549,20 +475,19 @@ namespace TAS.Client.ViewModels
 
         public DateTime ScheduledTime
         {
-            get { return _scheduledTime; }
+            get => _scheduledTime;
             set
             {
-                if (SetField(ref _scheduledTime, value))
-                {
-                    NotifyPropertyChanged(nameof(ScheduledDate));
-                    NotifyPropertyChanged(nameof(ScheduledTimeOfDay));
-                }
+                if (!SetField(ref _scheduledTime, value))
+                    return;
+                NotifyPropertyChanged(nameof(ScheduledDate));
+                NotifyPropertyChanged(nameof(ScheduledTimeOfDay));
             }
         }
 
         public DateTime ScheduledDate
         {
-            get { return _scheduledTime.ToLocalTime().Date; }
+            get => _scheduledTime.ToLocalTime().Date;
             set
             {
                 if (!value.Equals(ScheduledDate))
@@ -572,7 +497,7 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan ScheduledTimeOfDay
         {
-            get { return _scheduledTime.ToLocalTime().TimeOfDay; }
+            get => _scheduledTime.ToLocalTime().TimeOfDay;
             set
             {
                 if (!value.Equals(ScheduledTimeOfDay))
@@ -584,13 +509,13 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan? RequestedStartTime
         {
-            get { return _requestedStartTime; }
-            set { SetField(ref _requestedStartTime, value); }
+            get => _requestedStartTime;
+            set => SetField(ref _requestedStartTime, value);
         }
 
         public TimeSpan Duration
         {
-            get { return _duration; }
+            get => _duration;
             set
             {
                 SetField(ref _duration, value);
@@ -602,14 +527,14 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan ScheduledDelay
         {
-            get { return _scheduledDelay; }
-            set { SetField(ref _scheduledDelay, value); }
+            get => _scheduledDelay;
+            set => SetField(ref _scheduledDelay, value);
         }
 
         public sbyte Layer
         {
-            get { return _layer; }
-            set { SetField(ref _layer, value); }
+            get => _layer;
+            set => SetField(ref _layer, value);
         }
 
         public bool IsStartEvent
@@ -635,6 +560,8 @@ namespace TAS.Client.ViewModels
 
         public EventRightsEditViewmodel EventRightsEditViewmodel { get; }
 
+        public TemplatedEditViewmodel TemplatedEditViewmodel { get; }
+
         public override string ToString()
         {
             return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {EventName}";
@@ -649,12 +576,18 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             Model.PropertyChanged -= ModelPropertyChanged;
-            if (EventRightsEditViewmodel == null)
-                return;
-            EventRightsEditViewmodel.ModifiedChanged -= RightsModifiedChanged;
-            EventRightsEditViewmodel.Dispose();
+            if (TemplatedEditViewmodel != null)
+            {
+                TemplatedEditViewmodel.ModifiedChanged -= TemplatedEditViewmodel_ModifiedChanged;
+                TemplatedEditViewmodel?.Dispose();
+            }
+            if (EventRightsEditViewmodel != null)
+            {
+                EventRightsEditViewmodel.ModifiedChanged -= RightsModifiedChanged;
+                EventRightsEditViewmodel.Dispose();
+            }
         }
-       
+
         #region Command methods
 
         private void _triggerStartType(object obj)
@@ -671,30 +604,12 @@ namespace TAS.Client.ViewModels
                    && Model.HaveRight(EventRight.Modify);
         }
 
-        private void _editField(object obj)
-        {
-            var editObject = obj ?? SelectedField;
-            if (editObject != null)
-            {
-                using (var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>) editObject, false))
-                {
-                    if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) != true
-                        || _fields[kve.Key] == kve.Value)
-                        return;
-                    _fields[kve.Key] = kve.Value;
-                    NotifyPropertyChanged(nameof(Fields));
-                    IsModified = true;
-                }
-            }
-        }
-
         private void _changeMovie(object o)
         {
-            IEvent ev = Model;
-            if (ev != null
-                && ev.EventType == TEventType.Movie)
+            if (Model != null
+                && Model.EventType == TEventType.Movie)
             {
-                _chooseMedia(TMediaType.Movie, ev, ev.StartType);
+                _chooseMedia(TMediaType.Movie, Model, Model.StartType);
             }
         }
 
@@ -784,7 +699,7 @@ namespace TAS.Client.ViewModels
         {
             if (!(sender is IEvent s))
                 return;
-            Application.Current.Dispatcher.BeginInvoke((Action) delegate
+            Application.Current?.Dispatcher.BeginInvoke((Action) delegate
             {
                 switch (e.PropertyName)
                 {
@@ -816,7 +731,7 @@ namespace TAS.Client.ViewModels
                         NotifyPropertyChanged(nameof(Duration));
                         break;
                     case nameof(IEvent.EventName):
-                        ModelName = s.EventName;
+                        _eventName = s.EventName;
                         NotifyPropertyChanged(nameof(EventName));
                         break;
                     case nameof(IEvent.IdAux):
@@ -890,43 +805,28 @@ namespace TAS.Client.ViewModels
                         NotifyPropertyChanged(nameof(BoundEventName));
                         break;
                 }
-                if (s is ITemplated t)
-                    switch (e.PropertyName)
-                    {
-                        case nameof(ITemplated.Method):
-                            _method = t.Method;
-                            NotifyPropertyChanged(nameof(Method));
-                            break;
-                        case nameof(ITemplated.TemplateLayer):
-                            _templateLayer = t.TemplateLayer;
-                            NotifyPropertyChanged(nameof(TemplateLayer));
-                            break;
-                        case nameof(ITemplated.Fields):
-                            _fields.Clear();
-                            if (t.Fields != null)
-                                _fields.AddRange(t.Fields);
-                            NotifyPropertyChanged(nameof(Fields));
-                            break;
-                    }
             });
+        }
+
+        private void TemplatedEditViewmodel_ModifiedChanged(object sender, EventArgs e)
+        {
+            if (sender is TemplatedEditViewmodel templatedEditViewmodel && templatedEditViewmodel.IsModified)
+                IsModified = true;
         }
 
 
         private string _validateEventName()
         {
-            var ev = Model;
-            if (ev != null && ev.FieldLengths.TryGetValue(nameof(IEvent.EventName), out var length) && EventName.Length > length)
+            if (Model != null && Model.FieldLengths.TryGetValue(nameof(IEvent.EventName), out var length) && EventName.Length > length)
                 return resources._validate_TextTooLong;
             return null;
         }
 
         private string _validateScheduledDelay()
         {
-            var ev = Model;
-            if (ev == null || 
-                (ev.EventType != TEventType.StillImage && ev.EventType != TEventType.CommandScript))
+            if (Model.EventType != TEventType.StillImage && Model.EventType != TEventType.CommandScript)
                 return null;
-            var parent = ev.Parent;
+            var parent = Model.Parent;
             if (parent != null && _duration + _scheduledDelay > parent.Duration)
                 return resources._validate_ScheduledDelayInvalid;
             return null;
@@ -934,20 +834,16 @@ namespace TAS.Client.ViewModels
 
         private string _validateScheduledTime()
         {
-            var ev = Model;
-            if (ev != null && ((_startType == TStartType.OnFixedTime && (_autoStartFlags & AutoStartFlags.Daily) == AutoStartFlags.None)
-                               || _startType == TStartType.Manual) && ev.PlayState == TPlayState.Scheduled && _scheduledTime < ev.Engine.CurrentTime)
+            if (((_startType == TStartType.OnFixedTime && (_autoStartFlags & AutoStartFlags.Daily) == AutoStartFlags.None)
+                || _startType == TStartType.Manual) && Model.PlayState == TPlayState.Scheduled && _scheduledTime < Model.Engine.CurrentTime)
                 return resources._validate_StartTimePassed;
             return null;
         }
 
         private string _validateScheduledTc()
         {
-            var ev = Model;
-            if (ev == null)
-                return null;
             var media = Model.Media;
-            if (ev.EventType != TEventType.Movie || media == null)
+            if (Model.EventType != TEventType.Movie || media == null)
                 return null;
             if (_scheduledTc > media.Duration + media.TcStart)
                 return string.Format(resources._validate_StartTCAfterFile,
@@ -960,16 +856,13 @@ namespace TAS.Client.ViewModels
 
         private string _validateDuration()
         {
-            var ev = Model;
-            if (ev == null)
-                return null;
             var media = Model.Media;
-            if (ev.EventType == TEventType.Movie && media != null
+            if (Model.EventType == TEventType.Movie && media != null
                 && _duration + _scheduledTc > media.Duration + media.TcStart)
                 return resources._validate_DurationInvalid;
-            if (ev.EventType != TEventType.StillImage && ev.EventType != TEventType.CommandScript)
+            if (Model.EventType != TEventType.StillImage && Model.EventType != TEventType.CommandScript)
                 return null;
-            var parent = ev.Parent;
+            var parent = Model.Parent;
             if (parent != null && _duration + _scheduledDelay > parent.Duration)
                 return resources._validate_ScheduledDelayInvalid;
             return null;

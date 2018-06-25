@@ -11,7 +11,8 @@ namespace TAS.Server.Media
         private TemplateMethod _method;
         private int _templateLayer;
         private Dictionary<string, string> _fields;
-
+        private TimeSpan _scheduledDelay;
+        private TStartType _startType = TStartType.WithParent;
 
         public AnimatedMedia(IMediaDirectory directory, Guid guid, ulong idPersistentMedia) : base(directory, guid, idPersistentMedia)
         {
@@ -30,6 +31,12 @@ namespace TAS.Server.Media
 
         [JsonProperty]
         public int TemplateLayer { get => _templateLayer; set => SetField(ref _templateLayer, value); }
+
+        [JsonProperty]
+        public TimeSpan ScheduledDelay { get => _scheduledDelay; set => SetField(ref _scheduledDelay, value); }
+
+        [JsonProperty]
+        public TStartType StartType { get => _startType; set => SetField(ref _startType, value); }
 
         [JsonProperty]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ServerMediaFieldLengths;

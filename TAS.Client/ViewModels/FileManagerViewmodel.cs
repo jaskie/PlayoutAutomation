@@ -54,7 +54,7 @@ namespace TAS.Client.ViewModels
         {
             if (e.Operation == null)
                 return;
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
             {
                 if (_clearFinished && e.Operation.OperationStatus != FileOperationStatus.Failed)
                 {
@@ -73,7 +73,7 @@ namespace TAS.Client.ViewModels
         {
             if (e.Operation == null)
                 return;
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
             {
                 OperationList.Insert(0, new FileOperationViewmodel(e.Operation));
             }));

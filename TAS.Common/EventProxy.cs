@@ -45,30 +45,30 @@ namespace TAS.Common
         public IDictionary<string, string> Fields { get; set; }
 
 
-        public IEvent InsertAfter(IEvent prior, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
+        public IEvent InsertAfter(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
+            IEvent newEvent = _toEvent(prior.Engine, mediaFiles.ToList(), animationFiles.ToList());
             prior.InsertAfter(newEvent);
             return newEvent;
         }
 
-        public IEvent InsertUnder(IEvent parent, bool fromEnd, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
+        public IEvent InsertUnder(IEvent parent, bool fromEnd, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(parent.Engine, mediaFiles, animationFiles);
+            IEvent newEvent = _toEvent(parent.Engine, mediaFiles.ToList(), animationFiles.ToList());
             parent.InsertUnder(newEvent, fromEnd);
             return newEvent;
         }
 
-        public IEvent InsertBefore(IEvent prior, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
+        public IEvent InsertBefore(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
+            IEvent newEvent = _toEvent(prior.Engine, mediaFiles.ToList(), animationFiles.ToList());
             prior.InsertBefore(newEvent);
             return newEvent;
         }
 
-        public IEvent InsertRoot(IEngine engine, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
+        public IEvent InsertRoot(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(engine, mediaFiles, animationFiles);
+            IEvent newEvent = _toEvent(engine, mediaFiles.ToList(), animationFiles.ToList());
             engine.AddRootEvent(newEvent);
             return newEvent;
         }
@@ -215,7 +215,7 @@ namespace TAS.Common
                 Parental = source.Parental,
                 AutoStartFlags = source.AutoStartFlags,
                 Command = (source as ICommandScript)?.Command,
-                Fields = source is ITemplated ? new Dictionary<string, string>(((ITemplated)source).Fields) : null,
+                Fields = source is ITemplated templated && templated.Fields != null ? new Dictionary<string, string>(templated.Fields) : null,
                 Method = (source as ITemplated)?.Method ?? TemplateMethod.Add,
                 TemplateLayer = (source as ITemplated)?.TemplateLayer ?? -1
             };

@@ -217,4 +217,9 @@ CREATE TABLE `engine_acl` (
   CONSTRAINT `engine_acl_Engine` FOREIGN KEY (`idEngine`) REFERENCES `engine` (`idEngine`) ON DELETE CASCADE ON UPDATE CASCADE
 );</value>
   </data>
+  <data name="V9" xml:space="preserve">
+    <value>ALTER TABLE `tas`.`media_templated` 
+ADD COLUMN `ScheduledDelay` TIME(6) NULL AFTER `TemplateLayer`,
+ADD COLUMN `StartType` TINYINT NULL AFTER `ScheduledDelay`;</value>
+  </data>
 </root>

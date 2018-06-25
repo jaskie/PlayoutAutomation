@@ -126,17 +126,20 @@
   <data name="_editField.ToolTip" xml:space="preserve">
     <value>Zmień dane zaznaczonego pola</value>
   </data>
-  <data name="_editKey" xml:space="preserve">
-    <value>Zmień wartość</value>
-  </data>
   <data name="_fields.Key" xml:space="preserve">
     <value>Pole</value>
   </data>
   <data name="_fields.Value" xml:space="preserve">
     <value>Wartość</value>
   </data>
+  <data name="_fromEnd" xml:space="preserve">
+    <value>Od końca</value>
+  </data>
   <data name="_method" xml:space="preserve">
     <value>Metoda</value>
+  </data>
+  <data name="_scheduledDelay" xml:space="preserve">
+    <value>Opóźnienie startu</value>
   </data>
   <data name="_templateLayer" xml:space="preserve">
     <value>Warstwa CG</value>

@@ -296,7 +296,7 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public VideoLayer Layer { get { return _layer; } set { SetField(ref _layer, value); } }
+        public VideoLayer Layer { get => _layer; set => SetField(ref _layer, value); }
 
         [JsonProperty]
         public TimeSpan? RequestedStartTime
@@ -1370,12 +1370,12 @@ namespace TAS.Server
         {
             if (mediaGuid == _mediaGuid)
                 return; // do nothing if same mediaGuid is assigned
-            var serverMediaPRI = _serverMediaPRI;
-            if (serverMediaPRI != null && serverMediaPRI.IsValueCreated && serverMediaPRI.Value != null)
+            var serverMediaPri = _serverMediaPRI;
+            if (serverMediaPri != null && serverMediaPri.IsValueCreated && serverMediaPri.Value != null)
             {
-                if (media == serverMediaPRI.Value)
+                if (media == serverMediaPri.Value)
                     return; // do nothing if the same media is assigned;
-                serverMediaPRI.Value.PropertyChanged -= _serverMediaPRI_PropertyChanged;
+                serverMediaPri.Value.PropertyChanged -= _serverMediaPRI_PropertyChanged;
             }
             if (mediaGuid != Guid.Empty)
             {
@@ -1388,9 +1388,10 @@ namespace TAS.Server
                 });
                 if (media != null)
                     media = _serverMediaPRI.Value; // only to imediately read lazy's value
-
-                _serverMediaSEC = new Lazy<PersistentMedia>(() => _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectorySEC : (MediaDirectory)Engine.MediaManager.MediaDirectorySEC));
-                _serverMediaPRV = new Lazy<PersistentMedia>(() => _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRV : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV));
+                var dirToSearchForMediaSec = _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectorySEC : (MediaDirectory)Engine.MediaManager.MediaDirectorySEC;
+                var dirToSearchForMediaPrv = _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRV : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV;
+                _serverMediaSEC = new Lazy<PersistentMedia>(() => _getMediaFromDir(mediaGuid, dirToSearchForMediaSec));
+                _serverMediaPRV = new Lazy<PersistentMedia>(() => _getMediaFromDir(mediaGuid, dirToSearchForMediaPrv));
             }
             _mediaGuid = mediaGuid;
             NotifyPropertyChanged(nameof(MediaGuid));

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
-using System.Reflection;
 using System.Windows;
 using System.IO;
 using System.Windows.Input;
@@ -15,7 +14,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditViewmodel: EditViewmodelBase<IMedia>, ITemplatedEdit, IDataErrorInfo
+    public class MediaEditViewmodel: EditViewmodelBase<IMedia>, IDataErrorInfo
     {
         private readonly IMediaManager _mediaManager;
 
@@ -42,30 +41,27 @@ namespace TAS.Client.ViewModels
         private TMediaCategory _mediaCategory;
         private string _idAux;
 
-        private TemplateMethod _method;
-        private readonly ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
-        private int _templateLayer;
-
-
-
         public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, bool showButtons) : base(media)
         {
-            CommandSaveEdit = new UICommand { ExecuteDelegate = Update, CanExecuteDelegate = o => CanSave() };
-            CommandCancelEdit = new UICommand { ExecuteDelegate = Load, CanExecuteDelegate = o => IsModified };
-            CommandRefreshStatus = new UICommand { ExecuteDelegate = _refreshStatus };
-            CommandCheckVolume = new UICommand { ExecuteDelegate = _checkVolume, CanExecuteDelegate = (o) => !_isVolumeChecking };
+            CommandSaveEdit = new UICommand {ExecuteDelegate = o => Save(), CanExecuteDelegate = o => CanSave()};
+            CommandCancelEdit = new UICommand {ExecuteDelegate = _undoEdit, CanExecuteDelegate = o => IsModified};
+            CommandRefreshStatus = new UICommand {ExecuteDelegate = _refreshStatus};
+            CommandCheckVolume = new UICommand
+            {
+                ExecuteDelegate = _checkVolume,
+                CanExecuteDelegate = o => !_isVolumeChecking
+            };
             _mediaManager = mediaManager;
             ShowButtons = showButtons;
             Model.PropertyChanged += OnMediaPropertyChanged;
-            if (Model is IAnimatedMedia)
+            if (Model is ITemplated templated)
             {
-                _fields.CollectionChanged += _fields_CollectionChanged;
-                CommandAddField = new UICommand { ExecuteDelegate = _addField, CanExecuteDelegate = _canAddField };
-                CommandDeleteField = new UICommand { ExecuteDelegate = _deleteField, CanExecuteDelegate = _canDeleteField };
-                CommandEditField = new UICommand { ExecuteDelegate = _editField, CanExecuteDelegate = _canDeleteField };
+                TemplatedEditViewmodel = new TemplatedEditViewmodel(templated, false, false, media.VideoFormat);
+                TemplatedEditViewmodel.ModifiedChanged += TemplatedEditViewmodel_ModifiedChanged;
             }
         }
-        
+
+
         public ICommand CommandSaveEdit { get; }
         public ICommand CommandCancelEdit { get; }
         public ICommand CommandRefreshStatus { get; }
@@ -73,6 +69,7 @@ namespace TAS.Client.ViewModels
 
         public void Save()
         {
+            TemplatedEditViewmodel?.Save();
             Update(Model);
         }
 
@@ -80,7 +77,7 @@ namespace TAS.Client.ViewModels
         {
             return IsModified && IsValid && Model.MediaStatus == TMediaStatus.Available;
         }
-
+        
         public bool IsVolumeChecking
         {
             get => _isVolumeChecking;
@@ -277,38 +274,7 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _idAux, value);
         }
 
-        #region ITemplatedEdit
-
-        public Dictionary<string, string> Fields
-        {
-            get => new Dictionary<string, string>(_fields);
-            set
-            {
-                _fields.Clear();
-                if (value != null)
-                    _fields.AddRange(value);
-            }
-        }
-
-        public object SelectedField { get; set; }
-
-        public Array Methods { get; } = Enum.GetValues(typeof(TemplateMethod));
-
-        public TemplateMethod Method { get => _method; set => SetField(ref _method, value); }
-
-        public int TemplateLayer { get => _templateLayer; set => SetField(ref _templateLayer, value); }
-
-        public ICommand CommandEditField { get; }
-
-        public ICommand CommandAddField { get; }
-
-        public ICommand CommandDeleteField { get; }
-        
-        public bool IsKeyReadOnly => false;
-
-        #endregion // ITemplatedEdit
-
-        public bool IsDisplayCgMethod { get; } = false;
+        public TemplatedEditViewmodel TemplatedEditViewmodel { get; }
 
         public bool IsPersistentMedia => Model is IPersistentMedia;
 
@@ -372,15 +338,13 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             Model.PropertyChanged -= OnMediaPropertyChanged;
-            if (Model is IAnimatedMedia)
-                _fields.CollectionChanged -= _fields_CollectionChanged;
+            if (TemplatedEditViewmodel != null)
+            {
+                TemplatedEditViewmodel.ModifiedChanged -= TemplatedEditViewmodel_ModifiedChanged;
+                TemplatedEditViewmodel.Dispose();
+            }
         }
 
-        private void _fields_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            IsModified = true;
-        }
-        
         private string _validateMediaName()
         {
             if (Model is IPersistentMedia pm 
@@ -432,50 +396,6 @@ namespace TAS.Client.ViewModels
         
         #region Command methods
 
-        private bool _canDeleteField(object obj)
-        {
-            return SelectedField != null;
-        }
-
-        private void _deleteField(object obj)
-        {
-            if (SelectedField == null)
-                return;
-            var selected = (KeyValuePair<string, string>)SelectedField;
-            _fields.Remove(selected.Key);
-            SelectedField = null;
-        }
-
-        private bool _canAddField(object obj)
-        {
-            return IsAnimatedMedia;
-        }
-
-        private void _addField(object obj)
-        {
-            using (var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), true))
-            {
-                if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) == true)
-                    _fields.Add(kve.Key, kve.Value);
-                //kve.OnOk += (o) =>
-                //{
-                //    var co = (KeyValueEditViewmodel)o;
-                //    return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
-                //};
-            }
-        }
-
-        private void _editField(object obj)
-        {
-            if (SelectedField == null)
-                return;
-            var selected = (KeyValuePair<string, string>)SelectedField;
-            using (var kve = new KeyValueEditViewmodel(selected, true))
-            {
-                if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) == true)
-                    _fields[kve.Key]= kve.Value;
-            }
-        }
 
         private void _refreshStatus(object o)
         {
@@ -523,7 +443,7 @@ namespace TAS.Client.ViewModels
 
         private void OnMediaPropertyChanged(object media, PropertyChangedEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
                 {
                     if (string.IsNullOrEmpty(e.PropertyName))
                         return;
@@ -547,6 +467,19 @@ namespace TAS.Client.ViewModels
             {
                 NotifyPropertyChanged(e.PropertyName);
             }
+        }
+
+        private void _undoEdit(object o)
+        {
+            TemplatedEditViewmodel?.UndoEdit();
+            Load();
+        }
+        private void TemplatedEditViewmodel_ModifiedChanged(object sender, EventArgs e)
+        {
+            if (!(sender is TemplatedEditViewmodel templatedEditViewmodel))
+                return;
+            if (templatedEditViewmodel.IsModified)
+                IsModified = true;
         }
 
 

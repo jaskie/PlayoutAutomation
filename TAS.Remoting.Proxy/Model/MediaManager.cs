@@ -26,7 +26,6 @@ namespace TAS.Remoting.Model
         
         [JsonProperty(nameof(IMediaManager.AnimationDirectoryPRV))]
         private AnimationDirectory _animationDirectoryPRV;
-
         
         [JsonProperty(nameof(IMediaManager.ArchiveDirectory))]
         private ArchiveDirectory _archiveDirectory;

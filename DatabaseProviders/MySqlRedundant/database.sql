@@ -87,6 +87,8 @@ CREATE TABLE `media_templated` (
   `MediaGuid` binary(16) NOT NULL,
   `Method` TINYINT NULL,
   `TemplateLayer` INT NULL,
+  `ScheduledDelay` TIME(6) NULL,
+  `StartType` TINYINT NULL,
   `Fields` text,
   PRIMARY KEY (`MediaGuid`)
 );

@@ -34,7 +34,7 @@ namespace TAS.Client.Views
         ~EventPanelView()
         {
             if (Application.Current != null)
-                Application.Current.Dispatcher.BeginInvoke((Action)(() => System.Diagnostics.Debug.WriteLine(_viewName, "View finalized")));
+                Application.Current?.Dispatcher.BeginInvoke((Action)(() => System.Diagnostics.Debug.WriteLine(_viewName, "View finalized")));
         }
 #endif // DEBUG
 

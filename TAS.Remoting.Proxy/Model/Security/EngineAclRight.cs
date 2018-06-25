@@ -6,6 +6,7 @@ namespace TAS.Remoting.Model.Security
 {
     public class EngineAclRight: ProxyBase, IAclRight
     {
+#pragma warning disable CS0649
         [JsonProperty(nameof(IAclRight.Owner))]
         private Event _owner;
 
@@ -14,6 +15,7 @@ namespace TAS.Remoting.Model.Security
 
         [JsonProperty(nameof(IAclRight.Acl))]
         private ulong _acl;
+#pragma warning restore
 
         public IPersistent Owner { get => _owner; set => Set(value); }
 

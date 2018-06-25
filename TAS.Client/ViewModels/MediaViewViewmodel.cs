@@ -102,7 +102,7 @@ namespace TAS.Client.ViewModels
             {
                 NotifyPropertyChanged(nameof(VideoFormat));
                 if (media is IPersistentMedia && _mediaSegments.IsValueCreated)
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                        {
                            foreach (MediaSegmentViewmodel segment in _mediaSegments.Value)
                                segment.VideoFormat = ((IMedia)media).VideoFormat;
@@ -114,7 +114,7 @@ namespace TAS.Client.ViewModels
         {
             if (_mediaSegments == null)
                 return;
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
             {
                 var segment = _mediaSegments.Value.FirstOrDefault(ms => ms.MediaSegment == e.Segment);
                 if (segment != null)
@@ -129,7 +129,7 @@ namespace TAS.Client.ViewModels
         {
             if (_mediaSegments == null)
                 return;
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
             {
                 _mediaSegments.Value.Add(new MediaSegmentViewmodel(Media as IPersistentMedia, e.Segment));
                 NotifyPropertyChanged(nameof(HasSegments));

@@ -7,7 +7,7 @@ namespace TAS.Remoting.Model
 {
     public class LoudnessOperation : FileOperation, ILoudnessOperation
     {
-        #pragma warning disable CS0649
+        #pragma warning disable CS0649, CS0169
 
         [JsonProperty(nameof(ILoudnessOperation.MeasureDuration))]
         private TimeSpan _measureDuration;
@@ -19,8 +19,8 @@ namespace TAS.Remoting.Model
 
         private event EventHandler<AudioVolumeEventArgs> _audioVolumeMeasured;
 
-        public TimeSpan MeasureDuration { get { return Get<TimeSpan>(); } set { Set(value); } }
-        public TimeSpan MeasureStart { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public TimeSpan MeasureDuration { get => Get<TimeSpan>(); set => Set(value); }
+        public TimeSpan MeasureStart { get => Get<TimeSpan>(); set => Set(value); }
 
         public event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured
         {

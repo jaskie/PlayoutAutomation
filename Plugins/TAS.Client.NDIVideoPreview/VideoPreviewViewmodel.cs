@@ -87,7 +87,7 @@ namespace TAS.Client.NDIVideoPreview
                 return;
             if (Uri.TryCreate(sourceUrl, UriKind.Absolute, out var sourceUri) && sourceUri.Scheme == "ndi"
                 || string.Equals(sourceUrl.Substring(0, sourceUrl.IndexOf(':')), "ndi", StringComparison.InvariantCultureIgnoreCase))
-                Application.Current.Dispatcher.BeginInvoke((Action)delegate
+                Application.Current?.Dispatcher.BeginInvoke((Action)delegate
                 {
                     if (_ndiSources == null)
                         return;

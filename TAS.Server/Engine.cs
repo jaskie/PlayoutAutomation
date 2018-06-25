@@ -742,19 +742,24 @@ namespace TAS.Server
             string command = null,
             IDictionary<string, string> fields = null,
             TemplateMethod method = TemplateMethod.Add,
-            int templateLayer = -1
+            int templateLayer = 10
         )
         {
-            IEvent result;
             if (idRundownEvent != 0
-                && _events.TryGetValue(idRundownEvent, out result))
+                && _events.TryGetValue(idRundownEvent, out var result))
                 return result;
-            if (eventType == TEventType.Animation)
-                result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, fields, method, templateLayer);
-            else if (eventType == TEventType.CommandScript)
-                result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, startType, playState, scheduledDelay, eventName, startTime, isEnabled, command);
-            else
-                result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
+            switch (eventType)
+            {
+                case TEventType.Animation:
+                    result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, fields, method, templateLayer);
+                    break;
+                case TEventType.CommandScript:
+                    result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, startType, playState, scheduledDelay, eventName, startTime, isEnabled, command);
+                    break;
+                default:
+                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
+                    break;
+            }
             if (idRundownEvent != 0)
                 _events.TryAdd(idRundownEvent, result);
             if (startType == TStartType.OnFixedTime)

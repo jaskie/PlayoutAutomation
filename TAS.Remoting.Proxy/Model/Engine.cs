@@ -369,6 +369,7 @@ namespace TAS.Remoting.Model
             }
         }
         // do not implement this in remote client as is used only for debugging puproses
+#pragma warning disable CS0067
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         // do not implement this in remote client as is used only for debugging puproses
         public event EventHandler<EventEventArgs> VisibleEventAdded;
@@ -376,6 +377,7 @@ namespace TAS.Remoting.Model
         public event EventHandler<EventEventArgs> VisibleEventRemoved;
         // do not implement this in remote client as is used only for debugging puproses
         public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
+#pragma warning restore
 
         protected override void OnEventNotification(WebSocketMessage message)
         {

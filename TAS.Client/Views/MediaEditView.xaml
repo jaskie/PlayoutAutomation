@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:views="clr-namespace:TAS.Client.Views"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d"
@@ -197,8 +198,14 @@
                     <Label Content="{Resx _mediaGuid}" />
                     <TextBox Text="{Binding MediaGuid, Mode=OneWay}" IsReadOnly="True" />
                 </DockPanel>
+                <ContentControl Content="{Binding TemplatedEditViewmodel}">
+                    <ContentControl.Resources>
+                        <DataTemplate DataType="{x:Type vm:TemplatedEditViewmodel}">
+                            <views:TemplatedEditView/>
+                        </DataTemplate>
+                    </ContentControl.Resources>
+                </ContentControl>
             </StackPanel>
         </ScrollViewer>
-        <views:TemplatedEditView MinHeight="100" Visibility="{Binding IsAnimatedMedia, Converter={StaticResource BoolToVis}}"/>
     </DockPanel>
 </UserControl>

@@ -9,6 +9,7 @@ namespace TAS.Remoting.Model.Security
 {
     public class AuthenticationService: ProxyBase, IAuthenticationService
     {
+#pragma warning disable CS0649
         [JsonProperty(nameof(IAuthenticationService.Users))]
         private List<User> _users;
 
@@ -18,6 +19,7 @@ namespace TAS.Remoting.Model.Security
         private event EventHandler<CollectionOperationEventArgs<IUser>> _usersOperation;
 
         private event EventHandler<CollectionOperationEventArgs<IGroup>> _groupsOperation;
+#pragma warning restore
 
         public IEnumerable<IUser> Users => _users;
 

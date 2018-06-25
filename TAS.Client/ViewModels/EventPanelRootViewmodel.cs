@@ -41,7 +41,7 @@ namespace TAS.Client.ViewModels
 
         private void _engine_EventDeleted(object sender, EventEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate
+            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
             {
                 var evm = Find(e.Event);
                 evm?.Dispose();
@@ -53,7 +53,7 @@ namespace TAS.Client.ViewModels
             Debug.WriteLine(e.Event?.EventName, "EventLocated notified");
             if (e.Event == null)
                 return;
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate
+            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
             {
                 var evm = Find(e.Event);
                 if (evm != null)

@@ -18,13 +18,12 @@ namespace TAS.Server.Media
 
         public override void Initialize()
         {
-            if (!IsInitialized)
-            {
-                DirectoryName = "Animacje";
-                EngineController.Database.Load<AnimatedMedia>(this, Server.Id);
-                base.Initialize();
-                Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
-            }
+            if (IsInitialized)
+                return;
+            DirectoryName = "Animacje";
+            EngineController.Database.Load<AnimatedMedia>(this, Server.Id);
+            base.Initialize();
+            Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
         }
 
         public override void Refresh()

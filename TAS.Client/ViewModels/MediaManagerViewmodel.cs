@@ -229,7 +229,7 @@ namespace TAS.Client.ViewModels
                         _setSelectdDirectory(value);
                 }
                 else
-                    Application.Current.Dispatcher.BeginInvoke((Action)delegate { NotifyPropertyChanged(nameof(SelectedDirectory)); }); //revert folder display, deferred execution
+                    Application.Current?.Dispatcher.BeginInvoke((Action)delegate { NotifyPropertyChanged(nameof(SelectedDirectory)); }); //revert folder display, deferred execution
             }
         }
 
@@ -456,7 +456,7 @@ namespace TAS.Client.ViewModels
             }
             if (e.PropertyName == nameof(IMediaDirectory.IsInitialized))
             {
-                Application.Current.Dispatcher.BeginInvoke((Action)delegate { _reloadFiles(_selectedDirectory); });
+                Application.Current?.Dispatcher.BeginInvoke((Action)delegate { _reloadFiles(_selectedDirectory); });
                 _notifyDirectoryPropertiesChanged();
             }
             if (e.PropertyName == nameof(IMediaDirectory.VolumeFreeSize))
@@ -487,7 +487,7 @@ namespace TAS.Client.ViewModels
         private void _selectedDirectoryMediaAdded(object source, MediaEventArgs e)
         {
             if (source is IMediaDirectory dir && dir.IsInitialized)
-                Application.Current.Dispatcher.BeginInvoke((Action)delegate
+                Application.Current?.Dispatcher.BeginInvoke((Action)delegate
                     {
                         var media = e.Media;
                         _mediaItems?.Add(new MediaViewViewmodel(media));
@@ -499,7 +499,7 @@ namespace TAS.Client.ViewModels
         private void _selectedDirectoryMediaRemoved(object source, MediaEventArgs e)
         {
             if (source is IMediaDirectory dir && dir.IsInitialized)
-                Application.Current.Dispatcher.BeginInvoke((Action) delegate
+                Application.Current?.Dispatcher.BeginInvoke((Action) delegate
                     {
                         var vm = _mediaItems?.FirstOrDefault(v => v.Media == e.Media);
                         if (vm != null)
@@ -586,7 +586,7 @@ namespace TAS.Client.ViewModels
                     catch (Exception e)
                     {
                         if (directory == SelectedDirectory.Directory)
-                            Application.Current.Dispatcher.BeginInvoke((Action)delegate
+                            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
                             {
                                 MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                             });

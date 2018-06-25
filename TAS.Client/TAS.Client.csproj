@@ -118,7 +118,6 @@
     <Compile Include="ViewModels\FileManagerViewmodel.cs" />
     <Compile Include="ViewModels\FileOperationViewmodel.cs" />
     <Compile Include="ViewModels\IngestEditorViewmodel.cs" />
-    <Compile Include="ViewModels\ITemplatedEdit.cs" />
     <Compile Include="ViewModels\KeyValueEditViewmodel.cs" />
     <Compile Include="ViewModels\MediaDirectoryViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditViewmodel.cs" />
@@ -131,6 +130,7 @@
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
     <Compile Include="ViewModels\RecordersViewmodel.cs" />
     <Compile Include="ViewModels\SecurityObjectSelectorViewmodel.cs" />
+    <Compile Include="ViewModels\TemplatedEditViewmodel.cs" />
     <Compile Include="ViewModels\UserManagerViewmodel.cs" />
     <Compile Include="ViewModels\GroupViewmodel.cs" />
     <Compile Include="ViewModels\UserViewmodel.cs" />
@@ -514,9 +514,11 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TemplatedEditView.pl.resx">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TemplatedEditView.resx">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\UserManagerView.pl.resx">
       <DependentUpon>UserManagerView.xaml</DependentUpon>

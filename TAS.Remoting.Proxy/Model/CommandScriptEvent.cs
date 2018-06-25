@@ -14,8 +14,8 @@ namespace TAS.Remoting.Model
 
         public string Command
         {
-            get { return _command; }
-            set { Set(value); }
+            get => _command;
+            set => Set(value);
         }
     }
 }

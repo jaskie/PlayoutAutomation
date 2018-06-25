@@ -201,7 +201,7 @@ namespace TAS.Client.ViewModels
 
         private void _searchDirectory_MediaVerified(object sender, MediaEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate
+            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
             {
                 _itemsView.Refresh();
             });
@@ -209,7 +209,7 @@ namespace TAS.Client.ViewModels
 
         private void _searchDirectory_MediaRemoved(object sender, MediaEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate
+            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
             {
                 var mvm = Items.FirstOrDefault(m => m.Media == e.Media);
                 if (mvm != null)
@@ -223,7 +223,7 @@ namespace TAS.Client.ViewModels
 
         private void _searchDirectory_MediaAdded(object sender, MediaEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate
+            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
             {
                 IMedia media = e.Media;
                 if (media != null 

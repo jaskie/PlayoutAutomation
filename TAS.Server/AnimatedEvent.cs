@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -69,7 +70,7 @@ namespace TAS.Server
         public Dictionary<string, string> Fields
         {
             get => _fields;
-            set => SetField(ref _fields, value);
+            set => SetField(ref _fields, value == null ? new Dictionary<string, string>() : new Dictionary<string, string>(value));
         }
 
         [JsonProperty]

@@ -266,7 +266,7 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(CommandStartRecord));
             NotifyPropertyChanged(nameof(CommandCapture));
             NotifyPropertyChanged(nameof(CommandRecordFinish));
-            Application.Current.Dispatcher.BeginInvoke((Action)ResetDefaults);
+            Application.Current?.Dispatcher.BeginInvoke((Action)ResetDefaults);
         }
 
         private void CreateCommands()

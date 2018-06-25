@@ -85,6 +85,8 @@ namespace TAS.Database.MySqlRedundant
 
         private string TrimText(string tableName, string columnName, string value)
         {
+            if (value == null)
+                return null;
             return _tablesStringFieldsLenghts[tableName][columnName] < value.Length
                 ? value.Substring(0, _tablesStringFieldsLenghts[tableName][columnName])
                 : value;
@@ -1318,7 +1320,7 @@ VALUES
                 if (_animatedMediaConstructorInfo == null)
                     throw new ApplicationException("No constructor found for IAnimatedMedia");
 
-                DbCommandRedundant cmd = new DbCommandRedundant("SELECT servermedia.*, media_templated.`Fields`, media_templated.`Method`, media_templated.`TemplateLayer` FROM serverMedia LEFT JOIN media_templated ON servermedia.MediaGuid = media_templated.MediaGuid WHERE idServer=@idServer and typMedia = @typMedia", _connection);
+                DbCommandRedundant cmd = new DbCommandRedundant("SELECT servermedia.*, media_templated.`Fields`, media_templated.`Method`, media_templated.`TemplateLayer`, media_templated.`ScheduledDelay`, media_templated.`StartType` FROM serverMedia LEFT JOIN media_templated ON servermedia.MediaGuid = media_templated.MediaGuid WHERE idServer=@idServer and typMedia = @typMedia", _connection);
                 cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typMedia", TMediaType.Animation);
                 try
@@ -1330,7 +1332,7 @@ VALUES
 
                             var media = (T)_animatedMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia")});
                             _mediaReadFields(media, dataReader);
-                            string templateFields = dataReader.GetString("Fields");
+                            var templateFields = dataReader.GetString("Fields");
                             if (!string.IsNullOrWhiteSpace(templateFields))
                             {
                                 var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
@@ -1339,12 +1341,15 @@ VALUES
                             }
                             media.Method = (TemplateMethod)dataReader.GetByte("Method");
                             media.TemplateLayer = dataReader.GetInt32("TemplateLayer");
+                            media.ScheduledDelay = dataReader.GetTimeSpan("ScheduledDelay");
+                            media.StartType = (TStartType)dataReader.GetByte("StartType");
+                            if (media.StartType != TStartType.WithParent || media.StartType != TStartType.WithParentFromEnd)
+                                media.StartType = TStartType.WithParent;
                             media.IsModified = false;
-                            if (media.MediaStatus != TMediaStatus.Available)
-                            {
-                                media.MediaStatus = TMediaStatus.Unknown;
-                                media.ReVerify();
-                            }
+                            if (media.MediaStatus == TMediaStatus.Available)
+                                continue;
+                            media.MediaStatus = TMediaStatus.Unknown;
+                            media.ReVerify();
                         }
                     }
                     Debug.WriteLine(directory, "Directory loaded");
@@ -1419,10 +1424,12 @@ VALUES
         {
             try
             {
-                var cmd = new DbCommandRedundant(@"UPDATE media_templated SET Fields = @Fields, TemplateLayer=@TemplateLayer, Method=@Method WHERE MediaGuid = @MediaGuid;", _connection);
+                var cmd = new DbCommandRedundant(@"UPDATE media_templated SET Fields = @Fields, TemplateLayer=@TemplateLayer, ScheduledDelay=@ScheduledDelay, StartType=@StartType, Method=@Method WHERE MediaGuid = @MediaGuid;", _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
                 cmd.Parameters.AddWithValue("@TemplateLayer", media.TemplateLayer);
                 cmd.Parameters.AddWithValue("@Method", (byte)media.Method);
+                cmd.Parameters.AddWithValue("@ScheduledDelay", media.ScheduledDelay);
+                cmd.Parameters.AddWithValue("@StartType", (byte)media.StartType);
                 cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
                 cmd.ExecuteNonQuery();
             }

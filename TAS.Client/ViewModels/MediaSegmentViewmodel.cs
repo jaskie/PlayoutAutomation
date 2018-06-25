@@ -120,7 +120,7 @@ namespace TAS.Client.ViewModels
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate 
+            Application.Current?.Dispatcher.BeginInvoke((Action)delegate 
             {
                 var sourcePi = MediaSegment.GetType().GetProperty(e.PropertyName);
                 var destPi = GetType().GetProperty(e.PropertyName);

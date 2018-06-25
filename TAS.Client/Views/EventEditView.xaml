@@ -13,7 +13,7 @@
              d:DesignWidth="360"
              BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey }}"
              >
-    <DockPanel Visibility="{Binding IsEmpty, Converter={StaticResource InvertedBoolToVis}}">
+    <DockPanel>
         <Grid DockPanel.Dock="Top" Height="37">
             <Grid.Resources>
                 <Style TargetType="Button">
@@ -63,7 +63,7 @@
                         <Trigger Property="Validation.HasError" Value="true">
                             <Setter Property="ToolTip"
                                     Value="{Binding RelativeSource={RelativeSource Self}, 
-                                    Path=(Validation.Errors)[0].ErrorContent}"/>
+                                    Path=(Validation.Errors)/ErrorContent}"/>
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -245,28 +245,27 @@
                             <Label Content="{Resx _duration}" />
                             <controls:TimecodeEdit Grid.Column="1" Timecode="{Binding Duration}" VideoFormat="{Binding VideoFormat}" IsEnabled="{Binding IsDurationEnabled}"  />
                         </Grid>
-                        <Grid DockPanel.Dock="Top" Visibility="{Binding IsDisplayBindToEnd, Converter={StaticResource BoolToVis}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content="{Resx _scheduledDelay}" />
-                            <DockPanel Grid.Column="1" DockPanel.Dock="Top" >
-                                <controls:TimecodeEdit Timecode="{Binding ScheduledDelay}" VideoFormat="{Binding VideoFormat}" />
-                            </DockPanel>
-                            <CheckBox Grid.Column="2" Content="{Resx _fromEnd}" IsChecked="{Binding BindToEnd}" />
-                        </Grid>
+                        <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsDisplayBindToEnd, Converter={StaticResource BoolToVis}}">
+                            <Label DockPanel.Dock="Left" Content="{Resx _scheduledDelay}" />
+                            <CheckBox DockPanel.Dock="Right" Content="{Resx _fromEnd}" IsChecked="{Binding BindToEnd}" />
+                            <controls:TimecodeEdit Timecode="{Binding ScheduledDelay}" VideoFormat="{Binding VideoFormat}" />
+                        </DockPanel>
                         <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsCommandScript, Converter={StaticResource BoolToVis}}">
                             <Label Content="{Resx _command}" />
                             <TextBox Text="{Binding Command, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Resx _command.ToolTip}"/>
                         </DockPanel>
-                        <views:TemplatedEditView Visibility="{Binding IsAnimation, Converter={StaticResource BoolToVis}}"/>
+                        <ContentControl Content="{Binding TemplatedEditViewmodel}">
+                            <ContentControl.Resources>
+                                <DataTemplate DataType="{x:Type vm:TemplatedEditViewmodel}">
+                                    <views:TemplatedEditView />
+                                </DataTemplate>
+                            </ContentControl.Resources>
+                        </ContentControl>
                     </DockPanel>
                     <ContentControl Visibility="{Binding IsContainer, Converter={StaticResource BoolToVis}}" Content="{Binding EventRightsEditViewmodel}">
                         <ContentControl.Resources>
                             <DataTemplate DataType="{x:Type vm:EventRightsEditViewmodel}">
-                                <views:EventRightsEditView></views:EventRightsEditView>
+                                <views:EventRightsEditView/>
                             </DataTemplate>
                         </ContentControl.Resources>
                     </ContentControl>

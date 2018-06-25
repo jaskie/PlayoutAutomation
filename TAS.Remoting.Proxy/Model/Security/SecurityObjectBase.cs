@@ -11,11 +11,14 @@ namespace TAS.Remoting.Model.Security
     /// </summary>
     public abstract class SecurityObjectBase : ProxyBase, ISecurityObject
     {
+        
+#pragma warning disable CS0649
         [JsonProperty(nameof(ISecurityObject.SecurityObjectTypeType))]
         private SecurityObjectType _securityObjectType;
 
         [JsonProperty(nameof(ISecurityObject.FieldLengths))]
         private IDictionary<string, int> _fieldLengths;
+#pragma warning restore
 
         public SecurityObjectType SecurityObjectTypeType => _securityObjectType;
 

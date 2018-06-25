@@ -76,12 +76,12 @@ namespace TAS.Client.ViewModels
 
         private void _engine_VisibleEventRemoved(object sender, EventEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)(() => _visibleEvents.Remove(e.Event)));
+            Application.Current?.Dispatcher.BeginInvoke((Action)(() => _visibleEvents.Remove(e.Event)));
         }
 
         private void _engine_VisibleEventAdded(object sender, EventEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)(() => _visibleEvents.Add(e.Event)));
+            Application.Current?.Dispatcher.BeginInvoke((Action)(() => _visibleEvents.Add(e.Event)));
         }
 
         public ICommand CommandClearAll { get; private set; }
@@ -244,7 +244,7 @@ namespace TAS.Client.ViewModels
             CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = _canDeleteSelected };
             CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0 };
             CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = _canDeleteSelected };
-            CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selectedEvent, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
+            CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selectedEvent, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), o.ToString(), true)) };
             CommandExportMedia = new UICommand() { ExecuteDelegate = _exportMedia, CanExecuteDelegate = _canExportMedia };
             CommandUndelete = new UICommand() { ExecuteDelegate = _undelete, CanExecuteDelegate = _canUndelete };
 
@@ -433,7 +433,7 @@ namespace TAS.Client.ViewModels
 
         private void _eventHide(object obj) => (SelectedEvent as EventPanelContainerViewmodel)?.CommandHide.Execute(obj);
 
-        private void _pasteSelected(object obj) => LastAddedEvent = EventClipboard.Paste(_selectedEvent, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), (string)obj, true));
+        private void _pasteSelected(object obj) => LastAddedEvent = EventClipboard.Paste(_selectedEvent, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), (string)obj, true));
 
         private void _copySelected(object obj) => EventClipboard.Copy(_multiSelectedEvents);
 
@@ -587,7 +587,7 @@ namespace TAS.Client.ViewModels
                         }
                         catch (Exception e)
                         {
-                            Application.Current.Dispatcher.BeginInvoke((Action)delegate
+                            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
                             {
                                 MessageBox.Show(string.Format(resources._message_CommandFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                             });
@@ -1031,7 +1031,7 @@ namespace TAS.Client.ViewModels
                 if (a.Event.Layer == VideoLayer.Program)
                 {
                     if (_trackPlayingEvent)
-                        Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+                        Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
                         {
                             var pe = Engine.Playing;
                             if (pe != null)
@@ -1091,7 +1091,7 @@ namespace TAS.Client.ViewModels
 
         private void OnEngineRunningEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
             {
                 if (e.Operation == CollectionOperation.Add)
                     _runningEvents.Add(e.Item);

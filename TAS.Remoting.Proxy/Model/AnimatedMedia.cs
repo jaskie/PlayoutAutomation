@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -8,7 +9,7 @@ namespace TAS.Remoting.Model
     public class AnimatedMedia : PersistentMedia, IAnimatedMedia
     {
 
-        #pragma warning disable CS0649
+#pragma warning disable CS0649
 
         [JsonProperty(nameof(ITemplated.Fields))]
         private Dictionary<string, string> _fields;
@@ -19,7 +20,13 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(ITemplated.TemplateLayer))]
         private int _templateLayer;
 
-        #pragma warning restore
+        [JsonProperty(nameof(ITemplated.ScheduledDelay))]
+        private TimeSpan _scheduledDelay;
+
+        [JsonProperty(nameof(ITemplated.StartType))]
+        private TStartType _startType;
+
+#pragma warning restore
 
         public Dictionary<string, string> Fields { get => _fields; set => Set(value); }
 
@@ -27,5 +34,8 @@ namespace TAS.Remoting.Model
 
         public int TemplateLayer { get => _templateLayer; set => Set(value); }
 
+        public TimeSpan ScheduledDelay { get => _scheduledDelay; set => Set(value); }
+
+        public TStartType StartType { get => _startType; set => Set(value); }
     }
 }

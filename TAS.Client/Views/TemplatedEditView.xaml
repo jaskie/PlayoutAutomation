@@ -4,20 +4,25 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
-             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
-             d:DataContext="{d:DesignInstance vm:MediaEditViewmodel}"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:TemplatedEditViewmodel}"
              d:DesignHeight="300" d:DesignWidth="300">
     <DockPanel>
+        <DockPanel DockPanel.Dock="Top">
+            <Label DockPanel.Dock="Left" Content="{Resx _scheduledDelay}" />
+            <CheckBox DockPanel.Dock="Right" Content="{Resx _fromEnd}" VerticalAlignment="Center" IsChecked="{Binding BindToEnd}" Style="{StaticResource {x:Type CheckBox}}" Margin="5" />
+            <controls:TimecodeEdit Timecode="{Binding ScheduledDelay}" VideoFormat="{Binding VideoFormat}" />
+        </DockPanel>
         <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsDisplayCgMethod, Converter={StaticResource BoolToVis}}">
             <Label Content="{Resx _templateLayer}"/>
             <TextBox Width="30" Text="{Binding TemplateLayer, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
             <Label Content="{Resx _method}"/>
             <ComboBox ItemsSource="{Binding Methods}" SelectedItem="{Binding Method}" VerticalAlignment="Center" />
         </DockPanel>
-        <ToolBar Visibility="{Binding IsKeyReadOnly, Converter={StaticResource InvertedBoolToVis}}" DockPanel.Dock="Top">
+        <ToolBar Visibility="{Binding IsFieldListReadOnly, Converter={StaticResource InvertedBoolToVis}}" DockPanel.Dock="Top">
             <ToolBarPanel Height="24" Orientation="Horizontal">
                 <Button Command="{Binding CommandAddField}" Style="{StaticResource AddButtonStyle}" ToolTip="{Resx _addField.ToolTip}"/>
                 <Button Command="{Binding CommandEditField}" Style="{StaticResource EditButtonStyle}" ToolTip="{Resx _editField.ToolTip}"/>
@@ -29,25 +34,9 @@
                               common:MouseDoubleClick.Command="{Binding CommandEditField}" 
                               SelectedItem="{Binding SelectedField}"
                               >
-            <DataGrid.Resources>
-                <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
-            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Width="*" Header="{Resx _fields.Key, ResxName=TAS.Client.Views.TemplatedEditView}" Binding="{Binding Key}" CellStyle="{StaticResource InactiveDataGridCell}"/>
                 <DataGridTextColumn Width="2*" Header="{Resx _fields.Value, ResxName=TAS.Client.Views.TemplatedEditView}" Binding="{Binding Value}"/>
-                <DataGridTemplateColumn Width="15">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Padding="0" Height="16" 
-                                                Command="{Binding Data.CommandEditField, Source={StaticResource proxy}}" 
-                                                CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=DataContext}"
-                                                ToolTip="{Resx _editKey, ResxName=TAS.Client.Views.TemplatedEditView}"
-                                                >
-                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
-                            </Button>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

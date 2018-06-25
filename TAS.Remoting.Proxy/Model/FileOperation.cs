@@ -56,9 +56,9 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IFileOperation.Title))]
         private string _title;
 
-        private event EventHandler _finished;
+#pragma warning restore
 
-        #pragma warning restore
+        private event EventHandler _finished;
 
         public bool IsAborted => _isAborted;
 
