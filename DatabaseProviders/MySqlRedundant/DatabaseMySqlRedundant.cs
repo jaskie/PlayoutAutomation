@@ -1749,13 +1749,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
         public void DbInsertSecurityObject(ISecurityObject aco)
         {
             if (!(aco is IPersistent pAco))
-            {
-#pragma warning disable CS0162
-#if  DEBUG
                 throw new ArgumentNullException(nameof(aco));
-#endif
-#pragma warning restore
-            }
             lock (_connection)
             {
                 {
@@ -1776,13 +1770,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
         public void DbDeleteSecurityObject(ISecurityObject aco)
         {
             if (!(aco is IPersistent pAco) || pAco.Id == 0)
-            {
-#pragma warning disable CS0162
-#if  DEBUG
                 throw new ArgumentNullException(nameof(aco));
-#endif
-#pragma warning restore
-            }
             lock (_connection)
             {
                 {
@@ -1796,13 +1784,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
         public void DbUpdateSecurityObject(ISecurityObject aco)
         {
             if (!(aco is IPersistent pAco) || pAco.Id == 0)
-            {
-#pragma warning disable CS0162
-#if DEBUG
                 throw new ArgumentNullException(nameof(aco));
-#endif
-#pragma warning restore
-            }
             lock (_connection)
             {
                 {

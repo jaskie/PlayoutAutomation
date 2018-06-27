@@ -230,10 +230,14 @@ namespace TAS.Client.ViewModels
                     case nameof(Duration):
                         return ValidateTc();
                     case nameof(DestMediaName):
+                        if (string.IsNullOrEmpty(DestMediaName))
+                            return null;
                         if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.MediaName), out var mnLength) && DestMediaName.Length > mnLength)
                             return resources._validate_TextTooLong;
                         break;
                     case nameof(IdAux):
+                        if (string.IsNullOrEmpty(IdAux))
+                            return null;
                         if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.IdAux), out var iaLength) && IdAux.Length > iaLength)
                             return resources._validate_TextTooLong;
                         break;
