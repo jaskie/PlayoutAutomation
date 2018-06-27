@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using TAS.Client.Common;
+using TAS.Common;
 using TAS.Common.Interfaces;
 
 
@@ -22,11 +23,8 @@ namespace TAS.Client.ViewModels
             _authenticationService = authenticationService;
             AclObjects = authenticationService.Users.Cast<ISecurityObject>().Concat(authenticationService.Groups).ToArray();
             _originalRights = ev.GetRights().ToList();
-            Rights = new ObservableCollection<EventRightViewmodel>(_originalRights.Select(r => new EventRightViewmodel(r)));
-            foreach (var eventRightViewmodel in Rights)
-            {
-                eventRightViewmodel.ModifiedChanged += EventRightViewmodelModifiedChanged;
-            }
+            Rights = new ObservableCollection<EventRightViewmodel>();
+            Load();
             CommandAddRight = new UICommand {ExecuteDelegate = _addRight, CanExecuteDelegate = _canAddRight};
             CommandDeleteRight = new UICommand { ExecuteDelegate = _deleteRight, CanExecuteDelegate = _canDeleteRight };
         }
@@ -61,6 +59,21 @@ namespace TAS.Client.ViewModels
                 _selectedRight = value;
                 NotifyPropertyChanged();
             }
+        }
+
+       
+
+        public void UndoEdit()
+        {
+            foreach (var rightViewmodel in Rights)
+            {
+                rightViewmodel.ModifiedChanged -= EventRightViewmodelModifiedChanged;
+                rightViewmodel.Dispose();
+            }
+            Rights.Clear();
+            Load();
+            NotifyPropertyChanged(nameof(Rights));
+            IsModified = false;
         }
 
         public void Save()
@@ -107,12 +120,12 @@ namespace TAS.Client.ViewModels
 
         private bool _canAddRight(object obj)
         {
-            return true;
+            return _ev.Engine.HaveRight(EngineRight.RundownRightsAdmin);
         }
 
         private bool _canDeleteRight(object obj)
         {
-            return SelectedRight != null;
+            return SelectedRight != null && _ev.Engine.HaveRight(EngineRight.RundownRightsAdmin);
         }
 
         private void _deleteRight(object obj)
@@ -128,6 +141,15 @@ namespace TAS.Client.ViewModels
         private void EventRightViewmodelModifiedChanged(object sender, EventArgs e)
         {
             IsModified = true;
+        }
+
+        private void Load()
+        {
+            foreach (var right in _originalRights.Select(r => new EventRightViewmodel(r)))
+            {
+                Rights.Add(right);
+                right.ModifiedChanged += EventRightViewmodelModifiedChanged;
+            }
         }
 
     }

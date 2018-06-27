@@ -206,8 +206,7 @@ Really delete?</value>
     <value>Really play this item now?</value>
   </data>
   <data name="_query_SaveChangedData" xml:space="preserve">
-    <value>Save modified data regarding
-{0}?</value>
+    <value>Save modified data about {0}?</value>
   </data>
   <data name="_query_StartAnotherInstance" xml:space="preserve">
     <value>Application should execute in one instance only, but was running already.
@@ -335,5 +334,8 @@ Really exit?</value>
   </data>
   <data name="_validate_TextTooLong" xml:space="preserve">
     <value>Entered text is too long.</value>
+  </data>
+  <data name="_query_AbadonChanges" xml:space="preserve">
+    <value>Abadon changes in {0}?</value>
   </data>
 </root>

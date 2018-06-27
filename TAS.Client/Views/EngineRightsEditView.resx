@@ -150,6 +150,9 @@
   <data name="_rundown" xml:space="preserve">
     <value>Rundown edit</value>
   </data>
+  <data name="_rundownRightsAdmin" xml:space="preserve">
+    <value>Rights admin</value>
+  </data>
   <data name="_windowTitle" xml:space="preserve">
     <value>Rights to selected engine</value>
   </data>

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TAS.Common;
+﻿using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
@@ -18,18 +13,12 @@ namespace TAS.Client.ViewModels
         private bool _mediaDelete;
         private bool _mediaArchive;
         private bool _mediaExport;
-
-
+        private bool _rundownRightsAdmin;
+        
         public EngineRightViewmodel(IAclRight right) : base(right)
         {
             Acl = right.Acl;
-            _play = (right.Acl & (ulong)EngineRight.Play) != 0;
-            _preview = (right.Acl & (ulong)EngineRight.Preview) != 0;
-            _rundown = (right.Acl & (ulong)EngineRight.Rundown) != 0;
-            _mediaIngest = (right.Acl & (ulong)EngineRight.MediaIngest) != 0;
-            _mediaEdit = (right.Acl & (ulong)EngineRight.MediaEdit) != 0;
-            _mediaDelete = (right.Acl & (ulong)EngineRight.MediaDelete) != 0;
-            _mediaArchive = (right.Acl & (ulong) EngineRight.MediaArchive) != 0;
+            Load();
         }
 
         public bool Play
@@ -37,11 +26,12 @@ namespace TAS.Client.ViewModels
             get => _play;
             set
             {
-                if (SetField(ref _play, value))
-                    if (value)
-                        Acl |= (ulong)EngineRight.Play;
-                    else
-                        Acl &= ~(ulong)EngineRight.Play;
+                if (!SetField(ref _play, value))
+                    return;
+                if (value)
+                    Acl |= (ulong)EngineRight.Play;
+                else
+                    Acl &= ~(ulong)EngineRight.Play;
             }
         }
 
@@ -50,11 +40,12 @@ namespace TAS.Client.ViewModels
             get => _preview;
             set
             {
-                if (SetField(ref _preview, value))
-                    if (value)
-                        Acl |= (ulong)EngineRight.Preview;
-                    else
-                        Acl &= ~(ulong)EngineRight.Preview;
+                if (!SetField(ref _preview, value))
+                    return;
+                if (value)
+                    Acl |= (ulong)EngineRight.Preview;
+                else
+                    Acl &= ~(ulong)EngineRight.Preview;
             }
         }
 
@@ -63,11 +54,25 @@ namespace TAS.Client.ViewModels
             get => _rundown;
             set
             {
-                if (SetField(ref _rundown, value))
-                    if (value)
-                        Acl |= (ulong)EngineRight.Rundown;
-                    else
-                        Acl &= ~(ulong)EngineRight.Rundown;
+                if (!SetField(ref _rundown, value))
+                    return;
+                if (value)
+                    Acl |= (ulong)EngineRight.Rundown;
+                else
+                    Acl &= ~(ulong)EngineRight.Rundown;
+            }
+        }
+        public bool RundownRightsAdmin
+        {
+            get => _rundownRightsAdmin;
+            set
+            {
+                if (!SetField(ref _rundownRightsAdmin, value))
+                    return;
+                if (value)
+                    Acl |= (ulong)EngineRight.RundownRightsAdmin;
+                else
+                    Acl &= ~(ulong)EngineRight.RundownRightsAdmin;
             }
         }
 
@@ -76,11 +81,12 @@ namespace TAS.Client.ViewModels
             get => _mediaIngest;
             set
             {
-                if (SetField(ref _mediaIngest, value))
-                    if (value)
-                        Acl |= (ulong)EngineRight.MediaIngest;
-                    else
-                        Acl &= ~(ulong)EngineRight.MediaIngest;
+                if (!SetField(ref _mediaIngest, value))
+                    return;
+                if (value)
+                    Acl |= (ulong)EngineRight.MediaIngest;
+                else
+                    Acl &= ~(ulong)EngineRight.MediaIngest;
             }
         }
 
@@ -89,11 +95,12 @@ namespace TAS.Client.ViewModels
             get => _mediaEdit;
             set
             {
-                if (SetField(ref _mediaEdit, value))
-                    if (value)
-                        Acl |= (ulong)EngineRight.MediaEdit;
-                    else
-                        Acl &= ~(ulong)EngineRight.MediaEdit;
+                if (!SetField(ref _mediaEdit, value))
+                    return;
+                if (value)
+                    Acl |= (ulong)EngineRight.MediaEdit;
+                else
+                    Acl &= ~(ulong)EngineRight.MediaEdit;
             }
         }
 
@@ -102,11 +109,12 @@ namespace TAS.Client.ViewModels
             get => _mediaDelete;
             set
             {
-                if (SetField(ref _mediaDelete, value))
-                    if (value)
-                        Acl |= (ulong)EngineRight.MediaDelete;
-                    else
-                        Acl &= ~(ulong)EngineRight.MediaDelete;
+                if (!SetField(ref _mediaDelete, value))
+                    return;
+                if (value)
+                    Acl |= (ulong)EngineRight.MediaDelete;
+                else
+                    Acl &= ~(ulong)EngineRight.MediaDelete;
             }
         }
 
@@ -115,11 +123,12 @@ namespace TAS.Client.ViewModels
             get => _mediaArchive;
             set
             {
-                if (SetField(ref _mediaArchive, value))
-                    if (value)
-                        Acl |= (ulong)EngineRight.MediaArchive;
-                    else
-                        Acl &= ~(ulong)EngineRight.MediaArchive;
+                if (!SetField(ref _mediaArchive, value))
+                    return;
+                if (value)
+                    Acl |= (ulong)EngineRight.MediaArchive;
+                else
+                    Acl &= ~(ulong)EngineRight.MediaArchive;
             }
         }
 
@@ -128,14 +137,26 @@ namespace TAS.Client.ViewModels
             get => _mediaExport;
             set
             {
-                if (SetField(ref _mediaExport, value))
-                    if (value)
-                        Acl |= (ulong) EngineRight.MediaExport;
-                    else
-                        Acl &= ~(ulong) EngineRight.MediaExport;
+                if (!SetField(ref _mediaExport, value))
+                    return;
+                if (value)
+                    Acl |= (ulong) EngineRight.MediaExport;
+                else
+                    Acl &= ~(ulong) EngineRight.MediaExport;
             }
         }
-        
+
+        public void Load()
+        {
+            _play = (Acl & (ulong)EngineRight.Play) != 0;
+            _preview = (Acl & (ulong)EngineRight.Preview) != 0;
+            _rundownRightsAdmin = (Acl & (ulong)EngineRight.RundownRightsAdmin) != 0;
+            _rundown = (Acl & (ulong)EngineRight.Rundown) != 0;
+            _mediaIngest = (Acl & (ulong)EngineRight.MediaIngest) != 0;
+            _mediaEdit = (Acl & (ulong)EngineRight.MediaEdit) != 0;
+            _mediaDelete = (Acl & (ulong)EngineRight.MediaDelete) != 0;
+            _mediaArchive = (Acl & (ulong)EngineRight.MediaArchive) != 0;
+        }
 
         public ISecurityObject SecurityObject => Right.SecurityObject;
     }

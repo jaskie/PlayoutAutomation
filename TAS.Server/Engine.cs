@@ -903,15 +903,14 @@ namespace TAS.Server
 
         public bool HaveRight(EngineRight right)
         {
-            IUser identity = Thread.CurrentPrincipal.Identity as IUser;
-            if (identity == null)
+            if (!(Thread.CurrentPrincipal.Identity is IUser user))
                 return false;
-            if (identity.IsAdmin)
+            if (user.IsAdmin)
                 return true; // Full rights
-            var groups = identity.GetGroups();
+            var groups = user.GetGroups();
             lock (_rights)
             {
-                return _rights.Value.Any(r => r.SecurityObject == identity && (r.Acl & (ulong)right) > 0) 
+                return _rights.Value.Any(r => r.SecurityObject == user && (r.Acl & (ulong)right) > 0) 
                     || groups.Any(g => _rights.Value.Any(r => r.SecurityObject == g && (r.Acl & (ulong)right) > 0));
             }
         }

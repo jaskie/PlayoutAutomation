@@ -99,8 +99,9 @@ namespace TAS.Client.ViewModels
 
         public void UndoEdit()
         {
-            Load();
             TemplatedEditViewmodel?.UndoEdit();
+            EventRightsEditViewmodel?.UndoEdit();
+            Load();
         }
         
         protected override void Update(object destObject = null)
@@ -926,6 +927,7 @@ namespace TAS.Client.ViewModels
         {
             IsModified = true;
         }
+
 
     }
 

@@ -206,8 +206,7 @@ Naprawdę usunąć?</value>
     <value>Odtworzyć ten element teraz?</value>
   </data>
   <data name="_query_SaveChangedData" xml:space="preserve">
-    <value>Zapisać zmienione dane dotyczące
-{0}?</value>
+    <value>Zapisać zmienione dane dotyczące {0}?</value>
   </data>
   <data name="_query_StartAnotherInstance" xml:space="preserve">
     <value>Program może byc uruchomiony tylko raz.
@@ -335,5 +334,8 @@ Zamknąć aplikację?</value>
   </data>
   <data name="_validate_TextTooLong" xml:space="preserve">
     <value>Wprowadzony tekst jest za długi.</value>
+  </data>
+  <data name="_query_AbadonChanges" xml:space="preserve">
+    <value>Porzucić zmiany w {0}?</value>
   </data>
 </root>

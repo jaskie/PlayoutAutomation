@@ -236,6 +236,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Abadon changes in {0}?.
+        /// </summary>
+        public static string _query_AbadonChanges {
+            get {
+                return ResourceManager.GetString("_query_AbadonChanges", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There are {0} clients. This will abort their work.
         ///Really exit?.
         /// </summary>
@@ -324,8 +333,7 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Save modified data regarding
-        ///{0}?.
+        ///   Looks up a localized string similar to Save modified data about {0}?.
         /// </summary>
         public static string _query_SaveChangedData {
             get {

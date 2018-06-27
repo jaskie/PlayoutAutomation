@@ -29,6 +29,7 @@ namespace TAS.Client.Common
             {
                 IsLoading = false;
             }
+            IsModified = false;
         }
 
         protected virtual void Update(object destObject = null)

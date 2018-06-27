@@ -1441,12 +1441,9 @@ namespace TAS.Server
 
         private PersistentMedia _getMediaFromDir(Guid mediaGuid, MediaDirectory dir)
         {
-            if (dir != null)
-            {
-                var newMedia = dir.FindMediaByMediaGuid(mediaGuid);
-                if (newMedia is PersistentMedia)
-                    return (PersistentMedia)newMedia;
-            }
+            var newMedia = dir?.FindMediaByMediaGuid(mediaGuid);
+            if (newMedia is PersistentMedia media)
+                return media;
             return null;
         }
 
@@ -1457,7 +1454,7 @@ namespace TAS.Server
             if (identity.IsAdmin)
                 return ulong.MaxValue; // Full rights
             var visualParent = _getVisualParent();
-            ulong acl = visualParent?.EffectiveRights() ?? 0;
+            var acl = visualParent?.EffectiveRights() ?? 0;
             var groups = identity.GetGroups();
             lock (_rights)
             {

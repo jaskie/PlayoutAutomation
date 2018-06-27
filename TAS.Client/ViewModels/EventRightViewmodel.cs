@@ -12,9 +12,7 @@ namespace TAS.Client.ViewModels
         public EventRightViewmodel(IAclRight right) : base(right)
         {
             Acl = right.Acl;
-            _create = (right.Acl & (ulong)EventRight.Create) != 0;
-            _modify = (right.Acl & (ulong)EventRight.Modify) != 0;
-            _delete = (right.Acl & (ulong)EventRight.Delete) != 0;
+            Load();
         }
 
         public bool Create
@@ -60,5 +58,12 @@ namespace TAS.Client.ViewModels
         }
 
         public ISecurityObject SecurityObject => Right.SecurityObject;
+
+        public void Load()
+        {
+            _create = (Acl & (ulong)EventRight.Create) != 0;
+            _modify = (Acl & (ulong)EventRight.Modify) != 0;
+            _delete = (Acl & (ulong)EventRight.Delete) != 0;
+        }
     }
 }

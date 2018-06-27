@@ -285,7 +285,8 @@ namespace TAS.Client.ViewModels
 
         private void _saveEdit(object obj)
         {
-            SelectedEventEditViewmodel?.Save();
+            if (SelectedEventEditViewmodel?.IsValid == true)
+                SelectedEventEditViewmodel.Save();
         }
 
         private void _moveUp(object obj)
@@ -793,31 +794,48 @@ namespace TAS.Client.ViewModels
             get => _selectedEvent;
             set
             {
-                if (value != _selectedEvent)
+                if (value == _selectedEvent)
+                    return;
+                if (SelectedEventEditViewmodel?.IsModified == true)
                 {
-                    var oldSelectedEvent = _selectedEvent?.Event;
-                    if (oldSelectedEvent != null)
-                        oldSelectedEvent.PropertyChanged -= _onSelectedEventPropertyChanged;
-                    var oldSelectedEdit = SelectedEventEditViewmodel;
-                    _selectedEvent = value;
-                    IEvent newSelected = value?.Event;
-                    if (newSelected != null)
+                    if (SelectedEventEditViewmodel.IsValid)
+                        switch (MessageBox.Show(string.Format(resources._query_SaveChangedData, SelectedEventEditViewmodel.EventName), resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
+                        {
+                            case MessageBoxResult.Cancel:
+                                NotifyPropertyChanged(nameof(SelectedEvent));
+                                return;
+                            case MessageBoxResult.Yes:
+                                SelectedEventEditViewmodel.Save();
+                                break;
+                        }
+                    else 
+                    if (MessageBox.Show(string.Format(resources._query_AbadonChanges, SelectedEventEditViewmodel.EventName), resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes)
                     {
-                        newSelected.PropertyChanged += _onSelectedEventPropertyChanged;
-                        SelectedEventEditViewmodel = new EventEditViewmodel(newSelected, this);
+                        NotifyPropertyChanged(nameof(SelectedEvent));
+                        return;
                     }
-                    if (PreviewViewmodel != null)
-                        PreviewViewmodel.SelectedEvent = newSelected;
-                    oldSelectedEdit?.Dispose();
-                    if (value is EventPanelRundownElementViewmodelBase re && _mediaSearchViewModel != null)
-                    {
-                        _mediaSearchViewModel.BaseEvent = re.Event;
-                        _mediaSearchViewModel.NewEventStartType = TStartType.After;
-                    }
-                    InvalidateRequerySuggested();
-                    _updatePluginCanExecute();
-                    IsSearchNotFound = false;
                 }
+                SelectedEventEditViewmodel?.Dispose();
+                var oldSelectedEvent = _selectedEvent?.Event;
+                if (oldSelectedEvent != null)
+                    oldSelectedEvent.PropertyChanged -= _onSelectedEventPropertyChanged;
+                _selectedEvent = value;
+                var newSelected = value?.Event;
+                if (newSelected != null)
+                {
+                    newSelected.PropertyChanged += _onSelectedEventPropertyChanged;
+                    SelectedEventEditViewmodel = new EventEditViewmodel(newSelected, this);
+                }
+                if (PreviewViewmodel != null)
+                    PreviewViewmodel.SelectedEvent = newSelected;
+                if (value is EventPanelRundownElementViewmodelBase re && _mediaSearchViewModel != null)
+                {
+                    _mediaSearchViewModel.BaseEvent = re.Event;
+                    _mediaSearchViewModel.NewEventStartType = TStartType.After;
+                }
+                InvalidateRequerySuggested();
+                _updatePluginCanExecute();
+                IsSearchNotFound = false;
             }
         }
 

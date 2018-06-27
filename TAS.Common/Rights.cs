@@ -37,6 +37,7 @@ namespace TAS.Common
     {
         Play = 0x01,
         Preview = 0x02,
+        RundownRightsAdmin = 0x8,
         Rundown = 0x10,
         MediaIngest = 0x100,
         MediaEdit = 0x200,

@@ -92,10 +92,14 @@ namespace TAS.Client.ViewModels
                 switch (columnName)
                 {
                     case nameof(Name):
+                        if (string.IsNullOrEmpty(Name))
+                            return null;
                         if (Model.FieldLengths.TryGetValue(nameof(IUser.Name), out var nameLength) && Name.Length > nameLength)
                             return resources._validate_TextTooLong;
                         break;
                     case nameof(AuthenticationObject):
+                        if (string.IsNullOrEmpty(AuthenticationObject))
+                            return null;
                         if (Model.FieldLengths.TryGetValue(nameof(IUser.AuthenticationObject), out var aoLength) && AuthenticationObject.Length > aoLength)
                             return resources._validate_TextTooLong;
                         break;

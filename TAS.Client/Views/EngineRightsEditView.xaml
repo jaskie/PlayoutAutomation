@@ -45,6 +45,11 @@
                         <TextBlock Text="PRV" ToolTip="{Resx _preview, ResxName=TAS.Client.Views.EngineRightsEditView}"></TextBlock>
                     </DataGridCheckBoxColumn.Header>
                 </DataGridCheckBoxColumn>
+                <DataGridCheckBoxColumn Binding="{Binding RundownRightsAdmin, UpdateSourceTrigger=PropertyChanged}">
+                    <DataGridCheckBoxColumn.Header>
+                        <TextBlock Text="RA" ToolTip="{Resx _rundownRightsAdmin, ResxName=TAS.Client.Views.EngineRightsEditView}"></TextBlock>
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
                 <DataGridCheckBoxColumn Binding="{Binding Rundown, UpdateSourceTrigger=PropertyChanged}">
                     <DataGridCheckBoxColumn.Header>
                         <TextBlock Text="R" ToolTip="{Resx _rundown, ResxName=TAS.Client.Views.EngineRightsEditView}"></TextBlock>
