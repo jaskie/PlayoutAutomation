@@ -124,6 +124,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandAddSubMovie { get; private set; }
         public ICommand CommandAddSubRundown { get; private set; }
         public ICommand CommandAddSubLive { get; private set; }
+        public ICommand CommandAddAnimation { get; private set; }
         public ICommand CommandToggleEnabled { get; private set; }
         public ICommand CommandToggleHold { get; private set; }
         public ICommand CommandToggleLayer { get; private set; }
@@ -258,6 +259,7 @@ namespace TAS.Client.ViewModels
             CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = _canAddSubMovie };
             CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = _canAddSubRundown };
             CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive, CanExecuteDelegate = _canAddSubLive };
+            CommandAddAnimation = new UICommand { ExecuteDelegate = _addAnimation, CanExecuteDelegate = _canAddAnimation };
             CommandToggleLayer = new UICommand { ExecuteDelegate = _toggleLayer };
             CommandToggleEnabled = new UICommand { ExecuteDelegate = _toggleEnabled };
             CommandToggleHold = new UICommand { ExecuteDelegate = _toggleHold };
@@ -415,6 +417,10 @@ namespace TAS.Client.ViewModels
         private void _toggleLayer(object obj) => (SelectedEvent as EventPanelRundownElementViewmodelBase)?.CommandToggleLayer.Execute(obj);
 
         private void _addSubLive(object obj) => (SelectedEvent as EventPanelRundownViewmodel)?.CommandAddSubLive.Execute(obj);
+
+        private void _addAnimation(object obj) => (SelectedEvent as EventPanelRundownElementViewmodelBase)?.CommandAddAnimation.Execute(obj);
+
+        private bool _canAddAnimation(object obj) => SelectedEvent is EventPanelRundownElementViewmodelBase ep && ep.CommandAddAnimation.CanExecute(obj);
 
         private void _addSubRundown(object obj)
         {
@@ -1167,7 +1173,7 @@ namespace TAS.Client.ViewModels
             switch (e.Media.MediaType)
             {
                 case TMediaType.Movie:
-                    TMediaCategory category = e.Media.MediaCategory;
+                    var category = e.Media.MediaCategory;
                     var cgController = Engine.CGElementsController;
                     var defaultCrawl = cgController?.DefaultCrawl ?? 0;
                     var defaultLogo = cgController?.DefaultLogo ?? 0;
@@ -1193,12 +1199,14 @@ namespace TAS.Client.ViewModels
                         duration: mediaSearchVm.BaseEvent.Duration);
                     break;
                 case TMediaType.Animation:
+                    if (!(e.Media is ITemplated templatedMedia))
+                        return;
                     newEvent = Engine.CreateNewEvent(
                         eventName: e.MediaName,
                         eventType: TEventType.Animation,
-                        videoLayer: VideoLayer.Animation);
-                    if (newEvent is ITemplated && e.Media is ITemplated)
-                        ((ITemplated)newEvent).Fields = ((ITemplated)e.Media).Fields;
+                        videoLayer: VideoLayer.Animation,
+                        scheduledDelay: templatedMedia.ScheduledDelay,
+                        fields: templatedMedia.Fields);
                     break;
                 default:
                     throw new ApplicationException("Invalid MediaType choosen");
@@ -1208,7 +1216,7 @@ namespace TAS.Client.ViewModels
             if (mediaSearchVm.NewEventStartType == TStartType.After)
                 mediaSearchVm.BaseEvent.InsertAfter(newEvent);
             if (mediaSearchVm.NewEventStartType == TStartType.WithParent)
-                mediaSearchVm.BaseEvent.InsertUnder(newEvent, false);
+                mediaSearchVm.BaseEvent.InsertUnder(newEvent, (e.Media as ITemplated)?.StartType == TStartType.WithParentFromEnd);
             mediaSearchVm.NewEventStartType = TStartType.After;
             mediaSearchVm.BaseEvent = newEvent;
             LastAddedEvent = newEvent;

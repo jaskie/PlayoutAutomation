@@ -1343,7 +1343,7 @@ VALUES
                             media.TemplateLayer = dataReader.GetInt32("TemplateLayer");
                             media.ScheduledDelay = dataReader.GetTimeSpan("ScheduledDelay");
                             media.StartType = (TStartType)dataReader.GetByte("StartType");
-                            if (media.StartType != TStartType.WithParent || media.StartType != TStartType.WithParentFromEnd)
+                            if (media.StartType != TStartType.WithParentFromEnd)
                                 media.StartType = TStartType.WithParent;
                             media.IsModified = false;
                             if (media.MediaStatus == TMediaStatus.Available)

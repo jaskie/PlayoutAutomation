@@ -55,7 +55,7 @@ namespace TAS.Common.Interfaces
             string command = null,
             IDictionary<string, string> fields = null,
             TemplateMethod method = TemplateMethod.Add,
-            int templateLayer = -1
+            int templateLayer = 10
         );
 
         void Load(IEvent aEvent);

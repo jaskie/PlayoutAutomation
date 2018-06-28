@@ -51,6 +51,8 @@
         <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="17" Gesture="Ctrl+NumPad1"/>
         <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="18" Gesture="Ctrl+NumPad2"/>
         <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="19" Gesture="Ctrl+NumPad3"/>
+        <KeyBinding Command="{Binding CommandAddAnimation}" Gesture="Ctrl+0"/>
+        <KeyBinding Command="{Binding CommandAddAnimation}" Gesture="Ctrl+NumPad0"/>
         <KeyBinding Command="{Binding CommandEventHide}" Gesture="F9"/>
         <KeyBinding Command="{Binding CommandMoveUp}" Gesture="Alt+Up"/>
         <KeyBinding Command="{Binding CommandMoveDown}" Gesture="Alt+Down"/>
@@ -294,7 +296,7 @@
                     </StackPanel>
                     <StackPanel Width="350">
                         <Label Content="{Resx _toolbar.NowPlaying}"  />
-                        <TextBlock Text="{Binding PlayingEventName}">
+                        <TextBlock Text="{Binding PlayingEventName}" HorizontalAlignment="Stretch">
                             <TextBlock.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="{Resx _toolbar.playingEventName.Menu.Restart, ResxName=TAS.Client.Views.EngineView}" Command="{Binding CommandRestartLayer}" CommandParameter="16"/>
@@ -302,7 +304,7 @@
                             </TextBlock.ContextMenu>
                         </TextBlock>
                         <Label Content="{Resx _toolbar.Next}"  />
-                        <TextBlock Text="{Binding NextToPlay}"/>
+                        <TextBlock Text="{Binding NextToPlay}" HorizontalAlignment="Stretch"/>
                     </StackPanel>
                 </WrapPanel>
             </DockPanel>
