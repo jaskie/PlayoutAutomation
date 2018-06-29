@@ -181,7 +181,7 @@ namespace TAS.Server.Media
                                 client.Connect();
                                 try
                                 {
-                                    VolumeFreeSize = client.GetFreeDiscSpace();
+                                    //VolumeFreeSize = client.GetFreeDiscSpace();
                                     _readXDCAM(client);
                                 }
                                 finally
@@ -521,31 +521,30 @@ namespace TAS.Server.Media
                 ((IngestMedia)fd).BmdXmlFile = string.Empty;
             try
             {
-                XmlDocument doc = new XmlDocument();
+                var doc = new XmlDocument();
                 doc.Load(xmlFileName);
                 try
                 {
-                    XmlNodeList clips = doc.SelectNodes(@"/xmeml/clip|/xmeml/bin/children/clip");
+                    var clips = doc.SelectNodes(@"/xmeml/clip|/xmeml/bin/children/clip");
                     if (clips == null)
                         return;
                     foreach (XmlNode clip in clips)
                     {
                         string fileName = Path.GetFileName((new Uri(Uri.UnescapeDataString(clip.SelectSingleNode(@"file/pathurl").InnerText))).LocalPath);
                         IngestMedia m = (IngestMedia)FindMediaFirst(f => f.FileName == fileName);
-                        if (m != null)
-                        {
-                            m.TcStart = clip.SelectSingleNode(@"file/timecode/string").InnerText.SMPTETimecodeToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
-                            m.TcPlay = m.TcStart;
-                            m.Duration = long.Parse(clip.SelectSingleNode(@"duration").InnerText).SMPTEFramesToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
-                            m.DurationPlay = m.Duration;
-                            m.BmdXmlFile = xmlFileName;
-                        }
+                        if (m == null)
+                            continue;
+                        m.TcStart = clip.SelectSingleNode(@"file/timecode/string").InnerText.SMPTETimecodeToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
+                        m.TcPlay = m.TcStart;
+                        m.Duration = long.Parse(clip.SelectSingleNode(@"duration").InnerText).SMPTEFramesToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
+                        m.DurationPlay = m.Duration;
+                        m.BmdXmlFile = xmlFileName;
                     }
                 }
                 catch (NullReferenceException) { }
                 catch (ArgumentNullException) { }
             }
-            catch (Exception) { }
+            catch { }
         }
 
         private bool _connectToRemoteDirectory()
@@ -566,52 +565,75 @@ namespace TAS.Server.Media
         {
             try
             {
-                var xdcamIndex = XDCAM.SerializationHelper<XDCAM.Index>.Deserialize(ReadXmlDocument("INDEX.XML", client));
-                if (xdcamIndex != null)
+                //var xdcamIndex = XDCAM.SerializationHelper<XDCAM.Index>.Deserialize(ReadXmlDocument("INDEX.XML", client));
+                //if (xdcamIndex != null)
+                //{
+                //    ClearFiles();
+                //    XdcamClipCount = xdcamIndex.clipTable.clipTable.Length;
+                //    var xdcamAlias = XDCAM.SerializationHelper<XDCAM.Alias>.Deserialize(ReadXmlDocument("ALIAS.XML", client));
+                //    var index = 0;
+                //    foreach (XDCAM.Index.Clip clip in xdcamIndex.clipTable.clipTable.Where(c => c.playable))
+                //    {
+                //        var clipAlias = xdcamAlias?.clipTable.FirstOrDefault(a => a.clipId == clip.clipId);
+                //        if (!(AddFile( string.Join(this.PathSeparator.ToString(), Folder, "Clip", $"{(clipAlias != null ? clipAlias.value : clip.clipId)}.MXF"), default(DateTime), new Guid(clip.umid.Substring(12))) is XDCAM.XdcamMedia newMedia))
+                //            continue;
+                //        newMedia.ClipNr = ++index;
+                //        newMedia.MediaName = clip.clipId;
+                //        newMedia.MediaType = TMediaType.Movie;
+                //        newMedia.XdcamClip = clip;
+                //        newMedia.XdcamAlias = clipAlias;
+                //        newMedia.Duration = ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
+                //        newMedia.DurationPlay = newMedia.Duration;
+                //        if (clip.aspectRatio == "4:3")
+                //            newMedia.VideoFormat = TVideoFormat.PAL;
+                //        if (clip.aspectRatio == "16:9")
+                //            newMedia.VideoFormat = TVideoFormat.PAL_FHA;
+                //    }
+                //    if (xdcamIndex.editlistTable?.editlistTable == null)
+                //        return;
+                //    {
+                //        foreach (XDCAM.Index.EditList edl in xdcamIndex.editlistTable.editlistTable)
+                //        {
+                //            var edlAlias = xdcamAlias?.editlistTable.FirstOrDefault(a => a.editlistId == edl.editlistId);
+                //            if (!(AddFile(string.Join(this.PathSeparator.ToString(), Folder, "Edit", $"{(edlAlias != null ? edlAlias.value : edl.editlistId)}.SMI"), default(DateTime),new Guid(edl.umid.Substring(12))) is XDCAM.XdcamMedia newMedia))
+                //                continue;
+                //            newMedia.MediaName = edl.editlistId;
+                //            newMedia.MediaType = TMediaType.Movie;
+                //            newMedia.XdcamEdl = edl;
+                //            newMedia.XdcamAlias = edlAlias;
+                //            newMedia.MediaType = TMediaType.Movie;
+                //            newMedia.Duration = ((long)edl.dur).SMPTEFramesToTimeSpan(edl.fps);
+                //            newMedia.DurationPlay = newMedia.Duration;
+                //            if (edl.aspectRatio == "4:3")
+                //                newMedia.VideoFormat = TVideoFormat.PAL;
+                //            if (edl.aspectRatio == "16:9")
+                //                newMedia.VideoFormat = TVideoFormat.PAL_FHA;
+                //        }
+                //    }
+                // }
+                // else // XDCAM Station internal drive
                 {
+                    var mediaProfile = XDCAM.SerializationHelper<XDCAM.MediaProfile>.Deserialize(ReadXmlDocument("MEDIAPRO.XML", client));
+                    if (mediaProfile == null)
+                        return;
                     ClearFiles();
-                    XdcamClipCount = xdcamIndex.clipTable.clipTable.Count;
-                    var xdcamAlias = XDCAM.SerializationHelper<XDCAM.Alias>.Deserialize(ReadXmlDocument("ALIAS.XML", client));
-                    int index = 0;
-                    foreach (XDCAM.Index.Clip clip in xdcamIndex.clipTable.clipTable.Where(c => c.playable))
+                    XdcamClipCount = mediaProfile.Contents.Length;
+                    var index = 0;
+                    foreach (var material in mediaProfile.Contents)
                     {
-                        var clipAlias = xdcamAlias == null ? null : xdcamAlias.clipTable.FirstOrDefault(a => a.clipId == clip.clipId);
-                        var newMedia = AddFile(string.Join(this.PathSeparator.ToString(), Folder, "Clip", $"{(clipAlias != null ? clipAlias.value : clip.clipId)}.MXF"), default(DateTime), new Guid(clip.umid.Substring(12))) as XDCAM.XdcamMedia;
-                        if (newMedia != null)
-                        {
-                            newMedia.ClipNr = ++index;
-                            newMedia.MediaName = $"{clip.clipId}";
-                            newMedia.MediaType = TMediaType.Movie;
-                            newMedia.XdcamClip = clip;
-                            newMedia.XdcamAlias = clipAlias;
-                            newMedia.Duration = ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
-                            newMedia.DurationPlay = newMedia.Duration;
-                            if (clip.aspectRatio == "4:3")
-                                newMedia.VideoFormat = TVideoFormat.PAL;
-                            if (clip.aspectRatio == "16:9")
-                                newMedia.VideoFormat = TVideoFormat.PAL_FHA;
-                        }
+                        if (!(AddFile(string.Join(PathSeparator.ToString(), Folder, material.uri), default(DateTime), new Guid(material.umid.Substring(32))) is XDCAM.XdcamMedia newMedia))
+                            continue;
+                        newMedia.ClipNr = ++index;
+                        newMedia.MediaName = $"{material.uri}";
+                        newMedia.MediaType = TMediaType.Movie;
+                        newMedia.XdcamMaterial = material;
+                        newMedia.Duration = ((long)material.dur).SMPTEFramesToTimeSpan(material.fps);
+                        newMedia.DurationPlay = newMedia.Duration;
+                        if (material.aspectRatio == "4:3")
+                            newMedia.VideoFormat = TVideoFormat.PAL;
+                        if (material.aspectRatio == "16:9")
+                            newMedia.VideoFormat = TVideoFormat.PAL_FHA;
                     }
-                    if (xdcamIndex.editlistTable != null && xdcamIndex.editlistTable.editlistTable != null)
-                        foreach (XDCAM.Index.EditList edl in xdcamIndex.editlistTable.editlistTable)
-                        {
-                            var edlAlias = xdcamAlias == null ? null : xdcamAlias.editlistTable.FirstOrDefault(a => a.editlistId == edl.editlistId);
-                            var newMedia = AddFile(string.Join(this.PathSeparator.ToString(), Folder, "Edit", $"{(edlAlias != null ? edlAlias.value : edl.editlistId)}.SMI"), default(DateTime), new Guid(edl.umid.Substring(12))) as XDCAM.XdcamMedia;
-                            if (newMedia != null)
-                            {
-                                newMedia.MediaName = $"{edl.editlistId}";
-                                newMedia.MediaType = TMediaType.Movie;
-                                newMedia.XdcamEdl = edl;
-                                newMedia.XdcamAlias = edlAlias;
-                                newMedia.MediaType = TMediaType.Movie;
-                                newMedia.Duration = ((long)edl.dur).SMPTEFramesToTimeSpan(edl.fps);
-                                newMedia.DurationPlay = newMedia.Duration;
-                                if (edl.aspectRatio == "4:3")
-                                    newMedia.VideoFormat = TVideoFormat.PAL;
-                                if (edl.aspectRatio == "16:9")
-                                    newMedia.VideoFormat = TVideoFormat.PAL_FHA;
-                            }
-                        }
                 }
             }
             catch (Exception e)

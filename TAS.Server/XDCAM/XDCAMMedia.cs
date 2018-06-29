@@ -11,9 +11,11 @@ namespace TAS.Server.XDCAM
 {
     public class XdcamMedia : IngestMedia, IXdcamMedia
     {
-        internal Index.Clip XdcamClip;
-        internal Alias.ClipAlias XdcamAlias;
-        internal Index.EditList XdcamEdl;
+        //internal Clip XdcamClip;
+        //internal Alias.ClipAlias XdcamAlias;
+        //internal EditList XdcamEdl;
+        internal Material XdcamMaterial;
+
         private int _clipNr;
 
         public XdcamMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid)
@@ -24,17 +26,12 @@ namespace TAS.Server.XDCAM
 
         public override Stream GetFileStream(bool forWrite)
         {
-            if (Directory is IngestDirectory dir)
-            {
-                if (dir.AccessType == TDirectoryAccessType.Direct)
-                {
-                    var fileName = Path.Combine(dir.Folder, "Clip",
-                        $"{(XdcamAlias != null ? XdcamAlias.clipId : XdcamClip.clipId)}.MXF");
-                    return new FileStream(fileName, forWrite ? FileMode.Create : FileMode.Open);
-                }
+            if (!(Directory is IngestDirectory dir))
+                throw new InvalidOperationException("XDCAMMedia: _directory must be IngestDirectory");
+            if (dir.AccessType != TDirectoryAccessType.Direct)
                 return new XdcamStream(this, forWrite);
-            }
-            throw new InvalidOperationException("XDCAMMedia: _directory must be IngestDirectory");
+            var fileName = Path.Combine(dir.Folder, XdcamMaterial.uri);
+            return new FileStream(fileName, forWrite ? FileMode.Create : FileMode.Open);
         }
 
         public override void Verify()
@@ -46,58 +43,32 @@ namespace TAS.Server.XDCAM
                 if (Monitor.TryEnter(dir.XdcamLockObject, 1000))
                     try
                     {
-                        var clip = XdcamClip;
-                        if (clip != null)
-                        {
-                            string clipFileName = XdcamAlias == null ? clip.clipId : XdcamAlias.value;
-                            if (!string.IsNullOrWhiteSpace(clipFileName))
-                                clip.ClipMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml($"Clip/{clipFileName}M01.XML"));
-                            if (clip.ClipMeta != null)
-                            {
-                                LastUpdated = clip.ClipMeta.lastUpdate == default(DateTime) ? clip.ClipMeta.CreationDate.Value : clip.ClipMeta.lastUpdate;
-                                MediaName =  clip.ClipMeta.Title == null ? clip.clipId : string.IsNullOrWhiteSpace(clip.ClipMeta.Title.usAscii) ? clip.ClipMeta.Title.international: clip.ClipMeta.Title.usAscii;
-                                RationalNumber rate = new RationalNumber(clip.ClipMeta.LtcChangeTable.tcFps, 1);
-                                NonRealTimeMeta.LtcChange start = clip.ClipMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
-                                if (start != null)
-                                {
-                                    TimeSpan tcStart = start.value.LTCTimecodeToTimeSpan(rate);
-                                    if (tcStart >= TimeSpan.FromHours(40)) // TC 40:00:00:00 and greater
-                                        tcStart -= TimeSpan.FromHours(40);
-                                    TcStart = tcStart;
-                                    TcPlay = tcStart;
-                                }
-                                MediaStatus = TMediaStatus.Available;
-                                IsVerified = true;
-                            }
-                        }
-                        var edl = XdcamEdl;
-                        if (edl != null)
-                        {
-                            string edlFileName = XdcamAlias == null ? edl.editlistId : XdcamAlias.value;
-                            if (!string.IsNullOrWhiteSpace(edlFileName))
-                            {
-                                edl.EdlMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml($"Edit/{edlFileName}M01.XML"));
-                                edl.smil = SerializationHelper<Smil>.Deserialize(ReadXml($"Edit/{edlFileName}E01.SMI"));
-                            }
-                            if (edl.EdlMeta != null)
-                            {
-                                LastUpdated = edl.EdlMeta.lastUpdate == default(DateTime) ? edl.EdlMeta.CreationDate.Value : edl.EdlMeta.lastUpdate;
-                                MediaName = edl.EdlMeta.Title == null ? edl.editlistId : string.IsNullOrWhiteSpace(edl.EdlMeta.Title.usAscii) ? edl.EdlMeta.Title.international : edl.EdlMeta.Title.usAscii;
-                                RationalNumber rate = new RationalNumber(edl.EdlMeta.LtcChangeTable.tcFps, 1);
-                                NonRealTimeMeta.LtcChange start = edl.EdlMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
-                                if (start != null)
-                                {
-                                    TimeSpan tcStart = start.value.LTCTimecodeToTimeSpan(rate);
-                                    if (tcStart >= TimeSpan.FromHours(40)) // TC 40:00:00:00 and greater
-                                        tcStart -= TimeSpan.FromHours(40);
-                                    TcStart = tcStart;
-                                    TcPlay = tcStart;
-                                }
-                                MediaStatus = TMediaStatus.Available;
-                                IsVerified = true;
-                            }
-
-                        }
+                        //if (XdcamClip != null)
+                        //{
+                        //    var xmlFileName = XdcamAlias == null ? XdcamClip.clipId : XdcamAlias.value;
+                        //    if (!string.IsNullOrWhiteSpace(xmlFileName))
+                        //        XdcamMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml($"Clip/{xmlFileName}M01.XML"));
+                        //    IsVerified = RedaXdcamMeta(XdcamClip.clipId);
+                        //    if (IsVerified)
+                        //        MediaStatus = TMediaStatus.Available;
+                        //}
+                        //if (XdcamEdl != null)
+                        //{
+                        //    string edlFileName = XdcamAlias == null ? XdcamEdl.editlistId : XdcamAlias.value;
+                        //    if (!string.IsNullOrWhiteSpace(edlFileName))
+                        //    {
+                        //        XdcamMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml($"Edit/{edlFileName}M01.XML"));
+                        //        XdcamSmil = SerializationHelper<Smil>.Deserialize(ReadXml($"Edit/{edlFileName}E01.SMI"));
+                        //    }
+                        //    IsVerified = RedaXdcamMeta(XdcamEdl.editlistId);
+                        //    if (IsVerified)
+                        //        MediaStatus = TMediaStatus.Available;
+                        //}
+                        if (XdcamMaterial == null)
+                            return;
+                        IsVerified = RedaXdcamMeta();
+                        if (IsVerified)
+                            MediaStatus = TMediaStatus.Available;
                     }
                     finally
                     {
@@ -130,6 +101,35 @@ namespace TAS.Server.XDCAM
             {
                 client.Disconnect();
             }
+        }
+
+        private bool RedaXdcamMeta()
+        {
+            var metaFileName = XdcamMaterial.RelevantInfo?.FirstOrDefault(i => i.type == RelevantInfoType.Xml)?.uri;
+            if (string.IsNullOrWhiteSpace(metaFileName))
+                return false;
+            var xdcamMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml(metaFileName));
+            if (xdcamMeta == null)
+                return false;
+            LastUpdated = xdcamMeta.lastUpdate == default(DateTime)
+                ? xdcamMeta.CreationDate.Value
+                : xdcamMeta.lastUpdate;
+            MediaName = xdcamMeta.Title == null
+                ? XdcamMaterial.uri
+                : string.IsNullOrWhiteSpace(xdcamMeta.Title.usAscii)
+                    ? xdcamMeta.Title.international
+                    : xdcamMeta.Title.usAscii;
+
+            var rate = new RationalNumber(xdcamMeta.LtcChangeTable.tcFps, 1);
+            var start = xdcamMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
+            if (start == null)
+                return true;
+            TimeSpan tcStart = start.value.LTCTimecodeToTimeSpan(rate);
+            if (tcStart >= TimeSpan.FromHours(40)) // TC 40:00:00:00 and greater
+                tcStart -= TimeSpan.FromHours(40);
+            TcStart = tcStart;
+            TcPlay = tcStart;
+            return true;
         }
 
     }

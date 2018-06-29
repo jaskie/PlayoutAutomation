@@ -100,13 +100,16 @@
     <Compile Include="Security\AuthenticationService.cs" />
     <Compile Include="Security\Group.cs" />
     <Compile Include="Security\User.cs" />
+    <Compile Include="XDCAM\Clip.cs" />
+    <Compile Include="XDCAM\EditList.cs" />
+    <Compile Include="XDCAM\MediaProfile.cs" />
+    <Compile Include="XDCAM\Meta.cs" />
     <Compile Include="XDCAM\XDCAMMedia.cs" />
     <Compile Include="PluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExportOperation.cs" />
     <Compile Include="AnimatedEvent.cs" />
     <Compile Include="XDCAM\Alias.cs" />
-    <Compile Include="XDCAM\Index.cs" />
     <Compile Include="XDCAM\NonRealTimeMeta.cs" />
     <Compile Include="XDCAM\SerializationHelper.cs" />
     <Compile Include="XDCAM\Smil.cs" />

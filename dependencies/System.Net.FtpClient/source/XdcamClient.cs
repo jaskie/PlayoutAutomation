@@ -44,7 +44,7 @@ namespace System.Net.FtpClient
                 // read in one line of raw file listing for the file - it's the only method to get file size
                 try
                 {
-                    using (FtpDataStream stream = OpenDataStream($"LIST {root_ + path}", 0))
+                    using (FtpDataStream stream = OpenDataStream($"LIST {path}", 0))
                     {
                         string buf;
                         try
@@ -54,7 +54,7 @@ namespace System.Net.FtpClient
                             {
                                 FtpTrace.WriteLine(buf);
                                 FtpListItem itemdata = FtpListItem.ParseUnixList(buf, FtpCapability.NONE);
-                                return itemdata.Size;
+                                return itemdata?.Size ?? 0;
                             }
                         }
                         finally

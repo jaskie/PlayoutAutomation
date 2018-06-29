@@ -14,6 +14,7 @@ namespace TAS.Server.XDCAM
         private readonly XdcamMedia _media;
         private Stream _currentStream;
         private readonly FtpClient _client;
+        private readonly Smil _smil;
 
         public XdcamStream(XdcamMedia media, bool forWrite)
         {
@@ -27,20 +28,20 @@ namespace TAS.Server.XDCAM
             try
             {
                 _client.Connect();
+                if (media.XdcamMaterial.type == MaterialType.Edl)
+                {
+                    var smilXml = dir.ReadXmlDocument(media.XdcamMaterial.uri, _client);
+                    if (smilXml != null)
+                        _smil = SerializationHelper<Smil>.Deserialize(smilXml);
+                    _isEditList = true;
+                }
                 _smilIndex = 0;
                 _media = media;
-                _isEditList = media.XdcamEdl != null;
                 if (_isEditList)
                     _currentStream = _getNextStream();
                 else
                 {
-                    if (forWrite)
-                        _currentStream = _client.OpenWrite($"Clip/{media.FileName}");
-                    else
-                    {
-                        string fileName = string.Join("/", "Clip", $"{(media.XdcamAlias != null ? media.XdcamAlias.value : media.XdcamClip.clipId)}.MXF");
-                        _currentStream = _client.OpenRead(fileName);
-                    }
+                    _currentStream = forWrite ? _client.OpenWrite($"Clip/{media.FileName}") : _client.OpenRead(media.XdcamMaterial.uri);
                 }
             }
             catch
@@ -56,11 +57,11 @@ namespace TAS.Server.XDCAM
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            int bytesRead = 0;
+            var bytesRead = 0;
             while (_currentStream != null && bytesRead < count)
             {
-                int toReadLeft = count - bytesRead;
-                int actualRead = _currentStream.Read(buffer, offset + bytesRead, toReadLeft);
+                var toReadLeft = count - bytesRead;
+                var actualRead = _currentStream.Read(buffer, offset + bytesRead, toReadLeft);
                 if (actualRead == 0)
                 {
                     _currentStream.Dispose();
@@ -103,15 +104,13 @@ namespace TAS.Server.XDCAM
         {
             try
             {
-                if (disposing)
-                {
-                    var stream = _currentStream;
-                    if (stream != null)
-                    {
-                        stream.Flush();
-                        stream.Close();
-                    }
-                }
+                if (!disposing)
+                    return;
+                var stream = _currentStream;
+                if (stream == null)
+                    return;
+                stream.Flush();
+                stream.Close();
             }
             finally
             {
@@ -123,28 +122,21 @@ namespace TAS.Server.XDCAM
 
         private Stream _getNextStream()
         {
-            Stream result = null;
-            if (_isEditList
-                && _media.XdcamEdl.smil.body.par.refList.Count > _smilIndex)
-            {
-                var r = _media.XdcamEdl.smil.body.par.refList[_smilIndex];
-                if (r.src.StartsWith(@"urn:smpte:umid:"))
-                {
-                    string umid = r.src.Substring(35);
-                    int startFrame = r.clipBegin.SmpteToFrame();
-                    int length = r.clipEnd.SmpteToFrame() - startFrame;
-                    var media = _media.Directory.GetFiles().Select(m => (XdcamMedia)m).FirstOrDefault(m => umid.Equals(m.XdcamClip?.umid));
-                    if (media != null)
-                    {
-                        string fileName = string.Join("/", "Clip", $"{media.XdcamClip.clipId}.MXF");
-                        if (!_client.FileExists(fileName))
-                            fileName = string.Join("/", "Clip", $"{media.XdcamAlias.value}.MXF");
-                        result = ((XdcamClient)_client).OpenPart(fileName, startFrame, length);
-                    }
-                }
-                _smilIndex++;
-            }
-            return result;
+            const string umidSpecifier = "urn:smpte:umid:";
+            if (!_isEditList || _smil.body.par.refList.Count <= _smilIndex)
+                return null;
+            var r = _smil.body.par.refList[_smilIndex];
+            if (r.src?.StartsWith(umidSpecifier) != true)
+                return null;
+            var umid = r.src.Substring(umidSpecifier.Length);
+            var startFrame = r.clipBegin.SmpteToFrame();
+            var length = r.clipEnd.SmpteToFrame() - startFrame;
+            var media = _media.Directory.GetFiles().Cast<XdcamMedia>().FirstOrDefault(m => umid.Equals(m.XdcamMaterial?.umid));
+            if (media?.XdcamMaterial == null)
+                return null;
+            var fileName = media.XdcamMaterial.uri;
+            _smilIndex++;
+            return ((XdcamClient)_client).OpenPart(fileName, startFrame, length);
         }
 
     }
