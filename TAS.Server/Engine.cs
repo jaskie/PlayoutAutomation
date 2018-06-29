@@ -88,6 +88,7 @@ namespace TAS.Server
             FieldLengths = EngineController.Database.EngineFieldLengths;
             ServerMediaFieldLengths = EngineController.Database.ServerMediaFieldLengths;
             ArchiveMediaFieldLengths = EngineController.Database.ArchiveMediaFieldLengths;
+            EventFieldLengths = EngineController.Database.EventFieldLengths;
         }
 
         public event EventHandler<EngineTickEventArgs> EngineTick;
@@ -858,6 +859,11 @@ namespace TAS.Server
 
         [JsonProperty]
         public IDictionary<string, int> ArchiveMediaFieldLengths { get; }
+
+        [JsonProperty]
+        public IDictionary<string, int> EventFieldLengths { get; }
+
+
 
         public void Save()
         {

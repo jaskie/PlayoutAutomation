@@ -20,6 +20,7 @@ namespace TAS.Common.Interfaces
         List<IEvent> FixedTimeEvents { get; }
         IDictionary<string, int> ServerMediaFieldLengths { get; }
         IDictionary<string, int> ArchiveMediaFieldLengths { get; }
+        IDictionary<string, int> EventFieldLengths { get; }
 
         IEvent CreateNewEvent(
             ulong idRundownEvent = 0,

@@ -106,6 +106,9 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEngine.ArchiveMediaFieldLengths))]
         private IDictionary<string, int> _archiveMediaFieldLengths;
 
+        [JsonProperty(nameof(IEngine.EventFieldLengths))]
+        private IDictionary<string, int> _eventFieldLengths;
+
 #pragma warning restore
 
         public Engine()
@@ -214,6 +217,7 @@ namespace TAS.Remoting.Model
 
         public IDictionary<string, int> ServerMediaFieldLengths { get => _serverMediaFieldLengths; set => Set(value); }
         public IDictionary<string, int> ArchiveMediaFieldLengths { get => _archiveMediaFieldLengths; set => Set(value); }
+        public IDictionary<string, int> EventFieldLengths { get => _eventFieldLengths; set => Set(value); }
 
         public IEvent CreateNewEvent(
                     ulong idRundownEvent = 0,

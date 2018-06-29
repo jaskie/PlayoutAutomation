@@ -319,7 +319,7 @@ namespace TAS.Remoting.Model
 
         public void Remove() { Invoke(); }
 
-        public IDictionary<string, int> FieldLengths { get => _fieldLengths; set => Set(value); }
+        public IDictionary<string, int> FieldLengths => _engine.EventFieldLengths;
 
         public void Save()
         {
