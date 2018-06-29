@@ -48,27 +48,27 @@ namespace TAS.Server
 #endif
         
         [JsonProperty]
-        public IMediaProperties DestProperties { get { return _destMediaProperties; } set { SetField(ref _destMediaProperties, value, nameof(Title)); } }
+        public IMediaProperties DestProperties { get => _destMediaProperties; set => SetField(ref _destMediaProperties, value, nameof(Title)); }
 
         [JsonProperty]
         public IMediaDirectory DestDirectory { get; set; }
 
         [JsonProperty]
-        public IMedia Source { get { return _sourceMedia; } set { SetField(ref _sourceMedia, value); } }
+        public IMedia Source { get => _sourceMedia; set => SetField(ref _sourceMedia, value); }
 
         internal MediaBase Dest { get; set; }
 
         [JsonProperty]
         public int TryCount
         {
-            get { return _tryCount; }
-            set { SetField(ref _tryCount, value); }
+            get => _tryCount;
+            set => SetField(ref _tryCount, value);
         }
         
         [JsonProperty]
         public int Progress
         {
-            get { return _progress; }
+            get => _progress;
             set
             {
                 if (value > 0 && value <= 100)
@@ -80,7 +80,7 @@ namespace TAS.Server
         [JsonProperty]
         public DateTime ScheduledTime
         {
-            get { return _scheduledTime; }
+            get => _scheduledTime;
             internal set
             {
                 if (SetField(ref _scheduledTime, value))
@@ -91,72 +91,69 @@ namespace TAS.Server
         [JsonProperty]
         public DateTime StartTime
         {
-            get { return _startTime; }
-            protected set { SetField(ref _startTime, value); }
+            get => _startTime;
+            protected set => SetField(ref _startTime, value);
         }
 
         [JsonProperty]
         public DateTime FinishedTime 
         {
-            get { return _finishedTime; }
-            protected set { SetField(ref _finishedTime, value); }
+            get => _finishedTime;
+            protected set => SetField(ref _finishedTime, value);
         }
 
         [JsonProperty]
         public FileOperationStatus OperationStatus
         {
-            get { return _operationStatus; }
+            get => _operationStatus;
             set
             {
-                if (SetField(ref _operationStatus, value))
+                if (!SetField(ref _operationStatus, value))
+                    return;
+                TIngestStatus newIngestStatus;
+                switch (value)
                 {
-                    TIngestStatus newIngestStatus;
-                        switch (value)
-                        {
-                            case FileOperationStatus.Finished:
-                                newIngestStatus = TIngestStatus.Ready;
-                                break;
-                            case FileOperationStatus.Waiting:
-                            case FileOperationStatus.InProgress:
-                                newIngestStatus = TIngestStatus.InProgress;
-                                break;
-                            default:
-                                newIngestStatus = TIngestStatus.Unknown;
-                                break;
-                        }
-                    var im = _sourceMedia as IngestMedia;
-                    if (im != null)
-                        im.IngestStatus = newIngestStatus;
-                    var am = _sourceMedia as ArchiveMedia;
-                    if (am != null)
-                        am.IngestStatus = newIngestStatus;
+                    case FileOperationStatus.Finished:
+                        newIngestStatus = TIngestStatus.Ready;
+                        break;
+                    case FileOperationStatus.Waiting:
+                    case FileOperationStatus.InProgress:
+                        newIngestStatus = TIngestStatus.InProgress;
+                        break;
+                    default:
+                        newIngestStatus = TIngestStatus.Unknown;
+                        break;
+                }
+                if (_sourceMedia is IngestMedia im)
+                    im.IngestStatus = newIngestStatus;
+                if (_sourceMedia is ArchiveMedia am)
+                    am.IngestStatus = newIngestStatus;
 
-                    EventHandler h;
-                    if (value == FileOperationStatus.Finished)
-                    {
-                        Progress = 100;
-                        FinishedTime = DateTime.UtcNow;
-                        h = Success;
-                        h?.Invoke(this, EventArgs.Empty);
-                        h = Finished;
-                        h?.Invoke(this, EventArgs.Empty);
-                    }
-                    if (value == FileOperationStatus.Failed)
-                    {
-                        Progress = 0;
-                        h = Failure;
-                        h?.Invoke(this, EventArgs.Empty);
-                        h = Finished;
-                        h?.Invoke(this, EventArgs.Empty);
-                    }
-                    if (value == FileOperationStatus.Aborted)
-                    {
-                        IsIndeterminate = false;
-                        h = Failure;
-                        h?.Invoke(this, EventArgs.Empty);
-                        h = Finished;
-                        h?.Invoke(this, EventArgs.Empty);
-                    }
+                EventHandler h;
+                if (value == FileOperationStatus.Finished)
+                {
+                    Progress = 100;
+                    FinishedTime = DateTime.UtcNow;
+                    h = Success;
+                    h?.Invoke(this, EventArgs.Empty);
+                    h = Finished;
+                    h?.Invoke(this, EventArgs.Empty);
+                }
+                if (value == FileOperationStatus.Failed)
+                {
+                    Progress = 0;
+                    h = Failure;
+                    h?.Invoke(this, EventArgs.Empty);
+                    h = Finished;
+                    h?.Invoke(this, EventArgs.Empty);
+                }
+                if (value == FileOperationStatus.Aborted)
+                {
+                    IsIndeterminate = false;
+                    h = Failure;
+                    h?.Invoke(this, EventArgs.Empty);
+                    h = Finished;
+                    h?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
@@ -164,35 +161,32 @@ namespace TAS.Server
         [JsonProperty]
         public bool IsIndeterminate
         {
-            get { return _isIndeterminate; }
-            set { SetField(ref _isIndeterminate, value); }
+            get => _isIndeterminate;
+            set => SetField(ref _isIndeterminate, value);
         }
 
 
         [JsonProperty]
         public bool IsAborted
         {
-            get { return Aborted; }
+            get => Aborted;
             private set
             {
-                if (SetField(ref Aborted, value))
+                if (!SetField(ref Aborted, value)) return;
+                lock (_destMediaLock)
                 {
-                    lock (_destMediaLock)
-                    {
-                        if (Dest != null && Dest.FileExists())
-                            Dest.Delete();
-                    }
-                    IsIndeterminate = false;
-                    OperationStatus = FileOperationStatus.Aborted;
+                    if (Dest != null && Dest.FileExists())
+                        Dest.Delete();
                 }
+                IsIndeterminate = false;
+                OperationStatus = FileOperationStatus.Aborted;
             }
         }
 
         [JsonProperty]
-        public virtual string Title => DestDirectory == null ?
-            string.Format("{0} {1}", Kind, Source)
-            :
-            string.Format("{0} {1} -> {2}", Kind, Source, DestDirectory.DirectoryName);
+        public virtual string Title => DestDirectory == null 
+            ? $"{Kind} {Source}"
+            : $"{Kind} {Source} -> {DestDirectory.DirectoryName}";
 
         [JsonProperty]
         public List<string> OperationWarning { get { lock (_operationWarning.SyncRoot) return _operationWarning.ToList(); } }
@@ -235,7 +229,7 @@ namespace TAS.Server
 
         protected void AddOutputMessage(string message)
         {
-            _operationOutput.Add(string.Format("{0} {1}", DateTime.Now, message));
+            _operationOutput.Add($"{DateTime.Now} {message}");
             NotifyPropertyChanged(nameof(OperationOutput));
             Logger.Info("{0}: {1}", Title, message);
         }

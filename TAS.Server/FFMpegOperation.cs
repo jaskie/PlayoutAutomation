@@ -21,33 +21,36 @@ namespace TAS.Server
         protected bool RunProcess(string parameters)
         {
             //create a process info
-            ProcessStartInfo oInfo = new ProcessStartInfo(FFmpegExe, parameters);
-            oInfo.UseShellExecute = false;
-            oInfo.CreateNoWindow = true;
-            oInfo.RedirectStandardError = true;
+            var oInfo = new ProcessStartInfo(FFmpegExe, parameters)
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true
+            };
 
             //try the process
             Debug.WriteLine(parameters, "Starting ffmpeg:");
             AddOutputMessage($"ffmpeg.exe {parameters}");
             try
             {
-                using (Process procFFmpeg = Process.Start(oInfo))
+                using (var procFFmpeg = Process.Start(oInfo))
                 {
+                    if (procFFmpeg == null)
+                        return false;
                     procFFmpeg.ErrorDataReceived += ProcOutputHandler;
                     procFFmpeg.BeginErrorReadLine();
-                    bool finished = false;
+                    var finished = false;
                     while (!(IsAborted || finished))
                         finished = procFFmpeg.WaitForExit(1000);
-                    if (IsAborted)
-                    {
-                        procFFmpeg.Kill();
-                        Thread.Sleep(1000);
-                        var destMedia = Dest;
-                        if (destMedia != null)
-                            System.IO.File.Delete(destMedia.FullPath);
-                        Debug.WriteLine(this, "Aborted");
-                    }
-                    return finished && (procFFmpeg.ExitCode == 0);
+                    if (!IsAborted)
+                        return finished && procFFmpeg.ExitCode == 0;
+                    procFFmpeg.Kill();
+                    Thread.Sleep(1000);
+                    var destMedia = Dest;
+                    if (destMedia != null)
+                        System.IO.File.Delete(destMedia.FullPath);
+                    Debug.WriteLine(this, "Aborted");
+                    return finished && procFFmpeg.ExitCode == 0;
                 }
             }
             catch (Exception e)
@@ -60,24 +63,21 @@ namespace TAS.Server
 
         protected virtual void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
-            if (!String.IsNullOrEmpty(outLine.Data))
+            if (string.IsNullOrEmpty(outLine.Data))
+                return;
+            var mProgressLine = RegexlProgress.Match(outLine.Data);
+            if (mProgressLine.Success)
             {
-                Match mProgressLine = RegexlProgress.Match(outLine.Data);
-                if (mProgressLine.Success)
-                {
-                    Match mProgressVal = RegexProgress.Match(mProgressLine.Value);
-                    if (mProgressVal.Success)
-                    {
-                        TimeSpan progressSeconds;
-                        long duration = ProgressDuration.Ticks;
-                        if (duration > 0
-                            && TimeSpan.TryParse(mProgressVal.Value.Trim(), CultureInfo.InvariantCulture, out progressSeconds))
-                            Progress = (int)((progressSeconds.Ticks * 100) / duration);
-                    }
-                }
-                else
-                    AddOutputMessage(outLine.Data);
+                var mProgressVal = RegexProgress.Match(mProgressLine.Value);
+                if (!mProgressVal.Success)
+                    return;
+                var duration = ProgressDuration.Ticks;
+                if (duration > 0
+                    && TimeSpan.TryParse(mProgressVal.Value.Trim(), CultureInfo.InvariantCulture, out var progressSeconds))
+                    Progress = (int)((progressSeconds.Ticks * 100) / duration);
             }
+            else
+                AddOutputMessage(outLine.Data);
         }
 
     }

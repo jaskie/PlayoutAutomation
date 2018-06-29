@@ -9,7 +9,7 @@ using TAS.Server.Media;
 
 namespace TAS.Server
 {
-    class LoudnessOperation : FFMpegOperation, ILoudnessOperation
+    public class LoudnessOperation : FFMpegOperation, ILoudnessOperation
     {
 
         private static readonly string lLufsPattern = @"    I:\s*-?\d*\.?\d* LUFS";
@@ -42,41 +42,37 @@ namespace TAS.Server
 
         internal override bool Execute()
         {
-            if (Kind == TFileOperationKind.Loudness)
+            if (Kind != TFileOperationKind.Loudness)
+                return base.Execute();
+            StartTime = DateTime.UtcNow;
+            OperationStatus = FileOperationStatus.InProgress;
+            try
             {
-                StartTime = DateTime.UtcNow;
-                OperationStatus = FileOperationStatus.InProgress;
-                try
-                {
-
-                    bool success;
-                    if (!(Source is MediaBase source))
-                        throw new ArgumentException("LoudnessOperation: Source is not of type MediaBase");
-                    if (source.Directory is IngestDirectory && ((IngestDirectory)source.Directory).AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia localSourceMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(source))
-                        {
-                            if (source.CopyMediaTo(localSourceMedia, ref Aborted))
-                            {
-                                success = InternalExecute(localSourceMedia);
-                                if (!success)
-                                    TryCount--;
-                                return success;
-                            }
+                bool success;
+                if (!(Source is MediaBase source))
+                    throw new ArgumentException("LoudnessOperation: Source is not of type MediaBase");
+                if (source.Directory is IngestDirectory directory &&
+                    directory.AccessType != TDirectoryAccessType.Direct)
+                    using (var localSourceMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(source))
+                    {
+                        if (!source.CopyMediaTo(localSourceMedia, ref Aborted))
                             return false;
-                        }
+                        success = InternalExecute(localSourceMedia);
+                        if (!success)
+                            TryCount--;
+                        return success;
+                    }
 
-                    success = InternalExecute(source);
-                    if (!success)
-                        TryCount--;
-                    return success;
-                }
-                catch
-                {
+                success = InternalExecute(source);
+                if (!success)
                     TryCount--;
-                    return false;
-                }
+                return success;
             }
-            return base.Execute();
+            catch
+            {
+                TryCount--;
+                return false;
+            }
         }
 
         private bool InternalExecute(MediaBase inputMedia)
@@ -97,61 +93,57 @@ namespace TAS.Server
         protected override void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             // Collect the process command output. 
-            if (!String.IsNullOrEmpty(outLine.Data))
+            if (string.IsNullOrEmpty(outLine.Data))
+                return;
+            var lineMatch = RegexLoudnesslProgress.Match(outLine.Data);
+            if (lineMatch.Success)
             {
-                Match lineMatch = RegexLoudnesslProgress.Match(outLine.Data);
-                if (lineMatch.Success)
+                var valueMatch = RegexLoudnessProgress.Match(lineMatch.Value);
+                if (!valueMatch.Success)
+                    return;
+                var totalSeconds = Source.Duration.TotalSeconds;
+                if (Math.Abs(totalSeconds) > double.Epsilon
+                    && double.TryParse(valueMatch.Value.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var currentPos))
+                    Progress = (int)((currentPos * 100) / totalSeconds);
+            }
+            else
+            {
+                var luFsLineMatch = RegexlLufs.Match(outLine.Data);
+                if (luFsLineMatch.Success)
                 {
-                    Match valueMatch = RegexLoudnessProgress.Match(lineMatch.Value);
+                    var regexLufs = new Regex(LufsPattern, RegexOptions.None);
+                    var valueMatch = regexLufs.Match(luFsLineMatch.Value);
                     if (valueMatch.Success)
-                    {
-                        double totalSeconds = Source.Duration.TotalSeconds;
-                        double currentPos;
-                        if (totalSeconds != 0
-                            && double.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out currentPos))
-                            Progress = (int)((currentPos * 100) / totalSeconds);
-                    }
+                        _loudnessMeasured = (double.TryParse(valueMatch.Value.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out _loudness));
                 }
-                else
+                if (!_samplePeakMeasured)
                 {
-                    Match luFsLineMatch = RegexlLufs.Match(outLine.Data);
-                    if (luFsLineMatch.Success)
+                    var truePeakLineMatch = RegexlPeak.Match(outLine.Data);
+                    if (truePeakLineMatch.Success)
                     {
-                        Regex regexLufs = new Regex(LufsPattern, RegexOptions.None);
-                        Match valueMatch = regexLufs.Match(luFsLineMatch.Value);
+                        var regexLufs = new Regex(LufsPattern, RegexOptions.None);
+                        var valueMatch = regexLufs.Match(truePeakLineMatch.Value);
                         if (valueMatch.Success)
-                            _loudnessMeasured = (double.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out _loudness));
-                    }
-                    if (!_samplePeakMeasured)
-                    {
-                        Match truePeakLineMatch = RegexlPeak.Match(outLine.Data);
-                        if (truePeakLineMatch.Success)
-                        {
-                            Regex regexLufs = new Regex(LufsPattern, RegexOptions.None);
-                            Match valueMatch = regexLufs.Match(truePeakLineMatch.Value);
-                            if (valueMatch.Success)
-                                _samplePeakMeasured = (double.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out _samplePeak));
-                            else
-                                _loudnessMeasured = false;
-                        }
-                    }
-                    if (_samplePeakMeasured && _loudnessMeasured)
-                    {
-                        double volume = -Math.Max(_loudness - OwnerFileManager.ReferenceLoudness, _samplePeak); // prevents automatic amplification over 0dBFS
-                        var h = AudioVolumeMeasured;
-                        if (h == null)
-                        {
-                            Source.AudioLevelIntegrated = _loudness;
-                            Source.AudioLevelPeak = _samplePeak;
-                            Source.AudioVolume = volume;
-                            if (Source is PersistentMedia)
-                                (Source as PersistentMedia).Save();
-                        }
+                            _samplePeakMeasured = double.TryParse(valueMatch.Value.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out _samplePeak);
                         else
-                            h(this, new AudioVolumeEventArgs(volume));
+                            _loudnessMeasured = false;
                     }
-                    AddOutputMessage(outLine.Data);
                 }
+                if (_samplePeakMeasured && _loudnessMeasured)
+                {
+                    var volume = -Math.Max(_loudness - OwnerFileManager.ReferenceLoudness, _samplePeak); // prevents automatic amplification over 0dBFS
+                    var h = AudioVolumeMeasured;
+                    if (h == null)
+                    {
+                        Source.AudioLevelIntegrated = _loudness;
+                        Source.AudioLevelPeak = _samplePeak;
+                        Source.AudioVolume = volume;
+                        (Source as PersistentMedia)?.Save();
+                    }
+                    else
+                        h(this, new AudioVolumeEventArgs(volume));
+                }
+                AddOutputMessage(outLine.Data);
             }
         }
     }
