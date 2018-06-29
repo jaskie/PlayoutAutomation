@@ -90,6 +90,7 @@
     <Compile Include="Controls\FrameEdit.cs" />
     <Compile Include="Controls\TimecodeTextBlock.cs" />
     <Compile Include="Controls\TreeViewEx.cs" />
+    <Compile Include="Controls\WrapPanelFill.cs" />
     <Compile Include="DispatcherHelper.cs" />
     <Compile Include="ModifyableViewModelBase.cs" />
     <Compile Include="EditViewModelBase.cs" />
