@@ -43,7 +43,14 @@ namespace TAS.Server
 
     public class CGElementsController : Remoting.Server.DtoBase, ICGElementsController
     {
-        const string ELEMENTS = "Elements.xml";
+        private const string ElementsFileName = "Elements.xml";
+
+        private bool _isCgEnabled;
+        private bool _isWideScreen;
+        private byte _logo;
+        private byte _crawl;
+        private byte _parental;
+
         public CGElementsController(IEngine engine)
         {
             _engine = engine;
@@ -51,7 +58,7 @@ namespace TAS.Server
 
         public void Initialize()
         {
-            ReadElements(Path.Combine(FileUtils.ConfigurationPath, ELEMENTS));
+            ReadElements(Path.Combine(FileUtils.ConfigurationPath, ElementsFileName));
             IsCGEnabled = true;
             IsWideScreen = true;
         }
@@ -60,7 +67,7 @@ namespace TAS.Server
 
         internal void ReadElements(string xmlFile)
         {
-            using (XmlReader reader = XmlReader.Create(xmlFile))
+            using (var reader = XmlReader.Create(xmlFile))
             {
                 if (reader.MoveToContent() == XmlNodeType.Element && reader.Name == "Elements")
                 {
@@ -87,12 +94,12 @@ namespace TAS.Server
 
         private CGElement[] _deserializeList(XmlReader reader, string rootElementName, string childElementName)
         {
-            XmlAttributeOverrides overrides = new XmlAttributeOverrides();
-            XmlAttributes rootAttribs = new XmlAttributes { XmlRoot = new XmlRootAttribute(rootElementName) };
-            XmlAttributes elementAttribs = new XmlAttributes { XmlType = new XmlTypeAttribute(childElementName) };
+            var overrides = new XmlAttributeOverrides();
+            var rootAttribs = new XmlAttributes { XmlRoot = new XmlRootAttribute(rootElementName) };
+            var elementAttribs = new XmlAttributes { XmlType = new XmlTypeAttribute(childElementName) };
             overrides.Add(typeof(List<CGElement>), rootAttribs);
             overrides.Add(typeof(CGElement), elementAttribs);
-            List<CGElement> elements = (List<CGElement>)(new XmlSerializer(typeof(List<CGElement>), overrides).Deserialize(reader.ReadSubtree()));
+            var elements = (List<CGElement>)(new XmlSerializer(typeof(List<CGElement>), overrides).Deserialize(reader.ReadSubtree()));
             return elements.ToArray();
         }
 
@@ -104,33 +111,43 @@ namespace TAS.Server
         [JsonProperty]
         public virtual bool IsConnected => true;
 
-        private bool _isCGEnabled;
+        
         [JsonProperty]
-        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value); } }
+        public bool IsCGEnabled
+        {
+            get => _isCgEnabled;
+            set => SetField(ref _isCgEnabled, value);
+        }
 
         [JsonProperty]
         public bool IsMaster  => true;
 
-        bool _isWideScreen;
         [JsonProperty]
         public bool IsWideScreen
         {
-            get { return _isWideScreen; }
-            set { SetField(ref _isWideScreen, value); }
+            get => _isWideScreen;
+            set => SetField(ref _isWideScreen, value);
         }
 
-        private byte _crawl;
         [JsonProperty]
-        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value); } }
+        public byte Crawl
+        {
+            get => _crawl;
+            set
+            {
+                if (SetField(ref _crawl, value))
+                    _engine.Execute(_crawls[value].Command);
+            }
+        }
 
         [JsonProperty(nameof(Crawls), ItemTypeNameHandling = TypeNameHandling.Objects)]
-        CGElement[] _crawls = new CGElement[0];
+        private CGElement[] _crawls = new CGElement[0];
+
         public IEnumerable<ICGElement> Crawls => _crawls;
 
-        byte _logo;
         public byte Logo
         {
-            get { return _logo; }
+            get => _logo;
             set
             {
                 if (SetField(ref _logo, value))
@@ -139,14 +156,14 @@ namespace TAS.Server
         }
 
         [JsonProperty(nameof(Logos), ItemTypeNameHandling = TypeNameHandling.Objects)]
-        CGElement[] _logos = new CGElement[0];
+        private CGElement[] _logos = new CGElement[0];
+
         public IEnumerable<ICGElement> Logos => _logos;
 
-        byte _parental;
         [JsonProperty]
         public byte Parental
         {
-            get { return _parental; }
+            get => _parental;
             set
             {
                 if (SetField(ref _parental, value))
@@ -155,28 +172,28 @@ namespace TAS.Server
         }
 
         [JsonProperty(nameof(Parentals), ItemTypeNameHandling = TypeNameHandling.Objects)]
-        CGElement[] _parentals = new CGElement[0];
+        private CGElement[] _parentals = new CGElement[0];
+
         public IEnumerable<ICGElement> Parentals => _parentals;
 
         public event EventHandler Started;
+
         public void SetState(ICGElementsState state)
         {
-            if (_isCGEnabled && state.IsCGEnabled)
-            {
-                Logo = state.Logo;
-                Crawl = state.Crawl;
-                Parental = state.Parental;
-            }
+            if (!_isCgEnabled || !state.IsCGEnabled)
+                return;
+            Logo = state.Logo;
+            Crawl = state.Crawl;
+            Parental = state.Parental;
         }
 
         public void Clear()
         {
-            if (_isCGEnabled)
-            {
-                Logo = 0;
-                Crawl = 0;
-                Parental = 0;
-            }
+            if (!_isCgEnabled)
+                return;
+            Logo = 0;
+            Crawl = 0;
+            Parental = 0;
         }
     }
 }
