@@ -36,17 +36,14 @@ namespace TAS {
 			}));
 		};
 
-		int64_t _FFMpegWrapper::getFrameCount()
+		int64_t _FFMpegWrapper::getVideoDuration()
 		{
 			if (pFormatCtx)
 				for (unsigned int i = 0; i < pFormatCtx->nb_streams; i++)
 				{
-					AVStream* stream = pFormatCtx->streams[i];
-					if (stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
-						if (stream->nb_frames > 0)
-							return stream->nb_frames;
-						else
-							return (stream->duration * stream->time_base.num * stream->r_frame_rate.num) / (stream->time_base.den * stream->r_frame_rate.den);
+					AVRational time_base = pFormatCtx->streams[i]->time_base;
+					int64_t duration = pFormatCtx->streams[i]->duration;
+					return av_rescale(duration * AV_TIME_BASE, time_base.num, time_base.den);
 				}
 			// if not found
 			return 0; 

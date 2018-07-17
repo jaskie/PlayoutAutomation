@@ -17,7 +17,7 @@ namespace TAS.Server.Media
                 {
                     Rational r = ffmpeg.GetFrameRate();
                     RationalNumber frameRate = new RationalNumber(r.Num, r.Den);
-                    var videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan(frameRate);
+                    var videoDuration = (TimeSpan) ffmpeg.GetVideoDuration();
                     var audioDuration = (TimeSpan) ffmpeg.GetAudioDuration();
                     var mediaDuration = ((videoDuration > audioDuration) && (audioDuration > TimeSpan.Zero) ? audioDuration : videoDuration).Round(frameRate);
                     if (mediaDuration == TimeSpan.Zero)

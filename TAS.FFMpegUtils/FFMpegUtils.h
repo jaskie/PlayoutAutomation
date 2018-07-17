@@ -55,7 +55,7 @@ namespace TAS {
 		AVFrame* decodeFirstFrame();
 	public:
 		_FFMpegWrapper(char* fileName);
-		int64_t getFrameCount();
+		int64_t getVideoDuration();
 		int64_t getAudioDuration();
 		int64_t getFileDuration();
 		int getHeight();
@@ -88,8 +88,8 @@ namespace TAS {
 			}
 
 
-			Int64 GetFrameCount() {
-				return wrapper->getFrameCount();
+			TimeSpan^ GetVideoDuration() {
+				return gcnew TimeSpan(wrapper->getVideoDuration() * 10);
 			}
 
 			int GetHeight() {
