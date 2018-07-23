@@ -43,8 +43,8 @@ CREATE TABLE `asrunlog` (
   `idAuxMedia` varchar(16) COLLATE `utf8_general_ci` DEFAULT NULL,
   `idAuxRundown` varchar(16) COLLATE `utf8_general_ci` DEFAULT NULL,
   `SecEvents` varchar(100) COLLATE `utf8_general_ci` DEFAULT NULL,
-  `typVideo` tinyint(4) DEFAULT NULL,
-  `typAudio` tinyint(4) DEFAULT NULL,
+  `typVideo` tinyint(3) unsigned DEFAULT NULL,
+  `typAudio` tinyint(3) unsigned DEFAULT NULL,
   `Flags` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`idAsRunLog`),
   KEY `ixExecuteTime` (`ExecuteTime`)
@@ -207,4 +207,4 @@ CREATE TABLE `engine_acl` (
 );
 
 
-INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V8');
+INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V10');

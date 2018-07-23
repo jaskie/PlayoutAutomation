@@ -133,6 +133,11 @@ UPDATE `engine` SET `idServerSEC`='0', `ServerChannelSEC`='0';
 ALTER TABLE `rundownevent` ADD INDEX `idPlayState` (`PlayState` ASC);
 INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '1');</value>
   </data>
+  <data name="V10" xml:space="preserve">
+    <value>ALTER TABLE `tas`.`asrunlog` 
+CHANGE COLUMN `typVideo` `typVideo` TINYINT(3) UNSIGNED NULL DEFAULT NULL ,
+CHANGE COLUMN `typAudio` `typAudio` TINYINT(3) UNSIGNED NULL DEFAULT NULL ;</value>
+  </data>
   <data name="V2" xml:space="preserve">
     <value>CREATE TABLE `media_templated` (
   `MediaGuid` binary(16) NOT NULL,
