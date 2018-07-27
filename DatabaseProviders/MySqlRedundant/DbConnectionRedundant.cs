@@ -229,23 +229,19 @@ namespace TAS.Database.MySqlRedundant
                 {
                     _idleTimeTimerPrimary.Dispose();
                     _idleTimeTimerPrimary = null;
-                    ConnectionPrimary.StateChange -= _connection_StateChange;
                     ConnectionPrimary.Close();
+                    ConnectionPrimary.StateChange -= _connection_StateChange;
                 }
             if (ConnectionSecondary != null)
                 lock (ConnectionSecondary)
                 {
                     _idleTimeTimerSecondary.Dispose();
                     _idleTimeTimerSecondary = null;
-                    ConnectionSecondary.StateChange -= _connection_StateChange;
                     ConnectionSecondary.Close();
+                    ConnectionSecondary.StateChange -= _connection_StateChange;
                 }
         }
 
-        public new void Dispose()
-        {
-            Close();
-        }
 
         public bool ExecuteScript(string script)
         {

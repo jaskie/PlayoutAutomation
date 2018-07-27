@@ -59,6 +59,7 @@ namespace TAS.Client.Config
         protected override void OnDispose()
         {
             Engines.CollectionChanged -= _engines_CollectionChanged;
+            Model.Dispose();
         }
 
         private void _engines_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
