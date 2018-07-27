@@ -12,5 +12,6 @@ namespace TAS.Common.Interfaces
         bool LoudnessCheck { get; set; }
         TimeSpan StartTC { get; set; }
         TimeSpan Duration { get; set; }
+        TMovieContainerFormat MovieContainerFormat { get; set; }
     }
 }

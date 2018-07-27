@@ -26,7 +26,7 @@ namespace TAS.Client.ViewModels
         {
             _ingestOperation = operation;
             _engine = engine;
-            string destFileName = $"{Path.GetFileNameWithoutExtension(operation.Source.FileName)}{FileUtils.DefaultFileExtension(operation.Source.MediaType)}";
+            string destFileName = $"{Path.GetFileNameWithoutExtension(operation.Source.FileName)}.{operation.MovieContainerFormat}";
             _destMediaProperties = new PersistentMediaProxy
             {
                 FileName = operation.DestDirectory.GetUniqueFileName(destFileName),
@@ -119,6 +119,7 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(StartTC));
                 NotifyPropertyChanged(nameof(Duration));
                 NotifyPropertyChanged(nameof(EndTC));
+                NotifyPropertyChanged(nameof(IsValid));
             }
         }
 
@@ -134,6 +135,7 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(StartTC));
                 NotifyPropertyChanged(nameof(Duration));
                 NotifyPropertyChanged(nameof(EndTC));
+                NotifyPropertyChanged(nameof(IsValid));
             }
         }
 
@@ -161,11 +163,11 @@ namespace TAS.Client.ViewModels
             get => _destMediaProperties.FileName;
             set
             {
-                if (_destMediaProperties.FileName != value)
-                {
-                    _destMediaProperties.FileName = value;
-                    NotifyPropertyChanged();
-                }
+                if (_destMediaProperties.FileName == value)
+                    return;
+                _destMediaProperties.FileName = value;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(IsValid));
             }
         }
         
@@ -308,7 +310,7 @@ namespace TAS.Client.ViewModels
 
         private void _makeFileName()
         {
-            DestFileName = MediaExtensions.MakeFileName(IdAux, DestMediaName, FileUtils.DefaultFileExtension(_destMediaProperties.MediaType));
+            DestFileName = MediaExtensions.MakeFileName(IdAux, DestMediaName, _ingestOperation.MovieContainerFormat);
         }
 
         private string ValidateTc()

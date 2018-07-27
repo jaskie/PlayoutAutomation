@@ -38,6 +38,8 @@
                     <TextBox Text="{Binding AnimationFolder, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label Content="Server type"/>
                     <ComboBox SelectedItem="{Binding ServerType}" ItemsSource="{Binding ServerTypes}"/>
+                    <Label Content="Ingest format"/>
+                    <ComboBox SelectedItem="{Binding MovieContainerFormat}" ItemsSource="{Binding MovieContainerFormats}"/>
                 </StackPanel>
                 <DockPanel DockPanel.Dock="Bottom" Visibility="{Binding IsRecordersVisible, Converter={StaticResource BoolToVis}}">
                     <Separator DockPanel.Dock="Top" Margin="5"/>

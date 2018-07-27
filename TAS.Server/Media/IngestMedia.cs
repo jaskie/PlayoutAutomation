@@ -28,8 +28,7 @@ namespace TAS.Server.Media
             {
                 if (_ingestStatus == TIngestStatus.Unknown)
                 {
-                    var sdir = ((IngestDirectory)Directory).MediaManager.MediaDirectoryPRI as ServerDirectory;
-                    if (sdir != null)
+                    if (((IngestDirectory)Directory).MediaManager.MediaDirectoryPRI is ServerDirectory sdir)
                     {
                         var media = sdir.FindMediaByMediaGuid(MediaGuid);
                         if (media != null && media.MediaStatus == TMediaStatus.Available)
@@ -38,13 +37,12 @@ namespace TAS.Server.Media
                 }
                 return _ingestStatus;
             }
-            set { SetField(ref _ingestStatus, value); }                
+            set => SetField(ref _ingestStatus, value);
         }
 
         public override Stream GetFileStream(bool forWrite)
         {
-            var dir = Directory as IngestDirectory;
-            if (dir != null)
+            if (Directory is IngestDirectory dir)
             {
                 if (dir.AccessType == TDirectoryAccessType.Direct)
                     return base.GetFileStream(forWrite);

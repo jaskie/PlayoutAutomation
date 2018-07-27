@@ -52,6 +52,8 @@ namespace TAS.Server
 
         public TServerType ServerType { get; set; }
 
+        public TMovieContainerFormat MovieContainerFormat { get; set; }
+
         [JsonProperty(TypeNameHandling = TypeNameHandling.Objects), XmlIgnore]
         public IServerDirectory MediaDirectory { get; private set; }
 

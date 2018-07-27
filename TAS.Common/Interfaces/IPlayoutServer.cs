@@ -19,5 +19,6 @@ namespace TAS.Common.Interfaces
         string MediaFolder { get; set; }
         string AnimationFolder { get; set; }
         TServerType ServerType { get; }
+        TMovieContainerFormat MovieContainerFormat { get; }
     }
 }

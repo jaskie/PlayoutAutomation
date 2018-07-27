@@ -13,10 +13,9 @@ namespace TAS.Remoting.Model
         private event EventHandler<FileOperationEventArgs> _operationCompleted;
 
         public IEnumerable<IFileOperation> GetOperationQueue() { return Query<List<IFileOperation>>(); }
-
-        public IIngestOperation CreateIngestOperation(IIngestMedia sourceMedia, IMediaDirectory destDirectory)
+        public IIngestOperation CreateIngestOperation(IIngestMedia sourceMedia, IMediaManager destMediaManager)
         {
-            return Query<IngestOperation>(parameters: new object[] {sourceMedia, destDirectory});
+            return Query<IngestOperation>(parameters: new object[] {sourceMedia, destMediaManager});
         }
 
         public IFileOperation CreateSimpleOperation()

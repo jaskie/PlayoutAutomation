@@ -66,7 +66,11 @@ namespace TAS.Client.ViewModels
 
         public string OperationWarning => FileOperation.OperationWarning.AsString(Environment.NewLine);
 
-        public bool IsWarning { get { return _isWarning; } private set { SetField(ref _isWarning, value); } }
+        public bool IsWarning
+        {
+            get => _isWarning;
+            private set => SetField(ref _isWarning, value);
+        }
 
         public string Title => FileOperation.Title;
 

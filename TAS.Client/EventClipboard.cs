@@ -119,7 +119,7 @@ namespace TAS.Client
 
         public static IEvent Paste(EventPanelViewmodelBase destination, PasteLocation location)
         {
-            IEvent dest = destination.Event;
+            var dest = destination.Event;
             if (CanPaste(destination, location))
             {
                 var operation = _operation;
@@ -184,7 +184,7 @@ namespace TAS.Client
                         case PasteLocation.Under:
                             var newEvent = sourceProxy.InsertUnder(dest, false, mediaFiles, animationFiles);
                             if (dest.EventType == TEventType.Container)
-                                newEvent.ScheduledTime = DateTime.UtcNow;
+                                newEvent.ScheduledTime = EventExtensions.DefaultScheduledTime;
                             return newEvent;
                     }
                     throw new InvalidOperationException("Invalid paste location");

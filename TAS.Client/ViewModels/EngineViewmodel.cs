@@ -553,7 +553,7 @@ namespace TAS.Client.ViewModels
                 eventType: TEventType.Rundown,
                 eventName: resources._title_NewRundown,
                 startType: TStartType.Manual,
-                scheduledTime: DateTime.Today.AddDays(1) + new TimeSpan(DateTime.Now.Hour, 0, 0));
+                scheduledTime: EventExtensions.DefaultScheduledTime);
             Engine.AddRootEvent(newEvent);
             newEvent.Save();
             LastAddedEvent = newEvent;
@@ -691,7 +691,7 @@ namespace TAS.Client.ViewModels
                     break;
                 case TEventType.Rundown:
                     newEvent = Engine.CreateNewEvent(
-                        scheduledTime: DateTime.Today.AddDays(1) + new TimeSpan(DateTime.Now.Hour, 0, 0),
+                        scheduledTime: EventExtensions.DefaultScheduledTime,
                         eventType: TEventType.Rundown,
                         eventName: resources._title_NewRundown);
                     break;

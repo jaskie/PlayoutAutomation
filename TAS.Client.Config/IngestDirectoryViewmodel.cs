@@ -193,8 +193,10 @@ namespace TAS.Client.Config
             get => _exportFormat;
             set
             {
-                if (SetField(ref _exportFormat, value))
-                    NotifyPropertyChanged(nameof(IsMxf));
+                if (!SetField(ref _exportFormat, value))
+                    return;
+                NotifyPropertyChanged(nameof(IsMxf));
+                NotifyPropertyChanged(nameof(IsXdcam));
             }
         }
 
@@ -253,6 +255,8 @@ namespace TAS.Client.Config
         #endregion // IIngestDirectoryProperties
 
         public bool IsMxf => Kind == TIngestDirectoryKind.XDCAM || (ExportContainerFormat == TMovieContainerFormat.mxf);
+
+        public bool IsXdcam => Kind == TIngestDirectoryKind.XDCAM;
         
         public bool VideoDoNotEncode => _videoCodec == TVideoCodec.copy;
 

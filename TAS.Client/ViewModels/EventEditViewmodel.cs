@@ -38,11 +38,11 @@ namespace TAS.Client.ViewModels
         private TimeSpan _scheduledDelay;
         private sbyte _layer;
 
-        public static readonly Regex RegexMixerFill = new Regex(EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexMixerClip = new Regex(EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexMixerClear = new Regex(EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexPlay = new Regex(EventExtensions.PlayCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexCg = new Regex(EventExtensions.CgCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerClip = new Regex(TAS.Common.EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerClear = new Regex(TAS.Common.EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexPlay = new Regex(TAS.Common.EventExtensions.PlayCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexCg = new Regex(TAS.Common.EventExtensions.CgCommand, RegexOptions.IgnoreCase);
 
         public EventEditViewmodel(IEvent @event, EngineViewmodel engineViewModel): base(@event)
         {

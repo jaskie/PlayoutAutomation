@@ -370,40 +370,38 @@ namespace TAS.Server
         {
             var adirPri = MediaDirectoryPRI;
             var adirSec = MediaDirectorySEC;
-            if (e.Media is ServerMedia media
-                && (adirPri != null && adirSec != null && adirPri != adirSec)
-                && !string.IsNullOrEmpty(e.PropertyName)
-                   && (e.PropertyName == nameof(IServerMedia.DoNotArchive)
-                    || e.PropertyName == nameof(IServerMedia.IdAux)
-                    || e.PropertyName == nameof(IServerMedia.IdProgramme)
-                    || e.PropertyName == nameof(IServerMedia.KillDate)
-                    || e.PropertyName == nameof(IServerMedia.AudioVolume)
-                    || e.PropertyName == nameof(IServerMedia.MediaCategory)
-                    || e.PropertyName == nameof(IServerMedia.Parental)
-                    || e.PropertyName == nameof(IServerMedia.MediaEmphasis)
-                    || e.PropertyName == nameof(IServerMedia.FileName)
-                    || e.PropertyName == nameof(IServerMedia.MediaName)
-                    || e.PropertyName == nameof(IServerMedia.Duration)
-                    || e.PropertyName == nameof(IServerMedia.DurationPlay)
-                    || e.PropertyName == nameof(IServerMedia.TcStart)
-                    || e.PropertyName == nameof(IServerMedia.TcPlay)
-                    || e.PropertyName == nameof(IServerMedia.VideoFormat)
-                    || e.PropertyName == nameof(IServerMedia.AudioChannelMapping)
-                    || e.PropertyName == nameof(IServerMedia.AudioLevelIntegrated)
-                    || e.PropertyName == nameof(IServerMedia.AudioLevelPeak)
-                    || e.PropertyName == nameof(IServerMedia.IsArchived)
-                    || e.PropertyName == nameof(IServerMedia.Protected)
-                    || e.PropertyName == nameof(IServerMedia.FieldOrderInverted)
-                    ))
-            {
-                ServerMedia compMedia = _findComplementaryMedia(media);
-                if (compMedia != null)
-                {
-                    PropertyInfo pi = typeof(ServerMedia).GetProperty(e.PropertyName);
-                    if (pi != null)
-                        pi.SetValue(compMedia, pi.GetValue(media, null), null);
-                }
-            }
+            if (!(e.Media is ServerMedia media) ||
+                adirPri == null || adirSec == null || adirPri == adirSec ||
+                (
+                    e.PropertyName != nameof(IServerMedia.DoNotArchive) &&
+                    e.PropertyName != nameof(IServerMedia.IdAux) &&
+                    e.PropertyName != nameof(IServerMedia.IdProgramme) &&
+                    e.PropertyName != nameof(IServerMedia.KillDate) &&
+                    e.PropertyName != nameof(IServerMedia.AudioVolume) &&
+                    e.PropertyName != nameof(IServerMedia.MediaCategory) &&
+                    e.PropertyName != nameof(IServerMedia.Parental) &&
+                    e.PropertyName != nameof(IServerMedia.MediaEmphasis) &&
+                    e.PropertyName != nameof(IServerMedia.FileName) &&
+                    e.PropertyName != nameof(IServerMedia.MediaName) &&
+                    e.PropertyName != nameof(IServerMedia.Duration) &&
+                    e.PropertyName != nameof(IServerMedia.DurationPlay) &&
+                    e.PropertyName != nameof(IServerMedia.TcStart) &&
+                    e.PropertyName != nameof(IServerMedia.TcPlay) &&
+                    e.PropertyName != nameof(IServerMedia.VideoFormat) &&
+                    e.PropertyName != nameof(IServerMedia.AudioChannelMapping) &&
+                    e.PropertyName != nameof(IServerMedia.AudioLevelIntegrated) &&
+                    e.PropertyName != nameof(IServerMedia.AudioLevelPeak) &&
+                    e.PropertyName != nameof(IServerMedia.IsArchived) &&
+                    e.PropertyName != nameof(IServerMedia.Protected) &&
+                    e.PropertyName != nameof(IServerMedia.FieldOrderInverted)
+                ))
+                return;
+            var compMedia = _findComplementaryMedia(media);
+            if (compMedia == null)
+                return;
+            var pi = typeof(ServerMedia).GetProperty(e.PropertyName);
+            if (pi != null)
+                pi.SetValue(compMedia, pi.GetValue(media, null), null);
         }
 
         private void _onServerDirectoryPropertyChanged(object dir, PropertyChangedEventArgs e)
@@ -523,24 +521,24 @@ namespace TAS.Server
 
         private void _mediaPRIVerified(object o, MediaEventArgs e)
         {
-            var sec = MediaDirectorySEC as ServerDirectory;
-            var pri = MediaDirectoryPRI as ServerDirectory;
-            if (sec != null && pri != null
-                && sec != pri
-                && sec.IsInitialized
-                && pri.IsInitialized)
+            if (e.Media.MediaStatus != TMediaStatus.Available) return;
+            if (!(MediaDirectorySEC is ServerDirectory sec) 
+                || !(MediaDirectoryPRI is ServerDirectory pri) 
+                || sec == pri 
+                || !sec.IsInitialized 
+                || !pri.IsInitialized)
+                return;
+            var sEcMedia = sec.FindMediaByMediaGuid(e.Media.MediaGuid);
+            if (sEcMedia != null)
+                return;
+            sEcMedia = sec.FindMediaFirst(sm => e.Media.FileSize == sm.FileSize && e.Media.FileName == sm.FileName && sm.FileExists()) as MediaBase;
+            if (sEcMedia == null)
+                FileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Copy, Source = e.Media, DestDirectory = sec }, false);
+            else
             {
-                ServerMedia sECMedia = sec.FindMediaFirst(sm => e.Media.FileSize == sm.FileSize
-                            && e.Media.FileName == sm.FileName && sm.FileExists()) as ServerMedia;
-                if (e.Media.MediaStatus == TMediaStatus.Available)
-                    if (sECMedia == null)
-                        FileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Copy, Source = e.Media, DestDirectory = sec }, false);
-                    else
-                    {
-                        sECMedia.CloneMediaProperties(e.Media);
-                        sECMedia.MediaGuid = e.Media.MediaGuid;
-                        sECMedia.ReVerify();
-                    }
+                sEcMedia.CloneMediaProperties(e.Media);
+                sEcMedia.MediaGuid = e.Media.MediaGuid;
+                sEcMedia.ReVerify();
             }
         }
 
@@ -563,8 +561,7 @@ namespace TAS.Server
             if (ArchiveDirectory != null)
                 ArchiveDirectory.MediaDeleted += ArchiveDirectory_MediaDeleted;
 
-            ServerDirectory sdir = MediaDirectoryPRI as ServerDirectory;
-            if (sdir != null)
+            if (MediaDirectoryPRI is ServerDirectory sdir)
             {
                 sdir.MediaPropertyChanged -= _serverMediaPropertyChanged;
                 sdir.PropertyChanged -= _onServerDirectoryPropertyChanged;
@@ -579,8 +576,7 @@ namespace TAS.Server
                 sdir.MediaSaved -= _onServerDirectoryMediaSaved;
                 sdir.PropertyChanged -= _onServerDirectoryPropertyChanged;
             }
-            AnimationDirectory adir = AnimationDirectoryPRI as AnimationDirectory;
-            if (adir != null)
+            if (AnimationDirectoryPRI is AnimationDirectory adir)
             {
                 adir.PropertyChanged -= _onAnimationDirectoryPropertyChanged;
                 adir.MediaAdded -= _onAnimationDirectoryMediaAdded;

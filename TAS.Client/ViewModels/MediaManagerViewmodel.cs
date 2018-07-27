@@ -619,7 +619,7 @@ namespace TAS.Client.ViewModels
             _mediaManager.MeasureLoudness(_getSelections());
         }
 
-        private void _ingestSelectionToDir(IServerDirectory directory)
+        private void _ingestSelectionToDir()
         {
             IMediaDirectory currentDir = _selectedDirectory?.Directory;
             if (currentDir is IIngestDirectory)
@@ -636,7 +636,7 @@ namespace TAS.Client.ViewModels
                 });
                 foreach (var sourceMedia in selectedMedia)
                     if (sourceMedia is IIngestMedia media)
-                        ingestList.Add(_mediaManager.FileManager.CreateIngestOperation(media, directory));
+                        ingestList.Add(_mediaManager.FileManager.CreateIngestOperation(media, _mediaManager));
                 if (ingestList.Count != 0)
                 {
                     using (IngestEditorViewmodel ievm = new IngestEditorViewmodel(ingestList, _preview, _engine))
@@ -667,13 +667,8 @@ namespace TAS.Client.ViewModels
         {
             if (!_checkEditMediaSaved())
                 return;
-            var pri = _mediaManager.MediaDirectoryPRI;
-            var sec = _mediaManager.MediaDirectorySEC;
-            var dir = pri != null && pri.DirectoryExists() ? pri : sec != null && sec.DirectoryExists() ? sec : null;
-            if (dir == null)
-                return;
             if (_selectedDirectory.IsIngestDirectory)
-                _ingestSelectionToDir(dir);
+                _ingestSelectionToDir();
             else
                 _mediaManager.CopyMediaToPlayout(_getSelections(), true);
         }

@@ -17,6 +17,7 @@ namespace TAS.Client.Config.Model
         [XmlIgnore]
         public ulong Id { get; set; }
         public TServerType ServerType { get; set; }
+        public TMovieContainerFormat MovieContainerFormat { get; set; }
         public List<CasparServerChannel> Channels { get; set; } = new List<CasparServerChannel>();
         public List<CasparRecorder> Recorders { get; set; } = new List<CasparRecorder>();
         public override string ToString()

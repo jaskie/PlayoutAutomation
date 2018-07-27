@@ -85,7 +85,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Event.cs" />
+    <Compile Include="EventExtensions.cs" />
     <Compile Include="HiddenEventsStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\AclRightViewmodel.cs" />

@@ -28,7 +28,7 @@ namespace TAS.Common
             return ((media.TcStart + media.Duration).ToSMPTEFrames(frameRate) - 1).SMPTEFramesToTimeSpan(frameRate);
         }
 
-        public static string MakeFileName(string idAux, string mediaName, string fileExtension)
+        public static string MakeFileName(string idAux, string mediaName, TMovieContainerFormat fileExtension)
         {
             var filenameParts = new List<string>();
             if (!string.IsNullOrWhiteSpace(idAux))
@@ -36,7 +36,7 @@ namespace TAS.Common
             if (!string.IsNullOrWhiteSpace(mediaName))
                 filenameParts.Add(mediaName);
             return (FileUtils.SanitizeFileName(string.Join(" ", filenameParts)) +
-                   fileExtension).Trim();
+                   $".{fileExtension}").Trim();
         }
     }
 }

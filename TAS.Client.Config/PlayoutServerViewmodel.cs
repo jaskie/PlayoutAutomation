@@ -8,18 +8,20 @@ using TAS.Common;
 
 namespace TAS.Client.Config
 {
-    public class PlayoutServerViewmodel:EditViewmodelBase<Model.CasparServer>
+    public class PlayoutServerViewmodel : EditViewmodelBase<Model.CasparServer>
     {
         private string _serverAddress;
         private int _oscPort = 6250;
         private string _mediaFolder;
         private string _animationFolder;
         private TServerType _serverType;
+
         private PlayoutServerChannelViewmodel _selectedPlayoutServerChannel;
         private PlayoutRecorderViewmodel _selectedPlayoutRecorder;
         private bool _isAnyChildChanged;
+        private TMovieContainerFormat _movieContainerFormat;
 
-        public PlayoutServerViewmodel(Model.CasparServer playoutServer): base(playoutServer)
+        public PlayoutServerViewmodel(Model.CasparServer playoutServer) : base(playoutServer)
         {
             PlayoutServerChannels = new ObservableCollection<PlayoutServerChannelViewmodel>(playoutServer.Channels.Select(p =>
                 {
@@ -48,7 +50,7 @@ namespace TAS.Client.Config
         public ICommand CommandAddRecorder { get; }
 
         public ICommand CommandDeleteRecorder { get; }
-        
+
         public bool IsRecordersVisible => _serverType == TServerType.CasparTVP;
 
         public string ServerAddress
@@ -85,7 +87,11 @@ namespace TAS.Client.Config
             }
         }
 
+        public TMovieContainerFormat MovieContainerFormat { get => _movieContainerFormat; set => SetField(ref _movieContainerFormat, value); }
+
         public Array ServerTypes { get; } = Enum.GetValues(typeof(TServerType));
+
+        public Array MovieContainerFormats { get; } = Enum.GetValues(typeof(TMovieContainerFormat));
 
         public PlayoutServerChannelViewmodel SelectedPlayoutServerChannel
         {

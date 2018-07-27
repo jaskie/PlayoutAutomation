@@ -497,7 +497,9 @@ namespace TAS.Common
         aac,
         libmp3lame,
         ac3,
-        mp2
+        mp2,
+        pcm_s16le,
+        pcm_s24le
     }
 
     public enum TCrawlEnableBehavior : byte

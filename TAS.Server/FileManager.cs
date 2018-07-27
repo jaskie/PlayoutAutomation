@@ -34,21 +34,26 @@ namespace TAS.Server
         public event EventHandler<FileOperationEventArgs> OperationAdded;
         public event EventHandler<FileOperationEventArgs> OperationCompleted;
 
-        public IIngestOperation CreateIngestOperation(IIngestMedia sourceMedia, IMediaDirectory destDirectory)
+        public IIngestOperation CreateIngestOperation(IIngestMedia sourceMedia, IMediaManager destMediaManager)
         {
-            var sourceDirectory = sourceMedia.Directory as IIngestDirectory;
-            if (sourceDirectory == null)
+            if (!(sourceMedia.Directory is IIngestDirectory sourceDirectory))
                 return null;
+            var pri = destMediaManager.MediaDirectoryPRI;
+            var sec = destMediaManager.MediaDirectorySEC;
+            if (!((pri != null && pri.DirectoryExists() ? pri : sec != null && sec.DirectoryExists() ? sec : null) is ServerDirectory dir))
+                return null;
+            
             return new IngestOperation(this)
             {
                 Source = sourceMedia,
-                DestDirectory = destDirectory,
+                DestDirectory = dir,
                 AudioVolume = sourceDirectory.AudioVolume,
                 SourceFieldOrderEnforceConversion = sourceDirectory.SourceFieldOrder,
                 AspectConversion = sourceDirectory.AspectConversion,
                 LoudnessCheck = sourceDirectory.MediaLoudnessCheckAfterIngest,
                 StartTC = sourceMedia.TcStart,
-                Duration = sourceMedia.Duration
+                Duration = sourceMedia.Duration,
+                MovieContainerFormat = dir.Server.MovieContainerFormat
             };
         }
         public ILoudnessOperation CreateLoudnessOperation()
@@ -77,8 +82,7 @@ namespace TAS.Server
 
         public void Queue(IFileOperation operation, bool toTop = false)
         {
-            FileOperation op = operation as FileOperation;
-            if (op != null)
+            if (operation is FileOperation op)
                 _queue(op, toTop);
         }
 

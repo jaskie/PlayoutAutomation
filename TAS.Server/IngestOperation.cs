@@ -28,6 +28,7 @@ namespace TAS.Server
         private TimeSpan _startTc;
         private TimeSpan _duration;
         private bool _trim;
+        private TMovieContainerFormat _movieContainerFormat;
 
         internal IngestOperation(FileManager ownerFileManager) : base(ownerFileManager)
         {
@@ -80,6 +81,13 @@ namespace TAS.Server
         }
 
         [JsonProperty]
+        public TMovieContainerFormat MovieContainerFormat
+        {
+            get => _movieContainerFormat;
+            set => SetField(ref _movieContainerFormat, value);
+        }
+
+        [JsonProperty]
         public bool Trim
         {
             get => _trim;
@@ -101,8 +109,8 @@ namespace TAS.Server
                     if (!(Source is IngestMedia sourceMedia))
                         throw new ArgumentException("IngestOperation: Source is not of type IngestMedia");
                     var success = false;
-                    if (((IngestDirectory) sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
-                        using (var localSourceMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(sourceMedia))
+                    if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
+                        using (var localSourceMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(sourceMedia))
                         {
                             try
                             {
@@ -126,7 +134,7 @@ namespace TAS.Server
                     {
                         if (sourceMedia.IsVerified)
                         {
-                            success = DestProperties.MediaType == TMediaType.Still ? ConvertStill(sourceMedia) : ConvertMovie(sourceMedia, ((IngestMedia) sourceMedia).StreamInfo);
+                            success = DestProperties.MediaType == TMediaType.Still ? ConvertStill(sourceMedia) : ConvertMovie(sourceMedia, ((IngestMedia)sourceMedia).StreamInfo);
                             if (!success)
                                 TryCount--;
                         }
@@ -179,7 +187,7 @@ namespace TAS.Server
                 return false;
             System.Drawing.Imaging.Encoder encoder = System.Drawing.Imaging.Encoder.Quality;
             var encoderParameter = new EncoderParameter(encoder, 90L);
-            var encoderParameters = new EncoderParameters(1) {Param = {[0] = encoderParameter}};
+            var encoderParameters = new EncoderParameters(1) { Param = { [0] = encoderParameter } };
             bmp.Save(Dest.FullPath, imageCodecInfo, encoderParameters);
             Dest.MediaStatus = TMediaStatus.Copied;
             Dest.Verify();
@@ -272,7 +280,7 @@ namespace TAS.Server
                 {
                     ep.AppendFormat(" -b:a {0}k", (int)(2 * 128 * sourceDir.AudioBitrateRatio));
                     var audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
-//                    int inputTotalChannels = audioStreams.Sum(s => s.ChannelCount);
+                    //                    int inputTotalChannels = audioStreams.Sum(s => s.ChannelCount);
                     int requiredOutputChannels;
                     switch ((TAudioChannelMappingConversion)audiChannelMappingConversion.OutputFormat)
                     {
@@ -331,7 +339,7 @@ namespace TAS.Server
 
         private bool IsTrimmed()
         {
-            return Trim && Duration > TimeSpan.Zero && ((IngestDirectory)Source.Directory).VideoCodec != TVideoCodec.copy ;
+            return Trim && Duration > TimeSpan.Zero && ((IngestDirectory)Source.Directory).VideoCodec != TVideoCodec.copy;
         }
 
         private bool ConvertMovie(MediaBase localSourceMedia, StreamInfo[] streams)
@@ -379,11 +387,11 @@ namespace TAS.Server
                 else
                 {
                     if (Source.Directory is IngestDirectory directory && directory.DeleteSource)
-                        ThreadPool.QueueUserWorkItem( o =>
-                        {
-                            Thread.Sleep(2000);
-                            OwnerFileManager.Queue(new FileOperation(OwnerFileManager) { Kind = TFileOperationKind.Delete, Source = Source });
-                        });
+                        ThreadPool.QueueUserWorkItem(o =>
+                       {
+                           Thread.Sleep(2000);
+                           OwnerFileManager.Queue(new FileOperation(OwnerFileManager) { Kind = TFileOperationKind.Delete, Source = Source });
+                       });
                     AddOutputMessage("Convert operation finished successfully");
                     Debug.WriteLine(this, "Convert operation succeed");
                 }
@@ -393,7 +401,7 @@ namespace TAS.Server
                     ThreadPool.QueueUserWorkItem((o) =>
                     {
                         Thread.Sleep(2000);
-                        OwnerFileManager.Queue( new LoudnessOperation(OwnerFileManager) { Source = destMedia });
+                        OwnerFileManager.Queue(new LoudnessOperation(OwnerFileManager) { Source = destMedia });
                     });
                 }
                 return true;
@@ -406,8 +414,8 @@ namespace TAS.Server
         protected override void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             base.ProcOutputHandler(sendingProcess, outLine);
-            if (!string.IsNullOrEmpty(outLine.Data) 
-                && outLine.Data.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0) 
+            if (!string.IsNullOrEmpty(outLine.Data)
+                && outLine.Data.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0)
                 AddWarningMessage($"FFmpeg error: {outLine.Data}");
         }
 
