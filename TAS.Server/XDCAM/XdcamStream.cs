@@ -47,6 +47,8 @@ namespace TAS.Server.XDCAM
             catch
             {
                 _client.Disconnect();
+                Monitor.Exit(dir.XdcamLockObject);
+                throw;
             }
         }
 
