@@ -47,34 +47,34 @@ namespace TAS.Common
 
         public IEvent InsertAfter(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(prior.Engine, mediaFiles.ToList(), animationFiles.ToList());
+            IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
             prior.InsertAfter(newEvent);
             return newEvent;
         }
 
         public IEvent InsertUnder(IEvent parent, bool fromEnd, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(parent.Engine, mediaFiles.ToList(), animationFiles.ToList());
+            IEvent newEvent = _toEvent(parent.Engine, mediaFiles, animationFiles);
             parent.InsertUnder(newEvent, fromEnd);
             return newEvent;
         }
 
         public IEvent InsertBefore(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(prior.Engine, mediaFiles.ToList(), animationFiles.ToList());
+            IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
             prior.InsertBefore(newEvent);
             return newEvent;
         }
 
         public IEvent InsertRoot(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(engine, mediaFiles.ToList(), animationFiles.ToList());
+            IEvent newEvent = _toEvent(engine, mediaFiles, animationFiles);
             engine.AddRootEvent(newEvent);
             return newEvent;
         }
 
 
-        private IEvent _toEvent(IEngine engine, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
+        private IEvent _toEvent(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
             IEvent result = null;
             try
@@ -99,7 +99,7 @@ namespace TAS.Common
                         idAux: IdAux,
                         isEnabled: IsEnabled,
                         isHold: IsHold,
-                        isLoop: IsLoop,
+                        //isLoop: IsLoop,
                         isCGEnabled: IsCGEnabled,
                         crawl: Crawl,
                         logo: Logo,
@@ -116,9 +116,7 @@ namespace TAS.Common
                     IMedia media = null;
                     if (!Guid.Empty.Equals(MediaGuid))
                         media = mediaFiles.FirstOrDefault(m => m.MediaGuid.Equals(MediaGuid));
-                    if (media == null
-                        && Media is IPersistentMediaProperties
-                        && !string.IsNullOrEmpty(((IPersistentMediaProperties)Media).IdAux))
+                    if (media == null && !string.IsNullOrEmpty((Media as IPersistentMediaProperties)?.IdAux))
                         media = mediaFiles.FirstOrDefault(m => m is IPersistentMedia && ((IPersistentMedia)m).IdAux == ((IPersistentMediaProperties)Media).IdAux);
                     if (media == null)
                         media = mediaFiles.FirstOrDefault(m =>
