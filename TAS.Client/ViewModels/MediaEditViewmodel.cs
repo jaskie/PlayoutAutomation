@@ -187,13 +187,7 @@ namespace TAS.Client.ViewModels
         public string MediaName
         {
             get => _mediaName;
-            set
-            {
-                if (!SetField(ref _mediaName, value))
-                    return;
-                if (MediaStatus == TMediaStatus.Required)
-                    FileName = FileUtils.SanitizeFileName(value) + FileUtils.DefaultFileExtension(MediaType);
-            }
+            set => SetField(ref _mediaName, value);
         }
 
         public Array MediaEmphasises { get; } = Enum.GetValues(typeof(TMediaEmphasis));

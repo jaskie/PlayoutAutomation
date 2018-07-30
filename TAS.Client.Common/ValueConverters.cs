@@ -60,15 +60,15 @@ namespace TAS.Client.Common
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is TimeSpan ts)
-            {
-                if (ts.Equals(TimeSpan.Zero))
-                    return string.Empty;
-                return (TimeSpan) value < TimeSpan.Zero
-                    ? ((TimeSpan) value).ToString("'-'hh\\:mm\\:ss")
-                    : ((TimeSpan) value).ToString("hh\\:mm\\:ss");
-            }
-            return string.Empty;
+            if (!(value is TimeSpan ts) || ts == TimeSpan.Zero) return 
+                    string.Empty;
+            if (ts.Days > 0)
+                return ts < TimeSpan.Zero
+                    ? ts.ToString("'-'d\\.hh\\:mm\\:ss")
+                    : ts.ToString("d\\.hh\\:mm\\:ss");
+            return ts < TimeSpan.Zero
+                ? ts.ToString("'-'hh\\:mm\\:ss")
+                : ts.ToString("hh\\:mm\\:ss");
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
