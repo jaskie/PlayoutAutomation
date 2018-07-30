@@ -125,7 +125,7 @@
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/save-small.png" />
                 </Button>
                 <Label Content="{Resx _recordTimeLeft}"/>
-                <controls:TimecodeEdit Timecode="{Binding RecorderTimeLeft}"  VideoFormat="{Binding VideoFormat}" Background="{DynamicResource {x:Static SystemColors.ControlLightLightBrush}}" IsReadOnly="True"/>
+                <controls:TimecodeEdit Timecode="{Binding RecorderTimeLeft, Mode=OneWay}"  VideoFormat="{Binding VideoFormat}" Background="{DynamicResource {x:Static SystemColors.ControlLightLightBrush}}" IsReadOnly="True"/>
             </ToolBar>
         </Expander>
     </StackPanel>

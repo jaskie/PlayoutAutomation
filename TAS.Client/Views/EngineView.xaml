@@ -160,7 +160,7 @@
         <Border Grid.Row="0" BorderThickness="0, 0, 0, 1" BorderBrush="DarkGray" >
             <DockPanel >
                 <DockPanel DockPanel.Dock="Right" Height="100" VerticalAlignment="Top" >
-                    <ProgressBar Value="{Binding AudioLevelPRI}" DockPanel.Dock="Left" Orientation="Vertical" Minimum="-60" Maximum="0" Width="15" Margin="0, 0, 5, 0" UseLayoutRounding="True" Style="{DynamicResource VerticalVolumeGaugeStyle}" />
+                    <ProgressBar Value="{Binding AudioLevelPRI, Mode=OneWay}" DockPanel.Dock="Left" Orientation="Vertical" Minimum="-60" Maximum="0" Width="15" Margin="0, 0, 5, 0" UseLayoutRounding="True" Style="{DynamicResource VerticalVolumeGaugeStyle}" />
                     <CheckBox DockPanel.Dock="Top" Visibility="{Binding IsInterlacedFormat, Converter={StaticResource BoolToVis}}" Content="{Resx _toolbar.FieldOrderInverted}" ToolTip="{Resx _toolbar.FieldOrderInverted.ToolTip}" IsChecked="{Binding FieldOrderInverted}" IsEnabled="{Binding IsPlayingMovie}"/>
                     <Label DockPanel.Dock="Top" Content="Audio"/>
                     <Grid DockPanel.Dock="Top">
@@ -600,7 +600,7 @@
                             </Setter>
                             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                            <Setter Property="Visibility" Value="{Binding IsVisible, Mode=TwoWay, Converter={StaticResource BoolToVis}}"/>
+                            <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVis}}"/>
                             <Setter Property="common:TreeViewExtensions.IsMultiSelected" Value="{Binding IsMultiSelected, Mode=OneWayToSource}"/>
                             <Setter Property="Margin" Value="0"/>
                             <Style.Triggers>

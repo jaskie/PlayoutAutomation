@@ -86,7 +86,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <Label Content="Start TC" />
-                        <controls:TimecodeEdit Timecode="{Binding StartTc}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit Timecode="{Binding StartTc, Mode=OneWay}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
                         <controls:TimecodeEdit Timecode="{Binding TcIn}" VideoFormat="{Binding VideoFormat}" />
                     </StackPanel>
                     <StackPanel Grid.Column="1">
@@ -122,7 +122,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="4">
                         <Label Content="{Resx _duration}" />
-                        <controls:TimecodeEdit VideoFormat="{Binding VideoFormat}" Timecode="{Binding Duration}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit VideoFormat="{Binding VideoFormat}" Timecode="{Binding Duration, Mode=OneWay}" IsReadOnly="True"/>
                         <controls:TimecodeEdit Timecode="{Binding TcOut}" VideoFormat="{Binding VideoFormat}" />
                     </StackPanel>
                 </Grid>
