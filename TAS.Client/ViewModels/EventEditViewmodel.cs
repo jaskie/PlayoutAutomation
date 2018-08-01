@@ -65,12 +65,12 @@ namespace TAS.Client.ViewModels
             };
             CommandMoveUp = new UICommand
             {
-                ExecuteDelegate = o => Model?.MoveUp(),
+                ExecuteDelegate = o => Model.MoveUp(),
                 CanExecuteDelegate = o => Model.CanMoveUp()
             };
             CommandMoveDown = new UICommand
             {
-                ExecuteDelegate = o => Model?.MoveDown(),
+                ExecuteDelegate = o => Model.MoveDown(),
                 CanExecuteDelegate = o => Model.CanMoveDown()
             };
             CommandDelete = new UICommand
@@ -83,7 +83,7 @@ namespace TAS.Client.ViewModels
                         Model.StartType == TStartType.After ? Model.Prior : Model.Parent);
                     Model.Delete();
                 },
-                CanExecuteDelegate = o => Model?.AllowDelete() == true
+                CanExecuteDelegate = o => Model.AllowDelete() == true
             };
             if (@event is ITemplated templated)
             {
@@ -199,23 +199,14 @@ namespace TAS.Client.ViewModels
 
         public bool IsAutoStartEvent => _startType == TStartType.OnFixedTime;
 
-        public bool IsMovieOrLive
-        {
-            get
-            {
-                var et = Model?.EventType;
-                return et == TEventType.Movie || et == TEventType.Live;
-            }
-        }
+        public bool IsMovieOrLive => Model.EventType == TEventType.Movie || Model.EventType == TEventType.Live;
 
         public bool IsMovieOrLiveOrRundown
         {
             get
             {
-                var et = Model?.EventType;
-                var st = Model?.StartType;
-                return (et == TEventType.Movie || et == TEventType.Live || et == TEventType.Rundown)
-                       && (st == TStartType.After || st == TStartType.WithParent || st == TStartType.WithParentFromEnd);
+                var et = Model.EventType;
+                return et == TEventType.Movie || et == TEventType.Live || et == TEventType.Rundown;
             }
         }
 
@@ -261,26 +252,26 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _command, value);
         }
 
-        public bool IsMovie => Model?.EventType == TEventType.Movie;
+        public bool IsMovie => Model.EventType == TEventType.Movie;
 
-        public bool IsStillImage => Model?.EventType == TEventType.StillImage;
+        public bool IsStillImage => Model.EventType == TEventType.StillImage;
 
         public bool IsTransitionPanelEnabled
         {
             get
             {
-                var et = Model?.EventType;
+                var et = Model.EventType;
                 return !_isHold && (et == TEventType.Live || et == TEventType.Movie);
             }
         }
 
         public bool IsTransitionPropertiesVisible => _transitionType != TTransitionType.Cut;
 
-        public bool IsContainer => Model?.EventType == TEventType.Container;
+        public bool IsContainer => Model.EventType == TEventType.Container;
 
-        public bool CanHold => Model?.Prior != null;
+        public bool CanHold => Model.Prior != null;
 
-        public bool CanLoop => Model!= null && Model.GetSuccessor() == null;
+        public bool CanLoop => Model.GetSuccessor() == null;
 
         public bool IsEnabled
         {
@@ -542,7 +533,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var st = Model?.StartType;
+                var st = Model.StartType;
                 return (st == TStartType.OnFixedTime || st == TStartType.Manual);
             }
         }
@@ -607,8 +598,7 @@ namespace TAS.Client.ViewModels
 
         private void _changeMovie(object o)
         {
-            if (Model != null
-                && Model.EventType == TEventType.Movie)
+            if (Model.EventType == TEventType.Movie)
             {
                 _chooseMedia(TMediaType.Movie, Model, Model.StartType);
             }
@@ -652,8 +642,7 @@ namespace TAS.Client.ViewModels
 
         private bool _canChangeMovie(object o)
         {
-            return Model != null
-                   && Model.PlayState == TPlayState.Scheduled
+            return Model.PlayState == TPlayState.Scheduled
                    && Model.EventType == TEventType.Movie
                    && Model.HaveRight(EventRight.Modify);
         }
@@ -675,7 +664,7 @@ namespace TAS.Client.ViewModels
         {
             return IsModified
                    && IsValid
-                   && Model?.HaveRight(EventRight.Modify) == true;
+                   && Model.HaveRight(EventRight.Modify) == true;
         }
 
         private void _setCGElements(IMedia media)
@@ -818,7 +807,7 @@ namespace TAS.Client.ViewModels
 
         private string _validateEventName()
         {
-            if (Model != null && Model.FieldLengths.TryGetValue(nameof(IEvent.EventName), out var length) && EventName.Length > length)
+            if (Model.FieldLengths.TryGetValue(nameof(IEvent.EventName), out var length) && EventName.Length > length)
                 return resources._validate_TextTooLong;
             return null;
         }
