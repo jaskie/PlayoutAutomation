@@ -280,20 +280,19 @@ namespace TAS.Client.ViewModels
 
         public IMedia Media
         {
-            get { return _media; }
+            get => _media;
             private set
             {
-                IMedia oldMedia = _media;
-                if (oldMedia != value)
+                var oldMedia = _media;
+                if (oldMedia == value)
+                    return;
+                if (oldMedia != null)
+                    oldMedia.PropertyChanged -= _onMediaPropertyChanged;
+                _media = value;
+                if (value != null)
                 {
-                    if (oldMedia != null)
-                        oldMedia.PropertyChanged -= _onMediaPropertyChanged;
-                    _media = value;
-                    if (value != null)
-                    {
-                        value.PropertyChanged += _onMediaPropertyChanged;
-                        VideoFormat = value.VideoFormat;
-                    }
+                    value.PropertyChanged += _onMediaPropertyChanged;
+                    VideoFormat = value.VideoFormat;
                 }
             }
         }

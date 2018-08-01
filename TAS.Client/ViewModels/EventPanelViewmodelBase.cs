@@ -56,7 +56,7 @@ namespace TAS.Client.ViewModels
                 _parent = parent;
                 Root = parent.Root;
                 EngineViewmodel = parent.EngineViewmodel;
-                Level = (_parent == null) ? 0 : _parent.Level + 1;
+                Level = parent.Level + 1;
                 if (aEvent.SubEventsCount > 0)
                     Childrens.Add(DummyChild);
             }
@@ -67,7 +67,7 @@ namespace TAS.Client.ViewModels
         {
             if (_parent != null)
             {
-                _parent.Childrens.Remove(this);
+                _parent.RemoveChild(this);
                 _parent = null;
             }
             ClearChildrens();
@@ -90,75 +90,55 @@ namespace TAS.Client.ViewModels
 
         public bool IsExpanded
         {
-            get { return _isExpanded; }
+            get => _isExpanded;
             set
             {
-                if (SetField(ref _isExpanded, value))
+                if (!SetField(ref _isExpanded, value))
+                    return;
+                if (value && HasDummyChild)
                 {
-                    // Lazy load the child items, if necessary.
-                    if (value && HasDummyChild)
-                    {
-                        Childrens.Remove(DummyChild);
-                        LoadChildrens();
-                    }
-                    if (!value)
-                        ClearChildrens();
+                    Childrens.Remove(DummyChild);
+                    LoadChildrens();
                 }
+                if (!value)
+                    ClearChildrens();
             }
         }
 
         public bool IsSelected
         {
-            get { return _isSelected; }
+            get => _isSelected;
             set
             {
-                if (SetField(ref _isSelected, value))
+                if (!SetField(ref _isSelected, value))
+                    return;
+                if (value)
                 {
-                    if (value)
-                    {
-                        EngineViewmodel.SelectedEvent = this;
-                        BringIntoView();
-                    }
-                    InvalidateRequerySuggested();
+                    EngineViewmodel.SelectedEvent = this;
+                    BringIntoView();
                 }
+                InvalidateRequerySuggested();
             }
         }
 
         public bool IsMultiSelected
         {
-            get { return _isMultiSelected; }
-            set { SetField(ref _isMultiSelected, value); }
+            get => _isMultiSelected;
+            set => SetField(ref _isMultiSelected, value);
         }
 
         public virtual bool IsVisible { get { return true; } protected set { } }
 
         public virtual TVideoFormat VideoFormat
         {
-            get { return _videoFormat; }
-            protected set { SetField(ref _videoFormat, value); }
+            get => _videoFormat;
+            protected set => SetField(ref _videoFormat, value);
         }
 
         public EventPanelViewmodelBase Parent
         {
-            get { return _parent; }
-            set
-            {
-                if (value != _parent)
-                {
-                    _parent.Childrens.Remove(this);
-                    if (_parent.Childrens.Count == 0)
-                        _parent.IsExpanded = false;
-                    _parent = value;
-                    if (_parent != null)
-                        if (_parent.IsExpanded)
-                            if (Event.Prior != null)
-                                _parent.Childrens.Insert(
-                                    _parent.Childrens.IndexOf(
-                                        _parent.Childrens.FirstOrDefault(evm => evm.Event == Event.Prior)) + 1, this);
-                            else
-                                _parent.Childrens.Insert(0, this);
-                }
-            }
+            get => _parent;
+            private set => SetField(ref _parent, value);
         }
         
         public string EventName => Event?.EventName;
@@ -169,7 +149,7 @@ namespace TAS.Client.ViewModels
         {
             if (aEvent == null)
                 return null;
-            foreach (EventPanelViewmodelBase m in Childrens)
+            foreach (var m in Childrens)
             {
                 if (m.Event == aEvent)
                     return m;
@@ -180,26 +160,35 @@ namespace TAS.Client.ViewModels
             return null;
         }
 
+        private void RemoveChild(EventPanelViewmodelBase item)
+        {
+            if (!IsExpanded)
+                return;
+            Childrens.Remove(item);
+            if (Childrens.Count == 0)
+                IsExpanded = false;
+        }
+
         protected internal virtual void UpdateLocation()
         {
             var ev = Event;
             if (ev == null)
                 return;
-            IEvent prior = ev.Prior;
-            IEvent parent = ev.Parent;
-            IEvent next = ev.Next;
-            IEvent visualParent = ev.GetVisualParent();
+            var prior = ev.Prior;
+            var parent = ev.Parent;
+            var next = ev.Next;
+            var visualParent = ev.GetVisualParent();
             if (prior != null)
             {
-                int index = Parent.Childrens.IndexOf(this);
+                var index = Parent.Childrens.IndexOf(this);
                 if (visualParent != Parent.Event
                     || index <= 0
                     || Parent.Childrens[index - 1].Event != prior)
                 {
-                    EventPanelViewmodelBase priorVm = Root.Find(prior);
+                    var priorVm = Root.Find(prior);
                     if (priorVm != null)
                     {
-                        EventPanelViewmodelBase newParent = priorVm.Parent;
+                        var newParent = priorVm.Parent;
                         if (Parent == newParent)
                         {
                             int priorIndex = newParent.Childrens.IndexOf(priorVm);
@@ -210,28 +199,32 @@ namespace TAS.Client.ViewModels
                         }
                         else
                         {
-                            Parent.Childrens.Remove(this);
+                            Parent.RemoveChild(this);
                             if (!newParent.HasDummyChild)
                                 newParent.Childrens.Insert(newParent.Childrens.IndexOf(priorVm) + 1, this);
                             Parent = newParent;
                         }
                     }
+                    else
+                    {
+                        Parent.RemoveChild(this);
+                    }
                 }
             }
             else if (parent == null && next != null)
             {
-                int index = Parent.Childrens.IndexOf(this);
+                var index = Parent.Childrens.IndexOf(this);
                 if (visualParent != Parent.Event
                     || index <= 0
                     || Parent.Childrens[index].Event != next)
                 {
-                    EventPanelViewmodelBase nextVm = Root.Find(next);
+                    var nextVm = Root.Find(next);
                     if (nextVm != null)
                     {
-                        EventPanelViewmodelBase newParent = nextVm.Parent;
+                        var newParent = nextVm.Parent;
                         if (Parent == newParent)
                         {
-                            int nextIndex = newParent.Childrens.IndexOf(nextVm);
+                            var nextIndex = newParent.Childrens.IndexOf(nextVm);
                             if (index >= nextIndex)
                                 newParent.Childrens.Move(index, nextIndex);
                             else
@@ -239,7 +232,7 @@ namespace TAS.Client.ViewModels
                         }
                         else
                         {
-                            Parent.Childrens.Remove(this);
+                            Parent.RemoveChild(this);
                             if (!newParent.HasDummyChild)
                                 newParent.Childrens.Insert(newParent.Childrens.IndexOf(nextVm), this);
                             Parent = newParent;
@@ -249,19 +242,24 @@ namespace TAS.Client.ViewModels
             }
             else if (parent == null)
             {
-                Parent.Childrens.Remove(this);
+                Parent.RemoveChild(this);
                 Root.Childrens.Add(this);
                 Parent = Root;
             }
             else
             {
-                EventPanelViewmodelBase parentVm = Root.Find(parent);
-                if (parentVm != null)
+                var newParent = Root.Find(parent);
+                if (newParent != null)
                 {
-                    if (parentVm == Parent)
-                        parentVm.Childrens.Move(parentVm.Childrens.IndexOf(this), 0);
+                    if (newParent == Parent)
+                        newParent.Childrens.Move(newParent.Childrens.IndexOf(this), 0);
                     else
-                        Parent = parentVm;
+                    {
+                        Parent.RemoveChild(this);
+                        if (newParent.IsExpanded)
+                            newParent.Childrens.Insert(0, this);
+                        Parent = newParent;
+                    }
                 }
             }
             BringIntoView();
@@ -269,7 +267,7 @@ namespace TAS.Client.ViewModels
 
         public bool Contains(IEvent  aEvent)
         {
-            foreach (EventPanelViewmodelBase m in Childrens)
+            foreach (var m in Childrens)
             {
                 if (m.Event == aEvent)
                     return true;
@@ -372,10 +370,10 @@ namespace TAS.Client.ViewModels
         protected void LoadChildrens()
         {
             UiServices.SetBusyState();
-            foreach (IEvent se in Event.SubEvents)
+            foreach (var se in Event.SubEvents)
             {
                 Childrens.Add(CreateChildEventPanelViewmodelForEvent(se));
-                IEvent ne = se.Next;
+                var ne = se.Next;
                 while (ne != null)
                 {
                     Childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
@@ -388,14 +386,14 @@ namespace TAS.Client.ViewModels
         {
             if (!Childrens.Any())
                 return;
-            if (!HasDummyChild)
-            {
-                UiServices.SetBusyState();
-                foreach (var c in Childrens.ToList())
-                    c.Dispose();
-                if (Event.SubEventsCount > 0)
-                    Childrens.Add(DummyChild);
-            }
+            if (HasDummyChild)
+                return;
+            UiServices.SetBusyState();
+            foreach (var c in Childrens.ToList())
+                c.Dispose();
+            Childrens.Clear();
+            if (Event.SubEventsCount > 0)
+                Childrens.Add(DummyChild);
         }
 
 
