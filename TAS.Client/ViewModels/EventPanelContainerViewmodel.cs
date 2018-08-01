@@ -20,6 +20,7 @@ namespace TAS.Client.ViewModels
             CommandHide = new UICommand {ExecuteDelegate = o => IsVisible = false,CanExecuteDelegate = o => _isVisible };
             CommandShow = new UICommand {ExecuteDelegate = o => IsVisible = true, CanExecuteDelegate = o => !_isVisible };
             CommandAddSubRundown = new UICommand {ExecuteDelegate = _addSubRundown, CanExecuteDelegate = o => Engine.HaveRight(EngineRight.Rundown)};
+            ev.SubEventChanged += SubEventChanged;
         }
 
         public ICommand CommandHide { get; }
@@ -48,6 +49,16 @@ namespace TAS.Client.ViewModels
         private void _addSubRundown(object o)
         {
             EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, true);
+        }
+        protected override void OnDispose()
+        {
+            Event.SubEventChanged -= SubEventChanged;
+            base.OnDispose();
+        }
+
+        private void SubEventChanged(object sender, CollectionOperationEventArgs<IEvent> e)
+        {
+            
         }
     }
 }

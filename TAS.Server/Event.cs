@@ -1421,12 +1421,11 @@ namespace TAS.Server
             if (SetField(ref _scheduledTime, time, nameof(ScheduledTime)))
             {
                 Debug.WriteLine($"Scheduled time updated: {this}");
-                Event toUpdate = _getSuccessor();
-                if (toUpdate != null)
-                    toUpdate._uppdateScheduledTime();  // trigger update all next events
+                var toUpdate = _getSuccessor();
+                toUpdate?._uppdateScheduledTime();  // trigger update all next events
                 lock (_subEvents)
                 {
-                    foreach (Event ev in _subEvents.Value) //update all sub-events
+                    foreach (var ev in _subEvents.Value) //update all sub-events
                         ev._uppdateScheduledTime();
                 }
                 NotifyPropertyChanged(nameof(Offset));

@@ -132,10 +132,7 @@ namespace TAS.Remoting.Model
 
         private Lazy<IEvent> _prior;
 
-        private Lazy<IEnumerable<IEvent>> _subEvents;
-
-        [JsonProperty(nameof(IEvent.FieldLengths))]
-        private IDictionary<string, int> _fieldLengths;
+        private Lazy<List<IEvent>> _subEvents;
 
 #pragma warning restore
 
@@ -294,10 +291,15 @@ namespace TAS.Remoting.Model
                     _positionChanged?.Invoke(this, Deserialize<EventPositionEventArgs>(message));
                     break;
                 case nameof(IEvent.SubEventChanged):
+                    if (!_subEvents.IsValueCreated)
+                        return;
                     var ea = Deserialize<CollectionOperationEventArgs<IEvent>>(message);
-                    ResetSubEvents();
+                    if (ea.Operation == CollectionOperation.Add)
+                        _subEvents.Value.Add(ea.Item);
+                    else
+                        _subEvents.Value.Remove(ea.Item);
                     _subEventChanged?.Invoke(this, ea);
-                    return;
+                    break;
             }
         }
 
@@ -346,7 +348,7 @@ namespace TAS.Remoting.Model
 
         private void ResetSubEvents()
         {
-            _subEvents = new Lazy<IEnumerable<IEvent>>(() => Get<ReadOnlyCollection<IEvent>>(nameof(IEvent.SubEvents)));
+            _subEvents = new Lazy<List<IEvent>>(() => Get<List<IEvent>>(nameof(IEvent.SubEvents)));
         }
 
         public override string ToString()

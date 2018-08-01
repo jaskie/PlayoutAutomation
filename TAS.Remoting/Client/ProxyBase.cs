@@ -85,7 +85,7 @@ namespace TAS.Remoting.Client
         protected void EventAdd<T>(T handler, [CallerMemberName] string eventName = null)
         {
             if (handler == null && !DtoGuid.Equals(Guid.Empty))
-                _client.EventAdd(this, eventName);
+                _client?.EventAdd(this, eventName);
         }
 
         protected void EventRemove<T>(T handler, [CallerMemberName] string eventName = null)

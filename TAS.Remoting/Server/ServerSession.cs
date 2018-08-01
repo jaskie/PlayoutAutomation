@@ -274,7 +274,7 @@ namespace TAS.Remoting.Server
                 DtoName = dto.ToString(),
 #endif
                 MemberName = eventName};
-            if (State == WebSocketState.Open)
+            if (ConnectionState == WebSocketState.Open)
                 using (var serialized = SerializeDto(eventArgs))
                 {
                     var bytes = message.ToByteArray(serialized);
@@ -300,7 +300,7 @@ namespace TAS.Remoting.Server
                 DtoName = dto.ToString()
 #endif
             };
-            if (State == WebSocketState.Open)
+            if (ConnectionState == WebSocketState.Open)
                 using (var serialized = SerializeDto(null))
                 {
                     var bytes = message.ToByteArray(serialized);

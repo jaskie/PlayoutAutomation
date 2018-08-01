@@ -99,7 +99,7 @@ namespace TAS.Remoting
             {
                 disposed.PropertyChanged -= _referencePropertyChanged;
                 disposed.Disposed -= _reference_Disposed;
-                Debug.WriteLine(disposed, $"Reference resolver - object disposed, generation is {GC.GetGeneration(dto)}");
+                Debug.WriteLine(disposed, $"Reference resolver - object {disposed.DtoGuid} disposed, generation is {GC.GetGeneration(dto)}");
             }
         }
         #endregion // Server-side methods
