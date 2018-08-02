@@ -18,18 +18,12 @@ namespace TAS.Database.MySqlRedundant
         private Timer _idleTimeTimerSecondary;
         
         #region static methods
-        public static bool TestConnect(string connectionString)
+        public static void TestConnect(string connectionString)
         {
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                try
-                {
-                    connection.Open();
-                    return true;
-                }
-                catch { }
+                connection.Open();
             }
-            return false;
         }
 
         public static bool CreateEmptyDatabase(string connectionString, string collate)
@@ -249,7 +243,6 @@ namespace TAS.Database.MySqlRedundant
             MySqlScript scriptSecondary = null;
             try
             {
-
                 if (ConnectionPrimary != null)
                     scriptPrimary = new MySqlScript(ConnectionPrimary, script);
                 if (ConnectionSecondary != null)

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -147,49 +148,70 @@ namespace TAS.Client.Config
 
         private void _testConnectivity(object obj)
         {
-            if (_db.TestConnect(tasConnectionString))
+            try
             {
+                _db.TestConnect(tasConnectionString);
                 _db.Open(tasConnectionString, tasConnectionStringSecondary);
                 if (_db.UpdateRequired())
                 {
-                    if (ShowMessage("Connection successful, but database should be updated. \nUpdate now?", "Connection test", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (ShowMessage("Connection successful, but database should be updated. \nUpdate now?",
+                            "Connection test", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
+                        MessageBoxResult.Yes)
                         if (_db.UpdateDb())
-                            ShowMessage("Database is now up-to-date.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
-                        else 
-                            ShowMessage("Database update failed.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
+                            ShowMessage("Database is now up-to-date.", "Connection test", MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+                        else
+                            ShowMessage("Database update failed.", "Connection test", MessageBoxButton.OK,
+                                MessageBoxImage.Error);
 
                 }
                 else
-                    ShowMessage("Connection successful and database is up-to-date.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
+                    ShowMessage("Connection successful and database is up-to-date.", "Connection test",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
             }
-            else
-                ShowMessage("Connection failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
+            catch (Exception e)
+            {
+                ShowMessage($"Connection failed:\n{e.Message}", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void _testConnectivitySecondary(object obj)
         {
-            if (_db.TestConnect(tasConnectionStringSecondary))
-                ShowMessage("Connection successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
-            else
-                ShowMessage("Connection failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
+            try
+            {
+                _db.TestConnect(tasConnectionStringSecondary);
+                ShowMessage("Connection successful", "Connection test", MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception e)
+            {
+                ShowMessage($"Connection failed:\n{e.Message}", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void _clonePrimaryDatabase(object obj)
         {
-            if (_db.TestConnect(tasConnectionStringSecondary))
+            try
             {
-                if (ShowMessage("Secondary database already exists. Delete it first?", "Warning - database exists", MessageBoxButton.YesNo, MessageBoxImage.Hand) != MessageBoxResult.Yes)
+                _db.TestConnect(tasConnectionStringSecondary);
+
+                if (ShowMessage("Secondary database already exists. Delete it first?", "Warning - database exists",
+                        MessageBoxButton.YesNo, MessageBoxImage.Hand) != MessageBoxResult.Yes)
                     return;
                 if (!_db.DropDatabase(tasConnectionStringSecondary))
                 {
-                    ShowMessage("Database delete failed, cannot proceed.", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ShowMessage("Database delete failed, cannot proceed.", "Database clone", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                     return;
                 }
+                _db.CloneDatabase(tasConnectionString, tasConnectionStringSecondary);
+                ShowMessage("Database clone successful", "Database clone", MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
-            if (_db.CloneDatabase(tasConnectionString, tasConnectionStringSecondary))
-                ShowMessage("Database clone successful", "Database clone", MessageBoxButton.OK, MessageBoxImage.Information);
-            else
-                ShowMessage("Database clonning failed", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);
+            catch (Exception e)
+            {
+                ShowMessage($"Database clonning failed:\n{e.Message}", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using TAS.Client.Common;
 using MySql.Data.MySqlClient;
 
@@ -12,6 +13,7 @@ namespace TAS.Client.Config
         private string _userId;
         private string _password;
         private string _characterSet;
+        private MySqlSslMode _sslMode;
 
         public ConnectionStringViewmodel(string connectionString) : base(new MySqlConnectionStringBuilder { ConnectionString = connectionString }, typeof(ConnectionStringView), "Edit connection parameters") { }
 
@@ -40,7 +42,7 @@ namespace TAS.Client.Config
         public string UserID
         {
             get => _userId;
-            set => SetField (ref _userId, value);
+            set => SetField(ref _userId, value);
         }
 
         public string Password
@@ -56,5 +58,10 @@ namespace TAS.Client.Config
         }
 
         public IEnumerable<string> CharacterSets { get; } = new List<string> { "utf8" };
+
+        public MySqlSslMode SslMode { get => _sslMode; set => SetField(ref _sslMode, value); }
+
+        public Array SslModes { get; } = Enum.GetValues(typeof(MySqlSslMode));
+
     }
 }

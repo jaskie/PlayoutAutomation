@@ -111,9 +111,9 @@ namespace TAS.Database.MySqlRedundant
 
         #region Configuration Functions
 
-        public bool TestConnect(string connectionString)
+        public void TestConnect(string connectionString)
         {
-            return DbConnectionRedundant.TestConnect(connectionString);
+            DbConnectionRedundant.TestConnect(connectionString);
         }
 
         public bool CreateEmptyDatabase(string connectionString, string collate)
@@ -126,10 +126,10 @@ namespace TAS.Database.MySqlRedundant
             return DbConnectionRedundant.DropDatabase(connectionString);
         }
 
-        public bool CloneDatabase(string connectionStringSource, string connectionStringDestination)
+        public void CloneDatabase(string connectionStringSource, string connectionStringDestination)
         {
             DbConnectionRedundant.CloneDatabase(connectionStringSource, connectionStringDestination);
-            return DbConnectionRedundant.TestConnect(connectionStringDestination);
+            DbConnectionRedundant.TestConnect(connectionStringDestination);
         }
 
         public bool UpdateRequired()

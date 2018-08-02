@@ -14,7 +14,7 @@ namespace TAS.Common.Interfaces
         event EventHandler<RedundantConnectionStateEventArgs> ConnectionStateChanged;
 
         void AsRunLogWrite(IEventPesistent e);
-        bool CloneDatabase(string connectionStringSource, string connectionStringDestination);
+        void CloneDatabase(string connectionStringSource, string connectionStringDestination);
         void Close();
         bool CreateEmptyDatabase(string connectionString, string collate);
         bool DbArchiveContainsMedia(IArchiveDirectory dir, IMediaProperties media);
@@ -72,7 +72,7 @@ namespace TAS.Common.Interfaces
         void Load<T>(IServerDirectory directory, IArchiveDirectory archiveDirectory, ulong serverId) where T : IServerMedia;
         IArchiveDirectory LoadArchiveDirectory<T>(IMediaManager manager, ulong idArchive) where T : IArchiveDirectory;
         void Open(string connectionStringPrimary = null, string connectionStringSecondary = null);
-        bool TestConnect(string connectionString);
+        void TestConnect(string connectionString);
         bool UpdateDb();
         bool UpdateRequired();
         IDictionary<string, int> ServerMediaFieldLengths { get; }
