@@ -25,7 +25,7 @@ namespace TAS.Server
             {
                 UseShellExecute = false,
                 CreateNoWindow = true,
-                RedirectStandardError = true
+                RedirectStandardError = true,
             };
 
             //try the process
@@ -37,6 +37,7 @@ namespace TAS.Server
                 {
                     if (procFFmpeg == null)
                         return false;
+                    procFFmpeg.PriorityClass = ProcessPriorityClass.BelowNormal;
                     procFFmpeg.ErrorDataReceived += ProcOutputHandler;
                     procFFmpeg.BeginErrorReadLine();
                     var finished = false;
