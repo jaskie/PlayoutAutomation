@@ -240,7 +240,7 @@ namespace TAS.Client.ViewModels
             CommandRestartLayer = new UICommand { ExecuteDelegate = _restartLayer, CanExecuteDelegate = o => IsPlayingMovie && Engine.HaveRight(EngineRight.Play) };
             CommandNewRootRundown = new UICommand() { ExecuteDelegate = _addNewRootRundown };
             CommandNewContainer = new UICommand() { ExecuteDelegate = _newContainer };
-            CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents };
+            CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents , CanExecuteDelegate = o => CurrentUser.IsAdmin };
             CommandStartLoaded = new UICommand() { ExecuteDelegate = o => Engine.StartLoaded(), CanExecuteDelegate = o => Engine.EngineState == TEngineState.Hold };
             CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = _canDeleteSelected };
             CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0 };

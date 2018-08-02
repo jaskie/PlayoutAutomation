@@ -841,6 +841,8 @@ namespace TAS.Server
 
         public void SearchMissingEvents()
         {
+            if (!CurrentUser.IsAdmin)
+                return;
             EngineController.Database.DbSearchMissing(this);
         }
 

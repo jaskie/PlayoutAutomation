@@ -286,7 +286,7 @@ namespace TAS.Remoting.Model
 
         public void SearchMissingEvents()
         {
-            throw new NotImplementedException();
+            Invoke();
         }
 
         public void Start(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
