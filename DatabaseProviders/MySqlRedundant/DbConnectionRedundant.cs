@@ -204,16 +204,19 @@ namespace TAS.Database.MySqlRedundant
             {
                 TimeSpan timeout = TimeSpan.FromSeconds(ConnectionPrimary.ConnectionTimeout);
                 _idleTimeTimerPrimary = new Timer(_idleTimeTimerCallback, ConnectionPrimary, timeout, timeout);
-                if (!_connect(ConnectionPrimary))
+                try
+                {
+                    ConnectionPrimary.Open();
+                }
+                catch
+                {
                     StateRedundant = _stateRedundant | ConnectionStateRedundant.BrokenPrimary;
+                    _tryOpenSecondary();
+                    if (ConnectionSecondary == null || ConnectionSecondary.State != ConnectionState.Open)
+                        throw;
+                }
             }
-            if (ConnectionSecondary != null)
-            {
-                TimeSpan timeout = TimeSpan.FromSeconds(ConnectionSecondary.ConnectionTimeout);
-                _idleTimeTimerSecondary = new Timer(_idleTimeTimerCallback, ConnectionSecondary, timeout, timeout);
-                if (!_connect(ConnectionSecondary))
-                    StateRedundant = _stateRedundant | ConnectionStateRedundant.BrokenSecondary;
-            }
+            _tryOpenSecondary();
         }
 
         public override void Close()
@@ -260,16 +263,34 @@ namespace TAS.Database.MySqlRedundant
         {
             if (!(o is MySqlConnection connection))
                 return;
-            bool isConnected;
-            lock (this)
+            try
             {
-                isConnected = connection.Ping();
+                bool isConnected;
+                lock (connection)
+                {
+                    isConnected = connection.Ping();
+                }
+                if (!isConnected)
+                {
+                    connection.Close();
+                    connection.Open();
+                }
             }
-            if (!isConnected)
+            catch { }
+        }
+
+        private void _tryOpenSecondary()
+        {
+            if (ConnectionSecondary == null)
+                return;
+            TimeSpan timeout = TimeSpan.FromSeconds(ConnectionSecondary.ConnectionTimeout);
+            _idleTimeTimerSecondary = new Timer(_idleTimeTimerCallback, ConnectionSecondary, timeout, timeout);
+            try
             {
-                connection.Close();
-                _connect(connection);
+                ConnectionSecondary.Open();
+                StateRedundant = _stateRedundant | ConnectionStateRedundant.BrokenSecondary;
             }
+            catch { }
         }
 
         public override DataTable GetSchema(string collection)
@@ -279,20 +300,6 @@ namespace TAS.Database.MySqlRedundant
                 : ConnectionSecondary?.State == ConnectionState.Open
                     ? ConnectionSecondary.GetSchema(collection)
                     : null;
-        }
-
-        private bool _connect(MySqlConnection connection)
-        {
-            if (connection.State != ConnectionState.Open)
-            {
-                try
-                {
-                    connection.Open();
-                }
-                catch (MySqlException) { }
-            }
-            Debug.WriteLineIf(connection.State != ConnectionState.Open, connection.State, "Not connected");
-            return connection.State == ConnectionState.Open;
         }
 
         public override string ConnectionString
