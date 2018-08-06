@@ -22,7 +22,7 @@ namespace TAS.Server.Media
             return EngineController.Database.DbMediaFind<ArchiveMedia>(this, media);
         }
 
-        public void ArchiveSave(IServerMedia media, bool deleteAfterSuccess)
+        internal void ArchiveSave(ServerMedia media, bool deleteAfterSuccess)
         {
             ArchiveMedia archived;
             if (media.IsArchived
@@ -36,7 +36,7 @@ namespace TAS.Server.Media
                 }
             }
             else
-                _archiveCopy((MediaBase)media, this, deleteAfterSuccess, false);
+                _archiveCopy(media, this, deleteAfterSuccess, false);
         }
 
         public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory, bool toTop)

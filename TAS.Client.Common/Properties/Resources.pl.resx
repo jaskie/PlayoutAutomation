@@ -148,7 +148,7 @@ Skonfiguruj system przy użyciu programu TVPlay.config.</value>
 {0}</value>
   </data>
   <data name="_message_DeleteAnyway" xml:space="preserve">
-    <value>Usunąć mimo tego?</value>
+    <value>Usunąć mimo to?</value>
   </data>
   <data name="_message_DirectoryRefreshFailed" xml:space="preserve">
     <value>Odświeżenie katalogu nie powiodło się. Błąd, który wystąpił:

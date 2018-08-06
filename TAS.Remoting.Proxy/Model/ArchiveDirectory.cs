@@ -26,16 +26,6 @@ namespace TAS.Remoting.Model
         
         public string SearchString { get { return _searchString; } set { Set(value); } }
 
-        public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory, bool toTop)
-        {
-            Invoke(parameters: new object[] { srcMedia, destDirectory, toTop });
-        }
-        
-        public void ArchiveSave(IServerMedia media, bool deleteAfterSuccess)
-        {
-            Invoke(parameters: new object[] { media, deleteAfterSuccess});
-        }
-
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
             return Query<IMedia>(parameters: new object[] { mediaProperties });

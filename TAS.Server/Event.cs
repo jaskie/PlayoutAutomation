@@ -518,10 +518,10 @@ namespace TAS.Server
                 if (_position == value)
                     return;
                 _position = value;
-                if (PlayState == TPlayState.Scheduled)
-                    PositionChanged?.Invoke(this, new EventPositionEventArgs(value, TimeSpan.Zero));
-                else
-                    PositionChanged?.Invoke(this, new EventPositionEventArgs(value, _duration - TimeSpan.FromTicks(Engine.FrameTicks * value)));
+                PositionChanged?.Invoke(this,
+                    PlayState == TPlayState.Scheduled
+                        ? new EventPositionEventArgs(value, TimeSpan.Zero)
+                        : new EventPositionEventArgs(value, _duration - TimeSpan.FromTicks(Engine.FrameTicks * value)));
             }
         }
 
@@ -1010,8 +1010,8 @@ namespace TAS.Server
             {
                 if (nev.EventType == TEventType.Movie
                     && nev.Media == media
-                    && nev.ScheduledTime >= Engine.CurrentTime)
-                    return new MediaDeleteResult() { Result = MediaDeleteResult.MediaDeleteResultEnum.InFutureSchedule, Event = nev, Media = media };
+                    && nev.PlayState != TPlayState.Played)
+                    return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InSchedule, Event = nev, Media = media };
                 lock (nev._subEvents)
                 {
                     foreach (Event se in nev._subEvents.Value.ToList())
@@ -1362,8 +1362,12 @@ namespace TAS.Server
 
         private void _serverMediaPRI_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(AudioVolume) && AudioVolume == null)
-                NotifyPropertyChanged(nameof(AudioVolume));
+            switch (e.PropertyName)
+            {
+                case nameof(IMedia.AudioVolume) when AudioVolume == null:
+                    NotifyPropertyChanged(nameof(AudioVolume));
+                    break;
+            }
         }
 
         private void _setMedia(PersistentMedia media, Guid mediaGuid)
@@ -1379,13 +1383,7 @@ namespace TAS.Server
             }
             if (mediaGuid != Guid.Empty)
             {
-                _serverMediaPRI = new Lazy<PersistentMedia>(() =>
-                {
-                    var priMedia = media ?? _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI);
-                    if (priMedia != null)
-                        priMedia.PropertyChanged += _serverMediaPRI_PropertyChanged;
-                    return priMedia;
-                });
+                _serverMediaPRI = GetLazyMedia(media, mediaGuid);
                 if (media != null)
                     media = _serverMediaPRI.Value; // only to imediately read lazy's value
                 var dirToSearchForMediaSec = _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectorySEC : (MediaDirectory)Engine.MediaManager.MediaDirectorySEC;
@@ -1396,6 +1394,17 @@ namespace TAS.Server
             _mediaGuid = mediaGuid;
             NotifyPropertyChanged(nameof(MediaGuid));
             NotifyPropertyChanged(nameof(Media));
+        }
+
+        private Lazy<PersistentMedia> GetLazyMedia(PersistentMedia media, Guid mediaGuid)
+        {
+            return new Lazy<PersistentMedia>(() =>
+            {
+                var priMedia = media ?? _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI);
+                if (priMedia != null)
+                    priMedia.PropertyChanged += _serverMediaPRI_PropertyChanged;
+                return priMedia;
+            });
         }
 
         private void _setDuration(TimeSpan newDuration)

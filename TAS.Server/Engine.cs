@@ -682,8 +682,7 @@ namespace TAS.Server
             MediaDeleteResult reason = MediaDeleteResult.NoDeny;
             if (media.Protected)
                 return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.Protected, Media = media };
-            ServerMedia serverMedia = media as ServerMedia;
-            if (serverMedia == null)
+            if (!(media is ServerMedia serverMedia))
                 return reason;
             foreach (Event e in _rootEvents.ToList())
             {
@@ -986,7 +985,7 @@ namespace TAS.Server
                 && _mediaManager.ArchiveDirectory != null
                 && CanDeleteMedia(media).Result == MediaDeleteResult.MediaDeleteResultEnum.Success)
                 Task.Run(() =>
-                    _mediaManager.ArchiveMedia(new List<IServerMedia>(new[] { media }), true));
+                    _mediaManager.MediaArchive(new List<IServerMedia>(new[] { media }), true, false));
         }
 
         internal void NotifyEventDeleted(Event @event)

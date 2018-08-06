@@ -509,7 +509,7 @@ namespace TAS.Database.MySqlRedundant
                     ((IEventPesistent)futureScheduled).IsModified = false;
                 }
                 if (futureScheduled != null)
-                    return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InFutureSchedule, Media = serverMedia, Event = futureScheduled };
+                    return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InSchedule, Media = serverMedia, Event = futureScheduled };
             }
             return reason;
         }

@@ -121,12 +121,12 @@ namespace TAS.Remoting.Model
 
         public IEnumerable<IRecorder> Recorders => _recorders;
 
-        public void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter)
+        public List<MediaDeleteResult> MediaArchive(IEnumerable<IMedia> mediaList, bool deleteAfter, bool forceDelete)
         {
-            Invoke(parameters: new object[] { mediaList, deleteAfter });
+            return Query<List<MediaDeleteResult>>(parameters: new object[] { mediaList, deleteAfter, forceDelete });
         }
 
-        public List<MediaDeleteResult> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
+        public List<MediaDeleteResult> MediaDelete(IEnumerable<IMedia> mediaList, bool forceDelete)
         {
             return Query<List<MediaDeleteResult>>(parameters: new object[] { mediaList, forceDelete });
         }

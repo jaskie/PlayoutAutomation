@@ -140,7 +140,7 @@ namespace TAS.Server
             }
         }
 
-        public List<MediaDeleteResult> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
+        public List<MediaDeleteResult> MediaDelete(IEnumerable<IMedia> mediaList, bool forceDelete)
         {
             if (!Engine.HaveRight(EngineRight.MediaDelete))
                 return new List<MediaDeleteResult>(mediaList.Select(m => new MediaDeleteResult() {Media = m, Result = MediaDeleteResult.MediaDeleteResultEnum.InsufficentRights }));
@@ -159,18 +159,30 @@ namespace TAS.Server
                 m.GetLoudness();
         }
 
-        public void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter)
+        public List<MediaDeleteResult> MediaArchive(IEnumerable<IMedia> mediaList, bool deleteAfter, bool forceDelete)
         {
+            var result = new List<MediaDeleteResult>();
             if (!Engine.HaveRight(EngineRight.MediaArchive) || 
                 (deleteAfter && !Engine.HaveRight(EngineRight.MediaDelete)))
-                return;
-
-            IArchiveDirectory adir = ArchiveDirectory;
-            if (adir == null)
-                return;
-            foreach (IServerMedia media in mediaList)
-                if (media is ServerMedia)
-                    adir.ArchiveSave(media, deleteAfter);
+                return result;
+            if (!(ArchiveDirectory is ArchiveDirectory adir))
+                return result;
+            foreach (var media in mediaList)
+                if (media is ServerMedia serverMedia)
+                {
+                    if (forceDelete || !deleteAfter)
+                    {
+                        adir.ArchiveSave(serverMedia, deleteAfter);
+                        result.Add(MediaDeleteResult.NoDeny);
+                        continue;
+                    }
+                    var dr = _engine.CanDeleteMedia(serverMedia);
+                    if (dr.Result == MediaDeleteResult.MediaDeleteResultEnum.Success)
+                        adir.ArchiveSave(serverMedia, true);
+                    result.Add(dr);
+                }
+                    
+            return result;
         }
 
         public void Export(IEnumerable<MediaExportDescription> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat)
@@ -493,7 +505,7 @@ namespace TAS.Server
             }
             else
             {
-                MediaDeleteResult reason = (media is PersistentMedia) ? _engine.CanDeleteMedia(media as PersistentMedia) : MediaDeleteResult.NoDeny;
+                MediaDeleteResult reason = media is PersistentMedia pm ? _engine.CanDeleteMedia(pm) : MediaDeleteResult.NoDeny;
                 if (reason.Result == MediaDeleteResult.MediaDeleteResultEnum.Success)
                     _fileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Delete, Source = media });
                 return reason;

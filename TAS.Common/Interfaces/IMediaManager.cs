@@ -18,12 +18,10 @@ namespace TAS.Common.Interfaces
         VideoFormatDescription FormatDescription { get; }
         TVideoFormat VideoFormat { get; }
         ICGElementsController CGElementsController { get; }
-
         void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
-        void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter);
+        List<MediaDeleteResult> MediaArchive(IEnumerable<IMedia> mediaList, bool deleteAfter, bool forceDelete);
+        List<MediaDeleteResult> MediaDelete(IEnumerable<IMedia> mediaList, bool forceDelete);
         void Export(IEnumerable<MediaExportDescription> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat);
-        List<MediaDeleteResult> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete);
-
         void ReloadIngestDirs();
         void SynchronizeMediaSecToPri(bool deleteNotExisted);
         void SynchronizeAnimationsSecToPri();

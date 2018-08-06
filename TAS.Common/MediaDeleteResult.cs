@@ -9,7 +9,7 @@ namespace TAS.Common
         public enum MediaDeleteResultEnum
         {
             Success,
-            InFutureSchedule,
+            InSchedule,
             Protected,
             Unknown,
             InsufficentRights

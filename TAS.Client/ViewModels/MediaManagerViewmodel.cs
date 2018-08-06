@@ -14,6 +14,7 @@ using TAS.Common;
 using System.IO;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Globalization;
 using System.Threading.Tasks;
 using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
@@ -311,17 +312,11 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _deleteSelected(object o)
+        private bool _checkAskMediaDelete(IEnumerable<MediaDeleteResult> results)
         {
-            var selections = _getSelections();
-            if (MessageBox.Show(
-                    string.Format(resources._query_DeleteSelectedFiles, selections.AsString(Environment.NewLine)),
-                    resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
-                return;
-            var reasons = _mediaManager.DeleteMedia(selections, false)
-                .Where(r => r.Result != MediaDeleteResult.MediaDeleteResultEnum.Success).ToArray();
+            var reasons = results.Where(r => r.Result != MediaDeleteResult.MediaDeleteResultEnum.Success).ToArray();
             if (reasons.Length == 0)
-                return;
+                return false;
             var reasonMsg = new StringBuilder();
             foreach (var reason in reasons)
             {
@@ -329,13 +324,13 @@ namespace TAS.Client.ViewModels
                 {
                     case MediaDeleteResult.MediaDeleteResultEnum.Success:
                         break;
-                    case MediaDeleteResult.MediaDeleteResultEnum.InFutureSchedule:
+                    case MediaDeleteResult.MediaDeleteResultEnum.InSchedule:
                         reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ").AppendFormat(
                             resources._message_MediaDeleteResult_Scheduled,
                             reason.Event == null ? resources._unknown_ : reason.Event.EventName,
                             reason.Event == null
                                 ? resources._unknown_
-                                : reason.Event.ScheduledTime.ToLocalTime().ToString());
+                                : reason.Event.ScheduledTime.ToLocalTime().ToString(CultureInfo.CurrentCulture));
                         break;
                     case MediaDeleteResult.MediaDeleteResultEnum.Protected:
                         reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ")
@@ -352,23 +347,37 @@ namespace TAS.Client.ViewModels
                 }
             }
             if (reasonMsg.Length <= 0)
-                return;
+                return false;
+            return MessageBox.Show(
+                       string.Join(Environment.NewLine, resources._message_MediaDeleteResult_NotAllowed,
+                           reasonMsg.ToString(), Environment.NewLine, resources._message_DeleteAnyway),
+                       resources._caption_Error, MessageBoxButton.YesNo, MessageBoxImage.Error) ==
+                   MessageBoxResult.Yes;
+        }
+
+        private void _deleteSelected(object o)
+        {
+            var selections = _getSelections();
             if (MessageBox.Show(
-                    String.Join(Environment.NewLine, resources._message_MediaDeleteResult_NotAllowed,
-                        reasonMsg.ToString(), Environment.NewLine, resources._message_DeleteAnyway),
-                    resources._caption_Error, MessageBoxButton.YesNo, MessageBoxImage.Error) ==
-                MessageBoxResult.Yes)
-                _mediaManager.DeleteMedia(reasons.Select(r => r.Media).ToArray(), true);
+                    string.Format(resources._query_DeleteSelectedFiles, selections.AsString(Environment.NewLine)),
+                    resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
+                return;
+            var reasons = _mediaManager.MediaDelete(selections, false);
+            if (_checkAskMediaDelete(reasons))
+                _mediaManager.MediaDelete(reasons.Where(r => r.Result != MediaDeleteResult.MediaDeleteResultEnum.Success).Select(r => r.Media).ToArray(), true);
         }
 
         private void _moveSelectedToArchive(object o)
         {
-            _mediaManager.ArchiveMedia(_getSelections().Where(m => m is IServerMedia).Cast<IServerMedia>().ToArray(), true);
+            var selections = _getSelections();
+            var reasons = _mediaManager.MediaArchive(selections, true, false);
+            if (_checkAskMediaDelete(reasons))
+                _mediaManager.MediaArchive(reasons.Where(r => r.Result != MediaDeleteResult.MediaDeleteResultEnum.Success).Select(r => r.Media).ToArray(), true, true);
         }
 
         private void _copySelectedToArchive(object o)
         {
-            _mediaManager.ArchiveMedia(_getSelections().Where(m => m is IServerMedia).Cast<IServerMedia>().ToArray(), false);
+            _mediaManager.MediaArchive(_getSelections(), false, false);
         }
 
         private bool _filter(object item)
@@ -377,11 +386,12 @@ namespace TAS.Client.ViewModels
             if (dir is IArchiveDirectory
                 || (dir is IIngestDirectory && ((IIngestDirectory)dir).IsWAN))
                 return true;
-            var m = item as MediaViewViewmodel;
-            string mediaName = m?.MediaName?.ToLower() ?? string.Empty;
-            return (!(dir is IServerDirectory) || !(_mediaCategory is TMediaCategory?) || m?.MediaCategory == (TMediaCategory)_mediaCategory)
+            if (!(item is MediaViewViewmodel m))
+                return false;
+            string mediaName = m.MediaName?.ToLower() ?? string.Empty;
+            return (!(dir is IServerDirectory) || !(_mediaCategory is TMediaCategory) || m.MediaCategory == (TMediaCategory)_mediaCategory)
                    && _searchTextSplit.All(s => mediaName.Contains(s))
-                   && (!(_mediaType is TMediaType?) || m?.Media.MediaType == (TMediaType)_mediaType);
+                   && (!(_mediaType is TMediaType mediaType) || m.Media.MediaType == mediaType);
         }
 
         private void _setSelectdDirectory(MediaDirectoryViewmodel directory)
