@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.IO;
-using System.Text.RegularExpressions;
 
 namespace System.Net.FtpClient
 {
@@ -13,7 +9,7 @@ namespace System.Net.FtpClient
     public class XdcamClient : FtpClient
     {
 
-        private readonly string root_;
+        private readonly string _root;
 
         /// <summary>
         /// Creates a new isntance of XdcamClient
@@ -21,9 +17,9 @@ namespace System.Net.FtpClient
         public XdcamClient(Uri uri)
         {
             Host = uri.Host;
-            root_ = uri.AbsolutePath;
-            if (!root_.EndsWith("/"))
-                root_ += "/";
+            _root = uri.AbsolutePath;
+            if (!_root.EndsWith("/"))
+                _root += "/";
             EnableThreadSafeDataConnections = false;
             DataConnectionType = FtpDataConnectionType.PASV;
             UngracefullDisconnection = true;
@@ -46,10 +42,9 @@ namespace System.Net.FtpClient
                 {
                     using (FtpDataStream stream = OpenDataStream($"LIST {path}", 0))
                     {
-                        string buf;
                         try
                         {
-                            buf = stream.ReadLine(Encoding);
+                            var buf = stream.ReadLine(Encoding);
                             if (!string.IsNullOrWhiteSpace(buf))
                             {
                                 FtpTrace.WriteLine(buf);
@@ -81,7 +76,6 @@ namespace System.Net.FtpClient
         /// <example><code source="..\Examples\Connect.cs" lang="cs" /></example>
         public override void Connect()
         {
-            FtpReply reply;
             try
             {
                 m_lock.WaitOne();
@@ -105,6 +99,7 @@ namespace System.Net.FtpClient
                 m_stream.SetSocketOption(Sockets.SocketOptionLevel.Socket,
                     Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
+                FtpReply reply;
                 if (!(reply = GetReply()).Success)
                 {
                     if (reply.Code == null)
@@ -131,17 +126,17 @@ namespace System.Net.FtpClient
 
         public override Stream OpenRead(string path, FtpDataType type, long restart)
         {
-            return base.OpenRead(root_ + path, type, restart);
+            return base.OpenRead(_root + path, type, restart);
         }
 
         public override Stream OpenWrite(string path, FtpDataType type)
         {
-            return base.OpenWrite(root_ + path, type);
+            return base.OpenWrite(_root + path, type);
         }
 
         public override Stream OpenAppend(string path, FtpDataType type)
         {
-            return base.OpenAppend(root_ + path, type);
+            return base.OpenAppend(_root + path, type);
         }
 
         /// <summary>
@@ -157,7 +152,7 @@ namespace System.Net.FtpClient
             try
             {
                 m_lock.WaitOne();
-                stream = OpenDataStream($"SITE REPFL \"{root_ + path}\" {startFrame} {frameCount}", 0);
+                stream = OpenDataStream($"SITE REPFL \"{_root + path}\" {startFrame} {frameCount}", 0);
             }
             finally
             {

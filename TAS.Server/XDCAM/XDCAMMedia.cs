@@ -40,40 +40,20 @@ namespace TAS.Server.XDCAM
             {
                 if (!(Directory is IngestDirectory dir))
                     throw new InvalidOperationException("XDCAMMedia: _directory is not IngestDirectory");
-                if (Monitor.TryEnter(dir.XdcamLockObject, 1000))
-                    try
-                    {
-                        //if (XdcamClip != null)
-                        //{
-                        //    var xmlFileName = XdcamAlias == null ? XdcamClip.clipId : XdcamAlias.value;
-                        //    if (!string.IsNullOrWhiteSpace(xmlFileName))
-                        //        XdcamMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml($"Clip/{xmlFileName}M01.XML"));
-                        //    IsVerified = RedaXdcamMeta(XdcamClip.clipId);
-                        //    if (IsVerified)
-                        //        MediaStatus = TMediaStatus.Available;
-                        //}
-                        //if (XdcamEdl != null)
-                        //{
-                        //    string edlFileName = XdcamAlias == null ? XdcamEdl.editlistId : XdcamAlias.value;
-                        //    if (!string.IsNullOrWhiteSpace(edlFileName))
-                        //    {
-                        //        XdcamMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml($"Edit/{edlFileName}M01.XML"));
-                        //        XdcamSmil = SerializationHelper<Smil>.Deserialize(ReadXml($"Edit/{edlFileName}E01.SMI"));
-                        //    }
-                        //    IsVerified = RedaXdcamMeta(XdcamEdl.editlistId);
-                        //    if (IsVerified)
-                        //        MediaStatus = TMediaStatus.Available;
-                        //}
-                        if (XdcamMaterial == null)
-                            return;
-                        IsVerified = RedaXdcamMeta();
-                        if (IsVerified)
-                            MediaStatus = TMediaStatus.Available;
-                    }
-                    finally
-                    {
-                        Monitor.Exit(dir.XdcamLockObject);
-                    }
+                if (XdcamMaterial == null)
+                    return;
+                if (!Monitor.TryEnter(dir.XdcamLockObject, 1000))
+                    return;
+                try
+                {
+                    IsVerified = RedaXdcamMeta();
+                    if (IsVerified)
+                        MediaStatus = TMediaStatus.Available;
+                }
+                finally
+                {
+                    Monitor.Exit(dir.XdcamLockObject);
+                }
             }
             catch (Exception e)
             {
@@ -81,15 +61,10 @@ namespace TAS.Server.XDCAM
             }
         }
 
-        internal void ReadAliasFile()
-        {
-            throw new NotImplementedException();
-        }
-
         private System.Xml.XmlDocument ReadXml(string documentName)
         {
-            var dir = Directory as IngestDirectory;
-            Debug.Assert(dir != null, "XDCAMMedia: Directory is not IngestDirectory");
+            if (!(Directory is IngestDirectory dir))
+                throw new ApplicationException("Clip directory is not IngestDirectory");
             var client = dir.GetFtpClient();
             try
             {
@@ -105,7 +80,7 @@ namespace TAS.Server.XDCAM
 
         private bool RedaXdcamMeta()
         {
-            var metaFileName = XdcamMaterial.RelevantInfo?.FirstOrDefault(i => i.type == RelevantInfoType.Xml)?.uri;
+            var metaFileName = XdcamMaterial.RelevantInfo?.FirstOrDefault(i => i.type == RelevantInfoType.Xml)?.uri?.TrimStart('.', '/');
             if (string.IsNullOrWhiteSpace(metaFileName))
                 return false;
             var xdcamMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml(metaFileName));

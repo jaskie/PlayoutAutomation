@@ -41,7 +41,7 @@ namespace TAS.Server.XDCAM
                     _currentStream = _getNextStream();
                 else
                 {
-                    _currentStream = forWrite ? _client.OpenWrite($"Clip/{media.FileName}") : _client.OpenRead(media.XdcamMaterial.uri);
+                    _currentStream = forWrite ? _client.OpenWrite($"Clip/{media.FileName}") : _client.OpenRead(media.XdcamMaterial.uri.TrimStart('.', '/'));
                 }
             }
             catch
@@ -136,7 +136,7 @@ namespace TAS.Server.XDCAM
             var media = _media.Directory.GetFiles().Cast<XdcamMedia>().FirstOrDefault(m => umid.Equals(m.XdcamMaterial?.umid));
             if (media?.XdcamMaterial == null)
                 return null;
-            var fileName = media.XdcamMaterial.uri;
+            var fileName = media.XdcamMaterial.uri.TrimStart('.', '/');
             _smilIndex++;
             return ((XdcamClient)_client).OpenPart(fileName, startFrame, length);
         }
