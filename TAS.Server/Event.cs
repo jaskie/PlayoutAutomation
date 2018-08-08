@@ -26,9 +26,6 @@ namespace TAS.Server
         [JsonProperty(nameof(IEventPesistent.Engine))]
         private readonly Engine _engine;
         private readonly Lazy<SynchronizedCollection<Event>> _subEvents;
-        private Lazy<PersistentMedia> _serverMediaPRI;
-        private Lazy<PersistentMedia> _serverMediaSEC;
-        private Lazy<PersistentMedia> _serverMediaPRV;
         private Lazy<Event> _parent;
         private Lazy<Event> _prior;
         private Lazy<Event> _next;
@@ -125,7 +122,7 @@ namespace TAS.Server
             _logo = logo;
             _parental = parental;
             _autoStartFlags = autoStartFlags;
-            _setMedia(null, mediaGuid);
+            _mediaGuid = mediaGuid;
              _subEvents = new Lazy<SynchronizedCollection<Event>>(() =>
              {
                  var result = new SynchronizedCollection<Event>();
@@ -237,13 +234,10 @@ namespace TAS.Server
             get => _eventType;
             set
             {
-                if (SetField(ref _eventType, value))
-                    if (value == TEventType.Live || value == TEventType.Rundown)
-                    {
-                        _serverMediaPRI = null;
-                        _serverMediaSEC = null;
-                        _serverMediaPRV = null;
-                    }
+                if (!SetField(ref _eventType, value))
+                    return;
+                if (value == TEventType.Live || value == TEventType.Rundown)
+                    MediaGuid = Guid.Empty;
             }
         }
 
@@ -447,7 +441,12 @@ namespace TAS.Server
         public Guid MediaGuid
         {
             get => _mediaGuid;
-            set => _setMedia(null, value);
+            set
+            {
+                if (!SetField(ref _mediaGuid, value))
+                    return;
+                NotifyPropertyChanged(nameof(Media));
+            }
         }
 
         #endregion //IEventProperties
@@ -558,13 +557,12 @@ namespace TAS.Server
         [JsonProperty]
         public IMedia Media
         {
-            get => ServerMediaPRI;
+            get => ServerMediaPRI ?? ServerMediaSEC;
             set
             {
                 if (!HaveRight(EventRight.Modify))
                     return;
-                var newMedia = value as PersistentMedia;
-                _setMedia(newMedia, newMedia?.MediaGuid ?? Guid.Empty);
+                MediaGuid = value?.MediaGuid ?? Guid.Empty;
             }
         }
 
@@ -1086,11 +1084,11 @@ namespace TAS.Server
             return $"{EventType} {EventName}";
         }
 
-        internal PersistentMedia ServerMediaPRI => _serverMediaPRI?.Value;
+        internal PersistentMedia ServerMediaPRI => (_eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
 
-        internal PersistentMedia ServerMediaSEC => _serverMediaSEC?.Value;
+        internal PersistentMedia ServerMediaSEC => (_eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectorySEC: (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
 
-        internal PersistentMedia ServerMediaPRV => _serverMediaPRV?.Value;
+        internal PersistentMedia ServerMediaPRV => (_eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRV : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
 
         internal void SaveLoadedTree()
         {
@@ -1156,25 +1154,12 @@ namespace TAS.Server
             return _position >= _duration.Ticks / Engine.FrameTicks;
         }
         
-        protected override void DoDispose()
-        {
-            var media = _serverMediaPRI;
-            if (media != null && media.IsValueCreated && media.Value != null)
-                media.Value.PropertyChanged -= _serverMediaPRI_PropertyChanged;
-            _serverMediaPRI = null;
-            _serverMediaSEC = null;
-            _serverMediaPRV = null;
-            base.DoDispose();
-        }
-
         protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
-            if (base.SetField(ref field, value, propertyName))
-            {
-                IsModified = true;
-                return true;
-            }
-            return false;
+            if (!base.SetField(ref field, value, propertyName))
+                return false;
+            IsModified = true;
+            return true;
         }
 
 
@@ -1360,49 +1345,11 @@ namespace TAS.Server
             }
         }
 
-        private void _serverMediaPRI_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(IMedia.AudioVolume) when AudioVolume == null:
-                    NotifyPropertyChanged(nameof(AudioVolume));
-                    break;
-            }
-        }
-
-        private void _setMedia(PersistentMedia media, Guid mediaGuid)
-        {
-            if (mediaGuid == _mediaGuid)
-                return; // do nothing if same mediaGuid is assigned
-            var serverMediaPri = _serverMediaPRI;
-            if (serverMediaPri != null && serverMediaPri.IsValueCreated && serverMediaPri.Value != null)
-            {
-                if (media == serverMediaPri.Value)
-                    return; // do nothing if the same media is assigned;
-                serverMediaPri.Value.PropertyChanged -= _serverMediaPRI_PropertyChanged;
-            }
-            if (mediaGuid != Guid.Empty)
-            {
-                _serverMediaPRI = GetLazyMedia(media, mediaGuid);
-                if (media != null)
-                    media = _serverMediaPRI.Value; // only to imediately read lazy's value
-                var dirToSearchForMediaSec = _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectorySEC : (MediaDirectory)Engine.MediaManager.MediaDirectorySEC;
-                var dirToSearchForMediaPrv = _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRV : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV;
-                _serverMediaSEC = new Lazy<PersistentMedia>(() => _getMediaFromDir(mediaGuid, dirToSearchForMediaSec));
-                _serverMediaPRV = new Lazy<PersistentMedia>(() => _getMediaFromDir(mediaGuid, dirToSearchForMediaPrv));
-            }
-            _mediaGuid = mediaGuid;
-            NotifyPropertyChanged(nameof(MediaGuid));
-            NotifyPropertyChanged(nameof(Media));
-        }
-
         private Lazy<PersistentMedia> GetLazyMedia(PersistentMedia media, Guid mediaGuid)
         {
             return new Lazy<PersistentMedia>(() =>
             {
                 var priMedia = media ?? _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI);
-                if (priMedia != null)
-                    priMedia.PropertyChanged += _serverMediaPRI_PropertyChanged;
                 return priMedia;
             });
         }
