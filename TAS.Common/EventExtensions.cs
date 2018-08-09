@@ -113,10 +113,7 @@ namespace TAS.Common
                 Task.Run(() => aEvent.Save());
         }
 
-        public static long LengthInFrames(this IEvent aEvent)
-        {
-            return aEvent.Length.Ticks / aEvent.Engine.FrameTicks; 
-        }
+
 
         public static long TransitionInFrames(this IEvent aEvent)
         {
@@ -137,7 +134,7 @@ namespace TAS.Common
                     return null;
                 var current = aEvent;
                 var next = current.Next;
-                while (next != null && next.Length.Equals(TimeSpan.Zero))
+                while (next != null && (next.IsEnabled || next.Duration.Equals(TimeSpan.Zero)))
                 {
                     current = next;
                     next = current.GetSuccessor();

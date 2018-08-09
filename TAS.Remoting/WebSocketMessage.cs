@@ -21,7 +21,6 @@ namespace TAS.Remoting
             EventRemove,
             EventNotification,
             ObjectDisposed,
-            Exception
         }
 
         private static readonly byte[] Version = { 0x1, 0x0,

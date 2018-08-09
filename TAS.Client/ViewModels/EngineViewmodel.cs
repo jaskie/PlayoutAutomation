@@ -937,7 +937,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var e = Engine.GetNextToPlay();
+                var e = Engine.NextToPlay;
                 return e == null ? string.Empty : e.EventName;
             }
         }
@@ -1136,7 +1136,7 @@ namespace TAS.Client.ViewModels
         {
             if (e.PropertyName == nameof(IEngine.ProgramAudioVolume)
                 || e.PropertyName == nameof(IEngine.EngineState)
-                || e.PropertyName == nameof(IEngine.GetNextToPlay)
+                || e.PropertyName == nameof(IEngine.NextToPlay)
                 || e.PropertyName == nameof(IEngine.FieldOrderInverted)
             )
                 NotifyPropertyChanged(e.PropertyName);

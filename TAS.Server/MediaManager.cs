@@ -540,6 +540,7 @@ namespace TAS.Server
                 || !sec.IsInitialized 
                 || !pri.IsInitialized)
                 return;
+            _engine.NotifyMediaVerified(e);
             var sEcMedia = sec.FindMediaByMediaGuid(e.Media.MediaGuid);
             if (sEcMedia != null)
                 return;

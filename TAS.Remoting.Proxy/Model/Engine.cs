@@ -109,6 +109,9 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEngine.EventFieldLengths))]
         private IDictionary<string, int> _eventFieldLengths;
 
+        [JsonProperty(nameof(IEngine.NextToPlay))]
+        private Event _nextToPlay;
+
 #pragma warning restore
 
         public Engine()
@@ -156,7 +159,7 @@ namespace TAS.Remoting.Model
 
         public bool IsWideScreen => _isWideScreen;
 
-        public IEvent GetNextToPlay() { return Query<Event>(); }
+        public IEvent NextToPlay { get => _nextToPlay; set => Set(value); }
 
         public IEvent GetNextWithRequestedStartTime() { return Query<Event>(); }
 

@@ -537,9 +537,9 @@ namespace TAS.Server
 
         public IEngine Engine => _engine;
 
-        [JsonProperty]
-        public TimeSpan Length => _isEnabled ? _duration : TimeSpan.Zero;
-
+        internal TimeSpan Length => _isEnabled ? _duration : TimeSpan.Zero;
+        internal long LengthInFrames => Length.Ticks / Engine.FrameTicks;
+        
         [JsonProperty]
         public DateTime EndTime => _scheduledTime + Length;
 
@@ -1096,21 +1096,20 @@ namespace TAS.Server
                 Save();
             lock (_subEvents)
             {
-                if (_subEvents != null && _subEvents.IsValueCreated && _subEvents.Value != null)
+                if (_subEvents == null || !_subEvents.IsValueCreated || _subEvents.Value == null)
+                    return;
+                foreach (var e in _subEvents.Value)
                 {
-                    foreach (Event e in _subEvents.Value)
+                    var ce = e;
+                    do
                     {
-                        Event ce = e;
-                        do
-                        {
-                            ce.SaveLoadedTree();
-                            var lne = ce._next;
-                            if (lne != null && lne.IsValueCreated)
-                                ce = lne.Value;
-                            else
-                                ce = null;
-                        } while (ce != null);
-                    }
+                        ce.SaveLoadedTree();
+                        var lne = ce._next;
+                        if (lne != null && lne.IsValueCreated)
+                            ce = lne.Value;
+                        else
+                            ce = null;
+                    } while (ce != null);
                 }
             }
         }
@@ -1269,14 +1268,15 @@ namespace TAS.Server
             if (_eventType == TEventType.Rundown)
             {
                 long maxlen = 0;
-                foreach (var e in SubEvents)
+                lock (_subEvents) 
+                foreach (var e in _subEvents.Value)
                 {
-                    IEvent n = e;
+                    var n = e;
                     long len = 0;
                     while (n != null)
                     {
                         len += n.Length.Ticks;
-                        n = n.Next;
+                        n = n._next.Value;
                         if (n != null) // first item's transition time doesn't count
                             len -= n.IsEnabled ? n.TransitionTime.Ticks : 0;
                     }
@@ -1424,7 +1424,12 @@ namespace TAS.Server
         {
             _engine.NotifyEventLocated(this);
         }
-       
+
+        internal void NotifyMediaVerified(IMedia media)
+        {
+            NotifyPropertyChanged(nameof(Media));
+        }
+
     }
 
 }

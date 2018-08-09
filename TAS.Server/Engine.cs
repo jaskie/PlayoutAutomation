@@ -50,7 +50,7 @@ namespace TAS.Server
         private readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents = new ConcurrentDictionary<VideoLayer, IEvent>();
         private readonly SynchronizedCollection<Event> _rootEvents = new SynchronizedCollection<Event>();
         private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
-        private readonly ConcurrentDictionary<ulong, IEvent> _events = new ConcurrentDictionary<ulong, IEvent>();
+        private readonly ConcurrentDictionary<ulong, Event> _events = new ConcurrentDictionary<ulong, Event>();
         private readonly Lazy<List<IAclRight>> _rights;
 
         private Event _playing;
@@ -370,7 +370,7 @@ namespace TAS.Server
         [XmlIgnore]
         public IEvent Playing
         {
-            get { return _playing; }
+            get => _playing;
             private set
             {
                 var oldPlaying = _playing;
@@ -387,17 +387,21 @@ namespace TAS.Server
             }
         }
 
-        public IEvent GetNextToPlay()
+        [JsonProperty]
+        public IEvent NextToPlay
         {
-            var e = _playing;
-            if (e == null)
-                return null;
-            e = _successor(e);
-            if (e == null)
-                return null;
-            if (e.EventType == TEventType.Rundown)
-                return e.FindVisibleSubEvent();
-            return e;
+            get
+            {
+                var e = _playing;
+                if (e == null)
+                    return null;
+                e = _successor(e);
+                if (e == null)
+                    return null;
+                if (e.EventType == TEventType.Rundown)
+                    return e.FindVisibleSubEvent();
+                return e;
+            }
         }
 
         public IEvent GetNextWithRequestedStartTime()
@@ -414,7 +418,7 @@ namespace TAS.Server
         [XmlIgnore, JsonProperty]
         public IEvent ForcedNext
         {
-            get { return _forcedNext; }
+            get => _forcedNext;
             private set
             {
 
@@ -424,7 +428,7 @@ namespace TAS.Server
                     if (SetField(ref _forcedNext, (Event)value))
                     {
                         Debug.WriteLine(value, "ForcedNext");
-                        NotifyPropertyChanged(nameof(GetNextToPlay));
+                        NotifyPropertyChanged(nameof(NextToPlay));
                         if (_forcedNext != null)
                             _forcedNext.IsForcedNext = true;
                         if (oldForcedNext != null)
@@ -1282,8 +1286,7 @@ namespace TAS.Server
 
         private void _loadPST()
         {
-            Event ev = GetNextToPlay() as Event;
-            if (ev != null && PlayoutChannelPRV != null)
+            if (NextToPlay is Event ev && PlayoutChannelPRV != null)
             {
                 MediaBase media = ev.ServerMediaPRV;
                 if (media != null)
@@ -1379,7 +1382,7 @@ namespace TAS.Server
                             }
                             if (playingEvent.Position * FrameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks)
                                 _loadNext(succEvent);
-                            if (playingEvent.Position >= playingEvent.LengthInFrames() - succEvent.TransitionInFrames())
+                            if (playingEvent.Position >= playingEvent.LengthInFrames - succEvent.TransitionInFrames())
                             {
                                 if (succEvent.IsHold && succEvent != _forcedNext)
                                     EngineState = TEngineState.Hold;
@@ -1661,6 +1664,13 @@ namespace TAS.Server
                     && PlayoutChannelSEC != PlayoutChannelPRI)
                     ChannelConnected(_playoutChannelSEC, ve);
             }
+        }
+
+        internal void NotifyMediaVerified(MediaEventArgs ea)
+        {
+            _events.Where(e => e.Value.MediaGuid == ea.Media.MediaGuid)
+                .ToList()
+                .ForEach(e => e.Value.NotifyMediaVerified(ea.Media));
         }
 
         internal void NotifyEventLocated(Event aEvent)

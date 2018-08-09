@@ -76,7 +76,7 @@ namespace TAS.Common.Interfaces
         ICGElementsController CGElementsController { get; }
         void SearchMissingEvents();
         IEvent Playing { get; }
-        IEvent GetNextToPlay();
+        IEvent NextToPlay { get; }
         IEvent GetNextWithRequestedStartTime();
         IEvent ForcedNext { get; }
         bool IsWideScreen { get; }

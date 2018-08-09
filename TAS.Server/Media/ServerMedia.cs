@@ -28,6 +28,7 @@ namespace TAS.Server.Media
             set => SetField(ref _doNotArchive, value);
         }
 
+        [JsonProperty]
         public bool IsArchived
         {
             get => _isArchived.Value;

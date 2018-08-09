@@ -15,7 +15,6 @@ namespace TAS.Common.Interfaces
         TPlayState PlayState { get; }
         IMedia Media { get; set; }
         IEngine Engine { get; }
-        TimeSpan Length { get; }
         DateTime EndTime { get; }
         TimeSpan? Offset { get; }
         

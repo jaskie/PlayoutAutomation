@@ -832,7 +832,7 @@ namespace TAS.Client.ViewModels
 
         private string _validateScheduledTc()
         {
-            var media = Model.Media;
+            var media = Media;
             if (Model.EventType != TEventType.Movie || media == null)
                 return null;
             if (_scheduledTc > media.Duration + media.TcStart)
@@ -846,7 +846,7 @@ namespace TAS.Client.ViewModels
 
         private string _validateDuration()
         {
-            var media = Model.Media;
+            var media = Media;
             if (Model.EventType == TEventType.Movie && media != null
                 && _duration + _scheduledTc > media.Duration + media.TcStart)
                 return resources._validate_DurationInvalid;

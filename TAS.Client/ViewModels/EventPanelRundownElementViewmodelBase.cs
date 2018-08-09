@@ -196,10 +196,8 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                if (Event == null)
-                    return string.Empty;
-                IMedia media = Event.Media;
-                return (media == null) ? ((Event.EventType == TEventType.Movie || Event.EventType == TEventType.StillImage) ? Event.MediaGuid.ToString() : string.Empty) : media.FileName;
+                var media = Media;
+                return media == null ? ((Event.EventType == TEventType.Movie || Event.EventType == TEventType.StillImage) ? Event.MediaGuid.ToString() : string.Empty) : media.FileName;
             }
         }
 
@@ -211,7 +209,7 @@ namespace TAS.Client.ViewModels
                     Event.EventType == TEventType.Container)
                     return TMediaErrorInfo.NoError;
                 // else
-                IMedia media = Event.Media;
+                var media = Media;
                 if (media == null || media.MediaStatus == TMediaStatus.Deleted || !media.FileExists())
                     return TMediaErrorInfo.Missing;
                 //else
@@ -227,13 +225,13 @@ namespace TAS.Client.ViewModels
         
         public TPlayState PlayState => Event.PlayState;
 
-        public TMediaEmphasis MediaEmphasis => (_media as IPersistentMedia)?.MediaEmphasis ?? TMediaEmphasis.None;
+        public TMediaEmphasis MediaEmphasis => (Media as IPersistentMedia)?.MediaEmphasis ?? TMediaEmphasis.None;
 
         public string Layer => Event.Layer.ToString();
 
         public double AudioVolume => Event == null ? 0 : Event.AudioVolume.GetValueOrDefault();
 
-        public TMediaCategory MediaCategory => _media?.MediaCategory ?? TMediaCategory.Uncategorized;
+        public TMediaCategory MediaCategory => Media?.MediaCategory ?? TMediaCategory.Uncategorized;
 
         public bool IsHold => Event.IsHold;
 
@@ -284,7 +282,7 @@ namespace TAS.Client.ViewModels
             private set
             {
                 var oldMedia = _media;
-                if (oldMedia == value)
+                if (!SetField(ref _media, value))
                     return;
                 if (oldMedia != null)
                     oldMedia.PropertyChanged -= _onMediaPropertyChanged;
@@ -294,6 +292,10 @@ namespace TAS.Client.ViewModels
                     value.PropertyChanged += _onMediaPropertyChanged;
                     VideoFormat = value.VideoFormat;
                 }
+                NotifyPropertyChanged(nameof(MediaFileName));
+                NotifyPropertyChanged(nameof(MediaCategory));
+                NotifyPropertyChanged(nameof(MediaEmphasis));
+                NotifyPropertyChanged(nameof(MediaErrorInfo));
             }
         }
 
@@ -381,11 +383,6 @@ namespace TAS.Client.ViewModels
                     break;
                 case nameof(IEvent.Media):
                     Media = Event.Media;
-                    NotifyPropertyChanged(nameof(MediaFileName));
-                    NotifyPropertyChanged(nameof(MediaCategory));
-                    NotifyPropertyChanged(nameof(MediaEmphasis));
-                    NotifyPropertyChanged(nameof(VideoFormat));
-                    NotifyPropertyChanged(nameof(MediaErrorInfo));
                     break;
             }
         }

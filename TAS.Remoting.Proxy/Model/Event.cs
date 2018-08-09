@@ -69,14 +69,11 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEvent.Layer))]
         private VideoLayer _layer;
 
-        [JsonProperty(nameof(IEvent.Length))]
-        private TimeSpan _length;
-
         [JsonProperty(nameof(IEvent.Logo))]
         private byte _logo;
 
         [JsonProperty(nameof(IEvent.Media))]
-        private MediaBase _media;
+        private ServerMedia _media;
 
         [JsonProperty(nameof(IEvent.MediaGuid))]
         private Guid _mediaGuid;
@@ -177,8 +174,6 @@ namespace TAS.Remoting.Model
         public bool IsLoop { get => _isLoop; set => Set(value); }
 
         public VideoLayer Layer { get => _layer; set => Set(value); }
-
-        public TimeSpan Length => _length;
 
         public byte Logo { get => _logo; set => Set(value); }
 

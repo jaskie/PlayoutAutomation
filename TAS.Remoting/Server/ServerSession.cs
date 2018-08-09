@@ -149,9 +149,6 @@ namespace TAS.Remoting.Server
             }
             catch (Exception ex)
             {
-                message.MessageType = WebSocketMessage.WebSocketMessageType.Exception;
-                //SerializeDto(message, ex);
-                //Send(message.Serialize());
                 Logger.Error(ex);
                 Debug.WriteLine(ex);
             }
@@ -161,12 +158,11 @@ namespace TAS.Remoting.Server
         {
             foreach (delegateKey d in _delegates.Keys)
             {
-                IDto havingDelegate = _referenceResolver.ResolveReference(d.Item1);
-                if (havingDelegate != null)
-                {
-                    EventInfo ei = havingDelegate.GetType().GetEvent(d.Item2);
-                    _removeDelegate(havingDelegate, ei);
-                }
+                var havingDelegate = _referenceResolver.ResolveReference(d.Item1);
+                if (havingDelegate == null)
+                    continue;
+                var ei = havingDelegate.GetType().GetEvent(d.Item2);
+                _removeDelegate(havingDelegate, ei);
             }
             _referenceResolver.ReferencePropertyChanged -= _referenceResolver_ReferencePropertyChanged;
             _referenceResolver.ReferenceDisposed -= _referencedObjectDisposed;
