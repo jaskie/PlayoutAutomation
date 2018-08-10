@@ -1213,10 +1213,15 @@ namespace TAS.Client.ViewModels
 
             }
             newEvent.Media = e.Media;
-            if (mediaSearchVm.NewEventStartType == TStartType.After)
-                mediaSearchVm.BaseEvent.InsertAfter(newEvent);
-            if (mediaSearchVm.NewEventStartType == TStartType.WithParent)
-                mediaSearchVm.BaseEvent.InsertUnder(newEvent, (e.Media as ITemplated)?.StartType == TStartType.WithParentFromEnd);
+            switch (mediaSearchVm.NewEventStartType)
+            {
+                case TStartType.After:
+                    mediaSearchVm.BaseEvent.InsertAfter(newEvent);
+                    break;
+                case TStartType.WithParent:
+                    mediaSearchVm.BaseEvent.InsertUnder(newEvent, (e.Media as ITemplated)?.StartType == TStartType.WithParentFromEnd);
+                    break;
+            }
             mediaSearchVm.NewEventStartType = TStartType.After;
             mediaSearchVm.BaseEvent = newEvent;
             LastAddedEvent = newEvent;

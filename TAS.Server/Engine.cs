@@ -974,16 +974,16 @@ namespace TAS.Server
             }
         }
 
-        internal void RemoveEvent(Event @event)
+        internal void RemoveEvent(Event ev)
         {
-            RemoveRootEvent(@event);
-            if (@event.StartType == TStartType.OnFixedTime)
-                RemoveFixedTimeEvent(@event);
-            if (@event.Id != 0)
-                _events.TryRemove(@event.Id, out _);
+            RemoveRootEvent(ev);
+            if (ev.StartType == TStartType.OnFixedTime)
+                RemoveFixedTimeEvent(ev);
+            if (ev.Id != 0)
+                _events.TryRemove(ev.Id, out _);
 
-            if (@event.Media is ServerMedia media
-                && @event.PlayState == TPlayState.Played
+            if (ev.Media is ServerMedia media
+                && ev.PlayState == TPlayState.Played
                 && media.MediaType == TMediaType.Movie
                 && ArchivePolicy == TArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
                 && _mediaManager.ArchiveDirectory != null

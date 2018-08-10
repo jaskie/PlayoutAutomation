@@ -19,8 +19,9 @@ namespace TAS.Remoting.Model
 
         private event EventHandler<AudioVolumeEventArgs> _audioVolumeMeasured;
 
-        public TimeSpan MeasureDuration { get => Get<TimeSpan>(); set => Set(value); }
-        public TimeSpan MeasureStart { get => Get<TimeSpan>(); set => Set(value); }
+        public TimeSpan MeasureDuration { get => _measureDuration; set => Set(value); }
+
+        public TimeSpan MeasureStart { get => _measureStart; set => Set(value); }
 
         public event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured
         {

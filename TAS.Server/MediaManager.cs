@@ -20,9 +20,9 @@ namespace TAS.Server
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaManager));
 
-        [JsonProperty(nameof(Engine), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
+        [JsonProperty(nameof(Engine))]
         private readonly Engine _engine;
-        [JsonProperty(nameof(FileManager), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
+        [JsonProperty(nameof(FileManager))]
         private readonly FileManager _fileManager;
         private readonly List<CasparRecorder> _recorders;
         private readonly object _lockSynchronizeMediaSecToPri = new object();
@@ -43,25 +43,25 @@ namespace TAS.Server
 
         public IEngine Engine => _engine;
 
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty]
         public IServerDirectory MediaDirectoryPRI { get; private set; }
 
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty]
         public IServerDirectory MediaDirectorySEC { get; private set; }
 
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty]
         public IServerDirectory MediaDirectoryPRV { get; private set; }
 
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty]
         public IAnimationDirectory AnimationDirectoryPRI { get; private set; }
 
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty]
         public IAnimationDirectory AnimationDirectorySEC { get; private set; }
 
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty]
         public IAnimationDirectory AnimationDirectoryPRV { get; private set; }
 
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty]
         public IArchiveDirectory ArchiveDirectory { get; private set; }
 
         public ICGElementsController CGElementsController => _engine.CGElementsController;
@@ -505,7 +505,7 @@ namespace TAS.Server
             }
             else
             {
-                MediaDeleteResult reason = media is PersistentMedia pm ? _engine.CanDeleteMedia(pm) : MediaDeleteResult.NoDeny;
+                var reason = media is PersistentMedia pm ? _engine.CanDeleteMedia(pm) : MediaDeleteResult.NoDeny;
                 if (reason.Result == MediaDeleteResult.MediaDeleteResultEnum.Success)
                     _fileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Delete, Source = media });
                 return reason;
@@ -561,7 +561,7 @@ namespace TAS.Server
                 && MediaDirectorySEC != MediaDirectoryPRI
                 && MediaDirectorySEC.IsInitialized)
             {
-                IMedia mediaToDelete = ((MediaDirectory)MediaDirectorySEC).FindMediaByMediaGuid(e.Media.MediaGuid);
+                var mediaToDelete = ((MediaDirectory)MediaDirectorySEC).FindMediaByMediaGuid(e.Media.MediaGuid);
                 if (mediaToDelete != null && mediaToDelete.FileExists())
                     FileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Delete, Source = mediaToDelete }, false);
             }

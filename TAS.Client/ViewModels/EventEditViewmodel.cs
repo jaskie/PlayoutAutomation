@@ -733,7 +733,7 @@ namespace TAS.Client.ViewModels
                         break;
                     case nameof(IEvent.IsEnabled):
                         _isEnabled = s.IsEnabled;
-                        NotifyPropertyChanged(nameof(_isEnabled));
+                        NotifyPropertyChanged(nameof(IsEnabled));
                         break;
                     case nameof(IEvent.IsHold):
                         _isHold = s.IsHold;

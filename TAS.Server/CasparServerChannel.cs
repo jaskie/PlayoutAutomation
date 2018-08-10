@@ -318,16 +318,16 @@ namespace TAS.Server
                 && ev != null)
             {
                 CasparItem item = _getItem(ev);
-                if (item != null)
-                {
-                    if (ev.EventType == TEventType.Movie && ev.Media != null)
-                        item.Seek = (int)ev.Position + (int)((ev.ScheduledTc.Ticks - ev.Media.TcPlay.Ticks) / ev.Engine.FrameTicks);
-                    item.Transition.Duration = 3;
-                    item.Transition.Type = TransitionType.MIX;
-                    channel.LoadBG(item);
-                    channel.Play(item.VideoLayer);
-                    Debug.WriteLine("CasparChanner.ReStart: restarted {0} from frame {1}", item.Clipname, item.Seek);
-                }
+                if (item == null)
+                    return;
+                var media = ev.Media;
+                if (ev.EventType == TEventType.Movie && media != null)
+                    item.Seek = (int)ev.Position + (int)((ev.ScheduledTc.Ticks - media.TcPlay.Ticks) / ev.Engine.FrameTicks);
+                item.Transition.Duration = 3;
+                item.Transition.Type = TransitionType.MIX;
+                channel.LoadBG(item);
+                channel.Play(item.VideoLayer);
+                Debug.WriteLine("CasparChanner.ReStart: restarted {0} from frame {1}", item.Clipname, item.Seek);
             }
         }
 
