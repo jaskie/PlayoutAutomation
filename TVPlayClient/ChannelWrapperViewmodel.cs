@@ -33,11 +33,11 @@ namespace TVPlayClient
             _createView();
         }
 
-        public string TabName { get { return _tabName; } private set { SetField(ref _tabName, value); } }
+        public string TabName { get => _tabName; private set => SetField(ref _tabName, value); }
 
-        public bool IsLoading { get { return _isLoading; } set { SetField(ref _isLoading, value); } }
+        public bool IsLoading { get => _isLoading; set => SetField(ref _isLoading, value); }
 
-        public ChannelViewmodel Channel { get { return _channel; } private set { SetField(ref _channel, value); } }
+        public ChannelViewmodel Channel { get => _channel; private set => SetField(ref _channel, value); }
 
         protected override void OnDispose()
         {
@@ -48,8 +48,7 @@ namespace TVPlayClient
 
         private void _clientDisconected(object sender, EventArgs e)
         {
-            var client = sender as RemoteClient;
-            if (client != null)
+            if (sender is RemoteClient client)
             {
                 client.Disconnected -= _clientDisconected;
                 var vm = _channel;
@@ -72,7 +71,7 @@ namespace TVPlayClient
                     if (_client.IsConnected)
                     {
                         _client.Binder = new ClientTypeNameBinder();
-                        Engine engine = _client.GetInitalObject<Engine>();
+                        var engine = _client.GetInitalObject<Engine>();
                         if (engine != null)
                         {
                             _client.Disconnected += _clientDisconected;

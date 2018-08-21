@@ -29,9 +29,9 @@ namespace TVPlayClient
 
         public ICommand CommandConfigure { get; }
 
-        public ViewModelBase Content { get { return _content; } private set { SetField(ref _content, value); } }
+        public ViewModelBase Content { get => _content; private set => SetField(ref _content, value); }
 
-        public bool ShowConfigButton { get { return _showConfigButton; } private set { SetField(ref _showConfigButton, value); } }
+        public bool ShowConfigButton { get => _showConfigButton; private set => SetField(ref _showConfigButton, value); }
 
         protected override void OnDispose()
         {
@@ -49,8 +49,7 @@ namespace TVPlayClient
 
         private void _configClosed(object sender, EventArgs e)
         {
-            var vm = sender as ConfigurationViewmodel;
-            if (vm != null)
+            if (sender is ConfigurationViewmodel vm)
             {
                 vm.Closed -= _configClosed;
                 vm.Dispose();
@@ -66,12 +65,11 @@ namespace TVPlayClient
 
         private void _loadTabs()
         {
-            if (File.Exists(_configurationFile))
-            {
-                XmlSerializer reader = new XmlSerializer(typeof(List<ConfigurationChannel>), new XmlRootAttribute("Channels"));
-                using (StreamReader file = new StreamReader(_configurationFile))
-                    Content = new ChannelsViewmodel((List<ConfigurationChannel>)reader.Deserialize(file));
-            }
+            if (!File.Exists(_configurationFile))
+                return;
+            var reader = new XmlSerializer(typeof(List<ConfigurationChannel>), new XmlRootAttribute("Channels"));
+            using (var file = new StreamReader(_configurationFile))
+                Content = new ChannelsViewmodel((List<ConfigurationChannel>)reader.Deserialize(file));
         }
         
     }

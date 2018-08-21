@@ -28,7 +28,7 @@ namespace TAS.Server.XDCAM
             try
             {
                 _client.Connect();
-                if (media.XdcamMaterial.type == MaterialType.Edl)
+                if (media.XdcamMaterial?.type == MaterialType.Edl)
                 {
                     var smilXml = dir.ReadXmlDocument(media.XdcamMaterial.uri, _client);
                     if (smilXml != null)

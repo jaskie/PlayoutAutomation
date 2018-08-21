@@ -25,11 +25,10 @@ namespace TAS.Remoting.Client
                 DoDispose();
         }
 
-
 #if DEBUG
         ~ProxyBase()
         {
-            Debug.WriteLine(this, string.Format("{0} Finalized", GetType().FullName));
+            Debug.WriteLine(this, $"{GetType().FullName} Finalized");
         }
 #endif
 
@@ -75,7 +74,7 @@ namespace TAS.Remoting.Client
             _client.Invoke(this, methodName, parameters);
         }
 
-        protected T Query<T>([CallerMemberName] string methodName = "", params object[] parameters)
+        protected T Query<T>([CallerMemberName] string methodName = null, params object[] parameters)
         {
             if (_isDisposed == DisposedValue)
                 return default(T);
@@ -84,12 +83,16 @@ namespace TAS.Remoting.Client
 
         protected void EventAdd<T>(T handler, [CallerMemberName] string eventName = null)
         {
+            if (_isDisposed == DisposedValue)
+                return;
             if (handler == null && !DtoGuid.Equals(Guid.Empty))
                 _client?.EventAdd(this, eventName);
         }
 
         protected void EventRemove<T>(T handler, [CallerMemberName] string eventName = null)
         {
+            if (_isDisposed == DisposedValue)
+                return;
             if (handler == null && !DtoGuid.Equals(Guid.Empty))
             {
                 _client?.EventRemove(this, eventName);
@@ -155,7 +158,7 @@ namespace TAS.Remoting.Client
         {
             if (t == null)
                 return null;
-            var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+            const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
             var foundField = t.GetFields(flags).FirstOrDefault(f => f.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a =>((JsonPropertyAttribute)a).PropertyName == fieldName));
             return foundField ?? GetField(t.BaseType, fieldName);
         }

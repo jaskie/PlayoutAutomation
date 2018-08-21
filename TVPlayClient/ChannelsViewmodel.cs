@@ -6,19 +6,17 @@ namespace TVPlayClient
 {
     public class ChannelsViewmodel : ViewModelBase
     {
-        private readonly List<ChannelWrapperViewmodel> _channels;
-
-        public ChannelsViewmodel(List<ConfigurationChannel> channels)
+        public ChannelsViewmodel(IEnumerable<ConfigurationChannel> channels)
         {
-            _channels = channels.Select(c => new ChannelWrapperViewmodel(c)).ToList();
-            _channels.ForEach(c => c.Initialize());
+            Channels = channels.Select(c => new ChannelWrapperViewmodel(c)).ToList();
+            Channels.ForEach(c => c.Initialize());
         }
 
-        public List<ChannelWrapperViewmodel> Channels => _channels;
+        public List<ChannelWrapperViewmodel> Channels { get; }
 
         protected override void OnDispose()
         {
-            _channels?.ForEach(c => c.Dispose());
+            Channels?.ForEach(c => c.Dispose());
         }
 
     }
