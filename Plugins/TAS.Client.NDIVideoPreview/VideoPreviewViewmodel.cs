@@ -58,15 +58,20 @@ namespace TAS.Client.NDIVideoPreview
             CommandShowPopup = new UICommand {ExecuteDelegate = o => DisplayPopup = true};
             CommandHidePopup = new UICommand {ExecuteDelegate = o => DisplayPopup = false};
             InitNdiFind();
-            if (_ndiFindInstance != IntPtr.Zero)
-                Task.Run(() =>
+            var sourcesPoolThread = new Thread(() =>
+            {
+                while (_ndiFindInstance != IntPtr.Zero)
                 {
-                    if (Ndi.NDIlib_find_wait_for_sources(_ndiFindInstance, 5000))
-                    {
-                        Thread.Sleep(3000);
+                    if (Ndi.NDIlib_find_wait_for_sources(_ndiFindInstance, int.MaxValue))
                         Application.Current?.Dispatcher.BeginInvoke((Action) delegate { RefreshSources(null); });
-                    }
-                });
+                }
+            })
+            {
+                Name = "NDI source list pooling thread",
+                Priority = ThreadPriority.BelowNormal,
+                IsBackground = true
+            };
+            sourcesPoolThread.Start();
         }
 
         public ICommand CommandRefreshSources { get; }
@@ -407,6 +412,7 @@ namespace TAS.Client.NDIVideoPreview
             Debug.WriteLine(this, "Receive thread exited");
         }
 
+        
         private void Disconnect()
         {
             if (_ndiReceiveThread != null)
