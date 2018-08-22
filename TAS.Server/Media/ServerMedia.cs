@@ -31,7 +31,7 @@ namespace TAS.Server.Media
         [JsonProperty]
         public bool IsArchived
         {
-            get => _isArchived.Value;
+            get => _isArchived?.Value ?? false;
             set
             {
                 if (_isArchived.IsValueCreated && _isArchived.Value != value)

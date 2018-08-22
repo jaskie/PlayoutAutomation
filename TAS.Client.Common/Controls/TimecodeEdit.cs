@@ -19,7 +19,7 @@ namespace TAS.Client.Common.Controls
             "Timecode",
             typeof(TimeSpan),
             typeof(TimecodeEdit),
-            new FrameworkPropertyMetadata(TimeSpan.Zero, OnTimecodeChanged) { BindsTwoWayByDefault = true });
+            new FrameworkPropertyMetadata(TimeSpan.Zero, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTimecodeChanged));
 
         public static readonly DependencyProperty VideoFormatProperty =
             DependencyProperty.Register(

@@ -18,7 +18,7 @@ namespace TAS.Client.ViewModels
         private readonly IEngine _engine;
         private string _mediaName;
         private string _idAux;
-        private IRecorder _recorder;
+        private IRecorder _selectedRecorder;
         private IEnumerable<IPlayoutServerChannel> _channels;
         private IPlayoutServerChannel _channel;
         private TimeSpan _tcIn;
@@ -38,7 +38,7 @@ namespace TAS.Client.ViewModels
             _engine = engine;
             CreateCommands();
             Recorders = recorders;
-            Recorder = Recorders.FirstOrDefault();
+            SelectedRecorder = Recorders.FirstOrDefault();
         }
         
         public ICommand CommandPlay { get; private set; }
@@ -75,13 +75,13 @@ namespace TAS.Client.ViewModels
 
         public string FileName => MediaExtensions.MakeFileName(IdAux, MediaName, FileFormat);
 
-        public IRecorder Recorder
+        public IRecorder SelectedRecorder
         {
-            get => _recorder;
+            get => _selectedRecorder;
             set
             {
-                var oldRecorder = _recorder;
-                if (SetField(ref _recorder, value))
+                var oldRecorder = _selectedRecorder;
+                if (SetField(ref _selectedRecorder, value))
                 {
                     if (oldRecorder != null)
                         oldRecorder.PropertyChanged -= Recorder_PropertyChanged;
@@ -155,7 +155,7 @@ namespace TAS.Client.ViewModels
         public TimeSpan RecorderTimeLeft
         {
             get => _recorderTimeLeft;
-            private set => SetField(ref _recorderTimeLeft, value);
+            set => SetField(ref _recorderTimeLeft, value);
         }
 
         public TDeckState DeckState
@@ -192,7 +192,7 @@ namespace TAS.Client.ViewModels
 
         public IMedia RecordingMedia
         {
-            get => _recorder?.RecordingMedia;
+            get => _selectedRecorder?.RecordingMedia;
             private set
             {
                 var oldRecordMedia = _recordMedia;
@@ -223,7 +223,7 @@ namespace TAS.Client.ViewModels
                     case nameof(FileName):
                         if (string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(FileName)))
                             return resources._validate_FileNameEmpty;
-                          if (_recorder?.RecordingDirectory.FileExists(FileName) == true)
+                          if (_selectedRecorder?.RecordingDirectory.FileExists(FileName) == true)
                             return resources._validate_FileAlreadyExists;
                         if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.FileName), out var fnLength) && FileName.Length > fnLength)
                             return resources._validate_TextTooLong;
@@ -237,7 +237,7 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            Recorder = null; // ensure that events are disconnected
+            SelectedRecorder = null; // ensure that events are disconnected
             RecordingMedia = null;
         }
 
@@ -302,53 +302,53 @@ namespace TAS.Client.ViewModels
 
         private bool CanFinishRecord(object obj)
         {
-            return _recorder != null && _recordMedia?.MediaStatus == TMediaStatus.Copying;
+            return _selectedRecorder != null && _recordMedia?.MediaStatus == TMediaStatus.Copying;
         }
 
         private void FinishRecord(object obj)
         {
-            _recorder.Finish();
+            _selectedRecorder.Finish();
         }
 
         private void StartRecord(object obj)
         {
-            RecordingMedia = _recorder?.Capture(_channel, _timeLimit, IsNarrowMode, MediaName, FileName);
+            RecordingMedia = _selectedRecorder?.Capture(_channel, _timeLimit, IsNarrowMode, MediaName, FileName);
         }
 
         private bool CanStartRecord(object obj)
         {
             return _channel != null
-                   && _recorder?.IsServerConnected == true
+                   && _selectedRecorder?.IsServerConnected == true
                    && _timeLimit > TimeSpan.FromSeconds(1)
                    && _recordMedia?.MediaStatus != TMediaStatus.Copying
                    && !string.IsNullOrEmpty(MediaName)
-                   && !_recorder.RecordingDirectory.FileExists(FileName);
+                   && !_selectedRecorder.RecordingDirectory.FileExists(FileName);
         }
 
         private bool CanSetRecordTimeLimit(object obj)
         {
-            return _recorder?.RecordingMedia != null;
+            return _selectedRecorder?.RecordingMedia != null;
         }
 
         private void SetRecordTimeLimit(object obj)
         {
-            _recorder.SetTimeLimit(TimeLimit);
+            _selectedRecorder.SetTimeLimit(TimeLimit);
         }
 
         private void GoToTimecode(object obj)
         {
-            _recorder.GoToTimecode(_currentTc, _channel.VideoFormat);
+            _selectedRecorder.GoToTimecode(_currentTc, _channel.VideoFormat);
         }
 
         private bool CanGoToTimecode(object obj)
         {
-            IRecorder recorder = _recorder;
+            IRecorder recorder = _selectedRecorder;
             return recorder != null && recorder.IsDeckConnected && _channel != null;
         }
 
         private void Rewind(object obj)
         {
-            _recorder?.DeckRewind();
+            _selectedRecorder?.DeckRewind();
         }
 
         private bool CanRewind(object obj)
@@ -358,53 +358,53 @@ namespace TAS.Client.ViewModels
 
         private void Capture(object obj)
         {
-            RecordingMedia = _recorder.Capture(_channel, TcIn, TcOut, IsNarrowMode, MediaName, FileName);
+            RecordingMedia = _selectedRecorder.Capture(_channel, TcIn, TcOut, IsNarrowMode, MediaName, FileName);
         }
 
         private bool CanCapture(object obj)
         {
             return _channel != null && _tcOut > _tcIn
-                   && _recorder?.IsServerConnected == true
-                   && _recorder.IsDeckConnected 
+                   && _selectedRecorder?.IsServerConnected == true
+                   && _selectedRecorder.IsDeckConnected 
                    && _recordMedia?.MediaStatus != TMediaStatus.Copying
                    && !string.IsNullOrEmpty(MediaName)
-                   && !_recorder.RecordingDirectory.FileExists(FileName);
+                   && !_selectedRecorder.RecordingDirectory.FileExists(FileName);
         }
 
         private bool CanExecute(TDeckState state)
         {
-            IRecorder recorder = _recorder;
+            IRecorder recorder = _selectedRecorder;
             return recorder != null && recorder.IsDeckConnected && recorder.DeckState != state;
         }
 
         private void Stop(object obj)
         {
-            _recorder?.DeckStop();
+            _selectedRecorder?.DeckStop();
         }
 
         private void Play(object obj)
         {
-            _recorder?.DeckPlay();
+            _selectedRecorder?.DeckPlay();
         }
 
         private void FastForward(object obj)
         {
-            _recorder?.DeckFastForward();
+            _selectedRecorder?.DeckFastForward();
         }
 
         private void ResetDefaults()
         {
-            if (_recorder == null)
+            if (_selectedRecorder == null)
                 return;
-            Channels = _recorder.Channels;
-            CurrentTc = _recorder.CurrentTc;
+            Channels = _selectedRecorder.Channels.ToList();
+            CurrentTc = _selectedRecorder.CurrentTc;
             TimeLimit = TimeSpan.FromHours(2);
-            Channel = Channels.ElementAtOrDefault(_recorder.DefaultChannel) ?? Channels.LastOrDefault();
-            RecorderTimeLeft = _recorder.TimeLimit;
-            DeckState = _recorder.DeckState;
-            DeckControl = _recorder.DeckControl;
+            Channel = Channels.FirstOrDefault(c => c.Id == _selectedRecorder.DefaultChannel) ?? Channels.LastOrDefault();
+            RecorderTimeLeft = _selectedRecorder.TimeLimit;
+            DeckState = _selectedRecorder.DeckState;
+            DeckControl = _selectedRecorder.DeckControl;
             FileFormat = TMovieContainerFormat.mov;
-            RecordingMedia = _recorder.RecordingMedia;
+            RecordingMedia = _selectedRecorder.RecordingMedia;
             IsNarrowMode = false;
         }
 

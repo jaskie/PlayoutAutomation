@@ -123,13 +123,13 @@ namespace TAS.Client.ViewModels
         public TimeSpan StartTc
         {
             get => _startTc;
-            private set => SetField(ref _startTc, value);
+            set => SetField(ref _startTc, value);
         }
 
         public TimeSpan Duration
         {
             get => _duration;
-            private set => SetField(ref _duration, value);
+            set => SetField(ref _duration, value);
         }
 
         public bool IsSegmentsVisible {

@@ -37,6 +37,8 @@ namespace TAS.Server
 
 
         #region IPlayoutServerChannel
+
+        [JsonProperty]
         public int Id { get; set; }
 
         [JsonProperty]

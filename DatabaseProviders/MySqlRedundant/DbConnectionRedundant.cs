@@ -288,7 +288,6 @@ namespace TAS.Database.MySqlRedundant
             try
             {
                 ConnectionSecondary.Open();
-                StateRedundant = _stateRedundant | ConnectionStateRedundant.BrokenSecondary;
             }
             catch { }
         }
