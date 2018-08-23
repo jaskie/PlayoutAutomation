@@ -74,7 +74,10 @@ namespace TAS.Server.Media
         public override void Verify()
         {
             if (!FileExists())
+            {
+                MediaStatus = TMediaStatus.Deleted;
                 return;
+            }
             IsVerified = true;
             MediaStatus = TMediaStatus.Available;
         }

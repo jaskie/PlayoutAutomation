@@ -38,9 +38,11 @@ namespace TAS.Server.Media
 
         public IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
         {
-            var result = new AnimatedMedia(this, newMediaGuid, 0);
-            result.Folder = source.Folder;
-            result.FileName = source.FileName;
+            var result = new AnimatedMedia(this, newMediaGuid, 0)
+            {
+                Folder = source.Folder,
+                FileName = source.FileName
+            };
             result.CloneMediaProperties(source);
             result.MediaStatus = source.MediaStatus;
             result.LastUpdated = DateTime.UtcNow;
@@ -48,14 +50,12 @@ namespace TAS.Server.Media
             return result;
         }
 
-        public override bool DeleteMedia(IMedia media)
+        public override void MediaRemove(IMedia media)
         {
-            if (base.DeleteMedia(media))
-            {
-                MediaRemove(media);
-                return true;
-            }
-            return false;
+            media.MediaStatus = TMediaStatus.Deleted;
+            ((AnimatedMedia)media).IsVerified = false;
+            ((AnimatedMedia)media).Save();
+            base.MediaRemove(media);
         }
 
         public override void SweepStaleMedia() { }
