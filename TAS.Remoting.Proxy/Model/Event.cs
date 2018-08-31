@@ -73,7 +73,7 @@ namespace TAS.Remoting.Model
         private byte _logo;
 
         [JsonProperty(nameof(IEvent.Media))]
-        private ServerMedia _media;
+        private MediaBase _media;
 
         [JsonProperty(nameof(IEvent.MediaGuid))]
         private Guid _mediaGuid;

@@ -6,7 +6,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public class PersistentMedia : MediaBase, IPersistentMedia
+    public abstract class PersistentMedia : MediaBase, IPersistentMedia
     {
 #pragma warning disable CS0649
 
