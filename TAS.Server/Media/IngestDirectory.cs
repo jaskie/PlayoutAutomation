@@ -57,6 +57,12 @@ namespace TAS.Server.Media
                     if (IsImport && (!IsWAN || !string.IsNullOrWhiteSpace(_filter)))
                         BeginWatch(_filter, IsRecursive, TimeSpan.Zero);
             }
+
+            _subDirectories?.ToList().ForEach(d =>
+            {
+                d.MediaManager = MediaManager;
+                d.Initialize();
+            });
         }
 
         public string EncodeParams { get; set; }
@@ -143,11 +149,11 @@ namespace TAS.Server.Media
         public TDirectoryAccessType AccessType { get; protected set; }
 
         [XmlArray(nameof(SubDirectories))]
-        public List<IngestDirectory> XmlSubDirectories;
+        public List<IngestDirectory> _subDirectories;
 
         [XmlIgnore]
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
-        public IEnumerable<IIngestDirectoryProperties> SubDirectories => XmlSubDirectories;
+        public IEnumerable<IIngestDirectoryProperties> SubDirectories => _subDirectories;
 
         public string Username { get; set; }
 
