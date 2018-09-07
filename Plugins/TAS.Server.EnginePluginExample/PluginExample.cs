@@ -10,21 +10,14 @@ namespace TAS.Server.EnginePluginExample
     [Export(typeof(IEnginePluginFactory))]
     public class PluginExamplefactory : IEnginePluginFactory
     {
-        public object CreateEnginePlugin(IEngine engine, Type type)
+        public object CreateEnginePlugin(IEngine engine)
         {
-            if (type.IsAssignableFrom(typeof(PluginExample)))
-            {
-                var plugin = new PluginExample();
-                plugin.Initialize(engine);
-                return plugin;
-            }
-            return null;
+            var plugin = new PluginExample();
+            plugin.Initialize(engine);
+            return plugin;
         }
 
-        public IEnumerable<Type> Types()
-        {
-            return new[] { typeof(PluginExample) };
-        }
+        public Type Type { get; } = typeof(PluginExample);
     }
 
     public class PluginExample: IEnginePlugin

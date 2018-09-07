@@ -39,7 +39,7 @@ namespace Svt.Caspar
     public class RecorderList
     {
         [XmlElement("recorder", Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        public Recorder[] Recorders { get; set; } = new Recorder[0];
+        public Recorder[] Recorders { get; set; } 
     }
 
     public class Recorder

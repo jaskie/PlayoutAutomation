@@ -149,11 +149,10 @@
                                 <toolkit:DropDownButton.DropDownContent>
                                     <controls:TreeViewEx DataContext="{StaticResource Proxy}" MinWidth="120" ItemsSource="{Binding Data.MediaDirectories}" 
                                                      SelectedItem="{Binding Data.SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged"
-                                                     Width="120"
                                                      >
                                         <controls:TreeViewEx.ItemTemplate>
                                             <HierarchicalDataTemplate DataType="{x:Type viewmodels:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
-                                                <TextBlock Text="{Binding DirectoryName}" ToolTip="{Binding Folder}" />
+                                                <TextBlock Padding="2" Text="{Binding DirectoryName}" ToolTip="{Binding Folder}" />
                                             </HierarchicalDataTemplate>
                                         </controls:TreeViewEx.ItemTemplate>
                                     </controls:TreeViewEx>

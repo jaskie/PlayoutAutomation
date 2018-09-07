@@ -15,7 +15,7 @@ namespace TAS.Server
     {
 
         static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(PluginManager));
-        static readonly IEnumerable<IEnginePluginFactory> _enginePlugins;
+        static readonly IEnumerable<IEnginePluginFactory> EnginePlugins;
         
         static PluginManager()
         {
@@ -26,7 +26,7 @@ namespace TAS.Server
                 container.ComposeExportedValue("AppSettings", ConfigurationManager.AppSettings);
                 try
                 {
-                    _enginePlugins = container.GetExportedValues<IEnginePluginFactory>();
+                    EnginePlugins = container.GetExportedValues<IEnginePluginFactory>();
                 }
                 catch (ReflectionTypeLoadException e)
                 {
@@ -42,18 +42,16 @@ namespace TAS.Server
 
         public static T ComposePart<T>(this IEngine engine) 
         {
-            var factory = _enginePlugins?.FirstOrDefault(f => f.Types().Any(t => typeof(T).IsAssignableFrom(t)));
+            var factory = EnginePlugins?.FirstOrDefault(f => typeof(T).IsAssignableFrom(f.Type));
             if (factory != null)
-                return (T)factory.CreateEnginePlugin(engine, typeof(T));
+                return (T)factory.CreateEnginePlugin(engine);
             return default(T);
         }
 
         public static IEnumerable<T> ComposeParts<T>(this IEngine engine)
         {
-            var factories = _enginePlugins?.Where(f => f.Types().Any(t => typeof(T).IsAssignableFrom(t)));
-            if (factories != null)
-                return factories.Select(f => (T)f.CreateEnginePlugin(engine, typeof(T))).Where(f => f != null);
-            return null;
+            var factories = EnginePlugins?.Where(f => typeof(T).IsAssignableFrom(f.Type));
+            return factories?.Select(f => (T)f.CreateEnginePlugin(engine)).Where(f => f != null);
         }
 
     }

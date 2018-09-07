@@ -272,9 +272,10 @@ namespace Svt.Caspar
             using (StringReader reader = new StringReader(channelsXml))
             {
                 var newChannels = (ChannelList)serializer.Deserialize(reader);
-                foreach (Channel channel in newChannels.Channels)
-                    channel.Connection = this.Connection;
-                Channels = newChannels.Channels;
+                if (newChannels.Channels != null)
+                    foreach (Channel channel in newChannels.Channels)
+                        channel.Connection = this.Connection;
+                Channels = newChannels.Channels ?? new Channel[0];
 
                 UpdatedChannels?.Invoke(this, EventArgs.Empty);
             }
@@ -286,9 +287,10 @@ namespace Svt.Caspar
             using (StringReader reader = new StringReader(recordersXml))
             {
                 var recorders = (RecorderList)serializer.Deserialize(reader);
-                foreach (Recorder recorder in recorders.Recorders)
-                    recorder.Connection = this.Connection;
-                Recorders = recorders.Recorders;
+                if (recorders.Recorders != null)
+                    foreach (Recorder recorder in recorders.Recorders)
+                        recorder.Connection = this.Connection;
+                Recorders = recorders.Recorders ?? new Recorder[0];
                 UpdatedRecorders?.Invoke(this, EventArgs.Empty);
                 Debug.WriteLine($"Updated {Connection.Hostname}");
             }

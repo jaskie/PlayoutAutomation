@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace TAS.Common.Interfaces
 {
     public interface IEnginePluginFactory
     {
-        object CreateEnginePlugin(IEngine engine, Type type);
-        IEnumerable<Type> Types();
+        object CreateEnginePlugin(IEngine engine);
+        Type Type { get; }
     }
 }

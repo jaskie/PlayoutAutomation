@@ -24,16 +24,11 @@ namespace TAS.Server
             Initialize();
         }
 
-        public IEnumerable<Type> Types()
+        public Type Type { get; } = typeof(LocalGpiDeviceBinding);
+
+        public object CreateEnginePlugin(IEngine engine)
         {
-            return new[] { typeof(LocalGpiDeviceBinding) };
-        }
-        
-        public object CreateEnginePlugin(IEngine engine, Type type)
-        {
-            if (type.IsAssignableFrom(typeof(LocalGpiDeviceBinding)))
-                return EngineBindings.FirstOrDefault(b => b.IdEngine == (engine as IPersistent)?.Id);
-            return null;
+            return EngineBindings.FirstOrDefault(b => b.IdEngine == (engine as IPersistent)?.Id);
         }
 
         public void DeserializeElements(string settingsFileName)

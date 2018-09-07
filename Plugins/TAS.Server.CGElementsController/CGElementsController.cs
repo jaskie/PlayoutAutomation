@@ -11,37 +11,30 @@ using TAS.Common.Interfaces;
 namespace TAS.Server
 {
     [Export(typeof(IEnginePluginFactory))]
-    public class PluginExamplefactory : IEnginePluginFactory
+    public class CgElementsControllerFactory : IEnginePluginFactory
     {
-        private readonly Dictionary<IEngine, CGElementsController> _plugins = new Dictionary<IEngine, CGElementsController>();
+        private readonly Dictionary<IEngine, CgElementsController> _plugins = new Dictionary<IEngine, CgElementsController>();
         private readonly object _pluginLock = new object();
-        public object CreateEnginePlugin(IEngine engine, Type type)
+        public object CreateEnginePlugin(IEngine engine)
         {
-            if (type.IsAssignableFrom(typeof(CGElementsController)))
+            CgElementsController plugin;
+            lock (_pluginLock)
             {
-                CGElementsController plugin;
-                lock (_pluginLock)
-                {
-                    if (!_plugins.TryGetValue(engine, out plugin))
-                    {
-                        plugin = new CGElementsController(engine);
-                        plugin.Initialize();
-                        _plugins.Add(engine, plugin);
-                    }
-                }
-                return plugin;
+                if (_plugins.TryGetValue(engine, out plugin))
+                    return plugin;
+                plugin = new CgElementsController(engine);
+                plugin.Initialize();
+                _plugins.Add(engine, plugin);
             }
-            return null;
+            return plugin;
         }
 
-        public IEnumerable<Type> Types()
-        {
-            return new[] { typeof(CGElementsController) };
-        }
+        public Type Type { get; } = typeof(CgElementsController);
+        
     }
 
 
-    public class CGElementsController : Remoting.Server.DtoBase, ICGElementsController
+    public class CgElementsController : Remoting.Server.DtoBase, ICGElementsController
     {
         private const string ElementsFileName = "Elements.xml";
 
@@ -51,7 +44,7 @@ namespace TAS.Server
         private byte _crawl;
         private byte _parental;
 
-        public CGElementsController(IEngine engine)
+        public CgElementsController(IEngine engine)
         {
             _engine = engine;
         }
