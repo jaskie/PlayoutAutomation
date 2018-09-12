@@ -54,6 +54,7 @@ namespace TAS.Client.ViewModels
         public TMediaCategory DestCategory { get => _destMediaProperties.MediaCategory; set => _destMediaProperties.MediaCategory = value; }
         
         public IEnumerable<ICGElement> Parentals => _engine?.CGElementsController?.Parentals;
+
         public byte DestParental { get => _destMediaProperties.Parental; set => _destMediaProperties.Parental = value; }
 
         public Array AspectConversions { get; } = Enum.GetValues(typeof(TAspectConversion));

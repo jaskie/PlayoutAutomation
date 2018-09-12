@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
@@ -10,33 +9,9 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
-    [Export(typeof(IEnginePluginFactory))]
-    public class CgElementsControllerFactory : IEnginePluginFactory
-    {
-        private readonly Dictionary<IEngine, CgElementsController> _plugins = new Dictionary<IEngine, CgElementsController>();
-        private readonly object _pluginLock = new object();
-        public object CreateEnginePlugin(IEngine engine)
-        {
-            CgElementsController plugin;
-            lock (_pluginLock)
-            {
-                if (_plugins.TryGetValue(engine, out plugin))
-                    return plugin;
-                plugin = new CgElementsController(engine);
-                plugin.Initialize();
-                _plugins.Add(engine, plugin);
-            }
-            return plugin;
-        }
-
-        public Type Type { get; } = typeof(CgElementsController);
-        
-    }
-
-
     public class CgElementsController : Remoting.Server.DtoBase, ICGElementsController
     {
-        private const string ElementsFileName = "Elements.xml";
+        private const string ElementsFileName = "CgElements.xml";
 
         private bool _isCgEnabled;
         private bool _isWideScreen;
@@ -62,7 +37,7 @@ namespace TAS.Server
         {
             using (var reader = XmlReader.Create(xmlFile))
             {
-                if (reader.MoveToContent() == XmlNodeType.Element && reader.Name == "Elements")
+                if (reader.MoveToContent() == XmlNodeType.Element && reader.Name == "CgElements")
                 {
                     if (reader.HasAttributes && reader.GetAttribute("Engine") == _engine.EngineName)
                         while (reader.Read())

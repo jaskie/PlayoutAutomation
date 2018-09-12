@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Elements Engine="TVP Szczecin">
+<CgElements Engine="TVP Szczecin">
   <Crawls>
     <Crawl Id="0" Name="Off"      Command="PLAY CG3 EMPTY MIX 25"/>
     <Crawl Id="1" Name="Normal"   Command="CG CG3 ADD 1 CRAWL_NORMAL 1"/>
@@ -24,4 +24,4 @@
   <Auxes>
     <Aux Id="0" Name="Flag"/>
   </Auxes>
-</Elements>
+</CgElements>

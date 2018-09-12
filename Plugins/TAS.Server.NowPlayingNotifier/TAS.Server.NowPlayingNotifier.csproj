@@ -7,8 +7,8 @@
     <ProjectGuid>{12EE9232-10AD-4E0F-A848-42C8A79876B8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TAS.Server.EnginePluginExample</RootNamespace>
-    <AssemblyName>TAS.Server.EnginePluginExample</AssemblyName>
+    <RootNamespace>TAS.Server</RootNamespace>
+    <AssemblyName>TAS.Server.NowPlayingNotifier</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -51,7 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PluginExample.cs" />
+    <Compile Include="NowPlayingNotifierFactory.cs" />
+    <Compile Include="NowPlayingNotifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

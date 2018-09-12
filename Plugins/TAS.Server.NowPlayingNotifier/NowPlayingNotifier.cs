@@ -1,37 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.Threading;
+using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
-namespace TAS.Server.EnginePluginExample
+namespace TAS.Server
 {
-    [Export(typeof(IEnginePluginFactory))]
-    public class PluginExamplefactory : IEnginePluginFactory
-    {
-        public object CreateEnginePlugin(IEngine engine)
-        {
-            var plugin = new PluginExample();
-            plugin.Initialize(engine);
-            return plugin;
-        }
-
-        public Type Type { get; } = typeof(PluginExample);
-    }
-
-    public class PluginExample: IEnginePlugin
+    //[XmlRoot("NowPlaying")]
+    public class NowPlayingNotifier: IEnginePlugin
     {
         private IEngine _engine;
+        private int _isInitialized;
+
         public void Initialize(IEngine engine)
         {
+            if (Interlocked.Exchange(ref _isInitialized, 1) != default(int))
+                return;
             _engine = engine;
             _engine.EngineOperation += _engine_EngineOperation;
         }
 
+        public string CommandOnPlay { get; set; }
+
+        [XmlAttribute]
+        public string Engine { get; set; }
+
         private void _engine_EngineOperation(object sender, EngineOperationEventArgs e)
         {
-            Debug.WriteLine(string.Format("Plugin notification received for {0}", e.Event));
+            Debug.WriteLine($"Plugin notification received for {e.Event}");
+            if (e.Operation == TEngineOperation.Load)
+            {
+                
+            }
             //if (e.Operation == TAS.Common.TEngineOperation.Play)
             //{
             //    IServerMedia media = e.Event?.Media as IServerMedia;

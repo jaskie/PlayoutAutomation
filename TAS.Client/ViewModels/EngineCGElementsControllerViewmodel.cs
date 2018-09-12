@@ -19,11 +19,11 @@ namespace TAS.Client.ViewModels
             controller.PropertyChanged += controller_PropertyChanged;
         }
 
-        public byte Logo { get { return _controller?.Logo ?? None; }  set { if (_controller != null) _controller.Logo = value; } }
+        public byte Logo { get => _controller?.Logo ?? None; set { if (_controller != null) _controller.Logo = value; } }
 
-        public byte Crawl { get { return _controller?.Crawl ?? None; } set { if (_controller != null) _controller.Crawl = value; } }
+        public byte Crawl { get => _controller?.Crawl ?? None; set { if (_controller != null) _controller.Crawl = value; } }
 
-        public byte Parental { get { return _controller?.Parental ?? None; } set { if (_controller != null) _controller.Parental = value; } }
+        public byte Parental { get => _controller?.Parental ?? None; set { if (_controller != null) _controller.Parental = value; } }
 
         public IEnumerable<CGElementViewmodel> Crawls { get; private set; }
 
@@ -31,9 +31,9 @@ namespace TAS.Client.ViewModels
 
         public IEnumerable<CGElementViewmodel> Logos { get; private set; }
 
-        public bool IsWideScreen { get { return _controller?.IsWideScreen ?? false; } set { if (_controller != null) _controller.IsWideScreen = value; } }
+        public bool IsWideScreen { get => _controller?.IsWideScreen ?? false; set { if (_controller != null) _controller.IsWideScreen = value; } }
 
-        public bool IsCGEnabled { get { return _controller?.IsCGEnabled ?? false; } set { if (_controller != null) _controller.IsCGEnabled = value; } }
+        public bool IsCGEnabled { get => _controller?.IsCGEnabled ?? false; set { if (_controller != null) { _controller.IsCGEnabled = value; } } }
 
         public bool IsMaster => _controller?.IsMaster ?? false;
 

@@ -14,13 +14,13 @@ namespace TAS.Server
     public static class PluginManager
     {
 
-        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(PluginManager));
-        static readonly IEnumerable<IEnginePluginFactory> EnginePlugins;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(PluginManager));
+        private static readonly IEnumerable<IEnginePluginFactory> EnginePlugins;
         
         static PluginManager()
         {
             Logger.Debug("Creating");
-            using (DirectoryCatalog catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), "TAS.Server.*.dll"))
+            using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), "TAS.Server.*.dll"))
             {
                 var container = new CompositionContainer(catalog);
                 container.ComposeExportedValue("AppSettings", ConfigurationManager.AppSettings);
