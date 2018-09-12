@@ -1,3 +1,0 @@
-[submodule "dependencies/websocket-sharp"]
-	path = dependencies/websocket-sharp
-	url = https://github.com/jaskie/websocket-sharp.git

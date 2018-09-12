@@ -23,7 +23,7 @@ namespace TAS.Remoting.Model.Security
 
         public ulong Acl { get => _acl; set => Set(value); }
 
-        protected override void OnEventNotification(WebSocketMessage message)
+        protected override void OnEventNotification(SocketMessage message)
         {
 
         }

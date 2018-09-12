@@ -58,7 +58,7 @@ namespace TAS.Remoting
                     return typeof(Model.PlayoutServerChannel);
                 case "TAS.Server.CasparServer":
                     return typeof(Model.PlayoutServer);
-                case "TAS.Server.CGElementsController":
+                case "TAS.Server.CgElementsController":
                     return typeof(Model.CGElementsController);
                 case "TAS.Server.CGElement":
                     return typeof(Model.CGElement);

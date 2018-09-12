@@ -122,7 +122,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        protected override void OnEventNotification(WebSocketMessage message) { }
+        protected override void OnEventNotification(SocketMessage message) { }
 
     }
 }

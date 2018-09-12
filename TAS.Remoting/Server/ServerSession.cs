@@ -5,14 +5,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using Newtonsoft.Json;
-using WebSocketSharp;
-using WebSocketSharp.Server;
 using delegateKey = System.Tuple<System.Guid, string>;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -20,15 +20,20 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Server
 {
-    public class ServerSession : WebSocketBehavior
+    public class ServerSession : IDisposable
     {
         private readonly JsonSerializer _serializer;
         private readonly ReferenceResolver _referenceResolver;
         private readonly ConcurrentDictionary<Tuple<Guid, string>, Delegate> _delegates;
+        private readonly IUser _sessionUser;
+        private readonly IDto _initialObject;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ServerSession));
 
-        public ServerSession()
+        public ServerSession(TcpClient client, IAuthenticationService authenticationService, IDto initialObject)
         {
+            _initialObject = initialObject;
+            client.NoDelay = true;
+            Client = client;
             _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
             _serializer = JsonSerializer.CreateDefault();
             _referenceResolver = new ReferenceResolver();
@@ -37,42 +42,96 @@ namespace TAS.Remoting.Server
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.Objects;
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting);
+            var readThread = new Thread(ReadThreadProc)
+            {
+                IsBackground = true,
+                Name = $"TCP read thread for {client.Client.RemoteEndPoint}"
+            };
 #if DEBUG
             _serializer.Formatting = Formatting.Indented;
 #endif
+            if (!(client.Client.RemoteEndPoint is IPEndPoint endPoint))
+                throw new UnauthorizedAccessException($"Client RemoteEndpoint {Client.Client.RemoteEndPoint} is invalid");
+            _sessionUser = authenticationService.FindUser(AuthenticationSource.IpAddress, endPoint.Address.ToString());
+            if (_sessionUser == null)
+                throw new UnauthorizedAccessException($"Access from {Client.Client.RemoteEndPoint} not allowed");
+            readThread.Start();
+        }
+
+        private void ReadThreadProc()
+        {
+            Thread.CurrentPrincipal = new GenericPrincipal(_sessionUser, new string[0]);
+            try
+            {
+                var stream = Client.GetStream();
+                byte[] dataBuffer = null;
+                var sizeBuffer = new byte[sizeof(int)];
+                var dataIndex = 0;
+                while (true)
+                {
+                    try
+                    {
+                        if (dataBuffer == null)
+                        {
+                            if (stream.Read(sizeBuffer, 0, sizeof(int)) == sizeof(int))
+                            {
+                                var dataLength = BitConverter.ToInt32(sizeBuffer, 0);
+                                dataBuffer = new byte[dataLength];
+                                Debug.WriteLine($"Server: Received length: {dataLength}");
+                            }
+                            dataIndex = 0;
+                        }
+                        else
+                        {
+                            dataIndex += stream.Read(dataBuffer, dataIndex, dataBuffer.Length - dataIndex);
+                            if (dataIndex == dataBuffer.Length)
+                            {
+                                OnMessage(dataBuffer);
+                                dataBuffer = null;
+                            }
+                        }
+                    }
+                    catch (Exception e) when (e is IOException || e is ThreadAbortException ||
+                                              e is ObjectDisposedException)
+                    {
+                        Logger.Trace("RemoteClient shutdown.");
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                SessionClosed?.Invoke(this, EventArgs.Empty);
+            }
         }
 
 #if DEBUG
         ~ServerSession()
         {
-            Debug.WriteLine("Finalized: {0} for {1}", this, InitialObject);
+            Debug.WriteLine("Finalized: {0} for {1}", this, _initialObject);
         }
 #endif
+        public event EventHandler SessionClosed;
 
-        public IDto InitialObject;
-        public IAuthenticationService AuthenticationService;
+        public TcpClient Client { get; }
 
-        protected override void OnMessage(MessageEventArgs e)
+        private void OnMessage(byte[] data)
         {
-            WebSocketMessage message = new WebSocketMessage(e.RawData);
+            var message = new SocketMessage(data);
+            Debug.WriteLine(message.ValueString);
             try
             {
-                var user = AuthenticationService.FindUser(AuthenticationSource.IpAddress, Context?.UserEndPoint.Address.ToString());
-                if (user == null)
-                    throw new UnauthorizedAccessException($"Access from {Context?.UserEndPoint.Address} not allowed");
-                Thread.CurrentPrincipal = new GenericPrincipal(user, new string[0]);
-
-                if (message.MessageType == WebSocketMessage.WebSocketMessageType.RootQuery)
+                if (message.MessageType == SocketMessage.SocketMessageType.RootQuery)
                 {
-                    _sendResponse(message, InitialObject);
+                    _sendResponse(message, _initialObject);
                 }
                 else // method of particular object
                 {
                     IDto objectToInvoke = _referenceResolver.ResolveReference(message.DtoGuid);
                     if (objectToInvoke != null)
                     {
-                        if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query
-                            || message.MessageType == WebSocketMessage.WebSocketMessageType.Invoke)
+                        if (message.MessageType == SocketMessage.SocketMessageType.Query
+                            || message.MessageType == SocketMessage.SocketMessageType.Invoke)
                         {
                             Type objectToInvokeType = objectToInvoke.GetType();
                             MethodInfo methodToInvoke = objectToInvokeType.GetMethods()
@@ -80,7 +139,7 @@ namespace TAS.Remoting.Server
                                                      m.GetParameters().Length == message.ValueCount);
                             if (methodToInvoke != null)
                             {
-                                var parameters = DeserializeDto<WebSocketMessageArrayValue>(message.GetValueStream());
+                                var parameters = DeserializeDto<SocketMessageArrayValue>(message.ValueStream);
                                 ParameterInfo[] methodParameters = methodToInvoke.GetParameters();
                                 for (int i = 0; i < methodParameters.Length; i++)
                                     MethodParametersAlignment.AlignType(ref parameters.Value[i],
@@ -88,20 +147,20 @@ namespace TAS.Remoting.Server
                                 object response = methodToInvoke.Invoke(objectToInvoke,
                                     BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public, null,
                                     parameters.Value, null);
-                                if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
+                                if (message.MessageType == SocketMessage.SocketMessageType.Query)
                                     _sendResponse(message, response);
                             }
                             else
                                 throw new ApplicationException(
                                     $"Server: unknown method: {objectToInvoke}:{message.MemberName}");
                         }
-                        else if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get
-                                 || message.MessageType == WebSocketMessage.WebSocketMessageType.Set)
+                        else if (message.MessageType == SocketMessage.SocketMessageType.Get
+                                 || message.MessageType == SocketMessage.SocketMessageType.Set)
                         {
                             PropertyInfo property = objectToInvoke.GetType().GetProperty(message.MemberName);
                             if (property != null)
                             {
-                                if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get &&
+                                if (message.MessageType == SocketMessage.SocketMessageType.Get &&
                                     property.CanRead)
                                 {
                                     object response = property.GetValue(objectToInvoke, null);
@@ -111,7 +170,7 @@ namespace TAS.Remoting.Server
                                 {
                                     if (property.CanWrite)
                                     {
-                                        var parameter = DeserializeDto<object>(message.GetValueStream());
+                                        var parameter = DeserializeDto<object>(message.ValueStream);
                                         MethodParametersAlignment.AlignType(ref parameter, property.PropertyType);
                                         property.SetValue(objectToInvoke, parameter, null);
                                     }
@@ -124,15 +183,15 @@ namespace TAS.Remoting.Server
                                 throw new ApplicationException(
                                     $"Server: unknown property: {objectToInvoke}:{message.MemberName}");
                         }
-                        else if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventAdd
-                                 || message.MessageType == WebSocketMessage.WebSocketMessageType.EventRemove)
+                        else if (message.MessageType == SocketMessage.SocketMessageType.EventAdd
+                                 || message.MessageType == SocketMessage.SocketMessageType.EventRemove)
                         {
                             EventInfo ei = objectToInvoke.GetType().GetEvent(message.MemberName);
                             if (ei != null)
                             {
-                                if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventAdd)
+                                if (message.MessageType == SocketMessage.SocketMessageType.EventAdd)
                                     _addDelegate(objectToInvoke, ei);
-                                else if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventRemove)
+                                else if (message.MessageType == SocketMessage.SocketMessageType.EventRemove)
                                     _removeDelegate(objectToInvoke, ei);
                             }
                             else
@@ -154,8 +213,14 @@ namespace TAS.Remoting.Server
             }
         }
 
-        protected override void OnClose(CloseEventArgs e)
+        public bool IsConnected()
         {
+            return Client.Connected;
+        }
+
+        private void Close()
+        {
+            Client.Close();
             foreach (delegateKey d in _delegates.Keys)
             {
                 var havingDelegate = _referenceResolver.ResolveReference(d.Item1);
@@ -168,31 +233,24 @@ namespace TAS.Remoting.Server
             _referenceResolver.ReferenceDisposed -= _referencedObjectDisposed;
             _referenceResolver.Dispose();
             Debug.WriteLine("Server: connection closed.");
-            Logger.Info("Connection closed.");
-            base.OnClose(e);
+            Logger.Info("Remote client connection closed.");
         }
 
-        protected override void OnOpen()
-        {
-            base.OnOpen();
-            Logger.Info($"Connection open from {Context?.UserEndPoint.Address}");
-            Debug.WriteLine("Server: connection open.");
-        }
-
-        protected override void OnError(WebSocketSharp.ErrorEventArgs e)
-        {
-            Logger.Error(e.Exception, e.Message);
-            Debug.WriteLine(e.Exception);
-            base.OnError(e);
-        }
-
-        private void _sendResponse(WebSocketMessage message, object response)
+        private void _sendResponse(SocketMessage message, object response)
         {
             using (var serialized = SerializeDto(response))
             {
                 var bytes = message.ToByteArray(serialized);
                 Send(bytes);
             }
+        }
+
+        private void Send(byte[] bytes)
+        {
+            var size = BitConverter.GetBytes(bytes.Length);
+            Client.Client.Send(size);
+            Client.Client.Send(bytes);
+            Debug.WriteLine($"Server sended: {bytes.Length}");
         }
 
         private Stream SerializeDto(object response)
@@ -248,6 +306,7 @@ namespace TAS.Remoting.Server
         {
             if (!(o is IDto dto))
                 return;
+            //Debug.Assert(_referenceResolver.ResolveReference(dto.DtoGuid) != null, "Null reference notified");
             EventArgs eventArgs;
             if (e is PropertyChangedEventArgs ea && eventName == nameof(INotifyPropertyChanged.PropertyChanged))
             {
@@ -263,18 +322,15 @@ namespace TAS.Remoting.Server
             }
             else
                 eventArgs = e;
-            WebSocketMessage message = new WebSocketMessage { 
-                MessageType = WebSocketMessage.WebSocketMessageType.EventNotification,
+            SocketMessage message = new SocketMessage { 
+                MessageType = SocketMessage.SocketMessageType.EventNotification,
                 DtoGuid = dto.DtoGuid,
-#if DEBUG
-                DtoName = dto.ToString(),
-#endif
                 MemberName = eventName};
-            if (ConnectionState == WebSocketState.Open)
+            if (IsConnected())
                 using (var serialized = SerializeDto(eventArgs))
                 {
                     var bytes = message.ToByteArray(serialized);
-                    SendAsync(bytes, null);
+                    Send(bytes);
                 }
         }
 
@@ -288,19 +344,16 @@ namespace TAS.Remoting.Server
                 EventInfo ei = dto.GetType().GetEvent(dk.Item2);
                 _removeDelegate(dto, ei);
             }
-            WebSocketMessage message = new WebSocketMessage
+            SocketMessage message = new SocketMessage
             {
-                MessageType = WebSocketMessage.WebSocketMessageType.ObjectDisposed,
+                MessageType = SocketMessage.SocketMessageType.ObjectDisposed,
                 DtoGuid = dto.DtoGuid,
-#if DEBUG
-                DtoName = dto.ToString()
-#endif
             };
-            if (ConnectionState == WebSocketState.Open)
+            if (IsConnected())
                 using (var serialized = SerializeDto(null))
                 {
                     var bytes = message.ToByteArray(serialized);
-                    SendAsync(bytes, null);
+                    Send(bytes);
                 }
             Debug.WriteLine($"Server: ObjectDisposed notification on {dto} sent");
         }
@@ -317,5 +370,9 @@ namespace TAS.Remoting.Server
             }
         }
 
+        public void Dispose()
+        {
+            Close();
+        }
     }
 }

@@ -70,7 +70,7 @@ namespace TAS.Remoting.Model.Security
             throw new NotImplementedException();
         }
 
-        protected override void OnEventNotification(WebSocketMessage message)
+        protected override void OnEventNotification(SocketMessage message)
         {
             switch (message.MemberName)
             {

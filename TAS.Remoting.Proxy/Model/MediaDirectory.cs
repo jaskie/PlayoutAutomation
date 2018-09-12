@@ -107,7 +107,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(WebSocketMessage message)
+        protected override void OnEventNotification(SocketMessage message)
         {
             if (message.MemberName == nameof(MediaAdded))
                     MediaAddedEvent?.Invoke(this, Deserialize<MediaEventArgs>(message));

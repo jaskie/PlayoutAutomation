@@ -1,44 +1,103 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Xml.Serialization;
+using NLog;
 using TAS.Common.Interfaces;
-using WebSocketSharp.Server;
 
 namespace TAS.Remoting.Server
 {
     public class ServerHost : IDisposable, IRemoteHostConfig
     {
-        private WebSocketServer _server;
         private int _disposed;
-
+        private TcpListener _listener;
+        private Thread _listenerThread;
+        private IDto _rootDto;
+        private IAuthenticationService _authenticationService;
+        private readonly List<ServerSession> _clients = new List<ServerSession>();
+        private static readonly Logger Logger = LogManager.GetLogger(nameof(ServerHost));
+        
         [XmlAttribute]
         public ushort ListenPort { get; set; }
 
-        public bool Initialize(DtoBase dto, string path, IAuthenticationService authenticationService)
+        public bool Initialize(DtoBase rootDto, string path, IAuthenticationService authenticationService)
         {
             if (ListenPort < 1024)
                 return false;
+            _rootDto = rootDto;
+            _authenticationService = authenticationService;
             try
             {
-                _server = new WebSocketServer(ListenPort) {NoDelay = true};
-                _server.AddWebSocketService<ServerSession>(path, s =>
+                _listener = new TcpListener(IPAddress.Any, ListenPort) {ExclusiveAddressUse = true};
+                _listenerThread = new Thread(ListenerThreadProc)
                 {
-                    s.AuthenticationService = authenticationService;
-                    s.InitialObject = dto;
-                });
-                _server.Start();
+                    Name = "Remote client session listener",
+                    IsBackground = true
+                };
+                _listenerThread.Start();
                 return true;
             }
             catch(Exception e)
             {
-                Debug.WriteLine(e, "Initialization of RemoteClientHost error");
+                Logger.Error(e, "Initialization of ServerHost error.");
             }
             return false;
         }
 
-        public int ClientCount => _server.WebSocketServices.Hosts.Sum(h => h.Sessions.Count);
+        private void ListenerThreadProc()
+        {
+            _listener.Start();
+            try
+            {
+                while (true)
+                {
+                    try
+                    {
+                        var client = _listener.AcceptTcpClient();
+                        var clientSession = new ServerSession(client, _authenticationService, _rootDto);
+                        clientSession.SessionClosed += ClientSession_SessionClosed;
+                        lock (((IList) _clients).SyncRoot)
+                            _clients.Add(clientSession);
+                    }
+                    catch (Exception e) when(e is SocketException || e is ThreadAbortException)
+                    {
+                        Logger.Trace(e, "ServerHost shutdown.");
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                _listener.Stop();
+                List<ServerSession> serverSessionsCopy;
+                lock (((IList) _clients).SyncRoot)
+                    serverSessionsCopy = _clients.ToList();
+                serverSessionsCopy.ForEach(s => s.Dispose());
+            }
+        }
+
+        private void ClientSession_SessionClosed(object sender, EventArgs e)
+        {
+            if (!(sender is ServerSession serverSession))
+                return;
+            serverSession.Dispose();
+            serverSession.SessionClosed -= ClientSession_SessionClosed;
+            lock (((IList) _clients).SyncRoot)
+                _clients.Remove(serverSession);
+        }
+
+        public int ClientCount
+        {
+            get
+            {
+                lock (((IList) _clients).SyncRoot)
+                    return _clients.Count;
+            }
+        }
 
         public void Dispose()
         {
@@ -48,7 +107,7 @@ namespace TAS.Remoting.Server
 
         public void UnInitialize()
         {
-            _server?.Stop();
+            _listenerThread.Abort();
         }
     }
 }

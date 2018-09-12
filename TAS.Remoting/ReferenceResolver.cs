@@ -73,7 +73,8 @@ namespace TAS.Remoting
         public object ResolveReference(object context, string reference)
         {
             var id = new Guid(reference);
-            _knownDtos.TryGetValue(id, out var value);
+            if (!_knownDtos.TryGetValue(id, out var value))
+                Debug.WriteLine("Unresolved reference {0}", reference);
             Debug.WriteLine("Resolved reference {0} with {1}", reference, value);
             return value;
         }
@@ -83,7 +84,8 @@ namespace TAS.Remoting
         #region Server-side methods
         public IDto ResolveReference(Guid reference)
         {
-            _knownDtos.TryGetValue(reference, out var p);
+            if (!_knownDtos.TryGetValue(reference, out var p))
+                Debug.WriteLine("Unresolved reference {0}", reference);
             return p;
         }
 

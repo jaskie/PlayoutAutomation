@@ -72,7 +72,7 @@
     <Compile Include="Server\ServerHost.cs" />
     <Compile Include="Server\ServerSession.cs" />
     <Compile Include="Server\DtoBase.cs" />
-    <Compile Include="WebSocketMessage.cs" />
+    <Compile Include="SocketMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
@@ -80,11 +80,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\dependencies\websocket-sharp\websocket-sharp\websocket-sharp.csproj">
-      <Project>{b357bac7-529e-4d81-a0d2-71041b19c8de}</Project>
-      <Name>websocket-sharp</Name>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\TAS.Common\TAS.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
       <Name>TAS.Common</Name>

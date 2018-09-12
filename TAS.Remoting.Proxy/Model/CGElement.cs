@@ -32,6 +32,6 @@ namespace TAS.Remoting.Model
 
         public string Name => _name;
 
-        protected override void OnEventNotification(WebSocketMessage message) { }
+        protected override void OnEventNotification(SocketMessage message) { }
     }
 }

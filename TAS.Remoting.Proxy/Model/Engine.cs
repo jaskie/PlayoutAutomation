@@ -386,7 +386,7 @@ namespace TAS.Remoting.Model
         public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
 #pragma warning restore
 
-        protected override void OnEventNotification(WebSocketMessage message)
+        protected override void OnEventNotification(SocketMessage message)
         {
             switch (message.MemberName)
             {

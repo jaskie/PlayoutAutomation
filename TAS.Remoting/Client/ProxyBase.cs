@@ -99,7 +99,7 @@ namespace TAS.Remoting.Client
             }
         }
 
-        protected abstract void OnEventNotification(WebSocketMessage message);
+        protected abstract void OnEventNotification(SocketMessage message);
 
         protected void NotifyPropertyChanged(string propertyName)
         {
@@ -118,12 +118,12 @@ namespace TAS.Remoting.Client
             _client = (RemoteClient)context.Context;
         }
 
-        protected T Deserialize<T>(WebSocketMessage message)
+        protected T Deserialize<T>(SocketMessage message)
         {
             return _client == null ? default(T) : _client.Deserialize<T>(message);
         }
 
-        internal void OnEventNotificationMessage(WebSocketMessage message)
+        internal void OnEventNotificationMessage(SocketMessage message)
         {
             if (message.MemberName == nameof(INotifyPropertyChanged.PropertyChanged))
             {

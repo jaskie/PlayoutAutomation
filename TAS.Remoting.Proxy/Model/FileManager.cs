@@ -71,7 +71,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(WebSocketMessage message)
+        protected override void OnEventNotification(SocketMessage message)
         {
             if (message.MemberName == nameof(OperationAdded))
             {
