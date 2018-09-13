@@ -55,19 +55,25 @@ namespace TAS.Remoting.Server
             {
                 while (true)
                 {
+                    TcpClient client = null;
                     try
                     {
-                        var client = _listener.AcceptTcpClient();
+                        client = _listener.AcceptTcpClient();
                         var clientSession = new ServerSession(client, _authenticationService, _rootDto);
                         clientSession.SessionClosed += ClientSession_SessionClosed;
                         lock (((IList) _clients).SyncRoot)
                             _clients.Add(clientSession);
                     }
-                    catch (Exception e) when(e is SocketException || e is ThreadAbortException)
+                    catch (Exception e) when (e is SocketException || e is ThreadAbortException)
                     {
                         Logger.Trace(e, "ServerHost shutdown.");
                         break;
                     }
+                    catch (UnauthorizedAccessException)
+                    {
+                        Logger.Warn($"Unauthorized client from: {client?.Client.RemoteEndPoint}");
+                    }
+                    catch { }
                 }
             }
             finally
