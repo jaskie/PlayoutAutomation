@@ -123,5 +123,11 @@ namespace TAS.Client.Common
         {
             Application.Current?.Dispatcher.BeginInvoke((Action)CommandManager.InvalidateRequerySuggested);
         }
+
+        protected void OnUiThread(Action action)
+        {
+            Application.Current?.Dispatcher.BeginInvoke(action);
+        }
+
     }
 }

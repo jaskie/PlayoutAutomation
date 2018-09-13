@@ -54,11 +54,13 @@ namespace TAS.Client.ViewModels
         {
             if (e.Operation == null)
                 return;
-            Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
+            OnUiThread(() =>
             {
                 if (_clearFinished && e.Operation.OperationStatus != FileOperationStatus.Failed)
                 {
-                    FileOperationViewmodel fovm = OperationList.FirstOrDefault(vm => vm.FileOperation == e.Operation); // don't remove failed
+                    FileOperationViewmodel
+                        fovm = OperationList.FirstOrDefault(vm =>
+                            vm.FileOperation == e.Operation); // don't remove failed
                     if (fovm != null)
                     {
                         OperationList.Remove(fovm);
@@ -66,17 +68,17 @@ namespace TAS.Client.ViewModels
                     }
                 }
                 InvalidateRequerySuggested();
-            }));
+            });
         }
 
         private void FileManager_OperationAdded(object sender, FileOperationEventArgs e)
         {
             if (e.Operation == null)
                 return;
-            Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
+            OnUiThread(() => 
             {
                 OperationList.Insert(0, new FileOperationViewmodel(e.Operation));
-            }));
+            });
         }
 
         private void _clearFinishedOperations(object parameter)

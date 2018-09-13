@@ -102,11 +102,11 @@ namespace TAS.Client.ViewModels
             {
                 NotifyPropertyChanged(nameof(VideoFormat));
                 if (media is IPersistentMedia && _mediaSegments.IsValueCreated)
-                    Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
-                       {
-                           foreach (MediaSegmentViewmodel segment in _mediaSegments.Value)
-                               segment.VideoFormat = ((IMedia)media).VideoFormat;
-                       }));
+                    OnUiThread(() =>
+                    {
+                        foreach (MediaSegmentViewmodel segment in _mediaSegments.Value)
+                            segment.VideoFormat = ((IMedia) media).VideoFormat;
+                    });
             }
         }
 
@@ -114,7 +114,7 @@ namespace TAS.Client.ViewModels
         {
             if (_mediaSegments == null)
                 return;
-            Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
+            OnUiThread(() =>
             {
                 var segment = _mediaSegments.Value.FirstOrDefault(ms => ms.MediaSegment == e.Segment);
                 if (segment != null)
@@ -122,18 +122,18 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(HasSegments));
                 if (Media is IPersistentMedia && _segments?.Count == 0)
                     IsExpanded = false;
-            }));
+            });
         }
 
         private void MediaSegments_SegmentAdded(object sender, MediaSegmentEventArgs e)
         {
             if (_mediaSegments == null)
                 return;
-            Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
+            OnUiThread(() =>
             {
                 _mediaSegments.Value.Add(new MediaSegmentViewmodel(Media as IPersistentMedia, e.Segment));
                 NotifyPropertyChanged(nameof(HasSegments));
-            }));
+            });
         }
 
     }

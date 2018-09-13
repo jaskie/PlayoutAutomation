@@ -63,7 +63,7 @@ namespace TAS.Client.NDIVideoPreview
                 while (_ndiFindInstance != IntPtr.Zero)
                 {
                     if (Ndi.NDIlib_find_wait_for_sources(_ndiFindInstance, int.MaxValue))
-                        Application.Current?.Dispatcher.BeginInvoke((Action) delegate { RefreshSources(null); });
+                        OnUiThread(() => RefreshSources(null));
                 }
             })
             {
@@ -92,7 +92,7 @@ namespace TAS.Client.NDIVideoPreview
                 return;
             if (Uri.TryCreate(sourceUrl, UriKind.Absolute, out var sourceUri) && sourceUri.Scheme == "ndi"
                 || string.Equals(sourceUrl.Substring(0, sourceUrl.IndexOf(':')), "ndi", StringComparison.InvariantCultureIgnoreCase))
-                Application.Current?.Dispatcher.BeginInvoke((Action)delegate
+                OnUiThread(() =>
                 {
                     if (_ndiSources == null)
                         return;
@@ -316,7 +316,7 @@ namespace TAS.Client.NDIVideoPreview
 
                         int stride = (int)videoFrame.line_stride_in_bytes;
                         int bufferSize = yres * stride;
-                        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+                        OnUiThread(() =>
                         {
                             if (VideoBitmap == null
                                 || VideoBitmap.PixelWidth != xres
@@ -330,7 +330,7 @@ namespace TAS.Client.NDIVideoPreview
                                 videoBitmap.Unlock();
                             }
                             Ndi.NDIlib_recv_free_video(recvInstance, ref videoFrame);
-                        }));
+                        });
                         break;
                     case NDIlib_frame_type_e.NDIlib_frame_type_audio:
                         if (!(audioFrame.no_samples == 0 ||
@@ -396,10 +396,7 @@ namespace TAS.Client.NDIVideoPreview
                                 if (maxValues[i] < MinAudioLevel)
                                     maxValues[i] = MinAudioLevel;
                             }
-                            Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
-                            {
-                                AudioLevels = maxValues;
-                            }));
+                            OnUiThread(() => AudioLevels = maxValues );
                         }
                         Ndi.NDIlib_recv_free_audio(recvInstance, ref audioFrame);
                         break;

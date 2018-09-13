@@ -76,12 +76,12 @@ namespace TAS.Client.ViewModels
 
         private void _engine_VisibleEventRemoved(object sender, EventEventArgs e)
         {
-            Application.Current?.Dispatcher.BeginInvoke((Action)(() => _visibleEvents.Remove(e.Event)));
+            OnUiThread(() => _visibleEvents.Remove(e.Event));
         }
 
         private void _engine_VisibleEventAdded(object sender, EventEventArgs e)
         {
-            Application.Current?.Dispatcher.BeginInvoke((Action)(() => _visibleEvents.Add(e.Event)));
+            OnUiThread(() => _visibleEvents.Add(e.Event));
         }
 
         public ICommand CommandClearAll { get; private set; }
@@ -594,7 +594,7 @@ namespace TAS.Client.ViewModels
                         }
                         catch (Exception e)
                         {
-                            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
+                            OnUiThread(() =>
                             {
                                 MessageBox.Show(string.Format(resources._message_CommandFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                             });
@@ -1055,12 +1055,12 @@ namespace TAS.Client.ViewModels
                 if (a.Event.Layer == VideoLayer.Program)
                 {
                     if (_trackPlayingEvent)
-                        Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
+                        OnUiThread(() =>
                         {
                             var pe = Engine.Playing;
                             if (pe != null)
                                 SetOnTopView(pe);
-                        }), null);
+                        });
                     NotifyPropertyChanged(nameof(NextToPlay));
                     NotifyPropertyChanged(nameof(NextWithRequestedStartTime));
                 }
@@ -1115,13 +1115,13 @@ namespace TAS.Client.ViewModels
 
         private void OnEngineRunningEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
+            OnUiThread(() =>
             {
                 if (e.Operation == CollectionOperation.Add)
                     _runningEvents.Add(e.Item);
                 else
                     _runningEvents.Remove(e.Item);
-            }));
+            });
 
         }
 

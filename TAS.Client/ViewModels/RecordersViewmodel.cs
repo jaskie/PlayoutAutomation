@@ -243,20 +243,17 @@ namespace TAS.Client.ViewModels
 
         private void Recorder_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var appInstance = Application.Current;
-            if (appInstance == null)
-                return;
             if (e.PropertyName == nameof(IRecorder.CurrentTc))
-                appInstance.Dispatcher.BeginInvoke((Action) (() => CurrentTc = ((IRecorder) sender).CurrentTc));
+                OnUiThread(() => CurrentTc = ((IRecorder) sender).CurrentTc);
             if (e.PropertyName == nameof(IRecorder.DeckControl))
-                appInstance.Dispatcher.BeginInvoke((Action) (() => DeckControl = ((IRecorder) sender).DeckControl));
+                OnUiThread(() => DeckControl = ((IRecorder) sender).DeckControl);
             if (e.PropertyName == nameof(IRecorder.DeckState))
-                appInstance.Dispatcher.BeginInvoke((Action) (() => DeckState = ((IRecorder) sender).DeckState));
+                OnUiThread(() => DeckState = ((IRecorder) sender).DeckState);
             if (e.PropertyName == nameof(IRecorder.IsDeckConnected)
                 || e.PropertyName == nameof(IRecorder.IsServerConnected))
                 NotifyPropertyChanged(null);
             if (e.PropertyName == nameof(IRecorder.TimeLimit))
-                appInstance.Dispatcher.BeginInvoke((Action) (() => RecorderTimeLeft = ((IRecorder) sender).TimeLimit));
+                OnUiThread(() => RecorderTimeLeft = ((IRecorder) sender).TimeLimit);
         }
 
         private void RecordMedia_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -266,7 +263,7 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(CommandStartRecord));
             NotifyPropertyChanged(nameof(CommandCapture));
             NotifyPropertyChanged(nameof(CommandRecordFinish));
-            Application.Current?.Dispatcher.BeginInvoke((Action)ResetDefaults);
+            OnUiThread(ResetDefaults);
         }
 
         private void CreateCommands()

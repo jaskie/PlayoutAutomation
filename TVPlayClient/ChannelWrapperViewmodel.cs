@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -46,45 +47,50 @@ namespace TVPlayClient
             Debug.WriteLine(this, "Disposed");
         }
 
-        private void _clientDisconected(object sender, EventArgs e)
+        private void _ClientSessionClosed(object sender, EventArgs e)
         {
             if (sender is RemoteClient client)
             {
-                client.Disconnected -= _clientDisconected;
-                var vm = _channel;
-                Application.Current?.Dispatcher.BeginInvoke((Action)delegate 
+                client.SessionClosed -= _ClientSessionClosed;
+                client.Dispose();
+                var channel = Channel;
+                OnUiThread(() =>
                 {
-                    vm.Dispose();
+                    Channel = null;
+                    IsLoading = true;
+                    channel.Dispose();
+                    _createView();
                 });
             }
-            _createView();
         }
 
         private void _createView()
         {
-            IsLoading = true;
             Task.Run(() =>
             {
                 while (true)
                 {
-                    _client = new RemoteClient(_configurationChannel.Address);
-                    if (_client.IsConnected)
+                    try
                     {
-                        _client.Binder = new ClientTypeNameBinder();
-                        var engine = _client.GetInitalObject<Engine>();
-                        if (engine != null)
+                        _client = new RemoteClient(_configurationChannel.Address)
                         {
-                            _client.Disconnected += _clientDisconected;
-                            Application.Current?.Dispatcher.BeginInvoke((Action)delegate 
-                            {
-                                Channel = new ChannelViewmodel(engine, _configurationChannel.ShowEngine, _configurationChannel.ShowMedia);
-                                TabName = Channel.DisplayName;
-                                IsLoading = false;
-                            });
-                            return;
-                        }
+                            Binder = new ClientTypeNameBinder()
+                        };
+                        _client.SessionClosed += _ClientSessionClosed;
+                        var engine = _client.GetInitalObject<Engine>();
+                        OnUiThread(() =>
+                        {
+                            Channel = new ChannelViewmodel(engine, _configurationChannel.ShowEngine,
+                                _configurationChannel.ShowMedia);
+                            TabName = Channel.DisplayName;
+                            IsLoading = false;
+                        });
+                        return;
                     }
-                    Thread.Sleep(1000);
+                    catch (SocketException)
+                    {
+                        Thread.Sleep(1000);
+                    }
                 }
             });
         }

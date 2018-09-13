@@ -14,11 +14,9 @@ using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting.Client
 {
-    public class RemoteClient: IDisposable
+    public class RemoteClient: TcpConnection
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(RemoteClient));
-        private readonly TcpClient _clientSocket;
-        private readonly Thread _readThread;
         private readonly AutoResetEvent _messageHandler = new AutoResetEvent(false);
         private readonly JsonSerializer _serializer;
         private readonly ReferenceResolver _referenceResolver;
@@ -32,10 +30,9 @@ namespace TAS.Remoting.Client
             3000
 #endif
             ;
-        private int _disposed;
 
 
-        public RemoteClient(string address)
+        public RemoteClient(string address): base(address)
         {
             _serializer = JsonSerializer.CreateDefault();
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting, this);
@@ -45,97 +42,23 @@ namespace TAS.Remoting.Client
             _serializer.TypeNameHandling = TypeNameHandling.Objects | TypeNameHandling.Arrays;
 #if DEBUG
             _serializer.Formatting = Formatting.Indented;
-#endif
-            var port = 1060;
-            var addressParts = address.Split(':');
-
-            if (addressParts.Length > 1)
-                int.TryParse(addressParts[1], out port);
-            _clientSocket = new TcpClient
-            {
-                NoDelay = true,
-            };
-            Debug.WriteLine(this, $"Connecting to {address}");
-            try
-            {
-                _clientSocket.Connect(addressParts[0], port);
-                _readThread = new Thread(ReadThreadProc)
-                {
-                    IsBackground = true,
-                    Name = "TCP client read thread"
-                };
-                _readThread.Start();
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Not connected");
-            }
-
+#endif      
+            StartThreads();
         }
 
-        private void ReadThreadProc()
+
+        protected override void OnDispose()
         {
-            try
-            {
-                byte[] dataBuffer = null;
-                var sizeBuffer = new byte[sizeof(int)];
-                var stream = _clientSocket.GetStream();
-                var dataIndex = 0;
-                while (true)
-                {
-                    try
-                    {
-                        if (dataBuffer == null)
-                        {
-                            if (stream.Read(sizeBuffer, 0, sizeof(int)) == sizeof(int))
-                            {
-                                var dataLength = BitConverter.ToInt32(sizeBuffer, 0);
-                                dataBuffer = new byte[dataLength];
-                                Debug.WriteLine($"Client received length: {dataLength}");
-                            }
-                            dataIndex = 0;
-                        }
-                        else
-                        {
-                            dataIndex += stream.Read(dataBuffer, dataIndex, dataBuffer.Length - dataIndex);
-                            if (dataIndex == dataBuffer.Length)
-                            {
-                                OnMessage(dataBuffer);
-                                dataBuffer = null;
-                            }
-                        }
-                    }
-                    catch (Exception e) when (e is IOException || e is ThreadAbortException || e is ObjectDisposedException)
-                    {
-                        Logger.Trace("RemoteClient shutdown.");
-                        break;
-                    }
-                }
-            }
-            finally
-            {
-                Disconnected?.Invoke(this, EventArgs.Empty);
-            }
+            base.OnDispose();
+            _referenceResolver.Dispose();
+            _messageHandler.Set();
         }
-
-        public void Dispose()
-        {
-            if (Interlocked.Exchange(ref _disposed, 1) == default(int))
-            {
-                _referenceResolver.Dispose();
-                _clientSocket.Close();
-            }
-        }
-
-        public event EventHandler Disconnected;
-
+        
         public ISerializationBinder Binder
         {
             get => _serializer.SerializationBinder;
             set => _serializer.SerializationBinder = value;
         }
-
-        public bool IsConnected => _clientSocket.Client.Connected;
 
         public T GetInitalObject<T>()
         {
@@ -248,6 +171,8 @@ namespace TAS.Remoting.Client
 
         internal T Deserialize<T>(SocketMessage message)
         {
+            if (message == null)
+                return default(T);
             using (var valueStream = message.ValueStream)
             {
                 if (valueStream == null)
@@ -260,7 +185,7 @@ namespace TAS.Remoting.Client
             }
         }
 
-        private void OnMessage(byte[] data)
+        protected override void OnMessage(byte[] data)
         {
             var message = new SocketMessage(data);
             var proxy = _referenceResolver.ResolveReference(message.DtoGuid) as ProxyBase;
@@ -289,13 +214,6 @@ namespace TAS.Remoting.Client
             }
         }
 
-        private void Send(byte[] bytes)
-        {
-            if (!IsConnected)
-                return;
-            _clientSocket.Client.Send(BitConverter.GetBytes(bytes.Length));
-            _clientSocket.Client.Send(bytes);
-        }
 
         private SocketMessage WebSocketMessageCreate(SocketMessage.SocketMessageType socketMessageType, IDto dto, string memberName, int paramsCount)
         {
@@ -310,20 +228,13 @@ namespace TAS.Remoting.Client
 
         private T SendAndGetResponse<T>(SocketMessage query, object value)
         {
-            if (IsConnected)
+            using (var valueStream = Serialize(value))
             {
-                using (var valueStream = Serialize(value))
-                {
-                    var valueBytes = query.ToByteArray(valueStream);
-                    var size = BitConverter.GetBytes(valueBytes.Length);
-                    _clientSocket.Client.Send(size);
-                    _clientSocket.Client.Send(valueBytes);
-                    Debug.WriteLine($"Sended {valueBytes.Length}");
-                }
-                var response = WaitForResponse(query).Result;
-                return Deserialize<T>(response);
+                var valueBytes = query.ToByteArray(valueStream);
+                Send(valueBytes);
             }
-            return default(T);
+            var response = WaitForResponse(query).Result;
+            return Deserialize<T>(response);
         }
 
 
@@ -331,7 +242,7 @@ namespace TAS.Remoting.Client
         {
             return Task.Run(() =>
             {
-                while (true)
+                while (IsConnected)
                 {
                     lock (((IDictionary) _receivedMessages).SyncRoot)
                     {
@@ -343,6 +254,7 @@ namespace TAS.Remoting.Client
                     }
                     _messageHandler.WaitOne();
                 }
+                return null;
             }, new CancellationTokenSource(QueryTimeout).Token);
         }
     }

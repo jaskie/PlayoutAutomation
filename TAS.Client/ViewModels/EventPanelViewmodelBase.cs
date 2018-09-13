@@ -344,7 +344,7 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == nameof(IEvent.SubEventsCount))
             {
-                Application.Current?.Dispatcher.BeginInvoke((Action) delegate
+                OnUiThread(() => 
                 {
                     if (IsExpanded)
                         return;

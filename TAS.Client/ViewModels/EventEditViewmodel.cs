@@ -689,7 +689,7 @@ namespace TAS.Client.ViewModels
         {
             if (!(sender is IEvent s))
                 return;
-            Application.Current?.Dispatcher.BeginInvoke((Action) delegate
+            OnUiThread(() =>
             {
                 switch (e.PropertyName)
                 {

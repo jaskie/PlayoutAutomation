@@ -266,7 +266,7 @@ namespace TAS.Database.MySqlRedundant
             try
             {
                 bool isConnected;
-                lock (connection)
+                lock (this)
                 {
                     isConnected = connection.Ping();
                 }

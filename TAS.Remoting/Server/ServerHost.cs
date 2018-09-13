@@ -84,8 +84,8 @@ namespace TAS.Remoting.Server
         {
             if (!(sender is ServerSession serverSession))
                 return;
-            serverSession.Dispose();
             serverSession.SessionClosed -= ClientSession_SessionClosed;
+            serverSession.Dispose();
             lock (((IList) _clients).SyncRoot)
                 _clients.Remove(serverSession);
         }

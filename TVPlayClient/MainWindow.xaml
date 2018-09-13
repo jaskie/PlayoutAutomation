@@ -13,6 +13,7 @@
         Height="600" 
         Width="1024"
         Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"
+        d:DataContext="{d:DesignInstance local:MainWindowViewmodel}"
         KeyDown="Window_KeyDown">
     <Window.Resources>
         <local:MainWindowViewmodel x:Key="mainWindowViewmodel"/>
@@ -38,11 +39,15 @@
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>
                             <DataTemplate>
-                                <xctk:BusyIndicator IsBusy="{Binding IsLoading}">
+                                <xctk:BusyIndicator IsBusy="{Binding IsLoading}" Content="{Binding Channel}">
                                     <xctk:BusyIndicator.BusyContent>
                                         <TextBlock Text="{Resx ResxName=TVPlayClient.MainWindow, Key=_pleaseWait}"/>
                                     </xctk:BusyIndicator.BusyContent>
-                                    <views:ChannelView DataContext="{Binding Channel}"/>
+                                    <xctk:BusyIndicator.Resources>
+                                        <DataTemplate DataType="{x:Type vm:ChannelViewmodel}">
+                                            <views:ChannelView/>
+                                        </DataTemplate>
+                                    </xctk:BusyIndicator.Resources>
                                 </xctk:BusyIndicator>
                             </DataTemplate>
                         </TabControl.ContentTemplate>

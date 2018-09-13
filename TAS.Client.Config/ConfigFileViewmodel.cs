@@ -193,16 +193,25 @@ namespace TAS.Client.Config
         {
             try
             {
-                _db.TestConnect(tasConnectionStringSecondary);
-
-                if (ShowMessage("Secondary database already exists. Delete it first?", "Warning - database exists",
-                        MessageBoxButton.YesNo, MessageBoxImage.Hand) != MessageBoxResult.Yes)
-                    return;
-                if (!_db.DropDatabase(tasConnectionStringSecondary))
+                var databaseExists = false;
+                try
                 {
-                    ShowMessage("Database delete failed, cannot proceed.", "Database clone", MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                    return;
+                    _db.TestConnect(tasConnectionStringSecondary);
+                    databaseExists = true;
+                }
+                catch { }
+
+                if (databaseExists)
+                {
+                    if (ShowMessage("Secondary database already exists. Delete it first?", "Warning - database exists",
+                            MessageBoxButton.YesNo, MessageBoxImage.Hand) != MessageBoxResult.Yes)
+                        return;
+                    if (!_db.DropDatabase(tasConnectionStringSecondary))
+                    {
+                        ShowMessage("Database delete failed, cannot proceed.", "Database clone", MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                        return;
+                    }
                 }
                 _db.CloneDatabase(tasConnectionString, tasConnectionStringSecondary);
                 ShowMessage("Database clone successful", "Database clone", MessageBoxButton.OK,

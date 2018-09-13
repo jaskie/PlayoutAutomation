@@ -607,7 +607,7 @@ namespace TAS.Client.ViewModels
 
         private void _mediaSegments_SegmentRemoved(object sender, MediaSegmentEventArgs e)
         {
-            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
+            OnUiThread(() => 
             {
                 if (!(LoadedMedia is IPersistentMedia media) || sender != media.GetMediaSegments())
                     return;
@@ -621,7 +621,7 @@ namespace TAS.Client.ViewModels
 
         private void _mediaSegments_SegmentAdded(object sender, MediaSegmentEventArgs e)
         {
-            Application.Current?.Dispatcher.BeginInvoke((Action)delegate 
+            OnUiThread(() => 
             {
                 if (LoadedMedia is IPersistentMedia media && sender == media.GetMediaSegments())
                 {

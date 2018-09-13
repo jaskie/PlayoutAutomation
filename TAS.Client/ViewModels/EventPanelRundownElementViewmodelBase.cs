@@ -339,7 +339,7 @@ namespace TAS.Client.ViewModels
 
         protected void EventPositionChanged(object sender, EventPositionEventArgs e)
         {
-            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
+            OnUiThread(() =>
             {
                 TimeLeft = e.TimeToFinish;
             });

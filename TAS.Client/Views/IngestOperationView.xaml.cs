@@ -27,14 +27,5 @@ namespace TAS.Client.Views
             InitializeComponent();
         }
 
-#if DEBUG
-        ~IngestOperationView()
-        {
-            if (Application.Current != null)
-                Application.Current?.Dispatcher.BeginInvoke((Action)(() => System.Diagnostics.Debug.WriteLine(this.DataContext, "View finalized")));
-        }
-
-#endif // DEBUG
-
     }
 }

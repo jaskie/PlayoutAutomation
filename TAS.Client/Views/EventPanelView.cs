@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using TAS.Client.ViewModels;
@@ -20,23 +16,14 @@ namespace TAS.Client.Views
 
         protected void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (e.NewValue is EventPanelViewmodelBase vm)
-            {
-                vm.View = (EventPanelView)sender;
-                _viewName = vm.EventName;
-                if (vm.IsSelected)
-                    BringIntoView();
-                DataContextChanged -= UserControl_DataContextChanged;
-            }
+            if (!(e.NewValue is EventPanelViewmodelBase vm))
+                return;
+            vm.View = (EventPanelView)sender;
+            _viewName = vm.EventName;
+            if (vm.IsSelected)
+                BringIntoView();
+            DataContextChanged -= UserControl_DataContextChanged;
         }
-
-#if DEBUG
-        ~EventPanelView()
-        {
-            if (Application.Current != null)
-                Application.Current?.Dispatcher.BeginInvoke((Action)(() => System.Diagnostics.Debug.WriteLine(_viewName, "View finalized")));
-        }
-#endif // DEBUG
 
         internal void SetOnTop()
         {

@@ -1,4 +1,4 @@
-﻿//#undef DEBUG
+﻿#undef DEBUG
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
@@ -20,7 +20,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Server
 {
-    public class ServerSession : IDisposable
+    public class ServerSession : TcpConnection
     {
         private readonly JsonSerializer _serializer;
         private readonly ReferenceResolver _referenceResolver;
@@ -29,11 +29,9 @@ namespace TAS.Remoting.Server
         private readonly IDto _initialObject;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ServerSession));
 
-        public ServerSession(TcpClient client, IAuthenticationService authenticationService, IDto initialObject)
+        public ServerSession(TcpClient client, IAuthenticationService authenticationService, IDto initialObject): base(client)
         {
             _initialObject = initialObject;
-            client.NoDelay = true;
-            Client = client;
             _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
             _serializer = JsonSerializer.CreateDefault();
             _referenceResolver = new ReferenceResolver();
@@ -42,11 +40,6 @@ namespace TAS.Remoting.Server
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.Objects;
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting);
-            var readThread = new Thread(ReadThreadProc)
-            {
-                IsBackground = true,
-                Name = $"TCP read thread for {client.Client.RemoteEndPoint}"
-            };
 #if DEBUG
             _serializer.Formatting = Formatting.Indented;
 #endif
@@ -55,55 +48,9 @@ namespace TAS.Remoting.Server
             _sessionUser = authenticationService.FindUser(AuthenticationSource.IpAddress, endPoint.Address.ToString());
             if (_sessionUser == null)
                 throw new UnauthorizedAccessException($"Access from {Client.Client.RemoteEndPoint} not allowed");
-            readThread.Start();
+            StartThreads();
         }
-
-        private void ReadThreadProc()
-        {
-            Thread.CurrentPrincipal = new GenericPrincipal(_sessionUser, new string[0]);
-            try
-            {
-                var stream = Client.GetStream();
-                byte[] dataBuffer = null;
-                var sizeBuffer = new byte[sizeof(int)];
-                var dataIndex = 0;
-                while (true)
-                {
-                    try
-                    {
-                        if (dataBuffer == null)
-                        {
-                            if (stream.Read(sizeBuffer, 0, sizeof(int)) == sizeof(int))
-                            {
-                                var dataLength = BitConverter.ToInt32(sizeBuffer, 0);
-                                dataBuffer = new byte[dataLength];
-                                Debug.WriteLine($"Server: Received length: {dataLength}");
-                            }
-                            dataIndex = 0;
-                        }
-                        else
-                        {
-                            dataIndex += stream.Read(dataBuffer, dataIndex, dataBuffer.Length - dataIndex);
-                            if (dataIndex == dataBuffer.Length)
-                            {
-                                OnMessage(dataBuffer);
-                                dataBuffer = null;
-                            }
-                        }
-                    }
-                    catch (Exception e) when (e is IOException || e is ThreadAbortException ||
-                                              e is ObjectDisposedException)
-                    {
-                        Logger.Trace("RemoteClient shutdown.");
-                        break;
-                    }
-                }
-            }
-            finally
-            {
-                SessionClosed?.Invoke(this, EventArgs.Empty);
-            }
-        }
+        
 
 #if DEBUG
         ~ServerSession()
@@ -111,14 +58,16 @@ namespace TAS.Remoting.Server
             Debug.WriteLine("Finalized: {0} for {1}", this, _initialObject);
         }
 #endif
-        public event EventHandler SessionClosed;
 
-        public TcpClient Client { get; }
+        protected override void ReadThreadProc()
+        {
+            Thread.CurrentPrincipal = new GenericPrincipal(_sessionUser, new string[0]);
+            base.ReadThreadProc();
+        }
 
-        private void OnMessage(byte[] data)
+        protected override void OnMessage(byte[] data)
         {
             var message = new SocketMessage(data);
-            Debug.WriteLine(message.ValueString);
             try
             {
                 if (message.MessageType == SocketMessage.SocketMessageType.RootQuery)
@@ -209,18 +158,12 @@ namespace TAS.Remoting.Server
             catch (Exception ex)
             {
                 Logger.Error(ex);
-                Debug.WriteLine(ex);
             }
         }
 
-        public bool IsConnected()
+        protected override void OnDispose()
         {
-            return Client.Connected;
-        }
-
-        private void Close()
-        {
-            Client.Close();
+            base.OnDispose();
             foreach (delegateKey d in _delegates.Keys)
             {
                 var havingDelegate = _referenceResolver.ResolveReference(d.Item1);
@@ -232,8 +175,6 @@ namespace TAS.Remoting.Server
             _referenceResolver.ReferencePropertyChanged -= _referenceResolver_ReferencePropertyChanged;
             _referenceResolver.ReferenceDisposed -= _referencedObjectDisposed;
             _referenceResolver.Dispose();
-            Debug.WriteLine("Server: connection closed.");
-            Logger.Info("Remote client connection closed.");
         }
 
         private void _sendResponse(SocketMessage message, object response)
@@ -243,14 +184,6 @@ namespace TAS.Remoting.Server
                 var bytes = message.ToByteArray(serialized);
                 Send(bytes);
             }
-        }
-
-        private void Send(byte[] bytes)
-        {
-            var size = BitConverter.GetBytes(bytes.Length);
-            Client.Client.Send(size);
-            Client.Client.Send(bytes);
-            Debug.WriteLine($"Server sended: {bytes.Length}");
         }
 
         private Stream SerializeDto(object response)
@@ -322,16 +255,17 @@ namespace TAS.Remoting.Server
             }
             else
                 eventArgs = e;
-            SocketMessage message = new SocketMessage { 
+            SocketMessage message = new SocketMessage
+            {
                 MessageType = SocketMessage.SocketMessageType.EventNotification,
                 DtoGuid = dto.DtoGuid,
-                MemberName = eventName};
-            if (IsConnected())
-                using (var serialized = SerializeDto(eventArgs))
-                {
-                    var bytes = message.ToByteArray(serialized);
-                    Send(bytes);
-                }
+                MemberName = eventName
+            };
+            using (var serialized = SerializeDto(eventArgs))
+            {
+                var bytes = message.ToByteArray(serialized);
+                Send(bytes);
+            }
         }
 
         private void _referencedObjectDisposed(object o, EventArgs a)
@@ -349,12 +283,11 @@ namespace TAS.Remoting.Server
                 MessageType = SocketMessage.SocketMessageType.ObjectDisposed,
                 DtoGuid = dto.DtoGuid,
             };
-            if (IsConnected())
-                using (var serialized = SerializeDto(null))
-                {
-                    var bytes = message.ToByteArray(serialized);
-                    Send(bytes);
-                }
+            using (var serialized = SerializeDto(null))
+            {
+                var bytes = message.ToByteArray(serialized);
+                Send(bytes);
+            }
             Debug.WriteLine($"Server: ObjectDisposed notification on {dto} sent");
         }
 
@@ -370,9 +303,5 @@ namespace TAS.Remoting.Server
             }
         }
 
-        public void Dispose()
-        {
-            Close();
-        }
     }
 }

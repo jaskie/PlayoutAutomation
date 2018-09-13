@@ -100,8 +100,8 @@ namespace TAS.Client.ViewModels
         {
             if (!(sender is ITemplated t))
                 return;
-            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
-           {
+            OnUiThread(() =>
+            {
                switch (e.PropertyName)
                {
                    case nameof(ITemplated.Method):

@@ -437,20 +437,19 @@ namespace TAS.Client.ViewModels
 
         private void OnMediaPropertyChanged(object media, PropertyChangedEventArgs e)
         {
-            Application.Current?.Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    if (string.IsNullOrEmpty(e.PropertyName))
-                        return;
-                    var sourcePi = Model.GetType().GetProperty(e.PropertyName);
-                    var destPi = GetType().GetProperty(e.PropertyName);
-                    if (sourcePi == null || destPi == null || !sourcePi.CanRead || !destPi.CanWrite)
-                        return;
-                    var oldModified = IsModified;
-                    destPi.SetValue(this, sourcePi.GetValue(Model, null), null);
-                    IsModified = oldModified;
-                    NotifyPropertyChanged(e.PropertyName);
-                }),
-                null);
+            OnUiThread(() =>
+            {
+                if (string.IsNullOrEmpty(e.PropertyName))
+                    return;
+                var sourcePi = Model.GetType().GetProperty(e.PropertyName);
+                var destPi = GetType().GetProperty(e.PropertyName);
+                if (sourcePi == null || destPi == null || !sourcePi.CanRead || !destPi.CanWrite)
+                    return;
+                var oldModified = IsModified;
+                destPi.SetValue(this, sourcePi.GetValue(Model, null), null);
+                IsModified = oldModified;
+                NotifyPropertyChanged(e.PropertyName);
+            });
 
             if (e.PropertyName == nameof(IMedia.MediaStatus))
             {

@@ -94,7 +94,7 @@ namespace TAS.Client.ViewModels
 
         private void AuthenticationService_UsersOperation(object sender, CollectionOperationEventArgs<IUser> e)
         {
-            Application.Current?.Dispatcher.BeginInvoke((Action) delegate
+            OnUiThread(() =>
             {
                 var vm = Users.FirstOrDefault(u => u.Model == e.Item);
                 if (e.Operation == CollectionOperation.Add)
@@ -114,7 +114,7 @@ namespace TAS.Client.ViewModels
 
         private void AuthenticationService_GroupsOperation(object sender, CollectionOperationEventArgs<IGroup> e)
         {
-            Application.Current?.Dispatcher.BeginInvoke((Action)delegate
+            OnUiThread(() =>
             {
                 if (e.Operation == CollectionOperation.Add)
                     Groups.Add(new GroupViewmodel(e.Item));
