@@ -66,14 +66,17 @@ namespace TAS.Remoting.Server
                     }
                     catch (Exception e) when (e is SocketException || e is ThreadAbortException)
                     {
-                        Logger.Trace(e, "ServerHost shutdown.");
+                        Logger.Trace("ServerHost shutdown.");
                         break;
                     }
                     catch (UnauthorizedAccessException)
                     {
                         Logger.Warn($"Unauthorized client from: {client?.Client.RemoteEndPoint}");
                     }
-                    catch { }
+                    catch (Exception e)
+                    {
+                        Logger.Error(e, "Unexpected listener thread exception");
+                    }
                 }
             }
             finally

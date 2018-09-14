@@ -80,22 +80,29 @@ namespace TAS.Remoting
 
         private void WriteThreadProc()
         {
-            while (true)
+            try
             {
-                try
+                while (true)
                 {
-                    var bytes = _sendQueue.Take();
-                    Client.Client.NoDelay = false;
-                    Client.Client.Send(BitConverter.GetBytes(bytes.Length));
-                    Client.Client.NoDelay = true;
-                    Client.Client.Send(bytes);
+                    try
+                    {
+                        var bytes = _sendQueue.Take();
+                        Client.Client.NoDelay = false;
+                        Client.Client.Send(BitConverter.GetBytes(bytes.Length));
+                        Client.Client.NoDelay = true;
+                        Client.Client.Send(bytes);
+                    }
+                    catch (Exception e) when (e is IOException || e is ThreadAbortException ||
+                                              e is ObjectDisposedException || e is SocketException)
+                    {
+                        _readThread.Abort();
+                        break;
+                    }
                 }
-                catch (Exception e) when (e is IOException || e is ThreadAbortException ||
-                                          e is ObjectDisposedException || e is SocketException)
-                {
-                    _readThread.Abort();
-                    break;
-                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Read thread unexpected exception");
             }
         }
 
@@ -103,45 +110,52 @@ namespace TAS.Remoting
         {
             try
             {
-                var stream = Client.GetStream();
-                byte[] dataBuffer = null;
-                var sizeBuffer = new byte[sizeof(int)];
-                var dataIndex = 0;
-                while (true)
+                try
                 {
-                    try
+                    var stream = Client.GetStream();
+                    byte[] dataBuffer = null;
+                    var sizeBuffer = new byte[sizeof(int)];
+                    var dataIndex = 0;
+                    while (true)
                     {
-                        if (dataBuffer == null)
+                        try
                         {
-                            if (stream.Read(sizeBuffer, 0, sizeof(int)) == sizeof(int))
+                            if (dataBuffer == null)
                             {
-                                var dataLength = BitConverter.ToInt32(sizeBuffer, 0);
-                                dataBuffer = new byte[dataLength];
+                                if (stream.Read(sizeBuffer, 0, sizeof(int)) == sizeof(int))
+                                {
+                                    var dataLength = BitConverter.ToInt32(sizeBuffer, 0);
+                                    dataBuffer = new byte[dataLength];
+                                }
+                                dataIndex = 0;
                             }
-                            dataIndex = 0;
+                            else
+                            {
+                                dataIndex += stream.Read(dataBuffer, dataIndex, dataBuffer.Length - dataIndex);
+                                if (dataIndex == dataBuffer.Length)
+                                {
+                                    OnMessage(dataBuffer);
+                                    dataBuffer = null;
+                                }
+                            }
                         }
-                        else
+                        catch (Exception e) when (e is IOException || e is ThreadAbortException ||
+                                                  e is ObjectDisposedException || e is SocketException)
                         {
-                            dataIndex += stream.Read(dataBuffer, dataIndex, dataBuffer.Length - dataIndex);
-                            if (dataIndex == dataBuffer.Length)
-                            {
-                                OnMessage(dataBuffer);
-                                dataBuffer = null;
-                            }
+                            _writeThread.Abort();
+                            break;
                         }
-                    }
-                    catch (Exception e) when (e is IOException || e is ThreadAbortException ||
-                                              e is ObjectDisposedException || e is SocketException)
-                    {
-                        _writeThread.Abort();
-                        break;
                     }
                 }
+                finally
+                {
+                    IsConnected = false;
+                    SessionClosed?.Invoke(this, EventArgs.Empty);
+                }
             }
-            finally
+            catch (Exception e)
             {
-                IsConnected = false;
-                SessionClosed?.Invoke(this, EventArgs.Empty);
+                Logger.Error(e, "Read thread unexpected exception");
             }
         }
 
