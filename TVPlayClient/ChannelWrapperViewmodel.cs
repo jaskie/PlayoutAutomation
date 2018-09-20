@@ -58,7 +58,7 @@ namespace TVPlayClient
                 {
                     Channel = null;
                     IsLoading = true;
-                    channel.Dispose();
+                    channel?.Dispose();
                     _createView();
                 });
             }
@@ -78,6 +78,11 @@ namespace TVPlayClient
                         };
                         _client.SessionClosed += _ClientSessionClosed;
                         var engine = _client.GetInitalObject<Engine>();
+                        if (engine == null)
+                        {
+                            Thread.Sleep(1000);
+                            continue;
+                        }
                         OnUiThread(() =>
                         {
                             Channel = new ChannelViewmodel(engine, _configurationChannel.ShowEngine,

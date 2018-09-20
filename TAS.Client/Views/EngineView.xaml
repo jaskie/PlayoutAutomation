@@ -434,7 +434,7 @@
                     </Style>
                 </TabControl.Resources>
                 <TabItem Padding="0, 20" Header="{Resx _tabs.Rundowns}">-->
-            <Expander DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" >
+            <Expander DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" Collapsed="Expander_Collapsed"  >
                 <Expander.Resources>
                     <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
                         <Style.Triggers>
@@ -505,7 +505,8 @@
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
                     </Button>
                 </Grid>
-                <TreeView common:TreeViewExtensions.EnableMultiSelect="True" 
+                <TreeView x:Name="RundownTreeView"
+                      common:TreeViewExtensions.EnableMultiSelect="True" 
                       common:TreeViewExtensions.MultiSelectedItems="{Binding MultiSelectedEvents}" 
                       ItemsSource="{Binding RootEventViewModel.Childrens}" 
                       Background="{x:Null}" 

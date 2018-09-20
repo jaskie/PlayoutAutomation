@@ -50,5 +50,10 @@ namespace TAS.Client.Views
                 SidePanel.Width = xadjust;
             e.Handled = true;
         }
+
+        private void Expander_OnCollapsed(object sender, RoutedEventArgs e)
+        {
+            MediaListGrid.Focus();
+        }
     }
 }

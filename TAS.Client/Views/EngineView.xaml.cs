@@ -34,5 +34,11 @@ namespace TAS.Client.Views
         {
             ClearCombo.IsDropDownOpen = false;
         }
+
+
+        private void Expander_Collapsed(object sender, RoutedEventArgs e)
+        {
+            RundownTreeView.Focus();
+        }
     }
 }

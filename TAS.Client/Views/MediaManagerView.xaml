@@ -45,7 +45,7 @@
 
     </UserControl.InputBindings>
     <DockPanel>
-        <Expander DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" >
+        <Expander DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" Collapsed="Expander_OnCollapsed" >
             <Expander.Resources>
                 <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
                     <Style.Triggers>
@@ -232,7 +232,7 @@
                                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
                             </Button>
                         </ToolBar>
-                        <DataGrid SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
+                        <DataGrid x:Name="MediaListGrid" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
                             <i:Interaction.Behaviors>
                                 <common:BindableSelectedItems SelectedItems="{Binding SelectedMediaList, Mode=OneWayToSource}"/>
                             </i:Interaction.Behaviors>
