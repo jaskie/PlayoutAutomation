@@ -23,7 +23,7 @@ namespace TAS.Server.Media
         {
             if (!IsInitialized)
             {
-                EngineController.Database.Load<ServerMedia>(this, MediaManager.ArchiveDirectory, Server.Id);
+                EngineController.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
                 base.Initialize();
                 Debug.WriteLine(this, "Directory initialized");
             }
@@ -31,19 +31,21 @@ namespace TAS.Server.Media
 
         public override void Refresh() { }
 
-        public override void MediaAdd(MediaBase media)
+        public override void AddMedia(IMedia media)
         {
-            base.MediaAdd(media);
-            if (media.MediaStatus != TMediaStatus.Required && File.Exists(media.FullPath))
+            base.AddMedia(media);
+            if (media.MediaStatus != TMediaStatus.Required && File.Exists(((MediaBase)media).FullPath))
                 ThreadPool.QueueUserWorkItem(o => media.Verify());
         }
 
-        public override void MediaRemove(IMedia media)
+        public override void RemoveMedia(IMedia media)
         {
-            media.MediaStatus = TMediaStatus.Deleted;
-            ((ServerMedia)media).IsVerified = false;
-            ((ServerMedia)media).Save();
-            base.MediaRemove(media);
+            if (!(media is ServerMedia sm))
+                throw new ApplicationException("Media provided to RemoveMedia is not ServerMedia");
+            sm.MediaStatus = TMediaStatus.Deleted;
+            sm.IsVerified = false;
+            sm.Save();
+            base.RemoveMedia(sm);
         }
 
         public override void SweepStaleMedia()
@@ -65,24 +67,35 @@ namespace TAS.Server.Media
                 Logger.Trace("{0}: File {1} already exists", nameof(CreateMedia), newFileName);
                 newFileName = FileUtils.GetUniqueFileName(Folder, newFileName);
             }
-            var newFileFullPath = Path.Combine(Folder, newFileName);
-            var result = (new ServerMedia(this, FindMediaByMediaGuid(mediaProperties.MediaGuid) == null ? mediaProperties.MediaGuid : Guid.NewGuid(), 0, MediaManager.ArchiveDirectory)
+            var result = (new ServerMedia
             {
-                FullPath = newFileFullPath,
+                MediaName = mediaProperties.MediaName,
+                MediaGuid = FindMediaByMediaGuid(mediaProperties.MediaGuid)?.MediaGuid ?? Guid.NewGuid(),
+                LastUpdated = mediaProperties.LastUpdated,
                 MediaType = mediaProperties.MediaType == TMediaType.Unknown ? TMediaType.Movie : mediaProperties.MediaType,
+                Folder = mediaProperties.Folder,
+                FileName = newFileName,
                 MediaStatus = TMediaStatus.Required,
             });
             result.CloneMediaProperties(mediaProperties);
+            AddMedia(result);
             return result;
         }
 
         public event EventHandler<MediaEventArgs> MediaSaved;
 
-        protected override IMedia CreateMedia(string fullPath, Guid guid = new Guid())
+        protected override IMedia CreateMedia(string fullPath, string mediaName, DateTime lastUpdated, TMediaType mediaType, Guid guid = default(Guid))
         {
-            return new ServerMedia(this, guid, 0, MediaManager.ArchiveDirectory)
+            var relativeName = fullPath.Substring(Folder.Length);
+            var fileName = Path.GetFileName(relativeName);
+            return new ServerMedia
             {
-                FullPath = fullPath,
+                MediaName = mediaName,
+                MediaType = mediaType,
+                MediaGuid = guid,
+                LastUpdated = lastUpdated,
+                FileName = fileName,
+                Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator)
             };
         }
 

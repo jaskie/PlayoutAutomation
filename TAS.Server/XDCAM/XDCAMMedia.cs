@@ -11,16 +11,9 @@ namespace TAS.Server.XDCAM
 {
     public class XdcamMedia : IngestMedia, IXdcamMedia
     {
-        //internal Clip XdcamClip;
-        //internal Alias.ClipAlias XdcamAlias;
-        //internal EditList XdcamEdl;
         internal Material XdcamMaterial;
 
         private int _clipNr;
-
-        public XdcamMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid)
-        {
-        }
 
         public int ClipNr { get => _clipNr; set => SetField(ref _clipNr, value); }
 

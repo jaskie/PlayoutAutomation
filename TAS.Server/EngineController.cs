@@ -39,7 +39,7 @@ namespace TAS.Server
                 s.RecordersSer.ForEach(r => r.SetOwner(s));
             });
 
-            AuthenticationService authenticationService = new AuthenticationService(Database.DbLoad<User>(), Database.DbLoad<Group>());
+            var authenticationService = new AuthenticationService(Database.DbLoad<User>(), Database.DbLoad<Group>());
             Engines = Database.DbLoadEngines<Engine>(ulong.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (var e in Engines)
                 e.Initialize(_servers, authenticationService);
@@ -51,7 +51,9 @@ namespace TAS.Server
             if (Engines != null)
                 foreach (var e in Engines)
                     e.Dispose();
-            Logger.Info("Engines shutdown");
+            Logger.Info("Engines shutdown completed");
+            Database?.Close();
+            Logger.Info("Database closed");
         }
 
         public static int GetConnectedClientCount() => Engines.Sum(e => e.Remote?.ClientCount ?? 0);

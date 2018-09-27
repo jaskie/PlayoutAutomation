@@ -128,19 +128,32 @@ namespace TAS.Server
 
         private IngestMedia _createDestMedia(IngestDirectory destDirectory)
         {
+            IngestMedia result;
             if (destDirectory.Kind == TIngestDirectoryKind.XDCAM)
             {
                 var existingFiles = DestDirectory.GetFiles().Where(f => f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
                 var maxFile = existingFiles.Length == 0 ? 1 : existingFiles.Max(m => int.Parse(m.FileName.Substring(1, 4))) + 1;
-                return new XdcamMedia(destDirectory) { MediaName = $"C{maxFile:D4}", FileName = $"C{maxFile:D4}.MXF", Folder = "Clip", MediaStatus = TMediaStatus.Copying };
+                result = new XdcamMedia
+                {
+                    MediaName = $"C{maxFile:D4}",
+                    MediaType = TMediaType.Movie,
+                    MediaGuid = Guid.NewGuid(),
+                    LastUpdated = DateTime.UtcNow,
+                    FileName = $"C{maxFile:D4}.MXF",
+                    Folder = "Clip",
+                    MediaStatus = TMediaStatus.Copying
+                };
             }
-            return new IngestMedia(destDirectory)
+            result = new IngestMedia
             {
+                FileName = FileUtils.GetUniqueFileName(DestDirectory.Folder, $"{FileUtils.SanitizeFileName(DestMediaName)}.{destDirectory.ExportContainerFormat}"),
                 MediaName = DestMediaName,
-                FileName = FileUtils.GetUniqueFileName(DestDirectory.Folder,
-                    $"{FileUtils.SanitizeFileName(DestMediaName)}.{destDirectory.ExportContainerFormat}"),
+                LastUpdated = DateTime.UtcNow,
+                MediaGuid = Guid.NewGuid(),
                 MediaStatus = TMediaStatus.Copying
             };
+            destDirectory.AddMedia(result);
+            return result;
         }
 
         private void destMedia_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

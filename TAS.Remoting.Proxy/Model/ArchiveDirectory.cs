@@ -20,11 +20,23 @@ namespace TAS.Remoting.Model
 
         #pragma warning restore
 
-        public ulong idArchive { get { return _idArchive; } set { Set(value); } }
+        public ulong idArchive
+        {
+            get => _idArchive;
+            set => Set(value);
+        }
 
-        public TMediaCategory? SearchMediaCategory { get { return _searchMediaCategory; } set { Set(value); } }
+        public TMediaCategory? SearchMediaCategory
+        {
+            get => _searchMediaCategory;
+            set => Set(value);
+        }
         
-        public string SearchString { get { return _searchString; } set { Set(value); } }
+        public string SearchString
+        {
+            get => _searchString;
+            set => Set(value);
+        }
 
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {

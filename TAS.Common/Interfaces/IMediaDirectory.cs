@@ -15,7 +15,7 @@ namespace TAS.Common.Interfaces
         IEnumerable<IMedia> GetFiles();
         void Refresh();
         void SweepStaleMedia();
-        IMedia CreateMedia(IMediaProperties mediaProperties);
+
         bool FileExists(string filename, string subfolder = null);
         string GetUniqueFileName(string fileName);
 
@@ -29,5 +29,12 @@ namespace TAS.Common.Interfaces
     {
         string DirectoryName { get; set; }
         string Folder { get; set; }
+    }
+
+    public interface IMediaDirectoryServerSide
+    {
+        void AddMedia(IMedia media);
+        void RemoveMedia(IMedia media);
+        IMedia CreateMedia(IMediaProperties mediaProperties);
     }
 }

@@ -9,10 +9,9 @@ namespace TAS.Server.Media
     public class TempMedia: MediaBase, ITempMedia
     {
        
-        public TempMedia(TempDirectory directory, IMediaProperties originalMedia): base(directory, originalMedia?.MediaGuid ?? Guid.NewGuid())
+        public TempMedia(TempDirectory directory, IMediaProperties originalMedia)
         {
             OriginalMedia = originalMedia;
-            MediaType = originalMedia?.MediaType ?? TMediaType.Unknown;
             FileName = $"{MediaGuid}{Path.GetExtension(originalMedia?.FileName ?? FileUtils.DefaultFileExtension(TMediaType.Unknown))}";
         }
 
@@ -66,13 +65,6 @@ namespace TAS.Server.Media
             get { return OriginalMedia?.Parental ?? 0; }
             set {  }
         }
-
-        public override string MediaName
-        {
-            get { return OriginalMedia?.MediaName ?? string.Empty; }
-            set { }
-        }
-
 
         public override TimeSpan TcPlay
         {

@@ -80,17 +80,19 @@ namespace TAS.Server
         {
             _tcFormat = channel.VideoFormat;
             var directory = (ServerDirectory)_ownerServer.MediaDirectory;
-            var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory)
+            var newMedia = new ServerMedia
             {
-                FileName = fileName,
                 MediaName = mediaName,
+                LastUpdated = DateTime.UtcNow,
+                MediaGuid = Guid.NewGuid(),
+                MediaType = TMediaType.Movie,
+                FileName = fileName,
                 TcStart = tcIn,
                 TcPlay = tcIn,
                 Duration = tcOut - tcIn,
                 MediaStatus = TMediaStatus.Copying,
-                LastUpdated = DateTime.UtcNow,
-                MediaType = TMediaType.Movie
             };
+            directory.AddMedia(newMedia);
             if (_recorder?.Capture(channel.Id, tcIn.ToSMPTETimecodeString(channel.VideoFormat), tcOut.ToSMPTETimecodeString(channel.VideoFormat), narrowMode, fileName) == true)
             {
                 RecordingMedia = newMedia;
@@ -105,17 +107,19 @@ namespace TAS.Server
         {
             _tcFormat = channel.VideoFormat;
             var directory = (ServerDirectory)_ownerServer.MediaDirectory;
-            var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory)
+            var newMedia = new ServerMedia
             {
-                FileName = fileName,
                 MediaName = mediaName,
+                LastUpdated = DateTime.UtcNow,
+                MediaType = TMediaType.Movie,
+                MediaGuid = Guid.NewGuid(),
+                FileName = fileName,
                 TcStart = TimeSpan.Zero,
                 TcPlay =TimeSpan.Zero,
                 Duration = timeLimit,
                 MediaStatus = TMediaStatus.Copying,
-                LastUpdated = DateTime.UtcNow,
-                MediaType = TMediaType.Movie
             };
+            directory.AddMedia(newMedia);
             if (_recorder?.Capture(channel.Id,  timeLimit.ToSMPTEFrames(channel.VideoFormat), narrowMode, fileName) == true)
             {
                 RecordingMedia = newMedia;

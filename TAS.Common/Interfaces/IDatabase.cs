@@ -29,7 +29,7 @@ namespace TAS.Common.Interfaces
         void DbDeleteMediaSegment(IMediaSegment mediaSegment);
         void DbDeleteSecurityObject(ISecurityObject aco);
         void DbDeleteServer(IPlayoutServerProperties server);
-        IEnumerable<IArchiveMedia> DbFindStaleMedia<T>(IArchiveDirectory dir) where T : IArchiveMedia;
+        IEnumerable<IArchiveMedia> FindStaleMedia<T>(IArchiveDirectoryServerSide dir) where T : IArchiveMedia, new();
         void DbInsertArchiveDirectory(IArchiveDirectoryProperties dir);
         void DbInsertEngine(IEnginePersistent engine);
         bool DbInsertEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent;
@@ -44,7 +44,7 @@ namespace TAS.Common.Interfaces
         List<T> DbLoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new();
         List<T> DbLoadEngines<T>(ulong? instance = null) where T : IEnginePersistent;
         List<T> DbLoadServers<T>() where T : IPlayoutServerProperties;
-        T DbMediaFind<T>(IArchiveDirectory dir, IMediaProperties media) where T : IArchiveMedia;
+        T DbMediaFind<T>(IArchiveDirectoryServerSide dir, IMediaProperties media) where T : IArchiveMedia, new();
         MediaDeleteResult DbMediaInUse(IEngine engine, IServerMedia serverMedia);
         T DbMediaSegmentsRead<T>(IPersistentMedia media) where T : IMediaSegments;
         List<IAclRight> DbReadEngineAclList<TEngineAcl>(IPersistent engine, IAuthenticationServicePersitency authenticationService) where TEngineAcl : IAclRight, IPersistent, new();
@@ -54,7 +54,7 @@ namespace TAS.Common.Interfaces
         void DbReadRootEvents(IEngine engine);
         List<IEvent> DbReadSubEvents(IEngine engine, IEventPesistent eventOwner);
         ulong DbSaveMediaSegment(IMediaSegment mediaSegment);
-        void DbSearch<T>(IArchiveDirectory dir) where T : IArchiveMedia;
+        void DbSearch<T>(IArchiveDirectoryServerSide dir) where T : IArchiveMedia, new();
         void DbSearchMissing(IEngine engine);
         List<IEvent> DbSearchPlaying(IEngine engine);
         void DbUpdateArchiveDirectory(IArchiveDirectoryProperties dir);
@@ -68,8 +68,8 @@ namespace TAS.Common.Interfaces
         void DbUpdateSecurityObject(ISecurityObject aco);
         void DbUpdateServer(IPlayoutServerProperties server);
         bool DropDatabase(string connectionString);
-        void Load<T>(IAnimationDirectory directory, ulong serverId) where T : IAnimatedMedia;
-        void Load<T>(IServerDirectory directory, IArchiveDirectory archiveDirectory, ulong serverId) where T : IServerMedia;
+        void LoadAnimationDirectory<T>(IAnimationDirectory directory, ulong serverId) where T : IAnimatedMedia, new();
+        void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IServerMedia, new();
         IArchiveDirectory LoadArchiveDirectory<T>(IMediaManager manager, ulong idArchive) where T : IArchiveDirectory;
         void Open(string connectionStringPrimary = null, string connectionStringSecondary = null);
         void TestConnect(string connectionString);

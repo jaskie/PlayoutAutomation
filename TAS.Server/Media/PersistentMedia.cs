@@ -15,13 +15,11 @@ namespace TAS.Server.Media
         private bool _protected;
         private readonly Lazy<MediaSegments> _mediaSegments;
 
-        internal PersistentMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid)
+        protected PersistentMedia() 
         {
-            IdPersistentMedia = idPersistentMedia;
             _mediaSegments = new Lazy<MediaSegments>(() => EngineController.Database.DbMediaSegmentsRead<MediaSegments>(this));
-            
         }
-        public UInt64 IdPersistentMedia { get; set; }
+        public ulong IdPersistentMedia { get; set; }
 
         // media properties
 

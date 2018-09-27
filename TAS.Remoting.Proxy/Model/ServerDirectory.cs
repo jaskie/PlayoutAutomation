@@ -11,10 +11,5 @@ namespace TAS.Remoting.Model
         {
             return Query<ReadOnlyCollection<IMedia>>();
         }
-
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

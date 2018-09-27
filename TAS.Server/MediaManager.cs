@@ -244,7 +244,7 @@ namespace TAS.Server
                                             if (secMedia != null)
                                             {
                                                 secMedia.CloneMediaProperties(pRImedia);
-                                                secMedia.MediaGuid = pRImedia.MediaGuid;
+                                                sec.UpdateMediaGuid(secMedia, pRImedia.MediaGuid);
                                                 secMedia.Verify();
                                             }
                                             else
@@ -315,7 +315,7 @@ namespace TAS.Server
                                 if (sEcAnimation != null)
                                 {
                                     sEcAnimation.CloneMediaProperties(priAnimation);
-                                    sEcAnimation.MediaGuid = priAnimation.MediaGuid;
+                                    sec.UpdateMediaGuid(sEcAnimation, priAnimation.MediaGuid);
                                     sEcAnimation.Save();
                                     Debug.WriteLine(sEcAnimation, "Updated");
                                 }
@@ -550,7 +550,7 @@ namespace TAS.Server
             else
             {
                 sEcMedia.CloneMediaProperties(e.Media);
-                sEcMedia.MediaGuid = e.Media.MediaGuid;
+                sec.UpdateMediaGuid(sEcMedia, e.Media.MediaGuid);
                 sEcMedia.ReVerify();
             }
         }

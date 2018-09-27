@@ -11,8 +11,6 @@ namespace TAS.Server.Media
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ArchiveMedia));
         private TIngestStatus _ingestStatus;
 
-        public ArchiveMedia(IArchiveDirectory directory, Guid guid, ulong idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
-
         [JsonProperty]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ArchiveMediaFieldLengths;
         

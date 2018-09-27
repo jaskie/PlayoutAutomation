@@ -36,18 +36,9 @@ namespace TAS.Server.Media
         private Guid _mediaGuid;
         private bool _verified;
         private TMediaStatus _mediaStatus;
-        private readonly MediaDirectory _directory;
         internal bool HasExtraLines; // VBI lines that shouldn't be displayed
-
-
+        
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaBase));
-
-        protected MediaBase(IMediaDirectory directory, Guid mediaGuid = default(Guid))
-        {
-            _directory = (MediaDirectory)directory;
-            _mediaGuid = mediaGuid == default(Guid)? Guid.NewGuid() : mediaGuid;
-            _directory.MediaAdd(this);
-        }
 
         #region IMediaProperties
         [JsonProperty]
@@ -67,23 +58,6 @@ namespace TAS.Server.Media
             get => _fileName;
             set
             {
-                var oldFullPath = FullPath;
-                if (_fileName != value
-                    && MediaStatus == TMediaStatus.Available
-                    && File.Exists(oldFullPath))
-                {
-                    try
-                    {
-                        File.Move(oldFullPath, _getFullPath(value));
-                        _fileName = value;
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Warn(e, "File {0} rename failed", this);
-                    }
-                    NotifyPropertyChanged(nameof(FileName));
-                }
-                else
                 if (SetField(ref _fileName, value))
                     NotifyPropertyChanged(nameof(FullPath));
             }
@@ -222,12 +196,7 @@ namespace TAS.Server.Media
         public Guid MediaGuid
         {
             get => _mediaGuid;
-            internal set
-            {
-                var oldGuid = _mediaGuid;
-                if (SetField(ref _mediaGuid, value))
-                    _directory.UpdateMediaGuid(oldGuid, this);
-            }
+            set => SetField(ref _mediaGuid, value);
         }
 
         [JsonProperty]
@@ -244,24 +213,24 @@ namespace TAS.Server.Media
             internal set
             {
                 if (SetField(ref _verified, value) && value && _mediaStatus == TMediaStatus.Available)
-                    _directory.NotifyMediaVerified(this);
+                    ((MediaDirectory)Directory).NotifyMediaVerified(this);
             }
         }
 
         [JsonProperty]
-        public IMediaDirectory Directory => _directory;
+        public IMediaDirectory Directory { get; internal set; }
 
         #endregion //IMediaProperties
 
         public string FullPath
         {
             get => _getFullPath(_fileName);
-            internal set
-            {
-                string relativeName = value.Substring(_directory.Folder.Length);
-                FileName = Path.GetFileName(relativeName);
-                Folder = relativeName.Substring(0, relativeName.Length - _fileName.Length).Trim(_directory.PathSeparator);
-            }
+            //internal set
+            //{
+            //    string relativeName = value.Substring(Directory.Folder.Length);
+            //    FileName = Path.GetFileName(relativeName);
+            //    Folder = relativeName.Substring(0, relativeName.Length - _fileName.Length).Trim(Directory.PathSeparator);
+            //}
         }
 
         public virtual bool Delete()
@@ -293,8 +262,8 @@ namespace TAS.Server.Media
 
         public virtual bool CopyMediaTo(MediaBase destMedia, ref bool abortCopy)
         {
-            if ((!(_directory is IngestDirectory sIngestDir) || sIngestDir.AccessType == TDirectoryAccessType.Direct)
-                && (!(destMedia._directory is IngestDirectory dIngestDir) || dIngestDir.AccessType == TDirectoryAccessType.Direct))
+            if ((!(Directory is IngestDirectory sIngestDir) || sIngestDir.AccessType == TDirectoryAccessType.Direct)
+                && (!(destMedia.Directory is IngestDirectory dIngestDir) || dIngestDir.AccessType == TDirectoryAccessType.Direct))
             {
                 FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));
                 File.Copy(FullPath, destMedia.FullPath, true);
@@ -324,10 +293,27 @@ namespace TAS.Server.Media
             }
             return true;
         }
+
+        public bool RenameFileTo(string newFileName)
+        {
+            if (_fileName == newFileName || MediaStatus != TMediaStatus.Available || !File.Exists(FullPath))
+                return false;
+            try
+            {
+                File.Move(FullPath, _getFullPath(newFileName));
+                FileName = newFileName;
+                return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Warn(e, "File {0} rename failed", this);
+                return false;
+            }
+        }
         
         public override string ToString()
         {
-            return $"{_directory?.DirectoryName}:{MediaName}";
+            return $"{Directory?.DirectoryName}:{MediaName}";
         }
 
         public virtual bool FileExists()
@@ -337,7 +323,7 @@ namespace TAS.Server.Media
 
         public void Remove()
         {
-            ((MediaDirectory)Directory).MediaRemove(this);
+            ((MediaDirectory)Directory).RemoveMedia(this);
         }
 
 
@@ -352,7 +338,7 @@ namespace TAS.Server.Media
         {
             if (IsVerified || (_mediaStatus == TMediaStatus.Copying) || (_mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required))
                 return;
-            if (_directory != null && System.IO.Directory.Exists(_directory.Folder) && !File.Exists(FullPath))
+            if (Directory != null && System.IO.Directory.Exists(Directory.Folder) && !File.Exists(FullPath))
             {
                 _mediaStatus = TMediaStatus.Deleted;
                 return; // in case that no file was found, and directory exists
@@ -389,8 +375,8 @@ namespace TAS.Server.Media
 
         public void GetLoudness()
         {
-            _directory.MediaManager.FileManager.Queue(
-                new LoudnessOperation((FileManager) _directory.MediaManager.FileManager)
+            ((MediaDirectory)Directory).MediaManager.FileManager.Queue(
+                new LoudnessOperation((FileManager)((MediaDirectory)Directory).MediaManager.FileManager)
                 {
                     Source = this,
                     MeasureStart = TcPlay - TcStart,
@@ -408,8 +394,8 @@ namespace TAS.Server.Media
         private string _getFullPath(string fileName)
         {
             return string.IsNullOrWhiteSpace(_folder) ?
-                string.Join(_directory.PathSeparator.ToString(), _directory.Folder.TrimEnd(_directory.PathSeparator), fileName) :
-                string.Join(_directory.PathSeparator.ToString(), _directory.Folder.TrimEnd(_directory.PathSeparator), _folder, fileName);
+                string.Join(Directory.PathSeparator.ToString(), Directory.Folder.TrimEnd(Directory.PathSeparator), fileName) :
+                string.Join(Directory.PathSeparator.ToString(), Directory.Folder.TrimEnd(Directory.PathSeparator), _folder, fileName);
         }
 
     }

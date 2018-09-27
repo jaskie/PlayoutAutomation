@@ -1,11 +1,7 @@
 ﻿namespace TAS.Common.Interfaces
 {
-    public interface IServerDirectory: IMediaDirectory, IServerDirectoryProperties
+    public interface IServerDirectory: IMediaDirectory
     {
     }
 
-    public interface IServerDirectoryProperties : IMediaDirectoryProperties
-    {
-
-    }
 }

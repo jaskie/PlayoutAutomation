@@ -12,10 +12,9 @@ namespace TAS.Server.Media
         private bool _doNotArchive;
         Lazy<bool> _isArchived;
 
-        public ServerMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia, IArchiveDirectory archiveDirectory) : base(directory, guid, idPersistentMedia)
+        public ServerMedia() 
         {
-            IdPersistentMedia = idPersistentMedia;
-            _isArchived = new Lazy<bool>(() => archiveDirectory != null && EngineController.Database.DbArchiveContainsMedia(archiveDirectory, this));
+            _isArchived = new Lazy<bool>(() => (Directory is ServerDirectory dir) && EngineController.Database.DbArchiveContainsMedia(dir.MediaManager.ArchiveDirectory, this));
         }
 
         [JsonProperty]

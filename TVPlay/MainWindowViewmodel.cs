@@ -6,6 +6,7 @@ using TAS.Client.Common;
 using TAS.Client.ViewModels;
 using TAS.Client.Views;
 using TAS.Server;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client
 {
@@ -14,14 +15,35 @@ namespace TAS.Client
 
         public MainWindowViewmodel()
         {
-            if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject())) return;
+            try
             {
+                SplashScreenView.Current?.Notify("Initializing engines...");
+                EngineController.Initialize();
                 Tabs = new List<ViewModelBase>(
-                    EngineController.Engines.Select(engine => 
+                    EngineController.Engines.Select(engine =>
                     {
                         SplashScreenView.Current?.Notify($"Creating {engine.EngineName}...");
                         return new ChannelViewmodel(engine, true, true);
                     }));
+            }
+            catch (TypeInitializationException e)
+            {
+                MessageBox.Show(string.Format(resources._message_CantInitializeEngines, e.InnerException),
+                    resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception e)
+            {
+                var message =
+#if DEBUG
+                    $"{e}";
+#else
+                $"{e.Source}:{e.GetType().Name} {e.Message}";
+#endif
+                MessageBox.Show(string.Format(resources._message_CantInitializeEngines, message),
+                    resources._caption_Error,
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                Application.Current.Shutdown(1);
             }
         }
 
@@ -30,6 +52,7 @@ namespace TAS.Client
         protected override void OnDispose()
         {
             Tabs.ToList().ForEach(c => c.Dispose());
+            EngineController.ShutDown();
         }
     }
 }

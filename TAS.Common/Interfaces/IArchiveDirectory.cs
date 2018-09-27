@@ -17,4 +17,9 @@ namespace TAS.Common.Interfaces
     {
         ulong idArchive { get; set; }
     }
+
+    public interface IArchiveDirectoryServerSide : IArchiveDirectory, IMediaDirectoryServerSide
+    {
+        
+    }
 }

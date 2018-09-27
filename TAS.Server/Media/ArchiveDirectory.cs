@@ -7,7 +7,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {
-    public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
+    public class ArchiveDirectory : MediaDirectory, IArchiveDirectoryServerSide
     {
         private string _searchString = string.Empty;
 
@@ -76,46 +76,55 @@ namespace TAS.Server.Media
 
         public override void SweepStaleMedia()
         {
-            IEnumerable<IMedia> staleMediaList = EngineController.Database.DbFindStaleMedia<ArchiveMedia>(this);
+            IEnumerable<IMedia> staleMediaList = EngineController.Database.FindStaleMedia<ArchiveMedia>(this);
             foreach (var m in staleMediaList)
                 m.Delete();
         }
 
         public override bool DeleteMedia(IMedia media)
         {
-            var m = media as ArchiveMedia;
-            if (m != null)
+            if (!(media is ArchiveMedia m))
+                return false;
+            try
             {
-                try
-                {
-                    File.Delete(m.FullPath);
-                }
-                catch
-                {
-                    return false;
-                }
-                NotifyMediaDeleted(m);
-                MediaRemove(media);
-                return true;
+                File.Delete(m.FullPath);
             }
-            return false;
+            catch
+            {
+                // ignored
+            }
+            NotifyMediaDeleted(m);
+            RemoveMedia(media);
+            return true;
         }
 
-        public override void MediaRemove(IMedia media)
+        public override void RemoveMedia(IMedia media)
         {
-            ArchiveMedia m = (ArchiveMedia)media;
-            m.MediaStatus = TMediaStatus.Deleted;
-            m.IsVerified = false;
-            m.Save();
-            base.MediaRemove(media);
+            if (!(media is ArchiveMedia am))
+                throw new ApplicationException("Media provided to RemoveMedia is not ArchiveMedia");
+            am.MediaStatus = TMediaStatus.Deleted;
+            am.IsVerified = false;
+            am.Save();
+            base.RemoveMedia(am);
         }
 
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
-            string path = Path.Combine(Folder, GetCurrentFolder());
-            var result = new ArchiveMedia(this, mediaProperties.MediaGuid, 0)
+            var newFileName = mediaProperties.FileName;
+            if (File.Exists(Path.Combine(Folder, newFileName)))
             {
-                FullPath = Path.Combine(path, FileUtils.GetUniqueFileName(path, mediaProperties.FileName)),
+                Logger.Trace("{0}: File {1} already exists", nameof(CreateMedia), newFileName);
+                newFileName = FileUtils.GetUniqueFileName(Folder, newFileName);
+            }
+            var result = new ArchiveMedia
+            {
+                MediaName = mediaProperties.MediaName,
+                MediaGuid = FindMediaByMediaGuid(mediaProperties.MediaGuid)?.MediaGuid ?? Guid.NewGuid(),
+                LastUpdated = mediaProperties.LastUpdated,
+                MediaType = mediaProperties.MediaType == TMediaType.Unknown ? TMediaType.Movie : mediaProperties.MediaType,
+                Folder = GetCurrentFolder(),
+                FileName = newFileName,
+                MediaStatus = TMediaStatus.Required,
             };
             result.CloneMediaProperties(mediaProperties);
             return result;
@@ -124,7 +133,7 @@ namespace TAS.Server.Media
         internal void Clear()
         {
             foreach (var m in GetFiles())
-                base.MediaRemove(m); //base: to not actually delete file and db
+                base.RemoveMedia(m); //base: to not actually delete file and db
         }
 
         internal string GetCurrentFolder()
@@ -132,7 +141,7 @@ namespace TAS.Server.Media
             return DateTime.UtcNow.ToString("yyyyMM");
         }
 
-        protected override IMedia CreateMedia(string fullPath, Guid guid = default(Guid))
+        protected override IMedia CreateMedia(string fullPath, string mediaName, DateTime lastUpdated, TMediaType mediaType, Guid guid = default(Guid))
         {
             throw new NotImplementedException();
         }

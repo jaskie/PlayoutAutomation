@@ -202,7 +202,7 @@ namespace TAS.Database.MySqlRedundant
         {
             if (ConnectionPrimary != null)
             {
-                TimeSpan timeout = TimeSpan.FromSeconds(ConnectionPrimary.ConnectionTimeout);
+                TimeSpan timeout = TimeSpan.FromSeconds(60);
                 _idleTimeTimerPrimary = new Timer(_idleTimeTimerCallback, ConnectionPrimary, timeout, timeout);
                 try
                 {

@@ -21,7 +21,7 @@ namespace TAS.Server.Media
             if (IsInitialized)
                 return;
             DirectoryName = "Animacje";
-            EngineController.Database.Load<AnimatedMedia>(this, Server.Id);
+            EngineController.Database.LoadAnimationDirectory<AnimatedMedia>(this, Server.Id);
             base.Initialize();
             Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
         }
@@ -38,8 +38,11 @@ namespace TAS.Server.Media
 
         public IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
         {
-            var result = new AnimatedMedia(this, newMediaGuid, 0)
+            var result = new AnimatedMedia
             {
+                MediaName = source.MediaName,
+                LastUpdated = source.LastUpdated,
+                MediaGuid = source.MediaGuid,
                 Folder = source.Folder,
                 FileName = source.FileName
             };
@@ -50,12 +53,12 @@ namespace TAS.Server.Media
             return result;
         }
 
-        public override void MediaRemove(IMedia media)
+        public override void RemoveMedia(IMedia media)
         {
             media.MediaStatus = TMediaStatus.Deleted;
             ((AnimatedMedia)media).IsVerified = false;
             ((AnimatedMedia)media).Save();
-            base.MediaRemove(media);
+            base.RemoveMedia(media);
         }
 
         public override void SweepStaleMedia() { }
@@ -71,19 +74,29 @@ namespace TAS.Server.Media
             var newMedia = FindMediaFirstByFullPath(fullPath) as AnimatedMedia;
             if (newMedia == null && AcceptFile(fullPath))
             {
-                newMedia = (AnimatedMedia)CreateMedia(fullPath, guid);
-                newMedia.MediaName = FileUtils.GetFileNameWithoutExtension(fullPath, TMediaType.Animation).ToUpper();
-                newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
+                var mediaName = FileUtils.GetFileNameWithoutExtension(fullPath, TMediaType.Animation).ToUpper();
+                var lastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
+                newMedia = (AnimatedMedia)CreateMedia(fullPath, mediaName, lastUpdated, TMediaType.Animation, guid);
                 newMedia.MediaStatus = TMediaStatus.Available;
+                AddMedia(newMedia);
                 newMedia.Save();
             }
             return newMedia;
         }
 
-
-        protected override IMedia CreateMedia(string fullPath, Guid guid = new Guid())
+        protected override IMedia CreateMedia(string fullPath, string mediaName, DateTime lastUpdated, TMediaType mediaType, Guid guid = default(Guid))
         {
-            return new AnimatedMedia(this, guid, 0) { FullPath = fullPath, IsVerified = true };
+            var relativeName = fullPath.Substring(Folder.Length);
+            var fileName = Path.GetFileName(relativeName);
+            return new AnimatedMedia
+            {
+                MediaName = mediaName,
+                LastUpdated = lastUpdated,
+                MediaGuid = guid,
+                IsVerified = true,
+                FileName = fileName,
+                Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator)
+            };
         }
 
     }
