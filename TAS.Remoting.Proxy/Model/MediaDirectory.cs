@@ -154,6 +154,5 @@ namespace TAS.Remoting.Model
             return Query<string>(parameters: new object[] {fileName});
         }
 
-        public abstract IMedia CreateMedia(IMediaProperties mediaProperties);
     }
 }

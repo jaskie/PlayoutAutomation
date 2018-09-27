@@ -189,10 +189,18 @@ namespace TAS.Server
             : $"{Kind} {Source} -> {DestDirectory.DirectoryName}";
 
         [JsonProperty]
-        public List<string> OperationWarning { get { lock (_operationWarning.SyncRoot) return _operationWarning.ToList(); } }
+        public List<string> OperationWarning { get { lock (_operationWarning.SyncRoot)
+            {
+                return _operationWarning.ToList();
+            }
+        } }
 
         [JsonProperty]
-        public List<string> OperationOutput { get { lock (_operationOutput.SyncRoot) return _operationOutput.ToList(); } }
+        public List<string> OperationOutput { get { lock (_operationOutput.SyncRoot)
+            {
+                return _operationOutput.ToList();
+            }
+        } }
 
         public virtual void Abort()
         {
@@ -208,9 +216,7 @@ namespace TAS.Server
         internal virtual bool Execute()
         {
             if (InternalExecute())
-            {
                 OperationStatus = FileOperationStatus.Finished;
-            }
             else
                 TryCount--;
             return OperationStatus == FileOperationStatus.Finished;
@@ -229,7 +235,7 @@ namespace TAS.Server
 
         protected void AddOutputMessage(string message)
         {
-            _operationOutput.Add($"{DateTime.Now} {message}");
+            _operationOutput.Add($"{DateTime.UtcNow} {message}");
             NotifyPropertyChanged(nameof(OperationOutput));
             Logger.Info("{0}: {1}", Title, message);
         }
@@ -244,8 +250,11 @@ namespace TAS.Server
         {
             lock (_destMediaLock)
             {
-                if (Dest == null)
-                    Dest = (MediaBase)DestDirectory.CreateMedia(DestProperties ?? Source);
+                if (Dest != null)
+                    return;
+                if (!(DestDirectory is IMediaDirectoryServerSide mediaDirectory))
+                    throw new ApplicationException($"Cannot create destination media on {DestDirectory}");
+                Dest = (MediaBase) mediaDirectory.CreateMedia(DestProperties ?? Source);
             }
         }
         
@@ -313,7 +322,6 @@ namespace TAS.Server
                     {
                         CreateDestMediaIfNotExists();
                         if (Dest.FileExists())
-                        {
                             if (File.GetLastWriteTimeUtc(source.FullPath).Equals(File.GetLastWriteTimeUtc(Dest.FullPath))
                                 && File.GetCreationTimeUtc(source.FullPath).Equals(File.GetCreationTimeUtc(Dest.FullPath))
                                 && source.FileSize.Equals(Dest.FileSize))
@@ -327,7 +335,6 @@ namespace TAS.Server
                                 AddOutputMessage("Move operation failed - destination media not deleted");
                                 return false;
                             }
-                        }
                         IsIndeterminate = true;
                         Dest.MediaStatus = TMediaStatus.Copying;
                         FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(Dest.FullPath));

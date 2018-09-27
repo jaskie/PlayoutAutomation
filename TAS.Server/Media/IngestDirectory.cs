@@ -224,9 +224,9 @@ namespace TAS.Server.Media
                 m.Delete();
         }
 
-        public override void MediaRemove(IMedia media)
+        public override void RemoveMedia(IMedia media)
         {
-            base.MediaRemove(media);
+            base.RemoveMedia(media);
             // remove xmlfile if it was last media file
             var ingestMedia = media as IngestMedia;
             if (!string.IsNullOrEmpty(ingestMedia?.BmdXmlFile)
@@ -243,27 +243,6 @@ namespace TAS.Server.Media
                 }
         }
 
-
-        public IngestMedia FindMedia(string clipName)
-        {
-            string clipNameLowered = clipName.ToLower();
-            IngestMedia result = (IngestMedia)FindMediaFirst(f =>
-            {
-                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName));
-                return fileNameWithoutExtension != null && fileNameWithoutExtension.ToLower() == clipNameLowered;
-            });
-            if (result == null & IsWAN)
-                {
-                    string[] files = Directory.GetFiles(Folder, $"{clipName}.*");
-                    if (files.Length > 0)
-                    {
-                        string fileName = files[0];
-                        result = (IngestMedia)CreateMedia(fileName);
-                        result.MediaName = Path.GetFileNameWithoutExtension(fileName);
-                    }
-                }
-            return result;
-        }
 
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
@@ -418,7 +397,7 @@ namespace TAS.Server.Media
 
         protected override bool AcceptFile(string fullPath)
         {
-            var ext = Path.GetExtension(fullPath).ToLowerInvariant();
+            var ext = Path.GetExtension(fullPath)?.ToLowerInvariant();
             return Extensions == null
                    || Extensions.Length == 0
                    || Extensions.Any(e => e == ext)
@@ -428,7 +407,7 @@ namespace TAS.Server.Media
         protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime),
             Guid guid = default(Guid))
         {
-            if (Path.GetExtension(fullPath).ToLowerInvariant() == XmlFileExtension)
+            if (Path.GetExtension(fullPath)?.ToLowerInvariant() == XmlFileExtension)
             {
                 lock (((IList) _bMdXmlFiles).SyncRoot)
                     _bMdXmlFiles.Add(fullPath);
@@ -437,28 +416,39 @@ namespace TAS.Server.Media
             return base.AddFile(fullPath, lastWriteTime, guid);
         }
 
-        protected override IMedia CreateMedia(string fullPath, Guid guid = default(Guid))
+        protected override IMedia CreateMedia(string fullPath, string mediaName, DateTime lastUpdated, TMediaType mediaType, Guid guid = default(Guid))
         {
+            var relativeName = fullPath.Substring(Folder.Length);
+            var fileName = Path.GetFileName(relativeName);
             return Kind == TIngestDirectoryKind.XDCAM
                 ?
-                new XDCAM.XdcamMedia(this, guid)
+                new XDCAM.XdcamMedia
                 {
-                    FullPath = fullPath,
+                    MediaName = mediaName,
+                    MediaGuid = guid,
+                    LastUpdated = lastUpdated,
+                    MediaType = mediaType,
+                    FileName = fileName,
+                    Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
                     MediaStatus = TMediaStatus.Unknown,
-                    MediaCategory = this.MediaCategory
+                    MediaCategory = MediaCategory
                 }
                 :
-                new IngestMedia(this, guid)
+                new IngestMedia
                 {
-                    FullPath = fullPath,
+                    MediaName = mediaName,
+                    MediaGuid = guid,
+                    MediaType = mediaType,
+                    FileName = fileName,
+                    Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
                     MediaStatus = TMediaStatus.Unknown,
-                    MediaCategory = this.MediaCategory,
+                    MediaCategory = MediaCategory
                 };
         }
 
         protected override void FileRemoved(string fullPath)
         {
-            if (Path.GetExtension(fullPath).ToLowerInvariant() == XmlFileExtension)
+            if (Path.GetExtension(fullPath)?.ToLowerInvariant() == XmlFileExtension)
             {
                 lock (((IList)_bMdXmlFiles).SyncRoot)
                     _bMdXmlFiles.Remove(fullPath);

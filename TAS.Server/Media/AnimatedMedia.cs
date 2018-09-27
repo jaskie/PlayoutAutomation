@@ -14,11 +14,6 @@ namespace TAS.Server.Media
         private TimeSpan _scheduledDelay;
         private TStartType _startType = TStartType.WithParent;
 
-        public AnimatedMedia(IMediaDirectory directory, Guid guid, ulong idPersistentMedia) : base(directory, guid, idPersistentMedia)
-        {
-            MediaType = TMediaType.Animation;
-        }
-
         [JsonProperty]
         public Dictionary<string, string> Fields
         {

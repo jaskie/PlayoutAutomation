@@ -12,8 +12,6 @@ namespace TAS.Server.Media
         internal string BmdXmlFile; // Blackmagic's Media Express Xml file containing this media information
         internal StreamInfo[] StreamInfo;
 
-        internal IngestMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
-
         public override bool FileExists()
         {
             var dir = Directory as IngestDirectory;

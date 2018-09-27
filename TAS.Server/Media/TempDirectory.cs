@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
+using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
@@ -12,7 +13,7 @@ namespace TAS.Server.Media
             Folder = ConfigurationManager.AppSettings["TempDirectory"];
         }
 
-        public override void MediaAdd(MediaBase media)
+        public override void AddMedia(IMedia media)
         {
             // do not add to _files
         }
@@ -37,7 +38,7 @@ namespace TAS.Server.Media
                 }
         }
 
-        protected override IMedia CreateMedia(string fileNameOnly, Guid guid = new Guid())
+        protected override IMedia CreateMedia(string fullPath, string mediaName, DateTime lastUpdated, TMediaType mediaType, Guid guid = default(Guid))
         {
             throw new NotImplementedException();
         }

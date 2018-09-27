@@ -12,6 +12,7 @@ namespace TAS.Common.Interfaces
         void ReVerify();
         void Verify();
         void GetLoudness();
+        bool RenameFileTo(string newFileName);
     }
 
     public interface IMediaProperties
@@ -35,6 +36,6 @@ namespace TAS.Common.Interfaces
         TimeSpan TcStart { get; set; }
         TVideoFormat VideoFormat { get; set; }
         bool FieldOrderInverted { get; set; }
-        Guid MediaGuid { get; }
+        Guid MediaGuid { get; set; }
     }
 }

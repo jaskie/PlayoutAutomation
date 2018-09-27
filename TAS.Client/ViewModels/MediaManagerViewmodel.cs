@@ -502,6 +502,7 @@ namespace TAS.Client.ViewModels
                     var media = e.Media;
                     _mediaItems?.Add(new MediaViewViewmodel(media));
                     _notifyDirectoryPropertiesChanged();
+                    NotifyPropertyChanged(nameof(MediaItems));
                 });
         }
 

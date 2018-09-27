@@ -33,7 +33,7 @@ namespace TAS.Database.MySqlRedundant
             _connection = new DbConnectionRedundant(ConnectionStringPrimary, ConnectionStringSecondary);
             _connection.StateRedundantChange += _connection_StateRedundantChange;
             _connection.Open();
-            if ((_connection.StateRedundant & ConnectionStateRedundant.Open) != ConnectionStateRedundant.Closed)
+            if ((_connection.StateRedundant & (ConnectionStateRedundant.OpenPrimary | ConnectionStateRedundant.OpenSecondary)) != ConnectionStateRedundant.Closed)
                 _tablesStringFieldsLenghts = ReadTablesStringFieldLenghts();
 
             ServerMediaFieldLengths = new Dictionary<string, int>
@@ -574,25 +574,20 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        private ConstructorInfo _archiveMediaConstructorInfo;
-
-        private T _readArchiveMedia<T>(DbDataReaderRedundant dataReader, IArchiveDirectory dir) where T: IArchiveMedia
+        private T _readArchiveMedia<T>(DbDataReaderRedundant dataReader) where T: IArchiveMedia, new()
         {
-            if (_archiveMediaConstructorInfo == null)
-                _archiveMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IArchiveDirectory), typeof(Guid), typeof(UInt64) });
-            if (_archiveMediaConstructorInfo != null)
+            var media = new T
             {
-                T media = (T)_archiveMediaConstructorInfo.Invoke(new object[] { dir, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idArchiveMedia") });
-                _mediaReadFields(media, dataReader);
-                media.IsModified = false;
-                return media;
-            }
-            throw new ApplicationException("No IArchiveMedia constructor found");
+                IdPersistentMedia = dataReader.GetUInt64("idArchiveMedia")
+            };
+            _mediaReadFields(media, dataReader);
+            media.IsModified = false;
+            return media;
         }
 
-        public void DbSearch<T>(IArchiveDirectory dir) where T: IArchiveMedia
+        public void DbSearch<T>(IArchiveDirectoryServerSide dir) where T: IArchiveMedia, new()
         {
-            string search = dir.SearchString;
+            var search = dir.SearchString;
             lock (_connection)
             {
                 var textSearches = (from text in search.ToLower().Split(' ').Where(s => !string.IsNullOrEmpty(s)) select "(LOWER(MediaName) LIKE \"%" + text + "%\" or LOWER(FileName) LIKE \"%" + text + "%\")").ToArray();
@@ -612,7 +607,10 @@ namespace TAS.Database.MySqlRedundant
                 using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
-                        _readArchiveMedia<T>(dataReader, dir);
+                    {
+                        var media = _readArchiveMedia<T>(dataReader);
+                        dir.AddMedia(media);
+                    }
                     dataReader.Close();
                 }
             }
@@ -638,7 +636,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public IEnumerable<IArchiveMedia> DbFindStaleMedia<T>(IArchiveDirectory dir) where T: IArchiveMedia
+        public IEnumerable<IArchiveMedia> FindStaleMedia<T>(IArchiveDirectoryServerSide dir) where T: IArchiveMedia, new()
         {
             var returnList = new List<IArchiveMedia>();
             lock (_connection)
@@ -648,14 +646,14 @@ namespace TAS.Database.MySqlRedundant
                 using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
-                        returnList.Add(_readArchiveMedia<T>(dataReader, dir));
+                        returnList.Add(_readArchiveMedia<T>(dataReader));
                     dataReader.Close();
                 }
             }
             return returnList;
         }
 
-        public T DbMediaFind<T>(IArchiveDirectory dir, IMediaProperties media) where T: IArchiveMedia
+        public T DbMediaFind<T>(IArchiveDirectoryServerSide dir, IMediaProperties media) where T: IArchiveMedia, new()
         {
             var result = default(T);
             if (media.MediaGuid == Guid.Empty)
@@ -668,7 +666,7 @@ namespace TAS.Database.MySqlRedundant
                 using (var dataReader = cmd.ExecuteReader(CommandBehavior.SingleRow))
                 {
                     if (dataReader.Read())
-                        result = _readArchiveMedia<T>(dataReader, dir);
+                        result = _readArchiveMedia<T>(dataReader);
                     dataReader.Close();
                 }
             }
@@ -677,7 +675,7 @@ namespace TAS.Database.MySqlRedundant
 
         public bool DbArchiveContainsMedia(IArchiveDirectory dir, IMediaProperties media)
         {
-            if (media.MediaGuid == Guid.Empty)
+            if (dir == null || media.MediaGuid == Guid.Empty)
                 return false;
             lock (_connection)
             {
@@ -1281,14 +1279,15 @@ VALUES
         {
             var flags = dataReader.IsDBNull(dataReader.GetOrdinal("flags")) ? 0 : dataReader.GetUInt32("flags");
             media.MediaName = dataReader.IsDBNull(dataReader.GetOrdinal("MediaName")) ? string.Empty : dataReader.GetString("MediaName");
+            media.LastUpdated = dataReader.GetDateTime("LastUpdated");
+            media.MediaGuid = dataReader.GetGuid("MediaGuid");
+            media.MediaType = (TMediaType)(dataReader.IsDBNull(dataReader.GetOrdinal("typMedia")) ? 0 : dataReader.GetInt32("typMedia"));
             media.Duration = dataReader.IsDBNull(dataReader.GetOrdinal("Duration")) ? default(TimeSpan) : dataReader.GetTimeSpan("Duration");
             media.DurationPlay = dataReader.IsDBNull(dataReader.GetOrdinal("DurationPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("DurationPlay");
             media.Folder = dataReader.IsDBNull(dataReader.GetOrdinal("Folder")) ? string.Empty : dataReader.GetString("Folder");
             media.FileName = dataReader.IsDBNull(dataReader.GetOrdinal("FileName")) ? string.Empty : dataReader.GetString("FileName");
             media.FileSize = dataReader.IsDBNull(dataReader.GetOrdinal("FileSize")) ? 0 : dataReader.GetUInt64("FileSize");
-            media.LastUpdated = dataReader.GetDateTime("LastUpdated");
             media.MediaStatus = (TMediaStatus)(dataReader.IsDBNull(dataReader.GetOrdinal("statusMedia")) ? 0 : dataReader.GetInt32("statusMedia"));
-            media.MediaType = (TMediaType)(dataReader.IsDBNull(dataReader.GetOrdinal("typMedia")) ? 0 : dataReader.GetInt32("typMedia"));
             media.TcStart = dataReader.IsDBNull(dataReader.GetOrdinal("TCStart")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCStart");
             media.TcPlay = dataReader.IsDBNull(dataReader.GetOrdinal("TCPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCPlay");
             media.IdProgramme = dataReader.IsDBNull(dataReader.GetOrdinal("idProgramme")) ? 0 : dataReader.GetUInt64("idProgramme");
@@ -1306,20 +1305,14 @@ VALUES
             media.Protected = (flags & 0x2) != 0;
             media.FieldOrderInverted = (flags & 0x4) != 0;
             media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
+            media.IsModified = false;
         }
 
-        static ConstructorInfo _serverMediaConstructorInfo;
-        static ConstructorInfo _animatedMediaConstructorInfo;
-        public void Load<T>(IAnimationDirectory directory, ulong serverId) where T: IAnimatedMedia
+        public void LoadAnimationDirectory<T>(IAnimationDirectory directory, ulong serverId) where T : IAnimatedMedia, new()
         {
             Debug.WriteLine(directory, "AnimationDirectory load started");
             lock (_connection)
             {
-                if (_animatedMediaConstructorInfo == null)
-                    _animatedMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaDirectory), typeof(Guid), typeof(UInt64) });
-                if (_animatedMediaConstructorInfo == null)
-                    throw new ApplicationException("No constructor found for IAnimatedMedia");
-
                 DbCommandRedundant cmd = new DbCommandRedundant("SELECT servermedia.*, media_templated.`Fields`, media_templated.`Method`, media_templated.`TemplateLayer`, media_templated.`ScheduledDelay`, media_templated.`StartType` FROM serverMedia LEFT JOIN media_templated ON servermedia.MediaGuid = media_templated.MediaGuid WHERE idServer=@idServer and typMedia = @typMedia", _connection);
                 cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typMedia", TMediaType.Animation);
@@ -1330,7 +1323,10 @@ VALUES
                         while (dataReader.Read())
                         {
 
-                            var media = (T)_animatedMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia")});
+                            var media = new T()
+                            {
+                                IdPersistentMedia = dataReader.GetUInt64("idServerMedia"),
+                            };
                             _mediaReadFields(media, dataReader);
                             var templateFields = dataReader.GetString("Fields");
                             if (!string.IsNullOrWhiteSpace(templateFields))
@@ -1361,15 +1357,11 @@ VALUES
             }
         }
 
-        public void Load<T>(IServerDirectory directory, IArchiveDirectory archiveDirectory, ulong serverId) where T : IServerMedia
+        public void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IServerMedia, new()
         {
             Debug.WriteLine(directory, "ServerLoadMediaDirectory started");
             lock (_connection)
             {
-                if (_serverMediaConstructorInfo == null)
-                    _serverMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaDirectory), typeof(Guid), typeof(UInt64), typeof(IArchiveDirectory) });
-                if (_serverMediaConstructorInfo == null)
-                    throw new ApplicationException("No constructor found for IServerMedia");
 
                 var cmd = new DbCommandRedundant("SELECT * FROM serverMedia WHERE idServer=@idServer and typMedia in (@typMediaMovie, @typMediaStill)", _connection);
                 cmd.Parameters.AddWithValue("@idServer", serverId);
@@ -1381,14 +1373,16 @@ VALUES
                     {
                         while (dataReader.Read())
                         {
-                            var media = (T)_serverMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia"), archiveDirectory});
-                            _mediaReadFields(media, dataReader);
-                            media.IsModified = false;
-                            if (media.MediaStatus != TMediaStatus.Available)
+                            var media = new T
                             {
-                                media.MediaStatus = TMediaStatus.Unknown;
-                                media.ReVerify();
-                            }
+                                IdPersistentMedia = dataReader.GetUInt64("idServerMedia")
+                            };
+                            _mediaReadFields(media, dataReader);
+                            directory.AddMedia(media);
+                            if (media.MediaStatus == TMediaStatus.Available)
+                                continue;
+                            media.MediaStatus = TMediaStatus.Unknown;
+                            media.ReVerify();
                         }
                     }
                     Debug.WriteLine(directory, "Directory loaded");
