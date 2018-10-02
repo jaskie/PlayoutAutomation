@@ -36,7 +36,7 @@ namespace TAS.Server
         {
             _engine = engine;
             _recorders = new List<CasparRecorder>();
-            _fileManager = new FileManager(new TempDirectory(this));
+            _fileManager = new FileManager(new TempDirectory());
         }
 
         public IFileManager FileManager => _fileManager;
@@ -83,21 +83,21 @@ namespace TAS.Server
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Begin initializing");
             _fileManager.ReferenceLoudness = _engine.VolumeReferenceLoudness;
-            ArchiveDirectory = EngineController.Database.LoadArchiveDirectory<ArchiveDirectory>(this, _engine.IdArchive);
+            var archiveDirectory = EngineController.Database.LoadArchiveDirectory<ArchiveDirectory>(this, _engine.IdArchive);
+            ArchiveDirectory = archiveDirectory;
             MediaDirectoryPRI = ((CasparServerChannel)_engine.PlayoutChannelPRI)?.Owner.MediaDirectory;
             MediaDirectorySEC = ((CasparServerChannel)_engine.PlayoutChannelSEC)?.Owner.MediaDirectory;
             MediaDirectoryPRV = ((CasparServerChannel)_engine.PlayoutChannelPRV)?.Owner.MediaDirectory;
             AnimationDirectoryPRI = ((CasparServerChannel)_engine.PlayoutChannelPRI)?.Owner.AnimationDirectory;
             AnimationDirectorySEC = ((CasparServerChannel)_engine.PlayoutChannelSEC)?.Owner.AnimationDirectory;
             AnimationDirectoryPRV = ((CasparServerChannel)_engine.PlayoutChannelPRV)?.Owner.AnimationDirectory;
-            IMediaDirectory[] initializationList = { MediaDirectoryPRI, MediaDirectorySEC, MediaDirectoryPRV, AnimationDirectoryPRI, AnimationDirectorySEC, AnimationDirectoryPRV, ArchiveDirectory };
+            IWatcherDirectory[] initializationList = { MediaDirectoryPRI, MediaDirectorySEC, MediaDirectoryPRV, AnimationDirectoryPRI, AnimationDirectorySEC, AnimationDirectoryPRV };
             foreach (var mediaDirectory in initializationList.Distinct())
-                (mediaDirectory as MediaDirectory)?.Initialize();
-            if (ArchiveDirectory != null)
-                ArchiveDirectory.MediaDeleted += ArchiveDirectory_MediaDeleted;
+                (mediaDirectory as WatcherDirectory)?.Initialize();
+            if (archiveDirectory != null)
+                archiveDirectory.MediaDeleted += ArchiveDirectory_MediaDeleted;
 
-            ServerDirectory sdir = MediaDirectoryPRI as ServerDirectory;
-            if (sdir != null)
+            if (MediaDirectoryPRI is ServerDirectory sdir)
             {
                 sdir.MediaPropertyChanged += _serverMediaPropertyChanged;
                 sdir.PropertyChanged += _onServerDirectoryPropertyChanged;
@@ -519,9 +519,9 @@ namespace TAS.Server
             if (chPri != null && chSec != null && chPri.Owner!= chSec.Owner)
             {
                 if ((originalMedia.Directory as ServerDirectory)?.Server == chPri.Owner)
-                    return (ServerMedia)((MediaDirectory)chSec.Owner.MediaDirectory).FindMediaByMediaGuid(originalMedia.MediaGuid);
+                    return (ServerMedia)((WatcherDirectory)chSec.Owner.MediaDirectory).FindMediaByMediaGuid(originalMedia.MediaGuid);
                 if ((originalMedia.Directory as ServerDirectory)?.Server == chSec.Owner)
-                    return (ServerMedia)((MediaDirectory)chPri.Owner.MediaDirectory).FindMediaByMediaGuid(originalMedia.MediaGuid);
+                    return (ServerMedia)((WatcherDirectory)chPri.Owner.MediaDirectory).FindMediaByMediaGuid(originalMedia.MediaGuid);
             }
             return null;
         }
@@ -561,7 +561,7 @@ namespace TAS.Server
                 && MediaDirectorySEC != MediaDirectoryPRI
                 && MediaDirectorySEC.IsInitialized)
             {
-                var mediaToDelete = ((MediaDirectory)MediaDirectorySEC).FindMediaByMediaGuid(e.Media.MediaGuid);
+                var mediaToDelete = ((WatcherDirectory)MediaDirectorySEC).FindMediaByMediaGuid(e.Media.MediaGuid);
                 if (mediaToDelete != null && mediaToDelete.FileExists())
                     FileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Delete, Source = mediaToDelete }, false);
             }
@@ -572,7 +572,7 @@ namespace TAS.Server
             base.DoDispose();
 
             if (ArchiveDirectory != null)
-                ArchiveDirectory.MediaDeleted += ArchiveDirectory_MediaDeleted;
+                ArchiveDirectory.MediaDeleted -= ArchiveDirectory_MediaDeleted;
 
             if (MediaDirectoryPRI is ServerDirectory sdir)
             {

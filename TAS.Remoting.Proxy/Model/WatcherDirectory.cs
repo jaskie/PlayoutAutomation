@@ -8,26 +8,26 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public abstract class MediaDirectory : ProxyBase, IMediaDirectory
+    public abstract class WatcherDirectory : ProxyBase, IWatcherDirectory
     {
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IMediaDirectory.DirectoryName))]
+        [JsonProperty(nameof(IWatcherDirectory.DirectoryName))]
         private string _directoryName;
 
-        [JsonProperty(nameof(IMediaDirectory.Folder))]
+        [JsonProperty(nameof(IWatcherDirectory.Folder))]
         private string _folder;
 
-        [JsonProperty(nameof(IMediaDirectory.PathSeparator))]
+        [JsonProperty(nameof(IWatcherDirectory.PathSeparator))]
         private char _pathSeparator;
 
-        [JsonProperty(nameof(IMediaDirectory.IsInitialized))]
+        [JsonProperty(nameof(IWatcherDirectory.IsInitialized))]
         private bool _isInitialized;
 
-        [JsonProperty(nameof(IMediaDirectory.VolumeFreeSize))]
+        [JsonProperty(nameof(IWatcherDirectory.VolumeFreeSize))]
         private long _volumeFreeSize;
 
-        [JsonProperty(nameof(IMediaDirectory.VolumeTotalSize))]
+        [JsonProperty(nameof(IWatcherDirectory.VolumeTotalSize))]
         private long _volumeTotalSize;
 
         #pragma warning restore

@@ -19,7 +19,7 @@ namespace TAS.Client.ViewModels
         private readonly TMediaType _mediaType;
         private readonly VideoFormatDescription _videoFormatDescription;
         private readonly IEngine _engine;
-        private readonly IMediaDirectory _searchDirectory;
+        private readonly IWatcherDirectory _searchDirectory;
         public readonly VideoLayer Layer;
 
         private IEvent _baseEvent;
@@ -46,11 +46,11 @@ namespace TAS.Client.ViewModels
             _mediaType = mediaType;
             if (PreviewViewmodel != null)
                 PreviewViewmodel.PropertyChanged += _onPreviewViewModelPropertyChanged;
-            IMediaDirectory pri = mediaType == TMediaType.Animation
-                ? (IMediaDirectory) engine.MediaManager.AnimationDirectoryPRI
+            IWatcherDirectory pri = mediaType == TMediaType.Animation
+                ? (IWatcherDirectory) engine.MediaManager.AnimationDirectoryPRI
                 : engine.MediaManager.MediaDirectoryPRI;
-            IMediaDirectory sec = mediaType == TMediaType.Animation
-                ? (IMediaDirectory) engine.MediaManager.AnimationDirectorySEC
+            IWatcherDirectory sec = mediaType == TMediaType.Animation
+                ? (IWatcherDirectory) engine.MediaManager.AnimationDirectorySEC
                 : engine.MediaManager.MediaDirectorySEC;
             _searchDirectory = pri != null && pri.DirectoryExists()
                 ? pri

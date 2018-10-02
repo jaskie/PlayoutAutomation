@@ -96,7 +96,7 @@
     <Compile Include="Interfaces\IIngestMedia.cs" />
     <Compile Include="Interfaces\ILoudnessOperation.cs" />
     <Compile Include="Interfaces\IMedia.cs" />
-    <Compile Include="Interfaces\IMediaDirectory.cs" />
+    <Compile Include="Interfaces\IWatcherDirectory.cs" />
     <Compile Include="Interfaces\IMediaManager.cs" />
     <Compile Include="Interfaces\IMediaSegment.cs" />
     <Compile Include="Interfaces\IAnimatedMedia.cs" />

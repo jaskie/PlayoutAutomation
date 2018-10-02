@@ -6,26 +6,27 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {
-    public class TempDirectory: MediaDirectory
+    public class TempDirectory: MediaDirectoryBase
     {
-        public TempDirectory(MediaManager manager): base(manager)
+        public TempDirectory()
         {
             Folder = ConfigurationManager.AppSettings["TempDirectory"];
+            SweepStaleMedia();
         }
 
-        public override void AddMedia(IMedia media)
+        public override void RemoveMedia(IMedia media)
         {
-            // do not add to _files
+            throw new NotImplementedException();
         }
-
-        public override void Refresh() { }
 
         public override IMedia CreateMedia(IMediaProperties media)
         {
             return new TempMedia(this, media);
         }
 
-        public override void SweepStaleMedia()
+
+
+        private void SweepStaleMedia()
         {
             foreach (string fileName in Directory.GetFiles(Folder))
                 try
@@ -38,12 +39,6 @@ namespace TAS.Server.Media
                 }
         }
 
-        protected override IMedia CreateMedia(string fullPath, string mediaName, DateTime lastUpdated, TMediaType mediaType, Guid guid = default(Guid))
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void Reinitialize() {}
 
     }
 }

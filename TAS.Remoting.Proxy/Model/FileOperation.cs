@@ -18,7 +18,7 @@ namespace TAS.Remoting.Model
         private MediaProxy _destProperties;
 
         [JsonProperty(nameof(IFileOperation.DestDirectory))]
-        private MediaDirectory _destDirectory;
+        private WatcherDirectory _destDirectory;
 
         [JsonProperty(nameof(IFileOperation.FinishedTime))]
         private DateTime _finishedTime;
@@ -64,7 +64,7 @@ namespace TAS.Remoting.Model
 
         public IMediaProperties DestProperties { get => _destProperties; set => Set(value); }
 
-        public IMediaDirectory DestDirectory { get => _destDirectory; set => Set(value); }
+        public IWatcherDirectory DestDirectory { get => _destDirectory; set => Set(value); }
 
         public DateTime FinishedTime => _finishedTime;
 

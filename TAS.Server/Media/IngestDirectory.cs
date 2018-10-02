@@ -13,10 +13,11 @@ using System.Xml.Serialization;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Server.XDCAM;
 
 namespace TAS.Server.Media
 {
-    public class IngestDirectory : MediaDirectory, IIngestDirectory
+    public class IngestDirectory : WatcherDirectory, IIngestDirectory
     {
         private readonly List<string> _bMdXmlFiles = new List<string>();
         private string _filter;
@@ -208,7 +209,7 @@ namespace TAS.Server.Media
                 else if (AccessType == TDirectoryAccessType.FTP)
                     _ftpDirectoryList();
                 else
-                    Reinitialize();
+                    base.Refresh();
             }
             finally
             {
@@ -278,8 +279,8 @@ namespace TAS.Server.Media
         {
             if (AccessType == TDirectoryAccessType.FTP)
             {
-                FtpClient client = GetFtpClient();
-                Uri uri = new Uri(Folder + (string.IsNullOrWhiteSpace(subfolder) ? "/" : $"/{subfolder}/") + filename);
+                var client = GetFtpClient();
+                var uri = new Uri(Folder + (string.IsNullOrWhiteSpace(subfolder) ?  "/" : $"/{subfolder}/") + filename);
                 try
                 {
                     var fileExists = client.FileExists(uri.LocalPath);
@@ -302,6 +303,11 @@ namespace TAS.Server.Media
             if (AccessType == TDirectoryAccessType.Direct &&  Kind != TIngestDirectoryKind.XDCAM && !string.IsNullOrWhiteSpace(Username))
                 PinvokeWindowsNetworking.DisconnectRemote(Path.GetPathRoot(Folder));
             _ftpClient?.Dispose();
+        }
+
+        protected override IMedia AddFile(string fullPath, DateTime lastUpdated)
+        {
+            throw new NotImplementedException();
         }
 
         protected override void OnError(object source, ErrorEventArgs e)
@@ -404,19 +410,7 @@ namespace TAS.Server.Media
                    || (Kind == TIngestDirectoryKind.XDCAM && ext == XDCAM.Smil.FileExtension);
         }
 
-        protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime),
-            Guid guid = default(Guid))
-        {
-            if (Path.GetExtension(fullPath)?.ToLowerInvariant() == XmlFileExtension)
-            {
-                lock (((IList) _bMdXmlFiles).SyncRoot)
-                    _bMdXmlFiles.Add(fullPath);
-                return null;
-            }
-            return base.AddFile(fullPath, lastWriteTime, guid);
-        }
-
-        protected override IMedia CreateMedia(string fullPath, string mediaName, DateTime lastUpdated, TMediaType mediaType, Guid guid = default(Guid))
+        private IMedia CreateMedia(string fullPath, string mediaName, DateTime lastUpdated, TMediaType mediaType, Guid guid = default(Guid))
         {
             var relativeName = fullPath.Substring(Folder.Length);
             var fileName = Path.GetFileName(relativeName);
@@ -431,7 +425,8 @@ namespace TAS.Server.Media
                     FileName = fileName,
                     Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
                     MediaStatus = TMediaStatus.Unknown,
-                    MediaCategory = MediaCategory
+                    MediaCategory = MediaCategory,
+                    Directory = this
                 }
                 :
                 new IngestMedia
@@ -442,7 +437,8 @@ namespace TAS.Server.Media
                     FileName = fileName,
                     Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
                     MediaStatus = TMediaStatus.Unknown,
-                    MediaCategory = MediaCategory
+                    MediaCategory = MediaCategory,
+                    Directory = this
                 };
         }
 
@@ -570,13 +566,6 @@ namespace TAS.Server.Media
                 var index = 0;
                 foreach (var material in mediaProfile.Contents)
                 {
-                    if (!(AddFile(string.Join(PathSeparator.ToString(), Folder, material.uri), default(DateTime),
-                        new Guid(material.umid.Substring(32))) is XDCAM.XdcamMedia newMedia))
-                        continue;
-                    newMedia.ClipNr = ++index;
-                    newMedia.MediaName = $"{material.uri}";
-                    newMedia.MediaType = TMediaType.Movie;
-                    newMedia.XdcamMaterial = material;
                     var format = TVideoFormat.Other;
                     switch (material.videoType)
                     {
@@ -623,9 +612,19 @@ namespace TAS.Server.Media
                             }
                             break;
                     }
-                    newMedia.VideoFormat = format;
-                    newMedia.Duration = ((long) material.dur).SMPTEFramesToTimeSpan(format);
-                    newMedia.DurationPlay = newMedia.Duration;
+                    var duration = ((long) material.dur).SMPTEFramesToTimeSpan(format);
+                    var newMedia = new XdcamMedia
+                    {
+                        MediaType = TMediaType.Movie,
+                        MediaGuid = new Guid(material.umid.Substring(32)),
+                        ClipNr = ++index,
+                        MediaName = $"{material.uri}",
+                        XdcamMaterial = material,
+                        VideoFormat = format,
+                        Duration = duration,
+                        DurationPlay = duration
+                    };
+                    AddMedia(newMedia);
                 }
             }
             catch (Exception e)

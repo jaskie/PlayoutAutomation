@@ -11,12 +11,8 @@ namespace TAS.Client.ViewModels
         public MediaDirectoryViewmodel(IMediaDirectory directory, bool includeImport = false, bool includeExport = false)
         {
             Directory = directory;
-            SubDirectories = (directory as IIngestDirectory)?.SubDirectories != null
-                ? ((IIngestDirectory)directory)
-                    .SubDirectories
-                    .Where(d=> (includeImport && d.ContainsImport() )|| (includeExport && d.ContainsExport()))
-                    .Select(d => new MediaDirectoryViewmodel((IIngestDirectory)d, includeImport, includeExport)).ToList()
-                : new List<MediaDirectoryViewmodel>();
+            SubDirectories = (directory as IIngestDirectory)?.SubDirectories?.Where(d=> includeImport && d.ContainsImport() || includeExport && d.ContainsExport())
+                             .Select(d => new MediaDirectoryViewmodel((IIngestDirectory)d, includeImport, includeExport)).ToList() ?? new List<MediaDirectoryViewmodel>();
         }
 
         public IMediaDirectory Directory { get; }

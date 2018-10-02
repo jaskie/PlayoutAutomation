@@ -331,7 +331,7 @@ namespace TAS.Client.ViewModels
 
         private string ValidateDestFileName()
         {
-            IMediaDirectory dir = _ingestOperation.DestDirectory;
+            IWatcherDirectory dir = _ingestOperation.DestDirectory;
             if (dir == null)
                 return null;
             if (_destMediaProperties.FileName.StartsWith(" ") || _destMediaProperties.FileName.EndsWith(" "))

@@ -97,7 +97,7 @@ namespace TAS.Server
             {
                 using (var localDestMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(Source))
                 {
-                    Dest = _createDestMedia(destDirectory);
+                    Dest = _createDestMedia();
                     Dest.PropertyChanged += destMedia_PropertyChanged;
                     try
                     {
@@ -118,7 +118,7 @@ namespace TAS.Server
             }
             else
             {
-                Dest = _createDestMedia(destDirectory);
+                Dest = _createDestMedia();
                 result = Encode(destDirectory, Dest.FullPath);
             }
             Dest.MediaStatus = result ? TMediaStatus.Available : TMediaStatus.CopyError;
@@ -126,13 +126,18 @@ namespace TAS.Server
             return result;
         }
 
-        private IngestMedia _createDestMedia(IngestDirectory destDirectory)
+        private IngestMedia _createDestMedia()
         {
+            if (!(DestDirectory is IngestDirectory directory))
+                throw new ApplicationException($"{nameof(DestDirectory)} must be {nameof(IngestDirectory)}");
             IngestMedia result;
-            if (destDirectory.Kind == TIngestDirectoryKind.XDCAM)
+            if (directory.Kind == TIngestDirectoryKind.XDCAM)
             {
-                var existingFiles = DestDirectory.GetFiles().Where(f => f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
-                var maxFile = existingFiles.Length == 0 ? 1 : existingFiles.Max(m => int.Parse(m.FileName.Substring(1, 4))) + 1;
+                var existingFiles = directory.GetFiles().Where(f =>
+                    f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+                var maxFile = existingFiles.Length == 0
+                    ? 1
+                    : existingFiles.Max(m => int.Parse(m.FileName.Substring(1, 4))) + 1;
                 result = new XdcamMedia
                 {
                     MediaName = $"C{maxFile:D4}",
@@ -144,15 +149,17 @@ namespace TAS.Server
                     MediaStatus = TMediaStatus.Copying
                 };
             }
-            result = new IngestMedia
-            {
-                FileName = FileUtils.GetUniqueFileName(DestDirectory.Folder, $"{FileUtils.SanitizeFileName(DestMediaName)}.{destDirectory.ExportContainerFormat}"),
-                MediaName = DestMediaName,
-                LastUpdated = DateTime.UtcNow,
-                MediaGuid = Guid.NewGuid(),
-                MediaStatus = TMediaStatus.Copying
-            };
-            destDirectory.AddMedia(result);
+            else
+                result = new IngestMedia
+                {
+                    FileName = FileUtils.GetUniqueFileName(DestDirectory.Folder,
+                        $"{FileUtils.SanitizeFileName(DestMediaName)}.{directory.ExportContainerFormat}"),
+                    MediaName = DestMediaName,
+                    LastUpdated = DateTime.UtcNow,
+                    MediaGuid = Guid.NewGuid(),
+                    MediaStatus = TMediaStatus.Copying
+                };
+            directory.AddMedia(result);
             return result;
         }
 

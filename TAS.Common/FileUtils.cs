@@ -73,7 +73,7 @@ namespace TAS.Common
         {
             if (fileName == null)
                 return string.Empty;
-            string fileExt = Path.GetExtension(fileName).ToLowerInvariant();
+            var fileExt = Path.GetExtension(fileName).ToLowerInvariant();
             switch (mediaType)
             {
                 case TMediaType.Movie:

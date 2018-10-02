@@ -1084,11 +1084,11 @@ namespace TAS.Server
             return $"{EventType} {EventName}";
         }
 
-        internal PersistentMedia ServerMediaPRI => (_eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
+        internal PersistentMedia ServerMediaPRI => (_eventType == TEventType.Animation ? (WatcherDirectory)Engine.MediaManager.AnimationDirectoryPRI : (WatcherDirectory)Engine.MediaManager.MediaDirectoryPRI)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
 
-        internal PersistentMedia ServerMediaSEC => (_eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectorySEC: (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
+        internal PersistentMedia ServerMediaSEC => (_eventType == TEventType.Animation ? (WatcherDirectory)Engine.MediaManager.AnimationDirectorySEC: (WatcherDirectory)Engine.MediaManager.MediaDirectoryPRV)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
 
-        internal PersistentMedia ServerMediaPRV => (_eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRV : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
+        internal PersistentMedia ServerMediaPRV => (_eventType == TEventType.Animation ? (WatcherDirectory)Engine.MediaManager.AnimationDirectoryPRV : (WatcherDirectory)Engine.MediaManager.MediaDirectoryPRV)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
 
         internal void SaveLoadedTree()
         {
@@ -1349,7 +1349,7 @@ namespace TAS.Server
         {
             return new Lazy<PersistentMedia>(() =>
             {
-                var priMedia = media ?? _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI);
+                var priMedia = media ?? _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (WatcherDirectory)Engine.MediaManager.AnimationDirectoryPRI : (WatcherDirectory)Engine.MediaManager.MediaDirectoryPRI);
                 return priMedia;
             });
         }
@@ -1394,7 +1394,7 @@ namespace TAS.Server
             SubEventChanged?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, operation));
         }
 
-        private PersistentMedia _getMediaFromDir(Guid mediaGuid, MediaDirectory dir)
+        private PersistentMedia _getMediaFromDir(Guid mediaGuid, WatcherDirectory dir)
         {
             var newMedia = dir?.FindMediaByMediaGuid(mediaGuid);
             if (newMedia is PersistentMedia media)

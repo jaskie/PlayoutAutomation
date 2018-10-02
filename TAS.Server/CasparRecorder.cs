@@ -74,7 +74,7 @@ namespace TAS.Server
         public IMedia RecordingMedia { get => _recordingMedia; private set => SetField(ref _recordingMedia, value); }
 
         [JsonProperty, XmlIgnore]
-        public IMediaDirectory RecordingDirectory => _ownerServer.MediaDirectory;
+        public IWatcherDirectory RecordingDirectory => _ownerServer.MediaDirectory;
         
         public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName)
         {

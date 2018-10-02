@@ -74,7 +74,7 @@ namespace TAS.Remoting.Model
         private bool _fieldOrderInverted;
 
         [JsonProperty(nameof(IMedia.Directory))]
-        private MediaDirectory _directory;
+        private WatcherDirectory _directory;
 
         #pragma warning restore
 
@@ -86,7 +86,7 @@ namespace TAS.Remoting.Model
 
         public double AudioVolume { get { return _audioVolume; } set { Set(value); } }
 
-        public virtual IMediaDirectory Directory => _directory;
+        public virtual IWatcherDirectory Directory => _directory;
 
         public TimeSpan Duration { get { return _duration; } set { Set(value); } }
 

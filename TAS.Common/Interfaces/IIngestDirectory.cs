@@ -2,14 +2,14 @@
 
 namespace TAS.Common.Interfaces
 {
-    public interface IIngestDirectory: IMediaDirectory, IIngestDirectoryProperties
+    public interface IIngestDirectory: IWatcherDirectory, IIngestDirectoryProperties
     {
         TDirectoryAccessType AccessType { get; }
         int XdcamClipCount { get; }
         string Filter { get; set; }
     }
 
-    public interface IIngestDirectoryProperties : IMediaDirectoryProperties
+    public interface IIngestDirectoryProperties : IMediaDirectory
     {
         TAspectConversion AspectConversion { get; }
         double AudioVolume { get;  }
