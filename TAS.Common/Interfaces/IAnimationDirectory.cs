@@ -2,7 +2,7 @@
 
 namespace TAS.Common.Interfaces
 {
-    public interface IAnimationDirectory: IMediaDirectory
+    public interface IAnimationDirectory: IWatcherDirectory
     {
         IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid);
     }

@@ -5,7 +5,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
+    public class ArchiveDirectory : WatcherDirectory, IArchiveDirectory
     {
         #pragma warning disable CS0649
 

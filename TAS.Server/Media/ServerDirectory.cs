@@ -9,7 +9,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {
-    public class ServerDirectory : MediaDirectory, IServerDirectory
+    public class ServerDirectory : WatcherDirectory, IServerDirectory
     {
         internal readonly IPlayoutServerProperties Server;
 
@@ -84,26 +84,11 @@ namespace TAS.Server.Media
 
         public event EventHandler<MediaEventArgs> MediaSaved;
 
-        protected override IMedia CreateMedia(string fullPath, string mediaName, DateTime lastUpdated, TMediaType mediaType, Guid guid = default(Guid))
-        {
-            var relativeName = fullPath.Substring(Folder.Length);
-            var fileName = Path.GetFileName(relativeName);
-            return new ServerMedia
-            {
-                MediaName = mediaName,
-                MediaType = mediaType,
-                MediaGuid = guid,
-                LastUpdated = lastUpdated,
-                FileName = fileName,
-                Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator)
-            };
-        }
-
         protected override bool AcceptFile(string fullPath)
         {
             if (string.IsNullOrWhiteSpace(fullPath))
                 return false;
-            string ext = Path.GetExtension(fullPath).ToLowerInvariant();
+            var ext = Path.GetExtension(fullPath).ToLowerInvariant();
             return FileUtils.VideoFileTypes.Contains(ext) || FileUtils.StillFileTypes.Contains(ext);
         }
 
@@ -125,15 +110,28 @@ namespace TAS.Server.Media
             unverifiedFiles.ForEach(media => media.Verify());
         }
 
-        protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
+        protected override IMedia AddFile(string fullPath, DateTime lastUpdated)
         {
-            IMedia media = FindMediaFirstByFullPath(fullPath);
-            if (media != null)
-                return media;
-            media = base.AddFile(fullPath, lastWriteTime, guid);
-            if (media != null)
-                Logger.Warn("Unknown media added to server directory: {0}", fullPath);
-            return media;
+            var newMedia = FindMediaFirstByFullPath(fullPath) as ServerMedia;
+            if (newMedia != null || !AcceptFile(fullPath))
+                return newMedia;
+            var relativeName = fullPath.Substring(Folder.Length);
+            var fileName = Path.GetFileName(relativeName);
+            var mediaType = FileUtils.VideoFileTypes.Contains(Path.GetExtension(fullPath).ToLowerInvariant()) ? TMediaType.Movie : TMediaType.Still;
+            newMedia = new ServerMedia
+            {
+                MediaName = FileUtils.GetFileNameWithoutExtension(fullPath, mediaType).ToUpper(),
+                LastUpdated = lastUpdated,
+                MediaType = mediaType,
+                MediaGuid = Guid.NewGuid(),
+                FileName = Path.GetFileName(relativeName),
+                Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
+                MediaStatus = TMediaStatus.Available,
+                IsVerified = true
+            };
+            AddMedia(newMedia);
+            newMedia.Save();
+            return newMedia;
         }
     }
 }

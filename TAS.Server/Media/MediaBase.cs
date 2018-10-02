@@ -1,7 +1,6 @@
 ﻿//#undef DEBUG
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -12,7 +11,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {
-    [DebuggerDisplay("{_directory.DirectoryName}:{_mediaName} ({FullPath})")]
+    [DebuggerDisplay("{Directory.DirectoryName}:{_mediaName} ({FullPath})")]
     public abstract class MediaBase : DtoBase, IMedia
     {
         private string _folder = string.Empty;
@@ -213,7 +212,7 @@ namespace TAS.Server.Media
             internal set
             {
                 if (SetField(ref _verified, value) && value && _mediaStatus == TMediaStatus.Available)
-                    ((MediaDirectory)Directory).NotifyMediaVerified(this);
+                    ((WatcherDirectory)Directory).NotifyMediaVerified(this);
             }
         }
 
@@ -235,7 +234,7 @@ namespace TAS.Server.Media
 
         public virtual bool Delete()
         {
-            return ((MediaDirectory)Directory).DeleteMedia(this);
+            return ((WatcherDirectory)Directory).DeleteMedia(this);
         }
 
         public virtual void CloneMediaProperties(IMediaProperties fromMedia)
@@ -323,7 +322,7 @@ namespace TAS.Server.Media
 
         public void Remove()
         {
-            ((MediaDirectory)Directory).RemoveMedia(this);
+            ((WatcherDirectory)Directory).RemoveMedia(this);
         }
 
 
@@ -375,8 +374,8 @@ namespace TAS.Server.Media
 
         public void GetLoudness()
         {
-            ((MediaDirectory)Directory).MediaManager.FileManager.Queue(
-                new LoudnessOperation((FileManager)((MediaDirectory)Directory).MediaManager.FileManager)
+            ((WatcherDirectory)Directory).MediaManager.FileManager.Queue(
+                new LoudnessOperation((FileManager)((WatcherDirectory)Directory).MediaManager.FileManager)
                 {
                     Source = this,
                     MeasureStart = TcPlay - TcStart,

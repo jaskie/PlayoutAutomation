@@ -529,7 +529,7 @@ namespace TAS.Database.MySqlRedundant
                     {
                         var dir = new T
                         {
-                            idArchive = dataReader.GetUInt64("idArchive"),
+                            IdArchive = dataReader.GetUInt64("idArchive"),
                             Folder = dataReader.GetString("Folder")
                         };
                         directories.Add(dir);
@@ -548,7 +548,7 @@ namespace TAS.Database.MySqlRedundant
                     var cmd = new DbCommandRedundant(@"INSERT INTO archive set Folder=@Folder", _connection);
                     cmd.Parameters.AddWithValue("@Folder", dir.Folder);
                     cmd.ExecuteNonQuery();
-                    dir.idArchive = (ulong)cmd.LastInsertedId;
+                    dir.IdArchive = (ulong)cmd.LastInsertedId;
                 }
             }
         }
@@ -558,7 +558,7 @@ namespace TAS.Database.MySqlRedundant
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant(@"UPDATE archive set Folder=@Folder where idArchive=@idArchive", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
                 cmd.Parameters.AddWithValue("@Folder", dir.Folder);
                 cmd.ExecuteNonQuery();
             }
@@ -569,7 +569,7 @@ namespace TAS.Database.MySqlRedundant
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant("DELETE FROM archive WHERE idArchive=@idArchive;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
                 cmd.ExecuteNonQuery();
             }
         }
@@ -585,14 +585,13 @@ namespace TAS.Database.MySqlRedundant
             return media;
         }
 
-        public void DbSearch<T>(IArchiveDirectoryServerSide dir) where T: IArchiveMedia, new()
+        public List<T> ArchiveMediaSearch<T>(IArchiveDirectory dir, TMediaCategory? mediaCategory, string search) where T: IArchiveMedia, new()
         {
-            var search = dir.SearchString;
             lock (_connection)
             {
                 var textSearches = (from text in search.ToLower().Split(' ').Where(s => !string.IsNullOrEmpty(s)) select "(LOWER(MediaName) LIKE \"%" + text + "%\" or LOWER(FileName) LIKE \"%" + text + "%\")").ToArray();
                 DbCommandRedundant cmd;
-                if (dir.SearchMediaCategory == null)
+                if (mediaCategory == null)
                     cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive" 
                                                 + (textSearches.Length > 0 ? " and" + string.Join(" and", textSearches) : string.Empty)
                                                 + " order by idArchiveMedia DESC LIMIT 0, 1000;", _connection);
@@ -601,24 +600,26 @@ namespace TAS.Database.MySqlRedundant
                     cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and ((flags >> 4) & 3)=@Category"
                                                 + (textSearches.Length > 0 ? " and" + string.Join(" and", textSearches) : string.Empty)
                                                 + " order by idArchiveMedia DESC LIMIT 0, 1000;", _connection);
-                    cmd.Parameters.AddWithValue("@Category", (uint)dir.SearchMediaCategory);
+                    cmd.Parameters.AddWithValue("@Category", (uint)mediaCategory);
                 }
-                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
                 using (var dataReader = cmd.ExecuteReader())
                 {
+                    var result = new List<T>();
                     while (dataReader.Read())
                     {
                         var media = _readArchiveMedia<T>(dataReader);
-                        dir.AddMedia(media);
+                        result.Add(media);
                     }
                     dataReader.Close();
+                    return result;
                 }
             }
         }
 
         private ConstructorInfo _archiveDirectoryConstructorInfo;
 
-        public IArchiveDirectory LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectory
+        public T LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectory
         {
             lock (_connection)
             {
@@ -636,13 +637,13 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public IEnumerable<IArchiveMedia> FindStaleMedia<T>(IArchiveDirectoryServerSide dir) where T: IArchiveMedia, new()
+        public List<T> FindArchivedStaleMedia<T>(IArchiveDirectory dir) where T : IArchiveMedia, new()
         {
-            var returnList = new List<IArchiveMedia>();
+            var returnList = new List<T>();
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and KillDate<CURRENT_DATE and KillDate>'2000-01-01' LIMIT 0, 1000;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
                 using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
@@ -653,16 +654,16 @@ namespace TAS.Database.MySqlRedundant
             return returnList;
         }
 
-        public T DbMediaFind<T>(IArchiveDirectoryServerSide dir, IMediaProperties media) where T: IArchiveMedia, new()
+        public T ArchiveMediaFind<T>(IArchiveDirectory dir, Guid mediaGuid) where T: IArchiveMedia, new()
         {
             var result = default(T);
-            if (media.MediaGuid == Guid.Empty)
+            if (mediaGuid == Guid.Empty)
                 return result;
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant("SELECT * FROM archivemedia WHERE idArchive=@idArchive && MediaGuid=@MediaGuid;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
-                cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
                 using (var dataReader = cmd.ExecuteReader(CommandBehavior.SingleRow))
                 {
                     if (dataReader.Read())
@@ -680,7 +681,7 @@ namespace TAS.Database.MySqlRedundant
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant("SELECT count(*) FROM archivemedia WHERE idArchive=@idArchive && MediaGuid=@MediaGuid;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
                 cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
                 var result = cmd.ExecuteScalar();
                 return result != null && (long)result > 0;
@@ -1246,7 +1247,7 @@ VALUES
             }
             if (media is IArchiveMedia && media.Directory is IArchiveDirectory archiveDirectory)
             {
-                cmd.Parameters.AddWithValue("@idArchive", archiveDirectory.idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", archiveDirectory.IdArchive);
                 cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
             }
             cmd.Parameters.AddWithValue("@MediaName", TrimText(tableName, "MediaName", media.MediaName));

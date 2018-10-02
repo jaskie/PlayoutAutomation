@@ -396,7 +396,7 @@ namespace TAS.Client.ViewModels
 
         private void _setSelectdDirectory(MediaDirectoryViewmodel directory)
         {
-            IMediaDirectory dir = _selectedDirectory?.Directory;
+            IWatcherDirectory dir = _selectedDirectory?.Directory;
             if (dir != null)
             {
                 dir.MediaAdded -= _selectedDirectoryMediaAdded;
@@ -464,12 +464,12 @@ namespace TAS.Client.ViewModels
                 if (sender is IArchiveDirectory directory)
                     SearchText = directory.SearchString;
             }
-            if (e.PropertyName == nameof(IMediaDirectory.IsInitialized))
+            if (e.PropertyName == nameof(IWatcherDirectory.IsInitialized))
             {
                 OnUiThread(() =>  _reloadFiles(_selectedDirectory));
                 _notifyDirectoryPropertiesChanged();
             }
-            if (e.PropertyName == nameof(IMediaDirectory.VolumeFreeSize))
+            if (e.PropertyName == nameof(IWatcherDirectory.VolumeFreeSize))
                 _notifyDirectoryPropertiesChanged();
         }
 
@@ -496,7 +496,7 @@ namespace TAS.Client.ViewModels
         
         private void _selectedDirectoryMediaAdded(object source, MediaEventArgs e)
         {
-            if (source is IMediaDirectory dir && dir.IsInitialized)
+            if (source is IWatcherDirectory dir && dir.IsInitialized)
                 OnUiThread(() =>
                 {
                     var media = e.Media;
@@ -508,7 +508,7 @@ namespace TAS.Client.ViewModels
 
         private void _selectedDirectoryMediaRemoved(object source, MediaEventArgs e)
         {
-            if (source is IMediaDirectory dir && dir.IsInitialized)
+            if (source is IWatcherDirectory dir && dir.IsInitialized)
                 OnUiThread(() =>
                 {
                         var vm = _mediaItems?.FirstOrDefault(v => v.Media == e.Media);
@@ -583,7 +583,7 @@ namespace TAS.Client.ViewModels
             return _selectedMedia?.Media is IAnimatedMedia && _engine.HaveRight(EngineRight.MediaEdit);
         }
 
-        private void _refreshMediaDirectory(IMediaDirectory directory)
+        private void _refreshMediaDirectory(IWatcherDirectory directory)
         {
             if (directory != null)
                 Task.Run(() =>
@@ -630,7 +630,7 @@ namespace TAS.Client.ViewModels
 
         private void _ingestSelectionToDir()
         {
-            IMediaDirectory currentDir = _selectedDirectory?.Directory;
+            IWatcherDirectory currentDir = _selectedDirectory?.Directory;
             if (currentDir is IIngestDirectory)
             {
                 List<IIngestOperation> ingestList = new List<IIngestOperation>();

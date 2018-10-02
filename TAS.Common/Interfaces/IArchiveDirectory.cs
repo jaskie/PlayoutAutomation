@@ -1,25 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IArchiveDirectory: IMediaDirectory, IArchiveDirectoryProperties
+    public interface IArchiveDirectory: IArchiveDirectoryProperties
     {
         IArchiveMedia Find(IMediaProperties media);
-        string SearchString { get; set; }
-        TMediaCategory? SearchMediaCategory { get; set; }
-        void Search();
+
+        List<IArchiveMedia> Search(TMediaCategory? category, string searchString);
     }
 
-    public interface IArchiveDirectoryProperties: IMediaDirectoryProperties
+    public interface IArchiveDirectoryProperties: IMediaDirectory
     {
-        ulong idArchive { get; set; }
-    }
-
-    public interface IArchiveDirectoryServerSide : IArchiveDirectory, IMediaDirectoryServerSide
-    {
-        
+        ulong IdArchive { get; set; }
     }
 }

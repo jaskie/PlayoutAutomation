@@ -1,6 +1,6 @@
 ﻿namespace TAS.Common.Interfaces
 {
-    public interface IServerDirectory: IMediaDirectory
+    public interface IServerDirectory: IWatcherDirectory
     {
     }
 

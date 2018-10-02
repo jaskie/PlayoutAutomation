@@ -24,7 +24,7 @@ namespace TAS.Common.Interfaces
         bool IsServerConnected { get; }
         IEnumerable<IPlayoutServerChannel> Channels { get; }
         IMedia RecordingMedia { get; }
-        IMediaDirectory RecordingDirectory { get; }
+        IWatcherDirectory RecordingDirectory { get; }
     }
 
     public interface IRecorderProperties

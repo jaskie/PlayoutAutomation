@@ -69,7 +69,7 @@ namespace TAS.Remoting.Model
 
         public int DefaultChannel => _defaultChannel;
 
-        public IMediaDirectory RecordingDirectory => _recordingDirectory;
+        public IWatcherDirectory RecordingDirectory => _recordingDirectory;
 
         public IMedia RecordingMedia => _recordingMedia;
 

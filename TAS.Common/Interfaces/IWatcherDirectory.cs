@@ -4,20 +4,18 @@ using System.ComponentModel;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IMediaDirectory : IMediaDirectoryProperties, INotifyPropertyChanged, IDisposable
+    public interface IWatcherDirectory : IMediaDirectory, INotifyPropertyChanged, IDisposable
     {
         bool IsInitialized { get; }
-        long VolumeTotalSize { get; }
-        long VolumeFreeSize { get; }
-        char PathSeparator { get; }
 
-        bool DirectoryExists();
         IEnumerable<IMedia> GetFiles();
-        void Refresh();
+
         void SweepStaleMedia();
 
         bool FileExists(string filename, string subfolder = null);
+
         string GetUniqueFileName(string fileName);
+        void Refresh();
 
         event EventHandler<MediaEventArgs> MediaAdded;
         event EventHandler<MediaEventArgs> MediaRemoved;
@@ -25,10 +23,14 @@ namespace TAS.Common.Interfaces
         event EventHandler<MediaEventArgs> MediaDeleted;
     }
 
-    public interface IMediaDirectoryProperties
+    public interface IMediaDirectory
     {
         string DirectoryName { get; set; }
         string Folder { get; set; }
+        long VolumeTotalSize { get; }
+        long VolumeFreeSize { get; }
+        char PathSeparator { get; }
+        bool DirectoryExists();
     }
 
     public interface IMediaDirectoryServerSide

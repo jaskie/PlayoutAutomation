@@ -5,30 +5,33 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
-using TAS.Remoting.Server;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {
     [DebuggerDisplay("{DirectoryName} ({_folder})")]
-    public abstract class MediaDirectory : DtoBase, IMediaDirectory, IMediaDirectoryServerSide
+    public abstract class WatcherDirectory : MediaDirectoryBase, IWatcherDirectory
     { 
         private FileSystemWatcher _watcher;
         private bool _isInitialized;
-        private long _volumeFreeSize;
-        private long _volumeTotalSize;
-        private string _folder;
-
+        private string _watcherFilter;
+        private TimeSpan _watcherTimeout;
+        private bool _watcherIncludeSubdirectories;
+        private CancellationTokenSource _watcherTaskCancelationTokenSource;
+        private Task _watcherSetupTask;
 
         protected readonly Dictionary<Guid, MediaBase> Files = new Dictionary<Guid, MediaBase>();
-        protected readonly NLog.Logger Logger;
-        internal MediaManager MediaManager;
+
+        public virtual void Refresh()
+        {
+            UnInitialize();
+            Initialize();
+        }
 
         public event EventHandler<MediaEventArgs> MediaAdded;
         public event EventHandler<MediaEventArgs> MediaRemoved;
@@ -36,42 +39,18 @@ namespace TAS.Server.Media
         public event EventHandler<MediaEventArgs> MediaDeleted;
         internal event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged;
         
-        protected MediaDirectory(MediaManager mediaManager)
+        protected WatcherDirectory(MediaManager mediaManager)
         {
             MediaManager = mediaManager;
             Logger = NLog.LogManager.GetLogger(GetType().Name);
         }
 
 #if DEBUG
-        ~MediaDirectory()
+        ~WatcherDirectory()
         {
             Debug.WriteLine("{0} finalized: {1}", GetType(), this);
         }
 #endif
-
-        [XmlIgnore, JsonProperty]
-        public virtual long VolumeFreeSize
-        {
-            get => _volumeFreeSize;
-            protected set => SetField(ref _volumeFreeSize, value);
-        }
-
-        [XmlIgnore, JsonProperty]
-        public virtual long VolumeTotalSize
-        {
-            get => _volumeTotalSize;
-            protected set => SetField(ref _volumeTotalSize, value);
-        }
-
-        [JsonProperty]
-        public string Folder
-        {
-            get => _folder;
-            set => SetField(ref _folder, value);
-        }
-
-        [JsonProperty]
-        public virtual char PathSeparator => Path.DirectorySeparatorChar;
 
         [XmlIgnore, JsonProperty]
         public bool IsInitialized
@@ -80,11 +59,6 @@ namespace TAS.Server.Media
             protected set => SetField(ref _isInitialized, value);
         }
 
-        [JsonProperty]
-        public string DirectoryName { get; set; }
-
-
-        public abstract IMedia CreateMedia(IMediaProperties mediaProperties);
 
         public virtual void Initialize()
         {
@@ -101,13 +75,6 @@ namespace TAS.Server.Media
             IsInitialized = false;
         }
 
-        public bool DirectoryExists()
-        {
-            return Directory.Exists(Folder);
-        }
-     
-        public abstract void Refresh();
-
         public virtual IEnumerable<IMedia> GetFiles()
         {
             lock (((IDictionary)Files).SyncRoot)
@@ -116,36 +83,35 @@ namespace TAS.Server.Media
         
         public virtual bool FileExists(string filename, string subfolder = null)
         {
-            return File.Exists(Path.Combine(_folder, subfolder ?? string.Empty, filename));
+            return File.Exists(Path.Combine(Folder, subfolder ?? string.Empty, filename));
         }
 
         public virtual bool DeleteMedia(IMedia media)
         {
-            if (media.Directory == this)
+            if (media.Directory != this) 
+                throw new ApplicationException("Deleting media directory is invalid");
+            var fullPath = ((MediaBase)media).FullPath;
+            bool isLastWithTheName;
+            lock (((IDictionary)Files).SyncRoot)
+                isLastWithTheName = !Files.Values.Any(m => m.FullPath.Equals(fullPath, StringComparison.CurrentCultureIgnoreCase) && m != media);
+            if (isLastWithTheName && media.FileExists())
             {
-                string fullPath = ((MediaBase)media).FullPath;
-                bool isLastWithTheName;
-                lock (((IDictionary)Files).SyncRoot)
-                    isLastWithTheName = !Files.Values.Any(m => m.FullPath.Equals(fullPath, StringComparison.CurrentCultureIgnoreCase) && m != media);
-                if (isLastWithTheName && media.FileExists())
+                try
                 {
-                    try
-                    {
-                        File.Delete(((MediaBase)media).FullPath);
-                        Debug.WriteLine(media, "File deleted");
-                        return true;
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine("MediaDirectory.DeleteMedia {0} failed with error {1}", media, e.Message);
-                    }
-                }
-                else
-                {
-                    RemoveMedia(media);
-                    NotifyMediaDeleted(media);
+                    File.Delete(((MediaBase)media).FullPath);
+                    Debug.WriteLine(media, "File deleted");
                     return true;
                 }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("MediaDirectory.DeleteMedia {0} failed with error {1}", media, e.Message);
+                }
+            }
+            else
+            {
+                RemoveMedia(media);
+                NotifyMediaDeleted(media);
+                return true;
             }
             return false;
         }
@@ -205,11 +171,6 @@ namespace TAS.Server.Media
                 EnumerateFiles(d.FullName, filter, true, cancelationToken);
         }
 
-        private string _watcherFilter;
-        private TimeSpan _watcherTimeout;
-        private bool _watcherIncludeSubdirectories;
-        private CancellationTokenSource _watcherTaskCancelationTokenSource;
-        private Task _watcherSetupTask;
         protected void BeginWatch(string filter, bool includeSubdirectories, TimeSpan timeout)
         {
             var oldTask = _watcherSetupTask;
@@ -222,7 +183,7 @@ namespace TAS.Server.Media
                     _watcherFilter = filter;
                     _watcherTimeout = timeout;
                     _watcherIncludeSubdirectories = includeSubdirectories;
-                    bool watcherReady = false;
+                    var watcherReady = false;
                     while (!watcherReady && !watcherTaskCancelationTokenSource.IsCancellationRequested)
                     {
                         try
@@ -232,11 +193,11 @@ namespace TAS.Server.Media
                                 _watcher.Dispose();
                                 _watcher = null;
                             }
-                            if (Directory.Exists(_folder))
+                            if (Directory.Exists(Folder))
                             {
                                 GetVolumeInfo();
-                                EnumerateFiles(_folder, filter, includeSubdirectories, watcherTaskCancelationTokenSource.Token);
-                                _watcher = new FileSystemWatcher(_folder)
+                                EnumerateFiles(Folder, filter, includeSubdirectories, watcherTaskCancelationTokenSource.Token);
+                                _watcher = new FileSystemWatcher(Folder)
                                 {
                                     Filter = string.IsNullOrWhiteSpace(filter)
                                         ? string.Empty
@@ -254,18 +215,18 @@ namespace TAS.Server.Media
                         }
                         catch (Exception e)
                         {
-                            Logger.Error(e, "Directory {0} watcher setup error", _folder);
+                            Logger.Error(e, "Directory {0} watcher setup error", Folder);
                         }
                         if (!watcherReady)
                             Thread.Sleep(30000); //Wait for retry 30 sec.
                     }
                     if (watcherReady)
-                        Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)_folder);
+                        Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)Folder);
                     else
                     if (watcherTaskCancelationTokenSource.IsCancellationRequested)
                     {
                         Debug.WriteLine("Watcher setup canceled");
-                        Logger.Debug("Directory {0} watcher setup error", _folder);
+                        Logger.Debug("Directory {0} watcher setup error", Folder);
                     }
                     IsInitialized = true;
                 }, watcherTaskCancelationTokenSource.Token);
@@ -294,8 +255,8 @@ namespace TAS.Server.Media
             {
                 _watcherTaskCancelationTokenSource.Cancel();
                 watcherTask.Wait();
-                Debug.WriteLine($"MediaDirectory: BeginWatch for {Folder} canceled.", _folder);
-                Logger.Debug("BeginWatch for {0} canceled.", _folder, null);
+                Debug.WriteLine($"MediaDirectory: BeginWatch for {Folder} canceled.");
+                Logger.Debug("BeginWatch for {0} canceled.", Folder, null);
             }
         }
 
@@ -312,7 +273,7 @@ namespace TAS.Server.Media
         {
             try
             {
-                AddFile(e.FullPath);
+                AddFile(e.FullPath, File.GetLastWriteTimeUtc(e.FullPath));
             }
             catch
             {
@@ -380,28 +341,12 @@ namespace TAS.Server.Media
             return true;
         }
 
-        protected virtual IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
-        {
-            if (string.IsNullOrWhiteSpace(fullPath) || !AcceptFile(fullPath))
-                return null;
-            var lastUpdated = lastWriteTime == default(DateTime) && File.Exists(fullPath) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
-            var mediaType = (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant()))
-                ? TMediaType.Still
-                : (FileUtils.VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant()))
-                    ? TMediaType.Movie
-                    : TMediaType.Unknown;
-            var newMedia = (MediaBase) CreateMedia(fullPath, Path.GetFileName(fullPath), lastUpdated, mediaType, guid);
-            return newMedia;
-        }
-
         protected virtual void OnError(object source, ErrorEventArgs e)
         {
-            Debug.WriteLine("MediaDirectory: Watcher {0} returned error: {1}.", _folder, e.GetException());
-            Logger.Warn("MediaDirectory: Watcher {0} returned error: {1} and will be restarted.", _folder, e.GetException());
+            Debug.WriteLine("MediaDirectory: Watcher {0} returned error: {1}.", Folder, e.GetException());
+            Logger.Warn("MediaDirectory: Watcher {0} returned error: {1} and will be restarted.", Folder, e.GetException());
             BeginWatch(_watcherFilter, _watcherIncludeSubdirectories, _watcherTimeout);
         }
-
-        protected abstract IMedia CreateMedia(string fullPath, string mediaName, DateTime lastUpdated, TMediaType mediaType, Guid guid = default(Guid));
 
         protected MediaBase FindMediaFirstByFullPath(string fullPath)
         {
@@ -411,17 +356,20 @@ namespace TAS.Server.Media
                 return Files.Values.FirstOrDefault(f => fullPath.Equals(f.FullPath, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        public virtual void AddMedia(IMedia media)
+        public override void AddMedia(IMedia media)
         {
             if (!(media is MediaBase mediaBase))
                 throw new ApplicationException("Invalid type provided to AddMedia");
+            mediaBase.Directory = this;
+            mediaBase.PropertyChanged += _media_PropertyChanged;
             lock (((IDictionary) Files).SyncRoot)
             {
                 if (Files.TryGetValue(mediaBase.MediaGuid, out var prevMedia))
                 {
                     if (prevMedia is IServerMedia || prevMedia is IAnimatedMedia)
                     {
-                        ThreadPool.QueueUserWorkItem(o =>
+                        prevMedia.PropertyChanged -= _media_PropertyChanged;
+                        Task.Run(() =>
                         {
                             if (prevMedia is IAnimatedMedia am)
                                 EngineController.Database.DbDeleteMedia(am);
@@ -429,29 +377,22 @@ namespace TAS.Server.Media
                                 EngineController.Database.DbDeleteMedia(sm);
                             Logger.Warn("Media {0} replaced in dictionary. Previous media deleted in database.",
                                 prevMedia);
+                            Debug.WriteLine(prevMedia, "Media replaced in dictionary");
                         });
-                        Debug.WriteLine(prevMedia, "Media replaced in dictionary");
                     }
                 }
                 Files[mediaBase.MediaGuid] = mediaBase;
-                mediaBase.Directory = this;
             }
-            mediaBase.PropertyChanged += _media_PropertyChanged;
             MediaAdded?.Invoke(this, new MediaEventArgs(mediaBase));
         }
 
-        public virtual void RemoveMedia(IMedia media)
+        public override void RemoveMedia(IMedia media)
         {
             lock (((IDictionary) Files).SyncRoot)
                 Files.Remove(media.MediaGuid);
             MediaRemoved?.Invoke(this, new MediaEventArgs(media));
             media.PropertyChanged -= _media_PropertyChanged;
             ((MediaBase)media).Dispose();
-        }
-
-        public string GetUniqueFileName(string fileName)
-        {
-            return FileUtils.GetUniqueFileName(_folder, fileName);
         }
 
         protected virtual void OnMediaRenamed(MediaBase media, string newFullPath)
@@ -472,30 +413,10 @@ namespace TAS.Server.Media
             MediaDeleted?.Invoke(this, new MediaEventArgs(media));
         }
 
-        protected virtual void Reinitialize()
-        {
-            UnInitialize();
-            Initialize();
-        }
-
         protected virtual void ClearFiles()
         {
             lock (((IDictionary)Files).SyncRoot)
                 Files.Values.ToList().ForEach(m => m.Remove());
-        }
-
-        protected virtual void GetVolumeInfo()
-        {
-            if (GetDiskFreeSpaceEx(Folder, out var free, out var total, out var dummy))
-            {
-                VolumeFreeSize = (long)free;
-                VolumeTotalSize = (long)total;
-            }
-            else
-            {
-                VolumeFreeSize = 0;
-                VolumeTotalSize = 0;
-            }
         }
 
         protected override void DoDispose()
@@ -503,11 +424,10 @@ namespace TAS.Server.Media
             base.DoDispose();
             CancelBeginWatch();
             ClearFiles();
-            if (_watcher != null)
-            {
-                _watcher.Dispose();
-                _watcher = null;
-            }
+            if (_watcher == null)
+                return;
+            _watcher.Dispose();
+            _watcher = null;
         }
 
         private void _media_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -515,11 +435,7 @@ namespace TAS.Server.Media
             MediaPropertyChanged?.Invoke(this, new MediaPropertyChangedEventArgs(sender as IMedia, e.PropertyName));
         }
 
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetDiskFreeSpaceEx(string lpDirectoryName, out ulong lpFreeBytesAvailable, out ulong lpTotalNumberOfBytes, out ulong lpTotalNumberOfFreeBytes);
-
-        
+        protected abstract IMedia AddFile(string fullPath, DateTime lastUpdated);
     }
 
 }

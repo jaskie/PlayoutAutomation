@@ -5,7 +5,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public class ServerDirectory : MediaDirectory, IServerDirectory
+    public class ServerDirectory : WatcherDirectory, IServerDirectory
     {
         public override IEnumerable<IMedia> GetFiles()
         {

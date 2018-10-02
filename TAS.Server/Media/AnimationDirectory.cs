@@ -7,7 +7,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {
-    public class AnimationDirectory : MediaDirectory, IAnimationDirectory
+    public class AnimationDirectory : WatcherDirectory, IAnimationDirectory
     {
         public readonly CasparServer Server;
 
@@ -24,11 +24,6 @@ namespace TAS.Server.Media
             EngineController.Database.LoadAnimationDirectory<AnimatedMedia>(this, Server.Id);
             base.Initialize();
             Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
-        }
-
-        public override void Refresh()
-        {
-
         }
 
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
@@ -69,34 +64,27 @@ namespace TAS.Server.Media
                 && FileUtils.AnimationFileTypes.Contains(Path.GetExtension(fullPath).ToLowerInvariant());
         }
 
-        protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
+        protected override IMedia AddFile(string fullPath, DateTime lastUpdated)
         {
             var newMedia = FindMediaFirstByFullPath(fullPath) as AnimatedMedia;
-            if (newMedia == null && AcceptFile(fullPath))
-            {
-                var mediaName = FileUtils.GetFileNameWithoutExtension(fullPath, TMediaType.Animation).ToUpper();
-                var lastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
-                newMedia = (AnimatedMedia)CreateMedia(fullPath, mediaName, lastUpdated, TMediaType.Animation, guid);
-                newMedia.MediaStatus = TMediaStatus.Available;
-                AddMedia(newMedia);
-                newMedia.Save();
-            }
-            return newMedia;
-        }
-
-        protected override IMedia CreateMedia(string fullPath, string mediaName, DateTime lastUpdated, TMediaType mediaType, Guid guid = default(Guid))
-        {
+            if (newMedia != null || !AcceptFile(fullPath))
+                return newMedia;
             var relativeName = fullPath.Substring(Folder.Length);
             var fileName = Path.GetFileName(relativeName);
-            return new AnimatedMedia
+            newMedia = new AnimatedMedia
             {
-                MediaName = mediaName,
+                MediaName = FileUtils.GetFileNameWithoutExtension(fullPath, TMediaType.Animation).ToUpper(),
                 LastUpdated = lastUpdated,
-                MediaGuid = guid,
-                IsVerified = true,
-                FileName = fileName,
-                Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator)
+                MediaType = TMediaType.Animation,
+                MediaGuid = Guid.NewGuid(),
+                FileName = Path.GetFileName(relativeName),
+                Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
+                MediaStatus = TMediaStatus.Available,
+                IsVerified = true
             };
+            AddMedia(newMedia);
+            newMedia.Save();
+            return newMedia;
         }
 
     }

@@ -4,7 +4,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public class AnimationDirectory : MediaDirectory, IAnimationDirectory
+    public class AnimationDirectory : WatcherDirectory, IAnimationDirectory
     {
         public IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
         {
