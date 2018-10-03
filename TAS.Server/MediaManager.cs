@@ -95,7 +95,7 @@ namespace TAS.Server
             foreach (var mediaDirectory in initializationList.Distinct())
                 (mediaDirectory as WatcherDirectory)?.Initialize();
             if (archiveDirectory != null)
-                archiveDirectory.MediaDeleted += ArchiveDirectory_MediaDeleted;
+                archiveDirectory.MediaRemoved += ArchiveDirectory_MediaRemoved;
 
             if (MediaDirectoryPRI is ServerDirectory sdir)
             {
@@ -482,7 +482,7 @@ namespace TAS.Server
             }
         }
 
-        private void ArchiveDirectory_MediaDeleted(object sender, MediaEventArgs e)
+        private void ArchiveDirectory_MediaRemoved(object sender, MediaEventArgs e)
         {
             if (((ServerDirectory) MediaDirectoryPRI)?.FindMediaByMediaGuid(e.Media.MediaGuid) is ServerMedia m)
                 m.IsArchived = false;
@@ -571,8 +571,8 @@ namespace TAS.Server
         {
             base.DoDispose();
 
-            if (ArchiveDirectory != null)
-                ArchiveDirectory.MediaDeleted -= ArchiveDirectory_MediaDeleted;
+            if (ArchiveDirectory is ArchiveDirectory archiveDirectory)
+                archiveDirectory.MediaRemoved -= ArchiveDirectory_MediaRemoved;
 
             if (MediaDirectoryPRI is ServerDirectory sdir)
             {

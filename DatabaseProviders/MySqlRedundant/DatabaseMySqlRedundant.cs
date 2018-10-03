@@ -631,7 +631,7 @@ namespace TAS.Database.MySqlRedundant
                 cmd.Parameters.AddWithValue("@idArchive", idArchive);
                 var folder = (string)cmd.ExecuteScalar();
                 if (string.IsNullOrEmpty(folder))
-                    return null;
+                    return default(T);
                 var directory = (T)_archiveDirectoryConstructorInfo.Invoke(new object[] { manager, idArchive, folder });
                 return directory;
             }

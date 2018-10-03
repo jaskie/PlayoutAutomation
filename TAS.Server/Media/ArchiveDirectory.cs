@@ -48,16 +48,14 @@ namespace TAS.Server.Media
         {
             return EngineController.Database.ArchiveMediaSearch<ArchiveMedia>(this, category, searchString).ToList<IArchiveMedia>();
         }
-
-
+        
         public void SweepStaleMedia()
         {
             IEnumerable<IMedia> staleMediaList = EngineController.Database.FindArchivedStaleMedia<ArchiveMedia>(this);
             foreach (var m in staleMediaList)
                 m.Delete();
         }
-
-
+        
         public override void RemoveMedia(IMedia media)
         {
             if (!(media is ArchiveMedia am))

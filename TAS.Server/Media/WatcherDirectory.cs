@@ -33,8 +33,6 @@ namespace TAS.Server.Media
             Initialize();
         }
 
-        public event EventHandler<MediaEventArgs> MediaAdded;
-        public event EventHandler<MediaEventArgs> MediaRemoved;
         public event EventHandler<MediaEventArgs> MediaVerified;
         public event EventHandler<MediaEventArgs> MediaDeleted;
         internal event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged;
@@ -360,6 +358,7 @@ namespace TAS.Server.Media
         {
             if (!(media is MediaBase mediaBase))
                 throw new ApplicationException("Invalid type provided to AddMedia");
+            base.AddMedia(media);
             mediaBase.Directory = this;
             mediaBase.PropertyChanged += _media_PropertyChanged;
             lock (((IDictionary) Files).SyncRoot)
@@ -383,14 +382,13 @@ namespace TAS.Server.Media
                 }
                 Files[mediaBase.MediaGuid] = mediaBase;
             }
-            MediaAdded?.Invoke(this, new MediaEventArgs(mediaBase));
         }
 
         public override void RemoveMedia(IMedia media)
         {
             lock (((IDictionary) Files).SyncRoot)
                 Files.Remove(media.MediaGuid);
-            MediaRemoved?.Invoke(this, new MediaEventArgs(media));
+            base.RemoveMedia(media);
             media.PropertyChanged -= _media_PropertyChanged;
             ((MediaBase)media).Dispose();
         }
