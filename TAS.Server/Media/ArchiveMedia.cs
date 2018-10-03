@@ -43,10 +43,10 @@ namespace TAS.Server.Media
                     else
                     {
                         if (IdPersistentMedia == 0)
-                            result = EngineController.Database.DbInsertMedia(this, ((ArchiveDirectory)Directory).idArchive);
+                            result = EngineController.Database.DbInsertMedia(this, ((ArchiveDirectory)Directory).IdArchive);
                         else if (IsModified)
                         {
-                            EngineController.Database.DbUpdateMedia(this, ((ArchiveDirectory) Directory).idArchive);
+                            EngineController.Database.DbUpdateMedia(this, ((ArchiveDirectory) Directory).IdArchive);
                             result = true;
                         }
                         IsModified = false;

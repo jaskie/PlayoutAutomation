@@ -74,6 +74,7 @@
     <Compile Include="Interfaces\IAclObject.cs" />
     <Compile Include="Interfaces\IAuthenticationService.cs" />
     <Compile Include="Interfaces\IDatabase.cs" />
+    <Compile Include="Interfaces\IMediaDirectory.cs" />
     <Compile Include="Interfaces\ISecurityObject.cs" />
     <Compile Include="Interfaces\IEnginePlugin.cs" />
     <Compile Include="Interfaces\IEnginePluginFactory.cs" />

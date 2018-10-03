@@ -66,12 +66,20 @@ namespace TAS.Server.Media
             if (!(media is MediaBase mediaBase))
                 return;
             mediaBase.Directory = this;
+            MediaAdded?.Invoke(this, new MediaEventArgs(media));
         }
 
-        public abstract void RemoveMedia(IMedia media);
+        public virtual void RemoveMedia(IMedia media)
+        {
+            MediaRemoved?.Invoke(this, new MediaEventArgs(media));
+        }
 
         public abstract IMedia CreateMedia(IMediaProperties mediaProperties);
-        
+
+        public event EventHandler<MediaEventArgs> MediaAdded;
+        public event EventHandler<MediaEventArgs> MediaRemoved;
+
+
         protected virtual void GetVolumeInfo()
         {
             if (GetDiskFreeSpaceEx(Folder, out var free, out var total, out var dummy))
@@ -89,6 +97,7 @@ namespace TAS.Server.Media
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GetDiskFreeSpaceEx(string lpDirectoryName, out ulong lpFreeBytesAvailable, out ulong lpTotalNumberOfBytes, out ulong lpTotalNumberOfFreeBytes);
+
 
     }
 
