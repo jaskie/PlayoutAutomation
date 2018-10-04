@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IWatcherDirectory : IMediaDirectory, INotifyPropertyChanged, IDisposable
+    public interface IWatcherDirectory : IMediaDirectory, IDisposable
     {
         bool IsInitialized { get; }
 
@@ -12,9 +11,6 @@ namespace TAS.Common.Interfaces
 
         void SweepStaleMedia();
 
-        bool FileExists(string filename, string subfolder = null);
-
-        string GetUniqueFileName(string fileName);
         void Refresh();
 
         event EventHandler<MediaEventArgs> MediaVerified;

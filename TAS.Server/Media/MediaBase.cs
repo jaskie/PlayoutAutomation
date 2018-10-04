@@ -212,7 +212,7 @@ namespace TAS.Server.Media
             internal set
             {
                 if (SetField(ref _verified, value) && value && _mediaStatus == TMediaStatus.Available)
-                    ((WatcherDirectory)Directory).NotifyMediaVerified(this);
+                    (Directory as WatcherDirectory)?.NotifyMediaVerified(this);
             }
         }
 
