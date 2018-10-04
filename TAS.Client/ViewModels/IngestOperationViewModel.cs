@@ -331,9 +331,8 @@ namespace TAS.Client.ViewModels
 
         private string ValidateDestFileName()
         {
-            IWatcherDirectory dir = _ingestOperation.DestDirectory;
-            if (dir == null)
-                return null;
+            if (!(_ingestOperation.DestDirectory is IServerDirectory dir))
+                throw new ApplicationException("Invalid directory in ValidateDestFileName");
             if (_destMediaProperties.FileName.StartsWith(" ") || _destMediaProperties.FileName.EndsWith(" "))
                 return resources._validate_FileNameCanNotStartOrEndWithSpace;
             if (_destMediaProperties.FileName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)

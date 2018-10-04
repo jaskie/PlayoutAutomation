@@ -17,7 +17,7 @@ namespace TAS.Client.ViewModels
 
         public IMediaDirectory Directory { get; }
 
-        public bool IsOK => Directory?.IsInitialized == true && DirectoryFreePercentage >= 20;
+        public bool IsOK => ((Directory as IWatcherDirectory)?.IsInitialized ?? true) && DirectoryFreePercentage >= 20;
 
         public long VolumeTotalSize => Directory.VolumeTotalSize;
 
@@ -32,9 +32,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public void SweepStaleMedia() { Directory.SweepStaleMedia(); }
-
-        public bool IsInitialized => Directory.IsInitialized;
+        public void SweepStaleMedia() { (Directory as IWatcherDirectory)?.SweepStaleMedia(); }
 
         public string DirectoryName => Directory.DirectoryName;
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
@@ -59,6 +58,11 @@ namespace TAS.Server.Media
         public string GetUniqueFileName(string fileName)
         {
             return FileUtils.GetUniqueFileName(_folder, fileName);
+        }
+
+        public virtual bool FileExists(string filename, string subfolder = null)
+        {
+            return File.Exists(Path.Combine(Folder, subfolder ?? string.Empty, filename));
         }
 
         public virtual void AddMedia(IMedia media)

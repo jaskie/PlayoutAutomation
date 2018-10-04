@@ -252,27 +252,21 @@ namespace TAS.Server.Media
 
         public override bool DeleteMedia(IMedia media)
         {
-            if (AccessType == TDirectoryAccessType.FTP)
-            {
-                if (media.Directory == this)
-                {
-                    FtpClient client = GetFtpClient();
-                    Uri uri = new Uri(((MediaBase)media).FullPath);
-                    try
-                    {
-                        client.DeleteFile(uri.LocalPath);
-                        return true;
-                    }
-                    catch (FtpCommandException)
-                    {
-                        return false;
-                    }
-                }
-                else
-                    return false;
-            }
-            else
+            if (AccessType != TDirectoryAccessType.FTP)
                 return base.DeleteMedia(media);
+            if (media.Directory != this) 
+                throw new ApplicationException("Media does not belong to the directory");
+            var client = GetFtpClient();
+            var uri = new Uri(((MediaBase)media).FullPath);
+            try
+            {
+                client.DeleteFile(uri.LocalPath);
+                return true;
+            }
+            catch (FtpCommandException)
+            {
+                return false;
+            }
         }
 
         public override bool FileExists(string filename, string subfolder = null)
@@ -307,7 +301,25 @@ namespace TAS.Server.Media
 
         protected override IMedia AddFile(string fullPath, DateTime lastUpdated)
         {
-            throw new NotImplementedException();
+            if (Kind == TIngestDirectoryKind.XDCAM)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                var relativeName = fullPath.Substring(Folder.Length);
+                var fileName = Path.GetFileName(fullPath);
+                var mediaType = FileUtils.GetMediaType(fileName);
+                return new IngestMedia
+                {
+                    MediaName = FileUtils.GetFileNameWithoutExtension(fileName, mediaType),
+                    MediaGuid = Guid.NewGuid(),
+                    MediaType = mediaType,
+                    FileName = fileName,
+                    Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
+                    MediaStatus = TMediaStatus.Unknown,
+                };
+            }
         }
 
         protected override void OnError(object source, ErrorEventArgs e)

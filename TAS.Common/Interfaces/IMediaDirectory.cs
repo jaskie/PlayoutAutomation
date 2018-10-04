@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IMediaDirectory
+    public interface IMediaDirectory: INotifyPropertyChanged
     {
         string DirectoryName { get; set; }
         string Folder { get; set; }
@@ -14,6 +11,10 @@ namespace TAS.Common.Interfaces
         long VolumeFreeSize { get; }
         char PathSeparator { get; }
         bool DirectoryExists();
+        bool FileExists(string filename, string subfolder = null);
+
+        string GetUniqueFileName(string fileName);
+
         event EventHandler<MediaEventArgs> MediaAdded;
         event EventHandler<MediaEventArgs> MediaRemoved;
     }

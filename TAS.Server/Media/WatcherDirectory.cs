@@ -79,11 +79,6 @@ namespace TAS.Server.Media
                 return Files.Values.Cast<IMedia>().ToList().AsReadOnly();
         }
         
-        public virtual bool FileExists(string filename, string subfolder = null)
-        {
-            return File.Exists(Path.Combine(Folder, subfolder ?? string.Empty, filename));
-        }
-
         public virtual bool DeleteMedia(IMedia media)
         {
             if (media.Directory != this) 
