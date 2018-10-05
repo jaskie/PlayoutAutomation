@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {

@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using delegateKey = System.Tuple<System.Guid, string>;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Security;
 
 
 namespace TAS.Remoting.Server

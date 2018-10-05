@@ -11,6 +11,8 @@ using System.Xml.Serialization;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
@@ -156,7 +158,10 @@ namespace TAS.Server.Media
             {
                 if (cancelationToken.IsCancellationRequested)
                     return;
-                AddFile(f.FullName, f.LastWriteTimeUtc);
+                var m = FindMediaFirstByFullPath(f.FullName);
+                if (m != null)
+                    continue;
+                AddMediaFromPath(f.FullName, f.LastWriteTimeUtc);
             }
             if (!includeSubdirectories) return;
             list = new DirectoryInfo(directory).EnumerateDirectories();
@@ -266,7 +271,7 @@ namespace TAS.Server.Media
         {
             try
             {
-                AddFile(e.FullPath, File.GetLastWriteTimeUtc(e.FullPath));
+                AddMediaFromPath(e.FullPath, File.GetLastWriteTimeUtc(e.FullPath));
             }
             catch
             {
@@ -295,7 +300,7 @@ namespace TAS.Server.Media
                 if (m == null)
                 {
                     var fi = new FileInfo(e.FullPath);
-                    AddFile(e.FullPath, fi.LastWriteTimeUtc);
+                    AddMediaFromPath(e.FullPath, fi.LastWriteTimeUtc);
                 }
                 else
                 {
@@ -343,8 +348,6 @@ namespace TAS.Server.Media
 
         protected MediaBase FindMediaFirstByFullPath(string fullPath)
         {
-            if (string.IsNullOrEmpty(fullPath))
-                return null;
             lock (((IDictionary) Files).SyncRoot)
                 return Files.Values.FirstOrDefault(f => fullPath.Equals(f.FullPath, StringComparison.CurrentCultureIgnoreCase));
         }
@@ -428,7 +431,7 @@ namespace TAS.Server.Media
             MediaPropertyChanged?.Invoke(this, new MediaPropertyChangedEventArgs(sender as IMedia, e.PropertyName));
         }
 
-        protected abstract IMedia AddFile(string fullPath, DateTime lastUpdated);
+        protected abstract IMedia AddMediaFromPath(string fullPath, DateTime lastUpdated);
     }
 
 }

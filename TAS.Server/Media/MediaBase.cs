@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
@@ -237,7 +239,7 @@ namespace TAS.Server.Media
             return ((WatcherDirectory)Directory).DeleteMedia(this);
         }
 
-        public virtual void CloneMediaProperties(IMediaProperties fromMedia)
+        internal virtual void CloneMediaProperties(IMediaProperties fromMedia)
         {
             MediaName = fromMedia.MediaName;
             AudioChannelMapping = fromMedia.AudioChannelMapping;

@@ -10,6 +10,9 @@ using System.Reflection;
 using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
+using TAS.Common.Interfaces.Security;
 
 namespace TAS.Database.MySqlRedundant
 {
@@ -1309,7 +1312,7 @@ VALUES
             media.IsModified = false;
         }
 
-        public void LoadAnimationDirectory<T>(IAnimationDirectory directory, ulong serverId) where T : IAnimatedMedia, new()
+        public void LoadAnimationDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IAnimatedMedia, new()
         {
             Debug.WriteLine(directory, "AnimationDirectory load started");
             lock (_connection)
@@ -1346,7 +1349,7 @@ VALUES
                             if (media.MediaStatus == TMediaStatus.Available)
                                 continue;
                             media.MediaStatus = TMediaStatus.Unknown;
-                            media.ReVerify();
+                            directory.AddMedia(media);
                         }
                     }
                     Debug.WriteLine(directory, "Directory loaded");
@@ -1380,10 +1383,6 @@ VALUES
                             };
                             _mediaReadFields(media, dataReader);
                             directory.AddMedia(media);
-                            if (media.MediaStatus == TMediaStatus.Available)
-                                continue;
-                            media.MediaStatus = TMediaStatus.Unknown;
-                            media.ReVerify();
                         }
                     }
                     Debug.WriteLine(directory, "Directory loaded");

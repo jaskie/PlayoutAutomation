@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TAS.Common.Interfaces.Security;
 
 namespace TAS.Common.Interfaces
 {

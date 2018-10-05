@@ -9,6 +9,7 @@ using TAS.Common;
 using TAS.Remoting.Server;
 using Newtonsoft.Json;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 
 namespace TAS.Server

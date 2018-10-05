@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
@@ -44,9 +46,9 @@ namespace TAS.Server.Media
 
         public ulong IdArchive { get; set; }
 
-        public List<IArchiveMedia> Search(TMediaCategory? category, string searchString)
+        public List<IMedia> Search(TMediaCategory? category, string searchString)
         {
-            return EngineController.Database.ArchiveMediaSearch<ArchiveMedia>(this, category, searchString).ToList<IArchiveMedia>();
+            return EngineController.Database.ArchiveMediaSearch<ArchiveMedia>(this, category, searchString).ToList<IMedia>();
         }
         
         public void SweepStaleMedia()

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.Config.Model
 {

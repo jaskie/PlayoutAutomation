@@ -12,6 +12,8 @@ using TAS.Common;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 
 namespace TAS.Server
@@ -473,13 +475,13 @@ namespace TAS.Server
 
         private void _onServerDirectoryMediaSaved(object dir, MediaEventArgs e)
         {
-            if (e.Media is ServerMedia priMedia 
-                && priMedia.MediaStatus != TMediaStatus.Deleted)
-            {
-                ServerMedia compMedia = _findComplementaryMedia(priMedia);
-                if (compMedia?.IsModified == true)
-                    ThreadPool.QueueUserWorkItem(o => compMedia.Save());
-            }
+            if (!(e.Media is ServerMedia priMedia))
+                throw new ApplicationException("Invalid media type provided");
+            if (priMedia.MediaStatus == TMediaStatus.Deleted)
+                return;
+            var compMedia = _findComplementaryMedia(priMedia);
+            if (compMedia?.IsModified == true)
+                ThreadPool.QueueUserWorkItem(o => compMedia.Save());
         }
 
         private void ArchiveDirectory_MediaRemoved(object sender, MediaEventArgs e)

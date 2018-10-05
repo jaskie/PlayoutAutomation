@@ -3,6 +3,7 @@ using System.IO;
 using TAS.FFMpegUtils;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {

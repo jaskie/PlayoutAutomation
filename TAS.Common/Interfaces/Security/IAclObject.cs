@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
-namespace TAS.Common.Interfaces
+namespace TAS.Common.Interfaces.Security
 {
     /// <summary>
     /// Object to which rights are controlled against

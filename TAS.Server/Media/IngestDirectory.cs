@@ -13,6 +13,8 @@ using System.Xml.Serialization;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.XDCAM;
 
 namespace TAS.Server.Media
@@ -47,7 +49,7 @@ namespace TAS.Server.Media
                 IsInitialized = true;
             }
             else
-            if (Kind == TIngestDirectoryKind.XDCAM)
+            if (Kind == TIngestDirectoryKind.XDCAM || IsWAN)
             {
                 IsInitialized = true;
             }
@@ -58,7 +60,6 @@ namespace TAS.Server.Media
                     if (IsImport && (!IsWAN || !string.IsNullOrWhiteSpace(_filter)))
                         BeginWatch(_filter, IsRecursive, TimeSpan.Zero);
             }
-
             _subDirectories?.ToList().ForEach(d =>
             {
                 d.MediaManager = MediaManager;
@@ -299,8 +300,9 @@ namespace TAS.Server.Media
             _ftpClient?.Dispose();
         }
 
-        protected override IMedia AddFile(string fullPath, DateTime lastUpdated)
+        protected override IMedia AddMediaFromPath(string fullPath, DateTime lastUpdated)
         {
+            IngestMedia media;
             if (Kind == TIngestDirectoryKind.XDCAM)
             {
                 throw new NotImplementedException();
@@ -310,7 +312,7 @@ namespace TAS.Server.Media
                 var relativeName = fullPath.Substring(Folder.Length);
                 var fileName = Path.GetFileName(fullPath);
                 var mediaType = FileUtils.GetMediaType(fileName);
-                return new IngestMedia
+                media = new IngestMedia
                 {
                     MediaName = FileUtils.GetFileNameWithoutExtension(fileName, mediaType),
                     MediaGuid = Guid.NewGuid(),
@@ -320,6 +322,8 @@ namespace TAS.Server.Media
                     MediaStatus = TMediaStatus.Unknown,
                 };
             }
+            AddMedia(media);
+            return media;
         }
 
         protected override void OnError(object source, ErrorEventArgs e)
@@ -650,7 +654,7 @@ namespace TAS.Server.Media
             string newPath = localPath + '/' + item.Name;
             if (item.Type == FtpFileSystemObjectType.Movie || item.Type == FtpFileSystemObjectType.File)
             {
-                IMedia newmedia = AddFile(Folder + newPath, item.Modified == default(DateTime) ? item.Created : item.Modified);
+                IMedia newmedia = AddMediaFromPath(Folder + newPath, item.Modified == default(DateTime) ? item.Created : item.Modified);
                 if (item.Type == FtpFileSystemObjectType.Movie)
                 {
                     newmedia.Duration = item.Size.SMPTEFramesToTimeSpan("50"); // assuming Grass Valley K2 PAL server
@@ -687,6 +691,11 @@ namespace TAS.Server.Media
         }
 
         #endregion
+
+        public List<IMedia> Search(TMediaCategory? category, string searchString)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

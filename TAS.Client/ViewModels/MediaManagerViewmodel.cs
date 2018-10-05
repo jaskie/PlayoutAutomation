@@ -17,6 +17,8 @@ using System.ComponentModel.Composition.Hosting;
 using System.Globalization;
 using System.Threading.Tasks;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
@@ -49,22 +51,22 @@ namespace TAS.Client.ViewModels
                 PreviewViewmodel = new PreviewViewmodel(engine, preview);
 
             MediaDirectories = new List<MediaDirectoryViewmodel>();
-            MediaDirectories.AddRange(_mediaManager.IngestDirectories.Where(d => d.ContainsImport()).Select(d => new MediaDirectoryViewmodel(d, true)));
-            IArchiveDirectory archiveDirectory = _mediaManager.ArchiveDirectory;
+            MediaDirectories.AddRange(_mediaManager.IngestDirectories.Where(d => d.ContainsImport()).Select(d => new MediaDirectoryViewmodel(d, d.DirectoryName, true)));
+            var archiveDirectory = _mediaManager.ArchiveDirectory;
             if (archiveDirectory != null)
-                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(archiveDirectory));
-            IAnimationDirectory animationDirectoryPri = _mediaManager.AnimationDirectoryPRI;
+                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(archiveDirectory, resources._archive));
+            var animationDirectorySec = _mediaManager.AnimationDirectorySEC;
+            var animationDirectoryPri = _mediaManager.AnimationDirectoryPRI;
+            if (animationDirectorySec != null && animationDirectorySec != animationDirectoryPri)
+                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(animationDirectorySec, resources._animations_Secondary));
             if (animationDirectoryPri != null)
-                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(animationDirectoryPri));
-            IAnimationDirectory animationDirectorySec = _mediaManager.AnimationDirectorySEC;
-            if (animationDirectorySec != null)
-                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(animationDirectorySec));
-            IServerDirectory serverDirectoryPri = _mediaManager.MediaDirectoryPRI;
-            if (serverDirectoryPri != null)
-                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(serverDirectoryPri));
-            IServerDirectory serverDirectorySec = _mediaManager.MediaDirectorySEC;
+                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(animationDirectoryPri, resources._animations_Primary));
+            var serverDirectoryPri = _mediaManager.MediaDirectoryPRI;
+            var serverDirectorySec = _mediaManager.MediaDirectorySEC;
             if (serverDirectorySec != null && serverDirectorySec != serverDirectoryPri)
-                MediaDirectories.Insert(1, new MediaDirectoryViewmodel(serverDirectorySec));
+                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(serverDirectorySec, resources._secondary));
+            if (serverDirectoryPri != null)
+                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(serverDirectoryPri, resources._primary));
 
             _mediaCategory = MediaCategories.FirstOrDefault();
             SelectedDirectory = MediaDirectories.FirstOrDefault();

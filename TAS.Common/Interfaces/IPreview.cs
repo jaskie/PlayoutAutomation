@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Common.Interfaces
 {

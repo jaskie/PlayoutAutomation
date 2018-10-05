@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TAS.Common.Interfaces
+﻿namespace TAS.Common.Interfaces.Security
 {
     /// <summary>
     /// Access control list item

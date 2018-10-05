@@ -8,6 +8,7 @@ using TAS.Client.Common;
 using TAS.Common;
 using System.Text.RegularExpressions;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels

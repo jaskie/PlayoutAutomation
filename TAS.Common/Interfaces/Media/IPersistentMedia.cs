@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TAS.Common.Interfaces
+namespace TAS.Common.Interfaces.Media
 {
     public interface IPersistentMedia: IMedia, IPersistentMediaProperties
     {

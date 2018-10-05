@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Client.ViewModels
 {

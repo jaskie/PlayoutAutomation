@@ -13,6 +13,7 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 using TAS.Server.Dependencies;
 using TAS.Server.Media;
 
