@@ -6,6 +6,7 @@ using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.ViewModels
 {
@@ -22,7 +23,7 @@ namespace TAS.Client.ViewModels
         {
             _engine = engine;
             Items = new ObservableCollection<ExportMediaViewmodel>(exportList.Select(media => new ExportMediaViewmodel(engine, media)));
-            Directories = engine.MediaManager.IngestDirectories.Where(d => d.ContainsExport()).Select(d => new MediaDirectoryViewmodel(d, false, true)).ToList();
+            Directories = engine.MediaManager.IngestDirectories.Where(d => d.ContainsExport()).Select(d => new MediaDirectoryViewmodel(d, d.DirectoryName, false, true)).ToList();
             SelectedDirectory = Directories.FirstOrDefault();
             CommandExport = new UICommand { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
         }
@@ -33,22 +34,21 @@ namespace TAS.Client.ViewModels
         
         public MediaDirectoryViewmodel SelectedDirectory
         {
-            get { return _selectedDirectory; }
+            get => _selectedDirectory;
             set
             {
-                if (SetField(ref _selectedDirectory, value))
+                if (!SetField(ref _selectedDirectory, value))
+                    return;
+                NotifyPropertyChanged(nameof(IsConcatMediaNameVisible));
+                NotifyPropertyChanged(nameof(IsXDCAM));
+                NotifyPropertyChanged(nameof(IsMXF));
+                if (value?.ExportContainerFormat == TMovieContainerFormat.mxf 
+                    || value?.IsXdcam == true)
                 {
-                    NotifyPropertyChanged(nameof(IsConcatMediaNameVisible));
-                    NotifyPropertyChanged(nameof(IsXDCAM));
-                    NotifyPropertyChanged(nameof(IsMXF));
-                    if (value?.ExportContainerFormat == TMovieContainerFormat.mxf 
-                        || value?.IsXdcam == true)
-                    {
-                        MXFAudioExportFormat = value.MXFAudioExportFormat;
-                        MXFVideoExportFormat = value.MXFVideoExportFormat;
-                    }
-                    InvalidateRequerySuggested();
+                    MXFAudioExportFormat = value.MXFAudioExportFormat;
+                    MXFVideoExportFormat = value.MXFVideoExportFormat;
                 }
+                InvalidateRequerySuggested();
             }
         }
 
@@ -60,7 +60,7 @@ namespace TAS.Client.ViewModels
 
         public bool ConcatMedia
         {
-            get { return _concatMedia; }
+            get => _concatMedia;
             set
             {
                 if (SetField(ref _concatMedia, value))
@@ -72,7 +72,7 @@ namespace TAS.Client.ViewModels
 
         public string ConcatMediaName
         {
-            get { return _concatMediaName; }
+            get => _concatMediaName;
             set
             {
                 if (SetField(ref _concatMediaName, value))
@@ -86,9 +86,9 @@ namespace TAS.Client.ViewModels
 
         public Array MXFAudioExportFormats { get; } = Enum.GetValues(typeof(TmXFAudioExportFormat));
 
-        public TmXFAudioExportFormat MXFAudioExportFormat { get { return _mXFAudioExportFormat; } set { SetField(ref _mXFAudioExportFormat, value); } }
+        public TmXFAudioExportFormat MXFAudioExportFormat { get => _mXFAudioExportFormat; set => SetField(ref _mXFAudioExportFormat, value); }
 
-        public TmXFVideoExportFormat MXFVideoExportFormat { get { return _mXFVideoExportFormat; } set { SetField(ref _mXFVideoExportFormat, value); } }
+        public TmXFVideoExportFormat MXFVideoExportFormat { get => _mXFVideoExportFormat; set => SetField(ref _mXFVideoExportFormat, value); }
 
         public bool CanConcatMedia => Items.Count > 1;
 

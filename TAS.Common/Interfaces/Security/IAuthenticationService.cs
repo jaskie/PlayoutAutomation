@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
-namespace TAS.Common.Interfaces
+namespace TAS.Common.Interfaces.Security
 {
     public interface IAuthenticationService
     {

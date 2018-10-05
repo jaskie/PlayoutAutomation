@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
+using TAS.Common.Interfaces.Security;
 
 namespace TAS.Common.Interfaces
 {
@@ -66,7 +69,7 @@ namespace TAS.Common.Interfaces
         void DbUpdateSecurityObject(ISecurityObject aco);
         void DbUpdateServer(IPlayoutServerProperties server);
         bool DropDatabase(string connectionString);
-        void LoadAnimationDirectory<T>(IAnimationDirectory directory, ulong serverId) where T : IAnimatedMedia, new();
+        void LoadAnimationDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IAnimatedMedia, new();
         void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IServerMedia, new();
         T LoadArchiveDirectory<T>(IMediaManager manager, ulong idArchive) where T : IArchiveDirectory;
         void Open(string connectionStringPrimary = null, string connectionStringSecondary = null);

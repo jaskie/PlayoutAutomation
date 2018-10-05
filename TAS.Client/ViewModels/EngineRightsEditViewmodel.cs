@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Security;
 
 
 namespace TAS.Client.ViewModels

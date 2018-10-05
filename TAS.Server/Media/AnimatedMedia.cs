@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {
@@ -59,7 +60,7 @@ namespace TAS.Server.Media
             return result;
         }
 
-        public override void CloneMediaProperties(IMediaProperties fromMedia)
+        internal override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
             if (fromMedia is AnimatedMedia a)

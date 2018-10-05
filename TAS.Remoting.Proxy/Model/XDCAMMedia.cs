@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Remoting.Model
 {

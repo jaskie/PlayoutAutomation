@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Security.Principal;
 
-namespace TAS.Common.Interfaces
+namespace TAS.Common.Interfaces.Security
 {
     public interface IUser: ISecurityObject, IIdentity
     {

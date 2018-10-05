@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using TAS.Common.Interfaces.Media;
 
-namespace TAS.Common.Interfaces
+namespace TAS.Common.Interfaces.MediaDirectory
 {
     public interface IWatcherDirectory : IMediaDirectory, IDisposable
     {

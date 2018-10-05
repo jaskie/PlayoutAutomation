@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.Security;
 
 namespace TAS.Common.Interfaces
 {

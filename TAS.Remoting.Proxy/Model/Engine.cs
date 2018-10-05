@@ -5,6 +5,8 @@ using System.Diagnostics;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.Security;
 using TAS.Remoting.Model.Security;
 
 namespace TAS.Remoting.Model

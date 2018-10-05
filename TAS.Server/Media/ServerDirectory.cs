@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
@@ -110,8 +112,10 @@ namespace TAS.Server.Media
             unverifiedFiles.ForEach(media => media.Verify());
         }
 
-        protected override IMedia AddFile(string fullPath, DateTime lastUpdated)
+        protected override IMedia AddMediaFromPath(string fullPath, DateTime lastUpdated)
         {
+            if (!AcceptFile(fullPath))
+                return null;
             var newMedia = FindMediaFirstByFullPath(fullPath) as ServerMedia;
             if (newMedia != null || !AcceptFile(fullPath))
                 return newMedia;

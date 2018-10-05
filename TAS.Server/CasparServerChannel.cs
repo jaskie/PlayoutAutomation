@@ -12,6 +12,7 @@ using System.Collections.Concurrent;
 using TAS.Common;
 using System.Text.RegularExpressions;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 using TAS.Server.Media;
 
 namespace TAS.Server

@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
@@ -64,7 +66,7 @@ namespace TAS.Server.Media
                 && FileUtils.AnimationFileTypes.Contains(Path.GetExtension(fullPath).ToLowerInvariant());
         }
 
-        protected override IMedia AddFile(string fullPath, DateTime lastUpdated)
+        protected override IMedia AddMediaFromPath(string fullPath, DateTime lastUpdated)
         {
             var newMedia = FindMediaFirstByFullPath(fullPath) as AnimatedMedia;
             if (newMedia != null || !AcceptFile(fullPath))

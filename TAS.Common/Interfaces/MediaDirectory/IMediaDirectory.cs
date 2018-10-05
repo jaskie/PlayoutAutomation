@@ -1,7 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using TAS.Common.Interfaces.Media;
 
-namespace TAS.Common.Interfaces
+namespace TAS.Common.Interfaces.MediaDirectory
 {
     public interface IMediaDirectory: INotifyPropertyChanged
     {

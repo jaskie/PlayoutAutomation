@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.Common
 {

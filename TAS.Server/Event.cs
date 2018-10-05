@@ -11,6 +11,8 @@ using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.Security;
 using TAS.Server.Media;
 using TAS.Server.Security;
 

@@ -68,20 +68,21 @@
     <Compile Include="EventExtensions.cs" />
     <Compile Include="EventPositionEventArgs.cs" />
     <Compile Include="EventProxy.cs" />
-    <Compile Include="Interfaces\IAclRight.cs" />
+    <Compile Include="Interfaces\Security\IAclRight.cs" />
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
-    <Compile Include="Interfaces\IAclObject.cs" />
-    <Compile Include="Interfaces\IAuthenticationService.cs" />
+    <Compile Include="Interfaces\Security\IAclObject.cs" />
+    <Compile Include="Interfaces\Security\IAuthenticationService.cs" />
     <Compile Include="Interfaces\IDatabase.cs" />
-    <Compile Include="Interfaces\IMediaDirectory.cs" />
-    <Compile Include="Interfaces\ISecurityObject.cs" />
+    <Compile Include="Interfaces\MediaDirectory\IMediaDirectory.cs" />
+    <Compile Include="Interfaces\MediaDirectory\ISearchableDirectory.cs" />
+    <Compile Include="Interfaces\Security\ISecurityObject.cs" />
     <Compile Include="Interfaces\IEnginePlugin.cs" />
     <Compile Include="Interfaces\IEnginePluginFactory.cs" />
     <Compile Include="EventEventArgs.cs" />
-    <Compile Include="Interfaces\IAnimationDirectory.cs" />
-    <Compile Include="Interfaces\IArchiveDirectory.cs" />
-    <Compile Include="Interfaces\IArchiveMedia.cs" />
+    <Compile Include="Interfaces\MediaDirectory\IAnimationDirectory.cs" />
+    <Compile Include="Interfaces\MediaDirectory\IArchiveDirectory.cs" />
+    <Compile Include="Interfaces\Media\IArchiveMedia.cs" />
     <Compile Include="Interfaces\ICGElement.cs" />
     <Compile Include="Interfaces\ICGElementsState.cs" />
     <Compile Include="Interfaces\ICommandScript.cs" />
@@ -93,30 +94,30 @@
     <Compile Include="Interfaces\ICGElementsController.cs" />
     <Compile Include="Interfaces\IGpi.cs" />
     <Compile Include="Interfaces\IGroup.cs" />
-    <Compile Include="Interfaces\IIngestDirectory.cs" />
-    <Compile Include="Interfaces\IIngestMedia.cs" />
+    <Compile Include="Interfaces\MediaDirectory\IIngestDirectory.cs" />
+    <Compile Include="Interfaces\Media\IIngestMedia.cs" />
     <Compile Include="Interfaces\ILoudnessOperation.cs" />
-    <Compile Include="Interfaces\IMedia.cs" />
-    <Compile Include="Interfaces\IWatcherDirectory.cs" />
+    <Compile Include="Interfaces\Media\IMedia.cs" />
+    <Compile Include="Interfaces\MediaDirectory\IWatcherDirectory.cs" />
     <Compile Include="Interfaces\IMediaManager.cs" />
     <Compile Include="Interfaces\IMediaSegment.cs" />
-    <Compile Include="Interfaces\IAnimatedMedia.cs" />
+    <Compile Include="Interfaces\Media\IAnimatedMedia.cs" />
     <Compile Include="Interfaces\IMediaSegments.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
-    <Compile Include="Interfaces\IPersistentMedia.cs" />
+    <Compile Include="Interfaces\Media\IPersistentMedia.cs" />
     <Compile Include="Interfaces\IPlayoutServer.cs" />
     <Compile Include="Interfaces\IPlayoutServerChannel.cs" />
     <Compile Include="Interfaces\IPreview.cs" />
     <Compile Include="Interfaces\IRecorder.cs" />
     <Compile Include="Interfaces\IRemoteHostConfig.cs" />
-    <Compile Include="Interfaces\IServerDirectory.cs" />
+    <Compile Include="Interfaces\MediaDirectory\IServerDirectory.cs" />
     <Compile Include="Interfaces\IInitializable.cs" />
-    <Compile Include="Interfaces\IServerMedia.cs" />
+    <Compile Include="Interfaces\Media\IServerMedia.cs" />
     <Compile Include="Interfaces\ITemplated.cs" />
-    <Compile Include="Interfaces\ITempMedia.cs" />
-    <Compile Include="Interfaces\IUser.cs" />
-    <Compile Include="Interfaces\IUserManager.cs" />
-    <Compile Include="Interfaces\IXdcamMedia.cs" />
+    <Compile Include="Interfaces\Media\ITempMedia.cs" />
+    <Compile Include="Interfaces\Security\IUser.cs" />
+    <Compile Include="Interfaces\Security\IUserManager.cs" />
+    <Compile Include="Interfaces\Media\IXdcamMedia.cs" />
     <Compile Include="MediaEventArgs.cs" />
     <Compile Include="MediaExtensions.cs" />
     <Compile Include="MediaProxy.cs" />
@@ -181,6 +182,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

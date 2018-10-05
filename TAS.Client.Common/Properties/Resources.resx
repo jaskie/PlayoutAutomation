@@ -338,4 +338,19 @@ Really exit?</value>
   <data name="_query_AbadonChanges" xml:space="preserve">
     <value>Abadon changes in {0}?</value>
   </data>
+  <data name="_animations_Primary" xml:space="preserve">
+    <value>Animations (main)</value>
+  </data>
+  <data name="_animations_Secondary" xml:space="preserve">
+    <value>Animations (backup)</value>
+  </data>
+  <data name="_archive" xml:space="preserve">
+    <value>Archive</value>
+  </data>
+  <data name="_primary" xml:space="preserve">
+    <value>Main</value>
+  </data>
+  <data name="_secondary" xml:space="preserve">
+    <value>Backup</value>
+  </data>
 </root>

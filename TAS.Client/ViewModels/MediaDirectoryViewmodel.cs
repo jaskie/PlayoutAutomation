@@ -3,16 +3,18 @@ using System.Linq;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.ViewModels
 {
     public class MediaDirectoryViewmodel
     {
-        public MediaDirectoryViewmodel(IMediaDirectory directory, bool includeImport = false, bool includeExport = false)
+        public MediaDirectoryViewmodel(IMediaDirectory directory, string directoryName, bool includeImport = false, bool includeExport = false)
         {
             Directory = directory;
+            DirectoryName = directoryName;
             SubDirectories = (directory as IIngestDirectory)?.SubDirectories?.Where(d=> includeImport && d.ContainsImport() || includeExport && d.ContainsExport())
-                             .Select(d => new MediaDirectoryViewmodel((IIngestDirectory)d, includeImport, includeExport)).ToList() ?? new List<MediaDirectoryViewmodel>();
+                             .Select(d => new MediaDirectoryViewmodel((IIngestDirectory)d, d.DirectoryName, includeImport, includeExport)).ToList() ?? new List<MediaDirectoryViewmodel>();
         }
 
         public IMediaDirectory Directory { get; }
@@ -34,7 +36,7 @@ namespace TAS.Client.ViewModels
 
         public void SweepStaleMedia() { (Directory as IWatcherDirectory)?.SweepStaleMedia(); }
 
-        public string DirectoryName => Directory.DirectoryName;
+        public string DirectoryName {get;}
 
         public string Folder => Directory.Folder;
 

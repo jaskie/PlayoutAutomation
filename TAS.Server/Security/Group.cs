@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Security;
 
 namespace TAS.Server.Security
 {
