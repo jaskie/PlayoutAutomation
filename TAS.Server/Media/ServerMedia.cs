@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -29,6 +30,7 @@ namespace TAS.Server.Media
         }
 
         [JsonProperty]
+        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public bool IsArchived
         {
             get => _isArchived?.Value ?? false;

@@ -3,20 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
-    public class ArchiveDirectory : MediaDirectoryBase, IArchiveDirectory
+    public class ArchiveDirectory : MediaDirectoryBase, IArchiveDirectory, IArchiveDirectoryServerSide
     {
-        internal ArchiveDirectory(IMediaManager mediaManager, ulong id, string folder) 
-        {
-            IdArchive = id;
-            Folder = folder;
-        }
-
         public IArchiveMedia Find(IMediaProperties media)
         {
             return EngineController.Database.ArchiveMediaFind<ArchiveMedia>(this, media.MediaGuid);

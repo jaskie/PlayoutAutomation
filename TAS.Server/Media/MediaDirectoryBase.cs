@@ -18,12 +18,14 @@ namespace TAS.Server.Media
         private long _volumeTotalSize;
         private string _folder;
         protected Logger Logger;
-        internal MediaManager MediaManager;
 
         protected MediaDirectoryBase()
         {
             Logger = LogManager.GetLogger(GetType().Name);
         }
+
+        [XmlIgnore]
+        public IMediaManager MediaManager { get; set; }
 
         [XmlIgnore, JsonProperty]
         public virtual long VolumeFreeSize

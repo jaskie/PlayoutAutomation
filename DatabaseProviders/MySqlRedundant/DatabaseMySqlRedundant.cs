@@ -588,7 +588,7 @@ namespace TAS.Database.MySqlRedundant
             return media;
         }
 
-        public List<T> ArchiveMediaSearch<T>(IArchiveDirectory dir, TMediaCategory? mediaCategory, string search) where T: IArchiveMedia, new()
+        public List<T> ArchiveMediaSearch<T>(IArchiveDirectoryServerSide dir, TMediaCategory? mediaCategory, string search) where T: IArchiveMedia, new()
         {
             lock (_connection)
             {
@@ -612,6 +612,7 @@ namespace TAS.Database.MySqlRedundant
                     while (dataReader.Read())
                     {
                         var media = _readArchiveMedia<T>(dataReader);
+                        dir.AddMedia(media);
                         result.Add(media);
                     }
                     dataReader.Close();
@@ -620,23 +621,22 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        private ConstructorInfo _archiveDirectoryConstructorInfo;
 
-        public T LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectory
+        public IArchiveDirectory LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectory, new()
         {
             lock (_connection)
             {
-                if (_archiveDirectoryConstructorInfo == null)
-                    _archiveDirectoryConstructorInfo = typeof(T).GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, CallingConventions.Any,  new[] { typeof(IMediaManager), typeof(ulong), typeof(string) }, null);
-                if (_archiveDirectoryConstructorInfo == null)
-                    throw new ApplicationException("Cannot obtain constructor for ArchiveDirectory");
                 var cmd = new DbCommandRedundant("SELECT Folder FROM archive WHERE idArchive=@idArchive;", _connection);
                 cmd.Parameters.AddWithValue("@idArchive", idArchive);
                 var folder = (string)cmd.ExecuteScalar();
                 if (string.IsNullOrEmpty(folder))
                     return default(T);
-                var directory = (T)_archiveDirectoryConstructorInfo.Invoke(new object[] { manager, idArchive, folder });
-                return directory;
+                return new T
+                {
+                    MediaManager = manager,
+                    IdArchive = idArchive,
+                    Folder = folder
+                };
             }
         }
 
