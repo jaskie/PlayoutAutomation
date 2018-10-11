@@ -55,7 +55,7 @@ namespace TAS.Common.Interfaces
         void DbReadRootEvents(IEngine engine);
         List<IEvent> DbReadSubEvents(IEngine engine, IEventPesistent eventOwner);
         ulong DbSaveMediaSegment(IMediaSegment mediaSegment);
-        List<T> ArchiveMediaSearch<T>(IArchiveDirectory dir, TMediaCategory? mediaCategory, string search) where T : IArchiveMedia, new();
+        List<T> ArchiveMediaSearch<T>(IArchiveDirectoryServerSide dir, TMediaCategory? mediaCategory, string search) where T : IArchiveMedia, new();
         void DbSearchMissing(IEngine engine);
         List<IEvent> DbSearchPlaying(IEngine engine);
         void DbUpdateArchiveDirectory(IArchiveDirectoryProperties dir);
@@ -71,7 +71,7 @@ namespace TAS.Common.Interfaces
         bool DropDatabase(string connectionString);
         void LoadAnimationDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IAnimatedMedia, new();
         void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IServerMedia, new();
-        T LoadArchiveDirectory<T>(IMediaManager manager, ulong idArchive) where T : IArchiveDirectory;
+        IArchiveDirectory LoadArchiveDirectory<T>(IMediaManager manager, ulong idArchive) where T : IArchiveDirectory, new();
         void Open(string connectionStringPrimary = null, string connectionStringSecondary = null);
         void TestConnect(string connectionString);
         bool UpdateDb();

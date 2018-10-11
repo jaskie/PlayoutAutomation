@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using TAS.FFMpegUtils;
 using TAS.Common;
@@ -20,7 +21,8 @@ namespace TAS.Server.Media
                 return dir.FileExists(FileName, Folder);
             return base.FileExists();
         }
-        
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public TIngestStatus IngestStatus
         {
             get

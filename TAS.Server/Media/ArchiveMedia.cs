@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -14,13 +15,14 @@ namespace TAS.Server.Media
 
         [JsonProperty]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ArchiveMediaFieldLengths;
-        
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public TIngestStatus IngestStatus
         {
             get
             {
                 if (_ingestStatus != TIngestStatus.Unknown) return _ingestStatus;
-                var sdir = ((ArchiveDirectory)Directory).MediaManager.MediaDirectoryPRI as ServerDirectory;
+                var sdir = (Directory as MediaDirectoryBase)?.MediaManager.MediaDirectoryPRI as ServerDirectory;
                 var media = sdir?.FindMediaByMediaGuid(MediaGuid);
                 if (media != null && media.MediaStatus == TMediaStatus.Available)
                     _ingestStatus = TIngestStatus.Ready;

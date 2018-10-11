@@ -223,16 +223,7 @@ namespace TAS.Server.Media
 
         #endregion //IMediaProperties
 
-        public string FullPath
-        {
-            get => _getFullPath(_fileName);
-            //internal set
-            //{
-            //    string relativeName = value.Substring(Directory.Folder.Length);
-            //    FileName = Path.GetFileName(relativeName);
-            //    Folder = relativeName.Substring(0, relativeName.Length - _fileName.Length).Trim(Directory.PathSeparator);
-            //}
-        }
+        public string FullPath => _getFullPath(_fileName);
 
         public virtual bool Delete()
         {
