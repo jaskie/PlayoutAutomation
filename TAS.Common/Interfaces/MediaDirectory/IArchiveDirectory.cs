@@ -2,21 +2,19 @@
 
 namespace TAS.Common.Interfaces.MediaDirectory
 {
-    public interface IArchiveDirectory: IArchiveDirectoryProperties, ISearchableDirectory
+    public interface IArchiveDirectory: ISearchableDirectory
     {
         IArchiveMedia Find(IMediaProperties media);
-
-        IMediaManager MediaManager { get; set; }
     }
 
-    public interface IArchiveDirectoryProperties: IMediaDirectory
+    public interface IArchiveDirectoryProperties: IMediaDirectoryProperties
     {
         ulong IdArchive { get; set; }
     }
 
-    public interface IArchiveDirectoryServerSide : IMediaDirectoryServerSide, IArchiveDirectoryProperties
+    public interface IArchiveDirectoryServerSide : IMediaDirectoryServerSide, IArchiveDirectory, IArchiveDirectoryProperties
     {
-        
+        IMediaManager MediaManager { get; set; }
     }
 
 }

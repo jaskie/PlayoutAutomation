@@ -86,7 +86,7 @@ namespace TAS.Server
             _engineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
             EngineController.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
-            _rights = new Lazy<List<IAclRight>>(() => EngineController.Database.DbReadEngineAclList<EngineAclRight>(this, AuthenticationService as IAuthenticationServicePersitency));
+            _rights = new Lazy<List<IAclRight>>(() => EngineController.Database.ReadEngineAclList<EngineAclRight>(this, AuthenticationService as IAuthenticationServicePersitency));
             FieldLengths = EngineController.Database.EngineFieldLengths;
             ServerMediaFieldLengths = EngineController.Database.ServerMediaFieldLengths;
             ArchiveMediaFieldLengths = EngineController.Database.ArchiveMediaFieldLengths;
@@ -324,7 +324,7 @@ namespace TAS.Server
             _mediaManager.Initialize();
 
             Debug.WriteLine(this, "Reading Root Events");
-            EngineController.Database.DbReadRootEvents(this);
+            EngineController.Database.ReadRootEvents(this);
 
             EngineState = TEngineState.Idle;
             var cgElementsController = CGElementsController;
@@ -696,7 +696,7 @@ namespace TAS.Server
                 if (reason.Result != MediaDeleteResult.MediaDeleteResultEnum.Success)
                     return reason;
             }
-            return EngineController.Database.DbMediaInUse(this, serverMedia);
+            return EngineController.Database.MediaInUse(this, serverMedia);
         }
 
         public IEnumerable<IEvent> GetRootEvents() { lock (_rootEvents.SyncRoot) return _rootEvents.Cast<IEvent>().ToList(); }
@@ -1561,7 +1561,7 @@ namespace TAS.Server
             CurrentTime = AlignDateTime(DateTime.UtcNow + TimeSpan.FromMilliseconds(_timeCorrection));
             _currentTicks = CurrentTime.Ticks;
 
-            var playingEvents = EngineController.Database.DbSearchPlaying(this).Cast<Event>().ToArray();
+            var playingEvents = EngineController.Database.SearchPlaying(this).Cast<Event>().ToArray();
             var playing = playingEvents.FirstOrDefault(e => e.Layer == VideoLayer.Program && (e.EventType == TEventType.Live || e.EventType == TEventType.Movie));
             if (playing != null)
             {

@@ -369,9 +369,9 @@ namespace TAS.Server.Media
                         Task.Run(() =>
                         {
                             if (prevMedia is IAnimatedMedia am)
-                                EngineController.Database.DbDeleteMedia(am);
+                                EngineController.Database.DeleteMedia(am);
                             if (prevMedia is IServerMedia sm)
-                                EngineController.Database.DbDeleteMedia(sm);
+                                EngineController.Database.DeleteMedia(sm);
                             Logger.Warn("Media {0} replaced in dictionary. Previous media deleted in database.",
                                 prevMedia);
                             Debug.WriteLine(prevMedia, "Media replaced in dictionary");

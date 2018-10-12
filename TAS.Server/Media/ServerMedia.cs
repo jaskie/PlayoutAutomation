@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
@@ -16,7 +17,7 @@ namespace TAS.Server.Media
 
         public ServerMedia() 
         {
-            _isArchived = new Lazy<bool>(() => (Directory is ServerDirectory dir) && EngineController.Database.DbArchiveContainsMedia(dir.MediaManager.ArchiveDirectory, this));
+            _isArchived = new Lazy<bool>(() => (Directory is ServerDirectory dir) && EngineController.Database.ArchiveContainsMedia(dir.MediaManager.ArchiveDirectory as IArchiveDirectoryProperties, this));
         }
 
         [JsonProperty]
@@ -59,17 +60,17 @@ namespace TAS.Server.Media
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = EngineController.Database.DbDeleteMedia(this);
+                            result = EngineController.Database.DeleteMedia(this);
                     }
                     else
                     {
                         if (directory != null)
                         {
                             if (IdPersistentMedia == 0)
-                                result = EngineController.Database.DbInsertMedia(this, directory.Server.Id);
+                                result = EngineController.Database.InsertMedia(this, directory.Server.Id);
                             else if (IsModified)
                             {
-                                EngineController.Database.DbUpdateMedia(this, directory.Server.Id);
+                                EngineController.Database.UpdateMedia(this, directory.Server.Id);
                                 result = true;
                             }
                         }

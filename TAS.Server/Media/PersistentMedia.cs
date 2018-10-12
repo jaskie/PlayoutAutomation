@@ -18,7 +18,7 @@ namespace TAS.Server.Media
 
         protected PersistentMedia() 
         {
-            _mediaSegments = new Lazy<MediaSegments>(() => EngineController.Database.DbMediaSegmentsRead<MediaSegments>(this));
+            _mediaSegments = new Lazy<MediaSegments>(() => EngineController.Database.MediaSegmentsRead<MediaSegments>(this));
         }
         public ulong IdPersistentMedia { get; set; }
 

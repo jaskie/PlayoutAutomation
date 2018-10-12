@@ -37,7 +37,7 @@ namespace TAS.Client.Config
 
             ArchiveDirectories = new List<object> { Common.Properties.Resources._none_ };
             ArchiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
-            _archiveDirectory = engine.IdArchive == 0 ? ArchiveDirectories.First() : ArchiveDirectories.FirstOrDefault(d =>  (d as ArchiveDirectory)?.idArchive == engine.IdArchive);
+            _archiveDirectory = engine.IdArchive == 0 ? ArchiveDirectories.First() : ArchiveDirectories.FirstOrDefault(d =>  (d as ArchiveDirectory)?.IdArchive == engine.IdArchive);
             if (_channelPRV == null) _channelPRV = Channels.First();
             if (Model.Remote != null)
             {
@@ -180,7 +180,7 @@ namespace TAS.Client.Config
                 Model.IdServerPRV = ((CasparServer) playoutServerChannelPRV?.Owner)?.Id ?? 0;
                 Model.ServerChannelPRV = playoutServerChannelPRV?.Id ?? 0;
                 Model.Remote = _remoteHostEnabled ? new RemoteHost { ListenPort = RemoteHostListenPort } : null;
-                Model.IdArchive = (_archiveDirectory as ArchiveDirectory)?.idArchive ?? 0;
+                Model.IdArchive = (_archiveDirectory as ArchiveDirectory)?.IdArchive ?? 0;
                 Model.IsModified = true;
             }
             base.Update(destObject);

@@ -20,8 +20,8 @@ namespace TAS.Client.Config.Model
             _db = DatabaseProviderLoader.LoadDatabaseProvider();
             _db.Open(connectionStringPrimary, connectionStringSecondary);
             ArchiveDirectories = new ArchiveDirectories(_db);
-            EngineList = _db.DbLoadEngines<Engine>();
-            Servers = _db.DbLoadServers<CasparServer>();
+            EngineList = _db.LoadEngines<Engine>();
+            Servers = _db.LoadServers<CasparServer>();
             Servers.ForEach(s =>
             {
                 s.Channels.ForEach(c => c.Owner = s);
@@ -42,14 +42,14 @@ namespace TAS.Client.Config.Model
                 if (e.IsModified)
                 {
                     if (e.Id == 0)
-                        _db.DbInsertEngine(e);
+                        _db.InsertEngine(e);
                     else
-                        _db.DbUpdateEngine(e);
+                        _db.UpdateEngine(e);
                 }
             });
             DeletedEngines.ForEach(s =>
             {
-                if (s.Id > 0) _db.DbDeleteEngine(s);
+                if (s.Id > 0) _db.DeleteEngine(s);
             });
         }
 

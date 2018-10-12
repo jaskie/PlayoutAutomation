@@ -8,7 +8,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
-    public class IngestDirectory : WatcherDirectory, IIngestDirectory
+    public class IngestDirectory : MediaDirectoryBase, IIngestDirectory
     {
         #pragma warning disable CS0649
 
@@ -173,9 +173,9 @@ namespace TAS.Remoting.Model
             return Query<List<IngestMedia>>();
         }
 
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        public List<IMedia> Search(TMediaCategory? category, string searchString)
         {
-            throw new NotImplementedException();
+            return Query<List<IMedia>>(parameters: new object[] {category, searchString});
         }
     }
 }

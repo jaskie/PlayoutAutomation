@@ -12,7 +12,7 @@ using TAS.Remoting.Server;
 
 namespace TAS.Server.Media
 {
-    public abstract class MediaDirectoryBase : DtoBase, IMediaDirectory, IMediaDirectoryServerSide
+    public abstract class MediaDirectoryBase : DtoBase, IMediaDirectoryServerSide
     {
         private long _volumeFreeSize;
         private long _volumeTotalSize;

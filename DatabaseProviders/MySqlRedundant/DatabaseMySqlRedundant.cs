@@ -244,7 +244,7 @@ namespace TAS.Database.MySqlRedundant
 
         #region IPlayoutServer
 
-        public List<T> DbLoadServers<T>() where T : IPlayoutServerProperties
+        public List<T> LoadServers<T>() where T : IPlayoutServerProperties
         {
             var servers = new List<T>();
             lock (_connection)
@@ -266,7 +266,7 @@ namespace TAS.Database.MySqlRedundant
             return servers;
         }
 
-        public void DbInsertServer(IPlayoutServerProperties server) 
+        public void InsertServer(IPlayoutServerProperties server) 
         {
             lock (_connection)
             {
@@ -284,7 +284,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbUpdateServer(IPlayoutServerProperties server) 
+        public void UpdateServer(IPlayoutServerProperties server) 
         {
             lock (_connection)
             {
@@ -301,7 +301,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbDeleteServer(IPlayoutServerProperties server) 
+        public void DeleteServer(IPlayoutServerProperties server) 
         {
             lock (_connection)
             {
@@ -315,7 +315,7 @@ namespace TAS.Database.MySqlRedundant
 
         #region IEngine
 
-        public List<T> DbLoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
+        public List<T> LoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
         {
             var engines = new List<T>();
             lock (_connection)
@@ -352,7 +352,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbInsertEngine(IEnginePersistent engine) 
+        public void InsertEngine(IEnginePersistent engine) 
         {
             lock (_connection)
             {
@@ -378,7 +378,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbUpdateEngine(IEnginePersistent engine)
+        public void UpdateEngine(IEnginePersistent engine)
         {
             lock (_connection)
             {
@@ -402,7 +402,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbDeleteEngine(IEnginePersistent engine) 
+        public void DeleteEngine(IEnginePersistent engine) 
         {
             lock (_connection)
             {
@@ -412,7 +412,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbReadRootEvents(IEngine engine)
+        public void ReadRootEvents(IEngine engine)
         {
             lock (_connection)
             {
@@ -466,7 +466,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public List<IEvent> DbSearchPlaying(IEngine engine)
+        public List<IEvent> SearchPlaying(IEngine engine)
         {
             {
                 lock (_connection)
@@ -495,7 +495,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public MediaDeleteResult DbMediaInUse(IEngine engine, IServerMedia serverMedia)
+        public MediaDeleteResult MediaInUse(IEngine engine, IServerMedia serverMedia)
         {
             var reason = MediaDeleteResult.NoDeny;
             lock (_connection)
@@ -520,7 +520,7 @@ namespace TAS.Database.MySqlRedundant
         #endregion //IEngine
 
         #region ArchiveDirectory
-        public List<T> DbLoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
+        public List<T> LoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
         {
             var directories = new List<T>();
             lock (_connection)
@@ -543,7 +543,7 @@ namespace TAS.Database.MySqlRedundant
             return directories;
         }
 
-        public void DbInsertArchiveDirectory(IArchiveDirectoryProperties dir) 
+        public void InsertArchiveDirectory(IArchiveDirectoryProperties dir) 
         {
             lock (_connection)
             {
@@ -556,7 +556,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbUpdateArchiveDirectory(IArchiveDirectoryProperties dir)
+        public void UpdateArchiveDirectory(IArchiveDirectoryProperties dir)
         {
             lock (_connection)
             {
@@ -567,7 +567,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbDeleteArchiveDirectory(IArchiveDirectoryProperties dir) 
+        public void DeleteArchiveDirectory(IArchiveDirectoryProperties dir) 
         {
             lock (_connection)
             {
@@ -622,7 +622,7 @@ namespace TAS.Database.MySqlRedundant
         }
 
 
-        public IArchiveDirectory LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectory, new()
+        public IArchiveDirectoryServerSide LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectoryServerSide, new()
         {
             lock (_connection)
             {
@@ -640,7 +640,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public List<T> FindArchivedStaleMedia<T>(IArchiveDirectory dir) where T : IArchiveMedia, new()
+        public List<T> FindArchivedStaleMedia<T>(IArchiveDirectoryServerSide dir) where T : IArchiveMedia, new()
         {
             var returnList = new List<T>();
             lock (_connection)
@@ -657,7 +657,7 @@ namespace TAS.Database.MySqlRedundant
             return returnList;
         }
 
-        public T ArchiveMediaFind<T>(IArchiveDirectory dir, Guid mediaGuid) where T: IArchiveMedia, new()
+        public T ArchiveMediaFind<T>(IArchiveDirectoryServerSide dir, Guid mediaGuid) where T: IArchiveMedia, new()
         {
             var result = default(T);
             if (mediaGuid == Guid.Empty)
@@ -677,7 +677,7 @@ namespace TAS.Database.MySqlRedundant
             return result;
         }
 
-        public bool DbArchiveContainsMedia(IArchiveDirectory dir, IMediaProperties media)
+        public bool ArchiveContainsMedia(IArchiveDirectoryProperties dir, IMediaProperties media)
         {
             if (dir == null || media.MediaGuid == Guid.Empty)
                 return false;
@@ -694,7 +694,7 @@ namespace TAS.Database.MySqlRedundant
         #endregion // ArchiveDirectory
 
         #region IEvent
-        public List<IEvent> DbReadSubEvents(IEngine engine, IEventPesistent eventOwner)
+        public List<IEvent> ReadSubEvents(IEngine engine, IEventPesistent eventOwner)
         {
             if (eventOwner == null)
                 return null;
@@ -729,7 +729,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public IEvent DbReadNext(IEngine engine, IEventPesistent aEvent) 
+        public IEvent ReadNext(IEngine engine, IEventPesistent aEvent) 
         {
             if (aEvent == null)
                 return null;
@@ -771,7 +771,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public IEvent DbReadEvent(IEngine engine, UInt64 idRundownEvent)
+        public IEvent ReadEvent(IEngine engine, UInt64 idRundownEvent)
         {
             if (idRundownEvent <= 0)
                 return null;
@@ -905,7 +905,7 @@ namespace TAS.Database.MySqlRedundant
         }
 
 
-        public bool DbInsertEvent(IEventPesistent aEvent)
+        public bool InsertEvent(IEventPesistent aEvent)
         {
             lock (_connection)
             {
@@ -930,7 +930,7 @@ VALUES
             return false;
         }
 
-        public bool DbUpdateEvent<TEvent>(TEvent aEvent) where  TEvent: IEventPesistent
+        public bool UpdateEvent<TEvent>(TEvent aEvent) where  TEvent: IEventPesistent
         {
             lock (_connection)
             {
@@ -976,7 +976,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             }
         }
 
-        public bool DbDeleteEvent(IEventPesistent aEvent)
+        public bool DeleteEvent(IEventPesistent aEvent)
         {
             lock (_connection)
             {
@@ -1065,7 +1065,7 @@ VALUES
 
         #region ACL
 
-        public List<IAclRight> DbReadEventAclList<TEventAcl>(IEventPesistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
+        public List<IAclRight> ReadEventAclList<TEventAcl>(IEventPesistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
         {
             if (aEvent == null)
                 return null;
@@ -1092,7 +1092,7 @@ VALUES
             }
         }
 
-        public bool DbInsertEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
+        public bool InsertEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
         {
             if (acl?.Owner == null)
                 return false;
@@ -1113,7 +1113,7 @@ VALUES
             }
         }
 
-        public bool DbUpdateEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
+        public bool UpdateEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1129,7 +1129,7 @@ VALUES
             }
         }
 
-        public bool DbDeleteEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        public bool DeleteEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1141,7 +1141,7 @@ VALUES
         }
 
 
-        public List<IAclRight> DbReadEngineAclList<TEngineAcl>(IPersistent engine, IAuthenticationServicePersitency authenticationService) where TEngineAcl : IAclRight, IPersistent, new()
+        public List<IAclRight> ReadEngineAclList<TEngineAcl>(IPersistent engine, IAuthenticationServicePersitency authenticationService) where TEngineAcl : IAclRight, IPersistent, new()
         {
             lock (_connection)
             {
@@ -1168,7 +1168,7 @@ VALUES
             }
         }
 
-        public bool DbInsertEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        public bool InsertEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             if (acl?.Owner == null)
                 return false;
@@ -1189,7 +1189,7 @@ VALUES
             }
         }
 
-        public bool DbUpdateEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        public bool UpdateEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1205,7 +1205,7 @@ VALUES
             }
         }
 
-        public bool DbDeleteEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        public bool DeleteEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1248,7 +1248,7 @@ VALUES
                 cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typVideo", DBNull.Value);
             }
-            if (media is IArchiveMedia && media.Directory is IArchiveDirectory archiveDirectory)
+            if (media is IArchiveMedia && media.Directory is IArchiveDirectoryServerSide archiveDirectory)
             {
                 cmd.Parameters.AddWithValue("@idArchive", archiveDirectory.IdArchive);
                 cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
@@ -1449,7 +1449,7 @@ VALUES
             }
         }
 
-        public bool DbInsertMedia(IAnimatedMedia animatedMedia, ulong serverId )
+        public bool InsertMedia(IAnimatedMedia animatedMedia, ulong serverId )
         {
             var result = false;
             lock (_connection)
@@ -1474,7 +1474,7 @@ VALUES
             return result;
         }
 
-        public bool DbInsertMedia(IServerMedia serverMedia, ulong serverId)
+        public bool InsertMedia(IServerMedia serverMedia, ulong serverId)
         {
             lock (_connection)
                 return _dbInsertMedia(serverMedia, serverId);
@@ -1492,7 +1492,7 @@ VALUES
             return true;
         }
 
-        public bool DbInsertMedia(IArchiveMedia archiveMedia, ulong serverid)
+        public bool InsertMedia(IArchiveMedia archiveMedia, ulong serverid)
         {
             lock (_connection)
             {
@@ -1506,7 +1506,7 @@ VALUES
             return true;
         }
 
-        public bool DbDeleteMedia(IServerMedia serverMedia)
+        public bool DeleteMedia(IServerMedia serverMedia)
         {
             lock (_connection)
             {
@@ -1514,7 +1514,7 @@ VALUES
             }
         }
 
-        public bool DbDeleteMedia(IAnimatedMedia animatedMedia)
+        public bool DeleteMedia(IAnimatedMedia animatedMedia)
         {
             lock (_connection)
             {
@@ -1546,7 +1546,7 @@ VALUES
             return cmd.ExecuteNonQuery() == 1;
         }
 
-        public bool DbDeleteMedia(IArchiveMedia archiveMedia)
+        public bool DeleteMedia(IArchiveMedia archiveMedia)
         {
             lock (_connection)
             {
@@ -1556,7 +1556,7 @@ VALUES
             }
         }
 
-        public void DbUpdateMedia(IAnimatedMedia animatedMedia, ulong serverId)
+        public void UpdateMedia(IAnimatedMedia animatedMedia, ulong serverId)
         {
             lock (_connection)
             {
@@ -1577,7 +1577,7 @@ VALUES
         }
 
 
-        public void DbUpdateMedia(IServerMedia serverMedia, ulong serverId)
+        public void UpdateMedia(IServerMedia serverMedia, ulong serverId)
         {
             lock (_connection)
                 _dbUpdateMedia(serverMedia, serverId);
@@ -1614,7 +1614,7 @@ WHERE idServerMedia=@idServerMedia;", _connection);
             Debug.WriteLine(serverMedia, "ServerMediaUpdate-d");
         }
 
-        public void DbUpdateMedia(IArchiveMedia archiveMedia, ulong serverId)
+        public void UpdateMedia(IArchiveMedia archiveMedia, ulong serverId)
         {
             lock (_connection)
             {
@@ -1665,7 +1665,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
             return null;
         }
 
-        public T DbMediaSegmentsRead<T>(IPersistentMedia media) where T : IMediaSegments 
+        public T MediaSegmentsRead<T>(IPersistentMedia media) where T : IMediaSegments 
         {
             lock (_connection)
             {
@@ -1701,7 +1701,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
             }
         }
 
-        public void DbDeleteMediaSegment(IMediaSegment mediaSegment)
+        public void DeleteMediaSegment(IMediaSegment mediaSegment)
         {
             if (!(mediaSegment is IPersistent ps) || ps.Id == 0)
                 return;
@@ -1712,7 +1712,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
                 cmd.ExecuteNonQuery();
             }
         }
-        public ulong DbSaveMediaSegment(IMediaSegment mediaSegment)
+        public ulong SaveMediaSegment(IMediaSegment mediaSegment)
         {
             if (!(mediaSegment is IPersistent ps))
                 return 0;
@@ -1740,7 +1740,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
 
         #region Security
 
-        public void DbInsertSecurityObject(ISecurityObject aco)
+        public void InsertSecurityObject(ISecurityObject aco)
         {
             if (!(aco is IPersistent pAco))
                 throw new ArgumentNullException(nameof(aco));
@@ -1761,7 +1761,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
             }
         }
 
-        public void DbDeleteSecurityObject(ISecurityObject aco)
+        public void DeleteSecurityObject(ISecurityObject aco)
         {
             if (!(aco is IPersistent pAco) || pAco.Id == 0)
                 throw new ArgumentNullException(nameof(aco));
@@ -1775,7 +1775,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
             }
         }
 
-        public void DbUpdateSecurityObject(ISecurityObject aco)
+        public void UpdateSecurityObject(ISecurityObject aco)
         {
             if (!(aco is IPersistent pAco) || pAco.Id == 0)
                 throw new ArgumentNullException(nameof(aco));
@@ -1795,7 +1795,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
             }
         }
 
-        public List<T> DbLoad<T>() where T : ISecurityObject
+        public List<T> Load<T>() where T : ISecurityObject
         {
             var users = new List<T>();
             lock (_connection)
