@@ -12,7 +12,7 @@ namespace TAS.Client.Config.Model
         public ArchiveDirectories(IDatabase db)
         {
             _db = db;
-            Directories = db.DbLoadArchiveDirectories<ArchiveDirectory>();
+            Directories = db.LoadArchiveDirectories<ArchiveDirectory>();
             Directories.ForEach(d => d.IsModified = false);
         }
 
@@ -22,15 +22,15 @@ namespace TAS.Client.Config.Model
             {
                 if (dir.IsDeleted)
                 {
-                    _db.DbDeleteArchiveDirectory(dir);
+                    _db.DeleteArchiveDirectory(dir);
                     Directories.Remove(dir);
                 }
                 else
                 if (dir.IsNew)
-                    _db.DbInsertArchiveDirectory(dir);
+                    _db.InsertArchiveDirectory(dir);
                 else
                 if (dir.IsModified)
-                    _db.DbUpdateArchiveDirectory(dir);
+                    _db.UpdateArchiveDirectory(dir);
             }
         }
     }

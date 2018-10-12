@@ -4,10 +4,8 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Common.Interfaces.MediaDirectory
 {
-    public interface IMediaDirectory: INotifyPropertyChanged
+    public interface IMediaDirectory: IMediaDirectoryProperties, INotifyPropertyChanged
     {
-        string DirectoryName { get; set; }
-        string Folder { get; set; }
         long VolumeTotalSize { get; }
         long VolumeFreeSize { get; }
         char PathSeparator { get; }
@@ -20,7 +18,13 @@ namespace TAS.Common.Interfaces.MediaDirectory
         event EventHandler<MediaEventArgs> MediaRemoved;
     }
 
-    public interface IMediaDirectoryServerSide
+    public interface IMediaDirectoryProperties
+    {
+        string DirectoryName { get; set; }
+        string Folder { get; set; }
+    }
+
+    public interface IMediaDirectoryServerSide: IMediaDirectory
     {
         void AddMedia(IMedia media);
         void RemoveMedia(IMedia media);

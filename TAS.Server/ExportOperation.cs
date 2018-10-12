@@ -7,6 +7,7 @@ using System.IO;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 using TAS.Server.XDCAM;
 
@@ -55,7 +56,7 @@ namespace TAS.Server
 
         public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
 
-        public override string Title => $"Export {string.Join(", ", _exportMediaList)} -> {DestDirectory.DirectoryName}";
+        public override string Title => $"Export {string.Join(", ", _exportMediaList)} -> {(DestDirectory as IMediaDirectoryProperties)?.DirectoryName}";
 
         internal override bool Execute()
         {
@@ -153,7 +154,7 @@ namespace TAS.Server
             else
                 result = new IngestMedia
                 {
-                    FileName = FileUtils.GetUniqueFileName(DestDirectory.Folder,
+                    FileName = FileUtils.GetUniqueFileName(directory.Folder,
                         $"{FileUtils.SanitizeFileName(DestMediaName)}.{directory.ExportContainerFormat}"),
                     MediaName = DestMediaName,
                     LastUpdated = DateTime.UtcNow,

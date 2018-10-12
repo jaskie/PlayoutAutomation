@@ -98,16 +98,16 @@ namespace TAS.Server.Security
             if (Id == default(ulong))
             {
                 AuthenticationService.AddUser(this);
-                EngineController.Database.DbInsertSecurityObject(this);
+                EngineController.Database.InsertSecurityObject(this);
             }
             else
-                EngineController.Database.DbUpdateSecurityObject(this);
+                EngineController.Database.UpdateSecurityObject(this);
         }
 
         public override void Delete()
         {
             AuthenticationService.RemoveUser(this);
-            EngineController.Database.DbDeleteSecurityObject(this);
+            EngineController.Database.DeleteSecurityObject(this);
             Dispose();
         }
 

@@ -2,6 +2,7 @@
 
 namespace TAS.Common.Interfaces.MediaDirectory
 {
+
     public interface IIngestDirectory: IWatcherDirectory, ISearchableDirectory, IIngestDirectoryProperties
     {
         TDirectoryAccessType AccessType { get; }
@@ -9,7 +10,7 @@ namespace TAS.Common.Interfaces.MediaDirectory
         string Filter { get; set; }
     }
 
-    public interface IIngestDirectoryProperties : IMediaDirectory
+    public interface IIngestDirectoryProperties : IMediaDirectoryProperties
     {
         TAspectConversion AspectConversion { get; }
         double AudioVolume { get;  }

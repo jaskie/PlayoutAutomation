@@ -7,6 +7,7 @@ using System.Threading;
 namespace TAS.Remoting
 {
 
+    /// <inheritdoc />
     /// <summary>
     /// Class to ensure non-blocking send and preserving order of messages
     /// </summary>
@@ -175,8 +176,6 @@ namespace TAS.Remoting
 
 
         protected abstract void OnMessage(byte[] dataBuffer);
-
-
-
+        
     }
 }

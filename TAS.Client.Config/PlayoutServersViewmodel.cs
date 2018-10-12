@@ -51,6 +51,7 @@ namespace TAS.Client.Config
         protected override void OnDispose()
         {
             PlayoutServers.CollectionChanged -= PlayoutServers_CollectionChanged;
+            Model.Dispose();
         }
 
         private void PlayoutServers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
