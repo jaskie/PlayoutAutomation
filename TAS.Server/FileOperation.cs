@@ -254,7 +254,7 @@ namespace TAS.Server
             {
                 if (Dest != null)
                     return;
-                if (!(DestDirectory is IMediaDirectoryServerSide mediaDirectory))
+                if (!(DestDirectory is MediaDirectoryBase mediaDirectory))
                     throw new ApplicationException($"Cannot create destination media on {DestDirectory}");
                 Dest = (MediaBase) mediaDirectory.CreateMedia(DestProperties ?? Source);
             }
@@ -295,6 +295,7 @@ namespace TAS.Server
                             Dest.MediaStatus = TMediaStatus.Copied;
                             ThreadPool.QueueUserWorkItem(o => Dest.Verify());
                             AddOutputMessage($"Copy operation {Title} finished");
+                            ((MediaDirectoryBase)DestDirectory).RefreshVolumeInfo();
                             return true;
                         }
                     }
@@ -308,7 +309,8 @@ namespace TAS.Server
                     {
                         if (Source.Delete())
                         {
-                            AddOutputMessage($"Delete operation {Title} finished"); 
+                            AddOutputMessage($"Delete operation {Title} finished");
+                            ((MediaDirectoryBase)Source.Directory).RefreshVolumeInfo();
                             return true;
                         }
                     }
@@ -329,6 +331,7 @@ namespace TAS.Server
                                 && source.FileSize.Equals(Dest.FileSize))
                             {
                                 source.Delete();
+                                ((MediaDirectoryBase)Source.Directory).RefreshVolumeInfo();
                                 return true;
                             }
                             else
@@ -345,6 +348,8 @@ namespace TAS.Server
                         File.SetLastWriteTimeUtc(Dest.FullPath, File.GetLastWriteTimeUtc(source.FullPath));
                         Dest.MediaStatus = TMediaStatus.Copied;
                         ThreadPool.QueueUserWorkItem(o => Dest.Verify());
+                        ((MediaDirectoryBase)Source.Directory).RefreshVolumeInfo();
+                        ((MediaDirectoryBase)DestDirectory).RefreshVolumeInfo();
                         AddOutputMessage("Move operation finished");
                         Debug.WriteLine(this, "File operation succeed");
                         return true;

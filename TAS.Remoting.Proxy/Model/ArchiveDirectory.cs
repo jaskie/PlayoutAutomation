@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -9,17 +8,6 @@ namespace TAS.Remoting.Model
 {
     public class ArchiveDirectory : MediaDirectoryBase, IArchiveDirectory
     {
-        #pragma warning disable CS0649
-
-
-
-        #pragma warning restore
-        
-
-        public override IEnumerable<IMedia> GetFiles()
-        {
-            return Query<List<ArchiveMedia>>();
-        }
 
         public IArchiveMedia Find(IMediaProperties media)
         {
@@ -29,16 +17,10 @@ namespace TAS.Remoting.Model
 
         public IMediaManager MediaManager { get; set; }
 
-        public void Search()
-        {
-            Invoke();
-        }
-
         public List<IMedia> Search(TMediaCategory? category, string searchString)
         {
-            throw new System.NotImplementedException();
+            return Query<List<IMedia>>(parameters: new object[] {category, searchString});
         }
-
-        public ulong IdArchive { get; set; }
+        
     }
 }

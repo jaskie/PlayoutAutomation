@@ -62,8 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitmapConverter.cs" />
+    <Compile Include="Client\ReferenceResolver.cs" />
     <Compile Include="PropertyChangedWithValueEventArgs.cs" />
-    <Compile Include="ReferenceResolver.cs" />
+    <Compile Include="Server\ReferenceResolver.cs" />
     <Compile Include="Client\ProxyBase.cs" />
     <Compile Include="Client\RemoteClient.cs" />
     <Compile Include="IDto.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Server\DtoBase.cs" />
     <Compile Include="SocketMessage.cs" />
     <Compile Include="TcpConnection.cs" />
+    <Compile Include="UnresolvedReferenceException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

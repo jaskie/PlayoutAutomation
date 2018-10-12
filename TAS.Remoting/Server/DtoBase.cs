@@ -13,8 +13,8 @@ namespace TAS.Remoting.Server
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.Objects, IsReference = true, MemberSerialization = MemberSerialization.OptIn)]
     public abstract class DtoBase: IDto
     {
-        [XmlIgnore]
-        public Guid DtoGuid { get; } = Guid.NewGuid();
+        [XmlIgnore, JsonProperty]
+        public virtual Guid DtoGuid { get; } = Guid.NewGuid();
 
         private int _disposed;
 
@@ -34,7 +34,9 @@ namespace TAS.Remoting.Server
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
+        public void Release() { }
+
         public event EventHandler Disposed;
 
         public void Dispose()

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition.Hosting;
+﻿using System.Collections.Generic;
 using System.Configuration;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.FtpClient;
 using TAS.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Database.Interfaces;
 using TAS.Server.Security;
 
 namespace TAS.Server

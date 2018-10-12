@@ -188,7 +188,9 @@ namespace TAS.Remoting.Client
         protected override void OnMessage(byte[] data)
         {
             var message = new SocketMessage(data);
-            var proxy = _referenceResolver.ResolveReference(message.DtoGuid) as ProxyBase;
+            var proxy = message.MessageType == SocketMessage.SocketMessageType.RootQuery
+                ? null
+                : _referenceResolver.ResolveReference(message.DtoGuid);
             if (proxy == null && message.MessageType != SocketMessage.SocketMessageType.RootQuery)
                 Logger.Warn("Unknown proxy, MessageType:{0}, MemberName:{1}", message.MessageType, message.MemberName);
             switch (message.MessageType)

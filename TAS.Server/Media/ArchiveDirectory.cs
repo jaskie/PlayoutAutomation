@@ -8,8 +8,13 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
-    public class ArchiveDirectory : MediaDirectoryBase, IArchiveDirectory, IArchiveDirectoryServerSide
+    public sealed class ArchiveDirectory : MediaDirectoryBase, IArchiveDirectoryServerSide
     {
+        public ArchiveDirectory()
+        {
+            RefreshVolumeInfo();
+        }
+
         public IArchiveMedia Find(IMediaProperties media)
         {
             return EngineController.Database.ArchiveMediaFind<ArchiveMedia>(this, media.MediaGuid);
@@ -60,7 +65,7 @@ namespace TAS.Server.Media
             am.Save();
         }
 
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        internal override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
             var newFileName = mediaProperties.FileName;
             if (File.Exists(Path.Combine(Folder, newFileName)))
@@ -87,30 +92,30 @@ namespace TAS.Server.Media
             return DateTime.UtcNow.ToString("yyyyMM");
         }
 
-        private void _archiveCopy(MediaBase fromMedia, IMediaDirectory destDirectory, bool deleteAfterSuccess, bool toTop)
+        private void _archiveCopy(IMedia fromMedia, IMediaDirectory destDirectory, bool deleteAfterSuccess, bool toTop)
         {
             var operation = new FileOperation((FileManager)MediaManager.FileManager) { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, Source = fromMedia, DestDirectory = destDirectory };
-            operation.Success += _archived;
-            operation.Failure += _failure;
+            operation.Success += _archiveCopy_success;
+            operation.Failure += _archiveCopy_failure;
             MediaManager.FileManager.Queue(operation, toTop);
         }
 
-        private void _failure(object sender, EventArgs e)
+        private void _archiveCopy_failure(object sender, EventArgs e)
         {
             if (!(sender is FileOperation operation))
                 return;
-            operation.Success -= _archived;
-            operation.Failure -= _failure;
+            operation.Success -= _archiveCopy_success;
+            operation.Failure -= _archiveCopy_failure;
         }
 
-        private void _archived(object sender, EventArgs e)
+        private void _archiveCopy_success(object sender, EventArgs e)
         {
             if (!(sender is FileOperation operation))
                 return;
             if (operation.Source is ServerMedia sourceMedia)
                 sourceMedia.IsArchived = true;
-            operation.Success -= _archived;
-            operation.Failure -= _failure;
+            operation.Success -= _archiveCopy_success;
+            operation.Failure -= _archiveCopy_failure;
         }
     }
 }

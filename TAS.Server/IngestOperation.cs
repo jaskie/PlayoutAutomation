@@ -378,6 +378,7 @@ namespace TAS.Server
                 destMedia.Verify();
                 destMedia.TcPlay = destMedia.TcStart;
                 destMedia.DurationPlay = destMedia.Duration;
+                ((MediaDirectoryBase)DestDirectory).RefreshVolumeInfo();
                 if (Math.Abs(destMedia.Duration.Ticks - (IsTrimmed() ? Duration.Ticks : localSourceMedia.Duration.Ticks)) > TimeSpan.TicksPerSecond / 2)
                 {
                     destMedia.MediaStatus = TMediaStatus.CopyError;

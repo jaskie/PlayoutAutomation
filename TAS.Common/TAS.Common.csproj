@@ -61,7 +61,6 @@
     <Compile Include="AudioVolumeEventArgs.cs" />
     <Compile Include="CollectionOperationEventArgs.cs" />
     <Compile Include="ColorAttribute.cs" />
-    <Compile Include="DatabaseProviderLoader.cs" />
     <Compile Include="EngineOperationEventArgs.cs" />
     <Compile Include="EngineTickEventArgs.cs" />
     <Compile Include="Enums.cs" />
@@ -73,7 +72,6 @@
     <Compile Include="FileUtils.cs" />
     <Compile Include="Interfaces\Security\IAclObject.cs" />
     <Compile Include="Interfaces\Security\IAuthenticationService.cs" />
-    <Compile Include="Interfaces\IDatabase.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaDirectory.cs" />
     <Compile Include="Interfaces\MediaDirectory\ISearchableDirectory.cs" />
     <Compile Include="Interfaces\Security\ISecurityObject.cs" />

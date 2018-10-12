@@ -9,8 +9,9 @@ using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
 using TAS.Common;
+using TAS.Common.Database.Interfaces;
+using TAS.Common.Database.Interfaces.Media;
 using TAS.Common.Interfaces;
-using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Common.Interfaces.Security;
 
@@ -495,7 +496,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public MediaDeleteResult MediaInUse(IEngine engine, IServerMedia serverMedia)
+        public MediaDeleteResult MediaInUse(IEngine engine, Common.Interfaces.Media.IServerMedia serverMedia)
         {
             var reason = MediaDeleteResult.NoDeny;
             lock (_connection)
@@ -677,7 +678,7 @@ namespace TAS.Database.MySqlRedundant
             return result;
         }
 
-        public bool ArchiveContainsMedia(IArchiveDirectoryProperties dir, IMediaProperties media)
+        public bool ArchiveContainsMedia(IArchiveDirectoryProperties dir, Common.Interfaces.Media.IMediaProperties media)
         {
             if (dir == null || media.MediaGuid == Guid.Empty)
                 return false;
@@ -1230,7 +1231,7 @@ VALUES
                 cmd.Parameters.AddWithValue("@KillDate", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@KillDate", media.KillDate);
-            var flags = ((media is IServerMedia serverMedia && serverMedia.DoNotArchive) ? 0x1 : (uint)0x0)
+            var flags = ((media is global::TAS.Common.Interfaces.Media.IServerMedia serverMedia && serverMedia.DoNotArchive) ? 0x1 : (uint)0x0)
                         | (media.Protected ? 0x2 : (uint)0x0)
                         | (media.FieldOrderInverted ? 0x4 : (uint)0x0)
                         | ((uint)media.MediaCategory << 4) // bits 4-7 of 1st byte
@@ -1238,7 +1239,7 @@ VALUES
                         | ((uint)media.Parental << 12) // bits 4-7 of second byte
                         ;
             cmd.Parameters.AddWithValue("@flags", flags);
-            if (media is IServerMedia && media.Directory is IServerDirectory)
+            if (media is Common.Interfaces.Media.IServerMedia && media.Directory is IServerDirectory)
             {
                 cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
@@ -1304,7 +1305,7 @@ VALUES
             media.KillDate = dataReader.GetDateTime("KillDate");
             media.MediaEmphasis = (TMediaEmphasis)((flags >> 8) & 0xF);
             media.Parental = (byte)((flags >> 12) & 0xF);
-            if (media is IServerMedia serverMedia)
+            if (media is Common.Interfaces.Media.IServerMedia serverMedia)
                 serverMedia.DoNotArchive = (flags & 0x1) != 0;
             media.Protected = (flags & 0x2) != 0;
             media.FieldOrderInverted = (flags & 0x4) != 0;
@@ -1361,7 +1362,7 @@ VALUES
             }
         }
 
-        public void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IServerMedia, new()
+        public void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : Common.Database.Interfaces.Media.IServerMedia, new()
         {
             Debug.WriteLine(directory, "ServerLoadMediaDirectory started");
             lock (_connection)
@@ -1474,7 +1475,7 @@ VALUES
             return result;
         }
 
-        public bool InsertMedia(IServerMedia serverMedia, ulong serverId)
+        public bool InsertMedia(Common.Database.Interfaces.Media.IServerMedia serverMedia, ulong serverId)
         {
             lock (_connection)
                 return _dbInsertMedia(serverMedia, serverId);
@@ -1506,11 +1507,11 @@ VALUES
             return true;
         }
 
-        public bool DeleteMedia(IServerMedia serverMedia)
+        public bool DeleteMedia(Common.Database.Interfaces.Media.IServerMedia serverMedia)
         {
             lock (_connection)
             {
-                return _dbDeleteMedia(serverMedia);
+                return _deleteServerMedia(serverMedia);
             }
         }
 
@@ -1523,7 +1524,7 @@ VALUES
                 {
                     try
                     {
-                        result = _dbDeleteMedia(animatedMedia);
+                        result = _deleteServerMedia(animatedMedia);
                         if (result)
                             result = _delete_media_templated(animatedMedia);
                     }
@@ -1539,7 +1540,7 @@ VALUES
             }
         }
         
-        private bool _dbDeleteMedia(IPersistentMedia serverMedia)
+        private bool _deleteServerMedia(IPersistentMedia serverMedia)
         {
             var cmd = new DbCommandRedundant("DELETE FROM ServerMedia WHERE idServerMedia=@idServerMedia;", _connection);
             cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
@@ -1577,7 +1578,7 @@ VALUES
         }
 
 
-        public void UpdateMedia(IServerMedia serverMedia, ulong serverId)
+        public void UpdateMedia(Common.Database.Interfaces.Media.IServerMedia serverMedia, ulong serverId)
         {
             lock (_connection)
                 _dbUpdateMedia(serverMedia, serverId);

@@ -28,6 +28,5 @@ namespace TAS.Common.Interfaces.MediaDirectory
     {
         void AddMedia(IMedia media);
         void RemoveMedia(IMedia media);
-        IMedia CreateMedia(IMediaProperties mediaProperties);
     }
 }

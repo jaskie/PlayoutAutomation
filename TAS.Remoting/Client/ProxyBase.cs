@@ -32,9 +32,15 @@ namespace TAS.Remoting.Client
         }
 #endif
 
+        [JsonProperty]
         public Guid DtoGuid { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public void Release()
+        {
+            
+        }
 
         public event EventHandler Disposed;
 

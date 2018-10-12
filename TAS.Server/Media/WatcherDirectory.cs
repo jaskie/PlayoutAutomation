@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using TAS.Common;
+using TAS.Common.Database.Interfaces.Media;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -35,9 +36,7 @@ namespace TAS.Server.Media
             Initialize();
         }
 
-        public event EventHandler<MediaEventArgs> MediaVerified;
-        public event EventHandler<MediaEventArgs> MediaDeleted;
-        internal event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged;
+
         
         protected WatcherDirectory(MediaManager mediaManager)
         {
@@ -81,7 +80,7 @@ namespace TAS.Server.Media
                 return Files.Values.Cast<IMedia>().ToList().AsReadOnly();
         }
         
-        public virtual bool DeleteMedia(IMedia media)
+        internal override bool DeleteMedia(IMedia media)
         {
             if (media.Directory != this) 
                 throw new ApplicationException("Deleting media directory is invalid");
@@ -146,10 +145,6 @@ namespace TAS.Server.Media
             }
         }
 
-        internal virtual void NotifyMediaVerified(IMedia media)
-        {
-            MediaVerified?.Invoke(this, new MediaEventArgs(media));
-        }
 
         protected virtual void EnumerateFiles(string directory, string filter, bool includeSubdirectories, CancellationToken cancelationToken)
         {
@@ -193,7 +188,7 @@ namespace TAS.Server.Media
                             }
                             if (Directory.Exists(Folder))
                             {
-                                GetVolumeInfo();
+                                RefreshVolumeInfo();
                                 EnumerateFiles(Folder, filter, includeSubdirectories, watcherTaskCancelationTokenSource.Token);
                                 _watcher = new FileSystemWatcher(Folder)
                                 {
@@ -284,7 +279,7 @@ namespace TAS.Server.Media
             try
             {
                 FileRemoved(e.FullPath);
-                GetVolumeInfo();
+                RefreshVolumeInfo();
             }
             catch
             {
@@ -326,7 +321,7 @@ namespace TAS.Server.Media
                 var m = FindMediaFirstByFullPath(e.FullPath);
                 if (m != null)
                     OnMediaChanged(m);
-                GetVolumeInfo();
+                RefreshVolumeInfo();
             }
             catch
             {
@@ -363,19 +358,19 @@ namespace TAS.Server.Media
             {
                 if (Files.TryGetValue(mediaBase.MediaGuid, out var prevMedia))
                 {
-                    if (prevMedia is IServerMedia || prevMedia is IAnimatedMedia)
+                    if (prevMedia is Common.Interfaces.Media.IServerMedia || prevMedia is Common.Interfaces.Media.IAnimatedMedia)
                     {
                         prevMedia.PropertyChanged -= _media_PropertyChanged;
-                        Task.Run(() =>
+                        Task.Run((Action)(() =>
                         {
-                            if (prevMedia is IAnimatedMedia am)
+                            if (prevMedia is Common.Database.Interfaces.Media.IAnimatedMedia am)
                                 EngineController.Database.DeleteMedia(am);
-                            if (prevMedia is IServerMedia sm)
+                            if (prevMedia is Common.Database.Interfaces.Media.IServerMedia sm)
                                 EngineController.Database.DeleteMedia(sm);
                             Logger.Warn("Media {0} replaced in dictionary. Previous media deleted in database.",
                                 prevMedia);
                             Debug.WriteLine(prevMedia, "Media replaced in dictionary");
-                        });
+                        }));
                     }
                 }
                 Files[mediaBase.MediaGuid] = mediaBase;
@@ -404,11 +399,6 @@ namespace TAS.Server.Media
             Logger.Trace("Media {0} changed", media);
         }
 
-        protected virtual void NotifyMediaDeleted(IMedia media)
-        {
-            MediaDeleted?.Invoke(this, new MediaEventArgs(media));
-        }
-
         protected virtual void ClearFiles()
         {
             lock (((IDictionary)Files).SyncRoot)
@@ -428,7 +418,7 @@ namespace TAS.Server.Media
 
         private void _media_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            MediaPropertyChanged?.Invoke(this, new MediaPropertyChangedEventArgs(sender as IMedia, e.PropertyName));
+            NotifyMediaPropertyChanged(sender as IMedia, e);
         }
 
         protected abstract IMedia AddMediaFromPath(string fullPath, DateTime lastUpdated);

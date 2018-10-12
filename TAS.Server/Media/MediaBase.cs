@@ -214,7 +214,7 @@ namespace TAS.Server.Media
             internal set
             {
                 if (SetField(ref _verified, value) && value && _mediaStatus == TMediaStatus.Available)
-                    (Directory as WatcherDirectory)?.NotifyMediaVerified(this);
+                    (Directory as MediaDirectoryBase)?.NotifyMediaVerified(this);
             }
         }
 
@@ -227,7 +227,7 @@ namespace TAS.Server.Media
 
         public virtual bool Delete()
         {
-            return ((WatcherDirectory)Directory).DeleteMedia(this);
+            return ((MediaDirectoryBase)Directory).DeleteMedia(this);
         }
 
         internal virtual void CloneMediaProperties(IMediaProperties fromMedia)
