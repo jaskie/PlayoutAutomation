@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
@@ -23,6 +25,13 @@ namespace TAS.Server.Media
         {
             Logger = LogManager.GetLogger(GetType().Name);
         }
+
+        public event EventHandler<MediaEventArgs> MediaVerified;
+        public event EventHandler<MediaEventArgs> MediaDeleted;
+        public event EventHandler<MediaEventArgs> MediaAdded;
+        public event EventHandler<MediaEventArgs> MediaRemoved;
+
+        internal event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged;
 
         [XmlIgnore]
         public IMediaManager MediaManager { get; set; }
@@ -82,13 +91,37 @@ namespace TAS.Server.Media
             MediaRemoved?.Invoke(this, new MediaEventArgs(media));
         }
 
-        public abstract IMedia CreateMedia(IMediaProperties mediaProperties);
+        internal abstract IMedia CreateMedia(IMediaProperties mediaProperties);
+        
+        internal virtual bool DeleteMedia(IMedia media)
+        {
+            if (media.Directory != this)
+                throw new ApplicationException("Deleting media directory is invalid");
+            if (media.FileExists())
+            {
+                try
+                {
+                    File.Delete(((MediaBase)media).FullPath);
+                    Debug.WriteLine(media, "File deleted");
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("MediaDirectory.DeleteMedia {0} failed with error {1}", media, e.Message);
+                }
+            }
+            else
+            {
+                RemoveMedia(media);
+                MediaDeleted?.Invoke(this, new MediaEventArgs(media));
+                return true;
+            }
+            return false;
+        }
 
-        public event EventHandler<MediaEventArgs> MediaAdded;
-        public event EventHandler<MediaEventArgs> MediaRemoved;
 
 
-        protected virtual void GetVolumeInfo()
+        internal virtual void RefreshVolumeInfo()
         {
             if (GetDiskFreeSpaceEx(Folder, out var free, out var total, out var dummy))
             {
@@ -102,11 +135,27 @@ namespace TAS.Server.Media
             }
         }
 
+
+
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GetDiskFreeSpaceEx(string lpDirectoryName, out ulong lpFreeBytesAvailable, out ulong lpTotalNumberOfBytes, out ulong lpTotalNumberOfFreeBytes);
 
 
+        internal void NotifyMediaVerified(IMedia mediaBase)
+        {
+            MediaVerified?.Invoke(this, new MediaEventArgs(mediaBase));
+        }
+
+        protected void NotifyMediaDeleted(IMedia media)
+        {
+            MediaDeleted?.Invoke(this, new MediaEventArgs(media));
+        }
+
+        protected void NotifyMediaPropertyChanged(IMedia media, PropertyChangedEventArgs eventArgs)
+        {
+            MediaPropertyChanged?.Invoke(this, new MediaPropertyChangedEventArgs(media, eventArgs.PropertyName));
+        }
     }
 
 }

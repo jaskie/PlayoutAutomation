@@ -77,7 +77,7 @@ namespace TAS.Remoting.Server
                 }
                 else // method of particular object
                 {
-                    IDto objectToInvoke = _referenceResolver.ResolveReference(message.DtoGuid);
+                    var objectToInvoke = _referenceResolver.ResolveReference(message.DtoGuid);
                     if (objectToInvoke != null)
                     {
                         if (message.MessageType == SocketMessage.SocketMessageType.Query

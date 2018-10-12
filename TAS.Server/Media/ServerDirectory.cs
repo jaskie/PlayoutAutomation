@@ -61,7 +61,7 @@ namespace TAS.Server.Media
             }
         }
 
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        internal override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
             var newFileName = mediaProperties.FileName;
             if (File.Exists(Path.Combine(Folder, newFileName)))

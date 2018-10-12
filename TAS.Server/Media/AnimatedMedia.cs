@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Database.Interfaces.Media;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {
-    public class AnimatedMedia : PersistentMedia, IAnimatedMedia
+    public class AnimatedMedia : PersistentMedia, Common.Database.Interfaces.Media.IAnimatedMedia
     {
         private TemplateMethod _method;
         private int _templateLayer;

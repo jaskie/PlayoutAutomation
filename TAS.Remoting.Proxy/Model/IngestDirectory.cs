@@ -1,14 +1,12 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
-    public class IngestDirectory : MediaDirectoryBase, IIngestDirectory
+    public class IngestDirectory : WatcherDirectory, IIngestDirectory
     {
         #pragma warning disable CS0649
 

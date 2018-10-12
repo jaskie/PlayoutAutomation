@@ -3,15 +3,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Database.Interfaces.Media;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {
-    public class ArchiveMedia : PersistentMedia, IArchiveMedia
+    public class ArchiveMedia : PersistentMedia, Common.Database.Interfaces.Media.IArchiveMedia
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ArchiveMedia));
         private TIngestStatus _ingestStatus;
+
+        ~ArchiveMedia()
+        {
+            Debug.WriteLine("ArchiveMedia finalized");    
+        }
 
         [JsonProperty]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ArchiveMediaFieldLengths;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Remoting.Client;
 using TAS.Common;
@@ -8,7 +7,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
-    public abstract class MediaDirectoryBase : ProxyBase, IWatcherDirectory
+    public abstract class MediaDirectoryBase : ProxyBase, IMediaDirectory
     {
         #pragma warning disable CS0649
 
@@ -34,8 +33,6 @@ namespace TAS.Remoting.Model
 
         public string DirectoryName { get => _directoryName; set => Set(value); }
 
-        public abstract IEnumerable<IMedia> GetFiles();
-        
         public string Folder { get => _folder; set => Set(value); }
 
         public char PathSeparator => _pathSeparator;

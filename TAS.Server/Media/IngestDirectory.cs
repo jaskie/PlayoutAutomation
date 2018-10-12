@@ -246,16 +246,16 @@ namespace TAS.Server.Media
         }
 
 
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        internal override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
             throw new NotImplementedException();
         }
 
-        public override bool DeleteMedia(IMedia media)
+        internal override bool DeleteMedia(IMedia media)
         {
             if (AccessType != TDirectoryAccessType.FTP)
                 return base.DeleteMedia(media);
-            if (media.Directory != this) 
+            if (media.Directory != this)
                 throw new ApplicationException("Media does not belong to the directory");
             var client = GetFtpClient();
             var uri = new Uri(((MediaBase)media).FullPath);
@@ -334,7 +334,7 @@ namespace TAS.Server.Media
             Initialize();
         }
 
-        protected override void GetVolumeInfo()
+        internal override void RefreshVolumeInfo()
         {
             if (AccessType == TDirectoryAccessType.FTP)
             {
@@ -351,7 +351,7 @@ namespace TAS.Server.Media
                 }
             }
             else
-                base.GetVolumeInfo();
+                base.RefreshVolumeInfo();
         }
 
         protected override void OnFileRenamed(object source, RenamedEventArgs e)
@@ -423,39 +423,7 @@ namespace TAS.Server.Media
             return Extensions == null
                    || Extensions.Length == 0
                    || Extensions.Any(e => e == ext)
-                   || (Kind == TIngestDirectoryKind.XDCAM && ext == XDCAM.Smil.FileExtension);
-        }
-
-        private IMedia CreateMedia(string fullPath, string mediaName, DateTime lastUpdated, TMediaType mediaType, Guid guid = default(Guid))
-        {
-            var relativeName = fullPath.Substring(Folder.Length);
-            var fileName = Path.GetFileName(relativeName);
-            return Kind == TIngestDirectoryKind.XDCAM
-                ?
-                new XDCAM.XdcamMedia
-                {
-                    MediaName = mediaName,
-                    MediaGuid = guid,
-                    LastUpdated = lastUpdated,
-                    MediaType = mediaType,
-                    FileName = fileName,
-                    Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
-                    MediaStatus = TMediaStatus.Unknown,
-                    MediaCategory = MediaCategory,
-                    Directory = this
-                }
-                :
-                new IngestMedia
-                {
-                    MediaName = mediaName,
-                    MediaGuid = guid,
-                    MediaType = mediaType,
-                    FileName = fileName,
-                    Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
-                    MediaStatus = TMediaStatus.Unknown,
-                    MediaCategory = MediaCategory,
-                    Directory = this
-                };
+                   || (Kind == TIngestDirectoryKind.XDCAM && ext == Smil.FileExtension);
         }
 
         protected override void FileRemoved(string fullPath)
@@ -473,32 +441,32 @@ namespace TAS.Server.Media
 
         internal XmlDocument ReadXmlDocument(string documentName, FtpClient client)
         {
-            XmlDocument xMlDoc = new XmlDocument();
-            if (AccessType == TDirectoryAccessType.Direct)
+            var xMlDoc = new XmlDocument();
+            switch (AccessType)
             {
-                string fileName = Path.Combine(Folder, documentName);
-                if (File.Exists(fileName))
-                    xMlDoc.Load(fileName);
-            }
-            if (AccessType == TDirectoryAccessType.FTP)
-            {
-                try
-                {
-                    using (Stream stream = client.OpenRead(documentName))
-                        xMlDoc.Load(stream);
-                }
-                catch (FtpCommandException)
-                {
-                }
+                case TDirectoryAccessType.Direct:
+                    var fileName = Path.Combine(Folder, documentName);
+                    if (File.Exists(fileName))
+                        xMlDoc.Load(fileName);
+                    break;
+                case TDirectoryAccessType.FTP:
+                    try
+                    {
+                        using (var stream = client.OpenRead(documentName))
+                            xMlDoc.Load(stream);
+                    }
+                    catch (FtpCommandException e)
+                    {
+                        Logger.Error(e);
+                    }
+                    break;
             }
             return xMlDoc;
         }
 
         internal NetworkCredential GetNetworkCredential()
         {
-            if (_networkCredential == null)
-                _networkCredential = new NetworkCredential(Username, Password);
-            return _networkCredential;
+            return _networkCredential ?? (_networkCredential = new NetworkCredential(Username, Password));
         }
 
         internal FtpClient GetFtpClient()

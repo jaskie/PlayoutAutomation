@@ -7,7 +7,7 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {
-    public abstract class PersistentMedia: MediaBase, IPersistentMedia
+    public abstract class PersistentMedia: MediaBase, Common.Database.Interfaces.Media.IPersistentMedia
     {
 
         private DateTime _killDate;
@@ -84,7 +84,7 @@ namespace TAS.Server.Media
 
         protected override bool SetField<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
-            bool modified = base.SetField(ref field, value, propertyName);
+            var modified = base.SetField(ref field, value, propertyName);
             if (modified && propertyName != nameof(IsVerified))
                 IsModified = true;
             return modified;

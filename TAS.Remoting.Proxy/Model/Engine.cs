@@ -212,13 +212,7 @@ namespace TAS.Remoting.Model
 
         public IEvent Playing => _playing;
 
-        public List<IEvent> FixedTimeEvents
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public List<IEvent> FixedTimeEvents => throw new NotImplementedException();
 
         public IDictionary<string, int> ServerMediaFieldLengths { get => _serverMediaFieldLengths; set => Set(value); }
         public IDictionary<string, int> ArchiveMediaFieldLengths { get => _archiveMediaFieldLengths; set => Set(value); }
@@ -278,8 +272,6 @@ namespace TAS.Remoting.Model
         public void ClearMixer() { Invoke(); }
 
         public void Load(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
-
-        public void RemoveEvent(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
         public void ReSchedule(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 

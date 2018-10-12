@@ -1,5 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Drawing;
 using TAS.Remoting.Client;
 using TAS.Common.Interfaces;

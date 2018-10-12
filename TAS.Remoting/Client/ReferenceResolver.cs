@@ -1,16 +1,17 @@
 ﻿//#undef DEBUG
-using Newtonsoft.Json.Serialization;
+
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
+using Newtonsoft.Json.Serialization;
 
-namespace TAS.Remoting
+namespace TAS.Remoting.Client
 {
     public class ReferenceResolver : IReferenceResolver, IDisposable
     {
-        private readonly ConcurrentDictionary<Guid, IDto> _knownDtos = new ConcurrentDictionary<Guid, IDto>();
+        private readonly ConcurrentDictionary<Guid, ProxyBase> _knownDtos = new ConcurrentDictionary<Guid, ProxyBase>();
         private int _disposed;
 
         public ReferenceResolver()
@@ -41,25 +42,23 @@ namespace TAS.Remoting
         #region IReferenceResolver
         public void AddReference(object context, string reference, object value)
         {
-            if (!(value is IDto p))
+            if (!(value is ProxyBase proxy))
                 return;
-            Guid id = new Guid(reference);
-            _knownDtos[id] = (IDto)value;
-            if ((p as Client.ProxyBase)?.DtoGuid == Guid.Empty)
-                ((Client.ProxyBase)p).DtoGuid = new Guid(reference);
+            var id = new Guid(reference);
+            _knownDtos[id] = proxy;
             Debug.WriteLine("Added reference {0} for {1}", reference, value);
         }
 
         public string GetReference(object context, object value)
         {
-            if (!(value is IDto p)) return 
+            if (!(value is ProxyBase dto)) return 
                     string.Empty;
             if (IsReferenced(context, value))
-                return p.DtoGuid.ToString();
-            _knownDtos[p.DtoGuid] = p;
-            p.PropertyChanged += _referencePropertyChanged;
-            p.Disposed += _reference_Disposed;
-            return p.DtoGuid.ToString();
+                return dto.DtoGuid.ToString();
+            _knownDtos[dto.DtoGuid] = dto;
+            dto.PropertyChanged += _referencePropertyChanged;
+            dto.Disposed += _reference_Disposed;
+            return dto.DtoGuid.ToString();
         }
 
 
@@ -74,18 +73,17 @@ namespace TAS.Remoting
         {
             var id = new Guid(reference);
             if (!_knownDtos.TryGetValue(id, out var value))
-                Debug.WriteLine("Unresolved reference {0}", reference);
+                throw new UnresolvedReferenceException("ResolveReference failed", id);
             Debug.WriteLine("Resolved reference {0} with {1}", reference, value);
             return value;
         }
 
         #endregion //IReferenceResolver
 
-        #region Server-side methods
-        public IDto ResolveReference(Guid reference)
+        internal ProxyBase ResolveReference(Guid reference)
         {
             if (!_knownDtos.TryGetValue(reference, out var p))
-                Debug.WriteLine("Unresolved reference {0}", reference);
+                throw new UnresolvedReferenceException("ResolveReference failed", reference);
             return p;
         }
 
@@ -104,7 +102,6 @@ namespace TAS.Remoting
                 Debug.WriteLine(disposed, $"Reference resolver - object {disposed.DtoGuid} disposed, generation is {GC.GetGeneration(dto)}");
             }
         }
-        #endregion // Server-side methods
 
         #region Client-side methods
         internal IDto RemoveReference(Guid reference)

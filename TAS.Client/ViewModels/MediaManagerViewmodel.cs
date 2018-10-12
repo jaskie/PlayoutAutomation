@@ -702,7 +702,7 @@ namespace TAS.Client.ViewModels
             var dir = _selectedDirectory?.Directory;
             if (dir is IArchiveDirectory)
             {
-                (dir as IArchiveDirectory).Search(_mediaCategory as TMediaCategory?, _searchText);
+                MediaItems = new ObservableCollection<MediaViewViewmodel>((dir as IArchiveDirectory).Search(_mediaCategory as TMediaCategory?, _searchText).Select( m => new MediaViewViewmodel(m)));
             }
             else
             if (dir is IIngestDirectory && ((IIngestDirectory)dir).IsWAN)

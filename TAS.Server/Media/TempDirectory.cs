@@ -20,7 +20,7 @@ namespace TAS.Server.Media
             throw new NotImplementedException();
         }
 
-        public override IMedia CreateMedia(IMediaProperties media)
+        internal override IMedia CreateMedia(IMediaProperties media)
         {
             return new TempMedia(this, media);
         }

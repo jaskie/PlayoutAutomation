@@ -28,7 +28,7 @@ namespace TAS.Server.Media
             Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
         }
 
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        internal override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
             throw new NotImplementedException();
         }
