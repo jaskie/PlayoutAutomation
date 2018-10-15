@@ -35,8 +35,6 @@ namespace TAS.Remoting.Server
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void Release() { }
-
         public event EventHandler Disposed;
 
         public void Dispose()

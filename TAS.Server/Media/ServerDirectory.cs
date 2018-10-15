@@ -23,12 +23,11 @@ namespace TAS.Server.Media
 
         public override void Initialize()
         {
-            if (!IsInitialized)
-            {
-                EngineController.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
-                base.Initialize();
-                Debug.WriteLine(this, "Directory initialized");
-            }
+            if (IsInitialized)
+                return;
+            EngineController.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
+            base.Initialize();
+            Debug.WriteLine(this, "Directory initialized");
         }
 
         public override void Refresh() { }
@@ -43,7 +42,7 @@ namespace TAS.Server.Media
         public override void RemoveMedia(IMedia media)
         {
             if (!(media is ServerMedia sm))
-                throw new ApplicationException("Media provided to RemoveMedia is not ServerMedia");
+                throw new ArgumentException(nameof(media));
             sm.MediaStatus = TMediaStatus.Deleted;
             sm.IsVerified = false;
             sm.Save();
@@ -52,8 +51,8 @@ namespace TAS.Server.Media
 
         public override void SweepStaleMedia()
         {
-            DateTime currentDateTime = DateTime.UtcNow.Date;
-            IEnumerable<IMedia> staleMediaList = FindMediaList(m => (m is ServerMedia) && currentDateTime > (m as ServerMedia).KillDate);
+            var currentDateTime = DateTime.UtcNow.Date;
+            var staleMediaList = FindMediaList(m => m is ServerMedia && currentDateTime > ((ServerMedia) m).KillDate);
             foreach (var media in staleMediaList)
             {
                 var m = (MediaBase)media;
@@ -116,8 +115,7 @@ namespace TAS.Server.Media
         {
             if (!AcceptFile(fullPath))
                 return null;
-            var newMedia = FindMediaFirstByFullPath(fullPath) as ServerMedia;
-            if (newMedia != null || !AcceptFile(fullPath))
+            if (FindMediaFirstByFullPath(fullPath) is ServerMedia newMedia)
                 return newMedia;
             var relativeName = fullPath.Substring(Folder.Length);
             var fileName = Path.GetFileName(relativeName);

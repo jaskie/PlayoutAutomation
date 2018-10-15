@@ -585,7 +585,6 @@ namespace TAS.Database.MySqlRedundant
                 IdPersistentMedia = dataReader.GetUInt64("idArchiveMedia")
             };
             _mediaReadFields(media, dataReader);
-            media.IsModified = false;
             return media;
         }
 
@@ -1310,6 +1309,22 @@ VALUES
             media.Protected = (flags & 0x2) != 0;
             media.FieldOrderInverted = (flags & 0x4) != 0;
             media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
+            if (media is ITemplated templated)
+            {
+                var templateFields = dataReader.GetString("Fields");
+                if (!string.IsNullOrWhiteSpace(templateFields))
+                {
+                    var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
+                    if (fieldsDeserialized != null)
+                        templated.Fields = fieldsDeserialized;
+                }
+                templated.Method = (TemplateMethod)dataReader.GetByte("Method");
+                templated.TemplateLayer = dataReader.GetInt32("TemplateLayer");
+                templated.ScheduledDelay = dataReader.GetTimeSpan("ScheduledDelay");
+                templated.StartType = (TStartType)dataReader.GetByte("StartType");
+                if (templated.StartType != TStartType.WithParentFromEnd)
+                    templated.StartType = TStartType.WithParent;
+            }
             media.IsModified = false;
         }
 
@@ -1328,28 +1343,11 @@ VALUES
                         while (dataReader.Read())
                         {
 
-                            var media = new T()
+                            var media = new T
                             {
                                 IdPersistentMedia = dataReader.GetUInt64("idServerMedia"),
                             };
                             _mediaReadFields(media, dataReader);
-                            var templateFields = dataReader.GetString("Fields");
-                            if (!string.IsNullOrWhiteSpace(templateFields))
-                            {
-                                var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
-                                if (fieldsDeserialized != null)
-                                    media.Fields = fieldsDeserialized;
-                            }
-                            media.Method = (TemplateMethod)dataReader.GetByte("Method");
-                            media.TemplateLayer = dataReader.GetInt32("TemplateLayer");
-                            media.ScheduledDelay = dataReader.GetTimeSpan("ScheduledDelay");
-                            media.StartType = (TStartType)dataReader.GetByte("StartType");
-                            if (media.StartType != TStartType.WithParentFromEnd)
-                                media.StartType = TStartType.WithParent;
-                            media.IsModified = false;
-                            if (media.MediaStatus == TMediaStatus.Available)
-                                continue;
-                            media.MediaStatus = TMediaStatus.Unknown;
                             directory.AddMedia(media);
                         }
                     }
