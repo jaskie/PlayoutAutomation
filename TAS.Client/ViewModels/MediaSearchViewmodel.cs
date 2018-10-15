@@ -6,6 +6,7 @@ using System.Windows;
 using System.ComponentModel;
 using System.Windows.Data;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
@@ -70,9 +71,14 @@ namespace TAS.Client.ViewModels
             if (!closeAfterAdd)
                 OkButtonText = resources._button_Add;
             _createCommands();
-            Items = new ObservableCollection<MediaViewViewmodel>(_searchDirectory.GetFiles()
-                .Where(m => _canAddMediaToCollection(m, mediaType))
-                .Select(m => new MediaViewViewmodel(m)));
+            var items = Task.Run(async () =>
+            {
+                var result = (await _searchDirectory.GetFiles())
+                    .Where(m => _canAddMediaToCollection(m, mediaType))
+                    .Select(m => new MediaViewViewmodel(m));
+                return result;
+            }).Result;
+            Items = new ObservableCollection<MediaViewViewmodel>(items);
             _itemsView = CollectionViewSource.GetDefaultView(Items);
             _itemsView.SortDescriptions.Add(mediaType == TMediaType.Movie
                 ? new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending)

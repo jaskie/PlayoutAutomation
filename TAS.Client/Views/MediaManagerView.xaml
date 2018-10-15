@@ -232,7 +232,7 @@
                                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
                             </Button>
                         </ToolBar>
-                        <DataGrid x:Name="MediaListGrid" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
+                        <DataGrid x:Name="MediaListGrid" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItemsView}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
                             <i:Interaction.Behaviors>
                                 <common:BindableSelectedItems SelectedItems="{Binding SelectedMediaList, Mode=OneWayToSource}"/>
                             </i:Interaction.Behaviors>
@@ -485,7 +485,7 @@
                         </DataGrid>
                     </DockPanel>
                 </TabItem>
-                <TabItem Header="{Resx _recorders}">
+                <TabItem Header="{Resx _recorders}" Visibility="{Binding IsShowRecorders, Converter={StaticResource BoolToVis}}">
                     <views:RecordersView DataContext="{Binding RecordersViewmodel}"/>
                 </TabItem>
             </TabControl>

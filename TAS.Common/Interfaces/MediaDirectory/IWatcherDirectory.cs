@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Common.Interfaces.MediaDirectory
@@ -8,11 +9,11 @@ namespace TAS.Common.Interfaces.MediaDirectory
     {
         bool IsInitialized { get; }
 
-        IEnumerable<IMedia> GetFiles();
+        Task<IEnumerable<IMedia>> GetFiles();
 
         void SweepStaleMedia();
 
-        void Refresh();
+        Task Refresh();
 
         event EventHandler<MediaEventArgs> MediaVerified;
     }

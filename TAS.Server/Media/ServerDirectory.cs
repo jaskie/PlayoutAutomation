@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -29,8 +28,6 @@ namespace TAS.Server.Media
             base.Initialize();
             Debug.WriteLine(this, "Directory initialized");
         }
-
-        public override void Refresh() { }
 
         public override void AddMedia(IMedia media)
         {
