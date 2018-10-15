@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TAS.Client.ViewModels;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -53,33 +54,33 @@ namespace TAS.Client
             return Undos.Count > 0 && _undoEngine != null && _undoDest?.HaveRight(EventRight.Create) == true;
         }
 
-        public static void Undo()
+        public static async void Undo()
         {
             using (var enumerator = Undos.GetEnumerator())
             {
                 if (enumerator.MoveNext())
                 {
-                    var dest = _pasteUndo(enumerator.Current);
+                    var dest = await _pasteUndo(enumerator.Current);
                     while (enumerator.MoveNext())
-                        dest = _paste(enumerator.Current, dest, PasteLocation.After, ClipboardOperation.Copy);
+                        dest = await _paste(enumerator.Current, dest, PasteLocation.After, ClipboardOperation.Copy);
                 }
             }
             _clearUndo();
         }
 
-        static void _clearUndo()
+        private static void _clearUndo()
         {
             Undos.Clear();
             _undoDest = null;
             _undoEngine = null;
         }
 
-        static IEvent _pasteUndo(IEventProperties source)
+        private static async Task<IEvent> _pasteUndo(IEventProperties source)
         {
             if (!(source is EventProxy sourceProxy) || _undoEngine == null)
                 throw new InvalidOperationException($"Cannot undo: {source.EventName}");
-            var mediaFiles = (_undoEngine.MediaManager.MediaDirectoryPRI ?? _undoEngine.MediaManager.MediaDirectorySEC)?.GetFiles();
-            var animationFiles = (_undoEngine.MediaManager.AnimationDirectoryPRI ?? _undoEngine.MediaManager.AnimationDirectorySEC)?.GetFiles();
+            var mediaFiles = await (_undoEngine.MediaManager.MediaDirectoryPRI ?? _undoEngine.MediaManager.MediaDirectorySEC)?.GetFiles();
+            var animationFiles = await (_undoEngine.MediaManager.AnimationDirectoryPRI ?? _undoEngine.MediaManager.AnimationDirectorySEC)?.GetFiles();
             switch (sourceProxy.StartType)
             {
                 case TStartType.After:
@@ -117,7 +118,7 @@ namespace TAS.Client
             _notifyClipboardChanged();
         }
 
-        public static IEvent Paste(EventPanelViewmodelBase destination, PasteLocation location)
+        public static async Task<IEvent> Paste(EventPanelViewmodelBase destination, PasteLocation location)
         {
             var dest = destination.Event;
             if (CanPaste(destination, location))
@@ -127,9 +128,9 @@ namespace TAS.Client
                 {
                     if (!enumerator.MoveNext())
                         return null;
-                    dest = _paste(enumerator.Current, dest, location, operation);
+                    dest = await _paste(enumerator.Current, dest, location, operation);
                     while (enumerator.MoveNext())
-                        dest = _paste(enumerator.Current, dest, PasteLocation.After, operation);
+                        dest = await _paste(enumerator.Current, dest, PasteLocation.After, operation);
                 }
             }
             if (_operation == ClipboardOperation.Cut)
@@ -137,7 +138,7 @@ namespace TAS.Client
             return dest;
         }
 
-        static IEvent _paste(IEventProperties source, IEvent dest, PasteLocation location, ClipboardOperation operation)
+        static async Task<IEvent> _paste(IEventProperties source, IEvent dest, PasteLocation location, ClipboardOperation operation)
         {
             if (operation == ClipboardOperation.Cut)
             {
@@ -173,8 +174,8 @@ namespace TAS.Client
             {
                 if (source is EventProxy sourceProxy)
                 {
-                    var mediaFiles = (dest.Engine.MediaManager.MediaDirectoryPRI ?? dest.Engine.MediaManager.MediaDirectorySEC)?.GetFiles();
-                    var animationFiles = (dest.Engine.MediaManager.AnimationDirectoryPRI ?? dest.Engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
+                    var mediaFiles = await (dest.Engine.MediaManager.MediaDirectoryPRI ?? dest.Engine.MediaManager.MediaDirectorySEC)?.GetFiles();
+                    var animationFiles = await (dest.Engine.MediaManager.AnimationDirectoryPRI ?? dest.Engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
                     switch (location)
                     {
                         case PasteLocation.After:

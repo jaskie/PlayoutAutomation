@@ -343,7 +343,7 @@ namespace TAS.Client.ViewModels
 
         private bool _canClear(object obj) => Engine.HaveRight(EngineRight.Play);
 
-        private void _loadRundown(object obj)
+        private async void _loadRundown(object obj)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog()
             {
@@ -360,8 +360,8 @@ namespace TAS.Client.ViewModels
                         .Deserialize<EventProxy>(jreader);
                     if (proxy != null)
                     {
-                        var mediaFiles = (Engine.MediaManager.MediaDirectoryPRI ?? Engine.MediaManager.MediaDirectorySEC)?.GetFiles();
-                        var animationFiles = (Engine.MediaManager.AnimationDirectoryPRI ?? Engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
+                        var mediaFiles = await (Engine.MediaManager.MediaDirectoryPRI ?? Engine.MediaManager.MediaDirectorySEC)?.GetFiles();
+                        var animationFiles = await (Engine.MediaManager.AnimationDirectoryPRI ?? Engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
                         var newEvent = obj.Equals("Under") ? proxy.InsertUnder(SelectedEvent.Event, false, mediaFiles, animationFiles) : proxy.InsertAfter(SelectedEvent.Event, mediaFiles, animationFiles);
                         LastAddedEvent = newEvent;
                     }
@@ -440,7 +440,7 @@ namespace TAS.Client.ViewModels
 
         private void _eventHide(object obj) => (SelectedEvent as EventPanelContainerViewmodel)?.CommandHide.Execute(obj);
 
-        private void _pasteSelected(object obj) => LastAddedEvent = EventClipboard.Paste(_selectedEvent, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), (string)obj, true));
+        private async void _pasteSelected(object obj) => LastAddedEvent = await EventClipboard.Paste(_selectedEvent, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), (string)obj, true));
 
         private void _copySelected(object obj) => EventClipboard.Copy(_multiSelectedEvents);
 

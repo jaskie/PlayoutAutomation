@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Server.Media;
@@ -40,10 +41,10 @@ namespace TAS.Server
         [JsonProperty]
         public TimeSpan MeasureDuration { get; set; }
 
-        internal override bool Execute()
+        internal override async Task<bool> Execute()
         {
             if (Kind != TFileOperationKind.Loudness)
-                return base.Execute();
+                return await base.Execute();
             StartTime = DateTime.UtcNow;
             OperationStatus = FileOperationStatus.InProgress;
             try
@@ -55,7 +56,7 @@ namespace TAS.Server
                     directory.AccessType != TDirectoryAccessType.Direct)
                     using (var localSourceMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(source))
                     {
-                        if (!source.CopyMediaTo(localSourceMedia, ref Aborted))
+                        if (!await source.CopyMediaTo(localSourceMedia, CancellationTokenSource.Token))
                             return false;
                         success = InternalExecute(localSourceMedia);
                         if (!success)

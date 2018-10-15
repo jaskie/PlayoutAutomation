@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common;
@@ -35,7 +36,8 @@ namespace TAS.Server
         private readonly SynchronizedCollection<string> _operationWarning = new SynchronizedCollection<string>();
 
         protected readonly FileManager OwnerFileManager;
-        protected bool Aborted;
+        protected CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
+        private bool _isAborted;
 
         internal FileOperation(FileManager ownerFileManager)
         {
@@ -171,10 +173,11 @@ namespace TAS.Server
         [JsonProperty]
         public bool IsAborted
         {
-            get => Aborted;
+            get => _isAborted;
             private set
             {
-                if (!SetField(ref Aborted, value)) return;
+                if (!SetField(ref _isAborted, value)) return;
+                CancellationTokenSource.Cancel();
                 lock (_destMediaLock)
                 {
                     if (Dest != null && Dest.FileExists())
@@ -215,9 +218,9 @@ namespace TAS.Server
 
 
         // utility methods
-        internal virtual bool Execute()
+        internal virtual async Task<bool> Execute()
         {
-            if (InternalExecute())
+            if (await InternalExecute())
                 OperationStatus = FileOperationStatus.Finished;
             else
                 TryCount--;
@@ -260,7 +263,7 @@ namespace TAS.Server
             }
         }
         
-        private bool InternalExecute()
+        private async Task<bool> InternalExecute()
         {
             AddOutputMessage($"Operation {Title} started");
             StartTime = DateTime.UtcNow;
@@ -279,25 +282,23 @@ namespace TAS.Server
                         return false;
                     try
                     {
-                        lock (_destMediaLock)
+                        CreateDestMediaIfNotExists();
+                        if (!(Dest.FileExists()
+                              && File.GetLastWriteTimeUtc(source.FullPath)
+                                  .Equals(File.GetLastWriteTimeUtc(Dest.FullPath))
+                              && File.GetCreationTimeUtc(source.FullPath).Equals(File.GetCreationTimeUtc(Dest.FullPath))
+                              && Source.FileSize.Equals(Dest.FileSize)))
                         {
-                            CreateDestMediaIfNotExists();
-                            if (!(Dest.FileExists()
-                                  && File.GetLastWriteTimeUtc(source.FullPath).Equals(File.GetLastWriteTimeUtc(Dest.FullPath))
-                                  && File.GetCreationTimeUtc(source.FullPath).Equals(File.GetCreationTimeUtc(Dest.FullPath))
-                                  && Source.FileSize.Equals(Dest.FileSize)))
-                            {
-                                Dest.MediaStatus = TMediaStatus.Copying;
-                                IsIndeterminate = true;
-                                if (!source.CopyMediaTo(Dest, ref Aborted))
-                                    return false;
-                            }
-                            Dest.MediaStatus = TMediaStatus.Copied;
-                            ThreadPool.QueueUserWorkItem(o => Dest.Verify());
-                            AddOutputMessage($"Copy operation {Title} finished");
-                            ((MediaDirectoryBase)DestDirectory).RefreshVolumeInfo();
-                            return true;
+                            Dest.MediaStatus = TMediaStatus.Copying;
+                            IsIndeterminate = true;
+                            if (!await source.CopyMediaTo(Dest, CancellationTokenSource.Token))
+                                return false;
                         }
+                        Dest.MediaStatus = TMediaStatus.Copied;
+                        ThreadPool.QueueUserWorkItem(o => Dest.Verify());
+                        AddOutputMessage($"Copy operation {Title} finished");
+                        ((MediaDirectoryBase) DestDirectory).RefreshVolumeInfo();
+                        return true;
                     }
                     catch (Exception e)
                     {

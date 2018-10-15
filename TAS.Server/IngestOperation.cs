@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
+using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -98,7 +99,7 @@ namespace TAS.Server
         [JsonProperty]
         public bool LoudnessCheck { get; set; }
 
-        internal override bool Execute()
+        internal override async Task<bool> Execute()
         {
             if (Kind == TFileOperationKind.Ingest)
             {
@@ -117,7 +118,7 @@ namespace TAS.Server
                             {
                                 AddOutputMessage($"Copying to local file {localSourceMedia.FullPath}");
                                 localSourceMedia.PropertyChanged += LocalSourceMedia_PropertyChanged;
-                                if (!sourceMedia.CopyMediaTo(localSourceMedia, ref Aborted))
+                                if (!await sourceMedia.CopyMediaTo(localSourceMedia, CancellationTokenSource.Token))
                                     return false;
                                 AddOutputMessage("Verifing local file");
                                 localSourceMedia.Verify();
@@ -153,7 +154,7 @@ namespace TAS.Server
                 }
 
             }
-            return base.Execute();
+            return await base.Execute();
         }
 
         private void LocalSourceMedia_PropertyChanged(object sender, PropertyChangedEventArgs e)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common.Interfaces;
@@ -9,6 +9,7 @@ using TAS.Server.Media;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
+using static System.Threading.Thread;
 
 namespace TAS.Server
 {
@@ -99,7 +100,7 @@ namespace TAS.Server
             Logger.Trace("Cancelled pending operations");
         }
 
-        private void _queue(FileOperation operation, bool toTop)
+        private async void _queue(FileOperation operation, bool toTop)
         {
             operation.ScheduledTime = DateTime.UtcNow;
             operation.OperationStatus = FileOperationStatus.Waiting;
@@ -114,8 +115,6 @@ namespace TAS.Server
             }
             if (operation.Kind == TFileOperationKind.Ingest)
             {
-                lock (_queueConvertOperation.SyncRoot)
-                {
                     if (toTop)
                         _queueConvertOperation.Insert(0, operation);
                     else
@@ -123,14 +122,11 @@ namespace TAS.Server
                     if (!_isRunningConvertOperation)
                     {
                         _isRunningConvertOperation = true;
-                        ThreadPool.QueueUserWorkItem(o => _runOperation(_queueConvertOperation, ref _isRunningConvertOperation));
+                        await _runOperation(_queueConvertOperation);
                     }
-                }
             }
             if (operation.Kind == TFileOperationKind.Export)
             {
-                lock (_queueExportOperation.SyncRoot)
-                {
                     if (toTop)
                         _queueExportOperation.Insert(0, operation);
                     else
@@ -138,8 +134,7 @@ namespace TAS.Server
                     if (!_isRunningExportOperation)
                     {
                         _isRunningExportOperation = true;
-                        ThreadPool.QueueUserWorkItem(o => _runOperation(_queueExportOperation, ref _isRunningExportOperation));
-                    }
+                        await _runOperation(_queueExportOperation);
                 }
             }
             if (operation.Kind == TFileOperationKind.Copy
@@ -147,8 +142,6 @@ namespace TAS.Server
                 || operation.Kind == TFileOperationKind.Loudness
                 || operation.Kind == TFileOperationKind.Move)
             {
-                lock (_queueSimpleOperation.SyncRoot)
-                {
                     if (toTop)
                         _queueSimpleOperation.Insert(0, operation);
                     else
@@ -156,13 +149,12 @@ namespace TAS.Server
                     if (!_isRunningSimpleOperation)
                     {
                         _isRunningSimpleOperation = true;
-                        ThreadPool.QueueUserWorkItem(o => _runOperation(_queueSimpleOperation, ref _isRunningSimpleOperation));
+                        await _runOperation(_queueSimpleOperation);
                     }
-                }
             }
         }
 
-        private void _runOperation(SynchronizedCollection<IFileOperation> queue, ref bool queueRunningIndicator)
+        private async Task _runOperation(SynchronizedCollection<IFileOperation> queue)
         {
             FileOperation op;
             lock (queue.SyncRoot)
@@ -174,7 +166,7 @@ namespace TAS.Server
                     queue.Remove(op);
                     if (!op.IsAborted)
                     {
-                        if (op.Execute())
+                        if (await op.Execute())
                         {
                             NotifyOperation(OperationCompleted, op);
                             op.Dispose();
@@ -183,7 +175,7 @@ namespace TAS.Server
                         {
                             if (op.TryCount > 0)
                             {
-                                System.Threading.Thread.Sleep(500);
+                                Sleep(500);
                                 queue.Add(op);
                             }
                             else
@@ -204,8 +196,6 @@ namespace TAS.Server
                 lock (queue.SyncRoot)
                     op = queue.FirstOrDefault() as FileOperation;
             }
-            lock (queue.SyncRoot)
-                queueRunningIndicator = false;
         }
 
         private void NotifyOperation(EventHandler<FileOperationEventArgs> handler, IFileOperation operation)

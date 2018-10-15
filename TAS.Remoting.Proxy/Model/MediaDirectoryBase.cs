@@ -131,11 +131,6 @@ namespace TAS.Remoting.Model
             return Query<bool>();
         }
 
-        public void Refresh()
-        {
-            Invoke();
-        }
-
         public void SweepStaleMedia()
         {
             throw new NotImplementedException();

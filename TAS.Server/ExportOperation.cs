@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -58,7 +59,7 @@ namespace TAS.Server
 
         public override string Title => $"Export {string.Join(", ", _exportMediaList)} -> {(DestDirectory as IMediaDirectoryProperties)?.DirectoryName}";
 
-        internal override bool Execute()
+        internal override async Task<bool> Execute()
         {
             if (Kind == TFileOperationKind.Export)
             {
@@ -67,7 +68,7 @@ namespace TAS.Server
                 IsIndeterminate = true;
                 try
                 {
-                    var success = InternalExecute();
+                    var success = await InternalExecute();
                     if (!success)
                         TryCount--;
                     else
@@ -85,7 +86,7 @@ namespace TAS.Server
             return false;
         }
 
-        private bool InternalExecute()
+        private async Task<bool> InternalExecute()
         {
             bool result;
             ProgressDuration = TimeSpan.FromTicks(_exportMediaList.Sum(e => e.Duration.Ticks));
@@ -93,13 +94,13 @@ namespace TAS.Server
             if (!(DestDirectory is IngestDirectory destDirectory))
                 throw new InvalidOperationException("Can only export to IngestDirectory");
             if (destDirectory.Kind == TIngestDirectoryKind.XDCAM)
-                destDirectory.Refresh();
+                await destDirectory.Refresh();
 
             if (destDirectory.AccessType == TDirectoryAccessType.FTP)
             {
                 using (var localDestMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(Source))
                 {
-                    Dest = _createDestMedia();
+                    Dest = await _createDestMedia();
                     Dest.PropertyChanged += destMedia_PropertyChanged;
                     try
                     {
@@ -108,7 +109,7 @@ namespace TAS.Server
                         {
                             _progressFileSize = (ulong)(new FileInfo(localDestMedia.FullPath)).Length;
                             AddOutputMessage($"Transfering file to device as {Dest.FileName}");
-                            result = localDestMedia.CopyMediaTo(Dest, ref Aborted);
+                            result = await localDestMedia.CopyMediaTo(Dest, CancellationTokenSource.Token);
                         }
                     }
 
@@ -120,7 +121,7 @@ namespace TAS.Server
             }
             else
             {
-                Dest = _createDestMedia();
+                Dest = await _createDestMedia();
                 result = Encode(destDirectory, Dest.FullPath);
             }
             Dest.MediaStatus = result ? TMediaStatus.Available : TMediaStatus.CopyError;
@@ -128,14 +129,14 @@ namespace TAS.Server
             return result;
         }
 
-        private IngestMedia _createDestMedia()
+        private async Task<IngestMedia> _createDestMedia()
         {
             if (!(DestDirectory is IngestDirectory directory))
                 throw new ApplicationException($"{nameof(DestDirectory)} must be {nameof(IngestDirectory)}");
             IngestMedia result;
             if (directory.Kind == TIngestDirectoryKind.XDCAM)
             {
-                var existingFiles = directory.GetFiles().Where(f =>
+                var existingFiles = (await directory.GetFiles()).Where(f =>
                     f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
                 var maxFile = existingFiles.Length == 0
                     ? 1

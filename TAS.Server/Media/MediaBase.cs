@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common;
@@ -252,38 +253,42 @@ namespace TAS.Server.Media
             return new FileStream(FullPath, forWrite ? FileMode.Create : FileMode.Open);
         }
 
-        public virtual bool CopyMediaTo(MediaBase destMedia, ref bool abortCopy)
+        public virtual async Task<bool> CopyMediaTo(MediaBase destMedia, CancellationToken cancellationToken)
         {
-            if ((!(Directory is IngestDirectory sIngestDir) || sIngestDir.AccessType == TDirectoryAccessType.Direct)
-                && (!(destMedia.Directory is IngestDirectory dIngestDir) || dIngestDir.AccessType == TDirectoryAccessType.Direct))
+            return await Task.Run(() =>
             {
-                FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));
-                File.Copy(FullPath, destMedia.FullPath, true);
-                File.SetCreationTimeUtc(destMedia.FullPath, File.GetCreationTimeUtc(FullPath));
-                File.SetLastWriteTimeUtc(destMedia.FullPath, File.GetLastWriteTimeUtc(FullPath));
-            }
-            else
-            {
-                using (Stream source = GetFileStream(false),
-                                dest = destMedia.GetFileStream(true))
+                if ((!(Directory is IngestDirectory sIngestDir) || sIngestDir.AccessType == TDirectoryAccessType.Direct)
+                    && (!(destMedia.Directory is IngestDirectory dIngestDir) ||
+                        dIngestDir.AccessType == TDirectoryAccessType.Direct))
                 {
-                    if (source == null || dest == null)
-                        return false;
-                    var buffer = new byte[1024 * 1024];
-                    ulong totalReadBytesCount = 0;
-                    int readBytesCount;
-                    FileSize = (ulong)source.Length;
-                    while ((readBytesCount = source.Read(buffer, 0, buffer.Length)) > 0)
+                    FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));
+                    File.Copy(FullPath, destMedia.FullPath, true);
+                    File.SetCreationTimeUtc(destMedia.FullPath, File.GetCreationTimeUtc(FullPath));
+                    File.SetLastWriteTimeUtc(destMedia.FullPath, File.GetLastWriteTimeUtc(FullPath));
+                }
+                else
+                {
+                    using (Stream source = GetFileStream(false),
+                        dest = destMedia.GetFileStream(true))
                     {
-                        if (abortCopy)
+                        if (source == null || dest == null)
                             return false;
-                        dest.Write(buffer, 0, readBytesCount);
-                        totalReadBytesCount += (ulong)readBytesCount;
-                        destMedia.FileSize = totalReadBytesCount;
+                        var buffer = new byte[1024 * 1024];
+                        ulong totalReadBytesCount = 0;
+                        int readBytesCount;
+                        FileSize = (ulong) source.Length;
+                        while ((readBytesCount = source.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            if (cancellationToken.IsCancellationRequested)
+                                return false;
+                            dest.Write(buffer, 0, readBytesCount);
+                            totalReadBytesCount += (ulong) readBytesCount;
+                            destMedia.FileSize = totalReadBytesCount;
+                        }
                     }
                 }
-            }
-            return true;
+                return true;
+            }, cancellationToken);
         }
 
         public bool RenameFileTo(string newFileName)
