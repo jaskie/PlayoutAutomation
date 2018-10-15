@@ -3,7 +3,6 @@ using System.Linq;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using TAS.Client.Common;
-using System.Windows;
 using System.Windows.Input;
 using TAS.Common;
 using TAS.Common.Interfaces;
