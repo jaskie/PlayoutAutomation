@@ -44,7 +44,7 @@ namespace TAS.Client.Config
                 _remoteHostEnabled = true;
                 _remoteHostListenPort = Model.Remote.ListenPort;
             }
-            CommandManageArchiveDirectories = new Common.UICommand { ExecuteDelegate = _manageArchiveDirectories };
+            CommandManageArchiveDirectories = new Common.UiCommand(_manageArchiveDirectories);
         }
 
         private void _manageArchiveDirectories(object obj)
@@ -164,7 +164,7 @@ namespace TAS.Client.Config
             set => SetField(ref _remoteHostListenPort, value);
         }
 
-        public Common.UICommand CommandManageArchiveDirectories { get; }
+        public Common.UiCommand CommandManageArchiveDirectories { get; }
         
         protected override void Update(object destObject = null)
         {

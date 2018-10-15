@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -10,9 +9,9 @@ namespace TAS.Client.ViewModels
     {
         public EventPanelRundownViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
         {
-            CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = _canAddSubEvent  };
-            CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = _canAddSubEvent };
-            CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive, CanExecuteDelegate = _canAddSubEvent };
+            CommandAddSubMovie = new UiCommand(_addSubMovie, _canAddSubEvent);
+            CommandAddSubRundown = new UiCommand(_addSubRundown, _canAddSubEvent);
+            CommandAddSubLive = new UiCommand(_addSubLive, _canAddSubEvent);
         }
 
         public ICommand CommandAddSubRundown { get; }

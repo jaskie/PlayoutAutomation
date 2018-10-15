@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
 
@@ -29,9 +24,9 @@ namespace TAS.Client.ViewModels
             Model.Save();
         }
         
-        public ICommand CommandSave => new UICommand {ExecuteDelegate = Update, CanExecuteDelegate = o => IsModified};
+        public ICommand CommandSave => new UiCommand(Update, o => IsModified);
 
-        public ICommand CommandUndo => new UICommand { ExecuteDelegate = Load, CanExecuteDelegate = o => IsModified };
+        public ICommand CommandUndo => new UiCommand(Load, o => IsModified);
 
         protected override void OnDispose()
         {

@@ -13,8 +13,8 @@ namespace TAS.Client.Config
 
         protected OkCancelViewmodelBase(TM model, Type editor, string windowTitle) : base(model)
         {
-            CommandCancel = new UICommand { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
-            CommandOk = new UICommand { CanExecuteDelegate = CanOk, ExecuteDelegate = Ok };
+            CommandCancel = new UiCommand(Close, CanClose);
+            CommandOk = new UiCommand (Ok, CanOk );
             Title = windowTitle;
             Editor = (UserControl)Activator.CreateInstance(editor);
         }

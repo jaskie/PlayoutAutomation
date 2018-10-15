@@ -73,11 +73,11 @@ namespace TAS.Client.Config
 
         private void _createCommands()
         {
-            CommandAdd = new UICommand() { ExecuteDelegate = _add };
-            CommandAddSub = new UICommand() { ExecuteDelegate = _addSub, CanExecuteDelegate = _canAddSub };
-            CommandDelete = new UICommand() { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
-            CommandUp = new UICommand() { ExecuteDelegate = _up, CanExecuteDelegate = _canUp };
-            CommandDown = new UICommand() { ExecuteDelegate = _down, CanExecuteDelegate = _canDown };
+            CommandAdd = new UiCommand(_add);
+            CommandAddSub = new UiCommand(_addSub, _canAddSub);
+            CommandDelete = new UiCommand(_delete, _canDelete);
+            CommandUp = new UiCommand(_up, _canUp);
+            CommandDown = new UiCommand(_down, _canDown);
         }
 
         private bool _canAddSub(object obj)

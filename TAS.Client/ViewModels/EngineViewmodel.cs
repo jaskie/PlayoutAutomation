@@ -225,59 +225,59 @@ namespace TAS.Client.ViewModels
 
         private void _createCommands()
         {
-            CommandClearAll = new UICommand() { ExecuteDelegate = o => Engine.Clear(), CanExecuteDelegate = _canClear };
-            CommandClearLayer = new UICommand() { ExecuteDelegate = layer => Engine.Clear((VideoLayer)int.Parse((string)layer)), CanExecuteDelegate = _canClear };
-            CommandClearMixer = new UICommand() { ExecuteDelegate = o => Engine.ClearMixer(), CanExecuteDelegate = _canClear };
-            CommandRestart = new UICommand() { ExecuteDelegate = ev => Engine.Restart(), CanExecuteDelegate = _canClear };
-            CommandStartSelected = new UICommand() { ExecuteDelegate = _startSelected, CanExecuteDelegate = _canStartSelected };
-            CommandLoadSelected = new UICommand() { ExecuteDelegate = _loadSelected, CanExecuteDelegate = _canLoadSelected };
-            CommandScheduleSelected = new UICommand() { ExecuteDelegate = o => Engine.Schedule(_selectedEvent.Event), CanExecuteDelegate = _canScheduleSelected };
-            CommandRescheduleSelected = new UICommand() { ExecuteDelegate = o => Engine.ReSchedule(_selectedEvent.Event), CanExecuteDelegate = _canRescheduleSelected };
-            CommandForceNextSelected = new UICommand() { ExecuteDelegate = _forceNext, CanExecuteDelegate = _canForceNextSelected };
-            CommandTrackingToggle = new UICommand() { ExecuteDelegate = o => TrackPlayingEvent = !TrackPlayingEvent };
-            CommandDebugToggle = new UICommand() { ExecuteDelegate = _debugShow };
-            CommandRestartRundown = new UICommand() { ExecuteDelegate = _restartRundown, CanExecuteDelegate = _canClear };
-            CommandRestartLayer = new UICommand { ExecuteDelegate = _restartLayer, CanExecuteDelegate = o => IsPlayingMovie && Engine.HaveRight(EngineRight.Play) };
-            CommandNewRootRundown = new UICommand() { ExecuteDelegate = _addNewRootRundown };
-            CommandNewContainer = new UICommand() { ExecuteDelegate = _newContainer };
-            CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents , CanExecuteDelegate = o => CurrentUser.IsAdmin };
-            CommandStartLoaded = new UICommand() { ExecuteDelegate = o => Engine.StartLoaded(), CanExecuteDelegate = o => Engine.EngineState == TEngineState.Hold && Engine.HaveRight(EngineRight.Play)};
-            CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = _canDeleteSelected };
-            CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0 };
-            CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = _canDeleteSelected };
-            CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selectedEvent, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), o.ToString(), true)) };
-            CommandExportMedia = new UICommand() { ExecuteDelegate = _exportMedia, CanExecuteDelegate = _canExportMedia };
-            CommandUndelete = new UICommand() { ExecuteDelegate = _undelete, CanExecuteDelegate = _canUndelete };
+            CommandClearAll = new UiCommand(o => Engine.Clear(), _canClear);
+            CommandClearLayer = new UiCommand(layer => Engine.Clear((VideoLayer)int.Parse((string)layer)), _canClear);
+            CommandClearMixer = new UiCommand(o => Engine.ClearMixer(), _canClear);
+            CommandRestart = new UiCommand(ev => Engine.Restart(), _canClear);
+            CommandStartSelected = new UiCommand(_startSelected, _canStartSelected);
+            CommandLoadSelected = new UiCommand(_loadSelected, _canLoadSelected);
+            CommandScheduleSelected = new UiCommand(o => Engine.Schedule(_selectedEvent.Event), _canScheduleSelected);
+            CommandRescheduleSelected = new UiCommand(o => Engine.ReSchedule(_selectedEvent.Event), _canRescheduleSelected);
+            CommandForceNextSelected = new UiCommand(_forceNext, _canForceNextSelected);
+            CommandTrackingToggle = new UiCommand(o => TrackPlayingEvent = !TrackPlayingEvent);
+            CommandDebugToggle = new UiCommand(_debugShow);
+            CommandRestartRundown = new UiCommand(_restartRundown, _canClear);
+            CommandRestartLayer = new UiCommand(_restartLayer, o => IsPlayingMovie && Engine.HaveRight(EngineRight.Play));
+            CommandNewRootRundown = new UiCommand(_addNewRootRundown);
+            CommandNewContainer = new UiCommand(_newContainer);
+            CommandSearchMissingEvents = new UiCommand(_searchMissingEvents , o => CurrentUser.IsAdmin);
+            CommandStartLoaded = new UiCommand(o => Engine.StartLoaded(), o => Engine.EngineState == TEngineState.Hold && Engine.HaveRight(EngineRight.Play));
+            CommandDeleteSelected = new UiCommand(_deleteSelected, _canDeleteSelected);
+            CommandCopySelected = new UiCommand(_copySelected, o => _multiSelectedEvents.Count > 0);
+            CommandCutSelected = new UiCommand(_cutSelected, _canDeleteSelected);
+            CommandPasteSelected = new UiCommand(_pasteSelected, o => EventClipboard.CanPaste(_selectedEvent, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), o.ToString(), true)));
+            CommandExportMedia = new UiCommand(_exportMedia, _canExportMedia);
+            CommandUndelete = new UiCommand(_undelete, _canUndelete);
 
-            CommandEventHide = new UICommand { ExecuteDelegate = _eventHide };
-            CommandMoveUp = new UICommand { ExecuteDelegate = _moveUp };
-            CommandMoveDown = new UICommand { ExecuteDelegate = _moveDown };
-            CommandAddNextMovie = new UICommand { ExecuteDelegate = _addNextMovie, CanExecuteDelegate = _canAddNextMovie };
-            CommandAddNextEmptyMovie = new UICommand { ExecuteDelegate = _addNextEmptyMovie, CanExecuteDelegate = _canAddNextEmptyMovie };
-            CommandAddNextRundown = new UICommand { ExecuteDelegate = _addNextRundown, CanExecuteDelegate = _canAddNextRundown };
-            CommandAddNextLive = new UICommand { ExecuteDelegate = _addNextLive, CanExecuteDelegate = _canAddNextLive };
-            CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = _canAddSubMovie };
-            CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = _canAddSubRundown };
-            CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive, CanExecuteDelegate = _canAddSubLive };
-            CommandAddAnimation = new UICommand { ExecuteDelegate = _addAnimation, CanExecuteDelegate = _canAddAnimation };
-            CommandToggleLayer = new UICommand { ExecuteDelegate = _toggleLayer };
-            CommandToggleEnabled = new UICommand { ExecuteDelegate = _toggleEnabled };
-            CommandToggleHold = new UICommand { ExecuteDelegate = _toggleHold };
-            CommandTogglePropertiesPanel = new UICommand { ExecuteDelegate = o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible };
+            CommandEventHide = new UiCommand(_eventHide);
+            CommandMoveUp = new UiCommand(_moveUp);
+            CommandMoveDown = new UiCommand(_moveDown);
+            CommandAddNextMovie = new UiCommand(_addNextMovie, _canAddNextMovie);
+            CommandAddNextEmptyMovie = new UiCommand(_addNextEmptyMovie, _canAddNextEmptyMovie);
+            CommandAddNextRundown = new UiCommand(_addNextRundown, _canAddNextRundown);
+            CommandAddNextLive = new UiCommand(_addNextLive, _canAddNextLive);
+            CommandAddSubMovie = new UiCommand(_addSubMovie, _canAddSubMovie);
+            CommandAddSubRundown = new UiCommand(_addSubRundown, _canAddSubRundown);
+            CommandAddSubLive = new UiCommand(_addSubLive, _canAddSubLive);
+            CommandAddAnimation = new UiCommand(_addAnimation, _canAddAnimation);
+            CommandToggleLayer = new UiCommand(_toggleLayer);
+            CommandToggleEnabled = new UiCommand(_toggleEnabled);
+            CommandToggleHold = new UiCommand(_toggleHold);
+            CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
 
-            CommandSearchDo = new UICommand { ExecuteDelegate = _search, CanExecuteDelegate = _canSearch };
-            CommandSearchShowPanel = new UICommand { ExecuteDelegate = _showSearchPanel };
-            CommandSearchHidePanel = new UICommand { ExecuteDelegate = _hideSearchPanel };
-            CommandSetTimeCorrection = new UICommand { ExecuteDelegate = _setTimeCorrection };
+            CommandSearchDo = new UiCommand(_search, _canSearch);
+            CommandSearchShowPanel = new UiCommand(_showSearchPanel);
+            CommandSearchHidePanel = new UiCommand(_hideSearchPanel);
+            CommandSetTimeCorrection = new UiCommand(_setTimeCorrection);
 
-            CommandSaveEdit = new UICommand { ExecuteDelegate = _saveEdit };
-            CommandUndoEdit = new UICommand { ExecuteDelegate = _undoEdit };
+            CommandSaveEdit = new UiCommand(_saveEdit);
+            CommandUndoEdit = new UiCommand(_undoEdit);
 
-            CommandSaveRundown = new UICommand { ExecuteDelegate = _saveRundown, CanExecuteDelegate = o => SelectedEvent != null && SelectedEvent.Event.EventType == TEventType.Rundown };
-            CommandLoadRundown = new UICommand { ExecuteDelegate = _loadRundown, CanExecuteDelegate = o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o) };
-            CommandUserManager = new UICommand { ExecuteDelegate = _userManager, CanExecuteDelegate = _canUserManager };
+            CommandSaveRundown = new UiCommand(_saveRundown, o => SelectedEvent != null && SelectedEvent.Event.EventType == TEventType.Rundown);
+            CommandLoadRundown = new UiCommand(_loadRundown, o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o));
+            CommandUserManager = new UiCommand(_userManager, _canUserManager);
 
-            CommandEngineRights = new UICommand { ExecuteDelegate = _engineRights, CanExecuteDelegate = _canEngineRights };
+            CommandEngineRights = new UiCommand(_engineRights, _canEngineRights);
         }
 
         private void _undoEdit(object obj)

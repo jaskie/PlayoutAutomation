@@ -77,19 +77,19 @@ namespace TAS.Client.ViewModels
             ComposePlugins();
             VideoPreview?.SetSource(RecordersViewmodel.Channel?.PreviewUrl);
 
-            CommandSearch = new UICommand { ExecuteDelegate = _search, CanExecuteDelegate = _canSearch };
-            CommandClearFilters = new UICommand { ExecuteDelegate = _clearFilters, CanExecuteDelegate = _canClearFilters };
-            CommandDeleteSelected = new UICommand { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _isSomethingSelected() && engine.HaveRight(EngineRight.MediaDelete) };
-            CommandIngestSelectedToServer = new UICommand { ExecuteDelegate = _ingestSelectedToServer, CanExecuteDelegate = _canIngestSelectedToServer };
-            CommandMoveSelectedToArchive = new UICommand { ExecuteDelegate = _moveSelectedToArchive, CanExecuteDelegate = o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && _isSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive) && engine.HaveRight(EngineRight.MediaDelete) };
-            CommandCopySelectedToArchive = new UICommand { ExecuteDelegate = _copySelectedToArchive, CanExecuteDelegate = o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && _isSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive) };
-            CommandSweepStaleMedia = new UICommand { ExecuteDelegate = _sweepStaleMedia, CanExecuteDelegate = o => CurrentUser.IsAdmin };
-            CommandGetLoudness = new UICommand { ExecuteDelegate = _getLoudness, CanExecuteDelegate = o => _isSomethingSelected() && engine.HaveRight(EngineRight.MediaEdit) };
-            CommandExport = new UICommand { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
-            CommandRefresh = new UICommand { ExecuteDelegate = ob => _refreshMediaDirectory(_selectedDirectory?.Directory), CanExecuteDelegate = _canRefresh };
-            CommandSyncPriToSec = new UICommand { ExecuteDelegate = _syncSecToPri, CanExecuteDelegate = o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin};
-            CommandCloneAnimation = new UICommand { ExecuteDelegate = _cloneAnimation, CanExecuteDelegate = _canCloneAnimation };
-            CommandTogglePropertiesPanel = new UICommand { ExecuteDelegate = o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible };
+            CommandSearch = new UiCommand(_search, _canSearch);
+            CommandClearFilters = new UiCommand(_clearFilters, _canClearFilters);
+            CommandDeleteSelected = new UiCommand(_deleteSelected, o => _isSomethingSelected() && engine.HaveRight(EngineRight.MediaDelete));
+            CommandIngestSelectedToServer = new UiCommand(_ingestSelectedToServer,_canIngestSelectedToServer);
+            CommandMoveSelectedToArchive = new UiCommand(_moveSelectedToArchive, o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && _isSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive) && engine.HaveRight(EngineRight.MediaDelete));
+            CommandCopySelectedToArchive = new UiCommand(_copySelectedToArchive, o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && _isSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive));
+            CommandSweepStaleMedia = new UiCommand(_sweepStaleMedia, o => CurrentUser.IsAdmin);
+            CommandGetLoudness = new UiCommand(_getLoudness, o => _isSomethingSelected() && engine.HaveRight(EngineRight.MediaEdit));
+            CommandExport = new UiCommand(_export, _canExport);
+            CommandRefresh = new UiCommand(ob => _refreshMediaDirectory(_selectedDirectory?.Directory), _canRefresh);
+            CommandSyncPriToSec = new UiCommand(_syncSecToPri, o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
+            CommandCloneAnimation = new UiCommand(_cloneAnimation, _canCloneAnimation);
+            CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
         }
 
         public ICommand CommandSearch { get; }

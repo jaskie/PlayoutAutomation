@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
-using System.Windows;
 using System.IO;
 using System.Windows.Input;
 using TAS.Client.Common;
@@ -44,14 +43,14 @@ namespace TAS.Client.ViewModels
 
         public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, bool showButtons) : base(media)
         {
-            CommandSaveEdit = new UICommand {ExecuteDelegate = o => Save(), CanExecuteDelegate = o => CanSave()};
-            CommandCancelEdit = new UICommand {ExecuteDelegate = _undoEdit, CanExecuteDelegate = o => IsModified};
-            CommandRefreshStatus = new UICommand {ExecuteDelegate = _refreshStatus};
-            CommandCheckVolume = new UICommand
-            {
-                ExecuteDelegate = _checkVolume,
-                CanExecuteDelegate = o => !_isVolumeChecking
-            };
+            CommandSaveEdit = new UiCommand(o => Save(), o => CanSave());
+            CommandCancelEdit = new UiCommand(_undoEdit, o => IsModified);
+            CommandRefreshStatus = new UiCommand(_refreshStatus);
+            CommandCheckVolume = new UiCommand
+            (
+                _checkVolume,
+                o => !_isVolumeChecking
+            );
             _mediaManager = mediaManager;
             ShowButtons = showButtons;
             Model.PropertyChanged += OnMediaPropertyChanged;

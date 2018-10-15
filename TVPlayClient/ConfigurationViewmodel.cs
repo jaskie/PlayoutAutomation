@@ -23,10 +23,10 @@ namespace TVPlayClient
             }
             else
                 _channels = new ObservableCollection<ConfigurationChannel>();
-            CommandAdd = new UICommand { ExecuteDelegate = _add };
-            CommandDelete = new UICommand { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
-            CommandSave = new UICommand { ExecuteDelegate = _save };
-            CommandCancel = new UICommand { ExecuteDelegate = _cancel };
+            CommandAdd = new UiCommand(_add);
+            CommandDelete = new UiCommand(_delete, _canDelete);
+            CommandSave = new UiCommand(_save);
+            CommandCancel = new UiCommand(_cancel);
         }
 
         private void _cancel(object obj)

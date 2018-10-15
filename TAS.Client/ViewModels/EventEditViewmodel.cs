@@ -54,29 +54,29 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel = new EventRightsEditViewmodel(@event, engineViewModel.Engine.AuthenticationService);
                 EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
-            CommandSaveEdit = new UICommand {ExecuteDelegate = o => Save(), CanExecuteDelegate = _canSave};
-            CommandUndoEdit = new UICommand {ExecuteDelegate = o => UndoEdit(), CanExecuteDelegate = o => IsModified};
-            CommandChangeMovie = new UICommand {ExecuteDelegate = _changeMovie, CanExecuteDelegate = _canChangeMovie};
-            CommandEditMovie = new UICommand {ExecuteDelegate = _editMovie, CanExecuteDelegate = _canEditMovie};
-            CommandCheckVolume = new UICommand {ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume};
-            CommandTriggerStartType = new UICommand
-            {
-                ExecuteDelegate = _triggerStartType,
-                CanExecuteDelegate = _canTriggerStartType
-            };
-            CommandMoveUp = new UICommand
-            {
-                ExecuteDelegate = o => Model.MoveUp(),
-                CanExecuteDelegate = o => Model.CanMoveUp()
-            };
-            CommandMoveDown = new UICommand
-            {
-                ExecuteDelegate = o => Model.MoveDown(),
-                CanExecuteDelegate = o => Model.CanMoveDown()
-            };
-            CommandDelete = new UICommand
-            {
-                ExecuteDelegate = o =>
+            CommandSaveEdit = new UiCommand(o => Save(), _canSave);
+            CommandUndoEdit = new UiCommand(o => UndoEdit(), o => IsModified);
+            CommandChangeMovie = new UiCommand(_changeMovie, _canChangeMovie);
+            CommandEditMovie = new UiCommand(_editMovie, _canEditMovie);
+            CommandCheckVolume = new UiCommand(_checkVolume, _canCheckVolume);
+            CommandTriggerStartType = new UiCommand
+            (
+                _triggerStartType,
+                _canTriggerStartType
+            );
+            CommandMoveUp = new UiCommand
+            (
+                o => Model.MoveUp(),
+                o => Model.CanMoveUp()
+            );
+            CommandMoveDown = new UiCommand
+            (
+                o => Model.MoveDown(),
+                o => Model.CanMoveDown()
+            );
+            CommandDelete = new UiCommand
+            (
+                o =>
                 {
                     if (MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
                         return;
@@ -84,8 +84,8 @@ namespace TAS.Client.ViewModels
                         Model.StartType == TStartType.After ? Model.Prior : Model.Parent);
                     Model.Delete();
                 },
-                CanExecuteDelegate = o => Model.AllowDelete() == true
-            };
+                o => Model.AllowDelete()
+            );
             if (@event is ITemplated templated)
             {
                 TemplatedEditViewmodel = new TemplatedEditViewmodel(templated, true, true, engineViewModel.VideoFormat);
@@ -665,7 +665,7 @@ namespace TAS.Client.ViewModels
         {
             return IsModified
                    && IsValid
-                   && Model.HaveRight(EventRight.Modify) == true;
+                   && Model.HaveRight(EventRight.Modify);
         }
 
         private void _setCGElements(IMedia media)

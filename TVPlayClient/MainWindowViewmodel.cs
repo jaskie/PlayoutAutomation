@@ -24,7 +24,7 @@ namespace TVPlayClient
             _configurationFile = Path.Combine(FileUtils.LocalApplicationDataPath, ConfigurationFileName);
             if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
                 _loadTabs();
-            CommandConfigure = new UICommand {ExecuteDelegate = _configure};
+            CommandConfigure = new UiCommand(_configure);
         }
 
         public ICommand CommandConfigure { get; }

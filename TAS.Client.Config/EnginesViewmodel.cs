@@ -17,8 +17,8 @@ namespace TAS.Client.Config
         {
             Engines = new ObservableCollection<EngineViewmodel>(Model.EngineList.Select(e => new EngineViewmodel(e)));
             Engines.CollectionChanged += _engines_CollectionChanged;
-            CommandAdd = new UICommand { ExecuteDelegate = _add };
-            CommandDelete = new UICommand { ExecuteDelegate = o => Engines.Remove(_selectedEngine), CanExecuteDelegate = o => _selectedEngine != null };
+            CommandAdd = new UiCommand(_add);
+            CommandDelete = new UiCommand(o => Engines.Remove(_selectedEngine), o => _selectedEngine != null);
         }
         
         public ICommand CommandAdd { get; }
