@@ -17,9 +17,9 @@ namespace TAS.Client.ViewModels
                 throw new ApplicationException($"Invalid panel type:{GetType()} for event type:{ev.EventType}");
             _isVisible = !HiddenEventsStorage.Contains(ev);
 
-            CommandHide = new UICommand {ExecuteDelegate = o => IsVisible = false,CanExecuteDelegate = o => _isVisible };
-            CommandShow = new UICommand {ExecuteDelegate = o => IsVisible = true, CanExecuteDelegate = o => !_isVisible };
-            CommandAddSubRundown = new UICommand {ExecuteDelegate = _addSubRundown, CanExecuteDelegate = o => Engine.HaveRight(EngineRight.Rundown)};
+            CommandHide = new UiCommand(o => IsVisible = false, o => _isVisible);
+            CommandShow = new UiCommand(o => IsVisible = true, o => !_isVisible);
+            CommandAddSubRundown = new UiCommand(_addSubRundown, o => Engine.HaveRight(EngineRight.Rundown));
             ev.SubEventChanged += SubEventChanged;
         }
 

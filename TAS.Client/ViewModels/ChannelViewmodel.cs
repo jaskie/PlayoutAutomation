@@ -16,7 +16,7 @@ namespace TAS.Client.ViewModels
                 Engine = new EngineViewmodel(engine, engine);
             if (showMedia)
                 MediaManager = new MediaManagerViewmodel(engine, engine.HaveRight(EngineRight.Preview) ? engine : null);
-            CommandSwitchTab = new UICommand { ExecuteDelegate = o => SelectedTabIndex = _selectedTabIndex == 0 ? 1 : 0, CanExecuteDelegate = o => showEngine && showMedia };
+            CommandSwitchTab = new UiCommand(o => SelectedTabIndex = _selectedTabIndex == 0 ? 1 : 0, o => showEngine && showMedia);
             SelectedTabIndex = showEngine ? 0 : 1;
         }
 

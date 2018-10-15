@@ -4,15 +4,21 @@ using System.Windows.Input;
 
 namespace TAS.Client.Common
 {
-    public class UICommand : ICommand
+    public class UiCommand : ICommand
     {
-        private bool _handleExceptions = true;
-        private bool _chcekBeforeExecute = true;
+        public UiCommand(Action<object> executeDelegate): this(executeDelegate, null) { }
 
-        public Predicate<object> CanExecuteDelegate { get; set; }
-        public Action<object> ExecuteDelegate { get; set; }
-        public bool HandleExceptions { get { return _handleExceptions; } set { _handleExceptions = value; } }
-        public bool CheckBeforeExecute { get { return _chcekBeforeExecute; } set { _chcekBeforeExecute = value; } }
+        public UiCommand(Action<object> executeDelegate, Predicate<object> canExecuteDelegate)
+        {
+            ExecuteDelegate = executeDelegate;
+            CanExecuteDelegate = canExecuteDelegate;
+        }
+
+        public Predicate<object> CanExecuteDelegate { get;  }
+        public Action<object> ExecuteDelegate { get; }
+        public bool HandleExceptions { get; set; } = true;
+        public bool CheckBeforeExecute { get; set; } = true;
+
         #region ICommand Members
 
         public bool CanExecute(object parameter)
@@ -38,8 +44,8 @@ namespace TAS.Client.Common
 
         public event EventHandler CanExecuteChanged
         {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
         }
 
         public void Execute(object parameter)

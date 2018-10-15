@@ -243,7 +243,7 @@ namespace TAS.Client.ViewModels
 
         private void _createCommands()
         {
-            CommandAdd = new UICommand { ExecuteDelegate = _add, CanExecuteDelegate = _allowAdd };
+            CommandAdd = new UiCommand(_add, _allowAdd);
         }
 
         private TimeSpan GetTCStart()

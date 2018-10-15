@@ -29,8 +29,8 @@ namespace TAS.Client.Config
                     return newVm;
                 }));
             PlayoutServerChannels.CollectionChanged += _playoutServerChannels_CollectionChanged;
-            CommandAddChannel = new UICommand { ExecuteDelegate = _addChannel };
-            CommandDeleteChannel = new UICommand { ExecuteDelegate = _removeChannel, CanExecuteDelegate = o => _selectedPlayoutServerChannel != null };
+            CommandAddChannel = new UiCommand(_addChannel);
+            CommandDeleteChannel = new UiCommand(_removeChannel, o => _selectedPlayoutServerChannel != null);
 
             PlayoutServerRecorders = new ObservableCollection<PlayoutRecorderViewmodel>(playoutServer.Recorders.Select(r =>
             {
@@ -38,8 +38,8 @@ namespace TAS.Client.Config
                 return newVm;
             }));
             PlayoutServerRecorders.CollectionChanged += _playoutRecorders_CollectionChanged;
-            CommandAddRecorder = new UICommand { ExecuteDelegate = _addRecorder };
-            CommandDeleteRecorder = new UICommand { ExecuteDelegate = _removeRecorder, CanExecuteDelegate = o => _selectedPlayoutRecorder != null };
+            CommandAddRecorder = new UiCommand(_addRecorder);
+            CommandDeleteRecorder = new UiCommand(_removeRecorder, o => _selectedPlayoutRecorder != null);
         }
 
 

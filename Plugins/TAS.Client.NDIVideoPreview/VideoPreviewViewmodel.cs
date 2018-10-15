@@ -49,14 +49,10 @@ namespace TAS.Client.NDIVideoPreview
             View = new VideoPreviewView {DataContext = this};
             _videoSources = new ObservableCollection<string>(new[] {Common.Properties.Resources._none_});
             _videoSource = _videoSources.FirstOrDefault();
-            CommandRefreshSources = new UICommand
-            {
-                ExecuteDelegate = RefreshSources,
-                CanExecuteDelegate = o => _ndiFindInstance != IntPtr.Zero
-            };
-            CommandGotoNdiWebsite = new UICommand {ExecuteDelegate = GotoNdiWebsite};
-            CommandShowPopup = new UICommand {ExecuteDelegate = o => DisplayPopup = true};
-            CommandHidePopup = new UICommand {ExecuteDelegate = o => DisplayPopup = false};
+            CommandRefreshSources = new UiCommand(RefreshSources, o => _ndiFindInstance != IntPtr.Zero);
+            CommandGotoNdiWebsite = new UiCommand(GotoNdiWebsite);
+            CommandShowPopup = new UiCommand(o => DisplayPopup = true);
+            CommandHidePopup = new UiCommand(o => DisplayPopup = false);
             InitNdiFind();
             var sourcesPoolThread = new Thread(() =>
             {

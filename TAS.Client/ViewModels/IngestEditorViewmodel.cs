@@ -21,7 +21,7 @@ namespace TAS.Client.ViewModels
             SelectedOperation = OperationList.FirstOrDefault();
             foreach (var c in OperationList)
                 c.PropertyChanged += _convertOperationPropertyChanged;
-            CommandDeleteOperation = new UICommand {ExecuteDelegate = _deleteOperation};
+            CommandDeleteOperation = new UiCommand(_deleteOperation);
         }
 
         public void ScheduleAll()

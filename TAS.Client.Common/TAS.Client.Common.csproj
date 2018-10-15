@@ -123,8 +123,8 @@
     </Compile>
     <Compile Include="Controls\TimecodeEdit.cs" />
     <Compile Include="TreeViewExtensions.cs" />
-    <Compile Include="UICommand.cs" />
-    <Compile Include="UIServices.cs" />
+    <Compile Include="UiCommand.cs" />
+    <Compile Include="UiServices.cs" />
     <Compile Include="ValueConverters.cs" />
     <Compile Include="ViewModelBase.cs" />
     <Compile Include="WpfHacks.cs" />

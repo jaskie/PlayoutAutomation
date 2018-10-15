@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Database.Interfaces;
 
 namespace TAS.Client.Config
 {
@@ -28,12 +28,12 @@ namespace TAS.Client.Config
             : base(configFile, typeof(ConfigFileView), $"Config file ({configFile.FileName})")
         {
             _db = DatabaseProviderLoader.LoadDatabaseProvider();
-            CommandEditConnectionString = new UICommand { ExecuteDelegate = _editConnectionString };
-            CommandEditConnectionStringSecondary = new UICommand { ExecuteDelegate = _editConnectionStringSecondary };
-            CommandTestConnectivity = new UICommand { ExecuteDelegate = _testConnectivity, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
-            CommandTestConnectivitySecodary = new UICommand { ExecuteDelegate = _testConnectivitySecondary, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionStringSecondary) && _isConnectionStringSecondary };
-            CommandCreateDatabase = new UICommand { ExecuteDelegate = _createDatabase, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
-            CommandCloneDatabase = new UICommand { ExecuteDelegate = _clonePrimaryDatabase, CanExecuteDelegate = o => !(string.IsNullOrWhiteSpace(tasConnectionString) || string.IsNullOrWhiteSpace(tasConnectionStringSecondary)) };
+            CommandEditConnectionString = new UiCommand(_editConnectionString);
+            CommandEditConnectionStringSecondary = new UiCommand(_editConnectionStringSecondary);
+            CommandTestConnectivity = new UiCommand(_testConnectivity, o => !string.IsNullOrWhiteSpace(tasConnectionString));
+            CommandTestConnectivitySecodary = new UiCommand(_testConnectivitySecondary, o => !string.IsNullOrWhiteSpace(tasConnectionStringSecondary) && _isConnectionStringSecondary);
+            CommandCreateDatabase = new UiCommand(_createDatabase, o => !string.IsNullOrWhiteSpace(tasConnectionString));
+            CommandCloneDatabase = new UiCommand(_clonePrimaryDatabase, o => !(string.IsNullOrWhiteSpace(tasConnectionString) || string.IsNullOrWhiteSpace(tasConnectionStringSecondary)));
             Load(Model.appSettings);
             Load(Model.connectionStrings);
             _isConnectionStringSecondary = !string.IsNullOrWhiteSpace(tasConnectionStringSecondary);

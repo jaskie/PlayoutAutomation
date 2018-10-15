@@ -16,8 +16,8 @@ namespace TAS.Client.Config
         {
             PlayoutServers = new ObservableCollection<PlayoutServerViewmodel>(Model.Servers.Select(s => new PlayoutServerViewmodel(s)));
             PlayoutServers.CollectionChanged += PlayoutServers_CollectionChanged;
-            CommandAdd = new UICommand { ExecuteDelegate = Add };
-            CommandDelete = new UICommand { ExecuteDelegate = o => PlayoutServers.Remove(_selectedServer), CanExecuteDelegate = o => _selectedServer != null };
+            CommandAdd = new UiCommand(Add);
+            CommandDelete = new UiCommand(o => PlayoutServers.Remove(_selectedServer), o => _selectedServer != null);
         }
 
         public override bool IsModified { get { return _isCollectionChanged || PlayoutServers.Any(s => s.IsModified); } }

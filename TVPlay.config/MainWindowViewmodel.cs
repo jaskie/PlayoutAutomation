@@ -10,11 +10,11 @@ namespace TAS.Client.Config
 
         public MainWindowViewmodel()
         {
-            CommandIngestFoldersSetup = new UICommand { ExecuteDelegate = _ingestFoldersSetup };
-            CommandConfigFileEdit = new UICommand { ExecuteDelegate = _configFileEdit };
-            CommandConfigFileSelect = new UICommand { ExecuteDelegate = _configFileSelect };
-            CommandPlayoutServersSetup = new UICommand { ExecuteDelegate = _serversSetup };
-            CommandEnginesSetup = new UICommand { ExecuteDelegate = _enginesSetup };
+            CommandIngestFoldersSetup = new UiCommand(_ingestFoldersSetup);
+            CommandConfigFileEdit = new UiCommand(_configFileEdit);
+            CommandConfigFileSelect = new UiCommand(_configFileSelect);
+            CommandPlayoutServersSetup = new UiCommand(_serversSetup);
+            CommandEnginesSetup = new UiCommand(_enginesSetup);
             if (File.Exists("TVPlay.exe"))
                 ConfigFile = new Model.ConfigFile("TVPlay.exe");
         }

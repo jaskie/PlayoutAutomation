@@ -25,7 +25,7 @@ namespace TAS.Client.ViewModels
             Items = new ObservableCollection<ExportMediaViewmodel>(exportList.Select(media => new ExportMediaViewmodel(engine, media)));
             Directories = engine.MediaManager.IngestDirectories.Where(d => d.ContainsExport()).Select(d => new MediaDirectoryViewmodel(d, d.DirectoryName, false, true)).ToList();
             SelectedDirectory = Directories.FirstOrDefault();
-            CommandExport = new UICommand { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
+            CommandExport = new UiCommand(_export, _canExport);
         }
 
         public ICommand CommandExport { get; }

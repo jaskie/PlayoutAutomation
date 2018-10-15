@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
@@ -21,10 +19,10 @@ namespace TAS.Client.ViewModels
             _authenticationService = authenticationService;
             Groups = new ObservableCollection<GroupViewmodel>(authenticationService.Groups.Select(g => new GroupViewmodel(g)));
             Users = new ObservableCollection<UserViewmodel>(authenticationService.Users.Select(u => new UserViewmodel(u, this)));
-            CommandAddUser = new UICommand {ExecuteDelegate = AddUser };
-            CommandDeleteUser = new UICommand {ExecuteDelegate = DeleteUser, CanExecuteDelegate = CanDeleteUser};
-            CommandAddGroup = new UICommand { ExecuteDelegate = AddGroup };
-            CommandDeleteGroup = new UICommand { ExecuteDelegate = DeleteGroup, CanExecuteDelegate = CanDeleteGroup };
+            CommandAddUser = new UiCommand(AddUser);
+            CommandDeleteUser = new UiCommand(DeleteUser, CanDeleteUser);
+            CommandAddGroup = new UiCommand(AddGroup);
+            CommandDeleteGroup = new UiCommand(DeleteGroup, CanDeleteGroup);
             authenticationService.UsersOperation += AuthenticationService_UsersOperation;
             authenticationService.GroupsOperation += AuthenticationService_GroupsOperation;
         }

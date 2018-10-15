@@ -16,7 +16,7 @@ namespace TAS.Client.ViewModels
             _engine = engine;
             MediaExport = mediaExport;
             Logos = new ObservableCollection<ExportMediaLogoViewmodel>(mediaExport.Logos.Select(l => new ExportMediaLogoViewmodel(this, l)));
-            CommandAddLogo = new UICommand { ExecuteDelegate = _addLogo };
+            CommandAddLogo = new UiCommand(_addLogo);
         }
 
         public string MediaName => MediaExport.Media.MediaName;
@@ -29,7 +29,7 @@ namespace TAS.Client.ViewModels
 
         public ObservableCollection<ExportMediaLogoViewmodel> Logos { get; }
 
-        public UICommand CommandAddLogo { get; }
+        public UiCommand CommandAddLogo { get; }
 
         public MediaExportDescription MediaExport { get; }
 
