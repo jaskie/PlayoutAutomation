@@ -5,6 +5,7 @@ using System.ServiceProcess;
 namespace TVPlaySvc
 {
     [RunInstaller(true)]
+	[DesignerCategory("Code")]
     public class WindowsServiceInstaller : Installer
     {
         public WindowsServiceInstaller()

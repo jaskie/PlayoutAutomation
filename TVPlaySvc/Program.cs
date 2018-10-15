@@ -7,6 +7,7 @@ using TAS.Server;
 
 namespace TVPlaySvc
 {
+	[System.ComponentModel.DesignerCategory("Code")]
     internal class TvPlayService : ServiceBase
     {
 

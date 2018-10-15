@@ -52,10 +52,12 @@ namespace TAS.Server.Media
 
         public override void RemoveMedia(IMedia media)
         {
-            media.MediaStatus = TMediaStatus.Deleted;
-            ((AnimatedMedia)media).IsVerified = false;
-            ((AnimatedMedia)media).Save();
-            base.RemoveMedia(media);
+            if (!(media is AnimatedMedia am))
+                throw new ArgumentException(nameof(media));
+            am.MediaStatus = TMediaStatus.Deleted;
+            am.IsVerified = false;
+            am.Save();
+            base.RemoveMedia(am);
         }
 
         public override void SweepStaleMedia() { }
@@ -68,8 +70,9 @@ namespace TAS.Server.Media
 
         protected override IMedia AddMediaFromPath(string fullPath, DateTime lastUpdated)
         {
-            var newMedia = FindMediaFirstByFullPath(fullPath) as AnimatedMedia;
-            if (newMedia != null || !AcceptFile(fullPath))
+            if (!AcceptFile(fullPath))
+                return null;
+            if (FindMediaFirstByFullPath(fullPath) is AnimatedMedia newMedia)
                 return newMedia;
             var relativeName = fullPath.Substring(Folder.Length);
             var fileName = Path.GetFileName(relativeName);

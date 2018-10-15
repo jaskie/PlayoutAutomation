@@ -37,11 +37,6 @@ namespace TAS.Remoting.Client
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void Release()
-        {
-            
-        }
-
         public event EventHandler Disposed;
 
         protected T Get<T>([CallerMemberName] string propertyName = null)
