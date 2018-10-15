@@ -848,7 +848,7 @@ namespace TAS.Server
         {
             if (!CurrentUser.IsAdmin)
                 return;
-            EngineController.Database.DbSearchMissing(this);
+            EngineController.Database.SearchMissing(this);
         }
 
         #region  IPersistent properties
