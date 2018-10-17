@@ -20,10 +20,7 @@ namespace TAS.Server.XDCAM
 
         public XdcamStream(XdcamMedia media, bool forWrite)
         {
-            
-            if (!(media?.Directory is IngestDirectory))
-                throw new ApplicationException("XDCAM media directory is not IngestDirectory");
-            _directory = (IngestDirectory)media.Directory;
+            _directory = media?.Directory as IngestDirectory ?? throw new ApplicationException("XDCAM media directory is not IngestDirectory");
             _client = _directory.GetFtpClient();
             if (!Monitor.TryEnter(_directory.XdcamLockObject))
                 throw new ApplicationException("Directory is in use");
