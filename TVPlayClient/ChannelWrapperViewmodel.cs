@@ -47,11 +47,11 @@ namespace TVPlayClient
             Debug.WriteLine(this, "Disposed");
         }
 
-        private void _ClientSessionClosed(object sender, EventArgs e)
+        private void ClientDisconnected(object sender, EventArgs e)
         {
             if (sender is RemoteClient client)
             {
-                client.SessionClosed -= _ClientSessionClosed;
+                client.Disconnected -= ClientDisconnected;
                 client.Dispose();
                 var channel = Channel;
                 OnUiThread(() =>
@@ -76,7 +76,7 @@ namespace TVPlayClient
                         {
                             Binder = new ClientTypeNameBinder()
                         };
-                        _client.SessionClosed += _ClientSessionClosed;
+                        _client.Disconnected += ClientDisconnected;
                         var engine = _client.GetInitalObject<Engine>();
                         if (engine == null)
                         {

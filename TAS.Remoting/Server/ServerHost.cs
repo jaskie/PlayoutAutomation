@@ -60,7 +60,7 @@ namespace TAS.Remoting.Server
                     {
                         client = _listener.AcceptTcpClient();
                         var clientSession = new ServerSession(client, _authenticationService, _rootDto);
-                        clientSession.SessionClosed += ClientSession_SessionClosed;
+                        clientSession.Disconnected += ClientSessionDisconnected;
                         lock (((IList) _clients).SyncRoot)
                             _clients.Add(clientSession);
                     }
@@ -89,11 +89,11 @@ namespace TAS.Remoting.Server
             }
         }
 
-        private void ClientSession_SessionClosed(object sender, EventArgs e)
+        private void ClientSessionDisconnected(object sender, EventArgs e)
         {
             if (!(sender is ServerSession serverSession))
                 return;
-            serverSession.SessionClosed -= ClientSession_SessionClosed;
+            serverSession.Disconnected -= ClientSessionDisconnected;
             serverSession.Dispose();
             lock (((IList) _clients).SyncRoot)
                 _clients.Remove(serverSession);
