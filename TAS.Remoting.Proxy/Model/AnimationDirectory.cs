@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 
@@ -12,9 +13,9 @@ namespace TAS.Remoting.Model
             return Query<IAnimatedMedia>(parameters: new object[] { source });
         }
 
-        public override IEnumerable<IMedia> GetFiles()
+        public override async Task<IEnumerable<IMedia>> GetFiles()
         {
-            return Query<List<AnimatedMedia>>();
+            return await Task.Run(() => Query<List<AnimatedMedia>>());
         }
 
     }

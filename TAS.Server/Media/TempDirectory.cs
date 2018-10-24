@@ -24,9 +24,7 @@ namespace TAS.Server.Media
         {
             return new TempMedia(this, media);
         }
-
-
-
+        
         private void SweepStaleMedia()
         {
             foreach (string fileName in Directory.GetFiles(Folder))

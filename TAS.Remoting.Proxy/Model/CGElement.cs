@@ -12,7 +12,7 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(ICGElement.Id))]
         private byte _id;
 
-        [JsonProperty(nameof(ICGElement.Image)), JsonConverter(typeof(BitmapConverter))]
+        [JsonProperty(nameof(ICGElement.Image)), JsonConverter(typeof(BitmapJsonConverter))]
         private Bitmap _image;
 
         [JsonProperty(nameof(ICGElement.ImageFile))]

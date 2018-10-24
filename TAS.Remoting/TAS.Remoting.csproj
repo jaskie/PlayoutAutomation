@@ -61,7 +61,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BitmapConverter.cs" />
+    <Compile Include="BitmapJsonConverter.cs" />
     <Compile Include="Client\ReferenceResolver.cs" />
     <Compile Include="PropertyChangedWithValueEventArgs.cs" />
     <Compile Include="Server\ReferenceResolver.cs" />

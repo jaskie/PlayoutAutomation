@@ -9,9 +9,9 @@ namespace TAS.Remoting.Model
     {
         public abstract Task<IEnumerable<IMedia>> GetFiles();
 
-        public Task Refresh()
+        public async Task Refresh()
         {
-            return Task.Run(() => Invoke());
+            await Task.Run(() => Invoke());
         }
     }
 }

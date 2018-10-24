@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -166,9 +168,9 @@ namespace TAS.Remoting.Model
 
         public IEnumerable<IIngestDirectoryProperties> SubDirectories => _subDirectories;
 
-        public override IEnumerable<IMedia> GetFiles()
+        public override async Task<IEnumerable<IMedia>> GetFiles()
         {
-            return Query<List<IngestMedia>>();
+            return await Task.Run(() => Query<ReadOnlyCollection<IngestMedia>>());
         }
 
         public List<IMedia> Search(TMediaCategory? category, string searchString)
