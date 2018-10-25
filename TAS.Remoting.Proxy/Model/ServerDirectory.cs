@@ -8,9 +8,9 @@ namespace TAS.Remoting.Model
 {
     public class ServerDirectory : WatcherDirectory, IServerDirectory
     {
-        public override async Task<IEnumerable<IMedia>> GetFiles()
+        public override IEnumerable<IMedia> GetFiles()
         {
-            return await Task.Run(() => Query<ReadOnlyCollection<IMedia>>());
+            return Query<ReadOnlyCollection<IMedia>>();
         }
     }
 }

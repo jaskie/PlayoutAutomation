@@ -6,9 +6,7 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
-using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 using TAS.Server.XDCAM;
 
@@ -57,7 +55,7 @@ namespace TAS.Server
 
         public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
 
-        public override string Title => $"Export {string.Join(", ", _exportMediaList)} -> {(DestDirectory as IMediaDirectoryProperties)?.DirectoryName}";
+        public override string Title => $"Export {string.Join(", ", _exportMediaList)} -> {DestDirectory?.DirectoryName}";
 
         internal override async Task<bool> Execute()
         {
@@ -94,13 +92,13 @@ namespace TAS.Server
             if (!(DestDirectory is IngestDirectory destDirectory))
                 throw new InvalidOperationException("Can only export to IngestDirectory");
             if (destDirectory.Kind == TIngestDirectoryKind.XDCAM)
-                await destDirectory.Refresh();
+                destDirectory.Refresh();
 
             if (destDirectory.AccessType == TDirectoryAccessType.FTP)
             {
                 using (var localDestMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(Source))
                 {
-                    Dest = await _createDestMedia();
+                    Dest = _createDestMedia();
                     Dest.PropertyChanged += destMedia_PropertyChanged;
                     try
                     {
@@ -121,7 +119,7 @@ namespace TAS.Server
             }
             else
             {
-                Dest = await _createDestMedia();
+                Dest = _createDestMedia();
                 result = Encode(destDirectory, Dest.FullPath);
             }
             Dest.MediaStatus = result ? TMediaStatus.Available : TMediaStatus.CopyError;
@@ -129,14 +127,14 @@ namespace TAS.Server
             return result;
         }
 
-        private async Task<IngestMedia> _createDestMedia()
+        private IngestMedia _createDestMedia()
         {
             if (!(DestDirectory is IngestDirectory directory))
                 throw new ApplicationException($"{nameof(DestDirectory)} must be {nameof(IngestDirectory)}");
             IngestMedia result;
             if (directory.Kind == TIngestDirectoryKind.XDCAM)
             {
-                var existingFiles = (await directory.GetFiles()).Where(f =>
+                var existingFiles = directory.GetFiles().Where(f =>
                     f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
                 var maxFile = existingFiles.Length == 0
                     ? 1

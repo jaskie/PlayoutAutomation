@@ -467,17 +467,22 @@ namespace TAS.Client.ViewModels
         private async void _reloadFiles()
         {
             UiServices.SetBusyState();
-            if (SelectedDirectory.Directory is IArchiveDirectory archiveDirectory)
+            await Task.Run(async () =>
             {
-                _setMediaItems(new ObservableCollection<MediaViewViewmodel>(archiveDirectory
-                    .Search(MediaCategory as TMediaCategory?, "").Select(f => new MediaViewViewmodel(f))));
-            }
-            else if (SelectedDirectory.Directory is IWatcherDirectory dir && !SelectedDirectory.IsWan)
-            {
-                _setMediaItems(new ObservableCollection<MediaViewViewmodel>((await dir.GetFiles()).Select(f => new MediaViewViewmodel(f))));
-                if (SelectedDirectory.IsXdcam && !SelectedDirectory.IsWan)
-                    await _refreshMediaDirectory();
-            }
+                if (SelectedDirectory.Directory is IArchiveDirectory archiveDirectory)
+                {
+                    _setMediaItems(new ObservableCollection<MediaViewViewmodel>(archiveDirectory
+                        .Search(MediaCategory as TMediaCategory?, "").Select(f => new MediaViewViewmodel(f))));
+                }
+                else if (SelectedDirectory.Directory is IWatcherDirectory dir && !SelectedDirectory.IsWan)
+                {
+                    _setMediaItems(
+                        new ObservableCollection<MediaViewViewmodel>(dir.GetFiles()
+                            .Select(f => new MediaViewViewmodel(f))));
+                    if (SelectedDirectory.IsXdcam && !SelectedDirectory.IsWan)
+                        await _refreshMediaDirectory();
+                }
+            });
         }
         private void _setMediaItems(ObservableCollection<MediaViewViewmodel> items)
         {
@@ -589,7 +594,7 @@ namespace TAS.Client.ViewModels
                 return;
             try
             {
-                await d.Refresh();
+                await Task.Run(() => d.Refresh());
             }
             catch (Exception e)
             {

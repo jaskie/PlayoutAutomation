@@ -170,7 +170,7 @@ namespace TAS.Server.Media
         [XmlIgnore]
         public override char PathSeparator => AccessType == TDirectoryAccessType.Direct ? Path.DirectorySeparatorChar : '/';
 
-        public override async Task Refresh()
+        public override void Refresh()
         {
             if (_isRefreshing)
                 return;
@@ -191,7 +191,7 @@ namespace TAS.Server.Media
                                 try
                                 {
                                     //VolumeFreeSize = client.GetFreeDiscSpace();
-                                    await _readXDCAM(client);
+                                    _readXDCAM(client);
                                 }
                                 finally
                                 {
@@ -199,7 +199,7 @@ namespace TAS.Server.Media
                                 }
                             }
                             else
-                                await _readXDCAM(null);
+                                _readXDCAM(null);
                         }
                         finally
                         {
@@ -211,7 +211,7 @@ namespace TAS.Server.Media
                 else if (AccessType == TDirectoryAccessType.FTP)
                     _ftpDirectoryList();
                 else
-                    await base.Refresh();
+                    base.Refresh();
             }
             finally
             {
@@ -538,7 +538,7 @@ namespace TAS.Server.Media
             return false;
         }
 
-        private async Task _readXDCAM(XdcamClient client)
+        private async void _readXDCAM(XdcamClient client)
         {
             try
             {

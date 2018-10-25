@@ -168,9 +168,9 @@ namespace TAS.Remoting.Model
 
         public IEnumerable<IIngestDirectoryProperties> SubDirectories => _subDirectories;
 
-        public override async Task<IEnumerable<IMedia>> GetFiles()
+        public override IEnumerable<IMedia> GetFiles()
         {
-            return await Task.Run(() => Query<ReadOnlyCollection<IngestMedia>>());
+            return Query<ReadOnlyCollection<IngestMedia>>();
         }
 
         public List<IMedia> Search(TMediaCategory? category, string searchString)

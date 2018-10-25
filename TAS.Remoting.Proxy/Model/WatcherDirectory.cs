@@ -7,11 +7,11 @@ namespace TAS.Remoting.Model
 {
     public abstract class WatcherDirectory: MediaDirectoryBase, IWatcherDirectory
     {
-        public abstract Task<IEnumerable<IMedia>> GetFiles();
+        public abstract IEnumerable<IMedia> GetFiles();
 
-        public async Task Refresh()
+        public void Refresh()
         {
-            await Task.Run(() => Invoke());
+            Invoke();
         }
     }
 }

@@ -9,11 +9,11 @@ namespace TAS.Common.Interfaces.MediaDirectory
     {
         bool IsInitialized { get; }
 
-        Task<IEnumerable<IMedia>> GetFiles();
+        IEnumerable<IMedia> GetFiles();
 
         void SweepStaleMedia();
 
-        Task Refresh();
+        void Refresh();
 
         event EventHandler<MediaEventArgs> MediaVerified;
     }

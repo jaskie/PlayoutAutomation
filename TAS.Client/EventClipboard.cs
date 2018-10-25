@@ -33,15 +33,18 @@ namespace TAS.Client
             ClipboardChanged?.Invoke();
         }
         #region Undo
-        public static void SaveUndo(List<IEvent> items, IEvent undoDest)
+        public static async Task SaveUndo(List<IEvent> items, IEvent undoDest)
         {
-            if (items == null)
-                return;
-            Undos.Clear();
-            _undoDest = undoDest;
-            _undoEngine = items.FirstOrDefault()?.Engine;
-            foreach (var e in items)
-                Undos.Add(EventProxy.FromEvent(e));
+            await Task.Run(() =>
+            {
+                if (items == null)
+                    return;
+                Undos.Clear();
+                _undoDest = undoDest;
+                _undoEngine = items.FirstOrDefault()?.Engine;
+                foreach (var e in items)
+                    Undos.Add(EventProxy.FromEvent(e));
+            });
         }
 
         public static bool CanUndo()
@@ -54,18 +57,21 @@ namespace TAS.Client
             return Undos.Count > 0 && _undoEngine != null && _undoDest?.HaveRight(EventRight.Create) == true;
         }
 
-        public static async void Undo()
+        public static async Task Undo()
         {
-            using (var enumerator = Undos.GetEnumerator())
+            await Task.Run(() =>
             {
-                if (enumerator.MoveNext())
+                using (var enumerator = Undos.GetEnumerator())
                 {
-                    var dest = await _pasteUndo(enumerator.Current);
-                    while (enumerator.MoveNext())
-                        dest = await _paste(enumerator.Current, dest, PasteLocation.After, ClipboardOperation.Copy);
+                    if (enumerator.MoveNext())
+                    {
+                        var dest = _pasteUndo(enumerator.Current);
+                        while (enumerator.MoveNext())
+                            dest = _paste(enumerator.Current, dest, PasteLocation.After, ClipboardOperation.Copy);
+                    }
                 }
-            }
-            _clearUndo();
+                _clearUndo();
+            });
         }
 
         private static void _clearUndo()
@@ -75,22 +81,29 @@ namespace TAS.Client
             _undoEngine = null;
         }
 
-        private static async Task<IEvent> _pasteUndo(IEventProperties source)
+        private static IEvent _pasteUndo(IEventProperties source)
         {
             if (!(source is EventProxy sourceProxy) || _undoEngine == null)
                 throw new InvalidOperationException($"Cannot undo: {source.EventName}");
-            var mediaFiles = await (_undoEngine.MediaManager.MediaDirectoryPRI ?? _undoEngine.MediaManager.MediaDirectorySEC)?.GetFiles();
-            var animationFiles = await (_undoEngine.MediaManager.AnimationDirectoryPRI ?? _undoEngine.MediaManager.AnimationDirectorySEC)?.GetFiles();
+            var mediaFiles =
+                (_undoEngine.MediaManager.MediaDirectoryPRI ?? _undoEngine.MediaManager.MediaDirectorySEC)
+                ?.GetFiles();
+            var animationFiles =
+                (_undoEngine.MediaManager.AnimationDirectoryPRI ?? _undoEngine.MediaManager.AnimationDirectorySEC)
+                ?.GetFiles();
             switch (sourceProxy.StartType)
             {
                 case TStartType.After:
                     return sourceProxy.InsertAfter(_undoDest, mediaFiles, animationFiles);
                 case TStartType.WithParent:
                 case TStartType.WithParentFromEnd:
-                    return sourceProxy.InsertUnder(_undoDest, sourceProxy.StartType == TStartType.WithParentFromEnd, mediaFiles, animationFiles);
+                    return sourceProxy.InsertUnder(_undoDest, sourceProxy.StartType == TStartType.WithParentFromEnd,
+                        mediaFiles, animationFiles);
                 case TStartType.OnFixedTime:
                 case TStartType.Manual:
-                    var newEvent = _undoDest == null ? sourceProxy.InsertRoot(_undoEngine, mediaFiles, animationFiles) : sourceProxy.InsertUnder(_undoDest, false, mediaFiles, animationFiles);
+                    var newEvent = _undoDest == null
+                        ? sourceProxy.InsertRoot(_undoEngine, mediaFiles, animationFiles)
+                        : sourceProxy.InsertUnder(_undoDest, false, mediaFiles, animationFiles);
                     newEvent.ScheduledTime = sourceProxy.ScheduledTime.AddDays(1);
                     newEvent.Save();
                     return newEvent;
@@ -100,45 +113,54 @@ namespace TAS.Client
 
         #endregion //Undo
 
-        public static void Copy(IEnumerable<EventPanelViewmodelBase> items)
+        public static async Task Copy(IEnumerable<EventPanelViewmodelBase> items)
         {
-            Clipboard.Clear();
-            foreach (var e in items)
-                Clipboard.Add(EventProxy.FromEvent(e.Event));
-            _operation = ClipboardOperation.Copy;
-            _notifyClipboardChanged();
+            await Task.Run(() =>
+            {
+                Clipboard.Clear();
+                foreach (var e in items)
+                    Clipboard.Add(EventProxy.FromEvent(e.Event));
+                _operation = ClipboardOperation.Copy;
+                _notifyClipboardChanged();
+            });
         }
 
-        public static void Cut(IEnumerable<EventPanelViewmodelBase> items)
+        public static async Task Cut(IEnumerable<EventPanelViewmodelBase> items)
         {
-            Clipboard.Clear();
-            foreach (var e in items)
-                Clipboard.Add(e.Event);
-            _operation = ClipboardOperation.Cut;
-            _notifyClipboardChanged();
+            await Task.Run(() =>
+            {
+                Clipboard.Clear();
+                foreach (var e in items)
+                    Clipboard.Add(e.Event);
+                _operation = ClipboardOperation.Cut;
+                _notifyClipboardChanged();
+            });
         }
 
         public static async Task<IEvent> Paste(EventPanelViewmodelBase destination, PasteLocation location)
         {
-            var dest = destination.Event;
-            if (CanPaste(destination, location))
+            return await Task.Run(() =>
             {
-                var operation = _operation;
-                using (var enumerator = Clipboard.GetEnumerator())
+                var dest = destination.Event;
+                if (CanPaste(destination, location))
                 {
-                    if (!enumerator.MoveNext())
-                        return null;
-                    dest = await _paste(enumerator.Current, dest, location, operation);
-                    while (enumerator.MoveNext())
-                        dest = await _paste(enumerator.Current, dest, PasteLocation.After, operation);
+                    var operation = _operation;
+                    using (var enumerator = Clipboard.GetEnumerator())
+                    {
+                        if (!enumerator.MoveNext())
+                            return null;
+                        dest = _paste(enumerator.Current, dest, location, operation);
+                        while (enumerator.MoveNext())
+                            dest = _paste(enumerator.Current, dest, PasteLocation.After, operation);
+                    }
                 }
-            }
-            if (_operation == ClipboardOperation.Cut)
-                Clipboard.Clear();
-            return dest;
+                if (_operation == ClipboardOperation.Cut)
+                    Clipboard.Clear();
+                return dest;
+            });
         }
 
-        static async Task<IEvent> _paste(IEventProperties source, IEvent dest, PasteLocation location, ClipboardOperation operation)
+        static IEvent _paste(IEventProperties source, IEvent dest, PasteLocation location, ClipboardOperation operation)
         {
             if (operation == ClipboardOperation.Cut)
             {
@@ -174,8 +196,8 @@ namespace TAS.Client
             {
                 if (source is EventProxy sourceProxy)
                 {
-                    var mediaFiles = await (dest.Engine.MediaManager.MediaDirectoryPRI ?? dest.Engine.MediaManager.MediaDirectorySEC)?.GetFiles();
-                    var animationFiles = await (dest.Engine.MediaManager.AnimationDirectoryPRI ?? dest.Engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
+                    var mediaFiles = (dest.Engine.MediaManager.MediaDirectoryPRI ?? dest.Engine.MediaManager.MediaDirectorySEC)?.GetFiles();
+                    var animationFiles = (dest.Engine.MediaManager.AnimationDirectoryPRI ?? dest.Engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
                     switch (location)
                     {
                         case PasteLocation.After:

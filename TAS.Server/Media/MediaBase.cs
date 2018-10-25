@@ -356,7 +356,7 @@ namespace TAS.Server.Media
                     ))
                 {
                     FileSize = (ulong)fi.Length;
-                    LastUpdated = DateTimeExtensions.FromFileTime(fi.LastWriteTimeUtc, DateTimeKind.Utc);
+                    LastUpdated = fi.LastWriteTimeUtc.FromFileTime(DateTimeKind.Utc);
                     //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
 
                     this.Check();

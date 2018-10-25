@@ -335,10 +335,10 @@ namespace TAS.Client.ViewModels
 
         private bool _canUndelete(object obj) => EventClipboard.CanUndo();
 
-        private void _undelete(object obj)
+        private async void _undelete(object obj)
         {
             if (MessageBox.Show(string.Format(resources._query_Undelete), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
-                EventClipboard.Undo();
+                await EventClipboard.Undo();
         }
 
         private bool _canClear(object obj) => Engine.HaveRight(EngineRight.Play);
@@ -348,26 +348,37 @@ namespace TAS.Client.ViewModels
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog()
             {
                 DefaultExt = FileUtils.RundownFileExtension,
-                Filter = string.Format("{0}|*{1}|{2}|*.*", resources._rundowns, FileUtils.RundownFileExtension, resources._allFiles)
+                Filter = $"{resources._rundowns}|*{FileUtils.RundownFileExtension}|{resources._allFiles}|*.*"
             };
-            if (dlg.ShowDialog() == true)
+            if (dlg.ShowDialog() != true)
+                return;
+            UiServices.SetBusyState();
+            await Task.Run(() =>
             {
-                UiServices.SetBusyState();
                 using (var reader = File.OpenText(dlg.FileName))
                 using (var jreader = new Newtonsoft.Json.JsonTextReader(reader))
                 {
-                    var proxy = (new Newtonsoft.Json.JsonSerializer { DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Populate })
+                    var proxy = new Newtonsoft.Json.JsonSerializer
+                        {
+                            DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Populate
+                        }
                         .Deserialize<EventProxy>(jreader);
                     if (proxy != null)
                     {
-                        var mediaFiles = await (Engine.MediaManager.MediaDirectoryPRI ?? Engine.MediaManager.MediaDirectorySEC)?.GetFiles();
-                        var animationFiles = await (Engine.MediaManager.AnimationDirectoryPRI ?? Engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
-                        var newEvent = obj.Equals("Under") ? proxy.InsertUnder(SelectedEvent.Event, false, mediaFiles, animationFiles) : proxy.InsertAfter(SelectedEvent.Event, mediaFiles, animationFiles);
+                        var mediaFiles =
+                            (Engine.MediaManager.MediaDirectoryPRI ?? Engine.MediaManager.MediaDirectorySEC)
+                            ?.GetFiles();
+                        var animationFiles =
+                            (Engine.MediaManager.AnimationDirectoryPRI ?? Engine.MediaManager.AnimationDirectorySEC)
+                            ?.GetFiles();
+                        var newEvent = obj.Equals("Under")
+                            ? proxy.InsertUnder(SelectedEvent.Event, false, mediaFiles, animationFiles)
+                            : proxy.InsertAfter(SelectedEvent.Event, mediaFiles, animationFiles);
                         LastAddedEvent = newEvent;
                     }
 
                 }
-            }
+            });
         }
 
         private void _saveRundown(object obj)
@@ -442,9 +453,9 @@ namespace TAS.Client.ViewModels
 
         private async void _pasteSelected(object obj) => LastAddedEvent = await EventClipboard.Paste(_selectedEvent, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), (string)obj, true));
 
-        private void _copySelected(object obj) => EventClipboard.Copy(_multiSelectedEvents);
+        private async void _copySelected(object obj) => await EventClipboard.Copy(_multiSelectedEvents);
 
-        private void _cutSelected(object obj) => EventClipboard.Cut(_multiSelectedEvents);
+        private async void _cutSelected(object obj) => await EventClipboard.Cut(_multiSelectedEvents);
 
         private bool _canExportMedia(object obj)
         {
@@ -569,7 +580,7 @@ namespace TAS.Client.ViewModels
             LastAddedEvent = newEvent;
         }
 
-        private void _deleteSelected(object ob)
+        private async void _deleteSelected(object ob)
         {
             var evmList = _multiSelectedEvents.ToList();
             var containerList = evmList.Where(evm => evm is EventPanelContainerViewmodel).ToList();
@@ -579,8 +590,8 @@ namespace TAS.Client.ViewModels
                     || MessageBox.Show(string.Format(resources._query_DeleteSelectedContainers, containerList.Count, containerList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
             {
                 var firstEvent = evmList.First().Event;
-                EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.Prior : firstEvent.Parent);
-                Task.Run(
+                await EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.Prior : firstEvent.Parent);
+                await Task.Run(
                     () =>
                     {
                         try

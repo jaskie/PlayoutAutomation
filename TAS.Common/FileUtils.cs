@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace TAS.Common
 {
@@ -98,13 +96,6 @@ namespace TAS.Common
                 Directory.CreateDirectory(path);
         }
 
-        public static async Task CopyFileAsync(string sourceFile, string destinationFile, CancellationToken cancellationToken)
-        {
-            using (var sourceStream = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
-            using (var destinationStream = new FileStream(destinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
-                await sourceStream.CopyToAsync(destinationStream, 0x1000, cancellationToken);
-        }
-
         public static TMediaType GetMediaType(string fileName)
         {
             var ext = Path.GetExtension(fileName)?.ToLower();
@@ -121,20 +112,4 @@ namespace TAS.Common
                             : TMediaType.Unknown;
         }
     }
-
-    public static class DateTimeExtensions
-    {
-        public static bool DateTimeEqualToDays(this DateTime self, DateTime dt)
-        {
-            return (self.Date - dt).Days == 0;
-        }
-
-        public static DateTime FromFileTime(DateTime dt, DateTimeKind kind)
-        {
-            return DateTime.SpecifyKind(new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second), kind);
-        }
-    }
-
-    
-
 }

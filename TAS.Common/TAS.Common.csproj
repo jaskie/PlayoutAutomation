@@ -61,6 +61,7 @@
     <Compile Include="AudioVolumeEventArgs.cs" />
     <Compile Include="CollectionOperationEventArgs.cs" />
     <Compile Include="ColorAttribute.cs" />
+    <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="EngineOperationEventArgs.cs" />
     <Compile Include="EngineTickEventArgs.cs" />
     <Compile Include="Enums.cs" />

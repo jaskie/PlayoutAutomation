@@ -37,7 +37,7 @@ namespace TAS.Server.XDCAM
                 _smilIndex = 0;
                 _media = media;
                 if (_isEditList)
-                    _currentStream = _getNextStream().Result;
+                    _currentStream = _getNextStream();
                 else
                 {
                     _currentStream = forWrite ? _client.OpenWrite($"Clip/{media.FileName}") : _client.OpenRead(media.XdcamMaterial.uri.TrimStart('.', '/'));
@@ -66,7 +66,7 @@ namespace TAS.Server.XDCAM
                 if (actualRead == 0)
                 {
                     _currentStream.Dispose();
-                    _currentStream = _getNextStream().Result;
+                    _currentStream = _getNextStream();
                 }
                 bytesRead += actualRead;
             }
@@ -121,7 +121,7 @@ namespace TAS.Server.XDCAM
             }
         }
 
-        private async Task<Stream> _getNextStream()
+        private Stream _getNextStream()
         {
             const string umidSpecifier = "urn:smpte:umid:";
             if (!_isEditList || _smil.body.par.refList.Count <= _smilIndex)
@@ -132,7 +132,7 @@ namespace TAS.Server.XDCAM
             var umid = r.src.Substring(umidSpecifier.Length);
             var startFrame = r.clipBegin.SmpteToFrame();
             var length = r.clipEnd.SmpteToFrame() - startFrame;
-            var media = (await _directory.GetFiles()).Cast<XdcamMedia>().FirstOrDefault(m => umid.Equals(m.XdcamMaterial?.umid));
+            var media = _directory.GetFiles().Cast<XdcamMedia>().FirstOrDefault(m => umid.Equals(m.XdcamMaterial?.umid));
             if (media?.XdcamMaterial == null)
                 return null;
             var fileName = media.XdcamMaterial.uri.TrimStart('.', '/');

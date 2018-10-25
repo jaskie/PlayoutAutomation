@@ -13,9 +13,9 @@ namespace TAS.Remoting.Model
             return Query<IAnimatedMedia>(parameters: new object[] { source });
         }
 
-        public override async Task<IEnumerable<IMedia>> GetFiles()
+        public override IEnumerable<IMedia> GetFiles()
         {
-            return await Task.Run(() => Query<List<AnimatedMedia>>());
+            return Query<List<AnimatedMedia>>();
         }
 
     }

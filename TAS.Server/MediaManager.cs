@@ -225,7 +225,7 @@ namespace TAS.Server
                 && pri.IsInitialized
                 && sec.IsInitialized)
             {
-                Task.Run(async () =>
+                Task.Run(() =>
                 {
                     if (!_isSynchronizedMediaSecToPri)
                     {
@@ -233,7 +233,7 @@ namespace TAS.Server
                         Logger.Debug("SynchronizeMediaSecToPri started");
                         try
                         {
-                            var pRiMediaList = await pri.GetFiles();
+                            var pRiMediaList = pri.GetFiles();
                             foreach (ServerMedia pRImedia in pRiMediaList)
                             {
                                 if (pRImedia.MediaStatus == TMediaStatus.Available && pRImedia.FileExists())
@@ -273,7 +273,7 @@ namespace TAS.Server
                         try
                         {
 
-                            var secMediaList = await sec.GetFiles();
+                            var secMediaList = sec.GetFiles();
                             foreach (ServerMedia secMedia in secMediaList)
                             {
                                 if ((ServerMedia) pri.FindMediaByMediaGuid(secMedia.MediaGuid) == null)
@@ -313,7 +313,7 @@ namespace TAS.Server
                 && pri.IsInitialized
                 && sec.IsInitialized)
             {
-                Task.Run(async () =>
+                Task.Run(() =>
                 {
                     if (_isSynchronizedAnimationsSecToPri)
                         return;
@@ -321,7 +321,7 @@ namespace TAS.Server
                     {
                         Debug.WriteLine(this, "SynchronizeAnimationsSecToPri started");
                         Logger.Debug("SynchronizeAnimationsSecToPri started");
-                        var priAnimations = await pri.GetFiles();
+                        var priAnimations = pri.GetFiles();
                         foreach (var priAnimation in priAnimations)
                         {
                             if (priAnimation.MediaStatus != TMediaStatus.Available)

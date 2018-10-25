@@ -76,11 +76,11 @@ namespace TAS.Client.ViewModels
             );
             CommandDelete = new UiCommand
             (
-                o =>
+                async o =>
                 {
                     if (MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
                         return;
-                    EventClipboard.SaveUndo(new List<IEvent> {Model},
+                    await EventClipboard.SaveUndo(new List<IEvent> {Model},
                         Model.StartType == TStartType.After ? Model.Prior : Model.Parent);
                     Model.Delete();
                 },

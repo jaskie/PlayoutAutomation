@@ -30,7 +30,7 @@ namespace TAS.Server.Media
 
         protected readonly Dictionary<Guid, MediaBase> Files = new Dictionary<Guid, MediaBase>();
 
-        public virtual async Task Refresh()
+        public virtual async void Refresh()
         {
             await Task.Run(() =>
             {
@@ -75,15 +75,12 @@ namespace TAS.Server.Media
             IsInitialized = false;
         }
 
-        public virtual async Task<IEnumerable<IMedia>> GetFiles()
+        public virtual IEnumerable<IMedia> GetFiles()
         {
-            return await Task.Run(() =>
-            {
-                lock (((IDictionary) Files).SyncRoot)
-                    return Files.Values.Cast<IMedia>().ToList().AsReadOnly();
-            });
+            lock (((IDictionary) Files).SyncRoot)
+                return Files.Values.Cast<IMedia>().ToList().AsReadOnly();
         }
-        
+
         internal override bool DeleteMedia(IMedia media)
         {
             if (media.Directory != this) 
