@@ -45,6 +45,7 @@ namespace TAS.Remoting.Client
             if (!(value is ProxyBase proxy))
                 return;
             var id = new Guid(reference);
+            proxy.DtoGuid = id;
             _knownDtos[id] = proxy;
             Debug.WriteLine("Added reference {0} for {1}", reference, value);
         }
