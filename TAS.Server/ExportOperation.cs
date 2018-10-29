@@ -57,34 +57,25 @@ namespace TAS.Server
 
         public override string Title => $"Export {string.Join(", ", _exportMediaList)} -> {DestDirectory?.DirectoryName}";
 
-        internal override async Task<bool> Execute()
+        protected override async Task<bool> InternalExecute()
         {
-            if (Kind == TFileOperationKind.Export)
+            if (Kind != TFileOperationKind.Export)
+                throw new InvalidOperationException("Invalid operation kind");
+            StartTime = DateTime.UtcNow;
+            OperationStatus = FileOperationStatus.InProgress;
+            IsIndeterminate = true;
+            try
             {
-                StartTime = DateTime.UtcNow;
-                OperationStatus = FileOperationStatus.InProgress;
-                IsIndeterminate = true;
-                try
-                {
-                    var success = await InternalExecute();
-                    if (!success)
-                        TryCount--;
-                    else
-                        AddOutputMessage("Operation completed successfully.");
-                    return success;
-                }
-                catch (Exception e)
-                {
-                    AddOutputMessage($"Error: {e.Message}");
-                    Logger.Error(e, "Execute exception");
-                    TryCount--;
-                    return false;
-                }
+                return await DoExecute();
             }
-            return false;
+            catch (Exception e)
+            {
+                AddOutputMessage($"Error: {e.Message}");
+                throw;
+            }
         }
 
-        private async Task<bool> InternalExecute()
+        private async Task<bool> DoExecute()
         {
             bool result;
             ProgressDuration = TimeSpan.FromTicks(_exportMediaList.Sum(e => e.Duration.Ticks));

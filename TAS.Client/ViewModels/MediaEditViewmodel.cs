@@ -402,15 +402,12 @@ namespace TAS.Client.ViewModels
             if (_isVolumeChecking)
                 return;
             IsVolumeChecking = true;
-            IFileManager fileManager = _mediaManager.FileManager;
-            ILoudnessOperation operation = fileManager.CreateLoudnessOperation();
-            operation.Source = Model;
-            operation.MeasureStart = TcPlay - TcStart;
-            operation.MeasureDuration = DurationPlay;
+            var fileManager = _mediaManager.FileManager;
+            var operation = fileManager.CreateLoudnessOperation(Model, TcPlay-TcStart, DurationPlay);
             operation.AudioVolumeMeasured += _audioVolumeMeasured;
             operation.Finished += _audioVolumeFinished;
             _checkVolumeSignal = new AutoResetEvent(false);
-            fileManager.Queue(operation, true);
+            fileManager.Queue(operation);
         }
 
         private void _audioVolumeFinished(object sender, EventArgs e)

@@ -28,18 +28,15 @@ namespace TAS.Server.Media
                 && archived.FileExists())
             {
                 if (deleteAfterSuccess)
-                {
-                    MediaManager.FileManager.Queue(new FileOperation((FileManager)MediaManager.FileManager) { Kind = TFileOperationKind.Delete, Source = media },
-                        false);
-                }
+                    MediaManager.FileManager.Queue(new FileOperation((FileManager)MediaManager.FileManager) { Kind = TFileOperationKind.Delete, Source = media });
             }
             else
-                _archiveCopy(media, this, deleteAfterSuccess, false);
+                _archiveCopy(media, this, deleteAfterSuccess);
         }
 
-        public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory, bool toTop)
+        public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory)
         {
-            _archiveCopy((MediaBase)srcMedia, destDirectory, false, toTop);
+            _archiveCopy((MediaBase)srcMedia, destDirectory, false);
         }
 
         public ulong IdArchive { get; set; }
@@ -84,6 +81,7 @@ namespace TAS.Server.Media
                 MediaStatus = TMediaStatus.Required,
             };
             result.CloneMediaProperties(mediaProperties);
+            AddMedia(result);
             return result;
         }
 
@@ -92,12 +90,12 @@ namespace TAS.Server.Media
             return DateTime.UtcNow.ToString("yyyyMM");
         }
 
-        private void _archiveCopy(IMedia fromMedia, IMediaDirectory destDirectory, bool deleteAfterSuccess, bool toTop)
+        private void _archiveCopy(IMedia fromMedia, IMediaDirectory destDirectory, bool deleteAfterSuccess)
         {
             var operation = new FileOperation((FileManager)MediaManager.FileManager) { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, Source = fromMedia, DestDirectory = destDirectory };
             operation.Success += _archiveCopy_success;
             operation.Failure += _archiveCopy_failure;
-            MediaManager.FileManager.Queue(operation, toTop);
+            MediaManager.FileManager.Queue(operation);
         }
 
         private void _archiveCopy_failure(object sender, EventArgs e)

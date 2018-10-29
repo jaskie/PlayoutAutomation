@@ -378,7 +378,7 @@ namespace TAS.Server.Media
                     Source = this,
                     MeasureStart = TcPlay - TcStart,
                     MeasureDuration = DurationPlay
-                }, false);
+                });
         }
 
         protected override void DoDispose()

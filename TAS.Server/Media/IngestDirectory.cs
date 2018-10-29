@@ -13,7 +13,6 @@ using System.Xml;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.XDCAM;
@@ -44,22 +43,24 @@ namespace TAS.Server.Media
 
         public override void Initialize()
         {
-            if (Folder.StartsWith("ftp://"))
+            if (!string.IsNullOrWhiteSpace(Folder))
             {
-                AccessType = TDirectoryAccessType.FTP;
-                IsInitialized = true;
-            }
-            else
-            if (Kind == TIngestDirectoryKind.XDCAM || IsWAN)
-            {
-                IsInitialized = true;
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(Username)
-                    || _connectToRemoteDirectory())
-                    if (IsImport && (!IsWAN || !string.IsNullOrWhiteSpace(_filter)))
-                        BeginWatch(_filter, IsRecursive, TimeSpan.Zero);
+                if (Folder.StartsWith("ftp://"))
+                {
+                    AccessType = TDirectoryAccessType.FTP;
+                    IsInitialized = true;
+                }
+                else if (Kind == TIngestDirectoryKind.XDCAM || IsWAN)
+                {
+                    IsInitialized = true;
+                }
+                else
+                {
+                    if (string.IsNullOrWhiteSpace(Username)
+                        || _connectToRemoteDirectory())
+                        if (IsImport && (!IsWAN || !string.IsNullOrWhiteSpace(_filter)))
+                            BeginWatch(_filter, IsRecursive, TimeSpan.Zero);
+                }
             }
             _subDirectories?.ToList().ForEach(d =>
             {

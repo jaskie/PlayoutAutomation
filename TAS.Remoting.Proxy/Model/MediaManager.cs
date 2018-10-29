@@ -100,7 +100,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public void ReloadIngestDirs()
+        public void LoadIngestDirs()
         {
             Invoke();
         }

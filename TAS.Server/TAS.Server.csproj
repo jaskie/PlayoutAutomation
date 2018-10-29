@@ -63,6 +63,7 @@
     <Compile Include="CasparServer.cs" />
     <Compile Include="CasparServerChannel.cs" />
     <Compile Include="CommandScriptEvent.cs" />
+    <Compile Include="FileOperationQueue.cs" />
     <Compile Include="IngestOperation.cs" />
     <Compile Include="Dependencies\TargaImage.cs" />
     <Compile Include="Engine.cs" />

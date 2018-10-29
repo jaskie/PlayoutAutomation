@@ -31,7 +31,6 @@ namespace TAS.Server
         private readonly object _lockSynchronizeMediaSecToPri = new object();
         private readonly object _lockSynchronizeAnimationsSecToPri = new object();
         private List<IngestDirectory> _ingestDirectories;
-        private bool _ingestDirectoriesLoaded;
         private bool _isSynchronizedMediaSecToPri;
         private bool _isSynchronizedAnimationsSecToPri;
 
@@ -126,12 +125,12 @@ namespace TAS.Server
             if (adir != null)
                 adir.PropertyChanged += _onAnimationDirectoryPropertyChanged;
 
-            _loadIngestDirs(Path.Combine(Directory.GetCurrentDirectory(), ConfigurationManager.AppSettings["IngestFolders"]));
+            LoadIngestDirs();
             Debug.WriteLine(this, "End initializing");
             Logger.Debug("End initializing");
         }
 
-        public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool toTop)
+        public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList)
         {
             foreach (IMedia sourceMedia in mediaList)
             {
@@ -139,7 +138,7 @@ namespace TAS.Server
                     MediaDirectoryPRV != null && MediaDirectoryPRV.DirectoryExists() ? MediaDirectoryPRV :
                         null;
                 if (sourceMedia is PersistentMedia && destDir != null && destDir != sourceMedia.Directory)
-                    _fileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Copy, Source = sourceMedia, DestDirectory = destDir }, toTop);
+                    _fileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Copy, Source = sourceMedia, DestDirectory = destDir });
             }
         }
 
@@ -202,17 +201,16 @@ namespace TAS.Server
                     _export(e, directory, mXFAudioExportFormat, mXFVideoExportFormat);
         }
 
-        public void ReloadIngestDirs()
+        public void LoadIngestDirs()
         {
-            _loadIngestDirs(ConfigurationManager.AppSettings["IngestFolders"]);
-            Debug.WriteLine(this, "IngestDirectories reloaded");
+            _loadIngestDirs(Path.Combine(Directory.GetCurrentDirectory(), ConfigurationManager.AppSettings["IngestFolders"]));
+            Debug.WriteLine(this, "IngestDirectories loaded");
         }
 
         public void UnloadIngestDirs()
         {
-            foreach (IngestDirectory d in _ingestDirectories)
+            foreach (var d in _ingestDirectories)
                 d.Dispose();
-            _ingestDirectoriesLoaded = false;
             _ingestDirectories = null;
         }
 
@@ -382,15 +380,14 @@ namespace TAS.Server
         {
             if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
             {
-                if (_ingestDirectoriesLoaded)
+                if (_ingestDirectories != null)
                     return;
-                XmlSerializer reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
-                using (StreamReader file = new StreamReader(fileName))
+                var reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute(nameof(IngestDirectories)));
+                using (var file = new StreamReader(fileName))
                     _ingestDirectories = ((List<IngestDirectory>)reader.Deserialize(file)).ToList();
             }
             else _ingestDirectories = new List<IngestDirectory>();
-            _ingestDirectoriesLoaded = true;
-            foreach (IngestDirectory d in _ingestDirectories)
+            foreach (var d in _ingestDirectories)
             {
                 d.MediaManager = this;
                 d.Initialize();
@@ -512,7 +509,7 @@ namespace TAS.Server
             if (!(sender is CasparRecorder recorder))
                 return;
             if ((recorder.RecordingDirectory == MediaDirectorySEC || recorder.RecordingDirectory != MediaDirectoryPRV) && recorder.RecordingDirectory != MediaDirectoryPRI)
-                CopyMediaToPlayout(new[] { e.Media }, true);
+                CopyMediaToPlayout(new[] { e.Media });
         }
 
         private MediaDeleteResult _deleteMedia(IMedia media, bool forceDelete)
@@ -565,7 +562,7 @@ namespace TAS.Server
                 return;
             sEcMedia = sec.FindMediaFirst(sm => e.Media.FileSize == sm.FileSize && e.Media.FileName == sm.FileName && sm.FileExists()) as MediaBase;
             if (sEcMedia == null)
-                FileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Copy, Source = e.Media, DestDirectory = sec }, false);
+                FileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Copy, Source = e.Media, DestDirectory = sec });
             else
             {
                 sEcMedia.CloneMediaProperties(e.Media);
@@ -582,7 +579,7 @@ namespace TAS.Server
             {
                 var mediaToDelete = ((WatcherDirectory)MediaDirectorySEC).FindMediaByMediaGuid(e.Media.MediaGuid);
                 if (mediaToDelete != null && mediaToDelete.FileExists())
-                    FileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Delete, Source = mediaToDelete }, false);
+                    FileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Delete, Source = mediaToDelete });
             }
         }
 

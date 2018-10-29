@@ -467,18 +467,24 @@ namespace TAS.Client.ViewModels
         private async void _reloadFiles()
         {
             UiServices.SetBusyState();
+            
             await Task.Run(async () =>
             {
                 if (SelectedDirectory.Directory is IArchiveDirectory archiveDirectory)
                 {
-                    _setMediaItems(new ObservableCollection<MediaViewViewmodel>(archiveDirectory
-                        .Search(MediaCategory as TMediaCategory?, "").Select(f => new MediaViewViewmodel(f))));
+                    var mediaItems = archiveDirectory.Search(MediaCategory as TMediaCategory?, "");
+                    OnUiThread(() =>
+                    {
+                        _setMediaItems(new ObservableCollection<MediaViewViewmodel>(mediaItems.Select(f => new MediaViewViewmodel(f))));
+                    });
                 }
                 else if (SelectedDirectory.Directory is IWatcherDirectory dir && !SelectedDirectory.IsWan)
                 {
-                    _setMediaItems(
-                        new ObservableCollection<MediaViewViewmodel>(dir.GetFiles()
-                            .Select(f => new MediaViewViewmodel(f))));
+                    var mediaItems = dir.GetFiles();
+                    OnUiThread(() =>
+                    {
+                        _setMediaItems(new ObservableCollection<MediaViewViewmodel>(mediaItems.Select(f => new MediaViewViewmodel(f))));
+                    });
                     if (SelectedDirectory.IsXdcam && !SelectedDirectory.IsWan)
                         await _refreshMediaDirectory();
                 }
@@ -678,7 +684,7 @@ namespace TAS.Client.ViewModels
             if (_selectedDirectory.IsIngestDirectory)
                 _ingestSelectionToDir();
             else
-                _mediaManager.CopyMediaToPlayout(_getSelections(), true);
+                _mediaManager.CopyMediaToPlayout(_getSelections());
         }
 
         private bool _canSearch(object o)

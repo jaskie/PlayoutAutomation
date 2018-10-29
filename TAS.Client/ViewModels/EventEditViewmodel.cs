@@ -620,13 +620,10 @@ namespace TAS.Client.ViewModels
                 return;
             IsVolumeChecking = true;
             var fileManager = Model.Engine.MediaManager.FileManager;
-            var operation = fileManager.CreateLoudnessOperation();
-            operation.Source = Model.Media;
-            operation.MeasureStart = Model.ScheduledTc - _media.TcStart;
-            operation.MeasureDuration = Model.Duration;
+            var operation = fileManager.CreateLoudnessOperation(Model.Media, Model.ScheduledTc - _media.TcStart, Model.Duration);
             operation.AudioVolumeMeasured += _audioVolumeMeasured;
             operation.Finished += _audioVolumeFinished;
-            fileManager.Queue(operation, true);
+            fileManager.Queue(operation);
         }
 
         private void _audioVolumeFinished(object sender, EventArgs e)

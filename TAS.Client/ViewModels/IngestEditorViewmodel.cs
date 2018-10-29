@@ -29,7 +29,7 @@ namespace TAS.Client.ViewModels
             foreach (IngestOperationViewModel c in OperationList)
             {
                 c.Apply();
-                _engine.MediaManager?.FileManager?.Queue(c.FileOperation, false);
+                _engine.MediaManager?.FileManager?.Queue(c.FileOperation);
             }
         }
 
