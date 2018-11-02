@@ -154,7 +154,7 @@ namespace TAS.Client.ViewModels
                 }
                 var media = value?.Media;
                 if (media is IIngestMedia && !media.IsVerified)
-                    media.Verify();
+                    Task.Run(() => media.Verify());
                 if (PreviewViewmodel != null)
                     PreviewViewmodel.SelectedMedia = media;
                 EditMedia = _selectedMedia == null ? null : new MediaEditViewmodel(_selectedMedia.Media, _mediaManager, true);
@@ -488,6 +488,10 @@ namespace TAS.Client.ViewModels
                     if (SelectedDirectory.IsXdcam && !SelectedDirectory.IsWan)
                         await _refreshMediaDirectory();
                 }
+                else
+                {
+                    _setMediaItems(null);
+                }
             });
         }
         private void _setMediaItems(ObservableCollection<MediaViewViewmodel> items)
@@ -499,12 +503,14 @@ namespace TAS.Client.ViewModels
             if (oldMediaItems != null)
                 foreach (var m in oldMediaItems)
                     m.Dispose();
-            MediaItemsView = CollectionViewSource.GetDefaultView(items);
+            SelectedMedia = null;
+            MediaItemsView = items == null ? null : CollectionViewSource.GetDefaultView(items);
+            if (items == null)
+                return;
             MediaItemsView.Filter = _filter;
             if (!SelectedDirectory.IsXdcam)
                 MediaItemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated),
                     ListSortDirection.Descending));
-            SelectedMedia = null;
         }
 
         private void _selectedDirectoryMediaAdded(object source, MediaEventArgs e)
@@ -696,18 +702,14 @@ namespace TAS.Client.ViewModels
                    || (dir is IIngestDirectory && (!((IIngestDirectory)dir).IsWAN || _searchText.Length >= MinSearchLength));
         }
 
-        private void _search(object o)
+        private async void _search(object o)
         {
             var dir = _selectedDirectory?.Directory;
             if (dir is IArchiveDirectory archiveDirectory)
-            {
-                _setMediaItems(new ObservableCollection<MediaViewViewmodel>(archiveDirectory.Search(_mediaCategory as TMediaCategory?, _searchText).Select(m => new MediaViewViewmodel(m))));
-            }
+                _setMediaItems(new ObservableCollection<MediaViewViewmodel>((await Task.Run(() => archiveDirectory.Search(_mediaCategory as TMediaCategory?, _searchText))).Select(m => new MediaViewViewmodel(m))));
             else
             if (dir is IIngestDirectory ingestDirectory && ingestDirectory.IsWAN)
-            {
-                _setMediaItems(new ObservableCollection<MediaViewViewmodel>(ingestDirectory.Search(_mediaCategory as TMediaCategory?, _searchText).Select(m => new MediaViewViewmodel(m))));
-            }
+                _setMediaItems(new ObservableCollection<MediaViewViewmodel>((await Task.Run(() => ingestDirectory.Search(_mediaCategory as TMediaCategory?, _searchText))).Select(m => new MediaViewViewmodel(m))));
             else
                 MediaItemsView?.Refresh();
             NotifyPropertyChanged(nameof(ItemsCount));

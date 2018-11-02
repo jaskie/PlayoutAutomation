@@ -353,7 +353,6 @@ namespace TAS.Server.Media
             if (!(media is MediaBase mediaBase))
                 throw new ApplicationException("Invalid type provided to AddMedia");
             base.AddMedia(media);
-            mediaBase.Directory = this;
             mediaBase.PropertyChanged += _media_PropertyChanged;
             lock (((IDictionary) Files).SyncRoot)
             {

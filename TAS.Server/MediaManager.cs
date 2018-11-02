@@ -194,7 +194,7 @@ namespace TAS.Server
             
             if (asSingleFile)
             {
-                _fileManager.Queue(new ExportOperation(_fileManager) { ExportMediaList = exportList, DestMediaName = singleFilename, DestDirectory = directory as IngestDirectory, MXFAudioExportFormat = mXFAudioExportFormat, MXFVideoExportFormat = mXFVideoExportFormat });
+                _fileManager.Queue(new ExportOperation(_fileManager) { ExportMediaList = exportList, DestProperties = new MediaProxy{FileName = singleFilename, VideoFormat = Engine.VideoFormat, MediaName = Path.GetFileNameWithoutExtension(singleFilename)}, DestDirectory = directory as IngestDirectory, MXFAudioExportFormat = mXFAudioExportFormat, MXFVideoExportFormat = mXFVideoExportFormat });
             }
             else
                 foreach (MediaExportDescription e in exportList)
@@ -544,7 +544,7 @@ namespace TAS.Server
         
         private void _export(MediaExportDescription export, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat)
         {
-            _fileManager.Queue(new ExportOperation(_fileManager) { Source = export.Media, ExportMediaList = new[] { export }, DestMediaName = export.Media.MediaName, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory, MXFAudioExportFormat = mXFAudioExportFormat, MXFVideoExportFormat = mXFVideoExportFormat });
+            _fileManager.Queue(new ExportOperation(_fileManager) { Source = export.Media, ExportMediaList = new[] { export }, DestProperties = export.Media, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory, MXFAudioExportFormat = mXFAudioExportFormat, MXFVideoExportFormat = mXFVideoExportFormat });
         }
 
         private void _mediaPRIVerified(object o, MediaEventArgs e)

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace TAS.Server
 {
@@ -18,7 +19,7 @@ namespace TAS.Server
         protected readonly Regex RegexProgress = new Regex(ProgressPattern, RegexOptions.None);
         protected TimeSpan ProgressDuration;
        
-        protected bool RunProcess(string parameters)
+        protected async Task<bool> RunProcess(string parameters)
         {
             //create a process info
             var oInfo = new ProcessStartInfo(FFmpegExe, parameters)
@@ -31,35 +32,38 @@ namespace TAS.Server
             //try the process
             Debug.WriteLine(parameters, "Starting ffmpeg:");
             AddOutputMessage($"ffmpeg.exe {parameters}");
-            try
+            return await Task.Run(() =>
             {
-                using (var procFFmpeg = Process.Start(oInfo))
+                try
                 {
-                    if (procFFmpeg == null)
-                        return false;
-                    procFFmpeg.PriorityClass = ProcessPriorityClass.BelowNormal;
-                    procFFmpeg.ErrorDataReceived += ProcOutputHandler;
-                    procFFmpeg.BeginErrorReadLine();
-                    var finished = false;
-                    while (!(IsAborted || finished))
-                        finished = procFFmpeg.WaitForExit(1000);
-                    if (!IsAborted)
+                    using (var procFFmpeg = Process.Start(oInfo))
+                    {
+                        if (procFFmpeg == null)
+                            return false;
+                        procFFmpeg.PriorityClass = ProcessPriorityClass.BelowNormal;
+                        procFFmpeg.ErrorDataReceived += ProcOutputHandler;
+                        procFFmpeg.BeginErrorReadLine();
+                        var finished = false;
+                        while (!(IsAborted || finished))
+                            finished = procFFmpeg.WaitForExit(1000);
+                        if (!IsAborted)
+                            return finished && procFFmpeg.ExitCode == 0;
+                        procFFmpeg.Kill();
+                        Thread.Sleep(1000);
+                        var destMedia = Dest;
+                        if (destMedia != null)
+                            System.IO.File.Delete(destMedia.FullPath);
+                        Debug.WriteLine(this, "Aborted");
                         return finished && procFFmpeg.ExitCode == 0;
-                    procFFmpeg.Kill();
-                    Thread.Sleep(1000);
-                    var destMedia = Dest;
-                    if (destMedia != null)
-                        System.IO.File.Delete(destMedia.FullPath);
-                    Debug.WriteLine(this, "Aborted");
-                    return finished && procFFmpeg.ExitCode == 0;
+                    }
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.Message, "Error running FFmpeg process");
-                AddOutputMessage(e.ToString());
-                return false;
-            }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message, "Error running FFmpeg process");
+                    AddOutputMessage(e.ToString());
+                    return false;
+                }
+            });
         }
 
         protected virtual void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)

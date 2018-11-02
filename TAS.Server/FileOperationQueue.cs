@@ -63,8 +63,14 @@ namespace TAS.Server
                 lock (_queueLock)
                 {
                     _currentOperation = null;
-                    if (!success && operation.TryCount > 0 && !operation.IsAborted)
-                        _queue.Enqueue(operation);
+                    if (!operation.IsAborted)
+                        if (!success)
+                        {
+                            if (operation.TryCount > 0)
+                                _queue.Enqueue(operation);
+                            else
+                                operation.OperationStatus = FileOperationStatus.Failed;
+                        }
                 }
                 if (!success)
                 {

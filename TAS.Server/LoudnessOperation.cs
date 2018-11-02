@@ -55,18 +55,18 @@ namespace TAS.Server
                 {
                     if (!await source.CopyMediaTo(localSourceMedia, CancellationTokenSource.Token))
                         return false;
-                    return DoExecute(localSourceMedia);
+                    return await DoExecute(localSourceMedia);
                 }
 
-            return DoExecute(source);
+            return await DoExecute(source);
         }
 
-        private bool DoExecute(MediaBase inputMedia)
+        private async Task<bool> DoExecute(MediaBase inputMedia)
         {
             Debug.WriteLine(this, "Loudness operation started");
             string Params = $"-nostats -i \"{inputMedia.FullPath}\" -ss {MeasureStart} -t {(MeasureDuration == TimeSpan.Zero ? inputMedia.DurationPlay : MeasureDuration)} -filter_complex ebur128=peak=sample -f null -";
 
-            if (RunProcess(Params))
+            if (await RunProcess(Params))
             {
                 Debug.WriteLine(this, "Loudness operation succeed");
                 OperationStatus = FileOperationStatus.Finished;

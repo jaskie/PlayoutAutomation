@@ -195,7 +195,7 @@ namespace TAS.Server.Media
         }
         
         [JsonProperty]
-        public Guid MediaGuid
+        public virtual Guid MediaGuid
         {
             get => _mediaGuid;
             set => SetField(ref _mediaGuid, value);
@@ -333,7 +333,9 @@ namespace TAS.Server.Media
 
         public virtual void Verify()
         {
-            if (IsVerified || (_mediaStatus == TMediaStatus.Copying) || (_mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required))
+            if (IsVerified || 
+                _mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required || 
+                (Directory is IngestDirectory ingestDirectory && ingestDirectory.AccessType != TDirectoryAccessType.Direct))
                 return;
             if (Directory != null && System.IO.Directory.Exists(Directory.Folder) && !File.Exists(FullPath))
             {

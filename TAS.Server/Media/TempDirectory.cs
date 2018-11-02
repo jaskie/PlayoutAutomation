@@ -12,12 +12,12 @@ namespace TAS.Server.Media
         public TempDirectory()
         {
             Folder = ConfigurationManager.AppSettings["TempDirectory"];
+            DirectoryName = "TEMP";
             SweepStaleMedia();
         }
 
         public override void RemoveMedia(IMedia media)
         {
-            throw new NotImplementedException();
         }
 
         internal override IMedia CreateMedia(IMediaProperties media)

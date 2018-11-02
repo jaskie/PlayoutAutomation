@@ -4,10 +4,25 @@ namespace TAS.Server.XDCAM
 {
     public class MediaProfile
     {
-        public Material[] Contents;
+        public XdcamMaterial[] Contents;
+        public ProfileProperties Properties;
     }
 
-    public class Material
+    public class ProfileProperties
+    {
+        public SystemDescription System;
+    }
+
+    public class SystemDescription
+    {
+        [XmlAttribute]
+        public string systemId;
+        [XmlAttribute]
+        public string systemKind;
+    }
+
+    [XmlType("Material")]
+    public class XdcamMaterial
     {
         [XmlAttribute]
         public string uri;

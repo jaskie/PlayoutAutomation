@@ -15,7 +15,6 @@ using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
-using TAS.Server.XDCAM;
 
 namespace TAS.Server.Media
 {
@@ -246,11 +245,10 @@ namespace TAS.Server.Media
                     // ignored
                 }
         }
-
-
+        
         internal override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException();
         }
 
         internal override bool DeleteMedia(IMedia media)
@@ -307,13 +305,14 @@ namespace TAS.Server.Media
             IngestMedia media;
             if (Kind == TIngestDirectoryKind.XDCAM)
             {
-                throw new NotImplementedException();
+                throw new InvalidOperationException();
             }
             else
             {
                 var relativeName = fullPath.Substring(Folder.Length);
                 var fileName = Path.GetFileName(fullPath);
                 var mediaType = FileUtils.GetMediaType(fileName);
+                var isVerified = AccessType == TDirectoryAccessType.FTP && Kind != TIngestDirectoryKind.XDCAM;
                 media = new IngestMedia
                 {
                     MediaName = FileUtils.GetFileNameWithoutExtension(fileName, mediaType),
@@ -321,11 +320,29 @@ namespace TAS.Server.Media
                     MediaType = mediaType,
                     FileName = fileName,
                     Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
-                    MediaStatus = TMediaStatus.Unknown,
+                    MediaStatus = isVerified ? TMediaStatus.Available : TMediaStatus.Unknown,
+                    IsVerified = isVerified
                 };
             }
             AddMedia(media);
             return media;
+        }
+
+        public override void AddMedia(IMedia media)
+        {
+            if (IsWAN && media is MediaBase mediaBase)
+            {
+                mediaBase.Directory = this;
+                return;
+            }
+            base.AddMedia(media);
+        }
+
+        public List<IMedia> Search(TMediaCategory? category, string searchString)
+        {
+            var result = new List<IMedia>();
+            SearchForMedia(ref result, Folder, searchString, CancellationToken.None);
+            return result;
         }
 
         protected override void OnError(object source, ErrorEventArgs e)
@@ -425,7 +442,7 @@ namespace TAS.Server.Media
             return Extensions == null
                    || Extensions.Length == 0
                    || Extensions.Any(e => e == ext)
-                   || (Kind == TIngestDirectoryKind.XDCAM && ext == Smil.FileExtension);
+                   || (Kind == TIngestDirectoryKind.XDCAM && ext ==XDCAM.Smil.FileExtension);
         }
 
         protected override void FileRemoved(string fullPath)
@@ -455,11 +472,14 @@ namespace TAS.Server.Media
                     try
                     {
                         using (var stream = client.OpenRead(documentName))
+                        {
                             xMlDoc.Load(stream);
+                        }
                     }
                     catch (FtpCommandException e)
                     {
                         Logger.Error(e);
+                        throw;
                     }
                     break;
             }
@@ -539,87 +559,85 @@ namespace TAS.Server.Media
             return false;
         }
 
-        private async void _readXDCAM(XdcamClient client)
+        private void _readXDCAM(XdcamClient client)
         {
             try
             {
-                await Task.Run(() =>
+                var mediaProfile = XDCAM.SerializationHelper<XDCAM.MediaProfile>.Deserialize(ReadXmlDocument("MEDIAPRO.XML", client));
+                if (mediaProfile == null)
+                    return;
+                ClearFiles();
+                XdcamClipCount = mediaProfile.Contents.Length;
+                var index = 0;
+                foreach (var material in mediaProfile.Contents)
                 {
-                    var mediaProfile =
-                        XDCAM.SerializationHelper<XDCAM.MediaProfile>.Deserialize(ReadXmlDocument("MEDIAPRO.XML",
-                            client));
-                    if (mediaProfile == null)
-                        return;
-                    ClearFiles();
-                    XdcamClipCount = mediaProfile.Contents.Length;
-                    var index = 0;
-                    foreach (var material in mediaProfile.Contents)
+                    var format = TVideoFormat.Other;
+                    switch (material.videoType)
                     {
-                        var format = TVideoFormat.Other;
-                        switch (material.videoType)
-                        {
-                            case XDCAM.VideoType.Dv25:
-                            case XDCAM.VideoType.Imx30:
-                            case XDCAM.VideoType.Imx40:
-                            case XDCAM.VideoType.Imx50:
-                                switch (material.fps)
-                                {
-                                    case XDCAM.Fps.Fps50I:
-                                        format = material.aspectRatio == XDCAM.AspectRatio.Narrow
-                                            ? TVideoFormat.PAL
-                                            : TVideoFormat.PAL_FHA;
-                                        break;
-                                    case XDCAM.Fps.Fps5994I:
-                                        format = material.aspectRatio == XDCAM.AspectRatio.Narrow
-                                            ? TVideoFormat.NTSC
-                                            : TVideoFormat.NTSC_FHA;
-                                        break;
-                                }
-                                break;
-                            case XDCAM.VideoType.Hd1080Cbr50:
-                            case XDCAM.VideoType.Hd1080Cbr35:
-                                switch (material.fps)
-                                {
-                                    case XDCAM.Fps.Fps5994I:
-                                        format = TVideoFormat.HD1080i5994;
-                                        break;
-                                    case XDCAM.Fps.Fps50I:
-                                        format = TVideoFormat.HD1080i5000;
-                                        break;
-                                    case XDCAM.Fps.Fps2997P:
-                                        format = TVideoFormat.HD1080p2997;
-                                        break;
-                                    case XDCAM.Fps.Fps5994P:
-                                        format = TVideoFormat.HD1080p5994;
-                                        break;
-                                    case XDCAM.Fps.Fps25P:
-                                        format = TVideoFormat.HD1080p2500;
-                                        break;
-                                    case XDCAM.Fps.Fps50P:
-                                        format = TVideoFormat.HD1080p5000;
-                                        break;
-                                }
-                                break;
-                        }
-                        var duration = ((long) material.dur).SMPTEFramesToTimeSpan(format);
-                        var newMedia = new XdcamMedia
-                        {
-                            MediaType = TMediaType.Movie,
-                            MediaGuid = new Guid(material.umid.Substring(32)),
-                            ClipNr = ++index,
-                            MediaName = $"{material.uri}",
-                            XdcamMaterial = material,
-                            VideoFormat = format,
-                            Duration = duration,
-                            DurationPlay = duration
-                        };
-                        AddMedia(newMedia);
+                        case XDCAM.VideoType.Dv25:
+                        case XDCAM.VideoType.Imx30:
+                        case XDCAM.VideoType.Imx40:
+                        case XDCAM.VideoType.Imx50:
+                            switch (material.fps)
+                            {
+                                case XDCAM.Fps.Fps50I:
+                                    format = material.aspectRatio == XDCAM.AspectRatio.Narrow
+                                        ? TVideoFormat.PAL
+                                        : TVideoFormat.PAL_FHA;
+                                    break;
+                                case XDCAM.Fps.Fps5994I:
+                                    format = material.aspectRatio == XDCAM.AspectRatio.Narrow
+                                        ? TVideoFormat.NTSC
+                                        : TVideoFormat.NTSC_FHA;
+                                    break;
+                            }
+                            break;
+                        case XDCAM.VideoType.Hd1080Cbr50:
+                        case XDCAM.VideoType.Hd1080Cbr35:
+                            switch (material.fps)
+                            {
+                                case XDCAM.Fps.Fps5994I:
+                                    format = TVideoFormat.HD1080i5994;
+                                    break;
+                                case XDCAM.Fps.Fps50I:
+                                    format = TVideoFormat.HD1080i5000;
+                                    break;
+                                case XDCAM.Fps.Fps2997P:
+                                    format = TVideoFormat.HD1080p2997;
+                                    break;
+                                case XDCAM.Fps.Fps5994P:
+                                    format = TVideoFormat.HD1080p5994;
+                                    break;
+                                case XDCAM.Fps.Fps25P:
+                                    format = TVideoFormat.HD1080p2500;
+                                    break;
+                                case XDCAM.Fps.Fps50P:
+                                    format = TVideoFormat.HD1080p5000;
+                                    break;
+                            }
+                            break;
                     }
-                });
+                    var duration = ((long) material.dur).SMPTEFramesToTimeSpan(format);
+                    var fileName = material.uri;
+                    var newMedia = new XDCAM.XdcamMedia
+                    {
+                        MediaType = TMediaType.Movie,
+                        MediaGuid = new Guid(material.umid.Substring(32)),
+                        ClipNr = ++index,
+                        FileName = Path.GetFileName(fileName),
+                        MediaName = Path.GetFileNameWithoutExtension(fileName),
+                        XdcamMaterial = material,
+                        VideoFormat = format,
+                        Duration = duration,
+                        DurationPlay = duration
+                    };
+                    AddMedia(newMedia);
+                }
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message);
+                throw;
             }
         }
 
@@ -644,18 +662,18 @@ namespace TAS.Server.Media
         {
             try
             {
-                FtpClient _ftpClient = GetFtpClient();
-                Uri uri = new Uri(Folder, UriKind.Absolute);
+                var ftpClient = GetFtpClient();
+                var uri = new Uri(Folder, UriKind.Absolute);
                 try
                 {
-                    _ftpClient.Connect();
+                    ftpClient.Connect();
                     ClearFiles();
-                    foreach (var file in _ftpClient.GetListing(uri.LocalPath))
-                        _ftpAddFileFromPath(_ftpClient, uri.LocalPath, "", file);
+                    foreach (var file in ftpClient.GetListing(uri.LocalPath))
+                        _ftpAddFileFromPath(ftpClient, uri.LocalPath, "", file);
                 }
                 finally
                 {
-                    _ftpClient.Disconnect();
+                    ftpClient.Disconnect();
                 }
             }
             catch (Exception ex)
@@ -664,12 +682,26 @@ namespace TAS.Server.Media
             }
         }
 
+        private void SearchForMedia(ref List<IMedia> result, string directory, string filter, CancellationToken cancellationToken)
+        {
+            var files = new DirectoryInfo(directory).EnumerateFiles(string.IsNullOrWhiteSpace(filter) ? "*" : $"*{filter}*");
+            foreach (var f in files)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+                var m = AddMediaFromPath(f.FullName, f.LastWriteTimeUtc);
+                if (m == null)
+                    continue;
+                result.Add(m);
+            }
+            if (!IsRecursive) return;
+            var directories = new DirectoryInfo(directory).EnumerateDirectories();
+            foreach (var d in directories)
+                SearchForMedia(ref result, d.FullName, filter, cancellationToken);
+        }
+        
         #endregion
 
-        public List<IMedia> Search(TMediaCategory? category, string searchString)
-        {
-            throw new NotImplementedException();
-        }
     }
 
 }

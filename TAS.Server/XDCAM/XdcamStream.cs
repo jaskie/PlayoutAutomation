@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Net.FtpClient;
 using System.Threading;
-using System.Threading.Tasks;
 using TAS.Server.Media;
 
 namespace TAS.Server.XDCAM

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
+using NLog;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Server.Media;
@@ -24,8 +25,8 @@ namespace TAS.Server
         private const string Pcm16Le8Ch = "-acodec pcm_s16le -ar 48000 -ac 2 -d10_channelcount 8";
 
         private ulong _progressFileSize;
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ExportOperation));
         private readonly List<MediaExportDescription> _exportMediaList = new List<MediaExportDescription>();
+        private static readonly Logger Logger = LogManager.GetLogger(nameof(ExportOperation));
 
         internal ExportOperation(FileManager fileManager) : base(fileManager)
         {
@@ -48,8 +49,6 @@ namespace TAS.Server
         public TimeSpan Duration { get; set; }
 
         public double AudioVolume { get; set; }
-
-        public string DestMediaName { get; set; }
 
         public TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
 
@@ -82,40 +81,47 @@ namespace TAS.Server
             AddOutputMessage("Refreshing destination directory content");
             if (!(DestDirectory is IngestDirectory destDirectory))
                 throw new InvalidOperationException("Can only export to IngestDirectory");
-            if (destDirectory.Kind == TIngestDirectoryKind.XDCAM)
-                destDirectory.Refresh();
-
             if (destDirectory.AccessType == TDirectoryAccessType.FTP)
             {
-                using (var localDestMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(Source))
+                using (var localDestMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(Source))
                 {
-                    Dest = _createDestMedia();
-                    Dest.PropertyChanged += destMedia_PropertyChanged;
-                    try
+                    result = await Encode(destDirectory, localDestMedia.FullPath);
+                    if (result)
                     {
-                        result = Encode(destDirectory, localDestMedia.FullPath);
-                        if (result)
+                        _progressFileSize = (ulong) (new FileInfo(localDestMedia.FullPath)).Length;
+                        Dest = _createDestMedia();
+                        Dest.PropertyChanged += destMedia_PropertyChanged;
+                        try
                         {
-                            _progressFileSize = (ulong)(new FileInfo(localDestMedia.FullPath)).Length;
+
                             AddOutputMessage($"Transfering file to device as {Dest.FileName}");
                             result = await localDestMedia.CopyMediaTo(Dest, CancellationTokenSource.Token);
+                            if (result)
+                                Dest.MediaStatus = TMediaStatus.Available;
                         }
-                    }
 
-                    finally
-                    {
-                        Dest.PropertyChanged -= destMedia_PropertyChanged;
+                        finally
+                        {
+                            Dest.PropertyChanged -= destMedia_PropertyChanged;
+                        }
                     }
                 }
             }
             else
             {
                 Dest = _createDestMedia();
-                result = Encode(destDirectory, Dest.FullPath);
+                result = await Encode(destDirectory, Dest.FullPath);
+                if (result)
+                    Dest.MediaStatus = TMediaStatus.Copied;
             }
-            Dest.MediaStatus = result ? TMediaStatus.Available : TMediaStatus.CopyError;
-            if (result) OperationStatus = FileOperationStatus.Finished;
-            return result;
+            if (!result)
+            {
+                OperationStatus = FileOperationStatus.Failed;
+                return false;
+            }
+            Dest.Verify();
+            OperationStatus = FileOperationStatus.Finished;
+            return true;
         }
 
         private IngestMedia _createDestMedia()
@@ -125,6 +131,7 @@ namespace TAS.Server
             IngestMedia result;
             if (directory.Kind == TIngestDirectoryKind.XDCAM)
             {
+                directory.Refresh();
                 var existingFiles = directory.GetFiles().Where(f =>
                     f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
                 var maxFile = existingFiles.Length == 0
@@ -145,8 +152,10 @@ namespace TAS.Server
                 result = new IngestMedia
                 {
                     FileName = FileUtils.GetUniqueFileName(directory.Folder,
-                        $"{FileUtils.SanitizeFileName(DestMediaName)}.{directory.ExportContainerFormat}"),
-                    MediaName = DestMediaName,
+                        $"{FileUtils.SanitizeFileName(DestProperties.FileName)}.{directory.ExportContainerFormat}"),
+                    MediaName = DestProperties.MediaName,
+                    Duration = DestProperties.Duration,
+                    VideoFormat = DestProperties.VideoFormat,
                     LastUpdated = DateTime.UtcNow,
                     MediaGuid = Guid.NewGuid(),
                     MediaStatus = TMediaStatus.Copying
@@ -164,7 +173,7 @@ namespace TAS.Server
                 Progress = (int)((media.FileSize * 100ul) / fs);
         }
         
-        private bool Encode(IngestDirectory directory, string outFile)
+        private async Task<bool> Encode(IngestDirectory directory, string outFile)
         {            
             Debug.WriteLine(this, "Export encode started");
             AddOutputMessage($"Encode started to file {outFile}");
@@ -193,9 +202,9 @@ namespace TAS.Server
                 complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0}]volume={1:F3}dB[a{0}]", audioIndex, e.AudioVolume));
                 index++;
                 var logos = e.Logos.ToArray();
-                for (int i = 0; i < logos.Length; i++)
+                foreach (var iMedia in logos)
                 {
-                    if (!(logos[i] is MediaBase logo))
+                    if (!(iMedia is MediaBase logo))
                         continue;
                     files.Append($" -i \"{logo.FullPath}\"");
                     var newOutputName = $"[v{index}]";
@@ -222,7 +231,7 @@ namespace TAS.Server
                 complexFilter,
                 //2
                 isXdcamDirectory || directory.ExportContainerFormat == TMovieContainerFormat.mxf ? 
-                    String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0} {1}", 
+                    string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0} {1}", 
                               MXFVideoExportFormat == TmXFVideoExportFormat.DV25 ? D10PalDv25
                             : MXFVideoExportFormat == TmXFVideoExportFormat.IMX30 ? D10PalImx30
                             : MXFVideoExportFormat == TmXFVideoExportFormat.IMX40 ? D10PalImx40
@@ -234,19 +243,20 @@ namespace TAS.Server
                     :
                     directory.ExportParams,
                 //3
-                startTimecode.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[Dest.VideoFormat].FrameRate),
+                startTimecode.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[DestProperties.VideoFormat].FrameRate),
                 //4
                 isXdcamDirectory|| directory.ExportContainerFormat == TMovieContainerFormat.mxf ? $" -metadata creation_time=\"{DateTime.UtcNow:o}\"" : string.Empty,
                 //5
                 (isXdcamDirectory || directory.ExportContainerFormat == TMovieContainerFormat.mxf) && MXFVideoExportFormat != TmXFVideoExportFormat.DV25 ? "mxf_d10" : directory.ExportContainerFormat.ToString(),
                 outFile);
-            if (RunProcess(command))
+            if (await RunProcess(command))
             {
-                Debug.WriteLine(this, "Export encode succeed");
                 AddOutputMessage("Encode finished successfully");
+                Logger.Info("Encode finished successfully");
                 return true;
             }
-            Debug.WriteLine("FFmpeg Encode(): Failed for {0}", outFile);
+            AddOutputMessage($"FFmpeg Encode(): Failed for {outFile}");
+            Logger.Warn("FFmpeg Encode(): Failed for {0}", outFile);
             return false;
         }
 

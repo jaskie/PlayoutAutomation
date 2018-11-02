@@ -123,7 +123,7 @@ namespace TAS.Server
                             localSourceMedia.Verify();
                             return DestProperties.MediaType == TMediaType.Still
                                 ? ConvertStill(localSourceMedia)
-                                : ConvertMovie(localSourceMedia, localSourceMedia.StreamInfo);
+                                : await ConvertMovie(localSourceMedia, localSourceMedia.StreamInfo);
                         }
                         finally
                         {
@@ -136,7 +136,7 @@ namespace TAS.Server
                     {
                         return DestProperties.MediaType == TMediaType.Still
                             ? ConvertStill(sourceMedia)
-                            : ConvertMovie(sourceMedia, sourceMedia.StreamInfo);
+                            : await ConvertMovie(sourceMedia, sourceMedia.StreamInfo);
                     }
                     else
                         AddOutputMessage("Waiting for media to verify");
@@ -337,7 +337,7 @@ namespace TAS.Server
             return Trim && Duration > TimeSpan.Zero && ((IngestDirectory)Source.Directory).VideoCodec != TVideoCodec.copy;
         }
 
-        private bool ConvertMovie(MediaBase localSourceMedia, StreamInfo[] streams)
+        private async Task<bool> ConvertMovie(MediaBase localSourceMedia, StreamInfo[] streams)
         {
             if (!localSourceMedia.FileExists() || streams == null)
             {
@@ -365,7 +365,7 @@ namespace TAS.Server
             if (Dest is ArchiveMedia)
                 FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));
             Dest.AudioChannelMapping = (TAudioChannelMapping)MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion].OutputFormat;
-            if (RunProcess(Params)  // FFmpeg 
+            if (await RunProcess(Params)  // FFmpeg 
                 && destMedia.FileExists())
             {
                 destMedia.MediaStatus = TMediaStatus.Copied;
