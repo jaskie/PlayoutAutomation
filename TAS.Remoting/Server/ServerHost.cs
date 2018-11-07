@@ -92,12 +92,11 @@ namespace TAS.Remoting.Server
 
         private void ClientSessionDisconnected(object sender, EventArgs e)
         {
-            if (!(sender is ServerSession serverSession))
-                return;
-            serverSession.Disconnected -= ClientSessionDisconnected;
-            serverSession.Dispose();
+            var serverSession = sender as ServerSession ?? throw new ArgumentException(nameof(sender));
             lock (((IList) _clients).SyncRoot)
                 _clients.Remove(serverSession);
+            serverSession.Disconnected -= ClientSessionDisconnected;
+            serverSession.Dispose();
         }
 
         public int ClientCount

@@ -93,7 +93,7 @@ namespace TAS.Remoting.Model
             return Query<MediaBase>(parameters: media);
         }
 
-        public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool toTop) { Invoke(parameters: new object[] { mediaList, toTop }); }
+        public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList) { Invoke(parameters: mediaList); }
 
         public void Initialize()
         {

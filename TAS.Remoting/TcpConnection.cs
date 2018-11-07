@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
@@ -11,11 +12,14 @@ namespace TAS.Remoting
     /// <summary>
     /// Class to ensure non-blocking send and preserving order of messages
     /// </summary>
-    public abstract class TcpConnection: IDisposable
+    public abstract class TcpConnection : IDisposable
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(TcpConnection));
         private int _disposed;
-        private readonly BlockingCollection<byte[]> _sendQueue = new BlockingCollection<byte[]>(new ConcurrentQueue<byte[]>(), 0x100);
+
+        private readonly BlockingCollection<byte[]> _sendQueue =
+            new BlockingCollection<byte[]>(new ConcurrentQueue<byte[]>(), 0x100);
+
         private Thread _readThread;
         private Thread _writeThread;
 
@@ -46,34 +50,29 @@ namespace TAS.Remoting
             {
                 if (_sendQueue.TryAdd(bytes))
                     return;
+                Logger.Error("Message queue overflow");
             }
             catch (Exception e) when (e is ObjectDisposedException || e is InvalidOperationException)
             {
                 // only disconnect
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Error(e);
             }
-            Disconnect();
+            Disconnected?.Invoke(this, EventArgs.Empty);
         }
 
         public bool IsConnected { get; private set; } = true;
-
-
-        public void Disconnect()
-        {
-            IsConnected = false;
-            _writeThread.Abort();
-            Disconnected?.Invoke(this, EventArgs.Empty);
-            Client.Client.Close();
-            Logger.Info("Connection closed.");
-        }
-
+        
         protected virtual void OnDispose()
         {
+            IsConnected = false;
             _sendQueue.Dispose();
-            Disconnect();
+            Client.Client.Close();
+            _readThread.Abort();
+            _writeThread.Abort();
+            Logger.Info("Connection closed.");
         }
 
         public void Dispose()
@@ -82,7 +81,7 @@ namespace TAS.Remoting
                 return;
             OnDispose();
         }
-        
+
         public void StartThreads()
         {
             _readThread = new Thread(ReadThreadProc)
@@ -103,7 +102,7 @@ namespace TAS.Remoting
 
         private void WriteThreadProc()
         {
-            while (IsConnected)
+            while (true)
             {
                 try
                 {
@@ -113,9 +112,10 @@ namespace TAS.Remoting
                     Client.Client.NoDelay = true;
                     Client.Client.Send(bytes);
                 }
-                catch (Exception e) when (e is IOException || e is ThreadAbortException ||
+                catch (Exception e) when (e is IOException || e is ThreadAbortException || e is ArgumentNullException ||
                                           e is ObjectDisposedException || e is SocketException)
                 {
+                    NotifyDisconnection();
                     return;
                 }
                 catch (Exception e)
@@ -127,53 +127,54 @@ namespace TAS.Remoting
 
         protected virtual void ReadThreadProc()
         {
-            try
+            var stream = Client.GetStream();
+            byte[] dataBuffer = null;
+            var sizeBuffer = new byte[sizeof(int)];
+            var dataIndex = 0;
+            while (true)
             {
-                var stream = Client.GetStream();
-                byte[] dataBuffer = null;
-                var sizeBuffer = new byte[sizeof(int)];
-                var dataIndex = 0;
-                while (true)
+                try
                 {
-                    try
+                    if (dataBuffer == null)
                     {
-                        if (dataBuffer == null)
+                        if (stream.Read(sizeBuffer, 0, sizeof(int)) == sizeof(int))
                         {
-                            if (stream.Read(sizeBuffer, 0, sizeof(int)) == sizeof(int))
-                            {
-                                var dataLength = BitConverter.ToInt32(sizeBuffer, 0);
-                                dataBuffer = new byte[dataLength];
-                            }
-                            dataIndex = 0;
+                            var dataLength = BitConverter.ToInt32(sizeBuffer, 0);
+                            dataBuffer = new byte[dataLength];
                         }
-                        else
-                        {
-                            dataIndex += stream.Read(dataBuffer, dataIndex, dataBuffer.Length - dataIndex);
-                            if (dataIndex == dataBuffer.Length)
-                            {
-                                OnMessage(dataBuffer);
-                                dataBuffer = null;
-                            }
-                        }
+                        dataIndex = 0;
                     }
-                    catch (Exception e) when (e is IOException || e is ThreadAbortException ||
-                                              e is ObjectDisposedException || e is SocketException)
+                    else
                     {
-                        return;
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Error(e, "Read thread unexpected exception");
-
+                        var receivedLength = stream.Read(dataBuffer, dataIndex, dataBuffer.Length - dataIndex);
+                        //Debug.WriteLine($"R2:  {receivedLength}");
+                        dataIndex += receivedLength;
+                        if (dataIndex != dataBuffer.Length)
+                            continue;
+                        OnMessage(dataBuffer);
+                        dataBuffer = null;
                     }
                 }
-            }
-            finally
-            {
-                Disconnect();
+                catch (Exception e) when (e is IOException || e is ThreadAbortException ||
+                                          e is ObjectDisposedException || e is SocketException)
+                {
+                    NotifyDisconnection();
+                    return;
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "Read thread unexpected exception");
+                }
             }
         }
 
+        private void NotifyDisconnection()
+        {
+            if (!IsConnected)
+                return;
+            Disconnected?.Invoke(this, EventArgs.Empty);
+            Debug.WriteLine("Disconnected");
+        }
 
         protected abstract void OnMessage(byte[] dataBuffer);
         

@@ -1,8 +1,9 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -15,7 +16,6 @@ using System.Threading;
 using Newtonsoft.Json;
 using delegateKey = System.Tuple<System.Guid, string>;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
 
 
@@ -36,8 +36,8 @@ namespace TAS.Remoting.Server
             _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
             _serializer = JsonSerializer.CreateDefault();
             _referenceResolver = new ReferenceResolver();
-            _referenceResolver.ReferencePropertyChanged += _referenceResolver_ReferencePropertyChanged;
-            _referenceResolver.ReferenceDisposed += _referencedObjectDisposed;
+            _referenceResolver.ReferencePropertyChanged += ReferenceResolver_ReferencePropertyChanged;
+            _referenceResolver.ReferenceDisposed += ReferencedObjectDisposed;
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.Objects;
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting);
@@ -73,7 +73,7 @@ namespace TAS.Remoting.Server
             {
                 if (message.MessageType == SocketMessage.SocketMessageType.RootQuery)
                 {
-                    _sendResponse(message, _initialObject);
+                    SendResponse(message, _initialObject);
                 }
                 else // method of particular object
                 {
@@ -83,22 +83,29 @@ namespace TAS.Remoting.Server
                         if (message.MessageType == SocketMessage.SocketMessageType.Query
                             || message.MessageType == SocketMessage.SocketMessageType.Invoke)
                         {
-                            Type objectToInvokeType = objectToInvoke.GetType();
-                            MethodInfo methodToInvoke = objectToInvokeType.GetMethods()
+                            var objectToInvokeType = objectToInvoke.GetType();
+                            var methodToInvoke = objectToInvokeType.GetMethods()
                                 .FirstOrDefault(m => m.Name == message.MemberName &&
-                                                     m.GetParameters().Length == message.ValueCount);
+                                                     m.GetParameters().Length == message.ParametersCount);
                             if (methodToInvoke != null)
                             {
                                 var parameters = DeserializeDto<SocketMessageArrayValue>(message.ValueStream);
-                                ParameterInfo[] methodParameters = methodToInvoke.GetParameters();
-                                for (int i = 0; i < methodParameters.Length; i++)
+                                var methodParameters = methodToInvoke.GetParameters();
+                                for (var i = 0; i < methodParameters.Length; i++)
                                     MethodParametersAlignment.AlignType(ref parameters.Value[i],
                                         methodParameters[i].ParameterType);
-                                object response = methodToInvoke.Invoke(objectToInvoke,
-                                    BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public, null,
-                                    parameters.Value, null);
+                                object response;
+                                try
+                                {
+                                    response = methodToInvoke.Invoke(objectToInvoke, parameters.Value);
+                                }
+                                catch (Exception e)
+                                {
+                                    SendException(message, e);
+                                    throw;
+                                }
                                 if (message.MessageType == SocketMessage.SocketMessageType.Query)
-                                    _sendResponse(message, response);
+                                    SendResponse(message, response);
                             }
                             else
                                 throw new ApplicationException(
@@ -107,14 +114,23 @@ namespace TAS.Remoting.Server
                         else if (message.MessageType == SocketMessage.SocketMessageType.Get
                                  || message.MessageType == SocketMessage.SocketMessageType.Set)
                         {
-                            PropertyInfo property = objectToInvoke.GetType().GetProperty(message.MemberName);
+                            var property = objectToInvoke.GetType().GetProperty(message.MemberName);
                             if (property != null)
                             {
                                 if (message.MessageType == SocketMessage.SocketMessageType.Get &&
                                     property.CanRead)
                                 {
-                                    object response = property.GetValue(objectToInvoke, null);
-                                    _sendResponse(message, response);
+                                    object response;
+                                    try
+                                    {
+                                        response = property.GetValue(objectToInvoke, null);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        SendException(message, e);
+                                        throw;
+                                    }
+                                    SendResponse(message, response);
                                 }
                                 else // Set
                                 {
@@ -122,7 +138,15 @@ namespace TAS.Remoting.Server
                                     {
                                         var parameter = DeserializeDto<object>(message.ValueStream);
                                         MethodParametersAlignment.AlignType(ref parameter, property.PropertyType);
-                                        property.SetValue(objectToInvoke, parameter, null);
+                                        try
+                                        {
+                                            property.SetValue(objectToInvoke, parameter, null);
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            SendException(message, e);
+                                            throw;
+                                        }
                                     }
                                     else
                                         throw new ApplicationException(
@@ -136,13 +160,13 @@ namespace TAS.Remoting.Server
                         else if (message.MessageType == SocketMessage.SocketMessageType.EventAdd
                                  || message.MessageType == SocketMessage.SocketMessageType.EventRemove)
                         {
-                            EventInfo ei = objectToInvoke.GetType().GetEvent(message.MemberName);
+                            var ei = objectToInvoke.GetType().GetEvent(message.MemberName);
                             if (ei != null)
                             {
                                 if (message.MessageType == SocketMessage.SocketMessageType.EventAdd)
-                                    _addDelegate(objectToInvoke, ei);
+                                    AddDelegate(objectToInvoke, ei);
                                 else if (message.MessageType == SocketMessage.SocketMessageType.EventRemove)
-                                    _removeDelegate(objectToInvoke, ei);
+                                    RemoveDelegate(objectToInvoke, ei);
                             }
                             else
                                 throw new ApplicationException(
@@ -151,7 +175,7 @@ namespace TAS.Remoting.Server
                     }
                     else
                     {
-                        _sendResponse(message, null);
+                        SendResponse(message, null);
                         throw new ApplicationException($"Server: unknown DTO: {message.DtoGuid} on {message}");
                     }
                 }
@@ -162,23 +186,29 @@ namespace TAS.Remoting.Server
             }
         }
 
+        private void SendException(SocketMessage message, Exception exception)
+        {
+            message.MessageType = SocketMessage.SocketMessageType.Exception;
+            SendResponse(message, new Exception(exception.Message, exception.InnerException == null ? null : new Exception(exception.InnerException.Message)));
+        }
+
         protected override void OnDispose()
         {
             base.OnDispose();
-            foreach (delegateKey d in _delegates.Keys)
+            foreach (var d in _delegates.Keys)
             {
                 var havingDelegate = _referenceResolver.ResolveReference(d.Item1);
                 if (havingDelegate == null)
                     continue;
                 var ei = havingDelegate.GetType().GetEvent(d.Item2);
-                _removeDelegate(havingDelegate, ei);
+                RemoveDelegate(havingDelegate, ei);
             }
-            _referenceResolver.ReferencePropertyChanged -= _referenceResolver_ReferencePropertyChanged;
-            _referenceResolver.ReferenceDisposed -= _referencedObjectDisposed;
+            _referenceResolver.ReferencePropertyChanged -= ReferenceResolver_ReferencePropertyChanged;
+            _referenceResolver.ReferenceDisposed -= ReferencedObjectDisposed;
             _referenceResolver.Dispose();
         }
 
-        private void _sendResponse(SocketMessage message, object response)
+        private void SendResponse(SocketMessage message, object response)
         {
             using (var serialized = SerializeDto(response))
             {
@@ -207,18 +237,18 @@ namespace TAS.Remoting.Server
             }
         }
 
-        private void _addDelegate(IDto objectToInvoke, EventInfo ei)
+        private void AddDelegate(IDto objectToInvoke, EventInfo ei)
         {
             delegateKey signature = new delegateKey(objectToInvoke.DtoGuid, ei.Name);
             if (_delegates.ContainsKey(signature))
                 return;
-            Delegate delegateToInvoke = ConvertDelegate((Action<object, EventArgs>)delegate (object o, EventArgs ea) { _notifyClient(o, ea, ei.Name); }, ei.EventHandlerType);
+            Delegate delegateToInvoke = ConvertDelegate((Action<object, EventArgs>)delegate (object o, EventArgs ea) { NotifyClient(o, ea, ei.Name); }, ei.EventHandlerType);
             Debug.WriteLine($"Server: added delegate {ei.Name} on {objectToInvoke}");
             _delegates[signature] = delegateToInvoke;
             ei.AddEventHandler(objectToInvoke, delegateToInvoke);
         }
 
-        private void _removeDelegate(IDto objectToInvoke, EventInfo ei)
+        private void RemoveDelegate(IDto objectToInvoke, EventInfo ei)
         {
             delegateKey signature = new delegateKey(objectToInvoke.DtoGuid, ei.Name);
             if (_delegates.TryRemove(signature, out var delegateToRemove))
@@ -236,7 +266,7 @@ namespace TAS.Remoting.Server
                 originalDelegate.Method);
         }
 
-        private void _notifyClient(object o, EventArgs e, string eventName)
+        private void NotifyClient(object o, EventArgs e, string eventName)
         {
             if (!(o is IDto dto))
                 return;
@@ -269,7 +299,7 @@ namespace TAS.Remoting.Server
             }
         }
 
-        private void _referencedObjectDisposed(object o, EventArgs a)
+        private void ReferencedObjectDisposed(object o, EventArgs a)
         {
             if (!(o is IDto dto))
                 return;
@@ -277,7 +307,7 @@ namespace TAS.Remoting.Server
             foreach (var dk in delegatesToRemove)
             {
                 EventInfo ei = dto.GetType().GetEvent(dk.Item2);
-                _removeDelegate(dto, ei);
+                RemoveDelegate(dto, ei);
             }
             SocketMessage message = new SocketMessage
             {
@@ -292,11 +322,11 @@ namespace TAS.Remoting.Server
             Debug.WriteLine($"Server: ObjectDisposed notification on {dto} sent");
         }
 
-        private void _referenceResolver_ReferencePropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void ReferenceResolver_ReferencePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             try
             {
-                _notifyClient(sender, e, nameof(INotifyPropertyChanged.PropertyChanged));
+                NotifyClient(sender, e, nameof(INotifyPropertyChanged.PropertyChanged));
             }
             catch (Exception exception)
             {
