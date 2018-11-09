@@ -62,9 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitmapJsonConverter.cs" />
-    <Compile Include="Client\ReferenceResolver.cs" />
+    <Compile Include="Client\ClientReferenceResolver.cs" />
     <Compile Include="PropertyChangedWithValueEventArgs.cs" />
-    <Compile Include="Server\ReferenceResolver.cs" />
+    <Compile Include="Server\ServerReferenceResolver.cs" />
     <Compile Include="Client\ProxyBase.cs" />
     <Compile Include="Client\RemoteClient.cs" />
     <Compile Include="IDto.cs" />

@@ -17,8 +17,9 @@ namespace TAS.Remoting.Client
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(RemoteClient));
         private readonly JsonSerializer _serializer;
-        private readonly ReferenceResolver _referenceResolver;
+        private readonly ClientReferenceResolver _referenceResolver;
         private readonly Dictionary<Guid, SocketMessage> _receivedMessages = new Dictionary<Guid, SocketMessage>();
+        private object _initialObject;
 
 
         private const int QueryTimeout =
@@ -35,7 +36,7 @@ namespace TAS.Remoting.Client
             _serializer = JsonSerializer.CreateDefault();
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting, this);
             _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-            _referenceResolver = new ReferenceResolver();
+            _referenceResolver = new ClientReferenceResolver();
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.Objects | TypeNameHandling.Arrays;
 #if DEBUG
@@ -63,7 +64,9 @@ namespace TAS.Remoting.Client
             {
                 SocketMessage queryMessage =
                     WebSocketMessageCreate(SocketMessage.SocketMessageType.RootQuery, null, null, 0);
-                return SendAndGetResponse<T>(queryMessage, null);
+                var response = SendAndGetResponse<T>(queryMessage, null);
+                _initialObject = response;
+                return response;
             }
             catch (Exception e)
             {
@@ -153,7 +156,6 @@ namespace TAS.Remoting.Client
             Send(queryMessage.ToByteArray(null));
         }
 
-
         private Stream Serialize(object o)
         {
             if (o == null)
@@ -168,11 +170,6 @@ namespace TAS.Remoting.Client
 
         internal T Deserialize<T>(SocketMessage message)
         {
-            if (message.MessageType == SocketMessage.SocketMessageType.Exception)
-                using (var valueStream = message.ValueStream)
-                using (var reader = new StreamReader(valueStream))
-                using (var jsonReader = new JsonTextReader(reader))
-                    throw _serializer.Deserialize<Exception>(jsonReader);
             using (var valueStream = message.ValueStream)
             {
                 if (valueStream == null)
@@ -186,6 +183,8 @@ namespace TAS.Remoting.Client
         protected override void OnMessage(byte[] data)
         {
             var message = new SocketMessage(data);
+            if (message.MessageType != SocketMessage.SocketMessageType.RootQuery && _initialObject == null)
+                return;
             var proxy = message.MessageType == SocketMessage.SocketMessageType.RootQuery
                 ? null
                 : _referenceResolver.ResolveReference(message.DtoGuid);
@@ -227,6 +226,8 @@ namespace TAS.Remoting.Client
                 Send(valueBytes);
             }
             var response = WaitForResponse(query).Result;
+            if (response == null)
+                return default(T);
             if (response.MessageType == SocketMessage.SocketMessageType.Exception)
                 throw Deserialize<Exception>(response);
             return Deserialize<T>(response);

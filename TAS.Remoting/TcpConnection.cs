@@ -17,11 +17,13 @@ namespace TAS.Remoting
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(TcpConnection));
         private int _disposed;
 
-        private readonly BlockingCollection<byte[]> _sendQueue =
-            new BlockingCollection<byte[]>(new ConcurrentQueue<byte[]>(), 0x100);
+        private readonly ConcurrentQueue<byte[]> _sendQueue = new ConcurrentQueue<byte[]>();
+        private const int MaxQueueSize = 0x100;
 
         private Thread _readThread;
         private Thread _writeThread;
+        private readonly AutoResetEvent _sendAutoResetEvent = new AutoResetEvent(false);
+
 
         public TcpClient Client { get; }
 
@@ -46,21 +48,23 @@ namespace TAS.Remoting
 
         public void Send(byte[] bytes)
         {
+            if (!IsConnected)
+                return;
             try
             {
-                if (_sendQueue.TryAdd(bytes))
+                if (_sendQueue.Count < MaxQueueSize)
+                {
+                    _sendQueue.Enqueue(bytes);
+                    _sendAutoResetEvent.Set();
                     return;
+                }
                 Logger.Error("Message queue overflow");
-            }
-            catch (Exception e) when (e is ObjectDisposedException || e is InvalidOperationException)
-            {
-                // only disconnect
             }
             catch (Exception e)
             {
                 Logger.Error(e);
             }
-            Disconnected?.Invoke(this, EventArgs.Empty);
+            NotifyDisconnection();
         }
 
         public bool IsConnected { get; private set; } = true;
@@ -68,10 +72,9 @@ namespace TAS.Remoting
         protected virtual void OnDispose()
         {
             IsConnected = false;
-            _sendQueue.Dispose();
             Client.Client.Close();
-            _readThread.Abort();
-            _writeThread.Abort();
+            _sendAutoResetEvent.Set();
+            _sendAutoResetEvent.Dispose();
             Logger.Info("Connection closed.");
         }
 
@@ -102,17 +105,20 @@ namespace TAS.Remoting
 
         private void WriteThreadProc()
         {
-            while (true)
+            while (IsConnected)
             {
                 try
                 {
-                    var bytes = _sendQueue.Take();
-                    Client.Client.NoDelay = false;
-                    Client.Client.Send(BitConverter.GetBytes(bytes.Length));
-                    Client.Client.NoDelay = true;
-                    Client.Client.Send(bytes);
+                    _sendAutoResetEvent.WaitOne();
+                    while (_sendQueue.TryDequeue(out var bytes))
+                    {
+                        Client.Client.NoDelay = false;
+                        Client.Client.Send(BitConverter.GetBytes(bytes.Length));
+                        Client.Client.NoDelay = true;
+                        Client.Client.Send(bytes);
+                    }
                 }
-                catch (Exception e) when (e is IOException || e is ThreadAbortException || e is ArgumentNullException ||
+                catch (Exception e) when (e is IOException || e is ArgumentNullException ||
                                           e is ObjectDisposedException || e is SocketException)
                 {
                     NotifyDisconnection();
@@ -131,7 +137,7 @@ namespace TAS.Remoting
             byte[] dataBuffer = null;
             var sizeBuffer = new byte[sizeof(int)];
             var dataIndex = 0;
-            while (true)
+            while (IsConnected)
             {
                 try
                 {
@@ -155,8 +161,7 @@ namespace TAS.Remoting
                         dataBuffer = null;
                     }
                 }
-                catch (Exception e) when (e is IOException || e is ThreadAbortException ||
-                                          e is ObjectDisposedException || e is SocketException)
+                catch (Exception e) when (e is IOException || e is ObjectDisposedException || e is SocketException)
                 {
                     NotifyDisconnection();
                     return;

@@ -23,9 +23,9 @@ namespace TAS.Remoting.Server
 {
     public class ServerSession : TcpConnection
     {
-        private readonly JsonSerializer _serializer;
-        private readonly ReferenceResolver _referenceResolver;
-        private readonly ConcurrentDictionary<Tuple<Guid, string>, Delegate> _delegates;
+        private readonly JsonSerializer _serializer = JsonSerializer.CreateDefault();
+        private readonly ServerReferenceResolver _referenceResolver = new ServerReferenceResolver();
+        private readonly ConcurrentDictionary<Tuple<Guid, string>, Delegate> _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
         private readonly IUser _sessionUser;
         private readonly IDto _initialObject;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ServerSession));
@@ -33,14 +33,11 @@ namespace TAS.Remoting.Server
         public ServerSession(TcpClient client, IAuthenticationService authenticationService, IDto initialObject): base(client)
         {
             _initialObject = initialObject;
-            _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
-            _serializer = JsonSerializer.CreateDefault();
-            _referenceResolver = new ReferenceResolver();
-            _referenceResolver.ReferencePropertyChanged += ReferenceResolver_ReferencePropertyChanged;
-            _referenceResolver.ReferenceDisposed += ReferencedObjectDisposed;
+           
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.Objects;
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting);
+
 #if DEBUG
             _serializer.Formatting = Formatting.Indented;
 #endif
@@ -74,6 +71,8 @@ namespace TAS.Remoting.Server
                 if (message.MessageType == SocketMessage.SocketMessageType.RootQuery)
                 {
                     SendResponse(message, _initialObject);
+                    _referenceResolver.ReferencePropertyChanged += ReferenceResolver_ReferencePropertyChanged;
+                    _referenceResolver.ReferenceDisposed += ReferencedObjectDisposed;
                 }
                 else // method of particular object
                 {
@@ -195,6 +194,8 @@ namespace TAS.Remoting.Server
         protected override void OnDispose()
         {
             base.OnDispose();
+            _referenceResolver.ReferencePropertyChanged -= ReferenceResolver_ReferencePropertyChanged;
+            _referenceResolver.ReferenceDisposed -= ReferencedObjectDisposed;
             foreach (var d in _delegates.Keys)
             {
                 var havingDelegate = _referenceResolver.ResolveReference(d.Item1);
@@ -203,8 +204,6 @@ namespace TAS.Remoting.Server
                 var ei = havingDelegate.GetType().GetEvent(d.Item2);
                 RemoveDelegate(havingDelegate, ei);
             }
-            _referenceResolver.ReferencePropertyChanged -= ReferenceResolver_ReferencePropertyChanged;
-            _referenceResolver.ReferenceDisposed -= ReferencedObjectDisposed;
             _referenceResolver.Dispose();
         }
 

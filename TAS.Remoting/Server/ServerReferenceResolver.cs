@@ -7,14 +7,14 @@ using System.Diagnostics;
 using System.Threading;
 using Newtonsoft.Json.Serialization;
 
-namespace TAS.Remoting.Client
+namespace TAS.Remoting.Server
 {
-    public class ReferenceResolver : IReferenceResolver, IDisposable
+    public class ServerReferenceResolver : IReferenceResolver, IDisposable
     {
-        private readonly ConcurrentDictionary<Guid, ProxyBase> _knownDtos = new ConcurrentDictionary<Guid, ProxyBase>();
+        private readonly ConcurrentDictionary<Guid, DtoBase> _knownDtos = new ConcurrentDictionary<Guid, DtoBase>();
         private int _disposed;
 
-        public ReferenceResolver()
+        public ServerReferenceResolver()
         {
             Debug.WriteLine("Created ReferenceResolver");
         }
@@ -42,17 +42,16 @@ namespace TAS.Remoting.Client
         #region IReferenceResolver
         public void AddReference(object context, string reference, object value)
         {
-            if (!(value is ProxyBase proxy))
+            if (!(value is DtoBase dto))
                 return;
             var id = new Guid(reference);
-            proxy.DtoGuid = id;
-            _knownDtos[id] = proxy;
+            _knownDtos[id] = dto;
             Debug.WriteLine("Added reference {0} for {1}", reference, value);
         }
 
         public string GetReference(object context, object value)
         {
-            if (!(value is ProxyBase dto)) return 
+            if (!(value is DtoBase dto)) return 
                     string.Empty;
             if (IsReferenced(context, value))
                 return dto.DtoGuid.ToString();
@@ -81,7 +80,8 @@ namespace TAS.Remoting.Client
 
         #endregion //IReferenceResolver
 
-        internal ProxyBase ResolveReference(Guid reference)
+        #region Server-side methods
+        public IDto ResolveReference(Guid reference)
         {
             if (!_knownDtos.TryGetValue(reference, out var p))
                 throw new UnresolvedReferenceException("ResolveReference failed", reference);
@@ -103,6 +103,7 @@ namespace TAS.Remoting.Client
                 Debug.WriteLine(disposed, $"Reference resolver - object {disposed.DtoGuid} disposed, generation is {GC.GetGeneration(dto)}");
             }
         }
+        #endregion // Server-side methods
 
         #region Client-side methods
         internal IDto RemoveReference(Guid reference)
