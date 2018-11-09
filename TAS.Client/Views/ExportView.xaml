@@ -23,11 +23,13 @@
                     <Label Content="{Resx _export}" Padding="0" VerticalContentAlignment="Center" Margin="5, 0"/>
                 </StackPanel>
             </Button>
-            <toolkit:DropDownButton Name="folderCombo" BorderThickness="2" Margin="4" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory.DirectoryName}"
-                                    ToolTip="{Binding SelectedDirectory.Folder}">
+            <toolkit:DropDownButton Name="folderCombo" Margin="4" HorizontalContentAlignment="Stretch" ToolTip="{Binding SelectedDirectory.Folder}" BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}">
                 <toolkit:DropDownButton.Resources>
                     <common:BindingProxy x:Key="Proxy" Data="{Binding}"/>
                 </toolkit:DropDownButton.Resources>
+                <toolkit:DropDownButton.Content>
+                    <TextBlock Margin="2" Text="{Binding SelectedDirectory.DirectoryName}"/>
+                </toolkit:DropDownButton.Content>
                 <toolkit:DropDownButton.DropDownContent>
                     <controls:TreeViewEx DataContext="{StaticResource Proxy}" ItemsSource="{Binding Data.Directories}" SelectedItem="{Binding Data.SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged" 
                                          Width="220">
