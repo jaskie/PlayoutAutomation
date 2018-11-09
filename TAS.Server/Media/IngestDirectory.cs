@@ -590,7 +590,8 @@ namespace TAS.Server.Media
                     var format = TVideoFormat.Other;
                     switch (material.videoType)
                     {
-                        case XDCAM.VideoType.Dv25:
+                        case XDCAM.VideoType.Dv411Cbr25:
+                        case XDCAM.VideoType.Dv420Cbr25:
                         case XDCAM.VideoType.Imx30:
                         case XDCAM.VideoType.Imx40:
                         case XDCAM.VideoType.Imx50:
@@ -608,8 +609,8 @@ namespace TAS.Server.Media
                                     break;
                             }
                             break;
-                        case XDCAM.VideoType.Hd1080Cbr50:
-                        case XDCAM.VideoType.Hd1080Cbr35:
+                        case XDCAM.VideoType.Hd1920X1080Cbr50:
+                        case XDCAM.VideoType.Hd1920X1080Vbr35:
                             switch (material.fps)
                             {
                                 case XDCAM.Fps.Fps5994I:
