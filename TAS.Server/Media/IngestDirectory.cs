@@ -49,7 +49,7 @@ namespace TAS.Server.Media
                     AccessType = TDirectoryAccessType.FTP;
                     IsInitialized = true;
                 }
-                else if (Kind == TIngestDirectoryKind.XDCAM || IsWAN)
+                else if (Kind == TIngestDirectoryKind.XDCAM || Kind == TIngestDirectoryKind.SimpleFolder || IsWAN)
                 {
                     IsInitialized = true;
                 }
@@ -75,7 +75,7 @@ namespace TAS.Server.Media
         public TVideoFormat ExportVideoFormat { get; set; }
 
         [JsonProperty]
-        public TIngestDirectoryKind Kind { get; set; }
+        public TIngestDirectoryKind Kind { get; set; } = TIngestDirectoryKind.WatchFolder;
 
         [JsonProperty]
         public bool IsWAN { get; set; }
@@ -330,7 +330,9 @@ namespace TAS.Server.Media
 
         public override void AddMedia(IMedia media)
         {
-            if (IsWAN && media is MediaBase mediaBase)
+            if (!(media is MediaBase mediaBase))
+                throw new ArgumentException(nameof(media));
+            if (IsWAN || Kind == TIngestDirectoryKind.SimpleFolder)
             {
                 mediaBase.Directory = this;
                 return;

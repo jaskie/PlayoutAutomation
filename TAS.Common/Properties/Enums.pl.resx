@@ -450,4 +450,7 @@
   <data name="TEventType_CommandScript" xml:space="preserve">
     <value>Komenda serwera</value>
   </data>
+  <data name="TIngestDirectoryKind_SimpleFolder" xml:space="preserve">
+    <value>Zwykły folder (nieśledzony)</value>
+  </data>
 </root>
