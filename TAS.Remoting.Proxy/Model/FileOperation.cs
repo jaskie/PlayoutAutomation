@@ -17,7 +17,7 @@ namespace TAS.Remoting.Model
         private bool _isAborted;
 
         [JsonProperty(nameof(IFileOperation.DestProperties))]
-        private MediaProxy _destProperties;
+        private IMediaProperties _destProperties;
 
         [JsonProperty(nameof(IFileOperation.DestDirectory))]
         private MediaDirectoryBase _destDirectory;
