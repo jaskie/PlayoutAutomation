@@ -345,10 +345,12 @@ namespace TAS.Server
                     gpi.Started += _gpiStartLoaded;
 
             Debug.WriteLine(this, "Creating engine thread");
-            _engineThread = new Thread(ThreadProc);
-            _engineThread.Priority = ThreadPriority.Highest;
-            _engineThread.Name = $"Engine main thread for {EngineName}";
-            _engineThread.IsBackground = true;
+            _engineThread = new Thread(ThreadProc)
+            {
+                Priority = ThreadPriority.Highest,
+                Name = $"Engine main thread for {EngineName}",
+                IsBackground = true
+            };
             _engineThread.Start();
             Debug.WriteLine(this, "Engine initialized");
             Logger.Debug("Engine {0} initialized", this);
@@ -1567,11 +1569,11 @@ namespace TAS.Server
             if (playing != null)
             {
                 Debug.WriteLine(playing, "Playing event found");
-                if (_currentTicks < (playing.ScheduledTime + playing.Duration).Ticks)
+                if (_currentTicks < playing.StartTime.Ticks + playing.Duration.Ticks)
                 {
                     foreach (var e in playingEvents)
                     {
-                        e.Position = (_currentTicks - e.ScheduledTime.Ticks) / FrameTicks;
+                        e.Position = (_currentTicks - e.StartTime.Ticks) / FrameTicks;
                         _run(e);
                         AddVisibleEvent(e);
                     }
@@ -1592,10 +1594,9 @@ namespace TAS.Server
                     e.Save();
                 }
 
-            ulong currentTime;
-            ulong frameDuration = (ulong)FrameTicks;
-            QueryUnbiasedInterruptTime(out currentTime);
-            ulong prevTime = currentTime - frameDuration;
+            var frameDuration = (ulong)FrameTicks;
+            QueryUnbiasedInterruptTime(out var currentTime);
+            var prevTime = currentTime - frameDuration;
             while (!IsDisposed)
             {
                 try
@@ -1603,7 +1604,7 @@ namespace TAS.Server
                     CurrentTime = AlignDateTime(DateTime.UtcNow + TimeSpan.FromMilliseconds(_timeCorrection));
                     QueryUnbiasedInterruptTime(out currentTime);
                     _currentTicks = CurrentTime.Ticks;
-                    ulong nFrames = (currentTime - prevTime) / frameDuration;
+                    var nFrames = (currentTime - prevTime) / frameDuration;
                     prevTime += nFrames * frameDuration;
                     _tick((long)nFrames);
                     EngineTick?.Invoke(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
@@ -1623,7 +1624,7 @@ namespace TAS.Server
                     Logger.Error($"{e}");
                 }
                 QueryUnbiasedInterruptTime(out currentTime);
-                int waitTime = (int)((prevTime + frameDuration - currentTime + 10000) / 10000);
+                var waitTime = (int)((prevTime + frameDuration - currentTime + 10000) / 10000);
                 if (waitTime > 0)
                     Thread.Sleep(waitTime);
 #if DEBUG
