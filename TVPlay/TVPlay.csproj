@@ -271,7 +271,7 @@
     <Content Include="Configuration\Parentals\BO.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Configuration\CgElements.xml">
+    <Content Include="Configuration\CgElementsControllers.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="NLog.config">

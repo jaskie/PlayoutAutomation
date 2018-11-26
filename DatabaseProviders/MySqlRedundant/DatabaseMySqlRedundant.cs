@@ -988,7 +988,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             }
         }
 
-        public void AsRunLogWrite(IEventPesistent e)
+        public void AsRunLogWrite(IEvent e)
         {
             try
             {

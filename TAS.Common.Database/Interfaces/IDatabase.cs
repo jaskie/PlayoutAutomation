@@ -15,7 +15,7 @@ namespace TAS.Common.Database.Interfaces
 
         event EventHandler<RedundantConnectionStateEventArgs> ConnectionStateChanged;
 
-        void AsRunLogWrite(IEventPesistent e);
+        void AsRunLogWrite(IEvent e);
         void CloneDatabase(string connectionStringSource, string connectionStringDestination);
         void Close();
         bool CreateEmptyDatabase(string connectionString, string collate);
