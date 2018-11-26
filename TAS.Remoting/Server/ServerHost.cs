@@ -60,10 +60,7 @@ namespace TAS.Remoting.Server
                     try
                     {
                         client = _listener.AcceptTcpClient();
-                        var clientSession = new ServerSession(client, _authenticationService, _rootDto);
-                        clientSession.Disconnected += ClientSessionDisconnected;
-                        lock (((IList) _clients).SyncRoot)
-                            _clients.Add(clientSession);
+                        AddClient(client);
                     }
                     catch (Exception e) when (e is SocketException || e is ThreadAbortException)
                     {
@@ -88,6 +85,14 @@ namespace TAS.Remoting.Server
                     serverSessionsCopy = _clients.ToList();
                 serverSessionsCopy.ForEach(s => s.Dispose());
             }
+        }
+
+        private void AddClient(TcpClient client)
+        {
+            var clientSession = new ServerSession(client, _authenticationService, _rootDto);
+            clientSession.Disconnected += ClientSessionDisconnected;
+            lock (((IList)_clients).SyncRoot)
+                _clients.Add(clientSession);
         }
 
         private void ClientSessionDisconnected(object sender, EventArgs e)

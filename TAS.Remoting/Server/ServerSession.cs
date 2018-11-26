@@ -1,9 +1,8 @@
 ﻿//#undef DEBUG
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,10 +13,9 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using Newtonsoft.Json;
-using delegateKey = System.Tuple<System.Guid, string>;
 using TAS.Common;
 using TAS.Common.Interfaces.Security;
-
+using System.Collections;
 
 namespace TAS.Remoting.Server
 {
@@ -25,7 +23,7 @@ namespace TAS.Remoting.Server
     {
         private readonly JsonSerializer _serializer = JsonSerializer.CreateDefault();
         private readonly ServerReferenceResolver _referenceResolver = new ServerReferenceResolver();
-        private readonly ConcurrentDictionary<Tuple<Guid, string>, Delegate> _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
+        private readonly Dictionary<DelegateKey, Delegate> _delegates = new Dictionary<DelegateKey, Delegate>();
         private readonly IUser _sessionUser;
         private readonly IDto _initialObject;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ServerSession));
@@ -196,13 +194,16 @@ namespace TAS.Remoting.Server
             base.OnDispose();
             _referenceResolver.ReferencePropertyChanged -= ReferenceResolver_ReferencePropertyChanged;
             _referenceResolver.ReferenceDisposed -= ReferencedObjectDisposed;
-            foreach (var d in _delegates.Keys)
+            lock (((IDictionary) _delegates).SyncRoot)
             {
-                var havingDelegate = _referenceResolver.ResolveReference(d.Item1);
-                if (havingDelegate == null)
-                    continue;
-                var ei = havingDelegate.GetType().GetEvent(d.Item2);
-                RemoveDelegate(havingDelegate, ei);
+                foreach (var d in _delegates.Keys.ToArray())
+                {
+                    var havingDelegate = _referenceResolver.ResolveReference(d.DtoGuid);
+                    if (havingDelegate == null)
+                        throw new ApplicationException("Referenced object not found");
+                    var ei = havingDelegate.GetType().GetEvent(d.EventName);
+                    RemoveDelegate(havingDelegate, ei);
+                }
             }
             _referenceResolver.Dispose();
         }
@@ -238,20 +239,26 @@ namespace TAS.Remoting.Server
 
         private void AddDelegate(IDto objectToInvoke, EventInfo ei)
         {
-            delegateKey signature = new delegateKey(objectToInvoke.DtoGuid, ei.Name);
-            if (_delegates.ContainsKey(signature))
-                return;
-            Delegate delegateToInvoke = ConvertDelegate((Action<object, EventArgs>)delegate (object o, EventArgs ea) { NotifyClient(o, ea, ei.Name); }, ei.EventHandlerType);
-            Debug.WriteLine($"Server: added delegate {ei.Name} on {objectToInvoke}");
-            _delegates[signature] = delegateToInvoke;
-            ei.AddEventHandler(objectToInvoke, delegateToInvoke);
+            var signature = new DelegateKey(objectToInvoke.DtoGuid, ei.Name);
+            lock (((IDictionary) _delegates).SyncRoot)
+            {
+                if (_delegates.ContainsKey(signature))
+                    return;
+                var delegateToInvoke = ConvertDelegate((Action<object, EventArgs>) delegate(object o, EventArgs ea) { NotifyClient(o, ea, ei.Name); }, ei.EventHandlerType);
+                Debug.WriteLine($"Server: added delegate {ei.Name} on {objectToInvoke}");
+                _delegates[signature] = delegateToInvoke;
+                ei.AddEventHandler(objectToInvoke, delegateToInvoke);
+            }
         }
 
         private void RemoveDelegate(IDto objectToInvoke, EventInfo ei)
         {
-            delegateKey signature = new delegateKey(objectToInvoke.DtoGuid, ei.Name);
-            if (_delegates.TryRemove(signature, out var delegateToRemove))
+            var signature = new DelegateKey(objectToInvoke.DtoGuid, ei.Name);
+            lock (((IDictionary) _delegates).SyncRoot)
             {
+                var delegateToRemove = _delegates[signature];
+                if (!_delegates.Remove(signature))
+                    return;
                 ei.RemoveEventHandler(objectToInvoke, delegateToRemove);
                 Debug.WriteLine($"Server: removed delegate {ei.Name} on {objectToInvoke}");
             }
@@ -273,7 +280,7 @@ namespace TAS.Remoting.Server
             EventArgs eventArgs;
             if (e is PropertyChangedEventArgs ea && eventName == nameof(INotifyPropertyChanged.PropertyChanged))
             {
-                PropertyInfo p = o.GetType().GetProperty(ea.PropertyName);
+                var p = o.GetType().GetProperty(ea.PropertyName);
                 if (p?.CanRead == true)
                     eventArgs = PropertyChangedWithDataEventArgs.Create(ea.PropertyName, p.GetValue(o, null));
                 else
@@ -285,7 +292,7 @@ namespace TAS.Remoting.Server
             }
             else
                 eventArgs = e;
-            SocketMessage message = new SocketMessage
+            var message = new SocketMessage
             {
                 MessageType = SocketMessage.SocketMessageType.EventNotification,
                 DtoGuid = dto.DtoGuid,
@@ -302,13 +309,16 @@ namespace TAS.Remoting.Server
         {
             if (!(o is IDto dto))
                 return;
-            var delegatesToRemove = _delegates.Keys.Where(k => k.Item1 == dto.DtoGuid);
-            foreach (var dk in delegatesToRemove)
+            lock (((IDictionary) _delegates).SyncRoot)
             {
-                EventInfo ei = dto.GetType().GetEvent(dk.Item2);
-                RemoveDelegate(dto, ei);
+                var delegatesToRemove = _delegates.Keys.Where(k => k.DtoGuid == dto.DtoGuid).ToArray();
+                foreach (var dk in delegatesToRemove)
+                {
+                    var ei = dto.GetType().GetEvent(dk.EventName);
+                    RemoveDelegate(dto, ei);
+                }
             }
-            SocketMessage message = new SocketMessage
+            var message = new SocketMessage
             {
                 MessageType = SocketMessage.SocketMessageType.ObjectDisposed,
                 DtoGuid = dto.DtoGuid,
@@ -330,6 +340,37 @@ namespace TAS.Remoting.Server
             catch (Exception exception)
             {
                 Logger.Error(exception);
+            }
+        }
+
+        private class DelegateKey
+        {
+            public DelegateKey(Guid dtoGuid, string eventName)
+            {
+                DtoGuid = dtoGuid;
+                EventName = eventName;
+            }
+            public Guid DtoGuid { get; }
+            public string EventName { get; }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                return obj.GetType() == typeof(DelegateKey) && Equals((DelegateKey)obj);
+            }
+
+            private bool Equals(DelegateKey other)
+            {
+                return DtoGuid.Equals(other.DtoGuid) && string.Equals(EventName, other.EventName);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return (DtoGuid.GetHashCode() * 397) ^ (EventName != null ? EventName.GetHashCode() : 0);
+                }
             }
         }
 

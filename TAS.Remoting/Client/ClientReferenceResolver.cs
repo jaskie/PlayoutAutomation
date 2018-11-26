@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 
 using System;
 using System.Collections;
@@ -20,11 +20,6 @@ namespace TAS.Remoting.Client
             Debug.WriteLine("Created ReferenceResolver");
         }
 
-#if DEBUG
-        ~ReferenceResolver() {
-            Debug.WriteLine("Finalized ReferenceResolver");
-        }
-#endif
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _disposed, 1) != default(int))

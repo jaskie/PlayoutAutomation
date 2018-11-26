@@ -2,7 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Newtonsoft.Json;
@@ -62,7 +61,7 @@ namespace TAS.Remoting.Client
         {
             try
             {
-                SocketMessage queryMessage =
+                var queryMessage =
                     WebSocketMessageCreate(SocketMessage.SocketMessageType.RootQuery, null, null, 0);
                 var response = SendAndGetResponse<T>(queryMessage, null);
                 _initialObject = response;
@@ -79,7 +78,7 @@ namespace TAS.Remoting.Client
         {
             try
             {
-                SocketMessage queryMessage = WebSocketMessageCreate(
+                var queryMessage = WebSocketMessageCreate(
                     SocketMessage.SocketMessageType.Query,
                     dto,
                     methodName,
@@ -97,7 +96,7 @@ namespace TAS.Remoting.Client
         {
             try
             {
-                SocketMessage queryMessage = WebSocketMessageCreate(
+                var queryMessage = WebSocketMessageCreate(
                     SocketMessage.SocketMessageType.Get,
                     dto,
                     propertyName,
@@ -114,7 +113,7 @@ namespace TAS.Remoting.Client
 
         public void Invoke(ProxyBase dto, string methodName, params object[] parameters)
         {
-            SocketMessage queryMessage = WebSocketMessageCreate(
+            var queryMessage = WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.Invoke,
                 dto,
                 methodName,
@@ -127,7 +126,7 @@ namespace TAS.Remoting.Client
 
         public void Set(ProxyBase dto, object value, string propertyName)
         {
-            SocketMessage queryMessage = WebSocketMessageCreate(
+            var queryMessage = WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.Set,
                 dto,
                 propertyName,
@@ -138,7 +137,7 @@ namespace TAS.Remoting.Client
 
         public void EventAdd(ProxyBase dto, string eventName)
         {
-            SocketMessage queryMessage = WebSocketMessageCreate(
+            var queryMessage = WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.EventAdd,
                 dto,
                 eventName,
@@ -148,7 +147,7 @@ namespace TAS.Remoting.Client
 
         public void EventRemove(ProxyBase dto, string eventName)
         {
-            SocketMessage queryMessage = WebSocketMessageCreate(
+            var queryMessage = WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.EventRemove,
                 dto,
                 eventName,
