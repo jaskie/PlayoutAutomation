@@ -99,6 +99,7 @@ namespace TAS.Server.Media
                 }
                 catch (Exception e)
                 {
+                    Logger.Error(e);
                     Debug.WriteLine("MediaDirectory.DeleteMedia {0} failed with error {1}", media, e.Message);
                 }
             }
@@ -269,9 +270,9 @@ namespace TAS.Server.Media
             {
                 AddMediaFromPath(e.FullPath, File.GetLastWriteTimeUtc(e.FullPath));
             }
-            catch
+            catch (Exception exception)
             {
-                // ignored
+                Logger.Error(exception);
             }
         }
 
@@ -282,9 +283,9 @@ namespace TAS.Server.Media
                 FileRemoved(e.FullPath);
                 RefreshVolumeInfo();
             }
-            catch
+            catch (Exception exception)
             {
-                // ignored
+                Logger.Error(exception);
             }
         }
 
@@ -309,9 +310,9 @@ namespace TAS.Server.Media
                         RemoveMedia(m);
                 }
             }
-            catch
+            catch (Exception exception)
             {
-                // ignored
+                Logger.Error(exception);
             }
         }
 
@@ -324,9 +325,9 @@ namespace TAS.Server.Media
                     OnMediaChanged(m);
                 RefreshVolumeInfo();
             }
-            catch
+            catch (Exception exception)
             {
-                // ignored
+                Logger.Error(exception);
             }
         }
 

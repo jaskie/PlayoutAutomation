@@ -372,6 +372,7 @@ namespace TAS.Server
         public ICollection<IEventPesistent> VisibleEvents => _visibleEvents.Cast<IEventPesistent>().ToList();
 
         [XmlIgnore]
+        [JsonProperty]
         public IEvent Playing
         {
             get => _playing;
@@ -388,6 +389,7 @@ namespace TAS.Server
                     var media = value.Media;
                     SetField(ref _fieldOrderInverted, media?.FieldOrderInverted ?? false, nameof(FieldOrderInverted));
                 }
+                NotifyPropertyChanged(nameof(NextToPlay));
             }
         }
 
