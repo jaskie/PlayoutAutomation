@@ -5,7 +5,7 @@
       <Crawl Id="0" Name="Off"      Command="PLAY CG3 EMPTY MIX 25"/>
       <Crawl Id="1" Name="Normal"   Command="CG CG3 ADD 1 CRAWL_NORMAL 1"/>
       <Crawl Id="2" Name="Urgent"   Command="CG CG3 ADD 1 CRAWL_URGENT 1"/>
-      <Crawl Id="3" Name="Sport"    Command="CG CG3 ADD 1 CRAWL_SPORT 1"/>
+      <Crawl Id="3" Name="Sport"    Command="PLAY CG3 [HTML] https://www.google.com"/>
     </Crawls>
     <Logos>
       <Logo Id="0" Name="None"      Command="PLAY CG4 EMPTY MIX 25"/>
