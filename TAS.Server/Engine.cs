@@ -57,8 +57,8 @@ namespace TAS.Server
 
         private Event _playing;
         private Event _forcedNext;
-        private IEnumerable<IGpi> _localGpis;
-        private IEnumerable<IEnginePlugin> _plugins;
+        private List<IGpi> _localGpis;
+        private List<IEnginePlugin> _plugins;
         private int _timeCorrection;
         private bool _isWideScreen = true;
         private TEngineState _engineState;
@@ -293,8 +293,8 @@ namespace TAS.Server
 
             try
             {
-                _localGpis = this.ComposeParts<IGpi>();
-                _plugins = this.ComposeParts<IEnginePlugin>();
+                _localGpis = this.ComposeParts<IGpi>().ToList();
+                _plugins = this.ComposeParts<IEnginePlugin>().ToList();
                 CGElementsController = this.ComposePart<ICGElementsController>();
             }
             catch (Exception e)
@@ -414,7 +414,7 @@ namespace TAS.Server
                 if (e == null)
                     return null;
                 do
-                    e = e.GetEnabledSuccessor();
+                    e = e.InternalGetSuccessor();
                 while (e != null && e.RequestedStartTime == null);
                 return e;
         }
@@ -1032,7 +1032,7 @@ namespace TAS.Server
                             _reSchedule(se);
                     }
 
-                    Event next = aEvent.GetEnabledSuccessor();
+                    Event next = aEvent.InternalGetSuccessor();
                     if (next != null)
                         _reSchedule(next);
                 }
@@ -1046,7 +1046,7 @@ namespace TAS.Server
         private void _load(Event aEvent)
         {
             if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
-                aEvent = aEvent.GetEnabledSuccessor();
+                aEvent = aEvent.InternalGetSuccessor();
             if (aEvent == null)
                 return;
             Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent);
@@ -1070,7 +1070,7 @@ namespace TAS.Server
         private void _loadNext(Event aEvent)
         {
             if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
-                aEvent = aEvent.GetEnabledSuccessor();
+                aEvent = aEvent.InternalGetSuccessor();
             if (aEvent == null)
                 return;
             var eventType = aEvent.EventType;
@@ -1117,7 +1117,7 @@ namespace TAS.Server
                 return;
             var eventType = aEvent.EventType;
             if (!aEvent.IsEnabled || (aEvent.Length == TimeSpan.Zero && eventType != TEventType.Animation && eventType != TEventType.CommandScript))
-                aEvent = aEvent.GetEnabledSuccessor();
+                aEvent = aEvent.InternalGetSuccessor();
             Debug.WriteLine("{0} Play: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent.EventName);
             Logger.Info("{0} {1}: Play {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent.EventName);
             eventType = aEvent.EventType;
@@ -1359,7 +1359,7 @@ namespace TAS.Server
                         _restartRundown(se);
                     break;
                 }
-                ev = ev.GetEnabledSuccessor();
+                ev = ev.InternalGetSuccessor();
             }
         }
 
@@ -1486,7 +1486,7 @@ namespace TAS.Server
                 return result;
             if (playingEvent == null)
                 return null;
-            result = (playingEvent.IsLoop ? playingEvent : playingEvent.GetEnabledSuccessor()) ?? playingEvent.GetVisualRootTrack().FirstOrDefault(e => e.IsLoop) as Event;
+            result = (playingEvent.IsLoop ? playingEvent : playingEvent.InternalGetSuccessor()) ?? playingEvent.GetVisualRootTrack().FirstOrDefault(e => e.IsLoop) as Event;
             return result;
         }
 
@@ -1522,14 +1522,14 @@ namespace TAS.Server
             if (pe == null || (pe.PlayState != TPlayState.Playing && pe.PlayState != TPlayState.Paused))
                 return TimeSpan.Zero;
             var result = pe.Length - TimeSpan.FromTicks(pe.Position * FrameTicks);
-            pe = pe.GetEnabledSuccessor();
+            pe = pe.InternalGetSuccessor();
             while (pe != null)
             {
                 var pauseTime = pe.GetAttentionTime();
                 if (pauseTime != null)
                     return result + pauseTime.Value - pe.TransitionTime;
                 result = result + pe.Length - pe.TransitionTime;
-                pe = pe.GetEnabledSuccessor();
+                pe = pe.InternalGetSuccessor();
             }
             return result;
         }
@@ -1548,6 +1548,8 @@ namespace TAS.Server
             CGElementsController?.Dispose();
             Remote?.Dispose();
             _mediaManager.Dispose();
+            foreach (var enginePlugin in _plugins)
+                enginePlugin.Dispose();
             base.DoDispose();
         }
 

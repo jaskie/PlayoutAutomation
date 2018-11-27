@@ -26,15 +26,15 @@ namespace TAS.Server
         private bool _isServerConnected;
         private int _audiolevel;
 
-        public static readonly Regex RegexMixerFill = new Regex(EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexMixerClip = new Regex(EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexMixerClear = new Regex(EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexPlay = new Regex(EventExtensions.PlayCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexCg = new Regex(EventExtensions.CgCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexCgWithLayer = new Regex(EventExtensions.CgWithLayerCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexCgAdd = new Regex(EventExtensions.CgAddCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexCgInvoke = new Regex(EventExtensions.CgInvokeCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexCgUpdate = new Regex(EventExtensions.CgUpdateCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerClip = new Regex(EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexMixerFill = new Regex(EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexMixerClear = new Regex(EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexPlay = new Regex(EventExtensions.PlayCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexCg = new Regex(EventExtensions.CgCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexCgWithLayer = new Regex(EventExtensions.CgWithLayerCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexCgAdd = new Regex(EventExtensions.CgAddCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexCgInvoke = new Regex(EventExtensions.CgInvokeCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexCgUpdate = new Regex(EventExtensions.CgUpdateCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
 
 
         #region IPlayoutServerChannel

@@ -8,6 +8,8 @@ namespace TAS.Server
 {
     public class AdvantechDevice : IDisposable
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private DeviceInformation _deviceInformation;
         private InstantDiCtrl _di;
         private InstantDoCtrl _do;
@@ -25,14 +27,19 @@ namespace TAS.Server
 
         public void Initialize()
         {
+            try
+            {
             _deviceInformation = new DeviceInformation(DeviceId);
-            _di = new InstantDiCtrl();
-            _di.SelectedDevice = _deviceInformation;
+            _di = new InstantDiCtrl {SelectedDevice = _deviceInformation};
             InputPortCount = _di.Features.PortCount;
             InputPortState = new byte[InputPortCount];
-            _do = new InstantDoCtrl();
-            _do.SelectedDevice = _deviceInformation;
+            _do = new InstantDoCtrl {SelectedDevice = _deviceInformation};
             OutputPortCount = _do.Features.PortCount;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
         }
 
         public bool Read(int port, out byte currentData, out byte oldData)
@@ -47,26 +54,22 @@ namespace TAS.Server
         {
             lock (_writeLock)
             {
-                byte portValue;
-                if (_do.Read(port, out portValue) == ErrorCode.Success)
-                {
-                    if (value)
-                        portValue = (byte)(portValue | 0x1 << pin);
-                    else
-                        portValue = (byte)(portValue & ~(0x1 << pin));
-                    return _do.Write(portValue, portValue) == ErrorCode.Success;
-                }
+                if (_do.Read(port, out var portValue) != ErrorCode.Success)
+                    return false;
+                if (value)
+                    portValue = (byte)(portValue | 0x1 << pin);
+                else
+                    portValue = (byte)(portValue & ~(0x1 << pin));
+                return _do.Write(portValue, portValue) == ErrorCode.Success;
             }
-            return false;
         }
 
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _disposed, 1) == default(int))
-            {
-                _di?.Dispose();
-                _do?.Dispose();
-            }
+            if (Interlocked.Exchange(ref _disposed, 1) != default(int))
+                return;
+            _di?.Dispose();
+            _do?.Dispose();
         }
     }
 }

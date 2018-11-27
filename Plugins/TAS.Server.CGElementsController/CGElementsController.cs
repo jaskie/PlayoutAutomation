@@ -8,8 +8,10 @@ namespace TAS.Server
 {
     public class CgElementsController : Remoting.Server.DtoBase, ICGElementsController
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(CgElementsController));
 
         internal IEngine Engine;
+
         private bool _isCgEnabled = true;
         private bool _isWideScreen = true;
         private byte _logo;
@@ -29,7 +31,7 @@ namespace TAS.Server
         [JsonProperty]
         public virtual bool IsConnected => true;
 
-        
+
         [JsonProperty]
         [XmlIgnore]
         public bool IsCGEnabled
@@ -39,7 +41,7 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public bool IsMaster  => true;
+        public bool IsMaster => true;
 
         [JsonProperty]
         [XmlIgnore]
@@ -106,20 +108,34 @@ namespace TAS.Server
 
         public void SetState(ICGElementsState state)
         {
-            if (!_isCgEnabled || !state.IsCGEnabled)
-                return;
-            Logo = state.Logo;
-            Crawl = state.Crawl;
-            Parental = state.Parental;
+            try
+            {
+                if (!_isCgEnabled || !state.IsCGEnabled)
+                    return;
+                Logo = state.Logo;
+                Crawl = state.Crawl;
+                Parental = state.Parental;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
         }
 
         public void Clear()
         {
-            if (!_isCgEnabled)
-                return;
-            Logo = 0;
-            Crawl = 0;
-            Parental = 0;
+            try
+            {
+                if (!_isCgEnabled)
+                    return;
+                Logo = 0;
+                Crawl = 0;
+                Parental = 0;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
         }
     }
 }

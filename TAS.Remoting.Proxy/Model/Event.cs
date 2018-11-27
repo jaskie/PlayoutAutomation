@@ -250,6 +250,11 @@ namespace TAS.Remoting.Model
 
         public TTransitionType TransitionType { get => _transitionType; set => Set(value); }
 
+        public IEvent GetSuccessor()
+        {
+            return Query<Event>();
+        }
+
         #region Event handlers
         private event EventHandler<EventPositionEventArgs> _positionChanged;
         public event EventHandler<EventPositionEventArgs> PositionChanged
@@ -266,6 +271,7 @@ namespace TAS.Remoting.Model
             }
         }
         private event EventHandler<CollectionOperationEventArgs<IEvent>> _subEventChanged;
+
         public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged
         {
             add

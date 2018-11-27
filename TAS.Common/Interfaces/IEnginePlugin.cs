@@ -1,6 +1,8 @@
-﻿namespace TAS.Common.Interfaces
+﻿using System;
+
+namespace TAS.Common.Interfaces
 {
-    public interface IEnginePlugin
+    public interface IEnginePlugin: IDisposable
     {
     }
 }

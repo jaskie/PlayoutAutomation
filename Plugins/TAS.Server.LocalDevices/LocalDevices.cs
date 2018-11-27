@@ -15,7 +15,7 @@ namespace TAS.Server
     [Export(typeof(IEnginePluginFactory))]
     public class LocalDevices : IEnginePluginFactory
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger("TAS.Server.LocalDevices");
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         [ImportingConstructor]
         public LocalDevices([Import("AppSettings")] NameValueCollection settings)

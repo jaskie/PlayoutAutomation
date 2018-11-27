@@ -1,6 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Engines>
-  <NowPlayingNotifier Engine="TVP Szczecin">
-    <CommandOnPlay>"CG1 PLAY {EventName}"</CommandOnPlay>
+<NowPlayingNotifiers>
+  <NowPlayingNotifier EngineName="TVP Szczecin">
+    <CommandOnPlay>CG CG1 ADD 1 TEMPLATE_NAME_NOW_PLAYING 1</CommandOnPlay> <!--actual command to execute, template's xml data generated from <Data> fields will be added-->
+    <MediaCategory>Show</MediaCategory> <!--the category of media that will trigger the command-->
+    <!--list of fields of template's data, Value may be one of: 
+                            CurrentItemName,
+                            NextItemName,
+                            NextShowName,
+                            NextNextItemName,
+                            NextNextShowName
+                -->
+    <Data>
+      <DataItem Name="f0" Value="CurrentItemName"/>
+      <DataItem Name="f1" Value="NextShowName"/>
+    </Data>
   </NowPlayingNotifier>
-</Engines>
+</NowPlayingNotifiers>

@@ -37,6 +37,7 @@ namespace TAS.Common.Interfaces
         bool IsDeleted { get; }
         bool IsForcedNext { get; }
         bool HaveRight(EventRight right);
+        IEvent GetSuccessor();
 
         event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
         event EventHandler<EventPositionEventArgs> PositionChanged;

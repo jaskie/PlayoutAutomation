@@ -29,11 +29,11 @@ namespace TAS.Common
                     })))?)?";
 
         public static readonly string CgCommand =
-            $@"\s*CG\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+(?<method>{string.Join("|", Enum.GetNames(typeof(TemplateMethod)))})";
+            $@"CG\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+(?<method>{string.Join("|", Enum.GetNames(typeof(TemplateMethod)))})";
         
         public static readonly string CgWithLayerCommand = $@"{CgCommand}\s+(?<cg_layer>\d+)";
         
-        public static readonly string CgAddCommand = $@"{CgWithLayerCommand}\s+(?<file>\w+|""[\w\s]*"")(\s+(?<play_on_load>0|1))*(\s+(?<data>\w+|""[\w\s]*""))*";
+        public static readonly string CgAddCommand = $@"{CgWithLayerCommand}\s+(?<file>\w+|""[\w\s]*"")(\s+(?<play_on_load>0|1))?(\s+(?<data>\+|""[\S\s]*""))?";
 
         public static readonly string CgInvokeCommand = $@"{CgWithLayerCommand}\s+(?<cg_method>\w+)";
 
@@ -117,32 +117,6 @@ namespace TAS.Common
             return aEvent.TransitionTime.Ticks / aEvent.Engine.FrameTicks; 
         }
 
-
-        /// <summary>
-        /// Gets subsequent event that will play after this
-        /// </summary>
-        /// <returns></returns>
-        public static IEvent GetSuccessor(this IEvent aEvent)
-        {
-            while (true)
-            {
-                var eventType = aEvent.EventType;
-                if (eventType != TEventType.Movie && eventType != TEventType.Live && eventType != TEventType.Rundown)
-                    return null;
-                var current = aEvent;
-                var next = current.Next;
-                while (next != null && (next.IsEnabled || next.Duration.Equals(TimeSpan.Zero)))
-                {
-                    current = next;
-                    next = current.GetSuccessor();
-                }
-                if (next != null)
-                    return next;
-                aEvent = current.GetVisualParent();
-                if (aEvent == null)
-                    return null;
-            }
-        }
 
         public static double GetAudioVolume(this IEvent aEvent)
         {

@@ -1116,7 +1116,12 @@ namespace TAS.Server
             }
         }
 
-        internal Event GetEnabledSuccessor()
+        public IEvent GetSuccessor()
+        {
+            return InternalGetSuccessor();
+        }
+
+        internal Event InternalGetSuccessor()
         {
             var next = _getSuccessor();
             while (next != null && next.Length.Equals(TimeSpan.Zero))
@@ -1256,12 +1261,7 @@ namespace TAS.Server
         {
             var eventType = _eventType;
             if (eventType == TEventType.Movie || eventType == TEventType.Live || eventType == TEventType.Rundown)
-            {
-                Event result = _next.Value;
-                if (result == null)
-                    result = _getVisualParent()?._getSuccessor();
-                return result;
-            }
+                return _next.Value ?? _getVisualParent()?._getSuccessor();
             return null;
         }
 
