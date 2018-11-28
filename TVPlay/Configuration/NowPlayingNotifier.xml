@@ -2,11 +2,12 @@
 <NowPlayingNotifiers>
   <NowPlayingNotifier EngineName="TVP Szczecin">
     <CommandOnPlay>CG CG1 ADD 1 TEMPLATE_NAME_NOW_PLAYING 1</CommandOnPlay> <!--actual command to execute, template's xml data generated from <Data> fields will be added-->
-    <MediaCategory>Show</MediaCategory> <!--the category of media that will trigger the command-->
-    <!--list of fields of template's data, Value may be one of: 
+    <MediaCategory>Show</MediaCategory> <!--the category of media that will trigger the command, if absent, all categories will trigger the command-->
+    <!--list of fields in data transferred to template, Value is readed from rundown event, and may be one of: 
                             CurrentItemName,
+                            CurrentItemDurationInSeconds,
                             NextItemName,
-                            NextShowName,
+                            NextShowName, => next item that's media is Show
                             NextNextItemName,
                             NextNextShowName
                 -->

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading;
 using System.Xml.Serialization;
 using NLog;
@@ -43,11 +44,10 @@ namespace TAS.Server
         private void _engine_EngineOperation(object sender, EngineOperationEventArgs e)
         {
             Debug.WriteLine($"Plugin notification received for {e.Event}");
-            if (e.Event.Media == null)
+            if (e.Event == null)
                 return;
-            if (MediaCategory != null && e.Event.Media.MediaCategory != MediaCategory)
+            if (MediaCategory != null && e.Event.Media?.MediaCategory != MediaCategory)
                 return;
-
             try
             {
                 if (e.Operation == TEngineOperation.Play)
@@ -59,6 +59,9 @@ namespace TAS.Server
                         {
                             case DataValueKind.CurrentItemName:
                                 data.SetData(dataItem.Name, e.Event.EventName);
+                                break;
+                            case DataValueKind.CurrentItemDurationInSeconds:
+                                data.SetData(dataItem.Name, e.Event.Duration.TotalSeconds.ToString(CultureInfo.InvariantCulture));
                                 break;
                             case DataValueKind.NextItemName:
                                 data.SetData(dataItem.Name, e.Event.GetSuccessor()?.EventName ?? string.Empty);
@@ -104,6 +107,7 @@ namespace TAS.Server
         public enum DataValueKind
         {
             CurrentItemName,
+            CurrentItemDurationInSeconds,
             NextItemName,
             NextShowName,
             NextNextItemName,
