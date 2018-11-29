@@ -2,7 +2,7 @@
 using System.IO;
 using TAS.Common.Database.Interfaces;
 
-namespace TAS.Common
+namespace TAS.Common.Database
 {
     public static class DatabaseProviderLoader
     {

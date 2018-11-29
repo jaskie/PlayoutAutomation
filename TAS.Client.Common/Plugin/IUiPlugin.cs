@@ -1,5 +1,4 @@
 ﻿using System;
-using TAS.Common.Interfaces;
 
 namespace TAS.Client.Common.Plugin
 {
@@ -7,11 +6,5 @@ namespace TAS.Client.Common.Plugin
     {
         Func<PluginExecuteContext> ExecutionContext { get; set; }
         void NotifyExecuteChanged();
-    }
-
-    public struct PluginExecuteContext
-    {
-        public IEngine Engine;
-        public IEvent Event;
     }
 }

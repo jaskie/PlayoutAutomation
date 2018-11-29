@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Linq;
 using System.Net.FtpClient;
 using TAS.Common;
+using TAS.Common.Database;
 using TAS.Common.Database.Interfaces;
 using TAS.Server.Security;
 

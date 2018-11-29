@@ -9,7 +9,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using TAS.Client.Common;
 using TAS.Common;
-using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 using TAS.Client.Common.Plugin;
@@ -48,7 +47,7 @@ namespace TAS.Client.ViewModels
             Engine.VisibleEventAdded += _engine_VisibleEventAdded;
             Engine.VisibleEventRemoved += _engine_VisibleEventRemoved;
             Engine.RunningEventsOperation += OnEngineRunningEventsOperation;
-            _composePlugins();
+            this.ComposeUiPlugins(_getPluginContext);
 
 
             if (preview != null && engine.HaveRight(EngineRight.Preview))
@@ -971,8 +970,7 @@ namespace TAS.Client.ViewModels
         }
 
         #region Plugin
-        CompositionContainer _uiContainer;
-
+        
 #pragma warning disable CS0649
         [ImportMany]
         IUiPlugin[] _plugins = null;
@@ -988,24 +986,6 @@ namespace TAS.Client.ViewModels
         public IVideoPreview VideoPreview => _videoPreview;
 
         public bool IsAnyPluginActive => _plugins != null && _plugins.Length > 0;
-
-        private void _composePlugins()
-        {
-            try
-            {
-                var pluginPath = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
-                if (!Directory.Exists(pluginPath))
-                    return;
-                DirectoryCatalog catalog = new DirectoryCatalog(pluginPath);
-                _uiContainer = new CompositionContainer(catalog);
-                _uiContainer.ComposeExportedValue<Func<PluginExecuteContext>>(_getPluginContext);
-                _uiContainer.SatisfyImportsOnce(this);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-            }
-        }
 
         private void _updatePluginCanExecute()
         {

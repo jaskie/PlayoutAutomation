@@ -7,15 +7,13 @@ using System.Windows.Data;
 using System.Windows;
 using System.Collections;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
-using System.IO;
 using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
 using System.Globalization;
 using System.Threading.Tasks;
+using TAS.Client.Common.Plugin;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -74,7 +72,7 @@ namespace TAS.Client.ViewModels
                 FileManagerViewmodel = new FileManagerViewmodel(_mediaManager.FileManager);
             RecordersViewmodel = new RecordersViewmodel(_engine, _mediaManager.Recorders);
             RecordersViewmodel.PropertyChanged += _recordersViewmodel_PropertyChanged;
-            ComposePlugins();
+            this.ComposeUiPlugins();
             VideoPreview?.SetSource(RecordersViewmodel.Channel?.PreviewUrl);
 
             CommandSearch = new UiCommand(_search, _canSearch);
@@ -121,7 +119,7 @@ namespace TAS.Client.ViewModels
 
 #pragma warning disable CS0649 
         [Import(AllowDefault = true)]
-        public Common.Plugin.IVideoPreview VideoPreview { get; private set; }
+        public IVideoPreview VideoPreview { get; private set; }
 #pragma warning restore
 
         public FileManagerViewmodel FileManagerViewmodel { get; }
@@ -245,7 +243,7 @@ namespace TAS.Client.ViewModels
                         value.Directory.MediaAdded += _selectedDirectoryMediaAdded;
                         value.Directory.MediaRemoved += _selectedDirectoryMediaRemoved;
                         value.Directory.PropertyChanged += _selectedDirectoryPropertyChanged;
-                        _reloadFiles();
+                        Application.Current?.Dispatcher.InvokeAsync(_reloadFiles);
                         IsDisplayPreview = PreviewViewmodel != null
                                            && (!(value.Directory is IIngestDirectory) ||
                                                ((IIngestDirectory)value.Directory).AccessType ==
@@ -329,23 +327,6 @@ namespace TAS.Client.ViewModels
 
 
         // private methods
-        private void ComposePlugins()
-        {
-            try
-            {
-                var pluginPath = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
-                if (Directory.Exists(pluginPath))
-                {
-                    DirectoryCatalog catalog = new DirectoryCatalog(pluginPath);
-                    var container = new CompositionContainer(catalog);
-                    container.SatisfyImportsOnce(this);
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-            }
-        }
 
         private bool _checkAskMediaDelete(IEnumerable<MediaDeleteResult> results)
         {
@@ -495,6 +476,11 @@ namespace TAS.Client.ViewModels
                         else if (ingestDirectory.Kind == TIngestDirectoryKind.SimpleFolder)
                         {
                             var mediaItems = ingestDirectory.Search(MediaCategory as TMediaCategory?, "");
+                            OnUiThread(() => _setMediaItems(mediaItems));
+                        }
+                        else
+                        {
+                            var mediaItems = ingestDirectory.GetFiles();
                             OnUiThread(() => _setMediaItems(mediaItems));
                         }
                     }

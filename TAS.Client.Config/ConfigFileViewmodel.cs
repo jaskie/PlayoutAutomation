@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
+using TAS.Common.Database;
 using TAS.Common.Database.Interfaces;
 
 namespace TAS.Client.Config
