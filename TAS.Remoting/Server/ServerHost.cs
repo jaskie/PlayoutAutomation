@@ -51,39 +51,46 @@ namespace TAS.Remoting.Server
 
         private void ListenerThreadProc()
         {
-            _listener.Start();
             try
             {
-                while (true)
+                _listener.Start();
+                try
                 {
-                    TcpClient client = null;
-                    try
+                    while (true)
                     {
-                        client = _listener.AcceptTcpClient();
-                        AddClient(client);
-                    }
-                    catch (Exception e) when (e is SocketException || e is ThreadAbortException)
-                    {
-                        Logger.Trace("ServerHost shutdown.");
-                        break;
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        Logger.Warn($"Unauthorized client from: {client?.Client.RemoteEndPoint}");
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Error(e, "Unexpected listener thread exception");
+                        TcpClient client = null;
+                        try
+                        {
+                            client = _listener.AcceptTcpClient();
+                            AddClient(client);
+                        }
+                        catch (Exception e) when (e is SocketException || e is ThreadAbortException)
+                        {
+                            Logger.Trace("ServerHost shutdown.");
+                            break;
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            Logger.Warn($"Unauthorized client from: {client?.Client.RemoteEndPoint}");
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Error(e, "Unexpected listener thread exception");
+                        }
                     }
                 }
+                finally
+                {
+                    _listener.Stop();
+                    List<ServerSession> serverSessionsCopy;
+                    lock (((IList) _clients).SyncRoot)
+                        serverSessionsCopy = _clients.ToList();
+                    serverSessionsCopy.ForEach(s => s.Dispose());
+                }
             }
-            finally
+            catch (Exception e)
             {
-                _listener.Stop();
-                List<ServerSession> serverSessionsCopy;
-                lock (((IList) _clients).SyncRoot)
-                    serverSessionsCopy = _clients.ToList();
-                serverSessionsCopy.ForEach(s => s.Dispose());
+                Logger.Error(e, "ServerHost general error");
             }
         }
 
