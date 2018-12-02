@@ -493,7 +493,11 @@ namespace TAS.Client.ViewModels
                 else if (selectedDirectory is IServerDirectory serverDirectory)
                 {
                     var mediaItems = serverDirectory.GetFiles();
-
+                    OnUiThread(() => _setMediaItems(mediaItems));
+                }
+                else if (selectedDirectory is IAnimationDirectory animationDirectory)
+                {
+                    var mediaItems = animationDirectory.GetFiles();
                     OnUiThread(() => _setMediaItems(mediaItems));
                 }
                 else
