@@ -42,7 +42,6 @@ namespace TAS.Server.Media
         protected WatcherDirectory(MediaManager mediaManager)
         {
             MediaManager = mediaManager;
-            Logger = NLog.LogManager.GetLogger(GetType().Name);
         }
 
 #if DEBUG

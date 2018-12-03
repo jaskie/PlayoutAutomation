@@ -19,7 +19,7 @@ namespace TAS.Server.Media
         private long _volumeFreeSize;
         private long _volumeTotalSize;
         private string _folder;
-        protected Logger Logger;
+        protected readonly Logger Logger;
 
         protected MediaDirectoryBase()
         {

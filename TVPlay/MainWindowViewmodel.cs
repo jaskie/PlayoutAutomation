@@ -34,11 +34,14 @@ namespace TAS.Client
             }
             catch (Exception e)
             {
+                var exceptionToShow = e;
+                while (exceptionToShow.InnerException != null)
+                    exceptionToShow = exceptionToShow.InnerException;
                 var message =
 #if DEBUG
                     $"{e}";
 #else
-                $"{e.Source}:{e.GetType().Name} {e.Message}";
+                $"{exceptionToShow.GetType().Name} {exceptionToShow.Message}";
 #endif
                 MessageBox.Show(string.Format(resources._message_CantInitializeEngines, message),
                     resources._caption_Error,

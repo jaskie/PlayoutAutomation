@@ -1,8 +1,7 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Configuration;
 using System.IO;
-using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
@@ -22,19 +21,23 @@ namespace TAS.Server.Media
 
         internal override IMedia CreateMedia(IMediaProperties media)
         {
+            if (!DirectoryExists())
+                throw new DirectoryNotFoundException(Folder);
             return new TempMedia(this, media);
         }
         
         private void SweepStaleMedia()
         {
+            if (!DirectoryExists())
+                return;
             foreach (string fileName in Directory.GetFiles(Folder))
                 try
                 {
                     File.Delete(fileName);
                 }
-                catch
+                catch (Exception e)
                 {
-                    // ignored
+                    Logger.Warn(e);
                 }
         }
 
