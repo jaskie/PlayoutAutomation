@@ -50,6 +50,7 @@ namespace TAS.Client.Config
                     return;
                 _selectedDirectory = value;
                 NotifyPropertyChanged();
+                InvalidateRequerySuggested();
             }
         }
         
@@ -58,7 +59,7 @@ namespace TAS.Client.Config
         protected override void Update(object parameter = null)
         {
             Directories.Where(d => d.IsModified).ToList().ForEach(d => d.SaveToModel());
-            XmlSerializer writer = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
+            var writer = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(_fileName))
             {
                 writer.Serialize(file, Directories.Select(d => d.Model).ToList());

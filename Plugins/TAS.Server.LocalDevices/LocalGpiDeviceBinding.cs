@@ -5,7 +5,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
-    public class LocalGpiDeviceBinding : Remoting.Server.DtoBase, IGpi
+    public class LocalGpiDeviceBinding : Remoting.Server.DtoBase, IGpi, IEnginePlugin
     {
 
         public class GPIPin
@@ -22,8 +22,10 @@ namespace TAS.Server
 
         internal LocalDevices Owner;
 
+        internal IEngine Engine;
+
         [XmlAttribute]
-        public ulong IdEngine;
+        public string EngineName { get; set; }
 
         public event EventHandler Started;
 

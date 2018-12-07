@@ -985,13 +985,14 @@ namespace TAS.Client.ViewModels
 
         public IVideoPreview VideoPreview => _videoPreview;
 
-        public bool IsAnyPluginActive => _plugins != null && _plugins.Length > 0;
+        public bool IsAnyPluginVisible => _plugins != null && _plugins.Any(p => p.Menu != null);
 
         private void _updatePluginCanExecute()
         {
-            if (_plugins != null)
-                foreach (var p in _plugins)
-                    p.NotifyExecuteChanged();
+            if (_plugins == null)
+                return;
+            foreach (var p in _plugins)
+                p.NotifyExecuteChanged();
         }
 
         [Export]

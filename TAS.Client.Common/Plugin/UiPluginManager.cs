@@ -3,11 +3,13 @@ using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Diagnostics;
 using System.IO;
+using NLog;
 
 namespace TAS.Client.Common.Plugin
 {
     public static class UiPluginManager
     {
+        private static readonly Logger Logger = LogManager.GetLogger(nameof(UiPluginManager));
         private static readonly CompositionContainer UiContainer;
 
         static UiPluginManager()
@@ -30,7 +32,7 @@ namespace TAS.Client.Common.Plugin
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e);
+                Logger.Error(e);
             }
         }
     }

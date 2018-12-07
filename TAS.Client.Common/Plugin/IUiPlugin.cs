@@ -2,9 +2,10 @@
 
 namespace TAS.Client.Common.Plugin
 {
-    public interface IUiPlugin : IUiMenuItem
+    public interface IUiPlugin
     {
-        Func<PluginExecuteContext> ExecutionContext { get; set; }
+        IUiMenuItem Menu { get; }
+        Func<PluginExecuteContext> ExecutionContext { get; }
         void NotifyExecuteChanged();
     }
 }

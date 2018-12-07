@@ -6,7 +6,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
-    public class CgElementsController : Remoting.Server.DtoBase, ICGElementsController
+    public class CgElementsController : Remoting.Server.DtoBase, ICGElementsController, IEnginePlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(CgElementsController));
 

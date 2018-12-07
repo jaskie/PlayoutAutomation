@@ -7,7 +7,7 @@
                             CurrentItemName,
                             CurrentItemDurationInSeconds,
                             NextItemName,
-                            NextShowName, => next item that's media is Show
+                            NextShowName, => next item that's media is of 'Show' Category
                             NextNextItemName,
                             NextNextShowName
                 -->
