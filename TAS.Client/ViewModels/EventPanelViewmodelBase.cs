@@ -114,7 +114,7 @@ namespace TAS.Client.ViewModels
                     return;
                 if (value)
                 {
-                    EngineViewmodel.SelectedEvent = this;
+                    EngineViewmodel.SelectedEventPanel = this;
                     BringIntoView();
                 }
                 InvalidateRequerySuggested();

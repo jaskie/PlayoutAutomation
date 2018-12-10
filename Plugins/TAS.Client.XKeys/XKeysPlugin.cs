@@ -1,17 +1,12 @@
-﻿using System;
-using System.ComponentModel.Composition;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using NLog;
-using PIEHid64Net;
 using TAS.Client.Common.Plugin;
 using TAS.Common;
 
 namespace TAS.Client.XKeys
 {
-    [Export(typeof(IUiPlugin))]
     public class XKeysPlugin : IUiPlugin
     {
 
@@ -34,11 +29,10 @@ namespace TAS.Client.XKeys
             }
         }
 
-        [ImportingConstructor]
-        public XKeysPlugin(Func<PluginExecuteContext> executionContext)
+        public XKeysPlugin(IUiPluginContext context)
         {
-            ExecutionContext = executionContext;
-            var engine = executionContext?.Invoke()?.Engine;
+            Context = context;
+            var engine = context.Engine;
             if (engine == null)
                 return;
             var xKey = XKeys.FirstOrDefault(k => k.EngineName == engine.EngineName);
@@ -54,6 +48,6 @@ namespace TAS.Client.XKeys
 
         public IUiMenuItem Menu { get; } = null;
 
-        public Func<PluginExecuteContext> ExecutionContext { get;  }
+        public IUiPluginContext Context { get;  }
     }
 }

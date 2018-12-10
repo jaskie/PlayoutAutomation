@@ -4,39 +4,33 @@ using TAS.Common;
 
 namespace TAS.Client.Common.Plugin
 {
-    public class UiMenuItemBase : IUiMenuItem
+    public abstract class UiMenuItemBase : IUiMenuItem
     {
-        private readonly IUiPlugin _owner;
-        private readonly List<UiMenuItemBase> _items;
+        protected readonly IUiPlugin Owner;
 
-        public UiMenuItemBase(IUiPlugin owner)
+        protected UiMenuItemBase(IUiPlugin owner)
         {
-            _owner = owner;
+            Owner = owner;
         }
+
+        public IEnumerable<IUiMenuItem> Items { get; protected set; }
 
         public void NotifyExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-            _items?.ForEach(i => i.NotifyExecuteChanged());
+            if (Items != null)
+                foreach (var uiMenuItem in Items)
+                    uiMenuItem.NotifyExecuteChanged();
         }
 
         public event EventHandler CanExecuteChanged;
 
         public string Header { get; set; }
 
-        public IEnumerable<IUiMenuItem> Items => _items;
 
-        public bool CanExecute(object parameter)
-        {
-            var ec = _owner.ExecutionContext?.Invoke();
-            return ec?.Event != null && ec.Event.EventType == TEventType.Rundown;
-        }
+        public abstract bool CanExecute(object parameter);
 
-        public void Execute(object parameter)
-        {
-            var ec = _owner.ExecutionContext?.Invoke();
-            ec?.Engine?.Start(ec.Event);
-        }
+        public abstract void Execute(object parameter);
 
 
     }

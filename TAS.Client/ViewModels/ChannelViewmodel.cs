@@ -36,8 +36,8 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            Engine.Dispose();
-            MediaManager.Dispose();
+            Engine?.Dispose();
+            MediaManager?.Dispose();
         }
     }
 }

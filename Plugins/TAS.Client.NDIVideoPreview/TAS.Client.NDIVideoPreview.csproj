@@ -68,6 +68,7 @@
     <Compile Include="VideoPreviewView.xaml.cs">
       <DependentUpon>VideoPreviewView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VideoPreviewViewmodelFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="VideoPreviewView.xaml">

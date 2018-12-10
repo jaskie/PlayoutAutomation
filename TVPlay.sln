@@ -53,7 +53,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server", "TAS.Server\TA
 		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D} = {4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UiPluginExample", "Plugins\UiPluginExample\UiPluginExample.csproj", "{D91C7587-4BF6-4D93-A853-B6D7D30FA319}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.UiPluginExample", "Plugins\TAS.Client.UiPluginExample\TAS.Client.UiPluginExample.csproj", "{D91C7587-4BF6-4D93-A853-B6D7D30FA319}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
 	EndProjectSection
