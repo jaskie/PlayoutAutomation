@@ -12,17 +12,19 @@ namespace TAS.Client.UiPluginExample
             Context = context;
             _menu = new UiMenuItem(this) {Header = "Play"};
             Debug.WriteLine(this, "Plugin created");
+            context.PropertyChanged += Context_PropertyChanged;
         }
 
         public IUiPluginContext Context { get; }
 
-        public void NotifyExecuteChanged()
-        {
-            _menu.NotifyExecuteChanged();
-        }
 
         public IUiMenuItem Menu => _menu;
 
-        
+        private void Context_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(IUiPluginContext.SelectedEvent))
+                _menu.NotifyExecuteChanged();
+        }
+
     }
 }

@@ -38,6 +38,7 @@
     <Reference Include="PIEHid64Net">
       <HintPath>.\PIEHid64Net.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
@@ -52,12 +53,38 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActiveOnEnum.cs" />
+    <Compile Include="CommandTargetEnum.cs" />
+    <Compile Include="Device.cs" />
+    <Compile Include="DeviceEnumerator.cs" />
+    <Compile Include="InputSimulator\IInputDeviceStateAdaptor.cs" />
+    <Compile Include="InputSimulator\IInputMessageDispatcher.cs" />
+    <Compile Include="InputSimulator\IInputSimulator.cs" />
+    <Compile Include="InputSimulator\IKeyboardSimulator.cs" />
+    <Compile Include="InputSimulator\InputBuilder.cs" />
+    <Compile Include="InputSimulator\InputSimulator.cs" />
+    <Compile Include="InputSimulator\KeyboardSimulator.cs" />
+    <Compile Include="InputSimulator\WindowsInputDeviceStateAdaptor.cs" />
+    <Compile Include="InputSimulator\WindowsInputMessageDispatcher.cs" />
+    <Compile Include="KeyNotifyEventArgs.cs" />
+    <Compile Include="InputSimulator\Native\HARDWAREINPUT.cs" />
+    <Compile Include="InputSimulator\Native\INPUT.cs" />
+    <Compile Include="InputSimulator\Native\InputType.cs" />
+    <Compile Include="InputSimulator\Native\KEYBDINPUT.cs" />
+    <Compile Include="InputSimulator\Native\KeyboardFlag.cs" />
+    <Compile Include="InputSimulator\Native\MouseFlag.cs" />
+    <Compile Include="InputSimulator\Native\MOUSEINPUT.cs" />
+    <Compile Include="InputSimulator\Native\MOUSEKEYBDHARDWAREINPUT.cs" />
+    <Compile Include="InputSimulator\Native\NativeMethods.cs" />
+    <Compile Include="InputSimulator\Native\VirtualKeyCode.cs" />
+    <Compile Include="InputSimulator\Native\XButton.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XKey.cs" />
-    <Compile Include="XKeysPlugin.cs" />
-    <Compile Include="XKeysPluginFactory.cs" />
+    <Compile Include="Command.cs" />
+    <Compile Include="Plugin.cs" />
+    <Compile Include="PluginFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj">
@@ -77,5 +104,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -542,6 +542,8 @@ namespace TAS.Server
 
         public void Load(IEvent aEvent)
         {
+            if (aEvent == null || !(aEvent.EventType == TEventType.Rundown || aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live))
+                return;
             if (!HaveRight(EngineRight.Play))
                 return;
 

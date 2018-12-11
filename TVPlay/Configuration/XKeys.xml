@@ -1,5 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <XKeys>
-  <XKey EngineName="TVP Szczecin">
-  </XKey>
+  <Plugin EngineName="TVP Szczecin" UnitId="0">
+    <Commands>
+      <Command Key="0"  ActiveOn="Press" CommandTarget="Engine" Method="Load"/>
+      <Command Key="8"  ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
+      <Command Key="16" ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
+      <Command Key="24" ActiveOn="Press" CommandTarget="Keyboard" Method="F11"/>
+
+      <Command Key="1"  ActiveOn="Press" CommandTarget="Keyboard" Method="Ctrl+M"/>
+      <Command Key="25" ActiveOn="Press" CommandTarget="Engine" Method="Clear"/>
+
+      <Command Key="2"  ActiveOn="Press" CommandTarget="Keyboard" Method="Ctrl+0"/>
+      <Command Key="10" ActiveOn="Press" CommandTarget="SelectedEvent" Method="IsHold"/>
+      <Command Key="18" ActiveOn="Press" CommandTarget="SelectedEvent" Method="IsEnabled"/>
+      <Command Key="26" ActiveOn="Press" CommandTarget="SelectedEvent" Method="ReSchedule"/>
+    
+      <Command Key="3"  ActiveOn="Press" CommandTarget="Keyboard" Method="Delete"/>
+      <Command Key="27" ActiveOn="Press" CommandTarget="Keyboard" Method="Enter"/>
+
+      <Command Key="28" ActiveOn="Press" CommandTarget="Keyboard" Method="Enter"/>
+
+    </Commands>
+  </Plugin>
 </XKeys>

@@ -50,8 +50,8 @@ namespace TAS.Client.ViewModels
             Engine.VisibleEventAdded += _engine_VisibleEventAdded;
             Engine.VisibleEventRemoved += _engine_VisibleEventRemoved;
             Engine.RunningEventsOperation += OnEngineRunningEventsOperation;
-            _plugins = this.ComposeParts<IUiPlugin>();
-            VideoPreview = this.ComposePart<IVideoPreview>();
+            _plugins = UiPluginManager.ComposeParts<IUiPlugin>(this);
+            VideoPreview = UiPluginManager.ComposePart<IVideoPreview>(this);
 
             if (preview != null && engine.HaveRight(EngineRight.Preview))
                 PreviewViewmodel = new PreviewViewmodel(engine, preview) { IsSegmentsVisible = true };
@@ -844,7 +844,6 @@ namespace TAS.Client.ViewModels
                     _mediaSearchViewModel.NewEventStartType = TStartType.After;
                 }
                 InvalidateRequerySuggested();
-                _updatePluginCanExecute();
                 IsSearchNotFound = false;
             }
         }
@@ -994,14 +993,6 @@ namespace TAS.Client.ViewModels
         public IVideoPreview VideoPreview { get; }
 
         public bool IsAnyPluginVisible => _plugins != null && _plugins.Any(p => p.Menu != null);
-
-        private void _updatePluginCanExecute()
-        {
-            if (_plugins == null)
-                return;
-            foreach (var p in _plugins)
-                p.NotifyExecuteChanged();
-        }
 
         #endregion // Plugin
 

@@ -8,6 +8,5 @@ namespace TAS.Client.Common.Plugin
 
         IUiPluginContext Context { get; }
 
-        void NotifyExecuteChanged();
     }
 }

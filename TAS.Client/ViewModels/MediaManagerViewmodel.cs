@@ -71,7 +71,7 @@ namespace TAS.Client.ViewModels
                 FileManagerViewmodel = new FileManagerViewmodel(_mediaManager.FileManager);
             RecordersViewmodel = new RecordersViewmodel(Engine, _mediaManager.Recorders);
             RecordersViewmodel.PropertyChanged += _recordersViewmodel_PropertyChanged;
-            VideoPreview = this.ComposePart<IVideoPreview>();
+            VideoPreview = UiPluginManager.ComposePart<IVideoPreview>(this);
             VideoPreview?.SetSource(RecordersViewmodel.Channel?.PreviewUrl);
 
             CommandSearch = new UiCommand(_search, _canSearch);

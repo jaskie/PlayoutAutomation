@@ -33,14 +33,14 @@ namespace TAS.Client.Common.Plugin
             }
         }
 
-        public static T[] ComposeParts<T>(this IUiPluginContext context) where T : IUiPlugin
+        public static T[] ComposeParts<T>(IUiPluginContext context) where T : IUiPlugin
         {
-
             try
             {
                 return Factories
                     .Where(f => typeof(T).IsAssignableFrom(f.Type))
                     .Select(f => (T) f.CreateNew(context))
+                    .Where(p => p != null)
                     .ToArray();
             }
             catch (Exception e)
@@ -50,15 +50,14 @@ namespace TAS.Client.Common.Plugin
             return new T[0];
         }
 
-        public static T ComposePart<T>(this IUiPluginContext context)
+        public static T ComposePart<T>(IUiPluginContext context)
         {
-
             try
             {
                 return Factories
                     .Where(f => typeof(T).IsAssignableFrom(f.Type))
                     .Select(f => (T)f.CreateNew(context))
-                    .FirstOrDefault();
+                    .FirstOrDefault(p => p != null);
             }
             catch (Exception e)
             {
