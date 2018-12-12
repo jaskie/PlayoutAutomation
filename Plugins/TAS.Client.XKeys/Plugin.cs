@@ -35,21 +35,25 @@ namespace TAS.Client.XKeys
             {
                 if (keyNotifyEventArgs.UnitId != UnitId)
                     return;
-                var command = Commands.FirstOrDefault(c =>
+                if (!(Context is IUiEngine engine))
+                    return;
+                var commands = Commands.Where(c =>
                     c.Key == keyNotifyEventArgs.Key &&
-                    keyNotifyEventArgs.IsPressed == (c.ActiveOn == ActiveOnEnum.Press));
+                    keyNotifyEventArgs.IsPressed == (c.ActiveOn == ActiveOnEnum.Press) &&
+                    (c.Required < 0 || keyNotifyEventArgs.AllKeys.Contains(c.Required)));
+                var command = commands.FirstOrDefault(c => c.Required >= 0) ?? commands.FirstOrDefault(); //executes single command, the one with modifier has higher priority
                 if (command == null)
                     return;
                 switch (command.CommandTarget)
                 {
                     case CommandTargetEnum.Engine:
-                        ExecuteOnEngine(command.Method);
+                        ExecuteOnEngine(engine, command.Method);
                         break;
                     case CommandTargetEnum.Keyboard:
                         ExecuteOnKeyboard(command.Method);
                         break;
                     case CommandTargetEnum.SelectedEvent:
-                        ExecuteOnSelectedEvent(command.Method);
+                        ExecuteOnSelectedEvent(engine.SelectedEvent, command.Method);
                         break;
                 }
             }
@@ -59,7 +63,7 @@ namespace TAS.Client.XKeys
             }
         }
 
-        private void ExecuteOnKeyboard(string method)
+        private static void ExecuteOnKeyboard(string method)
         {
             
             var gesture = (KeyGesture)KeyGestureConverter.ConvertFromString(method);
@@ -67,7 +71,7 @@ namespace TAS.Client.XKeys
                 return;
             var modifiers = new List<VirtualKeyCode>();
             if ((gesture.Modifiers & ModifierKeys.Alt) != ModifierKeys.None)
-                modifiers.Add(VirtualKeyCode.MENU);
+                modifiers.Add(VirtualKeyCode.LMENU);
             if ((gesture.Modifiers & ModifierKeys.Control) != ModifierKeys.None)
                 modifiers.Add(VirtualKeyCode.CONTROL);
             if ((gesture.Modifiers & ModifierKeys.Shift) != ModifierKeys.None)
@@ -77,25 +81,20 @@ namespace TAS.Client.XKeys
             InputSimulator.Keyboard.ModifiedKeyStroke(modifiers, (VirtualKeyCode)KeyInterop.VirtualKeyFromKey(gesture.Key));
         }
 
-        private void ExecuteOnEngine(string commandMethod)
+        private static void ExecuteOnEngine(IUiEngine engine, string commandMethod)
         {
-            switch (commandMethod)
-            {
-                case nameof(IEngine.Load):
-                    Context.Engine.Load(Context.SelectedEvent);
-                    break;
-                case nameof(IEngine.StartLoaded):
-                    Context.Engine.StartLoaded();
-                    break;
-                case nameof(IEngine.Clear):
-                    Context.Engine.Clear();
-                    break;
-            }
+            var propertyName = $"Command{commandMethod}";
+            var propertyInfo = typeof(IUiEngine).GetProperty(propertyName);
+            if (propertyInfo == null)
+                return;
+            var o = propertyInfo.GetValue(engine);
+            if (!(o is ICommand command))
+                return;
+            engine.OnUiThread(() => command.Execute(null));
         }
 
-        private void ExecuteOnSelectedEvent(string commandMethod)
+        private static void ExecuteOnSelectedEvent(IEvent e, string commandMethod)
         {
-            var e = Context.SelectedEvent;
             if (e == null)
                 return;
             switch (commandMethod)
@@ -108,9 +107,7 @@ namespace TAS.Client.XKeys
                     e.IsEnabled = !e.IsEnabled;
                     e.Save();
                     break;
-                case nameof(IEngine.ReSchedule):
-                    Context.Engine.ReSchedule(e);
-                    break;
+
             }
         }
 

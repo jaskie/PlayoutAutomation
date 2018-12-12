@@ -1,9 +1,11 @@
-﻿using System.Xml.Serialization;
+﻿using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace TAS.Client.XKeys
 {
     public class Command
     {
+
         [XmlAttribute]
         public int Key { get; set; }
 
@@ -15,6 +17,9 @@ namespace TAS.Client.XKeys
 
         [XmlAttribute]
         public ActiveOnEnum ActiveOn { get; set; }
+
+        [XmlAttribute]
+        public int Required { get; set; } = -1;
 
     }
 }

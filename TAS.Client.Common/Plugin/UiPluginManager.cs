@@ -14,7 +14,10 @@ namespace TAS.Client.Common.Plugin
 
         static UiPluginManager()
         {
-            using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), "TAS.Client.*.dll"))
+            var directory = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
+            if (!Directory.Exists(directory))
+                return;
+            using (var catalog = new DirectoryCatalog(directory, "TAS.Client.*.dll"))
             using (var container = new CompositionContainer(catalog))
             {
                 try
@@ -37,11 +40,12 @@ namespace TAS.Client.Common.Plugin
         {
             try
             {
-                return Factories
-                    .Where(f => typeof(T).IsAssignableFrom(f.Type))
-                    .Select(f => (T) f.CreateNew(context))
-                    .Where(p => p != null)
-                    .ToArray();
+                if (Factories != null)
+                    return Factories
+                        .Where(f => typeof(T).IsAssignableFrom(f.Type))
+                        .Select(f => (T) f.CreateNew(context))
+                        .Where(p => p != null)
+                        .ToArray();
             }
             catch (Exception e)
             {
@@ -54,10 +58,11 @@ namespace TAS.Client.Common.Plugin
         {
             try
             {
-                return Factories
-                    .Where(f => typeof(T).IsAssignableFrom(f.Type))
-                    .Select(f => (T)f.CreateNew(context))
-                    .FirstOrDefault(p => p != null);
+                if (Factories != null)
+                    return Factories
+                        .Where(f => typeof(T).IsAssignableFrom(f.Type))
+                        .Select(f => (T) f.CreateNew(context))
+                        .FirstOrDefault(p => p != null);
             }
             catch (Exception e)
             {

@@ -110,6 +110,7 @@
     </Compile>
     <Compile Include="IngestDirectoryExtensions.cs" />
     <Compile Include="ObservableDictionary.cs" />
+    <Compile Include="Plugin\IUiEngine.cs" />
     <Compile Include="Plugin\IUiPluginContext.cs" />
     <Compile Include="Plugin\UiMenuItemBase.cs" />
     <Compile Include="Plugin\IUiPluginFactory.cs" />

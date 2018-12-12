@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NLog;
 using PIEHid64Net;
 
@@ -36,10 +37,10 @@ namespace TAS.Client.XKeys
             {
                 lock (_oldData)
                 {
-                    CheckKeys(data[1], 0, data[3], _oldData[3]);
-                    CheckKeys(data[1], 1, data[4], _oldData[4]);
-                    CheckKeys(data[1], 2, data[5], _oldData[5]);
-                    CheckKeys(data[1], 3, data[6], _oldData[6]);
+                    CheckKeys(data[1], 0, data[3], _oldData[3], data);
+                    CheckKeys(data[1], 1, data[4], _oldData[4], data);
+                    CheckKeys(data[1], 2, data[5], _oldData[5], data);
+                    CheckKeys(data[1], 3, data[6], _oldData[6], data);
                     Buffer.BlockCopy(data, 0, _oldData, 0, (int) PieDevice.ReadLength);
                 }
             }
@@ -48,23 +49,39 @@ namespace TAS.Client.XKeys
                 Logger.Error(e);
             }
         }
+
         public void HandlePIEHidError(PIEDevice sourceDevice, long error)
         {
             Logger.Debug("Error received from {0}, error code: {1}", sourceDevice, error);
         }
-
-        private void CheckKeys(byte unitId, int column, byte newValues, byte oldValues)
+        
+        private void CheckKeys(byte unitId, int column, byte newValues, byte oldValues, byte[] alldata)
         {
             var changedBits = newValues ^ oldValues;
             for (byte bit = 0; bit < 8; bit++)
             {
                 if ((changedBits & 0x1) > 0)
-                    _ownerEnumerator.KeyNotify(unitId, column * 8 + bit, (newValues & 0x1) > 0);
+                    _ownerEnumerator.KeyNotify(unitId, column * 8 + bit, (newValues & 0x1) > 0, GetAllKeys(alldata));
                 changedBits = changedBits >> 1;
                 newValues = (byte) (newValues >> 1);
             }
         }
-        
+
+        private static List<int> GetAllKeys(byte[] allData)
+        {
+            var keys = new List<int>();
+            for (var columnIndex = 0; columnIndex < 4; columnIndex++)
+            {
+                for (var bit = 0; bit < 8; bit++)
+                {
+                    var columnData = allData[columnIndex + 3];
+                    if (((1 << bit) & columnData) != 0)
+                        keys.Add(columnIndex * 8 + bit);
+                }
+            }
+            return keys;
+        }
+
         private static void GreenIndicatorLight(PIEDevice device)
         {
             if (device.WriteLength < 4)

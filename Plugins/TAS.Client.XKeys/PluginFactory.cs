@@ -12,7 +12,7 @@ namespace TAS.Client.XKeys
     [Export(typeof(IUiPluginFactory))]
     public class PluginFactory: IUiPluginFactory
     {
-        private static readonly Logger Logger = LogManager.GetLogger(nameof(Plugin));
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private const string ConfigurationFileName = "XKeys.xml";
 
         private readonly Plugin[] _plugins;

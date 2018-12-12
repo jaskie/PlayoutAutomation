@@ -178,8 +178,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public IEvent SelectedEvent { get; } = null;
-
         public IList SelectedMediaList
         {
             get => _selectedMediaList;

@@ -17,7 +17,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class EngineViewmodel : ViewModelBase, IUiPluginContext
+    public class EngineViewmodel : ViewModelBase, IUiEngine
     {
         private EventPanelViewmodelBase _selectedEventPanel;
         private DateTime _currentTime;
@@ -856,7 +856,6 @@ namespace TAS.Client.ViewModels
                 var oldSelectedEvent = _selectedEvent;
                 if (!SetField(ref _selectedEvent, value))
                     return;
-                NotifyPropertyChanged(nameof(SelectedMedia));
                 if (oldSelectedEvent != null)
                     oldSelectedEvent.PropertyChanged -= _onSelectedEventPropertyChanged;
                 if (value != null)
@@ -868,8 +867,6 @@ namespace TAS.Client.ViewModels
                     PreviewViewmodel.SelectedEvent = value;
             }
         }
-
-        public IMedia SelectedMedia => _selectedEvent?.Media;
 
         public EventEditViewmodel SelectedEventEditViewmodel { get => _selectedEventEditViewmodel; set => SetField(ref _selectedEventEditViewmodel, value); }
 
