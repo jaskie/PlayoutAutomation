@@ -29,13 +29,6 @@ namespace TAS.Server.Media
             Debug.WriteLine(this, "Directory initialized");
         }
 
-        public override void AddMedia(IMedia media)
-        {
-            base.AddMedia(media);
-            if (media.MediaStatus != TMediaStatus.Required && File.Exists(((MediaBase)media).FullPath))
-                ThreadPool.QueueUserWorkItem(o => media.Verify());
-        }
-
         public override void RemoveMedia(IMedia media)
         {
             if (!(media is ServerMedia sm))
@@ -125,8 +118,6 @@ namespace TAS.Server.Media
                 MediaGuid = Guid.NewGuid(),
                 FileName = Path.GetFileName(relativeName),
                 Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
-                MediaStatus = TMediaStatus.Available,
-                IsVerified = true
             };
             AddMedia(newMedia);
             newMedia.Save();

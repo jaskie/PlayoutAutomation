@@ -352,8 +352,7 @@ namespace TAS.Server.Media
                     (MediaStatus == TMediaStatus.Unknown
                     || MediaStatus == TMediaStatus.Deleted
                     || MediaStatus == TMediaStatus.Copied
-                    || (MediaType != TMediaType.Still && Duration == TimeSpan.Zero)
-                    || FileSize != (UInt64)fi.Length
+                    || FileSize != (ulong)fi.Length
                     || !LastUpdated.DateTimeEqualToDays(fi.LastWriteTimeUtc)
                     ))
                 {
