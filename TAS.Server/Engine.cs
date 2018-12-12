@@ -69,7 +69,6 @@ namespace TAS.Server
         private IMedia _previewMedia;
         private long _previewDuration;
         private long _previewPosition;
-        private long _previewLoadedSeek;
         private double _previewAudioVolume;
         private bool _previewLoaded;
         private bool _previewIsPlaying;
@@ -79,7 +78,8 @@ namespace TAS.Server
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Engine));
         private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
-
+        private bool _enableCGElementsForNewEvents;
+        private bool _studioMode;
 
         public Engine()
         {
@@ -134,14 +134,13 @@ namespace TAS.Server
         public int CGStartDelay { get; set; }
 
         [JsonProperty]
-        public string EngineName
-        {
-            get { return _engineName; }
-            set { SetField(ref _engineName, value); }
-        }
+        public string EngineName { get => _engineName; set => SetField(ref _engineName, value); }
 
         [JsonProperty]
-        public bool EnableCGElementsForNewEvents { get; set; }
+        public bool EnableCGElementsForNewEvents { get => _enableCGElementsForNewEvents; set => SetField(ref _enableCGElementsForNewEvents, value); }
+
+        [JsonProperty]
+        public bool StudioMode { get => _studioMode; set => SetField(ref _studioMode, value); }
 
         [JsonProperty]
         public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
@@ -218,18 +217,18 @@ namespace TAS.Server
                         if (value == TEngineState.Hold)
                             foreach (var ev in _runningEvents.Where(e =>
                                 (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) &&
-                                ((Event) e).IsFinished()).ToArray())
+                                ((Event)e).IsFinished()).ToArray())
                             {
-                                _pause((Event) ev, true);
+                                _pause((Event)ev, true);
                                 Debug.WriteLine(ev, "Hold: Played");
                             }
                         if (value == TEngineState.Idle && _runningEvents.Count > 0)
                         {
                             foreach (var ev in _runningEvents.Where(e =>
                                 (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) &&
-                                ((Event) e).IsFinished()).ToArray())
+                                ((Event)e).IsFinished()).ToArray())
                             {
-                                _pause((Event) ev, true);
+                                _pause((Event)ev, true);
                                 Debug.WriteLine(ev, "Idle: Played");
                             }
                         }
@@ -262,7 +261,7 @@ namespace TAS.Server
                 if (!SetField(ref _programAudioVolume, value))
                     return;
                 var playing = Playing;
-                int transitioDuration = playing == null ? 0 : (int) playing.TransitionTime.ToSMPTEFrames(FrameRate);
+                int transitioDuration = playing == null ? 0 : (int)playing.TransitionTime.ToSMPTEFrames(FrameRate);
                 _playoutChannelPRI?.SetVolume(VideoLayer.Program, value, transitioDuration);
                 if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
                     _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
@@ -278,17 +277,17 @@ namespace TAS.Server
             var recorders = new List<CasparRecorder>();
 
             var sPRI = servers.FirstOrDefault(s => s.Id == IdServerPRI);
-            _playoutChannelPRI = (CasparServerChannel) sPRI?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRI);
+            _playoutChannelPRI = (CasparServerChannel)sPRI?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRI);
             if (sPRI != null)
                 recorders.AddRange(sPRI.Recorders.Select(r => r as CasparRecorder));
             var sSEC = servers.FirstOrDefault(s => s.Id == IdServerSEC);
             if (sSEC != null && sSEC != sPRI)
                 recorders.AddRange(sSEC.Recorders.Select(r => r as CasparRecorder));
-            _playoutChannelSEC = (CasparServerChannel) sSEC?.Channels.FirstOrDefault(c => c.Id == ServerChannelSEC);
+            _playoutChannelSEC = (CasparServerChannel)sSEC?.Channels.FirstOrDefault(c => c.Id == ServerChannelSEC);
             var sPRV = servers.FirstOrDefault(s => s.Id == IdServerPRV);
             if (sPRV != null && sPRV != sPRI && sPRV != sSEC)
                 recorders.AddRange(sPRV.Recorders.Select(r => r as CasparRecorder));
-            _playoutChannelPRV = (CasparServerChannel) sPRV?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV);
+            _playoutChannelPRV = (CasparServerChannel)sPRV?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV);
             _mediaManager.SetRecorders(recorders);
 
             _localGpis = this.ComposeParts<IGpi>();
@@ -372,7 +371,7 @@ namespace TAS.Server
             private set
             {
                 var oldPlaying = _playing;
-                if (!SetField(ref _playing, (Event) value))
+                if (!SetField(ref _playing, (Event)value))
                     return;
                 if (oldPlaying != null)
                     oldPlaying.SubEventChanged -= _playingSubEventsChanged;
@@ -405,13 +404,13 @@ namespace TAS.Server
 
         public IEvent GetNextWithRequestedStartTime()
         {
-                var e = _playing;
-                if (e == null)
-                    return null;
-                do
-                    e = e.InternalGetSuccessor();
-                while (e != null && e.RequestedStartTime == null);
-                return e;
+            var e = _playing;
+            if (e == null)
+                return null;
+            do
+                e = e.InternalGetSuccessor();
+            while (e != null && e.RequestedStartTime == null);
+            return e;
         }
 
         [XmlIgnore, JsonProperty]
@@ -471,7 +470,7 @@ namespace TAS.Server
         public IMedia PreviewMedia => _previewMedia;
 
         [XmlIgnore, JsonProperty]
-        public long PreviewLoadedSeek => _previewLoadedSeek;
+        public long PreviewLoadedSeek { get; private set; }
 
         [XmlIgnore]
         [JsonProperty]
@@ -485,13 +484,13 @@ namespace TAS.Server
                 if (_previewIsPlaying)
                     PreviewPause();
                 long newSeek = value < 0 ? 0 : value;
-                long maxSeek = _previewDuration-1;
+                long maxSeek = _previewDuration - 1;
                 if (newSeek > maxSeek)
                     newSeek = maxSeek;
                 if (SetField(ref _previewPosition, newSeek))
                 {
                     _previewPositionCancellationTokenSource?.Cancel();
-                    var cancellationTokenSource = new  CancellationTokenSource();
+                    var cancellationTokenSource = new CancellationTokenSource();
                     Task.Run(() =>
                     {
                         Thread.Sleep(PerviewPositionSetDelay);
@@ -499,7 +498,7 @@ namespace TAS.Server
                             _currentTicks > _previewLastPositionSetTick + TimeSpan.TicksPerMillisecond * PerviewPositionSetDelay * 3)
                         {
                             _previewLastPositionSetTick = _currentTicks;
-                            _playoutChannelPRV.Seek(VideoLayer.Preview, _previewLoadedSeek + newSeek);
+                            _playoutChannelPRV.Seek(VideoLayer.Preview, PreviewLoadedSeek + newSeek);
                         }
                     }, cancellationTokenSource.Token);
                     _previewPositionCancellationTokenSource = cancellationTokenSource;
@@ -517,10 +516,11 @@ namespace TAS.Server
                     _playoutChannelPRV.SetVolume(VideoLayer.Preview, (double)Math.Pow(10, (double)value / 20), 0);
             }
         }
-        
+
         [XmlIgnore]
         [JsonProperty]
-        public bool PreviewLoaded {
+        public bool PreviewLoaded
+        {
             get => _previewLoaded;
             private set
             {
@@ -588,7 +588,7 @@ namespace TAS.Server
             lock (_tickLock)
             {
                 EngineState = TEngineState.Running;
-                _run((Event) aEvent);
+                _run((Event)aEvent);
             }
             NotifyEngineOperation(aEvent, TEngineOperation.Schedule);
         }
@@ -776,7 +776,8 @@ namespace TAS.Server
         {
             if (!HaveRight(EngineRight.Play))
                 return;
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 try
                 {
                     _reSchedule(aEvent as Event);
@@ -803,7 +804,7 @@ namespace TAS.Server
             if (mediaToLoad != null)
             {
                 _previewDuration = duration;
-                _previewLoadedSeek = seek;
+                PreviewLoadedSeek = seek;
                 _previewPosition = position;
                 _previewMedia = media;
                 _previewLastPositionSetTick = _currentTicks;
@@ -840,7 +841,7 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Preview))
                 return;
             _playoutChannelPRV?.Pause(VideoLayer.Preview);
-           PreviewIsPlaying = false;
+            PreviewIsPlaying = false;
         }
 
         public void SearchMissingEvents()
@@ -922,7 +923,7 @@ namespace TAS.Server
             var groups = user.GetGroups();
             lock (_rights)
             {
-                return _rights.Value.Any(r => r.SecurityObject == user && (r.Acl & (ulong)right) > 0) 
+                return _rights.Value.Any(r => r.SecurityObject == user && (r.Acl & (ulong)right) > 0)
                     || groups.Any(g => _rights.Value.Any(r => r.SecurityObject == g && (r.Acl & (ulong)right) > 0));
             }
         }
@@ -1072,7 +1073,7 @@ namespace TAS.Server
                 return;
             var eventType = aEvent.EventType;
             IEvent preloaded;
-            if ((eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage) && 
+            if ((eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage) &&
                 !(_preloadedEvents.TryGetValue(aEvent.Layer, out preloaded) && preloaded == aEvent))
             {
                 Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent);
@@ -1098,7 +1099,7 @@ namespace TAS.Server
                     se.PlayState = TPlayState.Scheduled;
                     var seType = se.EventType;
                     var seStartType = se.StartType;
-                    if (seType == TEventType.Rundown 
+                    if (seType == TEventType.Rundown
                         || seType == TEventType.Live
                         || seType == TEventType.Movie
                         || (seType == TEventType.StillImage && (seStartType == TStartType.WithParent && se.ScheduledDelay < _preloadTime)
@@ -1131,7 +1132,7 @@ namespace TAS.Server
                             RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Remove));
                         }
                         e.SaveDelayed();
-                    });                        
+                    });
             }
             _run(aEvent);
             if (fromBeginning)
@@ -1208,7 +1209,7 @@ namespace TAS.Server
             foreach (var e in _runningEvents.ToArray())
             {
                 _runningEvents.Remove(e);
-                ((Event)e).PlayState = ((Event) e).Position == 0 ? TPlayState.Scheduled : TPlayState.Aborted;
+                ((Event)e).PlayState = ((Event)e).Position == 0 ? TPlayState.Scheduled : TPlayState.Aborted;
                 RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Remove));
                 e.SaveDelayed();
             }
@@ -1311,7 +1312,7 @@ namespace TAS.Server
             {
                 _previewDuration = 0;
                 _previewPosition = 0;
-                _previewLoadedSeek = 0;
+                PreviewLoadedSeek = 0;
                 _previewMedia = null;
             }
             PreviewLoaded = false;
@@ -1366,8 +1367,8 @@ namespace TAS.Server
             {
                 if (EngineState == TEngineState.Running)
                 {
-                        foreach (var e in _runningEvents.Where(ev => ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading))
-                            ((Event)e).Position += nFrames;
+                    foreach (var e in _runningEvents.Where(ev => ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading))
+                        ((Event)e).Position += nFrames;
 
                     Event playingEvent = _playing;
                     Event succEvent = null;
@@ -1536,7 +1537,7 @@ namespace TAS.Server
             NotifyPropertyChanged(nameof(DatabaseConnectionState));
             Logger.Error("Database state changed from {0} to {1}. Stack trace was {2}", e.OldState, e.NewState, new StackTrace());
         }
-        
+
         protected override void DoDispose()
         {
             foreach (var e in _rootEvents)
@@ -1547,7 +1548,7 @@ namespace TAS.Server
             _mediaManager.Dispose();
             if (_plugins != null)
                 foreach (var plugin in _plugins)
-                plugin.Dispose();
+                    plugin.Dispose();
             base.DoDispose();
         }
 
@@ -1640,7 +1641,7 @@ namespace TAS.Server
         {
             _startLoaded();
         }
-        
+
         private void _server_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             void ChannelConnected(CasparServerChannel channel, List<Event> ve)

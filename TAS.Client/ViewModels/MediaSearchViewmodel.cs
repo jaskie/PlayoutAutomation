@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
-using System.Windows;
 using System.ComponentModel;
 using System.Windows.Data;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
@@ -21,7 +19,6 @@ namespace TAS.Client.ViewModels
     {
         private readonly TMediaType _mediaType;
         private readonly VideoFormatDescription _videoFormatDescription;
-        private readonly IEngine _engine;
         private readonly IWatcherDirectory _searchDirectory;
         public readonly VideoLayer Layer;
 
@@ -30,19 +27,19 @@ namespace TAS.Client.ViewModels
         private string _searchText = string.Empty;
         private object _mediaCategory;
         private MediaViewViewmodel _selectedItem;
-        private ICollectionView _itemsView;
+        private readonly ICollectionView _itemsView;
         private string _okButtonText = "OK";
 
         public MediaSearchViewmodel(IPreview preview, IEngine engine, TMediaType mediaType, VideoLayer layer,
             bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
         {
-            _engine = engine;
+            Engine = engine;
             Layer = layer;
             if (mediaType == TMediaType.Movie)
             {
                 _videoFormatDescription = engine.FormatDescription;
                 if (preview != null)
-                    PreviewViewmodel = new PreviewViewmodel(engine, preview) { IsSegmentsVisible = true };
+                    PreviewViewmodel = new PreviewViewmodel(engine, preview) {IsSegmentsVisible = true};
             }
             else
                 _videoFormatDescription = videoFormatDescription;
@@ -50,10 +47,10 @@ namespace TAS.Client.ViewModels
             if (PreviewViewmodel != null)
                 PreviewViewmodel.PropertyChanged += _onPreviewViewModelPropertyChanged;
             IWatcherDirectory pri = mediaType == TMediaType.Animation
-                ? (IWatcherDirectory)engine.MediaManager.AnimationDirectoryPRI
+                ? (IWatcherDirectory) engine.MediaManager.AnimationDirectoryPRI
                 : engine.MediaManager.MediaDirectoryPRI;
             IWatcherDirectory sec = mediaType == TMediaType.Animation
-                ? (IWatcherDirectory)engine.MediaManager.AnimationDirectorySEC
+                ? (IWatcherDirectory) engine.MediaManager.AnimationDirectorySEC
                 : engine.MediaManager.MediaDirectorySEC;
             _searchDirectory = pri != null && pri.DirectoryExists()
                 ? pri
@@ -71,21 +68,18 @@ namespace TAS.Client.ViewModels
             if (!closeAfterAdd)
                 OkButtonText = resources._button_Add;
             _createCommands();
-            Task.Run(() =>
-            {
-                var items = (_searchDirectory.GetFiles())
+            Items = new ObservableCollection<MediaViewViewmodel>(
+                _searchDirectory.GetFiles()
                     .Where(m => _canAddMediaToCollection(m, mediaType))
-                    .Select(m => new MediaViewViewmodel(m));
-                Items = new ObservableCollection<MediaViewViewmodel>(items);
-                _itemsView = CollectionViewSource.GetDefaultView(Items);
-                _itemsView.SortDescriptions.Add(mediaType == TMediaType.Movie
-                    ? new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending)
-                    : new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
-                _itemsView.Filter += _itemsFilter;
-            });
+                    .Select(m => new MediaViewViewmodel(m)));
+            _itemsView = CollectionViewSource.GetDefaultView(Items);
+            _itemsView.SortDescriptions.Add(mediaType == TMediaType.Movie
+                ? new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending)
+                : new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
+            _itemsView.Filter += _itemsFilter;
         }
 
-        public ObservableCollection<MediaViewViewmodel> Items { get => _items; private set => SetField(ref _items, value); }
+        public ObservableCollection<MediaViewViewmodel> Items { get; }
 
         public ICommand CommandAdd { get; private set; }
 
@@ -99,15 +93,12 @@ namespace TAS.Client.ViewModels
             set
             {
                 value = value.ToLower();
-                if (value != _searchText)
-                {
-                    _searchText = value;
-                    _searchTextSplit = value.ToLower().Split(' ');
-                    NotifyPropertyChanged(nameof(SearchText));
-                    _itemsView?.Refresh();
-                    _itemsView?.MoveCurrentToFirst();
-                    SelectedItem = _itemsView?.CurrentItem as MediaViewViewmodel;
-                }
+                if (!SetField(ref _searchText, value.ToLower()))
+                    return;
+                _searchTextSplit = value.Split(' ');
+                _itemsView?.Refresh();
+                _itemsView?.MoveCurrentToFirst();
+                SelectedItem = _itemsView?.CurrentItem as MediaViewViewmodel;
             }
         }
 
@@ -153,13 +144,8 @@ namespace TAS.Client.ViewModels
 
         public bool IsShowCategoryColumn => _mediaType == TMediaType.Movie && !(_mediaCategory is TMediaCategory);
 
-        public bool EnableCGElementsForNewEvents
-        {
-            get => _engine.EnableCGElementsForNewEvents;
-            set => _engine.EnableCGElementsForNewEvents = value;
-        }
 
-        public bool CanEnableCGElements => _engine.CGElementsController != null && _mediaType == TMediaType.Movie;
+        public bool CanEnableCGElements => Engine.CGElementsController != null && _mediaType == TMediaType.Movie;
 
         public string OkButtonText
         {
@@ -176,7 +162,6 @@ namespace TAS.Client.ViewModels
         public event EventHandler<MediaSearchEventArgs> MediaChoosen;
 
         internal TStartType NewEventStartType;
-        private ObservableCollection<MediaViewViewmodel> _items;
 
         internal IEvent BaseEvent
         {
@@ -195,6 +180,8 @@ namespace TAS.Client.ViewModels
                 }
             }
         }
+
+        public IEngine Engine { get; }
 
         private bool _canAddMediaToCollection(IMedia media, TMediaType requiredMediaType)
         {

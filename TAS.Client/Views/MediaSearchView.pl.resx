@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="_enableCGForNewEvents" xml:space="preserve">
-    <value>Włącz CG dla tego klipu</value>
+    <value>Włącz CG dla dodawanych klipów</value>
   </data>
   <data name="_grid.Header.ClipName" xml:space="preserve">
     <value>Nazwa klipu</value>
@@ -131,6 +131,9 @@
   </data>
   <data name="_search" xml:space="preserve">
     <value>Wyszukaj</value>
+  </data>
+  <data name="_studioMode" xml:space="preserve">
+    <value>Wstrzymaj dodawany klip (tryb studyjny)</value>
   </data>
   <data name="_windowTitle" xml:space="preserve">
     <value>Wybierz media...</value>

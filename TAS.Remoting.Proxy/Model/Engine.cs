@@ -45,6 +45,9 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEngine.EnableCGElementsForNewEvents))]
         private bool _enableCGElementsForNewEvents;
 
+        [JsonProperty(nameof(IEngine.StudioMode))]
+        private bool _studioMode;
+
         [JsonProperty(nameof(IEngine.CrawlEnableBehavior))]
         private TCrawlEnableBehavior _crawlEnableBehavior;
 
@@ -144,6 +147,8 @@ namespace TAS.Remoting.Model
             get => _enableCGElementsForNewEvents;
             set => Set(value);
         }
+
+        public bool StudioMode { get => _studioMode; set => Set(value); }
 
         public TCrawlEnableBehavior CrawlEnableBehavior
         {

@@ -99,6 +99,7 @@ namespace TAS.Common.Interfaces
         TVideoFormat VideoFormat { get; set; }
         bool EnableCGElementsForNewEvents { get; set; }
         TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
+        bool StudioMode { get; set; }
     }
 
     public interface IEnginePersistent : IEngineProperties, IPersistent

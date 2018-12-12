@@ -12,7 +12,6 @@ using TAS.Common;
 using System.Threading.Tasks;
 using TAS.Client.Common.Plugin;
 using TAS.Common.Interfaces;
-using TAS.Common.Interfaces.Media;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
@@ -695,12 +694,16 @@ namespace TAS.Client.ViewModels
                         eventType: TEventType.Live,
                         eventName: resources._title_NewLive,
                         videoLayer: VideoLayer.Program,
+                        isCGEnabled: Engine.EnableCGElementsForNewEvents,
+                        isHold: Engine.StudioMode,
                         duration: new TimeSpan(0, 10, 0));
                     break;
                 case TEventType.Movie:
                     newEvent = Engine.CreateNewEvent(
                         eventType: TEventType.Movie,
                         eventName: resources._title_EmptyMovie,
+                        isCGEnabled: Engine.EnableCGElementsForNewEvents,
+                        isHold: Engine.StudioMode,
                         videoLayer: VideoLayer.Program);
                     break;
                 case TEventType.Rundown:
@@ -1166,6 +1169,7 @@ namespace TAS.Client.ViewModels
                         scheduledTC: e.TCIn,
                         duration: e.Duration,
                         isCGEnabled: Engine.EnableCGElementsForNewEvents,
+                        isHold: Engine.StudioMode,
                         crawl: ((Engine.CrawlEnableBehavior == TCrawlEnableBehavior.ShowsOnly && category == TMediaCategory.Show)
                                       || (Engine.CrawlEnableBehavior == TCrawlEnableBehavior.AllButCommercials && (category == TMediaCategory.Show || category == TMediaCategory.Fill || category == TMediaCategory.Insert || category == TMediaCategory.Uncategorized))
                             ? defaultCrawl : (byte)0),

@@ -20,9 +20,12 @@ namespace TAS.Server
         static PluginManager()
         {
             Logger.Debug("Creating");
-            using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), "TAS.Server.*.dll"))
+            var pluginPath = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
+            if (!Directory.Exists(pluginPath))
+                return;
+            using (var catalog = new DirectoryCatalog(pluginPath, "TAS.Server.*.dll"))
+            using (var container = new CompositionContainer(catalog))
             {
-                var container = new CompositionContainer(catalog);
                 container.ComposeExportedValue("AppSettings", ConfigurationManager.AppSettings);
                 try
                 {
