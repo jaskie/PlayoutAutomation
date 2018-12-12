@@ -13,13 +13,17 @@ namespace TAS.Client.UiPluginExample
 
         public override bool CanExecute(object parameter)
         {
-            var e = Owner.Context.SelectedEvent;
+            if (!(Owner.Context is IUiEngine engine))
+                return false;
+            var e = engine.SelectedEvent;
             return e?.EventType == TEventType.Rundown;
         }
 
         public override void Execute(object parameter)
         {
-            Owner.Context.Engine.Start(Owner.Context.SelectedEvent);
+            if (!(Owner.Context is IUiEngine engine))
+                return;
+            engine.Engine.Start(engine.SelectedEvent);
         }
     }
 }

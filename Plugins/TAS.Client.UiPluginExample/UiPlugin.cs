@@ -22,7 +22,7 @@ namespace TAS.Client.UiPluginExample
 
         private void Context_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IUiPluginContext.SelectedEvent))
+            if (e.PropertyName == nameof(IUiEngine.SelectedEvent))
                 _menu.NotifyExecuteChanged();
         }
 
