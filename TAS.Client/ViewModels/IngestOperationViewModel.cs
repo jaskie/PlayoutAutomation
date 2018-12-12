@@ -28,7 +28,10 @@ namespace TAS.Client.ViewModels
         {
             _ingestOperation = operation;
             _engine = engine;
-            string destFileName = $"{Path.GetFileNameWithoutExtension(operation.Source.FileName)}.{operation.MovieContainerFormat}";
+            var fileExt = operation.Source.MediaType == TMediaType.Movie
+                ? $".{operation.MovieContainerFormat}"
+                : FileUtils.DefaultFileExtension(operation.Source.MediaType);
+            string destFileName = $"{Path.GetFileNameWithoutExtension(operation.Source.FileName)}{fileExt}";
             _destMediaProperties = new PersistentMediaProxy
             {
                 FileName = operation.DestDirectory.GetUniqueFileName(destFileName),
