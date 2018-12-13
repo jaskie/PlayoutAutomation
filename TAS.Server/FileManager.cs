@@ -96,7 +96,7 @@ namespace TAS.Server
         {
             if (!(operation is FileOperation op))
                 return;
-            Task.Run(() => _queue(op));
+            _queue(op);
         }
 
         public void CancelPending()

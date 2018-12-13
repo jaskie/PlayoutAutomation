@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -44,14 +43,7 @@ namespace TAS.Server
         {
             OwnerFileManager = ownerFileManager;
         }
-
-#if DEBUG
-        ~FileOperation()
-        {
-            Debug.WriteLine("{0} finalized: {1}", GetType(), this);
-        }
-#endif
-        
+       
         [JsonProperty]
         public IMediaProperties DestProperties { get => _destMediaProperties; set => SetField(ref _destMediaProperties, value, nameof(Title)); }
 

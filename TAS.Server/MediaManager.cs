@@ -495,7 +495,7 @@ namespace TAS.Server
                 return;
             var compMedia = _findComplementaryMedia(priMedia);
             if (compMedia?.IsModified == true)
-                ThreadPool.QueueUserWorkItem(o => compMedia.Save());
+                compMedia.Save();
         }
 
         private void ArchiveDirectory_MediaRemoved(object sender, MediaEventArgs e)
@@ -579,7 +579,19 @@ namespace TAS.Server
             {
                 var mediaToDelete = ((WatcherDirectory)MediaDirectorySEC).FindMediaByMediaGuid(e.Media.MediaGuid);
                 if (mediaToDelete != null && mediaToDelete.FileExists())
-                    FileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Delete, Source = mediaToDelete });
+                {
+                    var operation = new FileOperation(_fileManager) {Kind = TFileOperationKind.Delete, Source = mediaToDelete};
+                    operation.Success += (sender, args) =>
+                    {
+                        foreach (var ingestDirectory in IngestDirectories)
+                        {
+                            if (((IngestDirectory) ingestDirectory).FindMediaByMediaGuid(operation.Source.MediaGuid) is
+                                IngestMedia media)
+                                media.IngestStatus = TIngestStatus.Unknown;
+                        }
+                    };
+                    FileManager.Queue(operation);
+                }
             }
         }
 

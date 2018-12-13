@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using TAS.FFMpegUtils;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
@@ -27,15 +26,12 @@ namespace TAS.Server.Media
         {
             get
             {
-                if (_ingestStatus == TIngestStatus.Unknown)
-                {
-                    if (((IngestDirectory)Directory).MediaManager.MediaDirectoryPRI is ServerDirectory sdir)
-                    {
-                        var media = sdir.FindMediaByMediaGuid(MediaGuid);
-                        if (media != null && media.MediaStatus == TMediaStatus.Available)
-                            _ingestStatus = TIngestStatus.Ready;
-                    }
-                }
+                if (_ingestStatus != TIngestStatus.Unknown) return _ingestStatus;
+                if (!(((IngestDirectory) Directory).MediaManager.MediaDirectoryPRI is ServerDirectory sdir))
+                    return _ingestStatus;
+                var media = sdir.FindMediaByMediaGuid(MediaGuid);
+                if (media != null && media.MediaStatus == TMediaStatus.Available)
+                    _ingestStatus = TIngestStatus.Ready;
                 return _ingestStatus;
             }
             set => SetField(ref _ingestStatus, value);
