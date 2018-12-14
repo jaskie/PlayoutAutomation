@@ -208,11 +208,9 @@ namespace TAS.Client.ViewModels
                 if (Event == null || Event.EventType == TEventType.Live || Event.EventType == TEventType.Rundown ||
                     Event.EventType == TEventType.Container)
                     return TMediaErrorInfo.NoError;
-                // else
                 var media = Media;
                 if (media == null || media.MediaStatus == TMediaStatus.Deleted || !media.FileExists())
                     return TMediaErrorInfo.Missing;
-                //else
                 if (media.MediaStatus == TMediaStatus.Available)
                     if (media.MediaType == TMediaType.Still
                         || media.MediaType == TMediaType.Animation

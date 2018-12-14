@@ -466,8 +466,7 @@ namespace TAS.Client.ViewModels
 
             bool exportAll = obj != null;
             return _multiSelectedEvents.Any(e => e is EventPanelMovieViewmodel m
-                                                 && (m.IsEnabled || exportAll)
-                                                 && m.Media?.FileExists() == true)
+                                                 && (m.IsEnabled || exportAll))
                    && Engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
         }
 

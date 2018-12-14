@@ -361,16 +361,16 @@ namespace TAS.Server.Media
                     if (prevMedia is Common.Interfaces.Media.IServerMedia || prevMedia is Common.Interfaces.Media.IAnimatedMedia)
                     {
                         prevMedia.PropertyChanged -= _media_PropertyChanged;
-                        Task.Run((Action)(() =>
+                        Task.Run(() =>
                         {
                             if (prevMedia is Common.Database.Interfaces.Media.IAnimatedMedia am)
                                 EngineController.Database.DeleteMedia(am);
                             if (prevMedia is Common.Database.Interfaces.Media.IServerMedia sm)
                                 EngineController.Database.DeleteMedia(sm);
-                            Logger.Warn("Media {0} replaced in dictionary. Previous media deleted in database.",
+                            Logger.Error("Media {0} replaced in dictionary. Previous media deleted in database.",
                                 prevMedia);
                             Debug.WriteLine(prevMedia, "Media replaced in dictionary");
-                        }));
+                        });
                     }
                 }
                 Files[mediaBase.MediaGuid] = mediaBase;

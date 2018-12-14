@@ -620,10 +620,10 @@ namespace TAS.Client.ViewModels
         }
 
 
-        private void _syncSecToPri(object o)
+        private async void _syncSecToPri(object o)
         {
             if (_selectedDirectory?.Directory is IServerDirectory)
-                _mediaManager.SynchronizeMediaSecToPri(true);
+                await Task.Run(() => _mediaManager.SynchronizeMediaSecToPri(true));
         }
 
         private void _export(object obj)
@@ -645,14 +645,14 @@ namespace TAS.Client.ViewModels
             _mediaManager.MeasureLoudness(_getSelections());
         }
 
-        private void _ingestSelectionToDir()
+        private async Task _ingestSelectionToDir()
         {
             var currentDir = _selectedDirectory?.Directory;
             if (!(currentDir is IIngestDirectory))
                 return;
-            List<IIngestOperation> ingestList = new List<IIngestOperation>();
+            var ingestList = new List<IIngestOperation>();
             var selectedMediaList = _getSelections();
-            Task.Run(() =>
+            await Task.Run(() =>
             {
                 selectedMediaList.ForEach(m =>
                 {
@@ -662,7 +662,7 @@ namespace TAS.Client.ViewModels
             });
             foreach (var sourceMedia in selectedMediaList)
                 if (sourceMedia is IIngestMedia media)
-                    ingestList.Add(_mediaManager.FileManager.CreateIngestOperation(media, _mediaManager));
+                    ingestList.Add(await Task.Run(() => _mediaManager.FileManager.CreateIngestOperation(media, _mediaManager)));
             if (ingestList.Count == 0)
                 return;
             using (var ievm = new IngestEditorViewmodel(ingestList, _preview, Engine))
@@ -687,14 +687,14 @@ namespace TAS.Client.ViewModels
             return true;
         }
 
-        private void _ingestSelectedToServer(object o)
+        private async void _ingestSelectedToServer(object o)
         {
             if (!_checkEditMediaSaved())
                 return;
             if (_selectedDirectory.IsIngestDirectory)
-                _ingestSelectionToDir();
+                await _ingestSelectionToDir();
             else
-                _mediaManager.CopyMediaToPlayout(_getSelections());
+                await Task.Run(() => _mediaManager.CopyMediaToPlayout(_getSelections()));
         }
 
         private bool _canSearch(object o)

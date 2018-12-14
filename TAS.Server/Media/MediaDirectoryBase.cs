@@ -95,18 +95,18 @@ namespace TAS.Server.Media
         
         internal virtual bool DeleteMedia(IMedia media)
         {
-            if (media.Directory != this)
-                throw new ApplicationException("Deleting media directory is invalid");
             if (media.FileExists())
             {
                 try
                 {
                     File.Delete(((MediaBase)media).FullPath);
+                    Logger.Trace("File deleted {0}", media);
                     Debug.WriteLine(media, "File deleted");
                     return true;
                 }
                 catch (Exception e)
                 {
+                    Logger.Error(e);
                     Debug.WriteLine("MediaDirectory.DeleteMedia {0} failed with error {1}", media, e.Message);
                 }
             }
@@ -134,8 +134,7 @@ namespace TAS.Server.Media
                 VolumeTotalSize = 0;
             }
         }
-
-
+        
 
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]

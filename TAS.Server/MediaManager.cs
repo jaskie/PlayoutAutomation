@@ -216,9 +216,8 @@ namespace TAS.Server
 
         public void SynchronizeMediaSecToPri(bool deleteNotExisted)
         {
-            var pri = MediaDirectoryPRI as ServerDirectory;
-            var sec = MediaDirectorySEC as ServerDirectory;
-            if (pri != null && sec != null
+            if (MediaDirectoryPRI is ServerDirectory pri 
+                && MediaDirectorySEC is ServerDirectory sec 
                 && pri != sec
                 && pri.IsInitialized
                 && sec.IsInitialized)

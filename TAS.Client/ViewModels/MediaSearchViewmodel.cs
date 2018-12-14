@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Data;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
@@ -19,7 +20,8 @@ namespace TAS.Client.ViewModels
     {
         private readonly TMediaType _mediaType;
         private readonly VideoFormatDescription _videoFormatDescription;
-        private readonly IWatcherDirectory _searchDirectory;
+        private IWatcherDirectory _searchDirectory;
+        private ICollectionView _itemsView;
         public readonly VideoLayer Layer;
 
         private IEvent _baseEvent;
@@ -27,7 +29,6 @@ namespace TAS.Client.ViewModels
         private string _searchText = string.Empty;
         private object _mediaCategory;
         private MediaViewViewmodel _selectedItem;
-        private readonly ICollectionView _itemsView;
         private string _okButtonText = "OK";
 
         public MediaSearchViewmodel(IPreview preview, IEngine engine, TMediaType mediaType, VideoLayer layer,
@@ -39,22 +40,30 @@ namespace TAS.Client.ViewModels
             {
                 _videoFormatDescription = engine.FormatDescription;
                 if (preview != null)
-                    PreviewViewmodel = new PreviewViewmodel(engine, preview) {IsSegmentsVisible = true};
+                    PreviewViewmodel = new PreviewViewmodel(engine, preview) { IsSegmentsVisible = true };
             }
             else
                 _videoFormatDescription = videoFormatDescription;
             _mediaType = mediaType;
             if (PreviewViewmodel != null)
                 PreviewViewmodel.PropertyChanged += _onPreviewViewModelPropertyChanged;
-            IWatcherDirectory pri = mediaType == TMediaType.Animation
-                ? (IWatcherDirectory) engine.MediaManager.AnimationDirectoryPRI
-                : engine.MediaManager.MediaDirectoryPRI;
-            IWatcherDirectory sec = mediaType == TMediaType.Animation
-                ? (IWatcherDirectory) engine.MediaManager.AnimationDirectorySEC
-                : engine.MediaManager.MediaDirectorySEC;
-            _searchDirectory = pri != null && pri.DirectoryExists()
+            CommandAdd = new UiCommand(_add, _allowAdd);
+            _mediaCategory = MediaCategories.FirstOrDefault();
+            NewEventStartType = TStartType.After;
+            SetupSearchDirectory(closeAfterAdd, mediaType);
+        }
+
+        private async void SetupSearchDirectory(bool closeAfterAdd, TMediaType mediaType)
+        {
+            IWatcherDirectory pri = _mediaType == TMediaType.Animation
+                ? (IWatcherDirectory)Engine.MediaManager.AnimationDirectoryPRI
+                : Engine.MediaManager.MediaDirectoryPRI;
+            IWatcherDirectory sec = _mediaType == TMediaType.Animation
+                ? (IWatcherDirectory)Engine.MediaManager.AnimationDirectorySEC
+                : Engine.MediaManager.MediaDirectorySEC;
+            _searchDirectory = pri != null && await Task.Run(() => pri.DirectoryExists())
                 ? pri
-                : sec != null && sec.DirectoryExists()
+                : sec != null && await Task.Run(() => sec.DirectoryExists())
                     ? sec
                     : null;
             if (_searchDirectory != null)
@@ -63,11 +72,8 @@ namespace TAS.Client.ViewModels
                 _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
                 _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;
             }
-            _mediaCategory = MediaCategories.FirstOrDefault();
-            NewEventStartType = TStartType.After;
             if (!closeAfterAdd)
                 OkButtonText = resources._button_Add;
-            _createCommands();
             Items = new ObservableCollection<MediaViewViewmodel>(
                 _searchDirectory.GetFiles()
                     .Where(m => _canAddMediaToCollection(m, mediaType))
@@ -77,11 +83,12 @@ namespace TAS.Client.ViewModels
                 ? new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending)
                 : new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
             _itemsView.Filter += _itemsFilter;
+
         }
 
-        public ObservableCollection<MediaViewViewmodel> Items { get; }
+        public ObservableCollection<MediaViewViewmodel> Items { get => _items; private set => SetField(ref _items, value); }
 
-        public ICommand CommandAdd { get; private set; }
+        public ICommand CommandAdd { get; }
 
         public PreviewViewmodel PreviewViewmodel { get; }
 
@@ -162,6 +169,7 @@ namespace TAS.Client.ViewModels
         public event EventHandler<MediaSearchEventArgs> MediaChoosen;
 
         internal TStartType NewEventStartType;
+        private ObservableCollection<MediaViewViewmodel> _items;
 
         internal IEvent BaseEvent
         {
@@ -232,11 +240,6 @@ namespace TAS.Client.ViewModels
             return mvm.MediaStatus == TMediaStatus.Available
                 && (!(MediaCategory is TMediaCategory) || (MediaCategory as TMediaCategory?) == mvm.MediaCategory)
                 && (_searchTextSplit.All(s => mediaName.Contains(s)));
-        }
-
-        private void _createCommands()
-        {
-            CommandAdd = new UiCommand(_add, _allowAdd);
         }
 
         private TimeSpan GetTCStart()
