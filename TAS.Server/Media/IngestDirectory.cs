@@ -192,6 +192,7 @@ namespace TAS.Server.Media
                                 {
                                     //VolumeFreeSize = client.GetFreeDiscSpace();
                                     _readXDCAM(client);
+                                    Thread.Sleep(1000);
                                 }
                                 finally
                                 {

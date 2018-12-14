@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using System.IO;
 
 namespace System.Net.FtpClient
@@ -76,6 +77,7 @@ namespace System.Net.FtpClient
         /// <example><code source="..\Examples\Connect.cs" lang="cs" /></example>
         public override void Connect()
         {
+            Debug.WriteLine($"XDCAM Connect {Threading.Thread.CurrentThread.ManagedThreadId}");
             try
             {
                 m_lock.WaitOne();
@@ -123,6 +125,13 @@ namespace System.Net.FtpClient
             }
         }
 
+        public override void Disconnect()
+        {
+            Debug.WriteLine($"XDCAM Disconnect {Threading.Thread.CurrentThread.ManagedThreadId}" );
+            base.Disconnect();
+            Threading.Thread.Sleep(1000); // have to wait until device notifies the disconnection
+        }
+
 
         public override Stream OpenRead(string path, FtpDataType type, long restart)
         {
@@ -148,17 +157,15 @@ namespace System.Net.FtpClient
         /// <returns>A stream for reading the file on the device</returns>
         public Stream OpenPart(string path, int startFrame, int frameCount)
         {
-            Stream stream;
             try
             {
                 m_lock.WaitOne();
-                stream = OpenDataStream($"SITE REPFL \"{_root + path}\" {startFrame} {frameCount}", 0);
+                return OpenDataStream($"SITE REPFL \"{_root + path}\" {startFrame} {frameCount}", 0);
             }
             finally
             {
                 m_lock.ReleaseMutex();
             }
-            return stream;
         }
         /// <summary>
         /// Read free disc space from device
