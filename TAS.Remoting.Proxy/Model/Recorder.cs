@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
@@ -69,7 +71,7 @@ namespace TAS.Remoting.Model
 
         public int DefaultChannel => _defaultChannel;
 
-        public IMediaDirectory RecordingDirectory => _recordingDirectory;
+        public IWatcherDirectory RecordingDirectory => _recordingDirectory;
 
         public IMedia RecordingMedia => _recordingMedia;
 

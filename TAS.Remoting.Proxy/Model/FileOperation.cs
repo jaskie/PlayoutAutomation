@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
@@ -15,10 +17,10 @@ namespace TAS.Remoting.Model
         private bool _isAborted;
 
         [JsonProperty(nameof(IFileOperation.DestProperties))]
-        private MediaProxy _destProperties;
+        private IMediaProperties _destProperties;
 
         [JsonProperty(nameof(IFileOperation.DestDirectory))]
-        private MediaDirectory _destDirectory;
+        private MediaDirectoryBase _destDirectory;
 
         [JsonProperty(nameof(IFileOperation.FinishedTime))]
         private DateTime _finishedTime;

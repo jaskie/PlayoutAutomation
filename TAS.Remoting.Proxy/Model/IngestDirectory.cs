@@ -1,12 +1,14 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
-    public class IngestDirectory : MediaDirectory, IIngestDirectory
+    public class IngestDirectory : WatcherDirectory, IIngestDirectory
     {
         #pragma warning disable CS0649
 
@@ -168,12 +170,12 @@ namespace TAS.Remoting.Model
 
         public override IEnumerable<IMedia> GetFiles()
         {
-            return Query<List<IngestMedia>>();
+            return Query<ReadOnlyCollection<IngestMedia>>();
         }
 
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        public List<IMedia> Search(TMediaCategory? category, string searchString)
         {
-            throw new NotImplementedException();
+            return Query<List<IMedia>>(parameters: new object[] {category, searchString});
         }
     }
 }

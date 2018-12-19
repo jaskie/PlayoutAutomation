@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.Security;
 
 namespace TAS.Common.Interfaces
 {
@@ -35,6 +37,7 @@ namespace TAS.Common.Interfaces
         bool IsDeleted { get; }
         bool IsForcedNext { get; }
         bool HaveRight(EventRight right);
+        IEvent GetSuccessor();
 
         event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
         event EventHandler<EventPositionEventArgs> PositionChanged;

@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using TAS.Common.Interfaces;
+using System.Threading.Tasks;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
-    public class AnimationDirectory : MediaDirectory, IAnimationDirectory
+    public class AnimationDirectory : WatcherDirectory, IAnimationDirectory
     {
         public IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
         {
             return Query<IAnimatedMedia>(parameters: new object[] { source });
-        }
-
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
-        {
-            return Query<IAnimatedMedia>(parameters: new object[] { mediaProperties });
         }
 
         public override IEnumerable<IMedia> GetFiles()

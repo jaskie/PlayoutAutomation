@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Security;
 
 namespace TAS.Client.ViewModels
 {
@@ -14,7 +14,7 @@ namespace TAS.Client.ViewModels
         {
             Users = authenticationService.Users;
             Groups = authenticationService.Groups;
-            CommandOk = new UICommand { CanExecuteDelegate = _canOk };
+            CommandOk = new UiCommand(o => { }, _canOk);
         }
 
         public IEnumerable<IUser> Users { get; }

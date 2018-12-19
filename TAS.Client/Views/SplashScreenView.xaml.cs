@@ -25,9 +25,9 @@ namespace TAS.Client.Views
         public SplashScreenView()
         {
             InitializeComponent();
-            var assemblyName = Assembly.GetEntryAssembly().GetName();
-            Product.Text = assemblyName.Name;
-            Version.Text = assemblyName.Version.ToString();
+            Product.Text = Assembly.GetEntryAssembly().GetName().Name;
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            Version.Text = $"{version.Major}.{version.Minor}.{version.Build}";
             Current = this;
         }
 

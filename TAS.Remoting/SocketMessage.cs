@@ -20,6 +20,7 @@ namespace TAS.Remoting
             EventAdd,
             EventRemove,
             EventNotification,
+            Exception,
             ObjectDisposed,
         }
 
@@ -41,7 +42,7 @@ namespace TAS.Remoting
 
         public SocketMessage(byte[] rawData)
         {
-            int index = 0;
+            var index = 0;
             var version = new byte[Version.Length];
             Buffer.BlockCopy(rawData, index, version, 0, version.Length);
             index += version.Length;
@@ -54,12 +55,11 @@ namespace TAS.Remoting
             Buffer.BlockCopy(rawData, index, guidBuffer, 0, guidBuffer.Length);
             index += guidBuffer.Length;
             DtoGuid = new Guid(guidBuffer);
-            int stringLength;
-            stringLength = BitConverter.ToInt32(rawData, index);
+            var stringLength = BitConverter.ToInt32(rawData, index);
             index += sizeof(int);
             MemberName = Encoding.ASCII.GetString(rawData, index, stringLength);
             index += stringLength;
-            ValueCount = BitConverter.ToInt32(rawData, index);
+            ParametersCount = BitConverter.ToInt32(rawData, index);
             _valueStartIndex = index + sizeof(int);
             _rawData = rawData;
         }
@@ -73,9 +73,9 @@ namespace TAS.Remoting
         public string MemberName;
 
         /// <summary>
-        /// when client invokes a method on Dto, ValueCount is count of parameters passed
+        /// count of parameters passed from client to server, 
         /// </summary>
-        public int ValueCount;
+        public int ParametersCount;
 
         public override string ToString()
         {
@@ -103,7 +103,7 @@ namespace TAS.Remoting
                     stream.Write(BitConverter.GetBytes(memberName.Length), 0, sizeof(int));
                     stream.Write(memberName, 0, memberName.Length);
                 }
-                stream.Write(BitConverter.GetBytes(ValueCount), 0, sizeof(int));
+                stream.Write(BitConverter.GetBytes(ParametersCount), 0, sizeof(int));
                 if (value != null)
                 {
                     value.Position = 0;

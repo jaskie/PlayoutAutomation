@@ -45,13 +45,22 @@
       <HintPath>..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.5.9\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="PresentationFramework.Classic" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
       <Private>True</Private>
@@ -101,6 +110,11 @@
     </Compile>
     <Compile Include="IngestDirectoryExtensions.cs" />
     <Compile Include="ObservableDictionary.cs" />
+    <Compile Include="Plugin\IUiEngine.cs" />
+    <Compile Include="Plugin\IUiPluginContext.cs" />
+    <Compile Include="Plugin\UiMenuItemBase.cs" />
+    <Compile Include="Plugin\IUiPluginFactory.cs" />
+    <Compile Include="Plugin\UiPluginManager.cs" />
     <Compile Include="Plugin\IUiMenuItem.cs" />
     <Compile Include="Controls\MediaSeekSlider.cs" />
     <Compile Include="MouseDoubleClick.cs" />
@@ -123,8 +137,8 @@
     </Compile>
     <Compile Include="Controls\TimecodeEdit.cs" />
     <Compile Include="TreeViewExtensions.cs" />
-    <Compile Include="UICommand.cs" />
-    <Compile Include="UIServices.cs" />
+    <Compile Include="UiCommand.cs" />
+    <Compile Include="UiServices.cs" />
     <Compile Include="ValueConverters.cs" />
     <Compile Include="ViewModelBase.cs" />
     <Compile Include="WpfHacks.cs" />

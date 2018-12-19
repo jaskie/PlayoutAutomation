@@ -20,9 +20,12 @@ namespace TAS.Server
         static PluginManager()
         {
             Logger.Debug("Creating");
-            using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), "TAS.Server.*.dll"))
+            var pluginPath = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
+            if (!Directory.Exists(pluginPath))
+                return;
+            using (var catalog = new DirectoryCatalog(pluginPath, "TAS.Server.*.dll"))
+            using (var container = new CompositionContainer(catalog))
             {
-                var container = new CompositionContainer(catalog);
                 container.ComposeExportedValue("AppSettings", ConfigurationManager.AppSettings);
                 try
                 {
@@ -42,16 +45,34 @@ namespace TAS.Server
 
         public static T ComposePart<T>(this IEngine engine) 
         {
-            var factory = EnginePlugins?.FirstOrDefault(f => typeof(T).IsAssignableFrom(f.Type));
-            if (factory != null)
-                return (T)factory.CreateEnginePlugin(engine);
+            try
+            {
+                var factory = EnginePlugins?.FirstOrDefault(f => typeof(T).IsAssignableFrom(f.Type));
+                if (factory != null)
+                    return (T) factory.CreateEnginePlugin(engine);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
             return default(T);
         }
 
-        public static IEnumerable<T> ComposeParts<T>(this IEngine engine)
+        public static List<T> ComposeParts<T>(this IEngine engine)
         {
-            var factories = EnginePlugins?.Where(f => typeof(T).IsAssignableFrom(f.Type));
-            return factories?.Select(f => (T)f.CreateEnginePlugin(engine)).Where(f => f != null);
+            try
+            {
+                if (EnginePlugins != null)
+                {
+                    var factories = EnginePlugins.Where(f => typeof(T).IsAssignableFrom(f.Type));
+                    return factories.Select(f => (T) f.CreateEnginePlugin(engine)).Where(f => f != null).ToList();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
+            return new List<T>();
         }
 
     }

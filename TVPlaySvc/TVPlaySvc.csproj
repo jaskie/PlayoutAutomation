@@ -48,13 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WindowsServiceInstaller.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="WindowsServiceInstaller.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">

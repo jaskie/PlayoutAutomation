@@ -5,6 +5,8 @@ using System.Diagnostics;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.Security;
 using TAS.Remoting.Model.Security;
 
 namespace TAS.Remoting.Model
@@ -42,6 +44,9 @@ namespace TAS.Remoting.Model
 
         [JsonProperty(nameof(IEngine.EnableCGElementsForNewEvents))]
         private bool _enableCGElementsForNewEvents;
+
+        [JsonProperty(nameof(IEngine.StudioMode))]
+        private bool _studioMode;
 
         [JsonProperty(nameof(IEngine.CrawlEnableBehavior))]
         private TCrawlEnableBehavior _crawlEnableBehavior;
@@ -143,6 +148,8 @@ namespace TAS.Remoting.Model
             set => Set(value);
         }
 
+        public bool StudioMode { get => _studioMode; set => Set(value); }
+
         public TCrawlEnableBehavior CrawlEnableBehavior
         {
             get => _crawlEnableBehavior;
@@ -210,13 +217,7 @@ namespace TAS.Remoting.Model
 
         public IEvent Playing => _playing;
 
-        public List<IEvent> FixedTimeEvents
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public List<IEvent> FixedTimeEvents => throw new NotImplementedException();
 
         public IDictionary<string, int> ServerMediaFieldLengths { get => _serverMediaFieldLengths; set => Set(value); }
         public IDictionary<string, int> ArchiveMediaFieldLengths { get => _archiveMediaFieldLengths; set => Set(value); }
@@ -276,8 +277,6 @@ namespace TAS.Remoting.Model
         public void ClearMixer() { Invoke(); }
 
         public void Load(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
-
-        public void RemoveEvent(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
         public void ReSchedule(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 

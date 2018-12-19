@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Security;
 
 namespace TAS.Server.Security
 {
@@ -18,16 +19,16 @@ namespace TAS.Server.Security
             if (Id == default(ulong))
             {
                 AuthenticationService.AddGroup(this);
-                EngineController.Database.DbInsertSecurityObject(this);
+                EngineController.Database.InsertSecurityObject(this);
             }
             else
-                EngineController.Database.DbUpdateSecurityObject(this);
+                EngineController.Database.UpdateSecurityObject(this);
         }
 
         public override void Delete()
         {
             AuthenticationService.RemoveGroup(this);
-            EngineController.Database.DbDeleteSecurityObject(this);
+            EngineController.Database.DeleteSecurityObject(this);
             Dispose();
         }
     }

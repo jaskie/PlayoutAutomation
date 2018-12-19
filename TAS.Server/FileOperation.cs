@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 
 namespace TAS.Server
@@ -29,24 +32,18 @@ namespace TAS.Server
         private FileOperationStatus _operationStatus;
         private int _progress;
         private bool _isIndeterminate;
-        private readonly SynchronizedCollection<string> _operationOutput = new SynchronizedCollection<string>();
-        private readonly SynchronizedCollection<string> _operationWarning = new SynchronizedCollection<string>();
+        private readonly List<string> _operationOutput = new List<string>();
+        private readonly List<string> _operationWarning = new List<string>();
 
         protected readonly FileManager OwnerFileManager;
-        protected bool Aborted;
+        protected readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
+        private bool _isAborted;
 
         internal FileOperation(FileManager ownerFileManager)
         {
             OwnerFileManager = ownerFileManager;
         }
-
-#if DEBUG
-        ~FileOperation()
-        {
-            Debug.WriteLine("{0} finalized: {1}", GetType(), this);
-        }
-#endif
-        
+       
         [JsonProperty]
         public IMediaProperties DestProperties { get => _destMediaProperties; set => SetField(ref _destMediaProperties, value, nameof(Title)); }
 
@@ -169,18 +166,8 @@ namespace TAS.Server
         [JsonProperty]
         public bool IsAborted
         {
-            get => Aborted;
-            private set
-            {
-                if (!SetField(ref Aborted, value)) return;
-                lock (_destMediaLock)
-                {
-                    if (Dest != null && Dest.FileExists())
-                        Dest.Delete();
-                }
-                IsIndeterminate = false;
-                OperationStatus = FileOperationStatus.Aborted;
-            }
+            get => _isAborted;
+            private set => SetField(ref _isAborted, value);
         }
 
         [JsonProperty]
@@ -189,14 +176,42 @@ namespace TAS.Server
             : $"{Kind} {Source} -> {DestDirectory.DirectoryName}";
 
         [JsonProperty]
-        public List<string> OperationWarning { get { lock (_operationWarning.SyncRoot) return _operationWarning.ToList(); } }
+        public List<string> OperationWarning
+        {
+            get
+            {
+                lock (((IList) _operationWarning).SyncRoot)
+                {
+                    return _operationWarning.ToList();
+                }
+            }
+        }
 
         [JsonProperty]
-        public List<string> OperationOutput { get { lock (_operationOutput.SyncRoot) return _operationOutput.ToList(); } }
+        public List<string> OperationOutput
+        {
+            get
+            {
+                lock (((IList)_operationOutput).SyncRoot)
+                {
+                    return _operationOutput.ToList();
+                }
+            }
+        }
 
         public virtual void Abort()
         {
+            if (IsAborted)
+                return;
             IsAborted = true;
+            CancellationTokenSource.Cancel();
+            lock (_destMediaLock)
+            {
+                if (Dest != null && Dest.FileExists())
+                    Dest.Delete();
+            }
+            IsIndeterminate = false;
+            OperationStatus = FileOperationStatus.Aborted;
         }
 
         public event EventHandler Success;
@@ -205,15 +220,24 @@ namespace TAS.Server
 
 
         // utility methods
-        internal virtual bool Execute()
+        internal async Task<bool> Execute()
         {
-            if (InternalExecute())
+            try
             {
-                OperationStatus = FileOperationStatus.Finished;
+                AddOutputMessage("Operation started");
+                if (await InternalExecute())
+                {
+                    OperationStatus = FileOperationStatus.Finished;
+                    AddOutputMessage("Operation completed successfully.");
+                    return true;
+                }
             }
-            else
-                TryCount--;
-            return OperationStatus == FileOperationStatus.Finished;
+            catch (Exception e)
+            {
+                AddOutputMessage(e.Message);
+            }
+            TryCount--;
+            return false;
         }
 
         internal void Fail()
@@ -229,14 +253,16 @@ namespace TAS.Server
 
         protected void AddOutputMessage(string message)
         {
-            _operationOutput.Add($"{DateTime.Now} {message}");
+            lock (((IList)_operationOutput).SyncRoot)
+                _operationOutput.Add($"{DateTime.UtcNow} {message}");
             NotifyPropertyChanged(nameof(OperationOutput));
             Logger.Info("{0}: {1}", Title, message);
         }
 
         protected void AddWarningMessage(string message)
         {
-            _operationWarning.Add(message);
+            lock (((IList)_operationWarning).SyncRoot)
+                _operationWarning.Add(message);
             NotifyPropertyChanged(nameof(OperationWarning));
         }
 
@@ -244,109 +270,76 @@ namespace TAS.Server
         {
             lock (_destMediaLock)
             {
-                if (Dest == null)
-                    Dest = (MediaBase)DestDirectory.CreateMedia(DestProperties ?? Source);
+                if (Dest != null)
+                    return;
+                if (!(DestDirectory is MediaDirectoryBase mediaDirectory))
+                    throw new ApplicationException($"Cannot create destination media on {DestDirectory}");
+                Dest = (MediaBase) mediaDirectory.CreateMedia(DestProperties ?? Source);
             }
         }
         
-        private bool InternalExecute()
+        protected virtual async Task<bool> InternalExecute()
         {
-            AddOutputMessage($"Operation {Title} started");
             StartTime = DateTime.UtcNow;
             OperationStatus = FileOperationStatus.InProgress;
             if (!(Source is MediaBase source))
                 return false;
             switch (Kind)
             {
-                case TFileOperationKind.None:
-                    return true;
-                case TFileOperationKind.Ingest:
-                case TFileOperationKind.Export:
-                    throw new InvalidOperationException("Invalid operation kind");
                 case TFileOperationKind.Copy:
                     if (!File.Exists(source.FullPath) || !Directory.Exists(DestDirectory.Folder))
                         return false;
-                    try
+                    CreateDestMediaIfNotExists();
+                    if (!(Dest.FileExists()
+                          && File.GetLastWriteTimeUtc(source.FullPath)
+                              .Equals(File.GetLastWriteTimeUtc(Dest.FullPath))
+                          && File.GetCreationTimeUtc(source.FullPath).Equals(File.GetCreationTimeUtc(Dest.FullPath))
+                          && Source.FileSize.Equals(Dest.FileSize)))
                     {
-                        lock (_destMediaLock)
-                        {
-                            CreateDestMediaIfNotExists();
-                            if (!(Dest.FileExists()
-                                  && File.GetLastWriteTimeUtc(source.FullPath).Equals(File.GetLastWriteTimeUtc(Dest.FullPath))
-                                  && File.GetCreationTimeUtc(source.FullPath).Equals(File.GetCreationTimeUtc(Dest.FullPath))
-                                  && Source.FileSize.Equals(Dest.FileSize)))
-                            {
-                                Dest.MediaStatus = TMediaStatus.Copying;
-                                IsIndeterminate = true;
-                                if (!source.CopyMediaTo(Dest, ref Aborted))
-                                    return false;
-                            }
-                            Dest.MediaStatus = TMediaStatus.Copied;
-                            ThreadPool.QueueUserWorkItem(o => Dest.Verify());
-                            AddOutputMessage($"Copy operation {Title} finished");
-                            return true;
-                        }
+                        Dest.MediaStatus = TMediaStatus.Copying;
+                        IsIndeterminate = true;
+                        if (!await source.CopyMediaTo(Dest, CancellationTokenSource.Token))
+                            return false;
                     }
-                    catch (Exception e)
-                    {
-                        AddOutputMessage($"Copy operation {Title} failed with {e.Message}");
-                    }
-                    return false;
+                    Dest.MediaStatus = TMediaStatus.Copied;
+                    await Task.Run(() => Dest.Verify());
+                    ((MediaDirectoryBase) DestDirectory).RefreshVolumeInfo();
+                    return true;
                 case TFileOperationKind.Delete:
-                    try
-                    {
-                        if (Source.Delete())
-                        {
-                            AddOutputMessage($"Delete operation {Title} finished"); 
-                            return true;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        AddOutputMessage($"Delete operation {Title} failed with {e.Message}");
-                    }
-                    return false;
+                    if (!Source.Delete()) return false;
+                    ((MediaDirectoryBase) Source.Directory).RefreshVolumeInfo();
+                    return true;
                 case TFileOperationKind.Move:
                     if (!File.Exists(source.FullPath) || !Directory.Exists(DestDirectory.Folder))
                         return false;
-                    try
-                    {
-                        CreateDestMediaIfNotExists();
-                        if (Dest.FileExists())
+                    CreateDestMediaIfNotExists();
+                    if (Dest.FileExists())
+                        if (File.GetLastWriteTimeUtc(source.FullPath).Equals(File.GetLastWriteTimeUtc(Dest.FullPath))
+                            && File.GetCreationTimeUtc(source.FullPath).Equals(File.GetCreationTimeUtc(Dest.FullPath))
+                            && source.FileSize.Equals(Dest.FileSize))
                         {
-                            if (File.GetLastWriteTimeUtc(source.FullPath).Equals(File.GetLastWriteTimeUtc(Dest.FullPath))
-                                && File.GetCreationTimeUtc(source.FullPath).Equals(File.GetCreationTimeUtc(Dest.FullPath))
-                                && source.FileSize.Equals(Dest.FileSize))
-                            {
-                                source.Delete();
-                                return true;
-                            }
-                            else
-                            if (!Dest.Delete())
-                            {
-                                AddOutputMessage("Move operation failed - destination media not deleted");
-                                return false;
-                            }
+                            source.Delete();
+                            ((MediaDirectoryBase) Source.Directory).RefreshVolumeInfo();
+                            return true;
                         }
-                        IsIndeterminate = true;
-                        Dest.MediaStatus = TMediaStatus.Copying;
-                        FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(Dest.FullPath));
-                        File.Move(source.FullPath, Dest.FullPath);
-                        File.SetCreationTimeUtc(Dest.FullPath, File.GetCreationTimeUtc(source.FullPath));
-                        File.SetLastWriteTimeUtc(Dest.FullPath, File.GetLastWriteTimeUtc(source.FullPath));
-                        Dest.MediaStatus = TMediaStatus.Copied;
-                        ThreadPool.QueueUserWorkItem(o => Dest.Verify());
-                        AddOutputMessage("Move operation finished");
-                        Debug.WriteLine(this, "File operation succeed");
-                        return true;
-                    }
-                    catch (Exception e)
-                    {
-                        AddOutputMessage($"Move operation {Title} failed with {e.Message}");
-                    }
-                    return false;
+                        else if (!Dest.Delete())
+                        {
+                            AddOutputMessage("Move operation failed - destination media not deleted");
+                            return false;
+                        }
+                    IsIndeterminate = true;
+                    Dest.MediaStatus = TMediaStatus.Copying;
+                    FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(Dest.FullPath));
+                    File.Move(source.FullPath, Dest.FullPath);
+                    File.SetCreationTimeUtc(Dest.FullPath, File.GetCreationTimeUtc(source.FullPath));
+                    File.SetLastWriteTimeUtc(Dest.FullPath, File.GetLastWriteTimeUtc(source.FullPath));
+                    Dest.MediaStatus = TMediaStatus.Copied;
+                    await Task.Run(() => Dest.Verify());
+                    ((MediaDirectoryBase) Source.Directory).RefreshVolumeInfo();
+                    ((MediaDirectoryBase) DestDirectory).RefreshVolumeInfo();
+                    return true;
                 default:
-                    return false;
+                    throw new InvalidOperationException("Invalid operation kind");
             }
         }
         

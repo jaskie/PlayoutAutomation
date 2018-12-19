@@ -20,8 +20,8 @@ namespace TAS.Client.Config
 
         private void _createCommands()
         {
-            CommandAdd = new UICommand { ExecuteDelegate = _add };
-            CommandDelete = new UICommand { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
+            CommandAdd = new UiCommand(_add);
+            CommandDelete = new UiCommand(_delete, _canDelete);
         }
 
         private void _delete(object obj)

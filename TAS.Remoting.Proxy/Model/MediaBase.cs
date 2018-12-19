@@ -2,7 +2,8 @@
 using System;
 using TAS.Remoting.Client;
 using TAS.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
@@ -74,53 +75,133 @@ namespace TAS.Remoting.Model
         private bool _fieldOrderInverted;
 
         [JsonProperty(nameof(IMedia.Directory))]
-        private MediaDirectory _directory;
+        private MediaDirectoryBase _directory;
 
         #pragma warning restore
 
-        public TAudioChannelMapping AudioChannelMapping { get { return _audioChannelMapping; } set { Set(value); } }
+        public TAudioChannelMapping AudioChannelMapping
+        {
+            get => _audioChannelMapping;
+            set => Set(value);
+        }
 
-        public double AudioLevelIntegrated { get { return _audioLevelIntegrated; } set { Set(value); } }
+        public double AudioLevelIntegrated
+        {
+            get => _audioLevelIntegrated;
+            set => Set(value);
+        }
 
-        public double AudioLevelPeak { get { return _audioLevelPeak; } set { Set(value); } }
+        public double AudioLevelPeak
+        {
+            get => _audioLevelPeak;
+            set => Set(value);
+        }
 
-        public double AudioVolume { get { return _audioVolume; } set { Set(value); } }
+        public double AudioVolume
+        {
+            get => _audioVolume;
+            set => Set(value);
+        }
 
         public virtual IMediaDirectory Directory => _directory;
 
-        public TimeSpan Duration { get { return _duration; } set { Set(value); } }
+        public TimeSpan Duration
+        {
+            get => _duration;
+            set => Set(value);
+        }
 
-        public TimeSpan DurationPlay { get { return _durationPlay; } set { Set(value); } }
+        public TimeSpan DurationPlay
+        {
+            get => _durationPlay;
+            set => Set(value);
+        }
 
-        public string FileName { get { return _fileName; } set { Set(value); } }
+        public string FileName
+        {
+            get => _fileName;
+            set => Set(value);
+        }
 
-        public ulong FileSize { get { return _fileSize; } set { Set(value); } }
+        public ulong FileSize
+        {
+            get => _fileSize;
+            set => Set(value);
+        }
 
-        public string Folder { get { return _folder; } set { Set(value); } }
+        public string Folder
+        {
+            get => _folder;
+            set => Set(value);
+        }
 
-        public DateTime LastUpdated { get { return _lastUpdated; } set { Set(value); } }
+        public DateTime LastUpdated
+        {
+            get => _lastUpdated;
+            set => Set(value);
+        }
 
-        public TMediaCategory MediaCategory { get { return _mediaCategory; } set { Set(value); } }
+        public TMediaCategory MediaCategory
+        {
+            get => _mediaCategory;
+            set => Set(value);
+        }
 
-        public Guid MediaGuid { get { return _mediaGuid; } set { Set(value); } }
+        public Guid MediaGuid
+        {
+            get => _mediaGuid;
+            set => Set(value);
+        }
 
-        public string MediaName { get { return _mediaName; } set { Set(value); } }
+        public string MediaName
+        {
+            get => _mediaName;
+            set => Set(value);
+        }
 
-        public TMediaStatus MediaStatus { get { return _mediaStatus; } set { Set(value); } }
+        public TMediaStatus MediaStatus
+        {
+            get => _mediaStatus;
+            set => Set(value);
+        }
 
-        public TMediaType MediaType { get { return _mediaType; } set { Set(value); } }
+        public TMediaType MediaType
+        {
+            get => _mediaType;
+            set => Set(value);
+        }
 
-        public byte Parental { get { return _parental; } set { Set(value); } }
+        public byte Parental
+        {
+            get => _parental;
+            set => Set(value);
+        }
 
-        public TimeSpan TcPlay { get { return _tcPlay; } set { Set(value); } }
+        public TimeSpan TcPlay
+        {
+            get => _tcPlay;
+            set => Set(value);
+        }
 
-        public TimeSpan TcStart { get { return _tcStart; } set { Set(value); } }
+        public TimeSpan TcStart
+        {
+            get => _tcStart;
+            set => Set(value);
+        }
 
         public bool IsVerified => _isVerified;
- 
-        public TVideoFormat VideoFormat { get { return _videoFormat; } set { Set(value); } }
 
-        public bool FieldOrderInverted { get { return _fieldOrderInverted; } set { Set(value); } }
+        public TVideoFormat VideoFormat
+        {
+            get => _videoFormat;
+            set => Set(value);
+        }
+
+        public bool FieldOrderInverted
+        {
+            get => _fieldOrderInverted;
+            set => Set(value);
+        }
 
         public bool Delete()
         {
@@ -135,6 +216,11 @@ namespace TAS.Remoting.Model
         public void GetLoudness()
         {
             Invoke();
+        }
+
+        public bool RenameFileTo(string newFileName)
+        {
+            return Query<bool>(parameters: new object[] {newFileName});
         }
 
         public void ReVerify()

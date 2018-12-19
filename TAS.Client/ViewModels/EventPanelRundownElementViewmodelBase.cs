@@ -1,11 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Client.ViewModels
 {
@@ -20,27 +20,27 @@ namespace TAS.Client.ViewModels
             ev.PositionChanged += EventPositionChanged;
             ev.SubEventChanged += OnSubeventChanged;
 
-            CommandToggleHold = new UICommand
-            {
-                ExecuteDelegate = o =>
+            CommandToggleHold = new UiCommand
+            (
+                o =>
                 {
                     Event.IsHold = !Event.IsHold;
                     Event.Save();
                 },
-                CanExecuteDelegate = _canToggleHold
-            };
-            CommandToggleEnabled = new UICommand
-            {
-                ExecuteDelegate = o =>
+                _canToggleHold
+            );
+            CommandToggleEnabled = new UiCommand
+            (
+                o =>
                 {
                     Event.IsEnabled = !Event.IsEnabled;
                     Event.Save();
                 },
-                CanExecuteDelegate = o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
-            };
-            CommandToggleLayer = new UICommand
-            {
-                ExecuteDelegate = l =>
+                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+            );
+            CommandToggleLayer = new UiCommand
+            (
+                l =>
                 {
                     if (!(l is string layerName) || !Enum.TryParse(layerName, true, out VideoLayer layer))
                         return;
@@ -52,40 +52,40 @@ namespace TAS.Client.ViewModels
                     else
                         EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, TMediaType.Still, layer, true);
                 },
-                CanExecuteDelegate = _canToggleLayer
-            };
-            CommandAddNextRundown = new UICommand
-            {
-                ExecuteDelegate = o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, false),
-                CanExecuteDelegate = _canAddNextItem
-            };
-            CommandAddNextEmptyMovie = new UICommand
-            {
-                ExecuteDelegate = o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Movie, false),
-                CanExecuteDelegate = CanAddNextMovie
-            };
-            CommandAddNextLive = new UICommand
-            {
-                ExecuteDelegate = o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, false),
-                CanExecuteDelegate = CanAddNewLive
-            };
-            CommandAddNextMovie = new UICommand
-            {
-                ExecuteDelegate = o => EngineViewmodel.AddMediaEvent(Event, TStartType.After, TMediaType.Movie,
+                _canToggleLayer
+            );
+            CommandAddNextRundown = new UiCommand
+            (
+                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, false),
+                _canAddNextItem
+            );
+            CommandAddNextEmptyMovie = new UiCommand
+            (
+                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Movie, false),
+                CanAddNextMovie
+            );
+            CommandAddNextLive = new UiCommand
+            (
+                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, false),
+                CanAddNewLive
+            );
+            CommandAddNextMovie = new UiCommand
+            (
+                o => EngineViewmodel.AddMediaEvent(Event, TStartType.After, TMediaType.Movie,
                     VideoLayer.Program, false),
-                CanExecuteDelegate = CanAddNextMovie
-            };
-            CommandAddAnimation = new UICommand
-            {
-                ExecuteDelegate = o => EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent,
+                CanAddNextMovie
+            );
+            CommandAddAnimation = new UiCommand
+            (
+                o => EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent,
                     TMediaType.Animation, VideoLayer.Animation, true),
-                CanExecuteDelegate = o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
-            };
-            CommandAddCommandScript = new UICommand
-            {
-                ExecuteDelegate = o => EngineViewmodel.AddCommandScriptEvent(Event),
-                CanExecuteDelegate = o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
-            };
+                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+            );
+            CommandAddCommandScript = new UiCommand
+            (
+                o => EngineViewmodel.AddCommandScriptEvent(Event),
+                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+            );
         }
 
         private bool _canToggleLayer(object obj)
@@ -208,11 +208,9 @@ namespace TAS.Client.ViewModels
                 if (Event == null || Event.EventType == TEventType.Live || Event.EventType == TEventType.Rundown ||
                     Event.EventType == TEventType.Container)
                     return TMediaErrorInfo.NoError;
-                // else
                 var media = Media;
                 if (media == null || media.MediaStatus == TMediaStatus.Deleted || !media.FileExists())
                     return TMediaErrorInfo.Missing;
-                //else
                 if (media.MediaStatus == TMediaStatus.Available)
                     if (media.MediaType == TMediaType.Still
                         || media.MediaType == TMediaType.Animation

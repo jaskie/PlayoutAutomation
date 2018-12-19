@@ -5,6 +5,8 @@ using System.IO;
 using System.ComponentModel;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
@@ -26,7 +28,10 @@ namespace TAS.Client.ViewModels
         {
             _ingestOperation = operation;
             _engine = engine;
-            string destFileName = $"{Path.GetFileNameWithoutExtension(operation.Source.FileName)}.{operation.MovieContainerFormat}";
+            var fileExt = operation.Source.MediaType == TMediaType.Movie
+                ? $".{operation.MovieContainerFormat}"
+                : FileUtils.DefaultFileExtension(operation.Source.MediaType);
+            string destFileName = $"{Path.GetFileNameWithoutExtension(operation.Source.FileName)}{fileExt}";
             _destMediaProperties = new PersistentMediaProxy
             {
                 FileName = operation.DestDirectory.GetUniqueFileName(destFileName),
@@ -331,9 +336,8 @@ namespace TAS.Client.ViewModels
 
         private string ValidateDestFileName()
         {
-            IMediaDirectory dir = _ingestOperation.DestDirectory;
-            if (dir == null)
-                return null;
+            if (!(_ingestOperation.DestDirectory is IServerDirectory dir))
+                throw new ApplicationException("Invalid directory in ValidateDestFileName");
             if (_destMediaProperties.FileName.StartsWith(" ") || _destMediaProperties.FileName.EndsWith(" "))
                 return resources._validate_FileNameCanNotStartOrEndWithSpace;
             if (_destMediaProperties.FileName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)

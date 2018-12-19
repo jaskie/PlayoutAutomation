@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Database.Interfaces.Media;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
-    public class ServerMedia: PersistentMedia, IServerMedia
+    public class ServerMedia: PersistentMedia, Common.Database.Interfaces.Media.IServerMedia
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ServerMedia));
         private bool _doNotArchive;
         Lazy<bool> _isArchived;
 
-        public ServerMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia, IArchiveDirectory archiveDirectory) : base(directory, guid, idPersistentMedia)
+        public ServerMedia() 
         {
-            IdPersistentMedia = idPersistentMedia;
-            _isArchived = new Lazy<bool>(() => archiveDirectory != null && EngineController.Database.DbArchiveContainsMedia(archiveDirectory, this));
+            _isArchived = new Lazy<bool>(() => (Directory is ServerDirectory dir) && EngineController.Database.ArchiveContainsMedia(dir.MediaManager.ArchiveDirectory as IArchiveDirectoryProperties, this));
         }
 
         [JsonProperty]
@@ -29,6 +31,7 @@ namespace TAS.Server.Media
         }
 
         [JsonProperty]
+        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public bool IsArchived
         {
             get => _isArchived?.Value ?? false;
@@ -39,7 +42,7 @@ namespace TAS.Server.Media
             }
         }
 
-        public override void CloneMediaProperties(IMediaProperties fromMedia)
+        internal override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
             if (fromMedia is IServerMediaProperties serverMediaProperties)
@@ -48,7 +51,7 @@ namespace TAS.Server.Media
 
         public override bool Save()
         {
-            bool result = false;
+            var result = false;
             try
             {
                 var directory = Directory as ServerDirectory;
@@ -57,17 +60,17 @@ namespace TAS.Server.Media
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = EngineController.Database.DbDeleteMedia(this);
+                            result = EngineController.Database.DeleteMedia(this);
                     }
                     else
                     {
                         if (directory != null)
                         {
                             if (IdPersistentMedia == 0)
-                                result = EngineController.Database.DbInsertMedia(this, directory.Server.Id);
+                                result = EngineController.Database.InsertMedia(this, directory.Server.Id);
                             else if (IsModified)
                             {
-                                EngineController.Database.DbUpdateMedia(this, directory.Server.Id);
+                                EngineController.Database.UpdateMedia(this, directory.Server.Id);
                                 result = true;
                             }
                         }

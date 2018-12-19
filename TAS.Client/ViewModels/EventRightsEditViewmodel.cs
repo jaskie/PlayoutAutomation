@@ -5,6 +5,7 @@ using System.Linq;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Security;
 
 
 namespace TAS.Client.ViewModels
@@ -25,13 +26,13 @@ namespace TAS.Client.ViewModels
             _originalRights = ev.GetRights().ToList();
             Rights = new ObservableCollection<EventRightViewmodel>();
             Load();
-            CommandAddRight = new UICommand {ExecuteDelegate = _addRight, CanExecuteDelegate = _canAddRight};
-            CommandDeleteRight = new UICommand { ExecuteDelegate = _deleteRight, CanExecuteDelegate = _canDeleteRight };
+            CommandAddRight = new UiCommand(_addRight, _canAddRight);
+            CommandDeleteRight = new UiCommand(_deleteRight, _canDeleteRight);
         }
 
-        public UICommand CommandAddRight { get; }
+        public UiCommand CommandAddRight { get; }
 
-        public UICommand CommandDeleteRight { get; }
+        public UiCommand CommandDeleteRight { get; }
         
         public ISecurityObject[] AclObjects { get; }
 

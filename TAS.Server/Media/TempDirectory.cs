@@ -1,48 +1,46 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Configuration;
 using System.IO;
-using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {
-    public class TempDirectory: MediaDirectory
+    public class TempDirectory: MediaDirectoryBase
     {
-        public TempDirectory(MediaManager manager): base(manager)
+        public TempDirectory()
         {
             Folder = ConfigurationManager.AppSettings["TempDirectory"];
+            DirectoryName = "TEMP";
+            SweepStaleMedia();
         }
 
-        public override void MediaAdd(MediaBase media)
+        public override void RemoveMedia(IMedia media)
         {
-            // do not add to _files
         }
 
-        public override void Refresh() { }
-
-        public override IMedia CreateMedia(IMediaProperties media)
+        internal override IMedia CreateMedia(IMediaProperties media)
         {
+            if (!DirectoryExists())
+                throw new DirectoryNotFoundException(Folder);
             return new TempMedia(this, media);
         }
-
-        public override void SweepStaleMedia()
+        
+        private void SweepStaleMedia()
         {
+            if (!DirectoryExists())
+                return;
             foreach (string fileName in Directory.GetFiles(Folder))
                 try
                 {
                     File.Delete(fileName);
                 }
-                catch
+                catch (Exception e)
                 {
-                    // ignored
+                    Logger.Warn(e);
                 }
         }
 
-        protected override IMedia CreateMedia(string fileNameOnly, Guid guid = new Guid())
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void Reinitialize() {}
 
     }
 }

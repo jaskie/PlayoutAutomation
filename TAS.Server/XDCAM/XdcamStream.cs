@@ -15,22 +15,20 @@ namespace TAS.Server.XDCAM
         private Stream _currentStream;
         private readonly FtpClient _client;
         private readonly Smil _smil;
+        private readonly IngestDirectory _directory;
 
         public XdcamStream(XdcamMedia media, bool forWrite)
         {
-            
-            if (!(media?.Directory is IngestDirectory dir))
-                throw new ApplicationException("XDCAM media directory is not IngestDirectory");
-            //var fileName = string.Join(media.Directory.PathSeparator.ToString(), media.Directory.Folder, "Clip",  $"{media.XdcamClipAlias?.clipId ?? media.XdcamClip.clipId}.MXF");
-            _client = dir.GetFtpClient();
-            if (!Monitor.TryEnter(dir.XdcamLockObject))
+            _directory = media?.Directory as IngestDirectory ?? throw new ApplicationException("XDCAM media directory is not IngestDirectory");
+            _client = _directory.GetFtpClient();
+            if (!Monitor.TryEnter(_directory.XdcamLockObject))
                 throw new ApplicationException("Directory is in use");
             try
             {
                 _client.Connect();
                 if (media.XdcamMaterial?.type == MaterialType.Edl)
                 {
-                    var smilXml = dir.ReadXmlDocument(media.XdcamMaterial.uri, _client);
+                    var smilXml = _directory.ReadXmlDocument(media.XdcamMaterial.uri, _client);
                     if (smilXml != null)
                         _smil = SerializationHelper<Smil>.Deserialize(smilXml);
                     _isEditList = true;
@@ -46,7 +44,7 @@ namespace TAS.Server.XDCAM
             }
             catch
             {
-                Monitor.Exit(dir.XdcamLockObject);
+                Monitor.Exit(_directory.XdcamLockObject);
                 _client.Disconnect();
                 throw;
             }
@@ -133,7 +131,7 @@ namespace TAS.Server.XDCAM
             var umid = r.src.Substring(umidSpecifier.Length);
             var startFrame = r.clipBegin.SmpteToFrame();
             var length = r.clipEnd.SmpteToFrame() - startFrame;
-            var media = _media.Directory.GetFiles().Cast<XdcamMedia>().FirstOrDefault(m => umid.Equals(m.XdcamMaterial?.umid));
+            var media = _directory.GetFiles().Cast<XdcamMedia>().FirstOrDefault(m => umid.Equals(m.XdcamMaterial?.umid));
             if (media?.XdcamMaterial == null)
                 return null;
             var fileName = media.XdcamMaterial.uri.TrimStart('.', '/');

@@ -3,11 +3,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using TAS.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
-    public class AnimationDirectory : MediaDirectory, IAnimationDirectory
+    public class AnimationDirectory : WatcherDirectory, IAnimationDirectory
     {
         public readonly CasparServer Server;
 
@@ -20,26 +21,23 @@ namespace TAS.Server.Media
         {
             if (IsInitialized)
                 return;
-            DirectoryName = "Animacje";
-            EngineController.Database.Load<AnimatedMedia>(this, Server.Id);
+            EngineController.Database.LoadAnimationDirectory<AnimatedMedia>(this, Server.Id);
             base.Initialize();
             Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
         }
 
-        public override void Refresh()
-        {
-
-        }
-
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        internal override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
             throw new NotImplementedException();
         }
 
         public IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
         {
-            var result = new AnimatedMedia(this, newMediaGuid, 0)
+            var result = new AnimatedMedia
             {
+                MediaName = source.MediaName,
+                LastUpdated = source.LastUpdated,
+                MediaGuid = source.MediaGuid,
                 Folder = source.Folder,
                 FileName = source.FileName
             };
@@ -50,12 +48,14 @@ namespace TAS.Server.Media
             return result;
         }
 
-        public override void MediaRemove(IMedia media)
+        public override void RemoveMedia(IMedia media)
         {
-            media.MediaStatus = TMediaStatus.Deleted;
-            ((AnimatedMedia)media).IsVerified = false;
-            ((AnimatedMedia)media).Save();
-            base.MediaRemove(media);
+            if (!(media is AnimatedMedia am))
+                throw new ArgumentException(nameof(media));
+            am.MediaStatus = TMediaStatus.Deleted;
+            am.IsVerified = false;
+            am.Save();
+            base.RemoveMedia(am);
         }
 
         public override void SweepStaleMedia() { }
@@ -66,24 +66,28 @@ namespace TAS.Server.Media
                 && FileUtils.AnimationFileTypes.Contains(Path.GetExtension(fullPath).ToLowerInvariant());
         }
 
-        protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
+        protected override IMedia AddMediaFromPath(string fullPath, DateTime lastUpdated)
         {
-            var newMedia = FindMediaFirstByFullPath(fullPath) as AnimatedMedia;
-            if (newMedia == null && AcceptFile(fullPath))
+            if (!AcceptFile(fullPath))
+                return null;
+            if (FindMediaFirstByFullPath(fullPath) is AnimatedMedia newMedia)
+                return newMedia;
+            var relativeName = fullPath.Substring(Folder.Length);
+            var fileName = Path.GetFileName(relativeName);
+            newMedia = new AnimatedMedia
             {
-                newMedia = (AnimatedMedia)CreateMedia(fullPath, guid);
-                newMedia.MediaName = FileUtils.GetFileNameWithoutExtension(fullPath, TMediaType.Animation).ToUpper();
-                newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
-                newMedia.MediaStatus = TMediaStatus.Available;
-                newMedia.Save();
-            }
+                MediaName = FileUtils.GetFileNameWithoutExtension(fullPath, TMediaType.Animation).ToUpper(),
+                LastUpdated = lastUpdated,
+                MediaType = TMediaType.Animation,
+                MediaGuid = Guid.NewGuid(),
+                FileName = Path.GetFileName(relativeName),
+                Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
+                MediaStatus = TMediaStatus.Available,
+                IsVerified = true
+            };
+            AddMedia(newMedia);
+            newMedia.Save();
             return newMedia;
-        }
-
-
-        protected override IMedia CreateMedia(string fullPath, Guid guid = new Guid())
-        {
-            return new AnimatedMedia(this, guid, 0) { FullPath = fullPath, IsVerified = true };
         }
 
     }

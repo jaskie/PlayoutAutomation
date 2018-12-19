@@ -88,6 +88,10 @@
       <Project>{2625a6b7-505a-43f7-9282-24afe5a3db64}</Project>
       <Name>MySqlBackup</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\TAS.Common.Database\TAS.Common.Database.csproj">
+      <Project>{f73445a5-2375-49ea-bd4f-8c6778d8736d}</Project>
+      <Name>TAS.Common.Database</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
       <Name>TAS.Common</Name>

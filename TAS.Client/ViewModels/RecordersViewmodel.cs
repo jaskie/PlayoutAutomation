@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 using resources = TAS.Client.Common.Properties.Resources;
 
 
@@ -268,33 +268,17 @@ namespace TAS.Client.ViewModels
 
         private void CreateCommands()
         {
-            CommandFastForward = new UICommand
-            {
-                ExecuteDelegate = FastForward,
-                CanExecuteDelegate = o => CanExecute(TDeckState.ShuttleForward)
-            };
-            CommandRewind = new UICommand {ExecuteDelegate = Rewind, CanExecuteDelegate = CanRewind};
-            CommandPlay = new UICommand
-            {
-                ExecuteDelegate = Play,
-                CanExecuteDelegate = o => CanExecute(TDeckState.Playing)
-            };
-            CommandStop = new UICommand
-            {
-                ExecuteDelegate = Stop,
-                CanExecuteDelegate = o => CanExecute(TDeckState.Stopped)
-            };
-            CommandCapture = new UICommand {ExecuteDelegate = Capture, CanExecuteDelegate = CanCapture};
-            CommandStartRecord = new UICommand {ExecuteDelegate = StartRecord, CanExecuteDelegate = CanStartRecord};
-            CommandGetCurrentTcToIn = new UICommand {ExecuteDelegate = o => TcIn = CurrentTc};
-            CommandGetCurrentTcToOut = new UICommand {ExecuteDelegate = o => TcOut = CurrentTc};
-            CommandGoToTimecode = new UICommand {ExecuteDelegate = GoToTimecode, CanExecuteDelegate = CanGoToTimecode};
-            CommandSetRecordLimit = new UICommand
-            {
-                ExecuteDelegate = SetRecordTimeLimit,
-                CanExecuteDelegate = CanSetRecordTimeLimit
-            };
-            CommandRecordFinish = new UICommand {ExecuteDelegate = FinishRecord, CanExecuteDelegate = CanFinishRecord};
+            CommandFastForward = new UiCommand(FastForward, o => CanExecute(TDeckState.ShuttleForward));
+            CommandRewind = new UiCommand(Rewind, CanRewind);
+            CommandPlay = new UiCommand(Play, o => CanExecute(TDeckState.Playing));
+            CommandStop = new UiCommand(Stop, o => CanExecute(TDeckState.Stopped));
+            CommandCapture = new UiCommand(Capture, CanCapture);
+            CommandStartRecord = new UiCommand(StartRecord, CanStartRecord);
+            CommandGetCurrentTcToIn = new UiCommand(o => TcIn = CurrentTc);
+            CommandGetCurrentTcToOut = new UiCommand(o => TcOut = CurrentTc);
+            CommandGoToTimecode = new UiCommand(GoToTimecode, CanGoToTimecode);
+            CommandSetRecordLimit = new UiCommand(SetRecordTimeLimit, CanSetRecordTimeLimit);
+            CommandRecordFinish = new UiCommand(FinishRecord, CanFinishRecord);
         }
 
         private bool CanFinishRecord(object obj)

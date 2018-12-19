@@ -6,6 +6,8 @@ using System.Diagnostics;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.Security;
 using TAS.Remoting.Model.Security;
 
 namespace TAS.Remoting.Model
@@ -248,6 +250,11 @@ namespace TAS.Remoting.Model
 
         public TTransitionType TransitionType { get => _transitionType; set => Set(value); }
 
+        public IEvent GetSuccessor()
+        {
+            return Query<Event>();
+        }
+
         #region Event handlers
         private event EventHandler<EventPositionEventArgs> _positionChanged;
         public event EventHandler<EventPositionEventArgs> PositionChanged
@@ -264,6 +271,7 @@ namespace TAS.Remoting.Model
             }
         }
         private event EventHandler<CollectionOperationEventArgs<IEvent>> _subEventChanged;
+
         public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged
         {
             add

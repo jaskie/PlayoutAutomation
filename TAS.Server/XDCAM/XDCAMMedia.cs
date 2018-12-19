@@ -5,22 +5,16 @@ using System.Linq;
 using System.Threading;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 using TAS.Server.Media;
 
 namespace TAS.Server.XDCAM
 {
     public class XdcamMedia : IngestMedia, IXdcamMedia
     {
-        //internal Clip XdcamClip;
-        //internal Alias.ClipAlias XdcamAlias;
-        //internal EditList XdcamEdl;
-        internal Material XdcamMaterial;
+        internal XdcamMaterial XdcamMaterial;
 
         private int _clipNr;
-
-        public XdcamMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid)
-        {
-        }
 
         public int ClipNr { get => _clipNr; set => SetField(ref _clipNr, value); }
 
@@ -89,12 +83,12 @@ namespace TAS.Server.XDCAM
             LastUpdated = xdcamMeta.lastUpdate == default(DateTime)
                 ? xdcamMeta.CreationDate.Value
                 : xdcamMeta.lastUpdate;
-            MediaName = xdcamMeta.Title == null
-                ? XdcamMaterial.uri
-                : string.IsNullOrWhiteSpace(xdcamMeta.Title.usAscii)
-                    ? xdcamMeta.Title.international
-                    : xdcamMeta.Title.usAscii;
-
+            if (xdcamMeta.Title != null)
+            {
+                MediaName = string.IsNullOrWhiteSpace(xdcamMeta.Title.international)
+                        ? xdcamMeta.Title.usAscii
+                        : xdcamMeta.Title.international;
+            }
             var rate = new RationalNumber(xdcamMeta.LtcChangeTable.tcFps, 1);
             var start = xdcamMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
             if (start == null)

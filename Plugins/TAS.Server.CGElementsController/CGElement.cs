@@ -24,20 +24,20 @@ namespace TAS.Server
         [XmlAttribute]
         public string ImageFile
         {
-            get { return _imageFile; }
+            get => _imageFile;
             set
             {
                 _imageFile = Path.Combine(FileUtils.ConfigurationPath, value);
-                if (File.Exists(_imageFile))
-                    lock(_imageLock)
-                        _image = new Bitmap(_imageFile);
+                if (!File.Exists(_imageFile)) return;
+                lock(_imageLock)
+                    _image = new Bitmap(_imageFile);
             }
         }
 
         private Bitmap _image;
 
         [JsonProperty]
-        [JsonConverter(typeof(BitmapConverter))]
+        [JsonConverter(typeof(BitmapJsonConverter))]
         public Bitmap Image
         {
             get

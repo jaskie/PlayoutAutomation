@@ -1,5 +1,6 @@
 ﻿using TAS.Client.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Client.ViewModels
 {
@@ -10,12 +11,12 @@ namespace TAS.Client.ViewModels
         {
             Logo = logo;
             _owner = owner;
-            CommandRemove = new UICommand() { ExecuteDelegate = _remove };
+            CommandRemove = new UiCommand(_remove);
         }
 
         public IMedia Logo { get; }
 
-        public UICommand CommandRemove { get; }
+        public UiCommand CommandRemove { get; }
         
         public override string ToString()
         {

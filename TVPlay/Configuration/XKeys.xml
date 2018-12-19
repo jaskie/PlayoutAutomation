@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XKeys>
+  <Plugin EngineName="TVP Szczecin" UnitId="0">
+    <Commands>
+      <Command Key="0"  ActiveOn="Press" CommandTarget="Engine" Method="LoadSelected"/>
+      <Command Key="8"  ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
+      <Command Key="16" ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
+      <Command Key="24" ActiveOn="Press" CommandTarget="Keyboard" Method="F11"/>
+
+      <Command Key="1"  ActiveOn="Press" CommandTarget="Engine" Method="AddNextMovie"/>
+      <Command Key="25" ActiveOn="Press" CommandTarget="Engine" Method="ClearAll"/>
+
+      <Command Key="2"  ActiveOn="Press" CommandTarget="Keyboard" Method="Ctrl+0"/>
+      <Command Key="10" ActiveOn="Press" CommandTarget="SelectedEvent" Method="IsHold"/>
+      <Command Key="18" ActiveOn="Press" CommandTarget="SelectedEvent" Method="IsEnabled"/>
+      <Command Key="26" ActiveOn="Press" CommandTarget="Engine" Method="RescheduleSelected"/>
+    
+      <Command Key="3"  ActiveOn="Press" CommandTarget="Engine" Method="DeleteSelected" Required="5"/>
+      <Command Key="27" ActiveOn="Press" CommandTarget="Keyboard" Method="Enter"/>
+
+      <Command Key="20" ActiveOn="Press" CommandTarget="Keyboard" Method="Up"/>
+      <Command Key="28" ActiveOn="Press" CommandTarget="Keyboard" Method="Enter"/>
+
+      <Command Key="13" ActiveOn="Press" CommandTarget="Keyboard" Method="Left"/>
+      <Command Key="21" ActiveOn="Press" CommandTarget="Keyboard" Method="Down"/>
+      <Command Key="29" ActiveOn="Press" CommandTarget="Keyboard" Method="Right"/>
+
+      <Command Key="20" ActiveOn="Press" CommandTarget="Keyboard" Method="Alt+Up" Required="5"/>
+      <Command Key="21" ActiveOn="Press" CommandTarget="Keyboard" Method="Alt+Down" Required="5"/>
+
+    </Commands>
+  </Plugin>
+</XKeys>

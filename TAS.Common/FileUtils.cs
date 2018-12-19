@@ -58,7 +58,7 @@ namespace TAS.Common
                 // first try with the original filename, else try incrementally adding an index
                 var name = (index == 0)
                     ? fileName
-                    : String.Format("{0}_{1}{2}", fileBase, index, ext);
+                    : $"{fileBase}_{index}{ext}";
 
                 // check if exists
                 var fullPath = Path.Combine(folder, name);
@@ -73,7 +73,7 @@ namespace TAS.Common
         {
             if (fileName == null)
                 return string.Empty;
-            string fileExt = Path.GetExtension(fileName).ToLowerInvariant();
+            var fileExt = Path.GetExtension(fileName).ToLowerInvariant();
             switch (mediaType)
             {
                 case TMediaType.Movie:
@@ -95,21 +95,21 @@ namespace TAS.Common
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
         }
-    }
 
-    public static class DateTimeExtensions
-    {
-        public static bool DateTimeEqualToDays(this DateTime self, DateTime dt)
+        public static TMediaType GetMediaType(string fileName)
         {
-            return (self.Date - dt).Days == 0;
-        }
-
-        public static DateTime FromFileTime(DateTime dt, DateTimeKind kind)
-        {
-            return DateTime.SpecifyKind(new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second), kind);
+            var ext = Path.GetExtension(fileName)?.ToLower();
+            if (ext == null)
+                return TMediaType.Unknown;
+            return VideoFileTypes.Contains(ext)
+                ? TMediaType.Movie
+                : StillFileTypes.Contains(ext)
+                    ? TMediaType.Still
+                    : AudioFileTypes.Contains(ext)
+                        ? TMediaType.Audio
+                        : AnimationFileTypes.Contains(ext)
+                            ? TMediaType.Animation
+                            : TMediaType.Unknown;
         }
     }
-
-    
-
 }

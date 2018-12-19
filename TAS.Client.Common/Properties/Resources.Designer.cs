@@ -79,6 +79,33 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Animations (main).
+        /// </summary>
+        public static string _animations_Primary {
+            get {
+                return ResourceManager.GetString("_animations_Primary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Animations (backup).
+        /// </summary>
+        public static string _animations_Secondary {
+            get {
+                return ResourceManager.GetString("_animations_Secondary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Archive.
+        /// </summary>
+        public static string _archive {
+            get {
+                return ResourceManager.GetString("_archive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add.
         /// </summary>
         public static string _button_Add {
@@ -236,6 +263,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Main.
+        /// </summary>
+        public static string _primary {
+            get {
+                return ResourceManager.GetString("_primary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Abadon changes in {0}?.
         /// </summary>
         public static string _query_AbadonChanges {
@@ -386,6 +422,15 @@ namespace TAS.Client.Common.Properties {
         public static string _rundowns {
             get {
                 return ResourceManager.GetString("_rundowns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Backup.
+        /// </summary>
+        public static string _secondary {
+            get {
+                return ResourceManager.GetString("_secondary", resourceCulture);
             }
         }
         

@@ -11,6 +11,8 @@ using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.Security;
 using TAS.Server.Media;
 using TAS.Server.Security;
 
@@ -128,7 +130,7 @@ namespace TAS.Server
                  var result = new SynchronizedCollection<Event>();
                  if (Id != 0)
                  {
-                     var seList = EngineController.Database.DbReadSubEvents(_engine, this);
+                     var seList = EngineController.Database.ReadSubEvents(_engine, this);
                      foreach (Event e in seList)
                      {
                          e.Parent = this;
@@ -140,7 +142,7 @@ namespace TAS.Server
 
             _next = new Lazy<Event>(() =>
             {
-                var next = (Event)EngineController.Database.DbReadNext(_engine, this);
+                var next = (Event)EngineController.Database.ReadNext(_engine, this);
                 if (next != null)
                     next.Prior = this;
                 return next;
@@ -150,7 +152,7 @@ namespace TAS.Server
             {
                 Event prior = null;
                 if (startType == TStartType.After && IdEventBinding > 0)
-                    prior = (Event)EngineController.Database.DbReadEvent(_engine, IdEventBinding);
+                    prior = (Event)EngineController.Database.ReadEvent(_engine, IdEventBinding);
                 if (prior != null)
                     prior.Next = this;
                 return prior;
@@ -159,11 +161,11 @@ namespace TAS.Server
             _parent = new Lazy<Event>(() =>
             {
                 if ((startType == TStartType.WithParent || startType == TStartType.WithParentFromEnd) && IdEventBinding > 0)
-                    return (Event)EngineController.Database.DbReadEvent(_engine, IdEventBinding);
+                    return (Event)EngineController.Database.ReadEvent(_engine, IdEventBinding);
                 return null;
             });
 
-            _rights = new Lazy<List<IAclRight>>(() => EngineController.Database.DbReadEventAclList<EventAclRight>(this, _engine.AuthenticationService as IAuthenticationServicePersitency));
+            _rights = new Lazy<List<IAclRight>>(() => EngineController.Database.ReadEventAclList<EventAclRight>(this, _engine.AuthenticationService as IAuthenticationServicePersitency));
             FieldLengths = EngineController.Database.EventFieldLengths;
         }
         #endregion //Constructor
@@ -1040,9 +1042,9 @@ namespace TAS.Server
             try
             {
                 if (Id == 0)
-                    EngineController.Database.DbInsertEvent(this);
+                    EngineController.Database.InsertEvent(this);
                 else
-                    EngineController.Database.DbUpdateEvent(this);
+                    EngineController.Database.UpdateEvent(this);
                 IsModified = false;
                 Debug.WriteLine(this, "Event saved");
             }
@@ -1084,11 +1086,11 @@ namespace TAS.Server
             return $"{EventType} {EventName}";
         }
 
-        internal PersistentMedia ServerMediaPRI => (_eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
+        internal PersistentMedia ServerMediaPRI => (_eventType == TEventType.Animation ? (WatcherDirectory)Engine.MediaManager.AnimationDirectoryPRI : (WatcherDirectory)Engine.MediaManager.MediaDirectoryPRI)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
 
-        internal PersistentMedia ServerMediaSEC => (_eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectorySEC: (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
+        internal PersistentMedia ServerMediaSEC => (_eventType == TEventType.Animation ? (WatcherDirectory)Engine.MediaManager.AnimationDirectorySEC: (WatcherDirectory)Engine.MediaManager.MediaDirectoryPRV)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
 
-        internal PersistentMedia ServerMediaPRV => (_eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRV : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
+        internal PersistentMedia ServerMediaPRV => (_eventType == TEventType.Animation ? (WatcherDirectory)Engine.MediaManager.AnimationDirectoryPRV : (WatcherDirectory)Engine.MediaManager.MediaDirectoryPRV)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
 
         internal void SaveLoadedTree()
         {
@@ -1114,7 +1116,12 @@ namespace TAS.Server
             }
         }
 
-        internal Event GetEnabledSuccessor()
+        public IEvent GetSuccessor()
+        {
+            return InternalGetSuccessor();
+        }
+
+        internal Event InternalGetSuccessor()
         {
             var next = _getSuccessor();
             while (next != null && next.Length.Equals(TimeSpan.Zero))
@@ -1177,7 +1184,7 @@ namespace TAS.Server
             }
             Remove();
             IsDeleted = true;
-            EngineController.Database.DbDeleteEvent(this);
+            EngineController.Database.DeleteEvent(this);
             _engine.RemoveEvent(this);
             _engine.NotifyEventDeleted(this);
             _isModified = false;
@@ -1254,12 +1261,7 @@ namespace TAS.Server
         {
             var eventType = _eventType;
             if (eventType == TEventType.Movie || eventType == TEventType.Live || eventType == TEventType.Rundown)
-            {
-                Event result = _next.Value;
-                if (result == null)
-                    result = _getVisualParent()?._getSuccessor();
-                return result;
-            }
+                return _next.Value ?? _getVisualParent()?._getSuccessor();
             return null;
         }
 
@@ -1349,7 +1351,7 @@ namespace TAS.Server
         {
             return new Lazy<PersistentMedia>(() =>
             {
-                var priMedia = media ?? _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI);
+                var priMedia = media ?? _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (WatcherDirectory)Engine.MediaManager.AnimationDirectoryPRI : (WatcherDirectory)Engine.MediaManager.MediaDirectoryPRI);
                 return priMedia;
             });
         }
@@ -1394,7 +1396,7 @@ namespace TAS.Server
             SubEventChanged?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, operation));
         }
 
-        private PersistentMedia _getMediaFromDir(Guid mediaGuid, MediaDirectory dir)
+        private PersistentMedia _getMediaFromDir(Guid mediaGuid, WatcherDirectory dir)
         {
             var newMedia = dir?.FindMediaByMediaGuid(mediaGuid);
             if (newMedia is PersistentMedia media)

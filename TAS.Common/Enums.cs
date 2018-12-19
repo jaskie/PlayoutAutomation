@@ -153,6 +153,7 @@ namespace TAS.Common
     [TypeConverter(typeof(TIngestDirectoryKindEnumConverter))]
     public enum TIngestDirectoryKind
     {
+        SimpleFolder,
         WatchFolder,
         BmdMediaExpressWatchFolder,
         XDCAM

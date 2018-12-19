@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Server.Media;
@@ -40,47 +41,32 @@ namespace TAS.Server
         [JsonProperty]
         public TimeSpan MeasureDuration { get; set; }
 
-        internal override bool Execute()
+        protected override async Task<bool> InternalExecute()
         {
             if (Kind != TFileOperationKind.Loudness)
-                return base.Execute();
+                throw new InvalidOperationException("Invalid operation kind");
             StartTime = DateTime.UtcNow;
             OperationStatus = FileOperationStatus.InProgress;
-            try
-            {
-                bool success;
-                if (!(Source is MediaBase source))
-                    throw new ArgumentException("LoudnessOperation: Source is not of type MediaBase");
-                if (source.Directory is IngestDirectory directory &&
-                    directory.AccessType != TDirectoryAccessType.Direct)
-                    using (var localSourceMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(source))
-                    {
-                        if (!source.CopyMediaTo(localSourceMedia, ref Aborted))
-                            return false;
-                        success = InternalExecute(localSourceMedia);
-                        if (!success)
-                            TryCount--;
-                        return success;
-                    }
+            if (!(Source is MediaBase source))
+                throw new ArgumentException("LoudnessOperation: Source is not of type MediaBase");
+            if (source.Directory is IngestDirectory directory &&
+                directory.AccessType != TDirectoryAccessType.Direct)
+                using (var localSourceMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(source))
+                {
+                    if (!await source.CopyMediaTo(localSourceMedia, CancellationTokenSource.Token))
+                        return false;
+                    return await DoExecute(localSourceMedia);
+                }
 
-                success = InternalExecute(source);
-                if (!success)
-                    TryCount--;
-                return success;
-            }
-            catch
-            {
-                TryCount--;
-                return false;
-            }
+            return await DoExecute(source);
         }
 
-        private bool InternalExecute(MediaBase inputMedia)
+        private async Task<bool> DoExecute(MediaBase inputMedia)
         {
             Debug.WriteLine(this, "Loudness operation started");
             string Params = $"-nostats -i \"{inputMedia.FullPath}\" -ss {MeasureStart} -t {(MeasureDuration == TimeSpan.Zero ? inputMedia.DurationPlay : MeasureDuration)} -filter_complex ebur128=peak=sample -f null -";
 
-            if (RunProcess(Params))
+            if (await RunProcess(Params))
             {
                 Debug.WriteLine(this, "Loudness operation succeed");
                 OperationStatus = FileOperationStatus.Finished;

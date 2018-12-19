@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {
-    public abstract class PersistentMedia: MediaBase, IPersistentMedia
+    public abstract class PersistentMedia: MediaBase, Common.Database.Interfaces.Media.IPersistentMedia
     {
 
         private DateTime _killDate;
@@ -15,13 +16,11 @@ namespace TAS.Server.Media
         private bool _protected;
         private readonly Lazy<MediaSegments> _mediaSegments;
 
-        internal PersistentMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid)
+        protected PersistentMedia() 
         {
-            IdPersistentMedia = idPersistentMedia;
-            _mediaSegments = new Lazy<MediaSegments>(() => EngineController.Database.DbMediaSegmentsRead<MediaSegments>(this));
-            
+            _mediaSegments = new Lazy<MediaSegments>(() => EngineController.Database.MediaSegmentsRead<MediaSegments>(this));
         }
-        public UInt64 IdPersistentMedia { get; set; }
+        public ulong IdPersistentMedia { get; set; }
 
         // media properties
 
@@ -62,7 +61,7 @@ namespace TAS.Server.Media
         public abstract IDictionary<string, int> FieldLengths { get; } 
 
 
-        public override void CloneMediaProperties(IMediaProperties fromMedia)
+        internal override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
             if (!(fromMedia is IPersistentMediaProperties properties))
@@ -85,7 +84,7 @@ namespace TAS.Server.Media
 
         protected override bool SetField<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
-            bool modified = base.SetField(ref field, value, propertyName);
+            var modified = base.SetField(ref field, value, propertyName);
             if (modified && propertyName != nameof(IsVerified))
                 IsModified = true;
             return modified;

@@ -466,7 +466,16 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Simple watch folder.
+        ///   Looks up a localized string similar to Simple, not watched folder.
+        /// </summary>
+        public static string TIngestDirectoryKind_SimpleFolder {
+            get {
+                return ResourceManager.GetString("TIngestDirectoryKind_SimpleFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Watch folder.
         /// </summary>
         public static string TIngestDirectoryKind_WatchFolder {
             get {

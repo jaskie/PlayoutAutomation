@@ -10,7 +10,7 @@ namespace TAS.Client.Config
 
         public CreateDatabaseViewmodel(): base(new Model.CreateDatabase(), typeof(CreateDatabaseView), "Create database") 
         {
-            CommandEditConnectionString = new UICommand { ExecuteDelegate = _editConnectionString };
+            CommandEditConnectionString = new UiCommand(_editConnectionString);
         }
 
         public string ConnectionString

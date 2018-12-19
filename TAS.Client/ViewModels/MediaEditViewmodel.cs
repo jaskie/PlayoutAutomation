@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
-using System.Windows;
 using System.IO;
 using System.Windows.Input;
 using TAS.Client.Common;
@@ -10,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
@@ -43,14 +43,14 @@ namespace TAS.Client.ViewModels
 
         public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, bool showButtons) : base(media)
         {
-            CommandSaveEdit = new UICommand {ExecuteDelegate = o => Save(), CanExecuteDelegate = o => CanSave()};
-            CommandCancelEdit = new UICommand {ExecuteDelegate = _undoEdit, CanExecuteDelegate = o => IsModified};
-            CommandRefreshStatus = new UICommand {ExecuteDelegate = _refreshStatus};
-            CommandCheckVolume = new UICommand
-            {
-                ExecuteDelegate = _checkVolume,
-                CanExecuteDelegate = o => !_isVolumeChecking
-            };
+            CommandSaveEdit = new UiCommand(o => Save(), o => CanSave());
+            CommandCancelEdit = new UiCommand(_undoEdit, o => IsModified);
+            CommandRefreshStatus = new UiCommand(_refreshStatus);
+            CommandCheckVolume = new UiCommand
+            (
+                _checkVolume,
+                o => !_isVolumeChecking
+            );
             _mediaManager = mediaManager;
             ShowButtons = showButtons;
             Model.PropertyChanged += OnMediaPropertyChanged;
@@ -402,15 +402,12 @@ namespace TAS.Client.ViewModels
             if (_isVolumeChecking)
                 return;
             IsVolumeChecking = true;
-            IFileManager fileManager = _mediaManager.FileManager;
-            ILoudnessOperation operation = fileManager.CreateLoudnessOperation();
-            operation.Source = Model;
-            operation.MeasureStart = TcPlay - TcStart;
-            operation.MeasureDuration = DurationPlay;
+            var fileManager = _mediaManager.FileManager;
+            var operation = fileManager.CreateLoudnessOperation(Model, TcPlay-TcStart, DurationPlay);
             operation.AudioVolumeMeasured += _audioVolumeMeasured;
             operation.Finished += _audioVolumeFinished;
             _checkVolumeSignal = new AutoResetEvent(false);
-            fileManager.Queue(operation, true);
+            fileManager.Queue(operation);
         }
 
         private void _audioVolumeFinished(object sender, EventArgs e)

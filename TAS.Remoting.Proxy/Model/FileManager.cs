@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Remoting.Model
 {
@@ -13,6 +14,7 @@ namespace TAS.Remoting.Model
         private event EventHandler<FileOperationEventArgs> _operationCompleted;
 
         public IEnumerable<IFileOperation> GetOperationQueue() { return Query<List<IFileOperation>>(); }
+
         public IIngestOperation CreateIngestOperation(IIngestMedia sourceMedia, IMediaManager destMediaManager)
         {
             return Query<IngestOperation>(parameters: new object[] {sourceMedia, destMediaManager});
@@ -23,19 +25,19 @@ namespace TAS.Remoting.Model
             return Query<FileOperation>();
         }
 
-        public ILoudnessOperation CreateLoudnessOperation()
+        public ILoudnessOperation CreateLoudnessOperation(IMedia media, TimeSpan startTc, TimeSpan duration)
         {
-            return Query<LoudnessOperation>();
+            return Query<LoudnessOperation>(parameters: new object[]{media, startTc, duration});
         }
 
-        public void Queue(IFileOperation operation, bool toTop)
+        public void Queue(IFileOperation operation)
         {
-            Invoke(parameters: new object[] { operation, toTop });
+            Invoke(parameters: operation);
         }
       
-        public void QueueList(IEnumerable<IFileOperation> operationList, bool toTop)
+        public void QueueList(IEnumerable<IFileOperation> operationList)
         {
-            Invoke(parameters: new object[] { operationList, toTop });
+            Invoke(parameters: operationList);
         }
 
         public void CancelPending()

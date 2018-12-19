@@ -9,7 +9,11 @@ using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
 using TAS.Common;
+using TAS.Common.Database.Interfaces;
+using TAS.Common.Database.Interfaces.Media;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
+using TAS.Common.Interfaces.Security;
 
 namespace TAS.Database.MySqlRedundant
 {
@@ -33,7 +37,7 @@ namespace TAS.Database.MySqlRedundant
             _connection = new DbConnectionRedundant(ConnectionStringPrimary, ConnectionStringSecondary);
             _connection.StateRedundantChange += _connection_StateRedundantChange;
             _connection.Open();
-            if ((_connection.StateRedundant & ConnectionStateRedundant.Open) != ConnectionStateRedundant.Closed)
+            if ((_connection.StateRedundant & (ConnectionStateRedundant.OpenPrimary | ConnectionStateRedundant.OpenSecondary)) != ConnectionStateRedundant.Closed)
                 _tablesStringFieldsLenghts = ReadTablesStringFieldLenghts();
 
             ServerMediaFieldLengths = new Dictionary<string, int>
@@ -241,7 +245,7 @@ namespace TAS.Database.MySqlRedundant
 
         #region IPlayoutServer
 
-        public List<T> DbLoadServers<T>() where T : IPlayoutServerProperties
+        public List<T> LoadServers<T>() where T : IPlayoutServerProperties
         {
             var servers = new List<T>();
             lock (_connection)
@@ -263,7 +267,7 @@ namespace TAS.Database.MySqlRedundant
             return servers;
         }
 
-        public void DbInsertServer(IPlayoutServerProperties server) 
+        public void InsertServer(IPlayoutServerProperties server) 
         {
             lock (_connection)
             {
@@ -281,7 +285,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbUpdateServer(IPlayoutServerProperties server) 
+        public void UpdateServer(IPlayoutServerProperties server) 
         {
             lock (_connection)
             {
@@ -298,7 +302,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbDeleteServer(IPlayoutServerProperties server) 
+        public void DeleteServer(IPlayoutServerProperties server) 
         {
             lock (_connection)
             {
@@ -312,7 +316,7 @@ namespace TAS.Database.MySqlRedundant
 
         #region IEngine
 
-        public List<T> DbLoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
+        public List<T> LoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
         {
             var engines = new List<T>();
             lock (_connection)
@@ -349,7 +353,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbInsertEngine(IEnginePersistent engine) 
+        public void InsertEngine(IEnginePersistent engine) 
         {
             lock (_connection)
             {
@@ -375,7 +379,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbUpdateEngine(IEnginePersistent engine)
+        public void UpdateEngine(IEnginePersistent engine)
         {
             lock (_connection)
             {
@@ -399,7 +403,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbDeleteEngine(IEnginePersistent engine) 
+        public void DeleteEngine(IEnginePersistent engine) 
         {
             lock (_connection)
             {
@@ -409,7 +413,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbReadRootEvents(IEngine engine)
+        public void ReadRootEvents(IEngine engine)
         {
             lock (_connection)
             {
@@ -431,7 +435,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public void DbSearchMissing(IEngine engine) 
+        public void SearchMissing(IEngine engine) 
         {
             {
                 lock (_connection)
@@ -463,7 +467,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public List<IEvent> DbSearchPlaying(IEngine engine)
+        public List<IEvent> SearchPlaying(IEngine engine)
         {
             {
                 lock (_connection)
@@ -492,7 +496,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public MediaDeleteResult DbMediaInUse(IEngine engine, IServerMedia serverMedia)
+        public MediaDeleteResult MediaInUse(IEngine engine, IServerMedia serverMedia)
         {
             var reason = MediaDeleteResult.NoDeny;
             lock (_connection)
@@ -517,7 +521,7 @@ namespace TAS.Database.MySqlRedundant
         #endregion //IEngine
 
         #region ArchiveDirectory
-        public List<T> DbLoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
+        public List<T> LoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
         {
             var directories = new List<T>();
             lock (_connection)
@@ -529,7 +533,7 @@ namespace TAS.Database.MySqlRedundant
                     {
                         var dir = new T
                         {
-                            idArchive = dataReader.GetUInt64("idArchive"),
+                            IdArchive = dataReader.GetUInt64("idArchive"),
                             Folder = dataReader.GetString("Folder")
                         };
                         directories.Add(dir);
@@ -540,7 +544,7 @@ namespace TAS.Database.MySqlRedundant
             return directories;
         }
 
-        public void DbInsertArchiveDirectory(IArchiveDirectoryProperties dir) 
+        public void InsertArchiveDirectory(IArchiveDirectoryProperties dir) 
         {
             lock (_connection)
             {
@@ -548,56 +552,49 @@ namespace TAS.Database.MySqlRedundant
                     var cmd = new DbCommandRedundant(@"INSERT INTO archive set Folder=@Folder", _connection);
                     cmd.Parameters.AddWithValue("@Folder", dir.Folder);
                     cmd.ExecuteNonQuery();
-                    dir.idArchive = (ulong)cmd.LastInsertedId;
+                    dir.IdArchive = (ulong)cmd.LastInsertedId;
                 }
             }
         }
 
-        public void DbUpdateArchiveDirectory(IArchiveDirectoryProperties dir)
+        public void UpdateArchiveDirectory(IArchiveDirectoryProperties dir)
         {
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant(@"UPDATE archive set Folder=@Folder where idArchive=@idArchive", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
                 cmd.Parameters.AddWithValue("@Folder", dir.Folder);
                 cmd.ExecuteNonQuery();
             }
         }
 
-        public void DbDeleteArchiveDirectory(IArchiveDirectoryProperties dir) 
+        public void DeleteArchiveDirectory(IArchiveDirectoryProperties dir) 
         {
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant("DELETE FROM archive WHERE idArchive=@idArchive;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
                 cmd.ExecuteNonQuery();
             }
         }
 
-        private ConstructorInfo _archiveMediaConstructorInfo;
-
-        private T _readArchiveMedia<T>(DbDataReaderRedundant dataReader, IArchiveDirectory dir) where T: IArchiveMedia
+        private T _readArchiveMedia<T>(DbDataReaderRedundant dataReader) where T: IArchiveMedia, new()
         {
-            if (_archiveMediaConstructorInfo == null)
-                _archiveMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IArchiveDirectory), typeof(Guid), typeof(UInt64) });
-            if (_archiveMediaConstructorInfo != null)
+            var media = new T
             {
-                T media = (T)_archiveMediaConstructorInfo.Invoke(new object[] { dir, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idArchiveMedia") });
-                _mediaReadFields(media, dataReader);
-                media.IsModified = false;
-                return media;
-            }
-            throw new ApplicationException("No IArchiveMedia constructor found");
+                IdPersistentMedia = dataReader.GetUInt64("idArchiveMedia")
+            };
+            _mediaReadFields(media, dataReader);
+            return media;
         }
 
-        public void DbSearch<T>(IArchiveDirectory dir) where T: IArchiveMedia
+        public List<T> ArchiveMediaSearch<T>(IArchiveDirectoryServerSide dir, TMediaCategory? mediaCategory, string search) where T: IArchiveMedia, new()
         {
-            string search = dir.SearchString;
             lock (_connection)
             {
                 var textSearches = (from text in search.ToLower().Split(' ').Where(s => !string.IsNullOrEmpty(s)) select "(LOWER(MediaName) LIKE \"%" + text + "%\" or LOWER(FileName) LIKE \"%" + text + "%\")").ToArray();
                 DbCommandRedundant cmd;
-                if (dir.SearchMediaCategory == null)
+                if (mediaCategory == null)
                     cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive" 
                                                 + (textSearches.Length > 0 ? " and" + string.Join(" and", textSearches) : string.Empty)
                                                 + " order by idArchiveMedia DESC LIMIT 0, 1000;", _connection);
@@ -606,83 +603,88 @@ namespace TAS.Database.MySqlRedundant
                     cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and ((flags >> 4) & 3)=@Category"
                                                 + (textSearches.Length > 0 ? " and" + string.Join(" and", textSearches) : string.Empty)
                                                 + " order by idArchiveMedia DESC LIMIT 0, 1000;", _connection);
-                    cmd.Parameters.AddWithValue("@Category", (uint)dir.SearchMediaCategory);
+                    cmd.Parameters.AddWithValue("@Category", (uint)mediaCategory);
                 }
-                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
                 using (var dataReader = cmd.ExecuteReader())
                 {
+                    var result = new List<T>();
                     while (dataReader.Read())
-                        _readArchiveMedia<T>(dataReader, dir);
+                    {
+                        var media = _readArchiveMedia<T>(dataReader);
+                        dir.AddMedia(media);
+                        result.Add(media);
+                    }
                     dataReader.Close();
+                    return result;
                 }
             }
         }
 
-        private ConstructorInfo _archiveDirectoryConstructorInfo;
 
-        public IArchiveDirectory LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectory
+        public IArchiveDirectoryServerSide LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectoryServerSide, new()
         {
             lock (_connection)
             {
-                if (_archiveDirectoryConstructorInfo == null)
-                    _archiveDirectoryConstructorInfo = typeof(T).GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, CallingConventions.Any,  new[] { typeof(IMediaManager), typeof(ulong), typeof(string) }, null);
-                if (_archiveDirectoryConstructorInfo == null)
-                    throw new ApplicationException("Cannot obtain constructor for ArchiveDirectory");
                 var cmd = new DbCommandRedundant("SELECT Folder FROM archive WHERE idArchive=@idArchive;", _connection);
                 cmd.Parameters.AddWithValue("@idArchive", idArchive);
                 var folder = (string)cmd.ExecuteScalar();
                 if (string.IsNullOrEmpty(folder))
-                    return null;
-                var directory = (T)_archiveDirectoryConstructorInfo.Invoke(new object[] { manager, idArchive, folder });
-                return directory;
+                    return default(T);
+                return new T
+                {
+                    MediaManager = manager,
+                    IdArchive = idArchive,
+                    Folder = folder
+                };
             }
         }
 
-        public IEnumerable<IArchiveMedia> DbFindStaleMedia<T>(IArchiveDirectory dir) where T: IArchiveMedia
+        public List<T> FindArchivedStaleMedia<T>(IArchiveDirectoryServerSide dir) where T : IArchiveMedia, new()
         {
-            var returnList = new List<IArchiveMedia>();
+            var returnList = new List<T>();
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and KillDate<CURRENT_DATE and KillDate>'2000-01-01' LIMIT 0, 1000;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
                 using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
-                        returnList.Add(_readArchiveMedia<T>(dataReader, dir));
+                        returnList.Add(_readArchiveMedia<T>(dataReader));
                     dataReader.Close();
                 }
             }
             return returnList;
         }
 
-        public T DbMediaFind<T>(IArchiveDirectory dir, IMediaProperties media) where T: IArchiveMedia
+        public T ArchiveMediaFind<T>(IArchiveDirectoryServerSide dir, Guid mediaGuid) where T: IArchiveMedia, new()
         {
             var result = default(T);
-            if (media.MediaGuid == Guid.Empty)
+            if (mediaGuid == Guid.Empty)
                 return result;
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant("SELECT * FROM archivemedia WHERE idArchive=@idArchive && MediaGuid=@MediaGuid;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
-                cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
                 using (var dataReader = cmd.ExecuteReader(CommandBehavior.SingleRow))
                 {
                     if (dataReader.Read())
-                        result = _readArchiveMedia<T>(dataReader, dir);
+                        result = _readArchiveMedia<T>(dataReader);
                     dataReader.Close();
                 }
             }
             return result;
         }
 
-        public bool DbArchiveContainsMedia(IArchiveDirectory dir, IMediaProperties media)
+        public bool ArchiveContainsMedia(IArchiveDirectoryProperties dir, IPersistentMedia media)
         {
-            if (media.MediaGuid == Guid.Empty)
+            if (dir == null || media.MediaGuid == Guid.Empty)
                 return false;
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant("SELECT count(*) FROM archivemedia WHERE idArchive=@idArchive && MediaGuid=@MediaGuid;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
                 cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
                 var result = cmd.ExecuteScalar();
                 return result != null && (long)result > 0;
@@ -692,7 +694,7 @@ namespace TAS.Database.MySqlRedundant
         #endregion // ArchiveDirectory
 
         #region IEvent
-        public List<IEvent> DbReadSubEvents(IEngine engine, IEventPesistent eventOwner)
+        public List<IEvent> ReadSubEvents(IEngine engine, IEventPesistent eventOwner)
         {
             if (eventOwner == null)
                 return null;
@@ -727,7 +729,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public IEvent DbReadNext(IEngine engine, IEventPesistent aEvent) 
+        public IEvent ReadNext(IEngine engine, IEventPesistent aEvent) 
         {
             if (aEvent == null)
                 return null;
@@ -769,7 +771,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public IEvent DbReadEvent(IEngine engine, UInt64 idRundownEvent)
+        public IEvent ReadEvent(IEngine engine, UInt64 idRundownEvent)
         {
             if (idRundownEvent <= 0)
                 return null;
@@ -903,7 +905,7 @@ namespace TAS.Database.MySqlRedundant
         }
 
 
-        public bool DbInsertEvent(IEventPesistent aEvent)
+        public bool InsertEvent(IEventPesistent aEvent)
         {
             lock (_connection)
             {
@@ -928,7 +930,7 @@ VALUES
             return false;
         }
 
-        public bool DbUpdateEvent<TEvent>(TEvent aEvent) where  TEvent: IEventPesistent
+        public bool UpdateEvent<TEvent>(TEvent aEvent) where  TEvent: IEventPesistent
         {
             lock (_connection)
             {
@@ -974,7 +976,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             }
         }
 
-        public bool DbDeleteEvent(IEventPesistent aEvent)
+        public bool DeleteEvent(IEventPesistent aEvent)
         {
             lock (_connection)
             {
@@ -986,7 +988,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             }
         }
 
-        public void AsRunLogWrite(IEventPesistent e)
+        public void AsRunLogWrite(IEvent e)
         {
             try
             {
@@ -1063,7 +1065,7 @@ VALUES
 
         #region ACL
 
-        public List<IAclRight> DbReadEventAclList<TEventAcl>(IEventPesistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
+        public List<IAclRight> ReadEventAclList<TEventAcl>(IEventPesistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
         {
             if (aEvent == null)
                 return null;
@@ -1090,7 +1092,7 @@ VALUES
             }
         }
 
-        public bool DbInsertEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
+        public bool InsertEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
         {
             if (acl?.Owner == null)
                 return false;
@@ -1111,7 +1113,7 @@ VALUES
             }
         }
 
-        public bool DbUpdateEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
+        public bool UpdateEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1127,7 +1129,7 @@ VALUES
             }
         }
 
-        public bool DbDeleteEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        public bool DeleteEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1139,7 +1141,7 @@ VALUES
         }
 
 
-        public List<IAclRight> DbReadEngineAclList<TEngineAcl>(IPersistent engine, IAuthenticationServicePersitency authenticationService) where TEngineAcl : IAclRight, IPersistent, new()
+        public List<IAclRight> ReadEngineAclList<TEngineAcl>(IPersistent engine, IAuthenticationServicePersitency authenticationService) where TEngineAcl : IAclRight, IPersistent, new()
         {
             lock (_connection)
             {
@@ -1166,7 +1168,7 @@ VALUES
             }
         }
 
-        public bool DbInsertEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        public bool InsertEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             if (acl?.Owner == null)
                 return false;
@@ -1187,7 +1189,7 @@ VALUES
             }
         }
 
-        public bool DbUpdateEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        public bool UpdateEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1203,7 +1205,7 @@ VALUES
             }
         }
 
-        public bool DbDeleteEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        public bool DeleteEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1246,9 +1248,9 @@ VALUES
                 cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typVideo", DBNull.Value);
             }
-            if (media is IArchiveMedia && media.Directory is IArchiveDirectory archiveDirectory)
+            if (media is IArchiveMedia && media.Directory is IArchiveDirectoryServerSide archiveDirectory)
             {
-                cmd.Parameters.AddWithValue("@idArchive", archiveDirectory.idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", archiveDirectory.IdArchive);
                 cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
             }
             cmd.Parameters.AddWithValue("@MediaName", TrimText(tableName, "MediaName", media.MediaName));
@@ -1281,14 +1283,15 @@ VALUES
         {
             var flags = dataReader.IsDBNull(dataReader.GetOrdinal("flags")) ? 0 : dataReader.GetUInt32("flags");
             media.MediaName = dataReader.IsDBNull(dataReader.GetOrdinal("MediaName")) ? string.Empty : dataReader.GetString("MediaName");
+            media.LastUpdated = dataReader.GetDateTime("LastUpdated");
+            media.MediaGuid = dataReader.GetGuid("MediaGuid");
+            media.MediaType = (TMediaType)(dataReader.IsDBNull(dataReader.GetOrdinal("typMedia")) ? 0 : dataReader.GetInt32("typMedia"));
             media.Duration = dataReader.IsDBNull(dataReader.GetOrdinal("Duration")) ? default(TimeSpan) : dataReader.GetTimeSpan("Duration");
             media.DurationPlay = dataReader.IsDBNull(dataReader.GetOrdinal("DurationPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("DurationPlay");
             media.Folder = dataReader.IsDBNull(dataReader.GetOrdinal("Folder")) ? string.Empty : dataReader.GetString("Folder");
             media.FileName = dataReader.IsDBNull(dataReader.GetOrdinal("FileName")) ? string.Empty : dataReader.GetString("FileName");
             media.FileSize = dataReader.IsDBNull(dataReader.GetOrdinal("FileSize")) ? 0 : dataReader.GetUInt64("FileSize");
-            media.LastUpdated = dataReader.GetDateTime("LastUpdated");
             media.MediaStatus = (TMediaStatus)(dataReader.IsDBNull(dataReader.GetOrdinal("statusMedia")) ? 0 : dataReader.GetInt32("statusMedia"));
-            media.MediaType = (TMediaType)(dataReader.IsDBNull(dataReader.GetOrdinal("typMedia")) ? 0 : dataReader.GetInt32("typMedia"));
             media.TcStart = dataReader.IsDBNull(dataReader.GetOrdinal("TCStart")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCStart");
             media.TcPlay = dataReader.IsDBNull(dataReader.GetOrdinal("TCPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCPlay");
             media.IdProgramme = dataReader.IsDBNull(dataReader.GetOrdinal("idProgramme")) ? 0 : dataReader.GetUInt64("idProgramme");
@@ -1306,20 +1309,30 @@ VALUES
             media.Protected = (flags & 0x2) != 0;
             media.FieldOrderInverted = (flags & 0x4) != 0;
             media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
+            if (media is ITemplated templated)
+            {
+                var templateFields = dataReader.GetString("Fields");
+                if (!string.IsNullOrWhiteSpace(templateFields))
+                {
+                    var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
+                    if (fieldsDeserialized != null)
+                        templated.Fields = fieldsDeserialized;
+                }
+                templated.Method = (TemplateMethod)dataReader.GetByte("Method");
+                templated.TemplateLayer = dataReader.GetInt32("TemplateLayer");
+                templated.ScheduledDelay = dataReader.GetTimeSpan("ScheduledDelay");
+                templated.StartType = (TStartType)dataReader.GetByte("StartType");
+                if (templated.StartType != TStartType.WithParentFromEnd)
+                    templated.StartType = TStartType.WithParent;
+            }
+            media.IsModified = false;
         }
 
-        static ConstructorInfo _serverMediaConstructorInfo;
-        static ConstructorInfo _animatedMediaConstructorInfo;
-        public void Load<T>(IAnimationDirectory directory, ulong serverId) where T: IAnimatedMedia
+        public void LoadAnimationDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IAnimatedMedia, new()
         {
             Debug.WriteLine(directory, "AnimationDirectory load started");
             lock (_connection)
             {
-                if (_animatedMediaConstructorInfo == null)
-                    _animatedMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaDirectory), typeof(Guid), typeof(UInt64) });
-                if (_animatedMediaConstructorInfo == null)
-                    throw new ApplicationException("No constructor found for IAnimatedMedia");
-
                 DbCommandRedundant cmd = new DbCommandRedundant("SELECT servermedia.*, media_templated.`Fields`, media_templated.`Method`, media_templated.`TemplateLayer`, media_templated.`ScheduledDelay`, media_templated.`StartType` FROM serverMedia LEFT JOIN media_templated ON servermedia.MediaGuid = media_templated.MediaGuid WHERE idServer=@idServer and typMedia = @typMedia", _connection);
                 cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typMedia", TMediaType.Animation);
@@ -1330,26 +1343,12 @@ VALUES
                         while (dataReader.Read())
                         {
 
-                            var media = (T)_animatedMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia")});
-                            _mediaReadFields(media, dataReader);
-                            var templateFields = dataReader.GetString("Fields");
-                            if (!string.IsNullOrWhiteSpace(templateFields))
+                            var media = new T
                             {
-                                var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
-                                if (fieldsDeserialized != null)
-                                    media.Fields = fieldsDeserialized;
-                            }
-                            media.Method = (TemplateMethod)dataReader.GetByte("Method");
-                            media.TemplateLayer = dataReader.GetInt32("TemplateLayer");
-                            media.ScheduledDelay = dataReader.GetTimeSpan("ScheduledDelay");
-                            media.StartType = (TStartType)dataReader.GetByte("StartType");
-                            if (media.StartType != TStartType.WithParentFromEnd)
-                                media.StartType = TStartType.WithParent;
-                            media.IsModified = false;
-                            if (media.MediaStatus == TMediaStatus.Available)
-                                continue;
-                            media.MediaStatus = TMediaStatus.Unknown;
-                            media.ReVerify();
+                                IdPersistentMedia = dataReader.GetUInt64("idServerMedia"),
+                            };
+                            _mediaReadFields(media, dataReader);
+                            directory.AddMedia(media);
                         }
                     }
                     Debug.WriteLine(directory, "Directory loaded");
@@ -1361,15 +1360,11 @@ VALUES
             }
         }
 
-        public void Load<T>(IServerDirectory directory, IArchiveDirectory archiveDirectory, ulong serverId) where T : IServerMedia
+        public void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IServerMedia, new()
         {
             Debug.WriteLine(directory, "ServerLoadMediaDirectory started");
             lock (_connection)
             {
-                if (_serverMediaConstructorInfo == null)
-                    _serverMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaDirectory), typeof(Guid), typeof(UInt64), typeof(IArchiveDirectory) });
-                if (_serverMediaConstructorInfo == null)
-                    throw new ApplicationException("No constructor found for IServerMedia");
 
                 var cmd = new DbCommandRedundant("SELECT * FROM serverMedia WHERE idServer=@idServer and typMedia in (@typMediaMovie, @typMediaStill)", _connection);
                 cmd.Parameters.AddWithValue("@idServer", serverId);
@@ -1381,14 +1376,12 @@ VALUES
                     {
                         while (dataReader.Read())
                         {
-                            var media = (T)_serverMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia"), archiveDirectory});
-                            _mediaReadFields(media, dataReader);
-                            media.IsModified = false;
-                            if (media.MediaStatus != TMediaStatus.Available)
+                            var media = new T
                             {
-                                media.MediaStatus = TMediaStatus.Unknown;
-                                media.ReVerify();
-                            }
+                                IdPersistentMedia = dataReader.GetUInt64("idServerMedia")
+                            };
+                            _mediaReadFields(media, dataReader);
+                            directory.AddMedia(media);
                         }
                     }
                     Debug.WriteLine(directory, "Directory loaded");
@@ -1455,7 +1448,7 @@ VALUES
             }
         }
 
-        public bool DbInsertMedia(IAnimatedMedia animatedMedia, ulong serverId )
+        public bool InsertMedia(IAnimatedMedia animatedMedia, ulong serverId )
         {
             var result = false;
             lock (_connection)
@@ -1480,7 +1473,7 @@ VALUES
             return result;
         }
 
-        public bool DbInsertMedia(IServerMedia serverMedia, ulong serverId)
+        public bool InsertMedia(IServerMedia serverMedia, ulong serverId)
         {
             lock (_connection)
                 return _dbInsertMedia(serverMedia, serverId);
@@ -1498,7 +1491,7 @@ VALUES
             return true;
         }
 
-        public bool DbInsertMedia(IArchiveMedia archiveMedia, ulong serverid)
+        public bool InsertMedia(IArchiveMedia archiveMedia, ulong serverid)
         {
             lock (_connection)
             {
@@ -1512,15 +1505,15 @@ VALUES
             return true;
         }
 
-        public bool DbDeleteMedia(IServerMedia serverMedia)
+        public bool DeleteMedia(IServerMedia serverMedia)
         {
             lock (_connection)
             {
-                return _dbDeleteMedia(serverMedia);
+                return _deleteServerMedia(serverMedia);
             }
         }
 
-        public bool DbDeleteMedia(IAnimatedMedia animatedMedia)
+        public bool DeleteMedia(IAnimatedMedia animatedMedia)
         {
             lock (_connection)
             {
@@ -1529,7 +1522,7 @@ VALUES
                 {
                     try
                     {
-                        result = _dbDeleteMedia(animatedMedia);
+                        result = _deleteServerMedia(animatedMedia);
                         if (result)
                             result = _delete_media_templated(animatedMedia);
                     }
@@ -1545,14 +1538,14 @@ VALUES
             }
         }
         
-        private bool _dbDeleteMedia(IPersistentMedia serverMedia)
+        private bool _deleteServerMedia(IPersistentMedia serverMedia)
         {
             var cmd = new DbCommandRedundant("DELETE FROM ServerMedia WHERE idServerMedia=@idServerMedia;", _connection);
             cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
             return cmd.ExecuteNonQuery() == 1;
         }
 
-        public bool DbDeleteMedia(IArchiveMedia archiveMedia)
+        public bool DeleteMedia(IArchiveMedia archiveMedia)
         {
             lock (_connection)
             {
@@ -1562,7 +1555,7 @@ VALUES
             }
         }
 
-        public void DbUpdateMedia(IAnimatedMedia animatedMedia, ulong serverId)
+        public void UpdateMedia(IAnimatedMedia animatedMedia, ulong serverId)
         {
             lock (_connection)
             {
@@ -1583,7 +1576,7 @@ VALUES
         }
 
 
-        public void DbUpdateMedia(IServerMedia serverMedia, ulong serverId)
+        public void UpdateMedia(IServerMedia serverMedia, ulong serverId)
         {
             lock (_connection)
                 _dbUpdateMedia(serverMedia, serverId);
@@ -1620,7 +1613,7 @@ WHERE idServerMedia=@idServerMedia;", _connection);
             Debug.WriteLine(serverMedia, "ServerMediaUpdate-d");
         }
 
-        public void DbUpdateMedia(IArchiveMedia archiveMedia, ulong serverId)
+        public void UpdateMedia(IArchiveMedia archiveMedia, ulong serverId)
         {
             lock (_connection)
             {
@@ -1671,7 +1664,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
             return null;
         }
 
-        public T DbMediaSegmentsRead<T>(IPersistentMedia media) where T : IMediaSegments 
+        public T MediaSegmentsRead<T>(IPersistentMedia media) where T : IMediaSegments 
         {
             lock (_connection)
             {
@@ -1707,7 +1700,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
             }
         }
 
-        public void DbDeleteMediaSegment(IMediaSegment mediaSegment)
+        public void DeleteMediaSegment(IMediaSegment mediaSegment)
         {
             if (!(mediaSegment is IPersistent ps) || ps.Id == 0)
                 return;
@@ -1718,7 +1711,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
                 cmd.ExecuteNonQuery();
             }
         }
-        public ulong DbSaveMediaSegment(IMediaSegment mediaSegment)
+        public ulong SaveMediaSegment(IMediaSegment mediaSegment)
         {
             if (!(mediaSegment is IPersistent ps))
                 return 0;
@@ -1746,7 +1739,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
 
         #region Security
 
-        public void DbInsertSecurityObject(ISecurityObject aco)
+        public void InsertSecurityObject(ISecurityObject aco)
         {
             if (!(aco is IPersistent pAco))
                 throw new ArgumentNullException(nameof(aco));
@@ -1767,7 +1760,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
             }
         }
 
-        public void DbDeleteSecurityObject(ISecurityObject aco)
+        public void DeleteSecurityObject(ISecurityObject aco)
         {
             if (!(aco is IPersistent pAco) || pAco.Id == 0)
                 throw new ArgumentNullException(nameof(aco));
@@ -1781,7 +1774,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
             }
         }
 
-        public void DbUpdateSecurityObject(ISecurityObject aco)
+        public void UpdateSecurityObject(ISecurityObject aco)
         {
             if (!(aco is IPersistent pAco) || pAco.Id == 0)
                 throw new ArgumentNullException(nameof(aco));
@@ -1801,7 +1794,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
             }
         }
 
-        public List<T> DbLoad<T>() where T : ISecurityObject
+        public List<T> Load<T>() where T : ISecurityObject
         {
             var users = new List<T>();
             lock (_connection)

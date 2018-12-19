@@ -15,7 +15,7 @@ namespace TAS.Server
     [Export(typeof(IEnginePluginFactory))]
     public class LocalDevices : IEnginePluginFactory
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger("TAS.Server.LocalDevices");
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         [ImportingConstructor]
         public LocalDevices([Import("AppSettings")] NameValueCollection settings)
@@ -28,7 +28,10 @@ namespace TAS.Server
 
         public object CreateEnginePlugin(IEngine engine)
         {
-            return EngineBindings.FirstOrDefault(b => b.IdEngine == (engine as IPersistent)?.Id);
+            var plugin = EngineBindings.FirstOrDefault(b => b.EngineName == engine.EngineName);
+            if (plugin != null)
+                plugin.Engine = engine;
+            return plugin;
         }
 
         public void DeserializeElements(string settingsFileName)

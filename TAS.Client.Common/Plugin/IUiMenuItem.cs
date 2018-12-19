@@ -7,5 +7,6 @@ namespace TAS.Client.Common.Plugin
     {
         string Header { get; }
         IEnumerable<IUiMenuItem> Items { get; }
+        void NotifyExecuteChanged();
     }
 }

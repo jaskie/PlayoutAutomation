@@ -498,10 +498,7 @@ namespace System.Net.FtpClient {
             if (m_socket != null) {
                 try {
                     if (m_socket.Connected) {
-                        ////
-                        // Calling Shutdown() with mono causes an
-                        // exception if the remote host closed first
-                        m_socket.Close(10);
+                        m_socket.Shutdown(SocketShutdown.Both);
                     }
 
 #if !NET2

@@ -202,7 +202,7 @@ namespace TAS.Database.MySqlRedundant
         {
             if (ConnectionPrimary != null)
             {
-                TimeSpan timeout = TimeSpan.FromSeconds(ConnectionPrimary.ConnectionTimeout);
+                TimeSpan timeout = TimeSpan.FromSeconds(60);
                 _idleTimeTimerPrimary = new Timer(_idleTimeTimerCallback, ConnectionPrimary, timeout, timeout);
                 try
                 {
@@ -265,13 +265,11 @@ namespace TAS.Database.MySqlRedundant
                 return;
             try
             {
-                bool isConnected;
                 lock (this)
                 {
-                    isConnected = connection.Ping();
-                }
-                if (!isConnected)
-                {
+                    var isConnected = connection.Ping();
+                    if (isConnected)
+                        return;
                     connection.Close();
                     connection.Open();
                 }

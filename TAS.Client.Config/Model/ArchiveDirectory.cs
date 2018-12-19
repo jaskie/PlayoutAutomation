@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.Config.Model
 {
@@ -9,8 +9,16 @@ namespace TAS.Client.Config.Model
         string _folder;
         private bool _deleted;
 
-        public ulong idArchive { get { return _idArchive; }  set { SetField(ref _idArchive, value); } }
-        public string Folder { get { return _folder; } set { SetField(ref _folder, value); } }
+        public ulong IdArchive {
+            get => _idArchive;
+            set => SetField(ref _idArchive, value);
+        }
+
+        public string Folder
+        {
+            get => _folder;
+            set => SetField(ref _folder, value);
+        }
         public bool IsModified { get; internal set; }
 
         public string DirectoryName { get; set; }

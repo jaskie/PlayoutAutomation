@@ -6,7 +6,7 @@ using System.Linq;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Security;
 using resources = TAS.Client.Common.Properties.Resources;
 
 
@@ -71,9 +71,9 @@ namespace TAS.Client.ViewModels
 
         public ObservableCollection<GroupViewmodel> GroupMember { get; }
 
-        public ICommand CommandSave => new UICommand {ExecuteDelegate = Update, CanExecuteDelegate = o => IsModified};
+        public ICommand CommandSave => new UiCommand(Update, o => IsModified);
 
-        public ICommand CommandUndo => new UICommand { ExecuteDelegate = Load, CanExecuteDelegate = o => IsModified };
+        public ICommand CommandUndo => new UiCommand(Load, o => IsModified);
 
         protected override void OnDispose()
         {

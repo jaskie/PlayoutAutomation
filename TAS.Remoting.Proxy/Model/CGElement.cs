@@ -1,5 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Drawing;
 using TAS.Remoting.Client;
 using TAS.Common.Interfaces;
@@ -13,7 +12,7 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(ICGElement.Id))]
         private byte _id;
 
-        [JsonProperty(nameof(ICGElement.Image)), JsonConverter(typeof(BitmapConverter))]
+        [JsonProperty(nameof(ICGElement.Image)), JsonConverter(typeof(BitmapJsonConverter))]
         private Bitmap _image;
 
         [JsonProperty(nameof(ICGElement.ImageFile))]

@@ -6,6 +6,7 @@ using TAS.Client.Common;
 using TAS.Client.Config.Model;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.Config
 {

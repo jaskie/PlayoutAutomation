@@ -49,19 +49,18 @@ namespace TVPlayClient
 
         private void ClientDisconnected(object sender, EventArgs e)
         {
-            if (sender is RemoteClient client)
+            if (!(sender is RemoteClient client))
+                return;
+            client.Disconnected -= ClientDisconnected;
+            client.Dispose();
+            var channel = Channel;
+            OnUiThread(() =>
             {
-                client.Disconnected -= ClientDisconnected;
-                client.Dispose();
-                var channel = Channel;
-                OnUiThread(() =>
-                {
-                    Channel = null;
-                    IsLoading = true;
-                    channel?.Dispose();
-                    _createView();
-                });
-            }
+                Channel = null;
+                IsLoading = true;
+                channel?.Dispose();
+                _createView();
+            });
         }
 
         private void _createView()

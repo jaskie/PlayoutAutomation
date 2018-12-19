@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using TAS.FFMpegUtils;
 using TAS.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {
@@ -12,8 +13,6 @@ namespace TAS.Server.Media
         internal string BmdXmlFile; // Blackmagic's Media Express Xml file containing this media information
         internal StreamInfo[] StreamInfo;
 
-        internal IngestMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
-
         public override bool FileExists()
         {
             var dir = Directory as IngestDirectory;
@@ -21,20 +20,18 @@ namespace TAS.Server.Media
                 return dir.FileExists(FileName, Folder);
             return base.FileExists();
         }
-        
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public TIngestStatus IngestStatus
         {
             get
             {
-                if (_ingestStatus == TIngestStatus.Unknown)
-                {
-                    if (((IngestDirectory)Directory).MediaManager.MediaDirectoryPRI is ServerDirectory sdir)
-                    {
-                        var media = sdir.FindMediaByMediaGuid(MediaGuid);
-                        if (media != null && media.MediaStatus == TMediaStatus.Available)
-                            _ingestStatus = TIngestStatus.Ready;
-                    }
-                }
+                if (_ingestStatus != TIngestStatus.Unknown) return _ingestStatus;
+                if (!(((IngestDirectory) Directory).MediaManager.MediaDirectoryPRI is ServerDirectory sdir))
+                    return _ingestStatus;
+                var media = sdir.FindMediaByMediaGuid(MediaGuid);
+                if (media != null && media.MediaStatus == TMediaStatus.Available)
+                    _ingestStatus = TIngestStatus.Ready;
                 return _ingestStatus;
             }
             set => SetField(ref _ingestStatus, value);

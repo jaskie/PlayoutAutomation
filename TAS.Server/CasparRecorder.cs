@@ -9,6 +9,8 @@ using System.Xml.Serialization;
 using TAS.Remoting.Server;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 
 namespace TAS.Server
@@ -74,23 +76,25 @@ namespace TAS.Server
         public IMedia RecordingMedia { get => _recordingMedia; private set => SetField(ref _recordingMedia, value); }
 
         [JsonProperty, XmlIgnore]
-        public IMediaDirectory RecordingDirectory => _ownerServer.MediaDirectory;
+        public IWatcherDirectory RecordingDirectory => _ownerServer.MediaDirectory;
         
         public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName)
         {
             _tcFormat = channel.VideoFormat;
             var directory = (ServerDirectory)_ownerServer.MediaDirectory;
-            var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory)
+            var newMedia = new ServerMedia
             {
-                FileName = fileName,
                 MediaName = mediaName,
+                LastUpdated = DateTime.UtcNow,
+                MediaGuid = Guid.NewGuid(),
+                MediaType = TMediaType.Movie,
+                FileName = fileName,
                 TcStart = tcIn,
                 TcPlay = tcIn,
                 Duration = tcOut - tcIn,
                 MediaStatus = TMediaStatus.Copying,
-                LastUpdated = DateTime.UtcNow,
-                MediaType = TMediaType.Movie
             };
+            directory.AddMedia(newMedia);
             if (_recorder?.Capture(channel.Id, tcIn.ToSMPTETimecodeString(channel.VideoFormat), tcOut.ToSMPTETimecodeString(channel.VideoFormat), narrowMode, fileName) == true)
             {
                 RecordingMedia = newMedia;
@@ -105,17 +109,19 @@ namespace TAS.Server
         {
             _tcFormat = channel.VideoFormat;
             var directory = (ServerDirectory)_ownerServer.MediaDirectory;
-            var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory)
+            var newMedia = new ServerMedia
             {
-                FileName = fileName,
                 MediaName = mediaName,
+                LastUpdated = DateTime.UtcNow,
+                MediaType = TMediaType.Movie,
+                MediaGuid = Guid.NewGuid(),
+                FileName = fileName,
                 TcStart = TimeSpan.Zero,
                 TcPlay =TimeSpan.Zero,
                 Duration = timeLimit,
                 MediaStatus = TMediaStatus.Copying,
-                LastUpdated = DateTime.UtcNow,
-                MediaType = TMediaType.Movie
             };
+            directory.AddMedia(newMedia);
             if (_recorder?.Capture(channel.Id,  timeLimit.ToSMPTEFrames(channel.VideoFormat), narrowMode, fileName) == true)
             {
                 RecordingMedia = newMedia;

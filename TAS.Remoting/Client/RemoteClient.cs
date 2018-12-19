@@ -2,9 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Net.Sockets;
 using System.Threading;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
@@ -17,10 +15,10 @@ namespace TAS.Remoting.Client
     public class RemoteClient: TcpConnection
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(RemoteClient));
-        private readonly AutoResetEvent _messageHandler = new AutoResetEvent(false);
         private readonly JsonSerializer _serializer;
-        private readonly ReferenceResolver _referenceResolver;
+        private readonly ClientReferenceResolver _referenceResolver;
         private readonly Dictionary<Guid, SocketMessage> _receivedMessages = new Dictionary<Guid, SocketMessage>();
+        private object _initialObject;
 
 
         private const int QueryTimeout =
@@ -37,7 +35,7 @@ namespace TAS.Remoting.Client
             _serializer = JsonSerializer.CreateDefault();
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting, this);
             _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-            _referenceResolver = new ReferenceResolver();
+            _referenceResolver = new ClientReferenceResolver();
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.Objects | TypeNameHandling.Arrays;
 #if DEBUG
@@ -51,7 +49,6 @@ namespace TAS.Remoting.Client
         {
             base.OnDispose();
             _referenceResolver.Dispose();
-            _messageHandler.Set();
         }
         
         public ISerializationBinder Binder
@@ -64,9 +61,11 @@ namespace TAS.Remoting.Client
         {
             try
             {
-                SocketMessage queryMessage =
+                var queryMessage =
                     WebSocketMessageCreate(SocketMessage.SocketMessageType.RootQuery, null, null, 0);
-                return SendAndGetResponse<T>(queryMessage, null);
+                var response = SendAndGetResponse<T>(queryMessage, null);
+                _initialObject = response;
+                return response;
             }
             catch (Exception e)
             {
@@ -79,7 +78,7 @@ namespace TAS.Remoting.Client
         {
             try
             {
-                SocketMessage queryMessage = WebSocketMessageCreate(
+                var queryMessage = WebSocketMessageCreate(
                     SocketMessage.SocketMessageType.Query,
                     dto,
                     methodName,
@@ -97,7 +96,7 @@ namespace TAS.Remoting.Client
         {
             try
             {
-                SocketMessage queryMessage = WebSocketMessageCreate(
+                var queryMessage = WebSocketMessageCreate(
                     SocketMessage.SocketMessageType.Get,
                     dto,
                     propertyName,
@@ -114,7 +113,7 @@ namespace TAS.Remoting.Client
 
         public void Invoke(ProxyBase dto, string methodName, params object[] parameters)
         {
-            SocketMessage queryMessage = WebSocketMessageCreate(
+            var queryMessage = WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.Invoke,
                 dto,
                 methodName,
@@ -127,7 +126,7 @@ namespace TAS.Remoting.Client
 
         public void Set(ProxyBase dto, object value, string propertyName)
         {
-            SocketMessage queryMessage = WebSocketMessageCreate(
+            var queryMessage = WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.Set,
                 dto,
                 propertyName,
@@ -138,7 +137,7 @@ namespace TAS.Remoting.Client
 
         public void EventAdd(ProxyBase dto, string eventName)
         {
-            SocketMessage queryMessage = WebSocketMessageCreate(
+            var queryMessage = WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.EventAdd,
                 dto,
                 eventName,
@@ -148,14 +147,13 @@ namespace TAS.Remoting.Client
 
         public void EventRemove(ProxyBase dto, string eventName)
         {
-            SocketMessage queryMessage = WebSocketMessageCreate(
+            var queryMessage = WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.EventRemove,
                 dto,
                 eventName,
                 0);
             Send(queryMessage.ToByteArray(null));
         }
-
 
         private Stream Serialize(object o)
         {
@@ -171,45 +169,38 @@ namespace TAS.Remoting.Client
 
         internal T Deserialize<T>(SocketMessage message)
         {
-            if (message == null)
-                return default(T);
             using (var valueStream = message.ValueStream)
             {
                 if (valueStream == null)
                     return default(T);
                 using (var reader = new StreamReader(valueStream))
                 using (var jsonReader = new JsonTextReader(reader))
-                {
                     return _serializer.Deserialize<T>(jsonReader);
-                }
             }
         }
 
         protected override void OnMessage(byte[] data)
         {
             var message = new SocketMessage(data);
-            var proxy = _referenceResolver.ResolveReference(message.DtoGuid) as ProxyBase;
+            if (message.MessageType != SocketMessage.SocketMessageType.RootQuery && _initialObject == null)
+                return;
+            var proxy = message.MessageType == SocketMessage.SocketMessageType.RootQuery
+                ? null
+                : _referenceResolver.ResolveReference(message.DtoGuid);
             if (proxy == null && message.MessageType != SocketMessage.SocketMessageType.RootQuery)
                 Logger.Warn("Unknown proxy, MessageType:{0}, MemberName:{1}", message.MessageType, message.MemberName);
             switch (message.MessageType)
             {
                 case SocketMessage.SocketMessageType.EventNotification:
                     proxy?.OnEventNotificationMessage(message);
-                    Debug.WriteLine($"Event Notification for {message.DtoGuid}:");
-                    Debug.WriteLine(message.ValueString);
                     break;
                 case SocketMessage.SocketMessageType.ObjectDisposed:
-                    Task.Run(() =>
-                    {
-                        Thread.Sleep(500); // in case when messages are processed out of order
-                        _referenceResolver.RemoveReference(message.DtoGuid);
-                        proxy?.Dispose();
-                    });
+                    _referenceResolver.RemoveReference(message.DtoGuid);
+                    proxy?.Dispose();
                     break;
                 default:
-                    lock (((IDictionary)_receivedMessages).SyncRoot)
+                    lock (((IDictionary) _receivedMessages).SyncRoot)
                         _receivedMessages[message.MessageGuid] = message;
-                    _messageHandler.Set();
                     break;
             }
         }
@@ -222,7 +213,7 @@ namespace TAS.Remoting.Client
                 MessageType = socketMessageType,
                 DtoGuid = dto?.DtoGuid ?? Guid.Empty,
                 MemberName = memberName,
-                ValueCount = paramsCount
+                ParametersCount = paramsCount
             };
         }
 
@@ -234,6 +225,10 @@ namespace TAS.Remoting.Client
                 Send(valueBytes);
             }
             var response = WaitForResponse(query).Result;
+            if (response == null)
+                return default(T);
+            if (response.MessageType == SocketMessage.SocketMessageType.Exception)
+                throw Deserialize<Exception>(response);
             return Deserialize<T>(response);
         }
 
@@ -244,15 +239,14 @@ namespace TAS.Remoting.Client
             {
                 while (IsConnected)
                 {
+                    Thread.Sleep(1);
                     lock (((IDictionary) _receivedMessages).SyncRoot)
                     {
-                        if (_receivedMessages.TryGetValue(sendedMessage.MessageGuid, out var response))
-                        {
-                            _receivedMessages.Remove(sendedMessage.MessageGuid);
-                            return response;
-                        }
+                        if (!_receivedMessages.TryGetValue(sendedMessage.MessageGuid, out var response))
+                            continue;
+                        _receivedMessages.Remove(sendedMessage.MessageGuid);
+                        return response;
                     }
-                    _messageHandler.WaitOne();
                 }
                 return null;
             }, new CancellationTokenSource(QueryTimeout).Token);

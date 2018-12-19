@@ -61,9 +61,10 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BitmapConverter.cs" />
+    <Compile Include="BitmapJsonConverter.cs" />
+    <Compile Include="Client\ClientReferenceResolver.cs" />
     <Compile Include="PropertyChangedWithValueEventArgs.cs" />
-    <Compile Include="ReferenceResolver.cs" />
+    <Compile Include="Server\ServerReferenceResolver.cs" />
     <Compile Include="Client\ProxyBase.cs" />
     <Compile Include="Client\RemoteClient.cs" />
     <Compile Include="IDto.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Server\DtoBase.cs" />
     <Compile Include="SocketMessage.cs" />
     <Compile Include="TcpConnection.cs" />
+    <Compile Include="UnresolvedReferenceException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

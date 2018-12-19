@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Remoting.Model
 {
@@ -22,9 +23,6 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IPersistentMedia.IdProgramme))]
         private ulong _idProgramme;
 
-        [JsonProperty(nameof(IPersistentMedia.IdPersistentMedia))]
-        private ulong _idPersistentMedia;
-
         [JsonProperty(nameof(IPersistentMedia.IsModified))]
         private bool _isModified;
 
@@ -43,8 +41,6 @@ namespace TAS.Remoting.Model
         public DateTime KillDate { get => _killDate; set => Set(value); }
 
         public ulong IdProgramme { get => _idProgramme; set => Set(value); }
-
-        public ulong IdPersistentMedia { get => _idPersistentMedia; set => Set(value); }
 
         public bool IsModified { get => _isModified; set => Set(value); }
 

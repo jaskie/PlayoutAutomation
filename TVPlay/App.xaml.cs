@@ -3,7 +3,6 @@ using System.Configuration;
 using System.Security.Principal;
 using System.Threading;
 using System.Windows;
-using TAS.Server;
 using Infralution.Localization.Wpf;
 using TAS.Client.Views;
 using resources = TAS.Client.Common.Properties.Resources;
@@ -37,7 +36,6 @@ namespace TAS.Client
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
-            EngineController.ShutDown();
             if (!IsShutdown)
                 Mutex.ReleaseMutex();
         }
@@ -75,32 +73,6 @@ namespace TAS.Client
                 Mutex.WaitOne();
             }
             base.OnStartup(eventArgs);
-
-            try
-            {
-                SplashScreenView.Current?.Notify("Initializing engines...");
-                EngineController.Initialize();
-            }
-            catch (TypeInitializationException e)
-            {
-                MessageBox.Show(string.Format(resources._message_CantInitializeEngines, e.InnerException),
-                    resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-                IsShutdown = true;
-                Shutdown(1);
-            }
-            catch (Exception e)
-            {
-                var message =
-#if DEBUG
-                $"{e}";
-#else
-                $"{e.Source}:{e.GetType().Name} {e.Message}";
-#endif
-                MessageBox.Show(string.Format(resources._message_CantInitializeEngines, message), resources._caption_Error,
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                IsShutdown = true;
-                Shutdown(1);
-            }
 
             var splash = MainWindow as SplashScreenView;
             if (!IsShutdown)

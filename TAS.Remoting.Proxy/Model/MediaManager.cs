@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
@@ -91,14 +93,14 @@ namespace TAS.Remoting.Model
             return Query<MediaBase>(parameters: media);
         }
 
-        public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool toTop) { Invoke(parameters: new object[] { mediaList, toTop }); }
+        public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList) { Invoke(parameters: mediaList); }
 
         public void Initialize()
         {
             throw new NotImplementedException();
         }
 
-        public void ReloadIngestDirs()
+        public void LoadIngestDirs()
         {
             Invoke();
         }

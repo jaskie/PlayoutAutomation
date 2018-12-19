@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Common.Interfaces
 {
@@ -18,11 +20,11 @@ namespace TAS.Common.Interfaces
         VideoFormatDescription FormatDescription { get; }
         TVideoFormat VideoFormat { get; }
         ICGElementsController CGElementsController { get; }
-        void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
+        void CopyMediaToPlayout(IEnumerable<IMedia> mediaList);
         List<MediaDeleteResult> MediaArchive(IEnumerable<IMedia> mediaList, bool deleteAfter, bool forceDelete);
         List<MediaDeleteResult> MediaDelete(IEnumerable<IMedia> mediaList, bool forceDelete);
         void Export(IEnumerable<MediaExportDescription> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat);
-        void ReloadIngestDirs();
+        void LoadIngestDirs();
         void SynchronizeMediaSecToPri(bool deleteNotExisted);
         void SynchronizeAnimationsSecToPri();
 

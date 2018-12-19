@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
@@ -23,13 +22,13 @@ namespace TAS.Client.ViewModels
             VideoFormat = videoFormat;
             IsFieldListReadOnly = isFieldListReadOnly;
             Model.PropertyChanged += TemplatedEditViewmodel_PropertyChanged;
-            CommandAddField = new UICommand { ExecuteDelegate = _addField, CanExecuteDelegate = _canAddField };
-            CommandDeleteField = new UICommand { ExecuteDelegate = _deleteField, CanExecuteDelegate = _canDeleteField };
-            CommandEditField = new UICommand { ExecuteDelegate = _editField, CanExecuteDelegate = _canDeleteField };
+            CommandAddField = new UiCommand(_addField, _canAddField);
+            CommandDeleteField = new UiCommand(_deleteField, _canDeleteField);
+            CommandEditField = new UiCommand(_editField, _canDeleteField);
         }
 
 
-        public bool IsDisplayCgMethod { get; } = true;
+        public bool IsDisplayCgMethod { get; }
 
         public TVideoFormat VideoFormat { get; }
 

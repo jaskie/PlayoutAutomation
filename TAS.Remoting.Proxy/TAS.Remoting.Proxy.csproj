@@ -73,7 +73,7 @@
     <Compile Include="Model\IngestMedia.cs" />
     <Compile Include="Model\LoudnessOperation.cs" />
     <Compile Include="Model\MediaBase.cs" />
-    <Compile Include="Model\MediaDirectory.cs" />
+    <Compile Include="Model\MediaDirectoryBase.cs" />
     <Compile Include="Model\MediaManager.cs" />
     <Compile Include="Model\MediaSegment.cs" />
     <Compile Include="Model\MediaSegments.cs" />
@@ -89,6 +89,7 @@
     <Compile Include="Model\Security\User.cs" />
     <Compile Include="Model\ServerDirectory.cs" />
     <Compile Include="Model\ServerMedia.cs" />
+    <Compile Include="Model\WatcherDirectory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\XDCAMMedia.cs" />
   </ItemGroup>

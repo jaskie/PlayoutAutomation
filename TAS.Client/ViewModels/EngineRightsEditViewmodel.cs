@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Security;
 
 
 namespace TAS.Client.ViewModels
@@ -28,9 +29,9 @@ namespace TAS.Client.ViewModels
             {
                 eventRightViewmodel.ModifiedChanged += EventRightViewmodelModifiedChanged;
             }
-            CommandAddRight = new UICommand {ExecuteDelegate = _addRight, CanExecuteDelegate = _canAddRight};
-            CommandDeleteRight = new UICommand { ExecuteDelegate = _deleteRight, CanExecuteDelegate = _canDeleteRight };
-            CommandOk = new UICommand {ExecuteDelegate = o => _save(), CanExecuteDelegate = o => IsModified};
+            CommandAddRight = new UiCommand(_addRight, _canAddRight);
+            CommandDeleteRight = new UiCommand(_deleteRight, _canDeleteRight);
+            CommandOk = new UiCommand(o => _save(), o => IsModified);
         }
 
         public ICommand CommandAddRight { get; }

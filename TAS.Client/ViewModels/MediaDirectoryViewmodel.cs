@@ -3,25 +3,23 @@ using System.Linq;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.ViewModels
 {
     public class MediaDirectoryViewmodel
     {
-        public MediaDirectoryViewmodel(IMediaDirectory directory, bool includeImport = false, bool includeExport = false)
+        public MediaDirectoryViewmodel(IMediaDirectory directory, string directoryName, bool includeImport = false, bool includeExport = false)
         {
             Directory = directory;
-            SubDirectories = (directory as IIngestDirectory)?.SubDirectories != null
-                ? ((IIngestDirectory)directory)
-                    .SubDirectories
-                    .Where(d=> (includeImport && d.ContainsImport() )|| (includeExport && d.ContainsExport()))
-                    .Select(d => new MediaDirectoryViewmodel((IIngestDirectory)d, includeImport, includeExport)).ToList()
-                : new List<MediaDirectoryViewmodel>();
+            DirectoryName = directoryName;
+            SubDirectories = (directory as IIngestDirectory)?.SubDirectories?.Where(d=> includeImport && d.ContainsImport() || includeExport && d.ContainsExport())
+                             .Select(d => new MediaDirectoryViewmodel((IIngestDirectory)d, d.DirectoryName, includeImport, includeExport)).ToList() ?? new List<MediaDirectoryViewmodel>();
         }
 
         public IMediaDirectory Directory { get; }
 
-        public bool IsOK => Directory?.IsInitialized == true && DirectoryFreePercentage >= 20;
+        public bool IsOK => ((Directory as IWatcherDirectory)?.IsInitialized ?? true) && DirectoryFreePercentage >= 20;
 
         public long VolumeTotalSize => Directory.VolumeTotalSize;
 
@@ -36,11 +34,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public void SweepStaleMedia() { Directory.SweepStaleMedia(); }
+        public void SweepStaleMedia() { (Directory as IWatcherDirectory)?.SweepStaleMedia(); }
 
-        public bool IsInitialized => Directory.IsInitialized;
-
-        public string DirectoryName => Directory.DirectoryName;
+        public string DirectoryName {get;}
 
         public string Folder => Directory.Folder;
 

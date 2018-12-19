@@ -8,6 +8,7 @@ using System.Threading;
 using System.Xml.Serialization;
 using NLog;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Security;
 
 namespace TAS.Remoting.Server
 {
@@ -50,53 +51,64 @@ namespace TAS.Remoting.Server
 
         private void ListenerThreadProc()
         {
-            _listener.Start();
             try
             {
-                while (true)
+                _listener.Start();
+                try
                 {
-                    TcpClient client = null;
-                    try
+                    while (true)
                     {
-                        client = _listener.AcceptTcpClient();
-                        var clientSession = new ServerSession(client, _authenticationService, _rootDto);
-                        clientSession.Disconnected += ClientSessionDisconnected;
-                        lock (((IList) _clients).SyncRoot)
-                            _clients.Add(clientSession);
-                    }
-                    catch (Exception e) when (e is SocketException || e is ThreadAbortException)
-                    {
-                        Logger.Trace("ServerHost shutdown.");
-                        break;
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        Logger.Warn($"Unauthorized client from: {client?.Client.RemoteEndPoint}");
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Error(e, "Unexpected listener thread exception");
+                        TcpClient client = null;
+                        try
+                        {
+                            client = _listener.AcceptTcpClient();
+                            AddClient(client);
+                        }
+                        catch (Exception e) when (e is SocketException || e is ThreadAbortException)
+                        {
+                            Logger.Trace("ServerHost shutdown.");
+                            break;
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            Logger.Warn($"Unauthorized client from: {client?.Client.RemoteEndPoint}");
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Error(e, "Unexpected listener thread exception");
+                        }
                     }
                 }
+                finally
+                {
+                    _listener.Stop();
+                    List<ServerSession> serverSessionsCopy;
+                    lock (((IList) _clients).SyncRoot)
+                        serverSessionsCopy = _clients.ToList();
+                    serverSessionsCopy.ForEach(s => s.Dispose());
+                }
             }
-            finally
+            catch (Exception e)
             {
-                _listener.Stop();
-                List<ServerSession> serverSessionsCopy;
-                lock (((IList) _clients).SyncRoot)
-                    serverSessionsCopy = _clients.ToList();
-                serverSessionsCopy.ForEach(s => s.Dispose());
+                Logger.Error(e, "ServerHost general error");
             }
+        }
+
+        private void AddClient(TcpClient client)
+        {
+            var clientSession = new ServerSession(client, _authenticationService, _rootDto);
+            clientSession.Disconnected += ClientSessionDisconnected;
+            lock (((IList)_clients).SyncRoot)
+                _clients.Add(clientSession);
         }
 
         private void ClientSessionDisconnected(object sender, EventArgs e)
         {
-            if (!(sender is ServerSession serverSession))
-                return;
-            serverSession.Disconnected -= ClientSessionDisconnected;
-            serverSession.Dispose();
+            var serverSession = sender as ServerSession ?? throw new ArgumentException(nameof(sender));
             lock (((IList) _clients).SyncRoot)
                 _clients.Remove(serverSession);
+            serverSession.Disconnected -= ClientSessionDisconnected;
+            serverSession.Dispose();
         }
 
         public int ClientCount

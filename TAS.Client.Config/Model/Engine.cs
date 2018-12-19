@@ -50,6 +50,8 @@ namespace TAS.Client.Config.Model
 
         public bool EnableCGElementsForNewEvents { get; set; }
 
+        public bool StudioMode { get; set; }
+
         public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
 
         public int CGStartDelay { get; set; }

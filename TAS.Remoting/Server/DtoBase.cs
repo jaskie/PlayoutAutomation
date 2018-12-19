@@ -14,7 +14,7 @@ namespace TAS.Remoting.Server
     public abstract class DtoBase: IDto
     {
         [XmlIgnore]
-        public Guid DtoGuid { get; } = Guid.NewGuid();
+        public virtual Guid DtoGuid { get; } = Guid.NewGuid();
 
         private int _disposed;
 
@@ -34,20 +34,22 @@ namespace TAS.Remoting.Server
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
         public event EventHandler Disposed;
 
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _disposed, 1) == default(int))
-                DoDispose();
+            if (Interlocked.Exchange(ref _disposed, 1) != default(int))
+                return;
+            DoDispose();
+            Disposed?.Invoke(this, EventArgs.Empty);
         }
 
         protected bool IsDisposed => _disposed != default(int);
 
         protected virtual void DoDispose()
         {
-            Disposed?.Invoke(this, EventArgs.Empty);
+            
         }
 
         protected virtual void NotifyPropertyChanged(string propertyName)

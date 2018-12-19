@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -18,14 +17,11 @@ using TAS.Client.NDIVideoPreview.Interop;
 
 namespace TAS.Client.NDIVideoPreview
 {
-    [Export(typeof(Common.Plugin.IVideoPreview))]
     public class VideoPreviewViewmodel : ViewModelBase, Common.Plugin.IVideoPreview
     {
         private const double MinAudioLevel = -60;
-        private Dictionary<string, NDIlib_source_t> _ndiSources;
         private readonly ObservableCollection<string> _videoSources;
         private string _videoSource;
-        private IntPtr _ndiFindInstance;
         private IntPtr _ndiReceiveInstance;
         private Thread _ndiReceiveThread;
         private volatile bool _exitReceiveThread;
@@ -41,29 +37,36 @@ namespace TAS.Client.NDIVideoPreview
         private WaveOut _waveOut;
         private WaveFormat _waveFormat;
         private BufferedWaveProvider _bufferedProvider;
-
         private bool _isPlayAudio;
 
-        public VideoPreviewViewmodel()
+        // static
+        private static Dictionary<string, NDIlib_source_t> _ndiSources;
+        private static event EventHandler SourceRefreshed;
+        private static readonly IntPtr NdiFindInstance;
+
+        static VideoPreviewViewmodel()
         {
-            View = new VideoPreviewView {DataContext = this};
-            _videoSources = new ObservableCollection<string>(new[] {Common.Properties.Resources._none_});
-            _videoSource = _videoSources.FirstOrDefault();
-            CommandRefreshSources = new UICommand
+            Ndi.AddRuntimeDir();
+            var findDesc = new NDIlib_find_create_t
             {
-                ExecuteDelegate = RefreshSources,
-                CanExecuteDelegate = o => _ndiFindInstance != IntPtr.Zero
+                p_groups = IntPtr.Zero,
+                show_local_sources = true,
+                p_extra_ips = IntPtr.Zero
             };
-            CommandGotoNdiWebsite = new UICommand {ExecuteDelegate = GotoNdiWebsite};
-            CommandShowPopup = new UICommand {ExecuteDelegate = o => DisplayPopup = true};
-            CommandHidePopup = new UICommand {ExecuteDelegate = o => DisplayPopup = false};
-            InitNdiFind();
+            NdiFindInstance = Ndi.NDIlib_find_create2(ref findDesc);
             var sourcesPoolThread = new Thread(() =>
             {
-                while (_ndiFindInstance != IntPtr.Zero)
+                try
                 {
-                    if (Ndi.NDIlib_find_wait_for_sources(_ndiFindInstance, int.MaxValue))
-                        OnUiThread(() => RefreshSources(null));
+                    while (true)
+                    {
+                        if (Ndi.NDIlib_find_wait_for_sources(NdiFindInstance, int.MaxValue))
+                            RefreshSources();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
                 }
             })
             {
@@ -74,12 +77,47 @@ namespace TAS.Client.NDIVideoPreview
             sourcesPoolThread.Start();
         }
 
+        private static void RefreshSources()
+        {
+            var numSources = 0;
+            var ndiSources = Ndi.NDIlib_find_get_current_sources(NdiFindInstance, ref numSources);
+            if (numSources <= 0)
+                return;
+            var sourceSizeInBytes = Marshal.SizeOf(typeof(NDIlib_source_t));
+            var sources = new Dictionary<string, NDIlib_source_t>();
+            for (var i = 0; i < numSources; i++)
+            {
+                var p = IntPtr.Add(ndiSources, (i * sourceSizeInBytes));
+                var src = (NDIlib_source_t)Marshal.PtrToStructure(p, typeof(NDIlib_source_t));
+                var ndiName = Ndi.Utf8ToString(src.p_ndi_name);
+                sources.Add(ndiName, src);
+                Debug.WriteLine($"Added source name:{Ndi.Utf8ToString(src.p_ndi_name)} address :{Ndi.Utf8ToString(src.p_ip_address)}");
+            }
+            _ndiSources = sources;
+            SourceRefreshed?.Invoke(null, EventArgs.Empty);
+        }
+
+
+        public VideoPreviewViewmodel()
+        {
+            _videoSources = new ObservableCollection<string>(new[] {Common.Properties.Resources._none_});
+            _videoSource = _videoSources.FirstOrDefault();
+            CommandRefreshSources = new UiCommand(RefreshSources, o => NdiFindInstance != IntPtr.Zero);
+            CommandGotoNdiWebsite = new UiCommand(GotoNdiWebsite);
+            CommandShowPopup = new UiCommand(o => DisplayPopup = true);
+            CommandHidePopup = new UiCommand(o => DisplayPopup = false);
+            SourceRefreshed += OnSourceRefreshed;
+            View = new VideoPreviewView { DataContext = this };
+        }
+
+        
         public ICommand CommandRefreshSources { get; }
         public ICommand CommandGotoNdiWebsite { get; }
         public ICommand CommandShowPopup { get; }
         public ICommand CommandHidePopup { get; }
 
         #region IVideoPreview
+
         public UserControl View { get; }
 
         /// <summary>
@@ -200,8 +238,7 @@ namespace TAS.Client.NDIVideoPreview
         protected override void OnDispose()
         {
             Disconnect();
-            if (_ndiFindInstance != IntPtr.Zero)
-                Ndi.NDIlib_find_destroy(_ndiFindInstance);
+            SourceRefreshed -= OnSourceRefreshed;
         }
 
         private void GotoNdiWebsite(object obj)
@@ -216,54 +253,27 @@ namespace TAS.Client.NDIVideoPreview
             set => SetField(ref _displayPopup, value);
         }
 
-        private void RefreshSources(object obj)
+        private async void RefreshSources(object o)
         {
-            if (_ndiFindInstance != IntPtr.Zero)
+            try
             {
-                int numSources = 0;
-                var ndiSources = Ndi.NDIlib_find_get_current_sources(_ndiFindInstance, ref numSources);
-                if (numSources > 0)
+                await Task.Run(() =>
                 {
-                    int sourceSizeInBytes = Marshal.SizeOf(typeof(NDIlib_source_t));
-                    Dictionary<string, NDIlib_source_t> sources = new Dictionary<string, NDIlib_source_t>();
-                    for (int i = 0; i < numSources; i++)
-                    {
-                        IntPtr p = IntPtr.Add(ndiSources, (i * sourceSizeInBytes));
-                        NDIlib_source_t src = (NDIlib_source_t)Marshal.PtrToStructure(p, typeof(NDIlib_source_t));
-                        var ndiName = Ndi.Utf8ToString(src.p_ndi_name);
-                        sources.Add(ndiName, src);
-                        Debug.WriteLine($"Added source name:{Ndi.Utf8ToString(src.p_ndi_name)} address :{Ndi.Utf8ToString(src.p_ip_address)}");
-                    }
-                    // removing non-existing sources
-                    var notExistingSources = _videoSources.Where(s => !(sources.ContainsKey(s) || s == Common.Properties.Resources._none_)).ToArray();
-                    foreach (var source in notExistingSources)
-                        _videoSources.Remove(source);
-                    //adding new sources
-                    foreach (var source in sources)
-                        if (!_videoSources.Contains(source.Key))
-                            _videoSources.Add(source.Key);
-                    _ndiSources = sources;
-                }
+                    RefreshSources();
+                });
+                AudioDevices = AudioDevice.EnumerateDevices();
+                var previousAudioDevice = SelectedAudioDevice;
+                SelectedAudioDevice = previousAudioDevice == null
+                    ? AudioDevices.FirstOrDefault()
+                    : AudioDevices.FirstOrDefault(d => d.DeviceName.Equals(previousAudioDevice.DeviceName)) ??
+                      AudioDevices.FirstOrDefault();
             }
-            AudioDevices = AudioDevice.EnumerateDevices();
-            var previousAudioDevice = SelectedAudioDevice;
-            SelectedAudioDevice = previousAudioDevice == null
-                ? AudioDevices.FirstOrDefault()
-                : AudioDevices.FirstOrDefault(d => d.DeviceName.Equals(previousAudioDevice.DeviceName)) ?? AudioDevices.FirstOrDefault();
-
-        }
-
-        private void InitNdiFind()
-        {
-            Ndi.AddRuntimeDir();
-            var findDesc = new NDIlib_find_create_t()
+            catch (Exception e)
             {
-                p_groups = IntPtr.Zero,
-                show_local_sources = true,
-                p_extra_ips = IntPtr.Zero
-            };
-            _ndiFindInstance = Ndi.NDIlib_find_create2(ref findDesc);
+                Debug.WriteLine(e);
+            }
         }
+
 
         private void Connect(string sourceName)
         {
@@ -409,7 +419,23 @@ namespace TAS.Client.NDIVideoPreview
             Debug.WriteLine(this, "Receive thread exited");
         }
 
-        
+        private void OnSourceRefreshed(object sender, EventArgs eventArgs)
+        {
+            var sources = _ndiSources;
+            OnUiThread(() =>
+            {
+                // removing non-existing sources
+                var notExistingSources = _videoSources
+                    .Where(s => !(sources.ContainsKey(s) || s == Common.Properties.Resources._none_)).ToArray();
+                foreach (var source in notExistingSources)
+                    _videoSources.Remove(source);
+                //adding new sources
+                foreach (var source in sources)
+                    if (!_videoSources.Contains(source.Key))
+                        _videoSources.Add(source.Key);
+            });
+        }
+
         private void Disconnect()
         {
             if (_ndiReceiveThread != null)

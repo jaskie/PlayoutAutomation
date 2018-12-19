@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Security;
 
 namespace TAS.Server.Security
 {
@@ -49,7 +50,7 @@ namespace TAS.Server.Security
             isRemoved = _items.Remove(item);
             if (isRemoved)
             {
-                EngineController.Database.DbDeleteSecurityObject(item); ;
+                EngineController.Database.DeleteSecurityObject(item); ;
                 AcoOperartion?.Invoke(this, new CollectionOperationEventArgs<TItem>(item, CollectionOperation.Remove));
             }
         return isRemoved;

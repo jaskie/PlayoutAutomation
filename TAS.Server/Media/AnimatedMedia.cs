@@ -2,22 +2,18 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Database.Interfaces.Media;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {
-    public class AnimatedMedia : PersistentMedia, IAnimatedMedia
+    public class AnimatedMedia : PersistentMedia, Common.Database.Interfaces.Media.IAnimatedMedia
     {
         private TemplateMethod _method;
         private int _templateLayer;
         private Dictionary<string, string> _fields;
         private TimeSpan _scheduledDelay;
         private TStartType _startType = TStartType.WithParent;
-
-        public AnimatedMedia(IMediaDirectory directory, Guid guid, ulong idPersistentMedia) : base(directory, guid, idPersistentMedia)
-        {
-            MediaType = TMediaType.Animation;
-        }
 
         [JsonProperty]
         public Dictionary<string, string> Fields
@@ -49,14 +45,14 @@ namespace TAS.Server.Media
                 if (MediaStatus == TMediaStatus.Deleted)
                 {
                     if (IdPersistentMedia != 0)
-                        result = EngineController.Database.DbDeleteMedia(this);
+                        result = EngineController.Database.DeleteMedia(this);
                 }
                 else
                 if (IdPersistentMedia == 0)
-                    result = EngineController.Database.DbInsertMedia(this, directory.Server.Id);
+                    result = EngineController.Database.InsertMedia(this, directory.Server.Id);
                 else if (IsModified)
                 {
-                    EngineController.Database.DbUpdateMedia(this, directory.Server.Id);
+                    EngineController.Database.UpdateMedia(this, directory.Server.Id);
                     result = true;
                 }
             }
@@ -64,7 +60,7 @@ namespace TAS.Server.Media
             return result;
         }
 
-        public override void CloneMediaProperties(IMediaProperties fromMedia)
+        internal override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
             if (fromMedia is AnimatedMedia a)

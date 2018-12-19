@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Common.Interfaces
 {
@@ -24,7 +26,7 @@ namespace TAS.Common.Interfaces
         bool IsServerConnected { get; }
         IEnumerable<IPlayoutServerChannel> Channels { get; }
         IMedia RecordingMedia { get; }
-        IMediaDirectory RecordingDirectory { get; }
+        IWatcherDirectory RecordingDirectory { get; }
     }
 
     public interface IRecorderProperties

@@ -16,26 +16,24 @@ namespace TAS.Client.ViewModels
         {
             FileOperation = fileOperation;
             FileOperation.PropertyChanged += OnFileOperationPropertyChanged;
-            CommandAbort = new UICommand() { ExecuteDelegate = o => FileOperation.Abort(), CanExecuteDelegate = o => FileOperation.OperationStatus == FileOperationStatus.Waiting || FileOperation.OperationStatus == FileOperationStatus.InProgress };
-            CommandShowOutput = new UICommand()
-            {
-                ExecuteDelegate = o =>
+            CommandAbort = new UiCommand(o => FileOperation.Abort(), o => FileOperation.OperationStatus == FileOperationStatus.Waiting || FileOperation.OperationStatus == FileOperationStatus.InProgress);
+            CommandShowOutput = new UiCommand(
+                o =>
                 {
-                    Views.OperationOutputView view = new Views.OperationOutputView 
-                    { 
-                        DataContext = this, 
-                        Owner = System.Windows.Application.Current.MainWindow, 
+                    var view = new Views.OperationOutputView
+                    {
+                        DataContext = this,
+                        Owner = System.Windows.Application.Current.MainWindow,
                         WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner,
                         ShowInTaskbar = false,
                     };
                     view.ShowDialog();
                 }
-            };
-            CommandShowWarning = new UICommand()
-            {
-                ExecuteDelegate = o =>
-                    System.Windows.MessageBox.Show(OperationWarning, resources._caption_Warning, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation)
-            };
+            );
+            CommandShowWarning = new UiCommand(o =>
+                System.Windows.MessageBox.Show(OperationWarning, resources._caption_Warning,
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation)
+            );
         }
 
         public ICommand CommandAbort { get; }

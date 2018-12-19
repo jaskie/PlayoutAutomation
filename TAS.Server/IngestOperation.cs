@@ -11,8 +11,10 @@ using Newtonsoft.Json;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
+using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 using TAS.Server.Dependencies;
 using TAS.Server.Media;
 
@@ -97,62 +99,55 @@ namespace TAS.Server
         [JsonProperty]
         public bool LoudnessCheck { get; set; }
 
-        internal override bool Execute()
+        protected override async Task<bool> InternalExecute()
         {
-            if (Kind == TFileOperationKind.Ingest)
+            if (Kind != TFileOperationKind.Ingest)
+                throw new InvalidOperationException("Invalid operation kind");
+            StartTime = DateTime.UtcNow;
+            OperationStatus = FileOperationStatus.InProgress;
+            IsIndeterminate = true;
+            try
             {
-                StartTime = DateTime.UtcNow;
-                OperationStatus = FileOperationStatus.InProgress;
-                IsIndeterminate = true;
-                try
-                {
-                    if (!(Source is IngestMedia sourceMedia))
-                        throw new ArgumentException("IngestOperation: Source is not of type IngestMedia");
-                    var success = false;
-                    if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
-                        using (var localSourceMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(sourceMedia))
-                        {
-                            try
-                            {
-                                AddOutputMessage($"Copying to local file {localSourceMedia.FullPath}");
-                                localSourceMedia.PropertyChanged += LocalSourceMedia_PropertyChanged;
-                                if (!sourceMedia.CopyMediaTo(localSourceMedia, ref Aborted))
-                                    return false;
-                                AddOutputMessage("Verifing local file");
-                                localSourceMedia.Verify();
-                                success = DestProperties.MediaType == TMediaType.Still ? ConvertStill(localSourceMedia) : ConvertMovie(localSourceMedia, localSourceMedia.StreamInfo);
-                                if (!success)
-                                    TryCount--;
-                                return success;
-                            }
-                            finally
-                            {
-                                localSourceMedia.PropertyChanged -= LocalSourceMedia_PropertyChanged;
-                            }
-                        }
-                    else
+                if (!(Source is IngestMedia sourceMedia))
+                    throw new ArgumentException("IngestOperation: Source is not of type IngestMedia");
+                if (((IngestDirectory) sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
+                    using (var localSourceMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(sourceMedia))
                     {
-                        if (sourceMedia.IsVerified)
+                        try
                         {
-                            success = DestProperties.MediaType == TMediaType.Still ? ConvertStill(sourceMedia) : ConvertMovie(sourceMedia, ((IngestMedia)sourceMedia).StreamInfo);
-                            if (!success)
-                                TryCount--;
+                            AddOutputMessage($"Copying to local file {localSourceMedia.FullPath}");
+                            localSourceMedia.PropertyChanged += LocalSourceMedia_PropertyChanged;
+                            if (!await sourceMedia.CopyMediaTo(localSourceMedia, CancellationTokenSource.Token))
+                                return false;
+                            AddOutputMessage("Verifing local file");
+                            localSourceMedia.Verify();
+                            return DestProperties.MediaType == TMediaType.Still
+                                ? ConvertStill(localSourceMedia)
+                                : await ConvertMovie(localSourceMedia, localSourceMedia.StreamInfo);
                         }
-                        else
-                            AddOutputMessage("Waiting for media to verify");
-                        return success;
+                        finally
+                        {
+                            localSourceMedia.PropertyChanged -= LocalSourceMedia_PropertyChanged;
+                        }
                     }
-                }
-                catch (Exception e)
+                else
                 {
-                    Debug.WriteLine(e.Message);
-                    AddOutputMessage(e.Message);
-                    TryCount--;
+                    if (sourceMedia.IsVerified)
+                    {
+                        return DestProperties.MediaType == TMediaType.Still
+                            ? ConvertStill(sourceMedia)
+                            : await ConvertMovie(sourceMedia, sourceMedia.StreamInfo);
+                    }
+                    else
+                        AddOutputMessage("Waiting for media to verify");
                     return false;
                 }
-
             }
-            return base.Execute();
+            catch (Exception e)
+            {
+                AddOutputMessage(e.Message);
+                throw;
+            }
         }
 
         private void LocalSourceMedia_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -342,7 +337,7 @@ namespace TAS.Server
             return Trim && Duration > TimeSpan.Zero && ((IngestDirectory)Source.Directory).VideoCodec != TVideoCodec.copy;
         }
 
-        private bool ConvertMovie(MediaBase localSourceMedia, StreamInfo[] streams)
+        private async Task<bool> ConvertMovie(MediaBase localSourceMedia, StreamInfo[] streams)
         {
             if (!localSourceMedia.FileExists() || streams == null)
             {
@@ -370,13 +365,14 @@ namespace TAS.Server
             if (Dest is ArchiveMedia)
                 FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));
             Dest.AudioChannelMapping = (TAudioChannelMapping)MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion].OutputFormat;
-            if (RunProcess(Params)  // FFmpeg 
+            if (await RunProcess(Params)  // FFmpeg 
                 && destMedia.FileExists())
             {
                 destMedia.MediaStatus = TMediaStatus.Copied;
                 destMedia.Verify();
                 destMedia.TcPlay = destMedia.TcStart;
                 destMedia.DurationPlay = destMedia.Duration;
+                ((MediaDirectoryBase)DestDirectory).RefreshVolumeInfo();
                 if (Math.Abs(destMedia.Duration.Ticks - (IsTrimmed() ? Duration.Ticks : localSourceMedia.Duration.Ticks)) > TimeSpan.TicksPerSecond / 2)
                 {
                     destMedia.MediaStatus = TMediaStatus.CopyError;

@@ -430,7 +430,7 @@
     <value>Watch folder with BMD's MediaExpress XML files</value>
   </data>
   <data name="TIngestDirectoryKind_WatchFolder" xml:space="preserve">
-    <value>Simple watch folder</value>
+    <value>Watch folder</value>
   </data>
   <data name="TIngestDirectoryKind_XDCAM" xml:space="preserve">
     <value>XDCAM drive</value>
@@ -446,5 +446,8 @@
   </data>
   <data name="TEventType_CommandScript" xml:space="preserve">
     <value>Custom server command</value>
+  </data>
+  <data name="TIngestDirectoryKind_SimpleFolder" xml:space="preserve">
+    <value>Simple, not watched folder</value>
   </data>
 </root>

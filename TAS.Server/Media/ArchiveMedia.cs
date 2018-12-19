@@ -1,27 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Database.Interfaces.Media;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {
-    public class ArchiveMedia : PersistentMedia, IArchiveMedia
+    public class ArchiveMedia : PersistentMedia, Common.Database.Interfaces.Media.IArchiveMedia
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ArchiveMedia));
         private TIngestStatus _ingestStatus;
 
-        public ArchiveMedia(IArchiveDirectory directory, Guid guid, ulong idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
+        ~ArchiveMedia()
+        {
+            Debug.WriteLine("ArchiveMedia finalized");    
+        }
 
         [JsonProperty]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ArchiveMediaFieldLengths;
-        
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public TIngestStatus IngestStatus
         {
             get
             {
                 if (_ingestStatus != TIngestStatus.Unknown) return _ingestStatus;
-                var sdir = ((ArchiveDirectory)Directory).MediaManager.MediaDirectoryPRI as ServerDirectory;
+                var sdir = (Directory as MediaDirectoryBase)?.MediaManager.MediaDirectoryPRI as ServerDirectory;
                 var media = sdir?.FindMediaByMediaGuid(MediaGuid);
                 if (media != null && media.MediaStatus == TMediaStatus.Available)
                     _ingestStatus = TIngestStatus.Ready;
@@ -40,15 +46,15 @@ namespace TAS.Server.Media
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = EngineController.Database.DbDeleteMedia(this);
+                            result = EngineController.Database.DeleteMedia(this);
                     }
                     else
                     {
                         if (IdPersistentMedia == 0)
-                            result = EngineController.Database.DbInsertMedia(this, ((ArchiveDirectory)Directory).idArchive);
+                            result = EngineController.Database.InsertMedia(this, ((ArchiveDirectory)Directory).IdArchive);
                         else if (IsModified)
                         {
-                            EngineController.Database.DbUpdateMedia(this, ((ArchiveDirectory) Directory).idArchive);
+                            EngineController.Database.UpdateMedia(this, ((ArchiveDirectory) Directory).IdArchive);
                             result = true;
                         }
                         IsModified = false;
