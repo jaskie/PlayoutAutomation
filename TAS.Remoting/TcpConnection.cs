@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
@@ -17,8 +18,8 @@ namespace TAS.Remoting
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(TcpConnection));
         private int _disposed;
 
-        private readonly ConcurrentQueue<byte[]> _sendQueue = new ConcurrentQueue<byte[]>();
-        private const int MaxQueueSize = 0x100;
+        private readonly List<byte[]> _sendQueue = new List<byte[]>();
+        private const int MaxQueueSize = 0x1000;
 
         private Thread _readThread;
         private Thread _writeThread;
@@ -52,12 +53,13 @@ namespace TAS.Remoting
                 return;
             try
             {
-                if (_sendQueue.Count < MaxQueueSize)
-                {
-                    _sendQueue.Enqueue(bytes);
-                    _sendAutoResetEvent.Set();
-                    return;
-                }
+                lock (((ICollection) _sendQueue).SyncRoot)
+                    if (_sendQueue.Count < MaxQueueSize)
+                    {
+                        _sendQueue.Add(bytes);
+                        _sendAutoResetEvent.Set();
+                        return;
+                    }
                 Logger.Error("Message queue overflow");
             }
             catch (Exception e)
@@ -110,7 +112,13 @@ namespace TAS.Remoting
                 try
                 {
                     _sendAutoResetEvent.WaitOne();
-                    while (_sendQueue.TryDequeue(out var bytes))
+                    byte[][] sendPackets;
+                    lock (((ICollection) _sendQueue).SyncRoot)
+                    {
+                        sendPackets = _sendQueue.ToArray();
+                        _sendQueue.Clear();
+                    }
+                    foreach (var bytes in sendPackets)
                     {
                         Client.Client.NoDelay = false;
                         Client.Client.Send(BitConverter.GetBytes(bytes.Length));
