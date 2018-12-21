@@ -161,7 +161,6 @@ namespace TAS.Remoting
                     else
                     {
                         var receivedLength = stream.Read(dataBuffer, dataIndex, dataBuffer.Length - dataIndex);
-                        //Debug.WriteLine($"R2:  {receivedLength}");
                         dataIndex += receivedLength;
                         if (dataIndex != dataBuffer.Length)
                             continue;

@@ -80,11 +80,13 @@ namespace TAS.Server
         private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
         private bool _enableCGElementsForNewEvents;
         private bool _studioMode;
+        private ConnectionStateRedundant _databaseConnectionState;
 
         public Engine()
         {
             _engineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
+            _databaseConnectionState = EngineController.Database.ConnectionState;
             EngineController.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
             _rights = new Lazy<List<IAclRight>>(() => EngineController.Database.ReadEngineAclList<EngineAclRight>(this, AuthenticationService as IAuthenticationServicePersitency));
             FieldLengths = EngineController.Database.EngineFieldLengths;
@@ -349,7 +351,7 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public ConnectionStateRedundant DatabaseConnectionState { get; } = EngineController.Database.ConnectionState;
+        public ConnectionStateRedundant DatabaseConnectionState { get => _databaseConnectionState; set => SetField(ref _databaseConnectionState, value); }
 
         [XmlIgnore]
         public List<IEvent> FixedTimeEvents
@@ -1534,7 +1536,7 @@ namespace TAS.Server
 
         private void _database_ConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
         {
-            NotifyPropertyChanged(nameof(DatabaseConnectionState));
+            DatabaseConnectionState = e.NewState;
             Logger.Error("Database state changed from {0} to {1}. Stack trace was {2}", e.OldState, e.NewState, new StackTrace());
         }
 
