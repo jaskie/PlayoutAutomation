@@ -77,7 +77,7 @@ namespace TAS.Server
                                 break;
                         }
                     }
-                    Engine.Execute($"{CommandOnPlay} {data.ToXml()}");
+                    Engine.Execute($"{CommandOnPlay} {data.ToAMCPEscapedXml()}");
                 }
             }
             catch (Exception exception)
