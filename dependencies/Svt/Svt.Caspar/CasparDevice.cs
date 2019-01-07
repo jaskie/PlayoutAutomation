@@ -101,7 +101,7 @@ namespace Svt.Caspar
                     {
                         case "channel":
                             var channels = Channels;
-                            channels.FirstOrDefault(c => c.ID == id)?.OscMessage(path, message.Arguments);
+                            channels.FirstOrDefault(c => c.Id == id)?.OscMessage(path, message.Arguments);
                             break;
                         case "recorder":
                             var recorders = Recorders;
@@ -127,13 +127,6 @@ namespace Svt.Caspar
             if (e.Connected)
             {
                 Connection.SendString("VERSION");
-
-                //Ask server for channels
-                Connection.SendString("INFO SERVER");
-
-                //Ask server for recorders
-                if (IsRecordingSupported)
-                    Connection.SendString("INFO RECORDERS");
 
                 //For compability with legacy users
                 try
@@ -281,6 +274,22 @@ namespace Svt.Caspar
             }
         }
 
+        internal void OnUpdatedServerInfo(List<string> channels)
+        {
+            Channels = channels.Select(s =>
+            {
+                var channelData = s.Split(new []{' '}, StringSplitOptions.RemoveEmptyEntries);
+                if (channelData.Length > 2
+                    && int.TryParse(channelData[0], out  var id)
+                    && Enum.TryParse($"m{channelData[1]}", true, out VideoMode videoMode))
+                    return new Channel(id, videoMode) {Connection = this.Connection};
+                return null;
+            })
+            .Where(c => c != null)
+            .ToArray();
+            UpdatedChannels?.Invoke(this, EventArgs.Empty);
+        }
+
         internal void OnUpdatedRecorderInfo(string recordersXml)
         {
             var serializer = new XmlSerializer(typeof(RecorderList));
@@ -315,9 +324,23 @@ namespace Svt.Caspar
 		internal void OnVersion(string version)
 		{
 			Version = version;
+
+		    if (version.StartsWith("2.0"))
+		    {
+		        //Ask server for channels
+		        Connection.SendString("INFO SERVER");
+
+		        //Ask server for recorders
+		        if (IsRecordingSupported)
+		            Connection.SendString("INFO RECORDERS");
+		    }
+		    else // 2.2 and newer
+		    {
+		        Connection.SendString("INFO");
+            }
 		}
 
-		internal void OnLoad(string clipname)
+        internal void OnLoad(string clipname)
 		{
 		}
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +48,7 @@ namespace TAS.Server
         public readonly object RundownSync = new object();
         private readonly object _tickLock = new object();
 
-        private readonly SynchronizedCollection<Event> _visibleEvents = new SynchronizedCollection<Event>(); // list of visible events
+        private readonly List<Event> _visibleEvents = new List<Event>(); // list of visible events
         private readonly List<Event> _runningEvents = new List<Event>(); // list of events loaded and playing 
         private readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents = new ConcurrentDictionary<VideoLayer, IEvent>();
         private readonly SynchronizedCollection<Event> _rootEvents = new SynchronizedCollection<Event>();
@@ -363,7 +364,16 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        public ICollection<IEventPesistent> VisibleEvents => _visibleEvents.Cast<IEventPesistent>().ToList();
+        public ICollection<IEventPesistent> VisibleEvents
+        {
+            get
+            {
+                lock (((IList)_visibleEvents).SyncRoot)
+                {
+                    return _visibleEvents.Cast<IEventPesistent>().ToList();
+                }
+            }
+        }
 
         [XmlIgnore]
         [JsonProperty]
@@ -553,7 +563,10 @@ namespace TAS.Server
             lock (_tickLock)
             {
                 EngineState = TEngineState.Hold;
-                foreach (var e in _visibleEvents.ToList())
+                List<Event> el;
+                lock (((IList) _visibleEvents).SyncRoot)
+                    el = _visibleEvents.ToList();
+                foreach (var e in el)
                     _stop(e);
                 _clearRunning();
             }
@@ -575,8 +588,7 @@ namespace TAS.Server
                 return;
 
             Debug.WriteLine(aEvent, "Start");
-            var ets = aEvent as Event;
-            if (ets == null)
+            if (!(aEvent is Event ets))
                 return;
             _start(ets);
         }
@@ -603,7 +615,7 @@ namespace TAS.Server
             Debug.WriteLine(aVideoLayer, "Clear");
             Logger.Info("{0} {1}: Clear layer {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aVideoLayer);
             Event ev;
-            lock (_visibleEvents.SyncRoot)
+            lock (((IList)_visibleEvents).SyncRoot)
                 ev = _visibleEvents.FirstOrDefault(e => e.Layer == aVideoLayer);
             lock (_tickLock)
             {
@@ -632,7 +644,8 @@ namespace TAS.Server
             lock (_tickLock)
             {
                 _clearRunning();
-                _visibleEvents.Clear();
+                lock (((IList)_visibleEvents).SyncRoot)
+                    _visibleEvents.Clear();
                 ForcedNext = null;
                 _playoutChannelPRI?.Clear();
                 _playoutChannelSEC?.Clear();
@@ -662,7 +675,10 @@ namespace TAS.Server
                 return;
 
             Logger.Info("{0} {1}: Restart", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this);
-            foreach (var e in _visibleEvents.ToList())
+            List<Event> le;
+            lock (((IList) _visibleEvents).SyncRoot)
+                le = _visibleEvents.ToList();
+            foreach (var e in le)
                 _restartEvent(e);
         }
 
@@ -1008,7 +1024,9 @@ namespace TAS.Server
             lock (_tickLock)
             {
                 EngineState = TEngineState.Running;
-                var eventsToStop = _visibleEvents.Where(e => e.PlayState == TPlayState.Played || e.PlayState == TPlayState.Playing).ToList();
+                List<Event> eventsToStop;
+                lock (((IList)_visibleEvents).SyncRoot)
+                    eventsToStop = _visibleEvents.Where(e => e.PlayState == TPlayState.Played || e.PlayState == TPlayState.Playing).ToList();
                 _clearRunning();
                 _play(aEvent, true);
                 foreach (var e in eventsToStop)
@@ -1056,7 +1074,7 @@ namespace TAS.Server
             {
                 _playoutChannelPRI?.Load(aEvent);
                 _playoutChannelSEC?.Load(aEvent);
-                AddVisibleEvent(aEvent);
+                SetVisibleEvent(aEvent);
                 if (aEvent.Layer == VideoLayer.Program)
                     Playing = aEvent;
             }
@@ -1143,7 +1161,7 @@ namespace TAS.Server
             {
                 _playoutChannelPRI?.Play(aEvent);
                 _playoutChannelSEC?.Play(aEvent);
-                AddVisibleEvent(aEvent);
+                SetVisibleEvent(aEvent);
                 if (aEvent.Layer == VideoLayer.Program)
                 {
                     Playing = aEvent;
@@ -1245,7 +1263,7 @@ namespace TAS.Server
         {
             aEvent.PlayState = aEvent.Position == 0 ? TPlayState.Scheduled : aEvent.IsFinished() ? TPlayState.Played : TPlayState.Aborted;
             aEvent.SaveDelayed();
-            lock (_visibleEvents.SyncRoot)
+            lock (((IList)_visibleEvents).SyncRoot)
                 if (_visibleEvents.Contains(aEvent))
                 {
                     var eventType = aEvent.EventType;
@@ -1264,15 +1282,15 @@ namespace TAS.Server
 
         private void _pause(Event aEvent, bool finish)
         {
-            lock (_visibleEvents.SyncRoot)
+            lock (((IList)_visibleEvents).SyncRoot)
                 if (_visibleEvents.Contains(aEvent))
                 {
                     Debug.WriteLine("{0} Pause: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent.EventName);
                     Logger.Info("{0} {1}: Pause {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent.EventName);
-                    if (aEvent.EventType != TEventType.Live && aEvent.EventType != TEventType.StillImage && aEvent is Event)
+                    if (aEvent.EventType != TEventType.Live && aEvent.EventType != TEventType.StillImage)
                     {
-                        _playoutChannelPRI?.Pause((Event)aEvent);
-                        _playoutChannelSEC?.Pause((Event)aEvent);
+                        _playoutChannelPRI?.Pause(aEvent);
+                        _playoutChannelSEC?.Pause(aEvent);
                     }
                     foreach (Event se in aEvent.SubEvents)
                         _pause(se, finish);
@@ -1339,7 +1357,7 @@ namespace TAS.Server
                 _run(aEvent);
                 if (aEvent.EventType != TEventType.Rundown)
                 {
-                    AddVisibleEvent(aEvent);
+                    SetVisibleEvent(aEvent);
                     _restartEvent(aEvent);
                 }
             };
@@ -1578,7 +1596,7 @@ namespace TAS.Server
                     {
                         e.Position = (_currentTicks - e.StartTime.Ticks) / FrameTicks;
                         _run(e);
-                        AddVisibleEvent(e);
+                        SetVisibleEvent(e);
                     }
                     _engineState = TEngineState.Running;
                     Playing = playing;
@@ -1664,7 +1682,9 @@ namespace TAS.Server
 
             if (e.PropertyName == nameof(IPlayoutServer.IsConnected) && ((IPlayoutServer)sender).IsConnected)
             {
-                var ve = _visibleEvents.ToList();
+                List<Event> ve;
+                lock (((IList)_visibleEvents).SyncRoot)
+                    ve = _visibleEvents.ToList();
                 if (sender == ((CasparServerChannel)PlayoutChannelPRI)?.Owner)
                     ChannelConnected(_playoutChannelPRI, ve);
                 if (sender == ((CasparServerChannel)PlayoutChannelSEC)?.Owner
@@ -1697,16 +1717,32 @@ namespace TAS.Server
                 : ((ServerDirectory)playoutChannel.Owner.MediaDirectory).FindMediaByMediaGuid(media.MediaGuid);
         }
 
-        private void AddVisibleEvent(Event aEvent)
+        private void SetVisibleEvent(Event aEvent)
         {
-            _visibleEvents.Add(aEvent);
-            VisibleEventAdded?.Invoke(this, new EventEventArgs(aEvent));
+            lock (((IList) _visibleEvents).SyncRoot)
+            {
+                var oldEvent = _visibleEvents.Find(e => e.Layer == aEvent.Layer);
+                if (aEvent == oldEvent)
+                    return;
+                if (oldEvent == null)
+                {
+                    _visibleEvents.Add(aEvent);
+                    VisibleEventAdded?.Invoke(this, new EventEventArgs(aEvent));
+                }
+                else
+                {
+                    _visibleEvents[_visibleEvents.IndexOf(oldEvent)] = aEvent;
+                    VisibleEventRemoved?.Invoke(this, new EventEventArgs(oldEvent));
+                    VisibleEventAdded?.Invoke(this, new EventEventArgs(aEvent));
+                }
+            }
         }
 
         private void RemoveVisibleEvent(Event aEvent)
         {
-            if (_visibleEvents.Remove(aEvent))
-                VisibleEventRemoved?.Invoke(this, new EventEventArgs(aEvent));
+            lock (((IList)_visibleEvents).SyncRoot)
+                if (_visibleEvents.Remove(aEvent))
+                    VisibleEventRemoved?.Invoke(this, new EventEventArgs(aEvent));
         }
 
         #region PInvoke
