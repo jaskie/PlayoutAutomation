@@ -17,7 +17,7 @@ using TAS.Server.Media;
 
 namespace TAS.Server
 {
-    public class CasparServerChannel : DtoBase, IPlayoutServerChannel
+    public class CasparServerChannel : DtoBase, IPlayoutServerChannel, IPlayoutServerChannelProperties
     {
         private Channel _casparChannel;
         private readonly ConcurrentDictionary<VideoLayer, bool> _outputAspectNarrow = new ConcurrentDictionary<VideoLayer, bool>();
@@ -46,6 +46,9 @@ namespace TAS.Server
         public string ChannelName { get; set; }
 
         public double MasterVolume { get; set; } = 1;
+
+        [JsonProperty]
+        public int AudioChannelCount { get; set; } = 2;
 
         [JsonProperty]
         public string PreviewUrl { get; set; }

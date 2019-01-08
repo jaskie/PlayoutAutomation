@@ -8,7 +8,7 @@
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              d:DataContext="{d:DesignInstance vm:RecordersViewmodel}"
-             d:DesignHeight="500" d:DesignWidth="600">
+             d:DesignHeight="500" d:DesignWidth="700">
     <UserControl.Resources>
         <Style TargetType="Button" >
             <Setter Property="Width" Value="40" />
@@ -37,19 +37,29 @@
             <Label Content="{Resx _channel}"/>
             <ComboBox MinWidth="120" ItemsSource="{Binding Channels}" SelectedItem="{Binding Channel}" DisplayMemberPath="ChannelName" />
         </ToolBar>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-            <Label Content="{Resx _externalId}"/>
-            <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="90" />
-            <Label Content="{Resx _mediaName}"/>
-            <TextBox Text="{Binding MediaName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="200" />
-            <Label Content="{Resx _fileFormat}"/>
-            <ComboBox ItemsSource="{Binding FileFormats}" SelectedItem="{Binding FileFormat, ValidatesOnDataErrors=True}" Width="80"/>
+        <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal">
+                <Label Content="{Resx _externalId}"/>
+                <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="90" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="{Resx _mediaName}"/>
+                <TextBox Text="{Binding MediaName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="200" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="{Resx _fileFormat}"/>
+                <ComboBox ItemsSource="{Binding FileFormats}" SelectedItem="{Binding FileFormat, ValidatesOnDataErrors=True}" Width="80"/>
+            </StackPanel>
             <CheckBox Visibility="{Binding IsStandardDefinition, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsNarrowMode}" Content="4:3" Margin="5, 0" VerticalAlignment="Center"/>
-        </StackPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-            <Label Content="{Resx _fileName}"/>
-            <TextBox Text="{Binding FileName, ValidatesOnDataErrors=True, Mode=OneWay}" IsReadOnly="True" MinWidth="150" HorizontalContentAlignment="Right" Background="{DynamicResource {x:Static SystemColors.ControlColor}}"/>
-        </StackPanel>
+            <StackPanel Visibility="{Binding IsAudioChannelMappingConversionVisible, Converter={StaticResource BoolToVis}}" Orientation="Horizontal">
+                <Label Content="{Resx _aduioChannelMapping}"/>
+                <ComboBox Width="150" ItemsSource="{Binding AudioChannelMappingConversions}" SelectedItem="{Binding SelectedAudioChannelMappingConversion}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="{Resx _fileName}"/>
+                <TextBox Text="{Binding FileName, ValidatesOnDataErrors=True, Mode=OneWay}" IsReadOnly="True" MinWidth="150" HorizontalContentAlignment="Right" Background="{DynamicResource {x:Static SystemColors.ControlColor}}"/>
+            </StackPanel>
+        </WrapPanel>
         <Expander IsExpanded="True">
             <Expander.Header>
                 <TextBlock Text="{Resx _deckRecording}"/>

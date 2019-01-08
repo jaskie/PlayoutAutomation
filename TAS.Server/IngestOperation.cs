@@ -281,11 +281,11 @@ namespace TAS.Server
                     {
                         case TAudioChannelMappingConversion.FirstTwoChannels:
                         case TAudioChannelMappingConversion.SecondChannelOnly:
-                        case TAudioChannelMappingConversion.Combine1plus2:
+                        case TAudioChannelMappingConversion.Combine1Plus2:
                             requiredOutputChannels = 2;
                             break;
                         case TAudioChannelMappingConversion.SecondTwoChannels:
-                        case TAudioChannelMappingConversion.Combine3plus4:
+                        case TAudioChannelMappingConversion.Combine3Plus4:
                             requiredOutputChannels = 4;
                             break;
                         case TAudioChannelMappingConversion.FirstChannelOnly:

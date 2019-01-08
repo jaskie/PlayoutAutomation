@@ -11,7 +11,9 @@ namespace TAS.Server.Media
         {
             if (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Unknown)
             {
+#if DEBUG
                 var startTickCunt = Environment.TickCount;
+#endif
                 using (var ffmpeg = new FFMpegWrapper(media.FullPath))
                 {
                     var r = ffmpeg.GetFrameRate();
@@ -62,16 +64,16 @@ namespace TAS.Server.Media
                         ingestMedia.StreamInfo = ffmpeg.GetStreamInfo();
                     if (media is TempMedia tempMedia)
                         tempMedia.StreamInfo = ffmpeg.GetStreamInfo();
-
+#if DEBUG
                     Debug.WriteLine("FFmpeg check of {0} finished. It took {1} milliseconds", media.FullPath,
                         Environment.TickCount - startTickCunt);
-
-                    if (videoDuration > TimeSpan.Zero)
+#endif
+                    if (mediaDuration > TimeSpan.Zero)
                     {
                         media.MediaType = TMediaType.Movie;
-                        if (Math.Abs(videoDuration.Ticks - audioDuration.Ticks) >= TimeSpan.TicksPerSecond
-                            && audioDuration != TimeSpan.Zero)
-                            // when more than 0.5 sec difference
+                        if (audioDuration != TimeSpan.Zero 
+                            && Math.Abs(videoDuration.Ticks - audioDuration.Ticks) >= TimeSpan.TicksPerSecond)
+                            // when more than 1 sec difference
                             media.MediaStatus = TMediaStatus.ValidationError;
                         media.MediaStatus = TMediaStatus.Available;
                     }

@@ -105,15 +105,19 @@ namespace Svt.Caspar
             return true;
         }
 
-        public bool Capture(int channel, string tcIn, string tcOut, bool narrowMode, string filename)
+        public bool Capture(int channel, string tcIn, string tcOut, bool narrowMode, string filename, int[] channelMap)
         {
-            Connection.SendString($"CAPTURE {channel} RECORDER {Id} IN {tcIn} OUT {tcOut} NARROW {narrowMode} FILE \"{filename}\"");
+            Connection.SendString(channelMap == null
+                ? $"CAPTURE {channel} RECORDER {Id} IN {tcIn} OUT {tcOut} NARROW {narrowMode} FILE \"{filename}\""
+                : $"CAPTURE {channel} RECORDER {Id} IN {tcIn} OUT {tcOut} NARROW {narrowMode} FILE \"{filename}\" CHANNEL_MAP \"{string.Join(",", channelMap)}\"");
             return true;
         }
 
-        public bool Capture(int channel, long frames, bool narrowMode, string filename)
+        public bool Capture(int channel, long frames, bool narrowMode, string filename, int[] channelMap)
         {
-            Connection.SendString($"CAPTURE {channel} RECORDER {Id} LIMIT {frames} NARROW {narrowMode} FILE \"{filename}\"");
+            Connection.SendString(channelMap == null
+                ? $"CAPTURE {channel} RECORDER {Id} LIMIT {frames} NARROW {narrowMode} FILE \"{filename}\""
+                : $"CAPTURE {channel} RECORDER {Id} LIMIT {frames} NARROW {narrowMode} FILE \"{filename}\" CHANNEL_MAP \"{string.Join(",", channelMap)}\"");
             return true;
         }
 

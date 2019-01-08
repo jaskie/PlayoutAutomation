@@ -20,7 +20,7 @@ namespace TAS.Client.Config.Model
         }
         [DefaultValue(default(TAspectConversion))]
         public TAspectConversion AspectConversion { get; set; }
-        [DefaultValue(typeof(double), "0")]
+        [DefaultValue(0.0)]
         public double AudioVolume { get; set; }
         [DefaultValue(false)]
         public bool DeleteSource { get; set; }
@@ -69,13 +69,13 @@ namespace TAS.Client.Config.Model
         public string[] Extensions { get; set; }
         public TVideoCodec VideoCodec { get; set; }
         public TAudioCodec AudioCodec { get; set; }
-        [DefaultValue(typeof(double), "1")]
+        [DefaultValue(1.0)]
         public double VideoBitrateRatio { get; set; }
-        [DefaultValue(typeof(double), "1")]
+        [DefaultValue(1.0)]
         public double AudioBitrateRatio { get; set; }
         [XmlArray(nameof(SubDirectories))]
         public IngestDirectory[] SubDirectoriesSerialized = new IngestDirectory[0];
         [XmlIgnore]
-        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return SubDirectoriesSerialized; }  set { SubDirectoriesSerialized = value.Cast<IngestDirectory>().ToArray(); } }
+        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get => SubDirectoriesSerialized; set => SubDirectoriesSerialized = value.Cast<IngestDirectory>().ToArray(); }
     }
 }

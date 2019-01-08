@@ -9,7 +9,7 @@ namespace TAS.Remoting.Model
 {
     public class PlayoutServerChannel : ProxyBase, IPlayoutServerChannel
     {
-        #pragma warning disable CS0649
+#pragma warning disable CS0649
 
         [JsonProperty(nameof(IPlayoutServerChannel.ChannelName))]
         private string _channelName;
@@ -29,7 +29,10 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IPlayoutServerChannel.PreviewUrl))]
         private string _previewUrl;
 
-        #pragma warning restore
+        [JsonProperty(nameof(IPlayoutServerChannel.AudioChannelCount))]
+        private int _audioChannelCount;
+
+#pragma warning restore
 
         public string ChannelName => _channelName;
 
@@ -42,6 +45,8 @@ namespace TAS.Remoting.Model
         public int AudioLevel => _audioLevel;
 
         public string PreviewUrl => _previewUrl;
+
+        public int AudioChannelCount => _audioChannelCount;
 
         public void Clear()
         {
