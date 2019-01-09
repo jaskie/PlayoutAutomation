@@ -304,7 +304,7 @@ namespace TAS.Server
         }
 
 
-        public void ReStart(Event ev)
+        internal void ReStart(Event ev, bool play)
         {
             var channel = _casparChannel;
             if (!CheckConnected(channel) || ev == null)
@@ -317,8 +317,13 @@ namespace TAS.Server
                 item.Seek = (int)ev.Position + (int)((ev.ScheduledTc.Ticks - media.TcPlay.Ticks) / ev.Engine.FrameTicks);
             item.Transition.Duration = 3;
             item.Transition.Type = TransitionType.MIX;
-            channel.LoadBG(item);
-            channel.Play(item.VideoLayer);
+            if (play)
+            {
+                channel.LoadBG(item);
+                channel.Play(item.VideoLayer);
+            }
+            else
+                channel.Load(item);
             Debug.WriteLine("CasparChanner.ReStart: restarted {0} from frame {1}", item.Clipname, item.Seek);
         }
 

@@ -1346,8 +1346,8 @@ namespace TAS.Server
         {
             if (ev == null)
                 return;
-            _playoutChannelPRI?.ReStart(ev);
-            _playoutChannelSEC?.ReStart(ev);
+            _playoutChannelPRI?.ReStart(ev, EngineState == TEngineState.Running);
+            _playoutChannelSEC?.ReStart(ev, EngineState == TEngineState.Running);
         }
 
         private void _restartRundown(IEvent aRundown)
@@ -1668,7 +1668,7 @@ namespace TAS.Server
             {
                 foreach (Event ev in ve)
                 {
-                    channel.ReStart(ev);
+                    channel.ReStart(ev, EngineState == TEngineState.Running);
                     channel.SetVolume(VideoLayer.Program, _programAudioVolume, 0);
                     if (ev.Layer == VideoLayer.Program || ev.Layer == VideoLayer.Preset)
                     {
