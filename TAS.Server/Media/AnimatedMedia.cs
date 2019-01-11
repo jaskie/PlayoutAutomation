@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Database.Interfaces.Media;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media

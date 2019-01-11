@@ -665,6 +665,7 @@ namespace TAS.Client.ViewModels
                         mediaSearchViewModel.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
                         mediaSearchViewModel.Dispose();
                         _mediaSearchViewModel = null;
+                        _selectedEventPanel?.Focus();
                     };
                     _mediaSearchViewModel = mediaSearchViewModel;
                 }
@@ -751,16 +752,17 @@ namespace TAS.Client.ViewModels
         private bool _isSearchBoxFocused;
 
         private bool _isSearchNotFound;
-        public bool IsSearchNotFound { get { return _isSearchNotFound; } set { SetField(ref _isSearchNotFound, value); } }
+        public bool IsSearchNotFound { get => _isSearchNotFound; set => SetField(ref _isSearchNotFound, value); }
 
         private string _searchText;
         public string SearchText
         {
-            get { return _searchText; }
+            get => _searchText;
             set
             {
-                if (SetField(ref _searchText, value))
-                    IsSearchNotFound = false;
+                if (!SetField(ref _searchText, value))
+                    return;
+                IsSearchNotFound = false;
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Windows.Controls;
+using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -32,6 +33,19 @@ namespace TAS.Client.ViewModels
         {
             get => _selectedTabIndex;
             set => SetField(ref _selectedTabIndex, value);
+        }
+
+        public TabItem SelectedItem
+        {
+            set
+            {
+                if (value.DataContext is EngineViewmodel engine)
+                {
+                    var panel = engine.SelectedEventPanel;
+                    if (panel != null)
+                        OnIdle(() => panel.Focus());
+                }
+            }
         }
 
         protected override void OnDispose()
