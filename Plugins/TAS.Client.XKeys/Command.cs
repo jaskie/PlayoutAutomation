@@ -13,6 +13,9 @@ namespace TAS.Client.XKeys
         public string Method { get; set; }
 
         [XmlAttribute]
+        public string Parameter { get; set; }
+
+        [XmlAttribute]
         public CommandTargetEnum CommandTarget { get; set; }
 
         [XmlAttribute]

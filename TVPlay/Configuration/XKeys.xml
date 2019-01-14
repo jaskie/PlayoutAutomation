@@ -6,6 +6,7 @@
       <Command Key="8"  ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
       <Command Key="16" ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
       <Command Key="24" ActiveOn="Press" CommandTarget="Keyboard" Method="F11"/>
+      <Command Key="8"  ActiveOn="Press" CommandTarget="Engine" Method="StartSelected" Required="5" Parameter="Force"/>
 
       <Command Key="1"  ActiveOn="Press" CommandTarget="Engine" Method="AddNextMovie"/>
       <Command Key="25" ActiveOn="Press" CommandTarget="Engine" Method="ClearAll"/>

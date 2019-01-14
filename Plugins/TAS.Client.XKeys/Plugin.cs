@@ -12,7 +12,7 @@ namespace TAS.Client.XKeys
 {
     public class Plugin : IUiPlugin
     {
-        private static readonly Logger Logger = LogManager.GetLogger(nameof(Plugin));
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static readonly InputSimulator.InputSimulator InputSimulator = new InputSimulator.InputSimulator();
         private static readonly KeyGestureConverter KeyGestureConverter = new KeyGestureConverter();
 
@@ -33,6 +33,7 @@ namespace TAS.Client.XKeys
         {
             try
             {
+                Logger.Trace("Key notified: UnitId={0}, IsPressed={1}, Key={2}, AllKeys=[{3}]", keyNotifyEventArgs.UnitId, keyNotifyEventArgs.IsPressed, keyNotifyEventArgs.Key, string.Join(",", keyNotifyEventArgs.AllKeys));
                 if (keyNotifyEventArgs.UnitId != UnitId)
                     return;
                 if (!(Context is IUiEngine engine))
@@ -40,14 +41,14 @@ namespace TAS.Client.XKeys
                 var commands = Commands.Where(c =>
                     c.Key == keyNotifyEventArgs.Key &&
                     keyNotifyEventArgs.IsPressed == (c.ActiveOn == ActiveOnEnum.Press) &&
-                    (c.Required < 0 || keyNotifyEventArgs.AllKeys.Contains(c.Required)));
+                    (c.Required < 0 || keyNotifyEventArgs.AllKeys.Contains(c.Required))).ToList();
                 var command = commands.FirstOrDefault(c => c.Required >= 0) ?? commands.FirstOrDefault(); //executes single command, the one with modifier has higher priority
                 if (command == null)
                     return;
                 switch (command.CommandTarget)
                 {
                     case CommandTargetEnum.Engine:
-                        ExecuteOnEngine(engine, command.Method);
+                        ExecuteOnEngine(engine, command.Method, command.Parameter);
                         break;
                     case CommandTargetEnum.Keyboard:
                         ExecuteOnKeyboard(command.Method);
@@ -65,7 +66,6 @@ namespace TAS.Client.XKeys
 
         private static void ExecuteOnKeyboard(string method)
         {
-            
             var gesture = (KeyGesture)KeyGestureConverter.ConvertFromString(method);
             if (gesture == null)
                 return;
@@ -81,7 +81,7 @@ namespace TAS.Client.XKeys
             InputSimulator.Keyboard.ModifiedKeyStroke(modifiers, (VirtualKeyCode)KeyInterop.VirtualKeyFromKey(gesture.Key));
         }
 
-        private static void ExecuteOnEngine(IUiEngine engine, string commandMethod)
+        private static void ExecuteOnEngine(IUiEngine engine, string commandMethod, string commandParameter)
         {
             var propertyName = $"Command{commandMethod}";
             var propertyInfo = typeof(IUiEngine).GetProperty(propertyName);
@@ -90,7 +90,7 @@ namespace TAS.Client.XKeys
             var o = propertyInfo.GetValue(engine);
             if (!(o is ICommand command))
                 return;
-            engine.OnUiThread(() => command.Execute(null));
+            engine.OnUiThread(() => command.Execute(commandParameter));
         }
 
         private static void ExecuteOnSelectedEvent(IEvent e, string commandMethod)
