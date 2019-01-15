@@ -228,9 +228,9 @@ namespace TAS.Remoting.Model
             Invoke();
         }
 
-        public void Verify()
+        public void Verify(bool updateFormatAndDurations)
         {
-            Invoke();
+            Invoke(parameters: new object[] {updateFormatAndDurations});
         }
 
         public override string ToString()

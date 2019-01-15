@@ -66,7 +66,7 @@ namespace TAS.Server.Media
                 Fields = a.Fields;
         }
 
-        public override void Verify()
+        public override void Verify(bool updateFormatAndDurations)
         {
             if (!FileExists())
             {

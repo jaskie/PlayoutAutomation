@@ -120,7 +120,7 @@ namespace TAS.Server
                             if (!await sourceMedia.CopyMediaTo(localSourceMedia, CancellationTokenSource.Token))
                                 return false;
                             AddOutputMessage("Verifing local file");
-                            localSourceMedia.Verify();
+                            localSourceMedia.Verify(true);
                             return DestProperties.MediaType == TMediaType.Still
                                 ? ConvertStill(localSourceMedia)
                                 : await ConvertMovie(localSourceMedia, localSourceMedia.StreamInfo);
@@ -185,7 +185,7 @@ namespace TAS.Server
             var encoderParameters = new EncoderParameters(1) { Param = { [0] = encoderParameter } };
             bmp.Save(Dest.FullPath, imageCodecInfo, encoderParameters);
             Dest.MediaStatus = TMediaStatus.Copied;
-            Dest.Verify();
+            Dest.Verify(false);
             OperationStatus = FileOperationStatus.Finished;
             return true;
         }
@@ -369,7 +369,7 @@ namespace TAS.Server
                 && destMedia.FileExists())
             {
                 destMedia.MediaStatus = TMediaStatus.Copied;
-                destMedia.Verify();
+                destMedia.Verify(true);
                 destMedia.TcPlay = destMedia.TcStart;
                 destMedia.DurationPlay = destMedia.Duration;
                 ((MediaDirectoryBase)DestDirectory).RefreshVolumeInfo();

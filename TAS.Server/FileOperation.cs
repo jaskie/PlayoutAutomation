@@ -302,7 +302,7 @@ namespace TAS.Server
                             return false;
                     }
                     Dest.MediaStatus = TMediaStatus.Copied;
-                    await Task.Run(() => Dest.Verify());
+                    await Task.Run(() => Dest.Verify(false));
                     ((MediaDirectoryBase) DestDirectory).RefreshVolumeInfo();
                     return true;
                 case TFileOperationKind.Delete:
@@ -334,7 +334,7 @@ namespace TAS.Server
                     File.SetCreationTimeUtc(Dest.FullPath, File.GetCreationTimeUtc(source.FullPath));
                     File.SetLastWriteTimeUtc(Dest.FullPath, File.GetLastWriteTimeUtc(source.FullPath));
                     Dest.MediaStatus = TMediaStatus.Copied;
-                    await Task.Run(() => Dest.Verify());
+                    await Task.Run(() => Dest.Verify(false));
                     ((MediaDirectoryBase) Source.Directory).RefreshVolumeInfo();
                     ((MediaDirectoryBase) DestDirectory).RefreshVolumeInfo();
                     return true;

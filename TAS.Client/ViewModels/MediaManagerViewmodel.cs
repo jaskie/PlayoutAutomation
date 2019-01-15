@@ -171,7 +171,7 @@ namespace TAS.Client.ViewModels
                 if (!SetField(ref _selectedMedia, value))
                     return;
                 if (value is IIngestMedia && !value.IsVerified)
-                    Task.Run(() => value.Verify());
+                    Task.Run(() => value.Verify(true));
                 EditMedia = value == null ? null : new MediaEditViewmodel(value, _mediaManager, true);
                 if (PreviewViewmodel != null)
                     PreviewViewmodel.SelectedMedia = value;
@@ -275,7 +275,7 @@ namespace TAS.Client.ViewModels
                     _notifyDirectoryPropertiesChanged();
                 }
                 else
-                    OnUiThread(() =>
+                    OnIdle(() =>
                         NotifyPropertyChanged(nameof(SelectedDirectory))); //revert folder display, deferred execution
             }
         }
@@ -524,12 +524,14 @@ namespace TAS.Client.ViewModels
                     m.Dispose();
             SelectedMediaVm = null;
             MediaItemsView = newItems == null ? null : CollectionViewSource.GetDefaultView(newItems);
-            if (items == null)
-                return;
-            MediaItemsView.Filter = _filter;
-            if (!SelectedDirectory.IsXdcam)
-                MediaItemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated),
-                    ListSortDirection.Descending));
+            if (MediaItemsView != null)
+            {
+                MediaItemsView.Filter = _filter;
+                if (!SelectedDirectory.IsXdcam)
+                    MediaItemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated),
+                        ListSortDirection.Descending));
+            }
+            NotifyPropertyChanged(nameof(ItemsCount));
         }
 
         private void _selectedDirectoryMediaAdded(object source, MediaEventArgs e)
@@ -566,7 +568,6 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(DirectoryFreePercentage));
             NotifyPropertyChanged(nameof(DirectoryTotalSpace));
             NotifyPropertyChanged(nameof(DirectoryFreeSpace));
-            NotifyPropertyChanged(nameof(ItemsCount));
         }
 
         private List<IMedia> _getSelections()
@@ -657,7 +658,7 @@ namespace TAS.Client.ViewModels
                 selectedMediaList.ForEach(m =>
                 {
                     if (!m.IsVerified)
-                        m.Verify();
+                        m.Verify(true);
                 });
             });
             foreach (var sourceMedia in selectedMediaList)

@@ -119,7 +119,7 @@ namespace TAS.Server
                 OperationStatus = FileOperationStatus.Failed;
                 return false;
             }
-            Dest.Verify();
+            Dest.Verify(true);
             OperationStatus = FileOperationStatus.Finished;
             return true;
         }

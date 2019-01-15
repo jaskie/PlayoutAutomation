@@ -28,7 +28,7 @@ namespace TAS.Server.XDCAM
             return new FileStream(fileName, forWrite ? FileMode.Create : FileMode.Open);
         }
 
-        public override void Verify()
+        public override void Verify(bool updateFormatAndDurations)
         {
             try
             {

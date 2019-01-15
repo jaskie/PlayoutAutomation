@@ -247,7 +247,7 @@ namespace TAS.Server
                                         {
                                             secMedia.CloneMediaProperties(pRImedia);
                                             sec.UpdateMediaGuid(secMedia, pRImedia.MediaGuid);
-                                            secMedia.Verify();
+                                            secMedia.Verify(false);
                                         }
                                         else
                                             _fileManager.Queue(new FileOperation(_fileManager)

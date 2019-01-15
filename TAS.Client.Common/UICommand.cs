@@ -21,6 +21,7 @@ namespace TAS.Client.Common
 
         #region ICommand Members
 
+        [DebuggerStepThrough]
         public bool CanExecute(object parameter)
         {
             if (CanExecuteDelegate != null)

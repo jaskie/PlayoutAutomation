@@ -328,10 +328,10 @@ namespace TAS.Server.Media
         {
             MediaStatus = TMediaStatus.Unknown;
             IsVerified = false;
-            ThreadPool.QueueUserWorkItem((o) => Verify());
+            ThreadPool.QueueUserWorkItem((o) => Verify(false));
         }
 
-        public virtual void Verify()
+        public virtual void Verify(bool updateFormatAndDurations)
         {
             if (IsVerified || 
                 _mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required || 
@@ -360,7 +360,7 @@ namespace TAS.Server.Media
                     LastUpdated = fi.LastWriteTimeUtc.FromFileTime(DateTimeKind.Utc);
                     //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
 
-                    this.Check();
+                    this.Check(updateFormatAndDurations);
                 }                
                 IsVerified = true;
             }

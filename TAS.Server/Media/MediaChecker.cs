@@ -7,7 +7,7 @@ namespace TAS.Server.Media
 {
     public static class MediaChecker
     {
-        internal static void Check(this MediaBase media)
+        internal static void Check(this MediaBase media, bool updateFormatAndDurations)
         {
             if (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Unknown)
             {
@@ -26,40 +26,43 @@ namespace TAS.Server.Media
                         : videoDuration).Round(frameRate);
                     if (mediaDuration == TimeSpan.Zero)
                         mediaDuration = (TimeSpan) ffmpeg.GetFileDuration();
-                    media.Duration = mediaDuration;
-                    if (media.DurationPlay == TimeSpan.Zero || media.DurationPlay > mediaDuration)
-                        media.DurationPlay = mediaDuration;
-                    var w = ffmpeg.GetWidth();
-                    var h = ffmpeg.GetHeight();
-                    var order = ffmpeg.GetFieldOrder();
-                    var sar = ffmpeg.GetSAR();
-                    if (h == 608 && w == 720)
+                    if (updateFormatAndDurations)
                     {
-                        media.HasExtraLines = true;
-                        h = 576;
-                    }
-                    else
-                        media.HasExtraLines = false;
-                    var timecode = ffmpeg.GetTimeCode();
-                    if (timecode != null
-                        && timecode.IsValidSMPTETimecode(frameRate))
-                    {
-                        media.TcStart = timecode.SMPTETimecodeToTimeSpan(frameRate);
-                        if (media.TcPlay < media.TcStart)
-                            media.TcPlay = media.TcStart;
-                    }
+                        media.Duration = mediaDuration;
+                        if (media.DurationPlay == TimeSpan.Zero || media.DurationPlay > mediaDuration)
+                            media.DurationPlay = mediaDuration;
+                        var w = ffmpeg.GetWidth();
+                        var h = ffmpeg.GetHeight();
+                        var order = ffmpeg.GetFieldOrder();
+                        var sar = ffmpeg.GetSAR();
+                        if (h == 608 && w == 720)
+                        {
+                            media.HasExtraLines = true;
+                            h = 576;
+                        }
+                        else
+                            media.HasExtraLines = false;
+                        var timecode = ffmpeg.GetTimeCode();
+                        if (timecode != null
+                            && timecode.IsValidSMPTETimecode(frameRate))
+                        {
+                            media.TcStart = timecode.SMPTETimecodeToTimeSpan(frameRate);
+                            if (media.TcPlay < media.TcStart)
+                                media.TcPlay = media.TcStart;
+                        }
 
-                    var sAR =
-                    (h == 576 && ((sar.Num == 608 && sar.Den == 405) || (sar.Num == 1 && sar.Den == 1) ||
-                                  (sar.Num == 118 && sar.Den == 81)))
-                        ? VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].SAR
-                        : (sar.Num == 152 && sar.Den == 135)
-                            ? VideoFormatDescription.Descriptions[TVideoFormat.PAL].SAR
-                            : new RationalNumber(sar.Num, sar.Den);
+                        var sAR =
+                        (h == 576 && ((sar.Num == 608 && sar.Den == 405) || (sar.Num == 1 && sar.Den == 1) ||
+                                      (sar.Num == 118 && sar.Den == 81)))
+                            ? VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].SAR
+                            : (sar.Num == 152 && sar.Den == 135)
+                                ? VideoFormatDescription.Descriptions[TVideoFormat.PAL].SAR
+                                : new RationalNumber(sar.Num, sar.Den);
 
-                    var vfd = VideoFormatDescription.Match(new System.Drawing.Size(w, h), frameRate, sAR,
-                        order != FieldOrder.PROGRESSIVE);
-                    media.VideoFormat = vfd.Format;
+                        var vfd = VideoFormatDescription.Match(new System.Drawing.Size(w, h), frameRate, sAR,
+                            order != FieldOrder.PROGRESSIVE);
+                        media.VideoFormat = vfd.Format;
+                    }
                     if (media is IngestMedia ingestMedia)
                         ingestMedia.StreamInfo = ffmpeg.GetStreamInfo();
                     if (media is TempMedia tempMedia)
@@ -68,6 +71,7 @@ namespace TAS.Server.Media
                     Debug.WriteLine("FFmpeg check of {0} finished. It took {1} milliseconds", media.FullPath,
                         Environment.TickCount - startTickCunt);
 #endif
+
                     if (mediaDuration > TimeSpan.Zero)
                     {
                         media.MediaType = TMediaType.Movie;

@@ -247,7 +247,7 @@ namespace TAS.Server
                 Task.Run(() =>
                 {
                     Thread.Sleep(500);
-                    media.Verify();
+                    media.Verify(true);
                     if (media.MediaStatus == TMediaStatus.Available)
                         CaptureSuccess?.Invoke(this, new MediaEventArgs(media));
                 });
