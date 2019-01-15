@@ -104,7 +104,6 @@ namespace TAS.Server
             if (Kind != TFileOperationKind.Ingest)
                 throw new InvalidOperationException("Invalid operation kind");
             StartTime = DateTime.UtcNow;
-            OperationStatus = FileOperationStatus.InProgress;
             IsIndeterminate = true;
             try
             {
@@ -186,7 +185,6 @@ namespace TAS.Server
             bmp.Save(Dest.FullPath, imageCodecInfo, encoderParameters);
             Dest.MediaStatus = TMediaStatus.Copied;
             Dest.Verify(false);
-            OperationStatus = FileOperationStatus.Finished;
             return true;
         }
 
@@ -391,7 +389,6 @@ namespace TAS.Server
                     AddOutputMessage("Convert operation finished successfully");
                     Debug.WriteLine(this, "Convert operation succeed");
                 }
-                OperationStatus = FileOperationStatus.Finished;
                 if (LoudnessCheck)
                 {
                     ThreadPool.QueueUserWorkItem((o) =>

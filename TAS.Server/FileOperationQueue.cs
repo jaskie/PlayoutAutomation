@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -11,13 +12,12 @@ namespace TAS.Server
     {
         private readonly Queue<FileOperation> _queue = new Queue<FileOperation>();
 
-        private readonly object _queueLock = new object();
 
         private FileOperation _currentOperation;
 
         public void Enqueue(FileOperation operation)
         {
-            lock (_queueLock)
+            lock (((ICollection)_queue).SyncRoot)
             {
                 _queue.Enqueue(operation);
             }
@@ -26,7 +26,7 @@ namespace TAS.Server
 
         public List<FileOperation> GetQueue()
         {
-            lock (_queueLock)
+            lock (((ICollection)_queue).SyncRoot)
             {
                 var result = _queue.ToList();
                 if (_currentOperation != null)
@@ -37,7 +37,7 @@ namespace TAS.Server
 
         public void CancelPending()
         {
-            lock (_queueLock)
+            lock (((ICollection)_queue).SyncRoot)
                 _queue.Where(o => o.OperationStatus == FileOperationStatus.Waiting).ToList().ForEach(o => o.Abort());
         }
 
@@ -48,19 +48,19 @@ namespace TAS.Server
             while (true)
             {
                 FileOperation operation;
-                lock (_queueLock)
+                lock (((ICollection)_queue).SyncRoot)
                 {
                     if (_currentOperation != null)
                         return;
                     if (_queue.Count == 0)
                         return;
-                    _currentOperation = _queue.Dequeue();
-                    operation = _currentOperation;
+                    operation = _queue.Dequeue();
+                    if (operation.IsAborted)
+                        continue;
+                    _currentOperation = operation;
                 }
-                if (operation.IsAborted)
-                    continue;
                 var success = await operation.Execute();
-                lock (_queueLock)
+                lock (((ICollection)_queue).SyncRoot)
                 {
                     _currentOperation = null;
                     if (!operation.IsAborted)
@@ -68,8 +68,6 @@ namespace TAS.Server
                         {
                             if (operation.TryCount > 0)
                                 _queue.Enqueue(operation);
-                            else
-                                operation.OperationStatus = FileOperationStatus.Failed;
                         }
                 }
                 if (!success)

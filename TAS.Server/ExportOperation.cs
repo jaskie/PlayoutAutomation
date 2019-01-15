@@ -61,7 +61,6 @@ namespace TAS.Server
             if (Kind != TFileOperationKind.Export)
                 throw new InvalidOperationException("Invalid operation kind");
             StartTime = DateTime.UtcNow;
-            OperationStatus = FileOperationStatus.InProgress;
             IsIndeterminate = true;
             try
             {
@@ -116,11 +115,9 @@ namespace TAS.Server
             }
             if (!result)
             {
-                OperationStatus = FileOperationStatus.Failed;
                 return false;
             }
             Dest.Verify(true);
-            OperationStatus = FileOperationStatus.Finished;
             return true;
         }
 

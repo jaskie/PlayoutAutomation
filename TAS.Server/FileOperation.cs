@@ -225,6 +225,7 @@ namespace TAS.Server
             try
             {
                 AddOutputMessage("Operation started");
+                OperationStatus = FileOperationStatus.InProgress;
                 if (await InternalExecute())
                 {
                     OperationStatus = FileOperationStatus.Finished;
@@ -237,18 +238,8 @@ namespace TAS.Server
                 AddOutputMessage(e.Message);
             }
             TryCount--;
+            OperationStatus = TryCount > 0 ? FileOperationStatus.Waiting : FileOperationStatus.Failed;
             return false;
-        }
-
-        internal void Fail()
-        {
-            OperationStatus = FileOperationStatus.Failed;
-            lock (_destMediaLock)
-            {
-                if (Dest != null && Dest.FileExists())
-                    Dest.Delete();
-            }
-            Logger.Info($"Operation failed: {Title}");
         }
 
         protected void AddOutputMessage(string message)
@@ -281,7 +272,6 @@ namespace TAS.Server
         protected virtual async Task<bool> InternalExecute()
         {
             StartTime = DateTime.UtcNow;
-            OperationStatus = FileOperationStatus.InProgress;
             if (!(Source is MediaBase source))
                 return false;
             switch (Kind)
