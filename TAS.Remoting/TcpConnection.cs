@@ -45,6 +45,7 @@ namespace TAS.Remoting
                 NoDelay = true,
             };
             Client.Connect(addressParts[0], port);
+            Logger.Info("Connection opened to {0}:{1}.", addressParts[0], port);
         }
 
         public void Send(byte[] bytes)
