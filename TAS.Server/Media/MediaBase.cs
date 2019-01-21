@@ -40,7 +40,7 @@ namespace TAS.Server.Media
         private TMediaStatus _mediaStatus;
         internal bool HasExtraLines; // VBI lines that shouldn't be displayed
         
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaBase));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         #region IMediaProperties
         [JsonProperty]

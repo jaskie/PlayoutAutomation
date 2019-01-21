@@ -5,8 +5,6 @@ using System.Linq;
 using System.IO;
 using System.Configuration;
 using System.Xml.Serialization;
-using System.Reflection;
-using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using TAS.Common;
@@ -21,7 +19,7 @@ namespace TAS.Server
 {
     public class MediaManager : DtoBase, IMediaManager
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaManager));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         [JsonProperty(nameof(Engine))]
         private readonly Engine _engine;

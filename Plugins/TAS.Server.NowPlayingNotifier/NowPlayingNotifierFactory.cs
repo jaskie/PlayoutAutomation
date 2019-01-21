@@ -13,7 +13,7 @@ namespace TAS.Server
     public class NowPlayingNotifierFactory : IEnginePluginFactory
     {
         private readonly NowPlayingNotifier[] _plugins;
-        private static readonly Logger Logger = LogManager.GetLogger(nameof(NowPlayingNotifierFactory));
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         
         [ImportingConstructor]
         public NowPlayingNotifierFactory([Import("AppSettings")] NameValueCollection settings)

@@ -23,7 +23,7 @@ namespace TAS.Server
         private readonly object _destMediaLock = new object();
 
         private IMedia _sourceMedia;
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(FileOperation));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private IMediaProperties _destMediaProperties;
         private int _tryCount = 15;
         private DateTime _scheduledTime;

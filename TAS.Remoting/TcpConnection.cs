@@ -15,7 +15,7 @@ namespace TAS.Remoting
     /// </summary>
     public abstract class TcpConnection : IDisposable
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(TcpConnection));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private int _disposed;
 
         private readonly List<byte[]> _sendQueue = new List<byte[]>();
@@ -120,12 +120,7 @@ namespace TAS.Remoting
                         _sendQueue.Clear();
                     }
                     foreach (var bytes in sendPackets)
-                    {
-                        Client.Client.NoDelay = false;
-                        Client.Client.Send(BitConverter.GetBytes(bytes.Length));
-                        Client.Client.NoDelay = true;
                         Client.Client.Send(bytes);
-                    }
                 }
                 catch (Exception e) when (e is IOException || e is ArgumentNullException ||
                                           e is ObjectDisposedException || e is SocketException)
@@ -154,7 +149,7 @@ namespace TAS.Remoting
                     {
                         if (stream.Read(sizeBuffer, 0, sizeof(int)) == sizeof(int))
                         {
-                            var dataLength = BitConverter.ToInt32(sizeBuffer, 0);
+                            var dataLength = BitConverter.ToUInt32(sizeBuffer, 0);
                             dataBuffer = new byte[dataLength];
                         }
                         dataIndex = 0;

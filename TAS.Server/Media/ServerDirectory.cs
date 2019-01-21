@@ -13,6 +13,7 @@ namespace TAS.Server.Media
     public class ServerDirectory : WatcherDirectory, IServerDirectory
     {
         internal readonly IPlayoutServerProperties Server;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public ServerDirectory(IPlayoutServerProperties server, MediaManager manager)
             : base(manager)

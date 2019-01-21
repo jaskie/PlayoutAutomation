@@ -8,7 +8,6 @@ using System.Linq;
 using System.Net;
 using System.Net.FtpClient;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
@@ -20,6 +19,7 @@ namespace TAS.Server.Media
 {
     public class IngestDirectory : WatcherDirectory, IIngestDirectory
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly List<string> _bMdXmlFiles = new List<string>();
         private string _filter;
         private int _xdcamClipCount;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Database.Interfaces.Media;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 
@@ -11,7 +10,7 @@ namespace TAS.Server.Media
 {
     public class ServerMedia: PersistentMedia, Common.Database.Interfaces.Media.IServerMedia
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ServerMedia));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private bool _doNotArchive;
         Lazy<bool> _isArchived;
 

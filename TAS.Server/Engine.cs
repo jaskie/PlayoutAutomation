@@ -77,7 +77,7 @@ namespace TAS.Server
         private long _previewLastPositionSetTick;
 
 
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Engine));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
         private bool _enableCGElementsForNewEvents;
         private bool _studioMode;

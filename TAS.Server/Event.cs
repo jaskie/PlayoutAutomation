@@ -58,7 +58,7 @@ namespace TAS.Server
         private TEasing _transitionEasing;
         private AutoStartFlags _autoStartFlags;
         private Guid _mediaGuid;
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Event));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         #region Constructor
         internal Event(

@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
 using Newtonsoft.Json.Serialization;
@@ -14,6 +13,7 @@ namespace TAS.Remoting.Client
     {
         private readonly Dictionary<Guid, ProxyBase> _knownDtos = new Dictionary<Guid, ProxyBase>();
         private int _disposed;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public ClientReferenceResolver()
         {
@@ -28,7 +28,6 @@ namespace TAS.Remoting.Client
             {
                 foreach (var dto in _knownDtos)
                 {
-                    dto.Value.PropertyChanged -= _referencePropertyChanged;
                     dto.Value.Disposed -= _reference_Disposed;
                 }
                 _knownDtos.Clear();
@@ -45,20 +44,20 @@ namespace TAS.Remoting.Client
             proxy.DtoGuid = id;
             lock (((IDictionary)_knownDtos).SyncRoot)
                 _knownDtos[id] = proxy;
+            proxy.Disposed += _reference_Disposed;
             Debug.WriteLine("Added reference {0} for {1}", reference, value);
         }
 
         public string GetReference(object context, object value)
         {
-            if (!(value is ProxyBase dto)) return 
-                    string.Empty;
-            lock (((IDictionary) _knownDtos).SyncRoot)
+            if (!(value is ProxyBase dto)) return
+                string.Empty;
+            lock (((IDictionary)_knownDtos).SyncRoot)
             {
                 if (IsReferenced(context, value))
                     return dto.DtoGuid.ToString();
                 _knownDtos[dto.DtoGuid] = dto;
             }
-            dto.PropertyChanged += _referencePropertyChanged;
             dto.Disposed += _reference_Disposed;
             return dto.DtoGuid.ToString();
         }
@@ -96,39 +95,16 @@ namespace TAS.Remoting.Client
             }
         }
 
-        private void _referencePropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            ReferencePropertyChanged?.Invoke(sender, e);
-        }
-
         private void _reference_Disposed(object sender, EventArgs e)
         {
-            ReferenceDisposed?.Invoke(sender, EventArgs.Empty);
             lock (((IDictionary) _knownDtos).SyncRoot)
-                if (sender is IDto dto && _knownDtos.TryGetValue(dto.DtoGuid, out var disposed) && sender == disposed)
+                if (sender is IDto dto && _knownDtos.TryGetValue(dto.DtoGuid, out var _) && sender == dto)
                 {
                     _knownDtos.Remove(dto.DtoGuid);
-                    disposed.PropertyChanged -= _referencePropertyChanged;
-                    disposed.Disposed -= _reference_Disposed;
-                    Debug.WriteLine(disposed, $"Reference resolver - object {disposed.DtoGuid} disposed, generation is {GC.GetGeneration(dto)}");
+                    dto.Disposed -= _reference_Disposed;
+                    Logger.Trace("Reference resolver - object {0} disposed, generation is {1}", dto, GC.GetGeneration(dto));
                 }
         }
-
-        #region Client-side methods
-        internal IDto RemoveReference(Guid reference)
-        {
-            lock (((IDictionary) _knownDtos).SyncRoot)
-            {
-                if (!_knownDtos.TryGetValue(reference, out var removed))
-                    throw new UnresolvedReferenceException("ResolveReference failed", reference);
-                _knownDtos.Remove(reference);
-                return removed;
-            }
-        }
-        #endregion //Client-side methods
-
-        public event EventHandler<PropertyChangedEventArgs> ReferencePropertyChanged;
-        public event EventHandler ReferenceDisposed;
 
     }
 

@@ -8,7 +8,7 @@ namespace TAS.Server
 {
     public class CgElementsController : Remoting.Server.DtoBase, ICGElementsController, IEnginePlugin
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(CgElementsController));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         internal IEngine Engine;
 

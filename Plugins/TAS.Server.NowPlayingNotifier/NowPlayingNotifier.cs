@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Threading;
 using System.Xml.Serialization;
 using NLog;
 using Svt.Caspar;
@@ -13,7 +12,7 @@ namespace TAS.Server
     public class NowPlayingNotifier: IEnginePlugin
     {
         private bool _disposed;
-        private static readonly Logger Logger = LogManager.GetLogger(nameof(NowPlayingNotifier));
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         [XmlIgnore]
         public IEngine Engine { get; private set; }

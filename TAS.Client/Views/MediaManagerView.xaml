@@ -12,6 +12,7 @@
              xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
              d:DataContext="{d:DesignInstance viewmodels:MediaManagerViewmodel}"
              FontSize="13" KeyUp="UserControl_KeyUp"
              >
@@ -142,20 +143,21 @@
                                 </Style>
                             </DockPanel.Resources>
                             <Label Content="{Resx _directory}"/>
-                            <toolkit:DropDownButton Name="FolderCombo" VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory.DirectoryName}" ToolTip="{Binding SelectedDirectory.Folder}" Margin="1">
-                                <toolkit:DropDownButton.Resources>
-                                    <common:BindingProxy x:Key="Proxy" Data="{Binding}"/>
-                                </toolkit:DropDownButton.Resources>
+                            <toolkit:DropDownButton x:Name="DirectoryCombo"  VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory}" ToolTip="{Binding SelectedDirectory.Folder}" Margin="1">
                                 <toolkit:DropDownButton.DropDownContent>
-                                    <controls:TreeViewEx DataContext="{StaticResource Proxy}" MinWidth="120" ItemsSource="{Binding Data.MediaDirectories}" 
-                                                     SelectedItem="{Binding Data.SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged"
-                                                     >
-                                        <controls:TreeViewEx.ItemTemplate>
+                                    <TreeView x:Name="DirectorySelector" MinWidth="120" 
+                                              ItemsSource="{Binding MediaDirectories}" 
+                                              SelectedItemChanged="TreeViewEx_SelectedItemChanged"
+                                        >
+                                        <i:Interaction.Behaviors>
+                                            <behaviors:TreeViewTwoWaySelectedItemBehavior SelectedItem="{Binding SelectedDirectory, Mode=TwoWay}"/>
+                                        </i:Interaction.Behaviors>
+                                        <TreeView.ItemTemplate>
                                             <HierarchicalDataTemplate DataType="{x:Type viewmodels:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
                                                 <TextBlock Padding="2" Text="{Binding DirectoryName}" ToolTip="{Binding Folder}" />
                                             </HierarchicalDataTemplate>
-                                        </controls:TreeViewEx.ItemTemplate>
-                                    </controls:TreeViewEx>
+                                        </TreeView.ItemTemplate>
+                                    </TreeView>
                                 </toolkit:DropDownButton.DropDownContent>
                             </toolkit:DropDownButton>
 

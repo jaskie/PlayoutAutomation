@@ -22,7 +22,7 @@ namespace TAS.Server
         private Recorder _recorder;
         private IMedia _recordingMedia;
         internal IArchiveDirectory ArchiveDirectory;
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(CasparRecorder));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private CasparServer _ownerServer;
 
         private TimeSpan _currentTc;

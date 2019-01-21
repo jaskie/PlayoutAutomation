@@ -26,7 +26,7 @@ namespace TAS.Server
 
         private ulong _progressFileSize;
         private readonly List<MediaExportDescription> _exportMediaList = new List<MediaExportDescription>();
-        private static readonly Logger Logger = LogManager.GetLogger(nameof(ExportOperation));
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         internal ExportOperation(FileManager fileManager) : base(fileManager)
         {
