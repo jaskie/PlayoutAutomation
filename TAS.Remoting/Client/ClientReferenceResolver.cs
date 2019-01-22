@@ -89,9 +89,9 @@ namespace TAS.Remoting.Client
         {
             lock (((IDictionary) _knownDtos).SyncRoot)
             {
-                if (!_knownDtos.TryGetValue(reference, out var p))
-                    throw new UnresolvedReferenceException("ResolveReference failed", reference);
-                return p;
+                if (_knownDtos.TryGetValue(reference, out var p))
+                    return p;
+                return null;
             }
         }
 
