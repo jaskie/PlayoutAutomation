@@ -5,8 +5,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:views="clr-namespace:TAS.Client.Views" 
-        xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
-        xmlns:viewModels="clr-namespace:TAS.Client.ViewModels"
         mc:Ignorable="d" 
         SizeToContent="WidthAndHeight"
         Title="{Resx _windowTitle}"
@@ -17,17 +15,20 @@
             <Button Style="{StaticResource CancelButtonStyle}" />
             <Button Style="{StaticResource OkButtonStyle}" IsEnabled="{Binding IsValid}" Click="Ok_OnClick" />
         </StackPanel>
-        <DataGrid ItemsSource="{Binding OperationList}" SelectedItem="{Binding SelectedOperation}" AutoGenerateColumns="False" IsReadOnly="True" Visibility="{Binding ShowMediaList, Converter={StaticResource BoolToVis}}" Width="200">
-            <DataGrid.Resources>
-                <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
-            </DataGrid.Resources>
+        <DataGrid x:Name="OperationList"
+            ItemsSource="{Binding OperationList}" 
+            SelectedItem="{Binding SelectedOperation}" 
+            AutoGenerateColumns="False" IsReadOnly="True" 
+            Visibility="{Binding ShowMediaList, Converter={StaticResource BoolToVis}}" 
+            Width="200">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.IngestEditorView, Key=_grid.Header.Clip}" Width="*" Binding="{Binding SourceFileName, Mode=OneWay}" />
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Height="15" ToolTip="{Resx ResxName=TAS.Client.Views.IngestEditorView, Key=_grid.Delete}"
-                                        Command="{Binding Data.CommandDeleteOperation, Source={StaticResource proxy}}" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=DataContext}">
+                            <Button Height="15" 
+                                    ToolTip="{Resx ResxName=TAS.Client.Views.IngestEditorView, Key=_grid.Delete}"
+                                    Command="{Binding DataContext.CommandDeleteOperation, Source={x:Reference OperationList}}" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=DataContext}">
                                 <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"/>
                             </Button>
                         </DataTemplate>

@@ -236,7 +236,7 @@
                         </ToolBar>
                         <DataGrid x:Name="MediaListGrid" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItemsView}" SelectedItem="{Binding Path=SelectedMediaVm, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
                             <i:Interaction.Behaviors>
-                                <common:BindableSelectedItems SelectedItems="{Binding SelectedMediaList, Mode=OneWayToSource}"/>
+                                <behaviors:BindableSelectedItems SelectedItems="{Binding SelectedMediaList, Mode=OneWayToSource}"/>
                             </i:Interaction.Behaviors>
                             <DataGrid.Resources>
                                 <Style TargetType="DataGridRow">

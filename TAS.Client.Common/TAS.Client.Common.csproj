@@ -94,7 +94,7 @@
   <ItemGroup>
     <Compile Include="Behaviors\TreeViewTwoWaySelectedItemBehavior.cs" />
     <Compile Include="Controls\AutoGreyableImage.cs" />
-    <Compile Include="BindableSelectedItems.cs" />
+    <Compile Include="Behaviors\BindableSelectedItems.cs" />
     <Compile Include="BindingProxy.cs" />
     <Compile Include="Controls\SearchTextBox.cs" />
     <Compile Include="Controls\FrameEdit.cs" />
@@ -109,7 +109,6 @@
       <DependentUpon>FilenameEntry.xaml</DependentUpon>
     </Compile>
     <Compile Include="IngestDirectoryExtensions.cs" />
-    <Compile Include="ObservableDictionary.cs" />
     <Compile Include="Plugin\IUiEngine.cs" />
     <Compile Include="Plugin\IUiPluginContext.cs" />
     <Compile Include="Plugin\UiMenuItemBase.cs" />
@@ -131,7 +130,6 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="SetPropertyAction.cs" />
     <Compile Include="Controls\StatusIndicator.xaml.cs">
       <DependentUpon>StatusIndicator.xaml</DependentUpon>
     </Compile>

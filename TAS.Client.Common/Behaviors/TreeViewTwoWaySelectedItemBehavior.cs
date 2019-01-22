@@ -66,7 +66,7 @@ namespace TAS.Client.Common.Behaviors
             return node;
         }
 
-        private TreeViewItem FindItemNodeInChildren(TreeViewItem parent, object item)
+        private static TreeViewItem FindItemNodeInChildren(TreeViewItem parent, object item)
         {
             TreeViewItem node = null;
             if (parent == null)
