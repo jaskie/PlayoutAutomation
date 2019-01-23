@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using NLog;
@@ -15,6 +16,8 @@ namespace TAS.Client.XKeys
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static readonly InputSimulator.InputSimulator InputSimulator = new InputSimulator.InputSimulator();
         private static readonly KeyGestureConverter KeyGestureConverter = new KeyGestureConverter();
+        private IUiPluginContext _context;
+        private IDeviceEnumerator _deviceEnumerator;
 
         [XmlAttribute]
         public string EngineName { get; set; }
@@ -26,10 +29,45 @@ namespace TAS.Client.XKeys
 
         public Command[] Commands { get; set; }
 
-        [XmlIgnore]
-        public IUiPluginContext Context { get; internal set; }
+        public Backlight[] Backlights { get; set; }
 
-        public void Notify(KeyNotifyEventArgs keyNotifyEventArgs)
+        [XmlIgnore]
+        public IUiPluginContext Context
+        {
+            get => _context;
+            internal set
+            {
+                if (_context == value)
+                    return;
+                if (_context != null)
+                    _context.Engine.PropertyChanged -= Engine_PropertyChanged;
+                _context = value;
+                if (value != null)
+                {
+                    value.Engine.PropertyChanged += Engine_PropertyChanged;
+                    SetBacklight(value.Engine);
+                }
+            }
+        }
+
+        internal IDeviceEnumerator DeviceEnumerator
+        {
+            get => _deviceEnumerator;
+            set
+            {
+                if (_deviceEnumerator == value)
+                    return;
+                _deviceEnumerator = value;
+                _deviceEnumerator.DeviceConnected += DeviceEnumeratorOnDeviceConnected;
+            }
+        }
+
+        private void DeviceEnumeratorOnDeviceConnected(object sender, DeviceEventArgs deviceEventArgs)
+        {
+            SetBacklight(Context?.Engine);
+        }
+
+        internal void Notify(KeyNotifyEventArgs keyNotifyEventArgs)
         {
             try
             {
@@ -111,5 +149,28 @@ namespace TAS.Client.XKeys
             }
         }
 
+        private void SetBacklight(IEngine engine)
+        {
+            try
+            {
+                foreach (var backlight in Backlights.Where(b => b.State != engine.EngineState))
+                    foreach (var backlightKey in backlight.Keys)
+                        DeviceEnumerator.SetBacklight(UnitId, backlightKey, BacklightColorEnum.None, false);
+                foreach (var backlight in Backlights.Where(b => b.State == engine.EngineState))
+                    foreach (var backlightKey in backlight.Keys)
+                        DeviceEnumerator.SetBacklight(UnitId, backlightKey, backlight.Color, backlight.Blinking);
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception);
+            }
+        }
+
+        private void Engine_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(IEngine.EngineState) || !(sender is IEngine engine) || Backlights == null)
+                return;
+            Task.Run(() => SetBacklight(engine));
+        }
     }
 }

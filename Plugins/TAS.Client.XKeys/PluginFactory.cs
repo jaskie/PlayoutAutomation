@@ -16,11 +16,9 @@ namespace TAS.Client.XKeys
         private const string ConfigurationFileName = "XKeys.xml";
 
         private readonly Plugin[] _plugins;
-        private readonly DeviceEnumerator _deviceEnumerator;
 
         public PluginFactory()
         {
-            _deviceEnumerator = new DeviceEnumerator();
             var file = Path.Combine(FileUtils.ConfigurationPath, ConfigurationFileName);
             if (!File.Exists(file))
             {
@@ -31,8 +29,11 @@ namespace TAS.Client.XKeys
             {
                 var serializer = new XmlSerializer(typeof(Plugin[]), new XmlRootAttribute("XKeys"));
                 _plugins = (Plugin[])serializer.Deserialize(streamReader);
+                var deviceEnumerator = new DeviceEnumerator();
+                foreach (var plugin in _plugins)
+                    plugin.DeviceEnumerator = deviceEnumerator;
+                deviceEnumerator.KeyNotified += KeyNotified;
             }
-            _deviceEnumerator.KeyNotified += KeyNotified;
         }
 
         public object CreateNew(IUiPluginContext context)

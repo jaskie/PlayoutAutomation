@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,10 +8,11 @@ using PIEHid64Net;
 
 namespace TAS.Client.XKeys
 {
-    internal class DeviceEnumerator: IDisposable
+    public class DeviceEnumerator: IDisposable, IDeviceEnumerator
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly List<Device> _devices = new List<Device>();
+        private int _disposedValue;
 
         public DeviceEnumerator()
         {
@@ -28,12 +30,12 @@ namespace TAS.Client.XKeys
             KeyNotified?.Invoke(this, new KeyNotifyEventArgs(unitId, keyNr, pressed, allKeys));
         }
         
-        public EventHandler<KeyNotifyEventArgs> KeyNotified;
+        public event EventHandler<KeyNotifyEventArgs> KeyNotified;
 
         private void EnumerationThreadProc()
         {
             var oldDevices = new PIEDevice[0];
-            while (true)
+            while (_disposedValue == 0)
             {
                 try
                 {
@@ -41,7 +43,9 @@ namespace TAS.Client.XKeys
                     foreach (var pieDevice in devices.Where(d => d.HidUsagePage == 0xC && !oldDevices.Any(od => DeviceEquals(od, d))))
                     {
                         var device = new Device(this, pieDevice);
-                        _devices.Add(device);
+                        lock (((IList)_devices).SyncRoot)
+                            _devices.Add(device);
+                        DeviceConnected?.Invoke(this, new DeviceEventArgs(device));
                         Logger.Info("New device connected {0}:{1}", pieDevice.Pid, pieDevice.Vid);
                     }
                     foreach (var pieDevice in oldDevices.Where(d => d.HidUsagePage == 0xC && !devices.Any(od => DeviceEquals(od, d))))
@@ -50,7 +54,8 @@ namespace TAS.Client.XKeys
                         if (device == null)
                             continue;
                         device.Dispose();
-                        _devices.Remove(device);
+                        lock (((IList)_devices).SyncRoot)
+                            _devices.Remove(device);
                         Logger.Info("Device disconnected {0}:{1}", pieDevice.Pid, pieDevice.Vid);
                     }
                     oldDevices = devices;
@@ -70,8 +75,23 @@ namespace TAS.Client.XKeys
 
         public void Dispose()
         {
+            Interlocked.Exchange(ref _disposedValue, 1);
             _devices.ForEach(d => d.Dispose());
             _devices.Clear();
         }
+
+        public void SetBacklight(byte unitId, int keyNr, BacklightColorEnum color, bool blinking)
+        {
+            lock (((IList) _devices).SyncRoot)
+            {
+                _devices.ForEach(d =>
+                {
+                    if (d.UnitId == unitId)
+                        d.SetBackLight(keyNr, color, blinking);
+                });
+            }
+        }
+
+        public event EventHandler<DeviceEventArgs> DeviceConnected;
     }
 }
