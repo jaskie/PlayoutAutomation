@@ -7,14 +7,12 @@ namespace TAS.Client.XKeys
 {
     public class Device: PIEDataHandler, PIEErrorHandler, IDisposable
     {
-        private readonly DeviceEnumerator _ownerEnumerator;
         private readonly byte[] _oldData;
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public Device(DeviceEnumerator ownerEnumerator, PIEDevice pieDevice)
+        public Device(PIEDevice pieDevice)
         {
-            _ownerEnumerator = ownerEnumerator;
             PieDevice = pieDevice;
             pieDevice.SetupInterface();
             if (!string.Equals(pieDevice.ProductString, "XK-24 HID", StringComparison.Ordinal))
@@ -74,7 +72,7 @@ namespace TAS.Client.XKeys
             for (byte bit = 0; bit < 8; bit++)
             {
                 if ((changedBits & 0x1) > 0)
-                    _ownerEnumerator.KeyNotify(unitId, column * 8 + bit, (newValues & 0x1) > 0, GetAllKeys(alldata));
+                    DeviceEnumerator.KeyNotify(unitId, column * 8 + bit, (newValues & 0x1) > 0, GetAllKeys(alldata));
                 changedBits = changedBits >> 1;
                 newValues = (byte) (newValues >> 1);
             }

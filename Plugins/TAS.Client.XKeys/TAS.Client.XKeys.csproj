@@ -63,7 +63,6 @@
     <Compile Include="Device.cs" />
     <Compile Include="DeviceEventArgs.cs" />
     <Compile Include="DeviceEnumerator.cs" />
-    <Compile Include="IDeviceEnumerator.cs" />
     <Compile Include="InputSimulator\IInputDeviceStateAdaptor.cs" />
     <Compile Include="InputSimulator\IInputMessageDispatcher.cs" />
     <Compile Include="InputSimulator\IInputSimulator.cs" />

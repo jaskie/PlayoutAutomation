@@ -29,10 +29,7 @@ namespace TAS.Client.XKeys
             {
                 var serializer = new XmlSerializer(typeof(Plugin[]), new XmlRootAttribute("XKeys"));
                 _plugins = (Plugin[])serializer.Deserialize(streamReader);
-                var deviceEnumerator = new DeviceEnumerator();
-                foreach (var plugin in _plugins)
-                    plugin.DeviceEnumerator = deviceEnumerator;
-                deviceEnumerator.KeyNotified += KeyNotified;
+                DeviceEnumerator.KeyNotified += KeyNotified;
             }
         }
 
@@ -41,9 +38,8 @@ namespace TAS.Client.XKeys
             var result = _plugins?.FirstOrDefault(xk => string.Equals(xk.EngineName, context.Engine.EngineName, StringComparison.OrdinalIgnoreCase));
             if (result != null)
             {
-                if (result.Context != null)
+                if (!result.SetContext(context))
                     throw new ApplicationException($"The {Type.FullName} plugin cannot be re-used");
-                result.Context = context;
             }
             return result;
         }

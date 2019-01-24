@@ -8,13 +8,12 @@ using PIEHid64Net;
 
 namespace TAS.Client.XKeys
 {
-    public class DeviceEnumerator: IDisposable, IDeviceEnumerator
+    public static class DeviceEnumerator
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private readonly List<Device> _devices = new List<Device>();
-        private int _disposedValue;
+        private static readonly List<Device> Devices = new List<Device>();
 
-        public DeviceEnumerator()
+        static DeviceEnumerator()
         {
             var enumerationThread = new Thread(EnumerationThreadProc)
             {
@@ -25,37 +24,37 @@ namespace TAS.Client.XKeys
             enumerationThread.Start();
         }
 
-        internal void KeyNotify(byte unitId, int keyNr, bool pressed, IReadOnlyList<int> allKeys)
+        internal static void KeyNotify(byte unitId, int keyNr, bool pressed, IReadOnlyList<int> allKeys)
         {
-            KeyNotified?.Invoke(this, new KeyNotifyEventArgs(unitId, keyNr, pressed, allKeys));
+            KeyNotified?.Invoke(null, new KeyNotifyEventArgs(unitId, keyNr, pressed, allKeys));
         }
         
-        public event EventHandler<KeyNotifyEventArgs> KeyNotified;
+        public static event EventHandler<KeyNotifyEventArgs> KeyNotified;
 
-        private void EnumerationThreadProc()
+        private static void EnumerationThreadProc()
         {
             var oldDevices = new PIEDevice[0];
-            while (_disposedValue == 0)
+            while (true)
             {
                 try
                 {
                     var devices = PIEDevice.EnumeratePIE();
                     foreach (var pieDevice in devices.Where(d => d.HidUsagePage == 0xC && !oldDevices.Any(od => DeviceEquals(od, d))))
                     {
-                        var device = new Device(this, pieDevice);
-                        lock (((IList)_devices).SyncRoot)
-                            _devices.Add(device);
-                        DeviceConnected?.Invoke(this, new DeviceEventArgs(device));
+                        var device = new Device(pieDevice);
+                        lock (((IList)Devices).SyncRoot)
+                            Devices.Add(device);
+                        DeviceConnected?.Invoke(null, new DeviceEventArgs(device));
                         Logger.Info("New device connected {0}:{1}", pieDevice.Pid, pieDevice.Vid);
                     }
                     foreach (var pieDevice in oldDevices.Where(d => d.HidUsagePage == 0xC && !devices.Any(od => DeviceEquals(od, d))))
                     {
-                        var device = _devices.FirstOrDefault(d => DeviceEquals(d.PieDevice, pieDevice));
+                        var device = Devices.FirstOrDefault(d => DeviceEquals(d.PieDevice, pieDevice));
                         if (device == null)
                             continue;
                         device.Dispose();
-                        lock (((IList)_devices).SyncRoot)
-                            _devices.Remove(device);
+                        lock (((IList)Devices).SyncRoot)
+                            Devices.Remove(device);
                         Logger.Info("Device disconnected {0}:{1}", pieDevice.Pid, pieDevice.Vid);
                     }
                     oldDevices = devices;
@@ -73,18 +72,12 @@ namespace TAS.Client.XKeys
             return string.Equals(first.Path, second.Path, StringComparison.Ordinal);
         }
 
-        public void Dispose()
-        {
-            Interlocked.Exchange(ref _disposedValue, 1);
-            _devices.ForEach(d => d.Dispose());
-            _devices.Clear();
-        }
 
-        public void SetBacklight(byte unitId, int keyNr, BacklightColorEnum color, bool blinking)
+        public static void SetBacklight(byte unitId, int keyNr, BacklightColorEnum color, bool blinking)
         {
-            lock (((IList) _devices).SyncRoot)
+            lock (((IList) Devices).SyncRoot)
             {
-                _devices.ForEach(d =>
+                Devices.ForEach(d =>
                 {
                     if (d.UnitId == unitId)
                         d.SetBackLight(keyNr, color, blinking);
@@ -92,6 +85,6 @@ namespace TAS.Client.XKeys
             }
         }
 
-        public event EventHandler<DeviceEventArgs> DeviceConnected;
+        public static event EventHandler<DeviceEventArgs> DeviceConnected;
     }
 }
