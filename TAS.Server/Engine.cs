@@ -1092,9 +1092,8 @@ namespace TAS.Server
             if (aEvent == null)
                 return;
             var eventType = aEvent.EventType;
-            IEvent preloaded;
             if ((eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage) &&
-                !(_preloadedEvents.TryGetValue(aEvent.Layer, out preloaded) && preloaded == aEvent))
+                !(_preloadedEvents.TryGetValue(aEvent.Layer, out var preloaded) && preloaded == aEvent))
             {
                 Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent);
                 Logger.Info("{0} {1}: Preload {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent);
@@ -1113,19 +1112,6 @@ namespace TAS.Server
                     });
                 }
             }
-            if (aEvent.SubEventsCount > 0)
-                foreach (Event se in aEvent.SubEvents)
-                {
-                    se.PlayState = TPlayState.Scheduled;
-                    var seType = se.EventType;
-                    var seStartType = se.StartType;
-                    if (seType == TEventType.Rundown
-                        || seType == TEventType.Live
-                        || seType == TEventType.Movie
-                        || (seType == TEventType.StillImage && (seStartType == TStartType.WithParent && se.ScheduledDelay < _preloadTime)
-                                                             || (seStartType == TStartType.WithParentFromEnd && aEvent.Duration - se.Duration - se.ScheduledDelay < _preloadTime)))
-                        _loadNext(se);
-                }
             _run(aEvent);
         }
 
@@ -1182,8 +1168,7 @@ namespace TAS.Server
                         }
                     }
                 }
-                IEvent removed;
-                _preloadedEvents.TryRemove(aEvent.Layer, out removed);
+                _preloadedEvents.TryRemove(aEvent.Layer, out _);
             }
             if (eventType == TEventType.Animation || eventType == TEventType.CommandScript)
             {

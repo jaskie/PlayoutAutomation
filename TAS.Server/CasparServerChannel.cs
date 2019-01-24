@@ -80,12 +80,12 @@ namespace TAS.Server
                     {
                         channel.LoadBG(item);
                         _loadedNext[aEvent.Layer] = aEvent;
-                        Debug.WriteLine(aEvent, "CasparLoadNext: ");
+                        Debug.WriteLine(aEvent, "CasparLoadNext");
                         return true;
                     }
                 }
             }
-            Debug.WriteLine(aEvent, "LoadNext did not load: ");
+            Debug.WriteLine(aEvent, "CasparLoadNext did not load");
             return false;
         }
 
@@ -105,12 +105,12 @@ namespace TAS.Server
                             channel.Play(item.VideoLayer);
                         _visible[aEvent.Layer] = aEvent;
                         _loadedNext.TryRemove(aEvent.Layer, out _);
-                        Debug.WriteLine(aEvent, "CasparLoad: ");
+                        Debug.WriteLine(aEvent, "CasparLoad");
                         return true;
                     }
                 }
             }
-            Debug.WriteLine(aEvent, "CasparLoad did not load: ");
+            Debug.WriteLine(aEvent, "CasparLoad did not load");
             return false;
         }
 
