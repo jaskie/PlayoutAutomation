@@ -73,7 +73,7 @@ namespace TAS.Server.Media
             IsInitialized = false;
         }
 
-        public virtual IEnumerable<IMedia> GetFiles()
+        public virtual IReadOnlyCollection<IMedia> GetFiles()
         {
             lock (((IDictionary) Files).SyncRoot)
                 return Files.Values.Cast<IMedia>().ToList().AsReadOnly();
@@ -357,7 +357,7 @@ namespace TAS.Server.Media
             {
                 if (Files.TryGetValue(mediaBase.MediaGuid, out var prevMedia))
                 {
-                    if (prevMedia is Common.Interfaces.Media.IServerMedia || prevMedia is Common.Interfaces.Media.IAnimatedMedia)
+                    if (prevMedia is IServerMedia || prevMedia is IAnimatedMedia)
                     {
                         prevMedia.PropertyChanged -= _media_PropertyChanged;
                         Task.Run(() =>

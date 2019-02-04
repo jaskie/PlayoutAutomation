@@ -9,7 +9,7 @@ namespace TAS.Common.Interfaces.MediaDirectory
     {
         bool IsInitialized { get; }
 
-        IEnumerable<IMedia> GetFiles();
+        IReadOnlyCollection<IMedia> GetFiles();
 
         void SweepStaleMedia();
 

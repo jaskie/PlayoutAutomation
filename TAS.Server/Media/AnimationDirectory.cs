@@ -31,21 +31,21 @@ namespace TAS.Server.Media
             throw new NotImplementedException();
         }
 
-        public IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
+        public void CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
         {
             var result = new AnimatedMedia
             {
-                MediaName = source.MediaName,
                 LastUpdated = source.LastUpdated,
-                MediaGuid = source.MediaGuid,
+                MediaGuid = newMediaGuid == Guid.Empty ? source.MediaGuid : newMediaGuid,
                 Folder = source.Folder,
-                FileName = source.FileName
+                FileName = source.FileName,
+                Directory = this
             };
             result.CloneMediaProperties(source);
             result.MediaStatus = source.MediaStatus;
             result.LastUpdated = DateTime.UtcNow;
+            AddMedia(result);
             result.Save();
-            return result;
         }
 
         public override void RemoveMedia(IMedia media)
@@ -59,6 +59,9 @@ namespace TAS.Server.Media
         }
 
         public override void SweepStaleMedia() { }
+
+
+        public event EventHandler<MediaEventArgs> MediaSaved;
 
         protected override bool AcceptFile(string fullPath)
         {
@@ -90,5 +93,9 @@ namespace TAS.Server.Media
             return newMedia;
         }
 
+        internal void OnMediaSaved(AnimatedMedia animatedMedia)
+        {
+            MediaSaved?.Invoke(this, new MediaEventArgs(animatedMedia));
+        }
     }
 }

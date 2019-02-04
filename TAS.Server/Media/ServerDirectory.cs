@@ -83,7 +83,7 @@ namespace TAS.Server.Media
             return FileUtils.VideoFileTypes.Contains(ext) || FileUtils.StillFileTypes.Contains(ext);
         }
 
-        internal virtual void OnMediaSaved(MediaBase media)
+        internal void OnMediaSaved(MediaBase media)
         {
             MediaSaved?.Invoke(this, new MediaEventArgs(media));
         }

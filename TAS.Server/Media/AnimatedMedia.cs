@@ -8,6 +8,8 @@ namespace TAS.Server.Media
 {
     public class AnimatedMedia : PersistentMedia, Common.Database.Interfaces.Media.IAnimatedMedia
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private TemplateMethod _method;
         private int _templateLayer;
         private Dictionary<string, string> _fields;
@@ -39,21 +41,29 @@ namespace TAS.Server.Media
         public override bool Save()
         {
             var result = false;
-            if (Directory is AnimationDirectory directory)
+            try
             {
-                if (MediaStatus == TMediaStatus.Deleted)
+                if (Directory is AnimationDirectory directory)
                 {
-                    if (IdPersistentMedia != 0)
-                        result = EngineController.Database.DeleteMedia(this);
+                    if (MediaStatus == TMediaStatus.Deleted)
+                    {
+                        if (IdPersistentMedia != 0)
+                            result = EngineController.Database.DeleteMedia(this);
+                    }
+                    else if (IdPersistentMedia == 0)
+                        result = EngineController.Database.InsertMedia(this, directory.Server.Id);
+                    else if (IsModified)
+                    {
+                        EngineController.Database.UpdateMedia(this, directory.Server.Id);
+                        result = true;
+                    }
+                    if (result)
+                        directory.OnMediaSaved(this);
                 }
-                else
-                if (IdPersistentMedia == 0)
-                    result = EngineController.Database.InsertMedia(this, directory.Server.Id);
-                else if (IsModified)
-                {
-                    EngineController.Database.UpdateMedia(this, directory.Server.Id);
-                    result = true;
-                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error saving {0}", MediaName);
             }
             IsModified = false;
             return result;
