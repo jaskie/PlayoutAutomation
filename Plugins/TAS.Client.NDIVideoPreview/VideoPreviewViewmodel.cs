@@ -29,7 +29,7 @@ namespace TAS.Client.NDIVideoPreview
         private bool _isDisplaySource;
         private bool _displayPopup;
         private bool _isDisplayAudioBars = true;
-        private double[] _audioLevels = new double[0];
+        private AudioLevelBarViewmodel[] _audioLevels = new AudioLevelBarViewmodel[0];
         private IEnumerable<AudioDevice> _audioDevices;
         private AudioDevice _selectedAudioDevice;
 
@@ -179,7 +179,7 @@ namespace TAS.Client.NDIVideoPreview
                     {
                         Disconnect();
                         VideoBitmap = null;
-                        AudioLevels = new double[0];
+                        AudioLevels = new AudioLevelBarViewmodel[0];
                         IsDisplaySource = _ndiSources.ContainsKey(value);
                         if (IsDisplaySource)
                             Task.Run(() => Connect(value));
@@ -228,7 +228,7 @@ namespace TAS.Client.NDIVideoPreview
             set => SetField(ref _isPlayAudio, value);
         }
 
-        public double[] AudioLevels
+        public AudioLevelBarViewmodel[] AudioLevels
         {
             get => _audioLevels;
             private set => SetField(ref _audioLevels, value);
@@ -406,7 +406,7 @@ namespace TAS.Client.NDIVideoPreview
                                 if (maxValues[i] < MinAudioLevel)
                                     maxValues[i] = MinAudioLevel;
                             }
-                            OnUiThread(() => AudioLevels = maxValues );
+                            OnUiThread(() => SetAudioLevels(maxValues));
                         }
                         Ndi.NDIlib_recv_free_audio(recvInstance, ref audioFrame);
                         break;
@@ -417,6 +417,15 @@ namespace TAS.Client.NDIVideoPreview
             }
             Ndi.NDIlib_recv_destroy(recvInstance);
             Debug.WriteLine(this, "Receive thread exited");
+        }
+
+        private void SetAudioLevels(double[] maxValues)
+        {
+            if (AudioLevels.Length != maxValues.Length)
+                AudioLevels = maxValues.Select(v => new AudioLevelBarViewmodel{AudioLevel = v}).ToArray();
+            else
+                for (var index = 0; index < maxValues.Length; index++)
+                AudioLevels[index].AudioLevel = maxValues[index];
         }
 
         private void OnSourceRefreshed(object sender, EventArgs eventArgs)

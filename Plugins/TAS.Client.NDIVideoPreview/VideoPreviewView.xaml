@@ -124,7 +124,10 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <ProgressBar Value="{Binding Mode=OneWay}" Height="5" Margin="3, 1"  Style="{StaticResource ProgressBarVolumeMeterStyle}" />
+                        <ProgressBar Value="{Binding AudioLevel, Mode=OneWay}" 
+                                     Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}" 
+                                     Style="{StaticResource ProgressBarVolumeMeterStyle}" 
+                                     Height="5" Margin="3, 1"  />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

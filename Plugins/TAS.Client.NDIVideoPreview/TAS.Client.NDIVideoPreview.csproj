@@ -58,6 +58,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioLevelBarViewmodel.cs" />
     <Compile Include="Audio\AudioDevice.cs" />
     <Compile Include="Interop\Emums.cs" />
     <Compile Include="Interop\Ndi.cs" />
