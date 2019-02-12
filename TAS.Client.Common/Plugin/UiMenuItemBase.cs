@@ -18,9 +18,10 @@ namespace TAS.Client.Common.Plugin
         public void NotifyExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-            if (Items != null)
-                foreach (var uiMenuItem in Items)
-                    uiMenuItem.NotifyExecuteChanged();
+            if (Items == null)
+                return;
+            foreach (var uiMenuItem in Items)
+                uiMenuItem.NotifyExecuteChanged();
         }
 
         public event EventHandler CanExecuteChanged;

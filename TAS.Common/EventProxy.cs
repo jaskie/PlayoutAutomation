@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Xml.Serialization;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 
@@ -32,6 +33,7 @@ namespace TAS.Common
         public TimeSpan TransitionPauseTime { get; set; }
         public TTransitionType TransitionType { get; set; }
         public TEasing TransitionEasing { get; set; }
+        [XmlElement("SubEvent")]
         public EventProxy[] SubEvents { get; set; }
         public bool IsCGEnabled { get; set; }
         public byte Crawl { get; set; }
@@ -43,33 +45,34 @@ namespace TAS.Common
         [DefaultValue(-1)]
         public int TemplateLayer { get; set; }
         public string Command { get; set; }
+        [XmlIgnore]
         public IDictionary<string, string> Fields { get; set; }
 
 
         public IEvent InsertAfter(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
+            var newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
             prior.InsertAfter(newEvent);
             return newEvent;
         }
 
         public IEvent InsertUnder(IEvent parent, bool fromEnd, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(parent.Engine, mediaFiles, animationFiles);
+            var newEvent = _toEvent(parent.Engine, mediaFiles, animationFiles);
             parent.InsertUnder(newEvent, fromEnd);
             return newEvent;
         }
 
         public IEvent InsertBefore(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
+            var newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
             prior.InsertBefore(newEvent);
             return newEvent;
         }
 
         public IEvent InsertRoot(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(engine, mediaFiles, animationFiles);
+            var newEvent = _toEvent(engine, mediaFiles, animationFiles);
             engine.AddRootEvent(newEvent);
             return newEvent;
         }
