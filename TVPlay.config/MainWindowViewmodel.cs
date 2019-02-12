@@ -35,8 +35,8 @@ namespace TAS.Client.Config
         
         private void _enginesSetup(object obj)
         {
-            using (var vm = new EnginesViewmodel(_configFile.connectionStrings.tasConnectionString,
-                _configFile.connectionStrings.tasConnectionStringSecondary))
+            using (var vm = new EnginesViewmodel(_configFile.ConnectionStrings.tasConnectionString,
+                _configFile.ConnectionStrings.tasConnectionStringSecondary))
             {
                 vm.ShowDialog();
             }
@@ -44,8 +44,8 @@ namespace TAS.Client.Config
         
         private void _serversSetup(object obj)
         {
-            using (var vm = new PlayoutServersViewmodel(_configFile.connectionStrings.tasConnectionString,
-                _configFile.connectionStrings.tasConnectionStringSecondary))
+            using (var vm = new PlayoutServersViewmodel(_configFile.ConnectionStrings.tasConnectionString,
+                _configFile.ConnectionStrings.tasConnectionStringSecondary))
             {
                 vm.ShowDialog();
             }
@@ -66,7 +66,7 @@ namespace TAS.Client.Config
 
         private void _ingestFoldersSetup(object obj)
         {
-            IngestDirectoriesViewmodel vm = new IngestDirectoriesViewmodel(_configFile.appSettings.IngestFolders);
+            IngestDirectoriesViewmodel vm = new IngestDirectoriesViewmodel(_configFile.AppSettings.IngestFolders);
             vm.ShowDialog();
         }
 

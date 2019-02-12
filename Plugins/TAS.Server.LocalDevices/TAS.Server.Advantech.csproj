@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TAS.Server</RootNamespace>
-    <AssemblyName>TAS.Server.LocalDevices</AssemblyName>
+    <AssemblyName>TAS.Server.Advantech</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

@@ -7,7 +7,7 @@
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:config ="clr-namespace:TAS.Client.Config"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type config:ConfigFileView}"
+             d:DataContext="{d:DesignInstance config:ConfigFileViewmodel}"
             >
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="5" Width="250" MinHeight="330">
@@ -18,14 +18,6 @@
                 CheckFileExists="False" 
                 DialogFilter="XML files |*.xml" 
                 FileName="{Binding IngestFolders, UpdateSourceTrigger=PropertyChanged}" 
-                ButtonToolTip="Select file..."
-                InitialDirectory="{Binding ExeDirectory}"/>
-            <Label Content="Local devices configuration file"/>
-            <controls:FilenameEntry 
-                DialogTitle="Local devices configuration file" 
-                CheckFileExists="False" 
-                DialogFilter="XML files |*.xml" 
-                FileName="{Binding LocalDevices, UpdateSourceTrigger=PropertyChanged}" 
                 ButtonToolTip="Select file..."
                 InitialDirectory="{Binding ExeDirectory}"/>
             <Label Content="Temp directory"/>

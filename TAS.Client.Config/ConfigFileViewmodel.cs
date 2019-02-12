@@ -14,7 +14,6 @@ namespace TAS.Client.Config
     public class ConfigFileViewmodel : OkCancelViewmodelBase<Model.ConfigFile>
     {
         private string _ingestFolders;
-        private string _localDevices;
         private string _tempDirectory;
         private int _instance;
         private string _tasConnectionString;
@@ -35,8 +34,8 @@ namespace TAS.Client.Config
             CommandTestConnectivitySecodary = new UiCommand(_testConnectivitySecondary, o => !string.IsNullOrWhiteSpace(tasConnectionStringSecondary) && _isConnectionStringSecondary);
             CommandCreateDatabase = new UiCommand(_createDatabase, o => !string.IsNullOrWhiteSpace(tasConnectionString));
             CommandCloneDatabase = new UiCommand(_clonePrimaryDatabase, o => !(string.IsNullOrWhiteSpace(tasConnectionString) || string.IsNullOrWhiteSpace(tasConnectionStringSecondary)));
-            Load(Model.appSettings);
-            Load(Model.connectionStrings);
+            Load(Model.AppSettings);
+            Load(Model.ConnectionStrings);
             _isConnectionStringSecondary = !string.IsNullOrWhiteSpace(tasConnectionStringSecondary);
         }
 
@@ -44,12 +43,6 @@ namespace TAS.Client.Config
         {
             get => _ingestFolders;
             set => SetField(ref _ingestFolders, value);
-        }
-
-        public string LocalDevices
-        {
-            get => _localDevices;
-            set => SetField(ref _localDevices, value);
         }
 
         public string TempDirectory
@@ -114,10 +107,10 @@ namespace TAS.Client.Config
 
         protected override void Update(object destObject = null)
         {
-            base.Update(Model.appSettings);
+            base.Update(Model.AppSettings);
             if (!_isConnectionStringSecondary)
                 tasConnectionStringSecondary = string.Empty;
-            base.Update(Model.connectionStrings);
+            base.Update(Model.ConnectionStrings);
             Model.Save();
         }
 

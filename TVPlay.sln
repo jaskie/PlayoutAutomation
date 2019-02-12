@@ -26,7 +26,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svt.Caspar", "dependencies\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{3F907958-AD04-4245-AE71-DC8D06A473E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.LocalDevices", "Plugins\TAS.Server.LocalDevices\TAS.Server.LocalDevices.csproj", "{08504AA1-0378-4F07-94AE-F1A40911E1AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.Advantech", "Plugins\TAS.Server.LocalDevices\TAS.Server.Advantech.csproj", "{08504AA1-0378-4F07-94AE-F1A40911E1AD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Common", "TAS.Common\TAS.Common.csproj", "{9ACA6AE7-49ED-4599-91AC-927680CF9623}"
 EndProject
