@@ -223,11 +223,6 @@ namespace TAS.Remoting.Model
             return Query<bool>(parameters: new object[] {newFileName});
         }
 
-        public void ReVerify()
-        {
-            Invoke();
-        }
-
         public void Verify(bool updateFormatAndDurations)
         {
             Invoke(parameters: new object[] {updateFormatAndDurations});

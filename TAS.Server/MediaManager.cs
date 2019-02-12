@@ -6,6 +6,7 @@ using System.IO;
 using System.Configuration;
 using System.Xml.Serialization;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
 using Newtonsoft.Json;
@@ -579,7 +580,9 @@ namespace TAS.Server
             {
                 sEcMedia.CloneMediaProperties(e.Media);
                 sec.UpdateMediaGuid(sEcMedia, e.Media.MediaGuid);
-                sEcMedia.ReVerify();
+                sEcMedia.MediaStatus = TMediaStatus.Unknown;
+                sEcMedia.IsVerified = false;
+                ThreadPool.QueueUserWorkItem(s => sEcMedia.Verify(false));
             }
         }
 

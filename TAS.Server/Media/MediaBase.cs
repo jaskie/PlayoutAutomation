@@ -322,19 +322,10 @@ namespace TAS.Server.Media
         {
             ((WatcherDirectory)Directory).RemoveMedia(this);
         }
-
-
-        public void ReVerify()
-        {
-            MediaStatus = TMediaStatus.Unknown;
-            IsVerified = false;
-            ThreadPool.QueueUserWorkItem((o) => Verify(false));
-        }
-
+        
         public virtual void Verify(bool updateFormatAndDurations)
         {
-            if (IsVerified || 
-                _mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required || 
+            if (_mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required || 
                 (Directory is IngestDirectory ingestDirectory && ingestDirectory.AccessType != TDirectoryAccessType.Direct))
                 return;
             if (Directory != null && System.IO.Directory.Exists(Directory.Folder) && !File.Exists(FullPath))

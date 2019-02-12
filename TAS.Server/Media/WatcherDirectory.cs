@@ -394,7 +394,7 @@ namespace TAS.Server.Media
         {
             if (!media.IsVerified)
                 return;
-            media.ReVerify();
+            Task.Run(() => media.Verify(true));
             Logger.Trace("Media {0} changed", media);
         }
 
