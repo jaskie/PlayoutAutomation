@@ -124,6 +124,7 @@
             <Menu Name="mainMenu" IsMainMenu="True" Background="Transparent" FontSize="12">
                 <MenuItem Header="{Resx _menu.Tools}">
                     <MenuItem Header="{Resx _menu.Tools.SynchronizeSecToPri}" Command="{Binding CommandSyncPriToSec}"/>
+                    <MenuItem Header="{Resx _menu.Tools.VerifyAllMedia}" Command="{Binding CommandVerifyAllMedia}"/>
                 </MenuItem>
             </Menu>
             <TabControl Grid.Row="0">

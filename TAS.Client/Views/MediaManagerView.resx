@@ -183,6 +183,9 @@
   <data name="_menu.Tools.SynchronizeSecToPri" xml:space="preserve">
     <value>Synchronize content between servers</value>
   </data>
+  <data name="_menu.Tools.VerifyAllMedia" xml:space="preserve">
+    <value>Verify all media</value>
+  </data>
   <data name="_propertiesPanelExpander.ToolTip" xml:space="preserve">
     <value>F11</value>
   </data>

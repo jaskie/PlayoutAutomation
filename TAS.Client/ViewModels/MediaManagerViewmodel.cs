@@ -87,6 +87,7 @@ namespace TAS.Client.ViewModels
             CommandSyncPriToSec = new UiCommand(_syncSecToPri, o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
             CommandCloneAnimation = new UiCommand(_cloneAnimation, _canCloneAnimation);
             CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
+            CommandVerifyAllMedia = new UiCommand(_verifyAllMedia, o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
         }
 
         public ICommand CommandSearch { get; }
@@ -100,6 +101,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandExport { get; }
         public ICommand CommandRefresh { get; }
         public ICommand CommandSyncPriToSec { get; }
+        public ICommand CommandVerifyAllMedia { get; }
         public ICommand CommandCloneAnimation { get; }
         public ICommand CommandTogglePropertiesPanel { get; }
 
@@ -625,6 +627,12 @@ namespace TAS.Client.ViewModels
         {
             if (_selectedDirectory?.Directory is IServerDirectory)
                 await Task.Run(() => _mediaManager.SynchronizeMediaSecToPri(true));
+        }
+
+        private async void _verifyAllMedia(object o)
+        {
+            foreach (var media in _mediaItems.Where(m => !m.IsVerified).Select(m => m.Media).ToArray())
+                await Task.Run(() => media.Verify(true));
         }
 
         private void _export(object obj)
