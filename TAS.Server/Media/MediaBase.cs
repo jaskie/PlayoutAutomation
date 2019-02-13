@@ -195,7 +195,7 @@ namespace TAS.Server.Media
         }
         
         [JsonProperty]
-        public virtual Guid MediaGuid
+        public Guid MediaGuid
         {
             get => _mediaGuid;
             set => SetField(ref _mediaGuid, value);
