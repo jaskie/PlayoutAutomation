@@ -19,12 +19,7 @@ namespace TAS.Server.Media
         private long _volumeFreeSize;
         private long _volumeTotalSize;
         private string _folder;
-        protected readonly Logger Logger;
-
-        protected MediaDirectoryBase()
-        {
-            Logger = LogManager.GetLogger(GetType().Name);
-        }
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public event EventHandler<MediaEventArgs> MediaVerified;
         public event EventHandler<MediaEventArgs> MediaDeleted;

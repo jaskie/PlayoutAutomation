@@ -391,9 +391,10 @@ namespace TAS.Client.ViewModels
         #region Command methods
 
 
-        private void _refreshStatus(object o)
+        private async void _refreshStatus(object o)
         {
-            Model.ReVerify();
+            Model.MediaStatus = TMediaStatus.Unknown;
+            await Task.Run(() => Model.Verify(true));
         }
 
         private AutoResetEvent _checkVolumeSignal;

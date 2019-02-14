@@ -32,6 +32,8 @@ namespace TAS.Client.ViewModels
         private TDeckState _deckState;
         private TimeSpan _recorderTimeLeft;
         private TMovieContainerFormat _fileFormat;
+        private TAudioChannelMappingConversion _selectedAudioChannelMappingConversion;
+        private bool _isAudioChannelMappingConversionVisible;
 
         public RecordersViewmodel(IEngine engine, IEnumerable<IRecorder> recorders)
         {
@@ -40,7 +42,7 @@ namespace TAS.Client.ViewModels
             Recorders = recorders;
             SelectedRecorder = Recorders.FirstOrDefault();
         }
-        
+
         public ICommand CommandPlay { get; private set; }
         public ICommand CommandStop { get; private set; }
         public ICommand CommandFastForward { get; private set; }
@@ -81,14 +83,13 @@ namespace TAS.Client.ViewModels
             set
             {
                 var oldRecorder = _selectedRecorder;
-                if (SetField(ref _selectedRecorder, value))
-                {
-                    if (oldRecorder != null)
-                        oldRecorder.PropertyChanged -= Recorder_PropertyChanged;
-                    if (value != null)
-                        value.PropertyChanged += Recorder_PropertyChanged;
-                    ResetDefaults();
-                }
+                if (!SetField(ref _selectedRecorder, value))
+                    return;
+                if (oldRecorder != null)
+                    oldRecorder.PropertyChanged -= Recorder_PropertyChanged;
+                if (value != null)
+                    value.PropertyChanged += Recorder_PropertyChanged;
+                ResetDefaults();
             }
         }
 
@@ -105,9 +106,31 @@ namespace TAS.Client.ViewModels
             get => _channel;
             set
             {
-                if (SetField(ref _channel, value))
-                    VideoFormat = value.VideoFormat;
+                if (!SetField(ref _channel, value))
+                    return;
+                VideoFormat = value.VideoFormat;
+                IsAudioChannelMappingConversionVisible = value.AudioChannelCount >= 4;
             }
+        }
+
+        public bool IsAudioChannelMappingConversionVisible
+        {
+            get => _isAudioChannelMappingConversionVisible;
+            set => SetField(ref _isAudioChannelMappingConversionVisible, value);
+        }
+
+        public Array AudioChannelMappingConversions { get; } = new[]
+        {
+            TAudioChannelMappingConversion.FirstTwoChannels,
+            TAudioChannelMappingConversion.FirstChannelOnly,
+            TAudioChannelMappingConversion.SecondChannelOnly,
+            TAudioChannelMappingConversion.SecondTwoChannels
+        };
+
+        public TAudioChannelMappingConversion SelectedAudioChannelMappingConversion
+        {
+            get => _selectedAudioChannelMappingConversion;
+            set => SetField(ref _selectedAudioChannelMappingConversion, value);
         }
 
         public Array FileFormats { get; } = Enum.GetValues(typeof(TMovieContainerFormat));
@@ -223,7 +246,7 @@ namespace TAS.Client.ViewModels
                     case nameof(FileName):
                         if (string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(FileName)))
                             return resources._validate_FileNameEmpty;
-                          if (_selectedRecorder?.RecordingDirectory.FileExists(FileName) == true)
+                        if (_selectedRecorder?.RecordingDirectory.FileExists(FileName) == true)
                             return resources._validate_FileAlreadyExists;
                         if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.FileName), out var fnLength) && FileName.Length > fnLength)
                             return resources._validate_TextTooLong;
@@ -244,16 +267,16 @@ namespace TAS.Client.ViewModels
         private void Recorder_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IRecorder.CurrentTc))
-                OnUiThread(() => CurrentTc = ((IRecorder) sender).CurrentTc);
+                OnUiThread(() => CurrentTc = ((IRecorder)sender).CurrentTc);
             if (e.PropertyName == nameof(IRecorder.DeckControl))
-                OnUiThread(() => DeckControl = ((IRecorder) sender).DeckControl);
+                OnUiThread(() => DeckControl = ((IRecorder)sender).DeckControl);
             if (e.PropertyName == nameof(IRecorder.DeckState))
-                OnUiThread(() => DeckState = ((IRecorder) sender).DeckState);
+                OnUiThread(() => DeckState = ((IRecorder)sender).DeckState);
             if (e.PropertyName == nameof(IRecorder.IsDeckConnected)
                 || e.PropertyName == nameof(IRecorder.IsServerConnected))
                 NotifyPropertyChanged(null);
             if (e.PropertyName == nameof(IRecorder.TimeLimit))
-                OnUiThread(() => RecorderTimeLeft = ((IRecorder) sender).TimeLimit);
+                OnUiThread(() => RecorderTimeLeft = ((IRecorder)sender).TimeLimit);
         }
 
         private void RecordMedia_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -293,7 +316,7 @@ namespace TAS.Client.ViewModels
 
         private void StartRecord(object obj)
         {
-            RecordingMedia = _selectedRecorder?.Capture(_channel, _timeLimit, IsNarrowMode, MediaName, FileName);
+            RecordingMedia = _selectedRecorder?.Capture(_channel, _timeLimit, IsNarrowMode, MediaName, FileName, GetChannelMap());
         }
 
         private bool CanStartRecord(object obj)
@@ -339,14 +362,34 @@ namespace TAS.Client.ViewModels
 
         private void Capture(object obj)
         {
-            RecordingMedia = _selectedRecorder.Capture(_channel, TcIn, TcOut, IsNarrowMode, MediaName, FileName);
+            RecordingMedia = _selectedRecorder.Capture(_channel, TcIn, TcOut, IsNarrowMode, MediaName, FileName, GetChannelMap());
+        }
+
+        private int[] GetChannelMap()
+        {
+            if (!IsAudioChannelMappingConversionVisible)
+                return null;
+            switch (SelectedAudioChannelMappingConversion)
+            {
+                case TAudioChannelMappingConversion.Default:
+                case TAudioChannelMappingConversion.FirstTwoChannels:
+                    return new[] {0, 1};
+                case TAudioChannelMappingConversion.FirstChannelOnly:
+                    return new[] {0, 0};
+                case TAudioChannelMappingConversion.SecondChannelOnly:
+                    return new[] {1, 1};
+                case TAudioChannelMappingConversion.SecondTwoChannels:
+                    return new[] {2, 3};
+                default:
+                    throw new NotSupportedException("Invalid audio channel mapping");
+            }
         }
 
         private bool CanCapture(object obj)
         {
             return _channel != null && _tcOut > _tcIn
                    && _selectedRecorder?.IsServerConnected == true
-                   && _selectedRecorder.IsDeckConnected 
+                   && _selectedRecorder.IsDeckConnected
                    && _recordMedia?.MediaStatus != TMediaStatus.Copying
                    && !string.IsNullOrEmpty(MediaName)
                    && !_selectedRecorder.RecordingDirectory.FileExists(FileName);
@@ -387,6 +430,7 @@ namespace TAS.Client.ViewModels
             FileFormat = TMovieContainerFormat.mov;
             RecordingMedia = _selectedRecorder.RecordingMedia;
             IsNarrowMode = false;
+            SelectedAudioChannelMappingConversion = TAudioChannelMappingConversion.FirstTwoChannels;
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Interactivity;
 
 namespace TAS.Client.Common
@@ -8,13 +9,13 @@ namespace TAS.Client.Common
 
         public bool IsFocused
         {
-            get { return (bool)GetValue(IsFocusedProperty); }
-            set { SetValue(IsFocusedProperty, value); }
+            get => (bool)GetValue(IsFocusedProperty);
+            set => SetValue(IsFocusedProperty, value);
         }
         public bool SelectAllOnFocus
         {
-            get { return (bool)GetValue(SelectAllOnFocusProperty); }
-            set { SetValue(SelectAllOnFocusProperty, value); }
+            get => (bool)GetValue(SelectAllOnFocusProperty);
+            set => SetValue(SelectAllOnFocusProperty, value);
         }
 
 
@@ -22,7 +23,9 @@ namespace TAS.Client.Common
             DependencyProperty.Register("IsFocused", typeof(bool), typeof(FocusExtension),
              new FrameworkPropertyMetadata(false, OnIsFocusedPropertyChanged) { BindsTwoWayByDefault = true });
 
-        public static readonly DependencyProperty SelectAllOnFocusProperty = DependencyProperty.Register("SelectAllOnFocus", typeof(bool), typeof(FocusExtension), new PropertyMetadata(false));
+        public static readonly DependencyProperty SelectAllOnFocusProperty =
+            DependencyProperty.Register("SelectAllOnFocus", typeof(bool), typeof(FocusExtension),
+                new PropertyMetadata(false));
 
         protected override void OnAttached()
         {
@@ -59,13 +62,11 @@ namespace TAS.Client.Common
         private static void OnIsFocusedPropertyChanged(DependencyObject d,
             DependencyPropertyChangedEventArgs e)
         {
-            var fe = d as FocusExtension;
-            var ao = fe?.AssociatedObject;
-            if (ao == null || !Equals(e.NewValue, true))
+            var fe = (FocusExtension)d;
+            if (fe.AssociatedObject == null || !Equals(e.NewValue, true))
                 return;
-            ao.Focus();
-            var tb = ao as System.Windows.Controls.TextBox;
-            if (tb != null && fe.SelectAllOnFocus)
+            fe.AssociatedObject.Focus();
+            if (fe.AssociatedObject is TextBox tb && fe.SelectAllOnFocus)
                 tb.SelectAll();
         }
     }

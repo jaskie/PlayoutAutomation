@@ -142,24 +142,25 @@ namespace Svt.Caspar.AMCP
 			device_.OnUpdatedMediafiles(clips);
 		}
 
-        void OnInfo(AMCPParserEventArgs e)
-        {
-            ACMPInfoKind infoKind;
-            if (Enum.TryParse(e.Subcommand, out infoKind))
-                switch (infoKind)
-                {
-                    case ACMPInfoKind.SERVER:
-                        device_.OnUpdatedChannelInfo(string.Join("\n", e.Data));
-                        break;
-                    case ACMPInfoKind.RECORDERS:
-                        device_.OnUpdatedRecorderInfo(string.Join("\n", e.Data));
-                        break;
-                }
+	    void OnInfo(AMCPParserEventArgs e)
+	    {
+	        if (e.Subcommand == string.Empty)
+	            device_.OnUpdatedServerInfo(e.Data); //for 2.2 and newer
+	        else if (Enum.TryParse(e.Subcommand, out ACMPInfoKind infoKind))
+	            switch (infoKind)
+	            {
+	                case ACMPInfoKind.SERVER:
+	                    device_.OnUpdatedChannelInfo(string.Join("\n", e.Data));
+	                    break;
+	                case ACMPInfoKind.RECORDERS:
+	                    device_.OnUpdatedRecorderInfo(string.Join("\n", e.Data));
+	                    break;
+	            }
 
-        }
-		
+	    }
 
-		#region IProtocolStrategy Members
+
+	    #region IProtocolStrategy Members
 		public string Delimiter
 		{
 			get { return AMCPParser.CommandDelimiter; }

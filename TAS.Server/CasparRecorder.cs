@@ -22,7 +22,7 @@ namespace TAS.Server
         private Recorder _recorder;
         private IMedia _recordingMedia;
         internal IArchiveDirectory ArchiveDirectory;
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(CasparRecorder));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private CasparServer _ownerServer;
 
         private TimeSpan _currentTc;
@@ -78,7 +78,7 @@ namespace TAS.Server
         [JsonProperty, XmlIgnore]
         public IWatcherDirectory RecordingDirectory => _ownerServer.MediaDirectory;
         
-        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName)
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName, int[] channelMap)
         {
             _tcFormat = channel.VideoFormat;
             var directory = (ServerDirectory)_ownerServer.MediaDirectory;
@@ -95,7 +95,7 @@ namespace TAS.Server
                 MediaStatus = TMediaStatus.Copying,
             };
             directory.AddMedia(newMedia);
-            if (_recorder?.Capture(channel.Id, tcIn.ToSMPTETimecodeString(channel.VideoFormat), tcOut.ToSMPTETimecodeString(channel.VideoFormat), narrowMode, fileName) == true)
+            if (_recorder?.Capture(channel.Id, tcIn.ToSMPTETimecodeString(channel.VideoFormat), tcOut.ToSMPTETimecodeString(channel.VideoFormat), narrowMode, fileName, channelMap) == true)
             {
                 RecordingMedia = newMedia;
                 Logger.Debug("Started recording from {0} file {1} TcIn {2} TcOut {3}", channel.ChannelName, fileName, tcIn, tcOut);
@@ -105,7 +105,7 @@ namespace TAS.Server
             return null;
         }
 
-        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string mediaName, string fileName)
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string mediaName, string fileName, int[] channelMap)
         {
             _tcFormat = channel.VideoFormat;
             var directory = (ServerDirectory)_ownerServer.MediaDirectory;
@@ -122,7 +122,7 @@ namespace TAS.Server
                 MediaStatus = TMediaStatus.Copying,
             };
             directory.AddMedia(newMedia);
-            if (_recorder?.Capture(channel.Id,  timeLimit.ToSMPTEFrames(channel.VideoFormat), narrowMode, fileName) == true)
+            if (_recorder?.Capture(channel.Id,  timeLimit.ToSMPTEFrames(channel.VideoFormat), narrowMode, fileName, channelMap) == true)
             {
                 RecordingMedia = newMedia;
                 Logger.Debug("Started recording from {0} file {1} with time limit {2} ", channel.ChannelName, fileName, timeLimit);
@@ -247,7 +247,7 @@ namespace TAS.Server
                 Task.Run(() =>
                 {
                     Thread.Sleep(500);
-                    media.Verify();
+                    media.Verify(true);
                     if (media.MediaStatus == TMediaStatus.Available)
                         CaptureSuccess?.Invoke(this, new MediaEventArgs(media));
                 });

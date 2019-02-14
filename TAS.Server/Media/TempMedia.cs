@@ -13,7 +13,10 @@ namespace TAS.Server.Media
         {
             OriginalMedia = originalMedia;
             Directory = directory;
-            FileName = $"{originalMedia.MediaGuid}{Path.GetExtension(originalMedia.FileName)}";
+            MediaGuid = originalMedia?.MediaGuid ?? Guid.NewGuid();
+            FileName = originalMedia == null 
+                ? $"{MediaGuid}.tmp"
+                : $"{originalMedia.MediaGuid}{Path.GetExtension(originalMedia.FileName)}";
         }
 
         internal IMediaProperties OriginalMedia;
@@ -27,15 +30,10 @@ namespace TAS.Server.Media
 
         public override string MediaName
         {
-            get => OriginalMedia.MediaName;
+            get => OriginalMedia?.MediaName ?? FileName;
             set { }
         }
 
-        public override Guid MediaGuid
-        {
-            get => OriginalMedia.MediaGuid;
-            set { }
-        }
 
         public override double AudioLevelIntegrated
         {

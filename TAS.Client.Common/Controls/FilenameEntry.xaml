@@ -6,6 +6,6 @@
             <Image Source="/TAS.Client.Common;component/Images/Config/file-open.png" />
         </Button>
         <TextBox x:Name="textBox" Height="Auto" HorizontalAlignment="Stretch" DockPanel.Dock="Right" VerticalAlignment="Center"  
-           Text="{Binding FileName, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" />
+           Text="{Binding FileName, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, UpdateSourceTrigger=PropertyChanged}" />
     </DockPanel>
 </UserControl>

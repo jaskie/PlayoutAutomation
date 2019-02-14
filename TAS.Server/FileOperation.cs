@@ -23,7 +23,7 @@ namespace TAS.Server
         private readonly object _destMediaLock = new object();
 
         private IMedia _sourceMedia;
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(FileOperation));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private IMediaProperties _destMediaProperties;
         private int _tryCount = 15;
         private DateTime _scheduledTime;
@@ -225,6 +225,7 @@ namespace TAS.Server
             try
             {
                 AddOutputMessage("Operation started");
+                OperationStatus = FileOperationStatus.InProgress;
                 if (await InternalExecute())
                 {
                     OperationStatus = FileOperationStatus.Finished;
@@ -237,18 +238,8 @@ namespace TAS.Server
                 AddOutputMessage(e.Message);
             }
             TryCount--;
+            OperationStatus = TryCount > 0 ? FileOperationStatus.Waiting : FileOperationStatus.Failed;
             return false;
-        }
-
-        internal void Fail()
-        {
-            OperationStatus = FileOperationStatus.Failed;
-            lock (_destMediaLock)
-            {
-                if (Dest != null && Dest.FileExists())
-                    Dest.Delete();
-            }
-            Logger.Info($"Operation failed: {Title}");
         }
 
         protected void AddOutputMessage(string message)
@@ -281,7 +272,6 @@ namespace TAS.Server
         protected virtual async Task<bool> InternalExecute()
         {
             StartTime = DateTime.UtcNow;
-            OperationStatus = FileOperationStatus.InProgress;
             if (!(Source is MediaBase source))
                 return false;
             switch (Kind)
@@ -302,7 +292,7 @@ namespace TAS.Server
                             return false;
                     }
                     Dest.MediaStatus = TMediaStatus.Copied;
-                    await Task.Run(() => Dest.Verify());
+                    await Task.Run(() => Dest.Verify(false));
                     ((MediaDirectoryBase) DestDirectory).RefreshVolumeInfo();
                     return true;
                 case TFileOperationKind.Delete:
@@ -334,7 +324,7 @@ namespace TAS.Server
                     File.SetCreationTimeUtc(Dest.FullPath, File.GetCreationTimeUtc(source.FullPath));
                     File.SetLastWriteTimeUtc(Dest.FullPath, File.GetLastWriteTimeUtc(source.FullPath));
                     Dest.MediaStatus = TMediaStatus.Copied;
-                    await Task.Run(() => Dest.Verify());
+                    await Task.Run(() => Dest.Verify(false));
                     ((MediaDirectoryBase) Source.Directory).RefreshVolumeInfo();
                     ((MediaDirectoryBase) DestDirectory).RefreshVolumeInfo();
                     return true;

@@ -168,7 +168,7 @@ namespace TAS.Remoting.Model
 
         public IEnumerable<IIngestDirectoryProperties> SubDirectories => _subDirectories;
 
-        public override IEnumerable<IMedia> GetFiles()
+        public override IReadOnlyCollection<IMedia> GetFiles()
         {
             return Query<ReadOnlyCollection<IngestMedia>>();
         }

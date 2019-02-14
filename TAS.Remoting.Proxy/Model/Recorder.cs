@@ -79,14 +79,14 @@ namespace TAS.Remoting.Model
 
         public void Abort() { Invoke(); }
 
-        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName)
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName, int[] channelMap)
         {
-            return Query<IMedia>(parameters: new object[] { channel, tcIn, tcOut, narrowMode, mediaName, fileName });
+            return Query<IMedia>(parameters: new object[] { channel, tcIn, tcOut, narrowMode, mediaName, fileName, channelMap });
         }
 
-        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string mediaName, string fileName)
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string mediaName, string fileName, int[] channelMap)
         {
-            return Query<IMedia>(parameters: new object[] { channel, timeLimit, narrowMode, mediaName, fileName });
+            return Query<IMedia>(parameters: new object[] { channel, timeLimit, narrowMode, mediaName, fileName, channelMap });
         }
 
         public void DeckFastForward() { Invoke(); }

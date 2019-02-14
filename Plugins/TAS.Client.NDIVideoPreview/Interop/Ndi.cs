@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TAS.Client.NDIVideoPreview.Interop
 {
+    [SuppressUnmanagedCodeSecurity]
     public static class Ndi
     {
 

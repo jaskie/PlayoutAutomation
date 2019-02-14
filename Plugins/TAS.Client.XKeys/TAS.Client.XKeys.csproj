@@ -57,8 +57,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveOnEnum.cs" />
+    <Compile Include="Backlight.cs" />
+    <Compile Include="BacklightColorEnum.cs" />
     <Compile Include="CommandTargetEnum.cs" />
     <Compile Include="Device.cs" />
+    <Compile Include="DeviceEventArgs.cs" />
     <Compile Include="DeviceEnumerator.cs" />
     <Compile Include="InputSimulator\IInputDeviceStateAdaptor.cs" />
     <Compile Include="InputSimulator\IInputMessageDispatcher.cs" />

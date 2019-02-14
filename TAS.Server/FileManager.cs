@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common.Interfaces;
@@ -17,7 +16,7 @@ namespace TAS.Server
         [JsonProperty]
         private readonly string Dummy; // at  least one property should be serialized to resolve references
 #pragma warning restore
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(FileManager));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly FileOperationQueue _queueSimpleOperation = new FileOperationQueue();
         private readonly FileOperationQueue _queueConvertOperation = new FileOperationQueue();
         private readonly FileOperationQueue _queueExportOperation = new FileOperationQueue();

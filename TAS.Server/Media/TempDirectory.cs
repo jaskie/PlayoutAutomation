@@ -8,6 +8,8 @@ namespace TAS.Server.Media
 {
     public class TempDirectory: MediaDirectoryBase
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         public TempDirectory()
         {
             Folder = ConfigurationManager.AppSettings["TempDirectory"];

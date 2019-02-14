@@ -40,7 +40,7 @@ namespace TAS.Server.Media
         private TMediaStatus _mediaStatus;
         internal bool HasExtraLines; // VBI lines that shouldn't be displayed
         
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaBase));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         #region IMediaProperties
         [JsonProperty]
@@ -195,7 +195,7 @@ namespace TAS.Server.Media
         }
         
         [JsonProperty]
-        public virtual Guid MediaGuid
+        public Guid MediaGuid
         {
             get => _mediaGuid;
             set => SetField(ref _mediaGuid, value);
@@ -322,19 +322,10 @@ namespace TAS.Server.Media
         {
             ((WatcherDirectory)Directory).RemoveMedia(this);
         }
-
-
-        public void ReVerify()
+        
+        public virtual void Verify(bool updateFormatAndDurations)
         {
-            MediaStatus = TMediaStatus.Unknown;
-            IsVerified = false;
-            ThreadPool.QueueUserWorkItem((o) => Verify());
-        }
-
-        public virtual void Verify()
-        {
-            if (IsVerified || 
-                _mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required || 
+            if (_mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required || 
                 (Directory is IngestDirectory ingestDirectory && ingestDirectory.AccessType != TDirectoryAccessType.Direct))
                 return;
             if (Directory != null && System.IO.Directory.Exists(Directory.Folder) && !File.Exists(FullPath))
@@ -360,7 +351,7 @@ namespace TAS.Server.Media
                     LastUpdated = fi.LastWriteTimeUtc.FromFileTime(DateTimeKind.Utc);
                     //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
 
-                    this.Check();
+                    this.Check(updateFormatAndDurations);
                 }                
                 IsVerified = true;
             }

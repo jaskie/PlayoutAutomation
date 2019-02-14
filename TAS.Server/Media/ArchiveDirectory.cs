@@ -10,6 +10,8 @@ namespace TAS.Server.Media
 {
     public sealed class ArchiveDirectory : MediaDirectoryBase, IArchiveDirectoryServerSide
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public ArchiveDirectory()
         {
             RefreshVolumeInfo();

@@ -16,7 +16,7 @@ namespace TAS.Client
     public partial class App : Application
     {
         private static readonly Mutex Mutex = new Mutex(false, "TASClientApplication");
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Application));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public App()
         {

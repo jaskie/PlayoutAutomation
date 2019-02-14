@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace TAS.Client.Common
 {
@@ -127,6 +128,18 @@ namespace TAS.Client.Common
         public void OnUiThread(Action action)
         {
             Application.Current?.Dispatcher.BeginInvoke(action);
+        }
+
+        public void OnIdle(Action action)
+        {
+            void Callback(object o, EventArgs e) 
+            {
+                var dispatcherTimer = (DispatcherTimer)o ;
+                dispatcherTimer.Stop();
+                dispatcherTimer.Tick -= Callback;
+                action();
+            }
+            new DispatcherTimer(TimeSpan.Zero, DispatcherPriority.ContextIdle, Callback, Application.Current.Dispatcher);
         }
 
     }

@@ -21,7 +21,7 @@ namespace TAS.Client.ViewModels
             IsDisplayCgMethod = displayCgMethod;
             VideoFormat = videoFormat;
             IsFieldListReadOnly = isFieldListReadOnly;
-            Model.PropertyChanged += TemplatedEditViewmodel_PropertyChanged;
+            Model.PropertyChanged += Model_PropertyChanged;
             CommandAddField = new UiCommand(_addField, _canAddField);
             CommandDeleteField = new UiCommand(_deleteField, _canDeleteField);
             CommandEditField = new UiCommand(_editField, _canDeleteField);
@@ -65,7 +65,7 @@ namespace TAS.Client.ViewModels
 
         public object SelectedField { get; set; }
 
-        private readonly ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
+        private readonly Dictionary<string, string> _fields = new Dictionary<string, string>();
 
         public Dictionary<string, string> Fields
         {
@@ -74,7 +74,8 @@ namespace TAS.Client.ViewModels
             {
                 _fields.Clear();
                 if (value != null)
-                    _fields.AddRange(value);
+                    foreach (var keyValuePair in value)
+                        _fields.Add(keyValuePair.Key, keyValuePair.Value);
                 NotifyPropertyChanged();
             }
         }
@@ -95,7 +96,7 @@ namespace TAS.Client.ViewModels
 
         public ICommand CommandDeleteField { get; }
 
-        private void TemplatedEditViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void Model_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (!(sender is ITemplated t))
                 return;
@@ -114,7 +115,8 @@ namespace TAS.Client.ViewModels
                    case nameof(ITemplated.Fields):
                        _fields.Clear();
                        if (t.Fields != null)
-                           _fields.AddRange(t.Fields);
+                            foreach (var keyValuePair in t.Fields)
+                                _fields.Add(keyValuePair.Key, keyValuePair.Value);
                        NotifyPropertyChanged(nameof(Fields));
                        break;
                }
@@ -123,7 +125,7 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            Model.PropertyChanged -= TemplatedEditViewmodel_PropertyChanged;
+            Model.PropertyChanged -= Model_PropertyChanged;
         }
 
 

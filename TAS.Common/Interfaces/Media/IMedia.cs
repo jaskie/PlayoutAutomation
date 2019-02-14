@@ -10,8 +10,7 @@ namespace TAS.Common.Interfaces.Media
         bool FileExists();
         bool Delete();
         bool IsVerified { get; }
-        void ReVerify();
-        void Verify();
+        void Verify(bool updateFormatAndDurations);
         void GetLoudness();
         bool RenameFileTo(string newFileName);
     }

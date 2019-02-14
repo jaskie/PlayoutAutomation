@@ -80,13 +80,16 @@ namespace TAS.Remoting.Server
 
         #endregion //IReferenceResolver
 
-        #region Server-side methods
         public IDto ResolveReference(Guid reference)
         {
             if (!_knownDtos.TryGetValue(reference, out var p))
                 throw new UnresolvedReferenceException("ResolveReference failed", reference);
             return p;
         }
+
+        public event EventHandler<PropertyChangedEventArgs> ReferencePropertyChanged;
+
+        public event EventHandler ReferenceDisposed;
 
         private void _referencePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -103,18 +106,6 @@ namespace TAS.Remoting.Server
                 Debug.WriteLine(disposed, $"Reference resolver - object {disposed.DtoGuid} disposed, generation is {GC.GetGeneration(dto)}");
             }
         }
-        #endregion // Server-side methods
-
-        #region Client-side methods
-        internal IDto RemoveReference(Guid reference)
-        {
-            _knownDtos.TryRemove(reference, out var removed);
-            return removed;
-        }
-        #endregion //Client-side methods
-
-        public event EventHandler<PropertyChangedEventArgs> ReferencePropertyChanged;
-        public event EventHandler ReferenceDisposed;
 
     }
 

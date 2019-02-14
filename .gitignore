@@ -21,7 +21,8 @@ Release
 /.vs
 /*.log
 /TAS.FFMpegUtils/x64
-/TVPlay/bin
 /TAS.Client.Common/*.DotSettings
 /dependencies/bin
 /ffmpeg/x86/bin
+/TVPlay/bin
+/TVPlayClient/bin

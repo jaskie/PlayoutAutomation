@@ -26,21 +26,18 @@ namespace TAS.Client.Views
         {
             InitializeComponent();
         }
-        
+
+
         private void UserControl_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.SystemKey == Key.LeftAlt)
-            {
-                if (mainMenu.Visibility == Visibility.Collapsed)
-                    mainMenu.Visibility = Visibility.Visible;
-                else
-                    mainMenu.Visibility = Visibility.Collapsed;
-            }
+            if (e.SystemKey != Key.LeftAlt)
+                return;
+            mainMenu.Visibility = mainMenu.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void TreeViewEx_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            FolderCombo.IsOpen = false;
+            DirectoryCombo.IsOpen = false;
         }
 
         private void SidePanelResizer_OnDragDelta(object sender, DragDeltaEventArgs e)

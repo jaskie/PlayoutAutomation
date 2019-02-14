@@ -13,7 +13,7 @@ namespace TAS.Server
     {
 
         private static List<CasparServer> _servers;
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(EngineController));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static List<Engine> Engines { get; private set; }
 

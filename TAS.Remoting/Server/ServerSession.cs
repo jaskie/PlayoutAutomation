@@ -26,7 +26,7 @@ namespace TAS.Remoting.Server
         private readonly Dictionary<DelegateKey, Delegate> _delegates = new Dictionary<DelegateKey, Delegate>();
         private readonly IUser _sessionUser;
         private readonly IDto _initialObject;
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ServerSession));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public ServerSession(TcpClient client, IAuthenticationService authenticationService, IDto initialObject): base(client)
         {

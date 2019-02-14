@@ -60,7 +60,7 @@
                 </Grid.RowDefinitions>
                 <StackPanel>
                     <CheckBox Margin="5" IsChecked="{Binding Engine.EnableCGElementsForNewEvents}" Content="{Resx _enableCGForNewEvents}" Visibility="{Binding CanEnableCGElements, Converter={StaticResource BoolToVis}}"/>
-                    <CheckBox Margin="5" IsChecked="{Binding Engine.StudioMode}" Content="{Resx _studioMode}" />
+                    <CheckBox Margin="5" IsChecked="{Binding Engine.StudioMode}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" Content="{Resx _studioMode}" />
                 </StackPanel>
                 <DataGrid  
                 x:Name="gSearch" 

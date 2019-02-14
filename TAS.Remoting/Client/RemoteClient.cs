@@ -7,27 +7,20 @@ using System.Threading;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting.Client
 {
     public class RemoteClient: TcpConnection
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(RemoteClient));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly JsonSerializer _serializer;
         private readonly ClientReferenceResolver _referenceResolver;
-        private readonly Dictionary<Guid, SocketMessage> _receivedMessages = new Dictionary<Guid, SocketMessage>();
         private object _initialObject;
-
-
-        private const int QueryTimeout =
-#if DEBUG 
-            50000
-#else
-            3000
-#endif
-            ;
+        private readonly Dictionary<Guid, SocketMessage> _receivedMessages = new Dictionary<Guid, SocketMessage>();
+        private readonly List<SocketMessage> _futureNotificationMessages = new List<SocketMessage>();
+        private readonly List<SocketMessage> _futureDisposalMessages = new List<SocketMessage>();
+        private readonly AutoResetEvent _messageReceivedAutoResetEvent = new AutoResetEvent(false);
 
 
         public RemoteClient(string address): base(address)
@@ -184,23 +177,30 @@ namespace TAS.Remoting.Client
             var message = new SocketMessage(data);
             if (message.MessageType != SocketMessage.SocketMessageType.RootQuery && _initialObject == null)
                 return;
-            var proxy = message.MessageType == SocketMessage.SocketMessageType.RootQuery
-                ? null
-                : _referenceResolver.ResolveReference(message.DtoGuid);
-            if (proxy == null && message.MessageType != SocketMessage.SocketMessageType.RootQuery)
-                Logger.Warn("Unknown proxy, MessageType:{0}, MemberName:{1}", message.MessageType, message.MemberName);
             switch (message.MessageType)
             {
                 case SocketMessage.SocketMessageType.EventNotification:
-                    proxy?.OnEventNotificationMessage(message);
+                    var notifyObject = _referenceResolver.ResolveReference(message.DtoGuid);
+                    if (notifyObject != null)
+                        notifyObject.OnEventNotificationMessage(message);
+                    else
+                        lock (((IList)_futureNotificationMessages).SyncRoot)
+                            _futureNotificationMessages.Add(message);
                     break;
                 case SocketMessage.SocketMessageType.ObjectDisposed:
-                    _referenceResolver.RemoveReference(message.DtoGuid);
-                    proxy?.Dispose();
+                    var disposedObject = _referenceResolver.ResolveReference(message.DtoGuid);
+                    if (disposedObject != null)
+                        disposedObject.Dispose();
+                    else
+                        lock (((IList)_futureDisposalMessages).SyncRoot)
+                            _futureDisposalMessages.Add(message);
                     break;
                 default:
-                    lock (((IDictionary) _receivedMessages).SyncRoot)
+                    lock (((IDictionary)_receivedMessages).SyncRoot)
+                    {
                         _receivedMessages[message.MessageGuid] = message;
+                        _messageReceivedAutoResetEvent.Set();
+                    }
                     break;
             }
         }
@@ -224,32 +224,61 @@ namespace TAS.Remoting.Client
                 var valueBytes = query.ToByteArray(valueStream);
                 Send(valueBytes);
             }
-            var response = WaitForResponse(query).Result;
-            if (response == null)
-                return default(T);
-            if (response.MessageType == SocketMessage.SocketMessageType.Exception)
-                throw Deserialize<Exception>(response);
-            return Deserialize<T>(response);
+            while (IsConnected)
+            {
+                _messageReceivedAutoResetEvent.WaitOne(5);
+                SocketMessage response;
+                lock (((IDictionary) _receivedMessages).SyncRoot)
+                {
+                    if (_receivedMessages.TryGetValue(query.MessageGuid, out response))
+                        _receivedMessages.Remove(query.MessageGuid);
+                }
+                if (response == null)
+                    continue;
+                if (response.MessageType == SocketMessage.SocketMessageType.Exception)
+                    throw Deserialize<Exception>(response);
+                var result = Deserialize<T>(response);
+                if (_futureNotificationMessages.Count > 0)
+                    ApplyDelayedNotifications();
+                if (_futureDisposalMessages.Count > 0)
+                    ApplyDelayedDisposals();
+                return result;
+            }
+            return default(T);
         }
 
-
-        private Task<SocketMessage> WaitForResponse(SocketMessage sendedMessage)
+        private void ApplyDelayedDisposals()
         {
-            return Task.Run(() =>
+            var unprocessedMessages = new Dictionary<SocketMessage, ProxyBase>();
+            lock (((IList) _futureDisposalMessages).SyncRoot)
             {
-                while (IsConnected)
+                foreach (var message in _futureDisposalMessages)
+                    unprocessedMessages.Add(message, _referenceResolver.ResolveReference(message.DtoGuid));   
+                foreach (var unprocessedMessage in unprocessedMessages)
                 {
-                    Thread.Sleep(1);
-                    lock (((IDictionary) _receivedMessages).SyncRoot)
-                    {
-                        if (!_receivedMessages.TryGetValue(sendedMessage.MessageGuid, out var response))
-                            continue;
-                        _receivedMessages.Remove(sendedMessage.MessageGuid);
-                        return response;
-                    }
+                    if (unprocessedMessage.Value == null)
+                        continue;
+                    unprocessedMessage.Value.Dispose();
+                    _futureDisposalMessages.Remove(unprocessedMessage.Key);
                 }
-                return null;
-            }, new CancellationTokenSource(QueryTimeout).Token);
+            }
+        }
+
+        private void ApplyDelayedNotifications()
+        {
+            var unprocessedMessages = new Dictionary<SocketMessage, ProxyBase>();
+            lock (((IList)_futureNotificationMessages).SyncRoot)
+            {
+                foreach (var message in _futureNotificationMessages)
+                    unprocessedMessages.Add(message, _referenceResolver.ResolveReference(message.DtoGuid));
+                foreach (var unprocessedMessage in unprocessedMessages)
+                {
+                    if (unprocessedMessage.Value == null)
+                        continue;
+                    unprocessedMessage.Value.OnEventNotificationMessage(unprocessedMessage.Key);
+                    _futureNotificationMessages.Remove(unprocessedMessage.Key);
+                }
+            }
         }
     }
 }

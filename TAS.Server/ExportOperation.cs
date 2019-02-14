@@ -26,7 +26,7 @@ namespace TAS.Server
 
         private ulong _progressFileSize;
         private readonly List<MediaExportDescription> _exportMediaList = new List<MediaExportDescription>();
-        private static readonly Logger Logger = LogManager.GetLogger(nameof(ExportOperation));
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         internal ExportOperation(FileManager fileManager) : base(fileManager)
         {
@@ -61,7 +61,6 @@ namespace TAS.Server
             if (Kind != TFileOperationKind.Export)
                 throw new InvalidOperationException("Invalid operation kind");
             StartTime = DateTime.UtcNow;
-            OperationStatus = FileOperationStatus.InProgress;
             IsIndeterminate = true;
             try
             {
@@ -116,11 +115,9 @@ namespace TAS.Server
             }
             if (!result)
             {
-                OperationStatus = FileOperationStatus.Failed;
                 return false;
             }
-            Dest.Verify();
-            OperationStatus = FileOperationStatus.Finished;
+            Dest.Verify(true);
             return true;
         }
 

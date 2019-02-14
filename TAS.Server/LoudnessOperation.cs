@@ -31,6 +31,7 @@ namespace TAS.Server
         public LoudnessOperation(FileManager ownerFileManager) : base(ownerFileManager)
         {
             Kind = TFileOperationKind.Loudness;
+            TryCount = 1;
         }
 
         public event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured; // will not save to Media object if not null
@@ -46,7 +47,6 @@ namespace TAS.Server
             if (Kind != TFileOperationKind.Loudness)
                 throw new InvalidOperationException("Invalid operation kind");
             StartTime = DateTime.UtcNow;
-            OperationStatus = FileOperationStatus.InProgress;
             if (!(Source is MediaBase source))
                 throw new ArgumentException("LoudnessOperation: Source is not of type MediaBase");
             if (source.Directory is IngestDirectory directory &&
@@ -63,17 +63,8 @@ namespace TAS.Server
 
         private async Task<bool> DoExecute(MediaBase inputMedia)
         {
-            Debug.WriteLine(this, "Loudness operation started");
             string Params = $"-nostats -i \"{inputMedia.FullPath}\" -ss {MeasureStart} -t {(MeasureDuration == TimeSpan.Zero ? inputMedia.DurationPlay : MeasureDuration)} -filter_complex ebur128=peak=sample -f null -";
-
-            if (await RunProcess(Params))
-            {
-                Debug.WriteLine(this, "Loudness operation succeed");
-                OperationStatus = FileOperationStatus.Finished;
-                return true;
-            }
-            Debug.WriteLine("FFmpeg rewraper Execute(): Failed for {0}. Command line was {1}", Source, Params);
-            return false;
+            return await RunProcess(Params);
         }
 
         protected override void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)

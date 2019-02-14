@@ -135,11 +135,7 @@ namespace TAS.Client.ViewModels
                 if (value != _selectedItem)
                 {
                     _selectedItem = value;
-                    IMedia media = SelectedMedia;
-                    if (media is IIngestMedia
-                        && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
-                        && !media.IsVerified)
-                        media.ReVerify();
+                    var media = SelectedMedia;
                     if (PreviewViewmodel != null)
                         PreviewViewmodel.SelectedMedia = media;
                     InvalidateRequerySuggested();

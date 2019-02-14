@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using NLog;
@@ -12,7 +13,7 @@ namespace TAS.Client.XKeys
 {
     public class Plugin : IUiPlugin
     {
-        private static readonly Logger Logger = LogManager.GetLogger(nameof(Plugin));
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static readonly InputSimulator.InputSimulator InputSimulator = new InputSimulator.InputSimulator();
         private static readonly KeyGestureConverter KeyGestureConverter = new KeyGestureConverter();
 
@@ -26,13 +27,32 @@ namespace TAS.Client.XKeys
 
         public Command[] Commands { get; set; }
 
-        [XmlIgnore]
-        public IUiPluginContext Context { get; internal set; }
+        public Backlight[] Backlights { get; set; }
 
-        public void Notify(KeyNotifyEventArgs keyNotifyEventArgs)
+        [XmlIgnore]
+        public IUiPluginContext Context { get; private set; }
+
+        internal bool SetContext(IUiPluginContext context)
+        {
+            if (Context != null)
+                return false;
+            Context = context;
+            context.Engine.PropertyChanged += Engine_PropertyChanged;
+            DeviceEnumerator.DeviceConnected += DeviceEnumeratorOnDeviceConnected;
+            SetBacklight(context.Engine);
+            return true;
+        }
+
+        private void DeviceEnumeratorOnDeviceConnected(object sender, DeviceEventArgs deviceEventArgs)
+        {
+            SetBacklight(Context?.Engine);
+        }
+
+        internal void Notify(KeyNotifyEventArgs keyNotifyEventArgs)
         {
             try
             {
+                Logger.Trace("Key notified: UnitId={0}, IsPressed={1}, Key={2}, AllKeys=[{3}]", keyNotifyEventArgs.UnitId, keyNotifyEventArgs.IsPressed, keyNotifyEventArgs.Key, string.Join(",", keyNotifyEventArgs.AllKeys));
                 if (keyNotifyEventArgs.UnitId != UnitId)
                     return;
                 if (!(Context is IUiEngine engine))
@@ -40,14 +60,14 @@ namespace TAS.Client.XKeys
                 var commands = Commands.Where(c =>
                     c.Key == keyNotifyEventArgs.Key &&
                     keyNotifyEventArgs.IsPressed == (c.ActiveOn == ActiveOnEnum.Press) &&
-                    (c.Required < 0 || keyNotifyEventArgs.AllKeys.Contains(c.Required)));
+                    (c.Required < 0 || keyNotifyEventArgs.AllKeys.Contains(c.Required))).ToList();
                 var command = commands.FirstOrDefault(c => c.Required >= 0) ?? commands.FirstOrDefault(); //executes single command, the one with modifier has higher priority
                 if (command == null)
                     return;
                 switch (command.CommandTarget)
                 {
                     case CommandTargetEnum.Engine:
-                        ExecuteOnEngine(engine, command.Method);
+                        ExecuteOnEngine(engine, command.Method, command.Parameter);
                         break;
                     case CommandTargetEnum.Keyboard:
                         ExecuteOnKeyboard(command.Method);
@@ -65,7 +85,6 @@ namespace TAS.Client.XKeys
 
         private static void ExecuteOnKeyboard(string method)
         {
-            
             var gesture = (KeyGesture)KeyGestureConverter.ConvertFromString(method);
             if (gesture == null)
                 return;
@@ -81,7 +100,7 @@ namespace TAS.Client.XKeys
             InputSimulator.Keyboard.ModifiedKeyStroke(modifiers, (VirtualKeyCode)KeyInterop.VirtualKeyFromKey(gesture.Key));
         }
 
-        private static void ExecuteOnEngine(IUiEngine engine, string commandMethod)
+        private static void ExecuteOnEngine(IUiEngine engine, string commandMethod, string commandParameter)
         {
             var propertyName = $"Command{commandMethod}";
             var propertyInfo = typeof(IUiEngine).GetProperty(propertyName);
@@ -90,7 +109,7 @@ namespace TAS.Client.XKeys
             var o = propertyInfo.GetValue(engine);
             if (!(o is ICommand command))
                 return;
-            engine.OnUiThread(() => command.Execute(null));
+            engine.OnUiThread(() => command.Execute(commandParameter));
         }
 
         private static void ExecuteOnSelectedEvent(IEvent e, string commandMethod)
@@ -111,5 +130,28 @@ namespace TAS.Client.XKeys
             }
         }
 
+        private void SetBacklight(IEngine engine)
+        {
+            try
+            {
+                foreach (var backlight in Backlights.Where(b => b.State != engine.EngineState))
+                    foreach (var backlightKey in backlight.Keys)
+                        DeviceEnumerator.SetBacklight(UnitId, backlightKey, BacklightColorEnum.None, false);
+                foreach (var backlight in Backlights.Where(b => b.State == engine.EngineState))
+                    foreach (var backlightKey in backlight.Keys)
+                        DeviceEnumerator.SetBacklight(UnitId, backlightKey, backlight.Color, backlight.Blinking);
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception);
+            }
+        }
+
+        private void Engine_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(IEngine.EngineState) || !(sender is IEngine engine) || Backlights == null)
+                return;
+            Task.Run(() => SetBacklight(engine));
+        }
     }
 }

@@ -29,8 +29,8 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                long totalSize = Directory.VolumeTotalSize;
-                return (totalSize == 0) ? 0F : Directory.VolumeFreeSize * 100F / totalSize;
+                var totalSize = Directory.VolumeTotalSize;
+                return totalSize == 0 ? 0F : Directory.VolumeFreeSize * 100F / totalSize;
             }
         }
 
@@ -76,7 +76,7 @@ namespace TAS.Client.ViewModels
 
         public override string ToString()
         {
-            return Directory.DirectoryName;
+            return DirectoryName;
         }
 
 

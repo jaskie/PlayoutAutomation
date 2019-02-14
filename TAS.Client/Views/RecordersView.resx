@@ -186,4 +186,7 @@
   <data name="_mediaName" xml:space="preserve">
     <value>Media name</value>
   </data>
+  <data name="_aduioChannelMapping" xml:space="preserve">
+    <value>Audio channel mapping</value>
+  </data>
 </root>

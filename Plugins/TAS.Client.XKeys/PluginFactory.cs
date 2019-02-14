@@ -16,11 +16,9 @@ namespace TAS.Client.XKeys
         private const string ConfigurationFileName = "XKeys.xml";
 
         private readonly Plugin[] _plugins;
-        private readonly DeviceEnumerator _deviceEnumerator;
 
         public PluginFactory()
         {
-            _deviceEnumerator = new DeviceEnumerator();
             var file = Path.Combine(FileUtils.ConfigurationPath, ConfigurationFileName);
             if (!File.Exists(file))
             {
@@ -31,8 +29,8 @@ namespace TAS.Client.XKeys
             {
                 var serializer = new XmlSerializer(typeof(Plugin[]), new XmlRootAttribute("XKeys"));
                 _plugins = (Plugin[])serializer.Deserialize(streamReader);
+                DeviceEnumerator.KeyNotified += KeyNotified;
             }
-            _deviceEnumerator.KeyNotified += KeyNotified;
         }
 
         public object CreateNew(IUiPluginContext context)
@@ -40,9 +38,8 @@ namespace TAS.Client.XKeys
             var result = _plugins?.FirstOrDefault(xk => string.Equals(xk.EngineName, context.Engine.EngineName, StringComparison.OrdinalIgnoreCase));
             if (result != null)
             {
-                if (result.Context != null)
+                if (!result.SetContext(context))
                     throw new ApplicationException($"The {Type.FullName} plugin cannot be re-used");
-                result.Context = context;
             }
             return result;
         }

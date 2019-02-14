@@ -1,13 +1,10 @@
-﻿//#undef DEBUG
-using System;
-using System.Diagnostics;
+﻿using System;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
 namespace TAS.Remoting
 {
-    [Serializable]
     public class SocketMessage
     {
         public enum SocketMessageType: byte
@@ -86,6 +83,8 @@ namespace TAS.Remoting
         {
             using (var stream = new MemoryStream())
             {
+                stream.Write(new byte[]{0, 0, 0, 0}, 0, sizeof(int)); // content length placeholder
+
                 stream.Write(Version, 0, Version.Length);
 
                 stream.WriteByte((byte)MessageType);
@@ -109,6 +108,9 @@ namespace TAS.Remoting
                     value.Position = 0;
                     value.CopyTo(stream);
                 }
+                var contentLength = BitConverter.GetBytes((int)stream.Length - sizeof(int));
+                stream.Position = 0;
+                stream.Write(contentLength, 0, sizeof(int));
                 return stream.ToArray();
             }
         }

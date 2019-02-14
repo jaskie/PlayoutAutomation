@@ -20,7 +20,7 @@ namespace TAS.Remoting.Server
         private IDto _rootDto;
         private IAuthenticationService _authenticationService;
         private readonly List<ServerSession> _clients = new List<ServerSession>();
-        private static readonly Logger Logger = LogManager.GetLogger(nameof(ServerHost));
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         
         [XmlAttribute]
         public ushort ListenPort { get; set; }

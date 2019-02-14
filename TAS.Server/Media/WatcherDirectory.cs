@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Database.Interfaces.Media;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 
@@ -27,6 +25,7 @@ namespace TAS.Server.Media
         private bool _watcherIncludeSubdirectories;
         private CancellationTokenSource _watcherTaskCancelationTokenSource;
         private Task _watcherSetupTask;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         protected readonly Dictionary<Guid, MediaBase> Files = new Dictionary<Guid, MediaBase>();
 
@@ -74,7 +73,7 @@ namespace TAS.Server.Media
             IsInitialized = false;
         }
 
-        public virtual IEnumerable<IMedia> GetFiles()
+        public virtual IReadOnlyCollection<IMedia> GetFiles()
         {
             lock (((IDictionary) Files).SyncRoot)
                 return Files.Values.Cast<IMedia>().ToList().AsReadOnly();
@@ -358,7 +357,7 @@ namespace TAS.Server.Media
             {
                 if (Files.TryGetValue(mediaBase.MediaGuid, out var prevMedia))
                 {
-                    if (prevMedia is Common.Interfaces.Media.IServerMedia || prevMedia is Common.Interfaces.Media.IAnimatedMedia)
+                    if (prevMedia is IServerMedia || prevMedia is IAnimatedMedia)
                     {
                         prevMedia.PropertyChanged -= _media_PropertyChanged;
                         Task.Run(() =>
@@ -395,7 +394,7 @@ namespace TAS.Server.Media
         {
             if (!media.IsVerified)
                 return;
-            media.ReVerify();
+            Task.Run(() => media.Verify(true));
             Logger.Trace("Media {0} changed", media);
         }
 

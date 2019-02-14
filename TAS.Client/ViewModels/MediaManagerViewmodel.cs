@@ -87,6 +87,7 @@ namespace TAS.Client.ViewModels
             CommandSyncPriToSec = new UiCommand(_syncSecToPri, o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
             CommandCloneAnimation = new UiCommand(_cloneAnimation, _canCloneAnimation);
             CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
+            CommandVerifyAllMedia = new UiCommand(_verifyAllMedia, o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
         }
 
         public ICommand CommandSearch { get; }
@@ -100,6 +101,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandExport { get; }
         public ICommand CommandRefresh { get; }
         public ICommand CommandSyncPriToSec { get; }
+        public ICommand CommandVerifyAllMedia { get; }
         public ICommand CommandCloneAnimation { get; }
         public ICommand CommandTogglePropertiesPanel { get; }
 
@@ -171,7 +173,7 @@ namespace TAS.Client.ViewModels
                 if (!SetField(ref _selectedMedia, value))
                     return;
                 if (value is IIngestMedia && !value.IsVerified)
-                    Task.Run(() => value.Verify());
+                    Task.Run(() => value.Verify(true));
                 EditMedia = value == null ? null : new MediaEditViewmodel(value, _mediaManager, true);
                 if (PreviewViewmodel != null)
                     PreviewViewmodel.SelectedMedia = value;
@@ -275,7 +277,7 @@ namespace TAS.Client.ViewModels
                     _notifyDirectoryPropertiesChanged();
                 }
                 else
-                    OnUiThread(() =>
+                    OnIdle(() =>
                         NotifyPropertyChanged(nameof(SelectedDirectory))); //revert folder display, deferred execution
             }
         }
@@ -524,12 +526,14 @@ namespace TAS.Client.ViewModels
                     m.Dispose();
             SelectedMediaVm = null;
             MediaItemsView = newItems == null ? null : CollectionViewSource.GetDefaultView(newItems);
-            if (items == null)
-                return;
-            MediaItemsView.Filter = _filter;
-            if (!SelectedDirectory.IsXdcam)
-                MediaItemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated),
-                    ListSortDirection.Descending));
+            if (MediaItemsView != null)
+            {
+                MediaItemsView.Filter = _filter;
+                if (!SelectedDirectory.IsXdcam)
+                    MediaItemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated),
+                        ListSortDirection.Descending));
+            }
+            NotifyPropertyChanged(nameof(ItemsCount));
         }
 
         private void _selectedDirectoryMediaAdded(object source, MediaEventArgs e)
@@ -566,7 +570,6 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(DirectoryFreePercentage));
             NotifyPropertyChanged(nameof(DirectoryTotalSpace));
             NotifyPropertyChanged(nameof(DirectoryFreeSpace));
-            NotifyPropertyChanged(nameof(ItemsCount));
         }
 
         private List<IMedia> _getSelections()
@@ -626,6 +629,12 @@ namespace TAS.Client.ViewModels
                 await Task.Run(() => _mediaManager.SynchronizeMediaSecToPri(true));
         }
 
+        private async void _verifyAllMedia(object o)
+        {
+            foreach (var media in _mediaItems.Where(m => !m.IsVerified).Select(m => m.Media).ToArray())
+                await Task.Run(() => media.Verify(true));
+        }
+
         private void _export(object obj)
         {
             var selections = _getSelections().Select(m => new MediaExportDescription(m, new List<IMedia>(), m.TcPlay, m.DurationPlay, m.AudioVolume));
@@ -657,7 +666,7 @@ namespace TAS.Client.ViewModels
                 selectedMediaList.ForEach(m =>
                 {
                     if (!m.IsVerified)
-                        m.Verify();
+                        m.Verify(true);
                 });
             });
             foreach (var sourceMedia in selectedMediaList)

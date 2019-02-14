@@ -351,7 +351,7 @@ namespace TAS.Database.MySqlRedundant
         public ConnectionState ConnectionStatePrimary => ConnectionPrimary.State;
         public ConnectionState ConnectionStateSecondary => ConnectionSecondary.State;
 
-        public EventHandler<RedundantConnectionStateEventArgs> StateRedundantChange;
+        public event EventHandler<RedundantConnectionStateEventArgs> StateRedundantChange;
     }
     
 

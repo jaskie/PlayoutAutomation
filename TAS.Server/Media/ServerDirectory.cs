@@ -13,6 +13,7 @@ namespace TAS.Server.Media
     public class ServerDirectory : WatcherDirectory, IServerDirectory
     {
         internal readonly IPlayoutServerProperties Server;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public ServerDirectory(IPlayoutServerProperties server, MediaManager manager)
             : base(manager)
@@ -64,7 +65,6 @@ namespace TAS.Server.Media
                 MediaGuid = mediaProperties.MediaGuid == Guid.Empty ? Guid.NewGuid() : mediaProperties.MediaGuid,
                 LastUpdated = mediaProperties.LastUpdated,
                 MediaType = mediaProperties.MediaType == TMediaType.Unknown ? TMediaType.Movie : mediaProperties.MediaType,
-                Folder = mediaProperties.Folder,
                 FileName = newFileName,
                 MediaStatus = TMediaStatus.Required,
             });
@@ -83,7 +83,7 @@ namespace TAS.Server.Media
             return FileUtils.VideoFileTypes.Contains(ext) || FileUtils.StillFileTypes.Contains(ext);
         }
 
-        internal virtual void OnMediaSaved(MediaBase media)
+        internal void OnMediaSaved(MediaBase media)
         {
             MediaSaved?.Invoke(this, new MediaEventArgs(media));
         }
@@ -98,7 +98,7 @@ namespace TAS.Server.Media
         {
             base.EnumerateFiles(directory, filter, includeSubdirectories, cancelationToken);
             var unverifiedFiles = FindMediaList(mf => ((ServerMedia)mf).IsVerified == false);
-            unverifiedFiles.ForEach(media => media.Verify());
+            unverifiedFiles.ForEach(media => media.Verify(true));
         }
 
         protected override IMedia AddMediaFromPath(string fullPath, DateTime lastUpdated)

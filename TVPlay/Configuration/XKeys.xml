@@ -6,9 +6,10 @@
       <Command Key="8"  ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
       <Command Key="16" ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
       <Command Key="24" ActiveOn="Press" CommandTarget="Keyboard" Method="F11"/>
+      <Command Key="8"  ActiveOn="Press" CommandTarget="Engine" Method="StartSelected" Required="5" Parameter="Force"/>
 
       <Command Key="1"  ActiveOn="Press" CommandTarget="Engine" Method="AddNextMovie"/>
-      <Command Key="25" ActiveOn="Press" CommandTarget="Engine" Method="ClearAll"/>
+      <Command Key="25" ActiveOn="Press" CommandTarget="Engine" Method="ClearAll" Required="5"/>
 
       <Command Key="2"  ActiveOn="Press" CommandTarget="Keyboard" Method="Ctrl+0"/>
       <Command Key="10" ActiveOn="Press" CommandTarget="SelectedEvent" Method="IsHold"/>
@@ -29,5 +30,10 @@
       <Command Key="21" ActiveOn="Press" CommandTarget="Keyboard" Method="Alt+Down" Required="5"/>
 
     </Commands>
+    <Backlights>
+      <Backlight State="Hold" Color="Blue" Keys="0" Blinking="true"/>
+      <Backlight State="Running" Color="Blue" Keys="8, 16" Blinking="false"/>
+      <Backlight State="Idle" Color="Red" Keys="8, 16" Blinking="false"/>
+    </Backlights>
   </Plugin>
 </XKeys>

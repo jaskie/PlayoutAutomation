@@ -33,11 +33,11 @@ namespace TAS.Common
         
         public static readonly string CgWithLayerCommand = $@"{CgCommand}\s+(?<cg_layer>\d+)";
         
-        public static readonly string CgAddCommand = $@"{CgWithLayerCommand}\s+(?<file>\w+|""[\w\s]*"")(\s+(?<play_on_load>0|1))?(\s+(?<data>\+|""[\S\s]*""))?";
+        public static readonly string CgAddCommand = $@"{CgWithLayerCommand}\s+(?<file>\w+|""[\w\s]*"")(\s+(?<play_on_load>0|1))?(\s+(?<data>\+|[\S\s]*))?";
 
         public static readonly string CgInvokeCommand = $@"{CgWithLayerCommand}\s+(?<cg_method>\w+)";
 
-        public static readonly string CgUpdateCommand = $@"{CgWithLayerCommand}\s+(?<data>\w+|""[\w\s]*"")";
+        public static readonly string CgUpdateCommand = $@"{CgWithLayerCommand}\s+(?<data>\w+|[\w\s]*)";
 
         public static IEvent FindNext(this IEvent startEvent, Func<IEvent, bool> searchFunc)
         {

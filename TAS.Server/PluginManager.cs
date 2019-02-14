@@ -6,7 +6,6 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server
@@ -14,7 +13,7 @@ namespace TAS.Server
     public static class PluginManager
     {
 
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(PluginManager));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private static readonly IEnumerable<IEnginePluginFactory> EnginePlugins;
         
         static PluginManager()

@@ -15,7 +15,7 @@ namespace TAS.Server
         private readonly CgElementsController[] _cgElementsControllers;
         private const string ElementsFileName = "CgElementsControllers.xml";
 
-        private static readonly Logger Logger = LogManager.GetLogger(nameof(CgElementsControllerFactory));
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public CgElementsControllerFactory()
         {

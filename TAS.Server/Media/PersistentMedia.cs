@@ -75,9 +75,9 @@ namespace TAS.Server.Media
 
         public bool IsModified { get; set; }
 
-        public override void Verify()
+        public override void Verify(bool updateFormatAndDurations)
         {
-            base.Verify();
+            base.Verify(updateFormatAndDurations);
             if (IsModified)
                 Save();
         }

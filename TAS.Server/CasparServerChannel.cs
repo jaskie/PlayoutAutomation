@@ -17,7 +17,7 @@ using TAS.Server.Media;
 
 namespace TAS.Server
 {
-    public class CasparServerChannel : DtoBase, IPlayoutServerChannel
+    public class CasparServerChannel : DtoBase, IPlayoutServerChannel, IPlayoutServerChannelProperties
     {
         private Channel _casparChannel;
         private readonly ConcurrentDictionary<VideoLayer, bool> _outputAspectNarrow = new ConcurrentDictionary<VideoLayer, bool>();
@@ -48,6 +48,9 @@ namespace TAS.Server
         public double MasterVolume { get; set; } = 1;
 
         [JsonProperty]
+        public int AudioChannelCount { get; set; } = 2;
+
+        [JsonProperty]
         public string PreviewUrl { get; set; }
 
         public string LiveDevice { get; set; }
@@ -58,11 +61,11 @@ namespace TAS.Server
 
         [XmlIgnore]
         [JsonProperty]
-        public bool IsServerConnected { get { return _isServerConnected; } internal set { SetField(ref _isServerConnected, value); } }
+        public bool IsServerConnected { get => _isServerConnected; internal set => SetField(ref _isServerConnected, value); }
 
         [XmlIgnore]
         [JsonProperty]
-        public int AudioLevel { get { return _audiolevel; } private set { SetField(ref _audiolevel, value); } }
+        public int AudioLevel { get => _audiolevel; private set => SetField(ref _audiolevel, value); }
 
         public bool LoadNext(Event aEvent)
         {
@@ -77,12 +80,12 @@ namespace TAS.Server
                     {
                         channel.LoadBG(item);
                         _loadedNext[aEvent.Layer] = aEvent;
-                        Debug.WriteLine(aEvent, "CasparLoadNext: ");
+                        Debug.WriteLine(aEvent, "CasparLoadNext");
                         return true;
                     }
                 }
             }
-            Debug.WriteLine(aEvent, "LoadNext did not load: ");
+            Debug.WriteLine(aEvent, "CasparLoadNext did not load");
             return false;
         }
 
@@ -94,21 +97,20 @@ namespace TAS.Server
                 var eventType = aEvent.EventType;
                 if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
                 {
-                    CasparItem item = _getItem(aEvent);
+                    var item = _getItem(aEvent);
                     if (item != null)
                     {
                         channel.Load(item);
                         if (eventType == TEventType.Live)
                             channel.Play(item.VideoLayer);
                         _visible[aEvent.Layer] = aEvent;
-                        Event removed;
-                        _loadedNext.TryRemove(aEvent.Layer, out removed);
-                        Debug.WriteLine(aEvent, "CasparLoad: ");
+                        _loadedNext.TryRemove(aEvent.Layer, out _);
+                        Debug.WriteLine(aEvent, "CasparLoad");
                         return true;
                     }
                 }
             }
-            Debug.WriteLine(aEvent, "CasparLoad did not load: ");
+            Debug.WriteLine(aEvent, "CasparLoad did not load");
             return false;
         }
 
@@ -123,9 +125,8 @@ namespace TAS.Server
                 {
                     item.Length = (int)duration;
                     channel.Load(item);
-                    Event removed;
-                    _visible.TryRemove(videolayer, out removed);
-                    _loadedNext.TryRemove(videolayer, out removed);
+                    _visible.TryRemove(videolayer, out _);
+                    _loadedNext.TryRemove(videolayer, out _);
                     Debug.WriteLine("CasparLoad media {0} Layer {1} Seek {2}", media, videolayer, seek);
                     return true;
                 }
@@ -141,9 +142,8 @@ namespace TAS.Server
                 var scolor = '#' + color.ToArgb().ToString("X8");
                 CasparItem item = new CasparItem((int)videolayer, scolor);
                 channel.Load(item);
-                Event removed;
-                _visible.TryRemove(videolayer, out removed);
-                _loadedNext.TryRemove(videolayer, out removed);
+                _visible.TryRemove(videolayer, out _);
+                _loadedNext.TryRemove(videolayer, out _);
                 Debug.WriteLine("CasparLoad color {0} Layer {1}", scolor, videolayer);
                 return true;
             }
@@ -171,11 +171,9 @@ namespace TAS.Server
                 var eventType = aEvent.EventType;
                 if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
                 {
-                    Event visible;
-                    if (!(_visible.TryGetValue(aEvent.Layer, out visible) && visible == aEvent))
+                    if (!(_visible.TryGetValue(aEvent.Layer, out var visible) && visible == aEvent))
                     {
-                        Event loaded;
-                        if (!(_loadedNext.TryGetValue(aEvent.Layer, out loaded) && loaded == aEvent))
+                        if (!(_loadedNext.TryGetValue(aEvent.Layer, out var loaded) && loaded == aEvent))
                         {
                             var item = _getItem(aEvent);
                             if (item != null)
@@ -184,15 +182,13 @@ namespace TAS.Server
                     }
                     channel.Play((int)aEvent.Layer);
                     _visible[aEvent.Layer] = aEvent;
-                    Event removed;
-                    _loadedNext.TryRemove(aEvent.Layer, out removed);
+                    _loadedNext.TryRemove(aEvent.Layer, out _);
                     Debug.WriteLine(aEvent, $"CasparPlay Layer {aEvent.Layer}");
                     return true;
                 }
                 if (eventType == TEventType.Animation)
                 {
-                    var eTemplated = aEvent as ITemplated;
-                    if (eTemplated != null)
+                    if (aEvent is ITemplated eTemplated)
                     {
                         switch (eTemplated.Method)
                         {
@@ -250,9 +246,8 @@ namespace TAS.Server
             {
                 {
                     channel.Play((int)videolayer);
-                    Event removed;
-                    _visible.TryRemove(videolayer, out removed);
-                    _loadedNext.TryRemove(videolayer, out removed);
+                    _visible.TryRemove(videolayer, out _);
+                    _loadedNext.TryRemove(videolayer, out _);
                     Debug.WriteLine("CasparPlay Layer {0}", videolayer);
                     return true;
                 }
@@ -265,15 +260,12 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (CheckConnected(channel))
             {
-                Event playing;
-                if (_visible.TryGetValue(aEvent.Layer, out playing) && playing == aEvent)
-                {
-                    channel.Stop((int)aEvent.Layer);
-                    Event removed;
-                    _visible.TryRemove(aEvent.Layer, out removed);
-                    _loadedNext.TryRemove(aEvent.Layer, out removed);
-                    Debug.WriteLine(aEvent, string.Format("CasprarStop {0} layer {1}", aEvent, aEvent.Layer));
-                }
+                if (!_visible.TryGetValue(aEvent.Layer, out var playing) || playing != aEvent)
+                    return true;
+                channel.Stop((int)aEvent.Layer);
+                _visible.TryRemove(aEvent.Layer, out var _);
+                _loadedNext.TryRemove(aEvent.Layer, out _);
+                Debug.WriteLine(aEvent, $"CasprarStop {aEvent} layer {aEvent.Layer}");
                 return true;
             }
             else
@@ -285,13 +277,11 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (CheckConnected(channel))
             {
-                Event visible;
-                if (_visible.TryRemove(aEvent.Layer, out visible) && visible == aEvent)
+                if (_visible.TryRemove(aEvent.Layer, out var visible) && visible == aEvent)
                 {
                     channel.Pause((int)aEvent.Layer);
-                    Event removed;
-                    _loadedNext.TryRemove(aEvent.Layer, out removed);
-                    Debug.WriteLine(aEvent, string.Format("CasprarPause {0} layer {1}", aEvent, aEvent.Layer));
+                    _loadedNext.TryRemove(aEvent.Layer, out _);
+                    Debug.WriteLine(aEvent, $"CasprarPause {aEvent} layer {aEvent.Layer}");
                 }
                 return true;
             }
@@ -314,24 +304,27 @@ namespace TAS.Server
         }
 
 
-        public void ReStart(Event ev)
+        internal void ReStart(Event ev, bool play)
         {
             var channel = _casparChannel;
-            if (CheckConnected(channel)
-                && ev != null)
+            if (!CheckConnected(channel) || ev == null)
+                return;
+            var item = _getItem(ev);
+            if (item == null)
+                return;
+            var media = ev.Media;
+            if (ev.EventType == TEventType.Movie && media != null)
+                item.Seek = (int)ev.Position + (int)((ev.ScheduledTc.Ticks - media.TcPlay.Ticks) / ev.Engine.FrameTicks);
+            item.Transition.Duration = 3;
+            item.Transition.Type = TransitionType.MIX;
+            if (play)
             {
-                CasparItem item = _getItem(ev);
-                if (item == null)
-                    return;
-                var media = ev.Media;
-                if (ev.EventType == TEventType.Movie && media != null)
-                    item.Seek = (int)ev.Position + (int)((ev.ScheduledTc.Ticks - media.TcPlay.Ticks) / ev.Engine.FrameTicks);
-                item.Transition.Duration = 3;
-                item.Transition.Type = TransitionType.MIX;
                 channel.LoadBG(item);
                 channel.Play(item.VideoLayer);
-                Debug.WriteLine("CasparChanner.ReStart: restarted {0} from frame {1}", item.Clipname, item.Seek);
             }
+            else
+                channel.Load(item);
+            Debug.WriteLine("CasparChanner.ReStart: restarted {0} from frame {1}", item.Clipname, item.Seek);
         }
 
         public void Clear(VideoLayer aVideoLayer)
@@ -543,21 +536,18 @@ namespace TAS.Server
             if (casparChannel == null)
                 return;
             var oldChannel = _casparChannel;
-            if (oldChannel != casparChannel)
-            {
-                _casparChannel = casparChannel;
-                if (oldChannel != null)
-                    oldChannel.AudioDataReceived -= Channel_AudioDataReceived;
-                casparChannel.AudioDataReceived += Channel_AudioDataReceived;
-                VideoFormat = CasparModeToVideoFormat(casparChannel.VideoMode);
-                Debug.WriteLine(this, "Caspar channel assigned");
-
-                if (Owner?.IsConnected == true)
-                {
-                    ClearMixer();
-                    casparChannel?.MasterVolume((float) MasterVolume);
-                }
-            }
+            if (oldChannel == casparChannel)
+                return;
+            _casparChannel = casparChannel;
+            if (oldChannel != null)
+                oldChannel.AudioDataReceived -= Channel_AudioDataReceived;
+            casparChannel.AudioDataReceived += Channel_AudioDataReceived;
+            VideoFormat = CasparModeToVideoFormat(casparChannel.VideoMode);
+            Debug.WriteLine(this, "Caspar channel assigned");
+            if (Owner?.IsConnected != true)
+                return;
+            ClearMixer();
+            casparChannel.MasterVolume((float) MasterVolume);
         }
 
         #region Utilites
@@ -612,26 +602,18 @@ namespace TAS.Server
         {
             if (media != null && media.MediaType == TMediaType.Movie)
             {
-                CasparItem item = new CasparItem(string.Empty);
-                item.Clipname = $"\"{(media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath)}\"";
-                item.ChannelLayout = ChannelLayout.Stereo;                 
-                item.VideoLayer = (int)videolayer;
-                item.Seek = (int)seek;
-                item.FieldOrderInverted = media.FieldOrderInverted;
-                return item;
+                return new CasparItem(string.Empty)
+                {
+                    Clipname = $"\"{(media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath)}\"",
+                    ChannelLayout = ChannelLayout.Stereo,
+                    VideoLayer = (int) videolayer,
+                    Seek = (int) seek,
+                    FieldOrderInverted = media.FieldOrderInverted
+                };
             }
-            else
-                return null;
+            return null;
         }
-                
-        private CasparCGDataCollection _getContainerData(ITemplated template)
-        {
-            var data =  new CasparCGDataCollection();
-            foreach (var field in template.Fields)
-                data.DataPairs.Add(new CGDataPair(field.Key, new CGTextFieldData(field.Value)));
-            return data;
-        }
-        
+
         private TVideoFormat CasparModeToVideoFormat(VideoMode mode)
         {
             switch (mode)

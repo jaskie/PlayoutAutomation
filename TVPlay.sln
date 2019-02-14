@@ -26,7 +26,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svt.Caspar", "dependencies\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{3F907958-AD04-4245-AE71-DC8D06A473E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.LocalDevices", "Plugins\TAS.Server.LocalDevices\TAS.Server.LocalDevices.csproj", "{08504AA1-0378-4F07-94AE-F1A40911E1AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.Advantech", "Plugins\TAS.Server.LocalDevices\TAS.Server.Advantech.csproj", "{08504AA1-0378-4F07-94AE-F1A40911E1AD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Common", "TAS.Common\TAS.Common.csproj", "{9ACA6AE7-49ED-4599-91AC-927680CF9623}"
 EndProject
@@ -93,6 +93,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.XKeys", "Plugins
 	ProjectSection(ProjectDependencies) = postProject
 		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.ExportRundownAsXml", "Plugins\TAS.Client.ExportRundownAsXml\TAS.Client.ExportRundownAsXml.csproj", "{811B2F72-5DFA-4FA2-AEF5-250D69B64711}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -403,6 +405,18 @@ Global
 		{296D2876-8284-4E2A-8273-BC88CE854392}.Release|x64.Build.0 = Release|Any CPU
 		{296D2876-8284-4E2A-8273-BC88CE854392}.Release|x86.ActiveCfg = Release|Any CPU
 		{296D2876-8284-4E2A-8273-BC88CE854392}.Release|x86.Build.0 = Release|Any CPU
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711}.Debug|x64.Build.0 = Debug|Any CPU
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711}.Debug|x86.Build.0 = Debug|Any CPU
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711}.Release|Any CPU.Build.0 = Release|Any CPU
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711}.Release|x64.ActiveCfg = Release|Any CPU
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711}.Release|x64.Build.0 = Release|Any CPU
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711}.Release|x86.ActiveCfg = Release|Any CPU
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -423,6 +437,7 @@ Global
 		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D} = {C15B0F59-C4CF-4B2E-8057-9CDFCBD24F6A}
 		{2625A6B7-505A-43F7-9282-24AFE5A3DB64} = {9E587B86-2AD9-446D-8DD5-D710167A7F54}
 		{296D2876-8284-4E2A-8273-BC88CE854392} = {3F907958-AD04-4245-AE71-DC8D06A473E9}
+		{811B2F72-5DFA-4FA2-AEF5-250D69B64711} = {3F907958-AD04-4245-AE71-DC8D06A473E9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DB5649B3-A4A6-470B-8112-BA0FED456648}

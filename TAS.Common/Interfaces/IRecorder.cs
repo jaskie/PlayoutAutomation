@@ -13,8 +13,8 @@ namespace TAS.Common.Interfaces
         void Abort();
         void DeckFastForward();
         void DeckRewind();
-        IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName);
-        IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string mediaName, string fileName);
+        IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName, int[] channelMap);
+        IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string mediaName, string fileName, int[] channelMap);
         TimeSpan TimeLimit { get; }
         void SetTimeLimit(TimeSpan value);
         void Finish();

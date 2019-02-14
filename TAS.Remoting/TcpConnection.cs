@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
@@ -14,11 +15,11 @@ namespace TAS.Remoting
     /// </summary>
     public abstract class TcpConnection : IDisposable
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(TcpConnection));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private int _disposed;
 
-        private readonly ConcurrentQueue<byte[]> _sendQueue = new ConcurrentQueue<byte[]>();
-        private const int MaxQueueSize = 0x100;
+        private readonly List<byte[]> _sendQueue = new List<byte[]>();
+        private const int MaxQueueSize = 0x1000;
 
         private Thread _readThread;
         private Thread _writeThread;
@@ -44,6 +45,7 @@ namespace TAS.Remoting
                 NoDelay = true,
             };
             Client.Connect(addressParts[0], port);
+            Logger.Info("Connection opened to {0}:{1}.", addressParts[0], port);
         }
 
         public void Send(byte[] bytes)
@@ -52,12 +54,13 @@ namespace TAS.Remoting
                 return;
             try
             {
-                if (_sendQueue.Count < MaxQueueSize)
-                {
-                    _sendQueue.Enqueue(bytes);
-                    _sendAutoResetEvent.Set();
-                    return;
-                }
+                lock (((ICollection) _sendQueue).SyncRoot)
+                    if (_sendQueue.Count < MaxQueueSize)
+                    {
+                        _sendQueue.Add(bytes);
+                        _sendAutoResetEvent.Set();
+                        return;
+                    }
                 Logger.Error("Message queue overflow");
             }
             catch (Exception e)
@@ -110,13 +113,14 @@ namespace TAS.Remoting
                 try
                 {
                     _sendAutoResetEvent.WaitOne();
-                    while (_sendQueue.TryDequeue(out var bytes))
+                    byte[][] sendPackets;
+                    lock (((ICollection) _sendQueue).SyncRoot)
                     {
-                        Client.Client.NoDelay = false;
-                        Client.Client.Send(BitConverter.GetBytes(bytes.Length));
-                        Client.Client.NoDelay = true;
-                        Client.Client.Send(bytes);
+                        sendPackets = _sendQueue.ToArray();
+                        _sendQueue.Clear();
                     }
+                    foreach (var bytes in sendPackets)
+                        Client.Client.Send(bytes);
                 }
                 catch (Exception e) when (e is IOException || e is ArgumentNullException ||
                                           e is ObjectDisposedException || e is SocketException)
@@ -145,7 +149,7 @@ namespace TAS.Remoting
                     {
                         if (stream.Read(sizeBuffer, 0, sizeof(int)) == sizeof(int))
                         {
-                            var dataLength = BitConverter.ToInt32(sizeBuffer, 0);
+                            var dataLength = BitConverter.ToUInt32(sizeBuffer, 0);
                             dataBuffer = new byte[dataLength];
                         }
                         dataIndex = 0;
@@ -153,7 +157,6 @@ namespace TAS.Remoting
                     else
                     {
                         var receivedLength = stream.Read(dataBuffer, dataIndex, dataBuffer.Length - dataIndex);
-                        //Debug.WriteLine($"R2:  {receivedLength}");
                         dataIndex += receivedLength;
                         if (dataIndex != dataBuffer.Length)
                             continue;

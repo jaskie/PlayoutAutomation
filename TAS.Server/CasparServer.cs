@@ -79,14 +79,13 @@ namespace TAS.Server
         [XmlIgnore]
         public bool IsConnected
         {
-            get { return _isConnected; }
+            get => _isConnected;
             private set
             {
-                if (SetField(ref _isConnected, value))
-                {
-                    RecordersSer.ForEach(r => r.IsServerConnected = value);
-                    ChannelsSer.ForEach(c => c.IsServerConnected = value);
-                }
+                if (!SetField(ref _isConnected, value))
+                    return;
+                RecordersSer.ForEach(r => r.IsServerConnected = value);
+                ChannelsSer.ForEach(c => c.IsServerConnected = value);
             }
         }
 
@@ -95,18 +94,16 @@ namespace TAS.Server
             Debug.WriteLine(this, "CasparServer initialize");
             lock (this)
             {
-                if (!_isInitialized)
-                {
-                    MediaDirectory = new ServerDirectory(this, mediaManager) { Folder = MediaFolder };
-                    if (!string.IsNullOrWhiteSpace(AnimationFolder))
-                        AnimationDirectory = new AnimationDirectory(this, mediaManager) { Folder = AnimationFolder };
-                    _casparDevice = new Svt.Caspar.CasparDevice() { IsRecordingSupported = ServerType == TServerType.CasparTVP };
-                    _casparDevice.ConnectionStatusChanged += CasparDevice_ConnectionStatusChanged;
-                    _casparDevice.UpdatedChannels += CasparDevice_UpdatedChannels;
-                    _casparDevice.UpdatedRecorders += CasparDevice_UpdatedRecorders;
-                    Connect();
-                    _isInitialized = true;
-                }
+                if (_isInitialized) return;
+                MediaDirectory = new ServerDirectory(this, mediaManager) { Folder = MediaFolder };
+                if (!string.IsNullOrWhiteSpace(AnimationFolder))
+                    AnimationDirectory = new AnimationDirectory(this, mediaManager) { Folder = AnimationFolder };
+                _casparDevice = new Svt.Caspar.CasparDevice() { IsRecordingSupported = ServerType == TServerType.CasparTVP };
+                _casparDevice.ConnectionStatusChanged += CasparDevice_ConnectionStatusChanged;
+                _casparDevice.UpdatedChannels += CasparDevice_UpdatedChannels;
+                _casparDevice.UpdatedRecorders += CasparDevice_UpdatedRecorders;
+                Connect();
+                _isInitialized = true;
             }
         }
 
@@ -127,8 +124,7 @@ namespace TAS.Server
         {
             string[] address = ServerAddress.Split(':');
             string host = address.Length > 0 ? address[0] : "localhost";
-            int port;
-            if (!(address.Length > 1 && int.TryParse(address[1], out port)))
+            if (!(address.Length > 1 && int.TryParse(address[1], out var port)))
                 port = 5250;
             if (_casparDevice != null && !_casparDevice.IsConnected)
                 _casparDevice.Connect(host, port, OscPort, true);
@@ -153,7 +149,7 @@ namespace TAS.Server
             {
                 _needUpdateChannels = false;
                 foreach (var c in ChannelsSer)
-                    c.AssignCasparChannel(Array.Find(channels, csc => csc.ID == c.Id));
+                    c.AssignCasparChannel(Array.Find(channels, csc => csc.Id == c.Id));
             }
         }
 

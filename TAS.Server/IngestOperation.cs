@@ -104,7 +104,6 @@ namespace TAS.Server
             if (Kind != TFileOperationKind.Ingest)
                 throw new InvalidOperationException("Invalid operation kind");
             StartTime = DateTime.UtcNow;
-            OperationStatus = FileOperationStatus.InProgress;
             IsIndeterminate = true;
             try
             {
@@ -120,7 +119,7 @@ namespace TAS.Server
                             if (!await sourceMedia.CopyMediaTo(localSourceMedia, CancellationTokenSource.Token))
                                 return false;
                             AddOutputMessage("Verifing local file");
-                            localSourceMedia.Verify();
+                            localSourceMedia.Verify(true);
                             return DestProperties.MediaType == TMediaType.Still
                                 ? ConvertStill(localSourceMedia)
                                 : await ConvertMovie(localSourceMedia, localSourceMedia.StreamInfo);
@@ -185,8 +184,7 @@ namespace TAS.Server
             var encoderParameters = new EncoderParameters(1) { Param = { [0] = encoderParameter } };
             bmp.Save(Dest.FullPath, imageCodecInfo, encoderParameters);
             Dest.MediaStatus = TMediaStatus.Copied;
-            Dest.Verify();
-            OperationStatus = FileOperationStatus.Finished;
+            Dest.Verify(false);
             return true;
         }
 
@@ -281,11 +279,11 @@ namespace TAS.Server
                     {
                         case TAudioChannelMappingConversion.FirstTwoChannels:
                         case TAudioChannelMappingConversion.SecondChannelOnly:
-                        case TAudioChannelMappingConversion.Combine1plus2:
+                        case TAudioChannelMappingConversion.Combine1Plus2:
                             requiredOutputChannels = 2;
                             break;
                         case TAudioChannelMappingConversion.SecondTwoChannels:
-                        case TAudioChannelMappingConversion.Combine3plus4:
+                        case TAudioChannelMappingConversion.Combine3Plus4:
                             requiredOutputChannels = 4;
                             break;
                         case TAudioChannelMappingConversion.FirstChannelOnly:
@@ -369,7 +367,7 @@ namespace TAS.Server
                 && destMedia.FileExists())
             {
                 destMedia.MediaStatus = TMediaStatus.Copied;
-                destMedia.Verify();
+                destMedia.Verify(true);
                 destMedia.TcPlay = destMedia.TcStart;
                 destMedia.DurationPlay = destMedia.Duration;
                 ((MediaDirectoryBase)DestDirectory).RefreshVolumeInfo();
@@ -391,7 +389,6 @@ namespace TAS.Server
                     AddOutputMessage("Convert operation finished successfully");
                     Debug.WriteLine(this, "Convert operation succeed");
                 }
-                OperationStatus = FileOperationStatus.Finished;
                 if (LoudnessCheck)
                 {
                     ThreadPool.QueueUserWorkItem((o) =>

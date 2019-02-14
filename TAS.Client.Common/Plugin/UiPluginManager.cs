@@ -9,7 +9,7 @@ namespace TAS.Client.Common.Plugin
 {
     public static class UiPluginManager
     {
-        private static readonly Logger Logger = LogManager.GetLogger(nameof(UiPluginManager));
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static readonly IUiPluginFactory[] Factories;
 
         static UiPluginManager()
