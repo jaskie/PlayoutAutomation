@@ -320,6 +320,7 @@ namespace TAS.Server.Media
                     MediaGuid = Guid.NewGuid(),
                     MediaType = mediaType,
                     FileName = fileName,
+                    LastUpdated = File.GetLastWriteTimeUtc(fullPath),
                     Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
                     MediaStatus = isVerified ? TMediaStatus.Available : TMediaStatus.Unknown,
                     IsVerified = isVerified
