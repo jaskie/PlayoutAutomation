@@ -55,23 +55,24 @@ namespace TAS.Client.ViewModels
 
         private async void SetupSearchDirectory(bool closeAfterAdd, TMediaType mediaType)
         {
-            IWatcherDirectory pri = _mediaType == TMediaType.Animation
-                ? (IWatcherDirectory)Engine.MediaManager.AnimationDirectoryPRI
+            var pri = _mediaType == TMediaType.Animation
+                ? (IWatcherDirectory) Engine.MediaManager.AnimationDirectoryPRI
                 : Engine.MediaManager.MediaDirectoryPRI;
-            IWatcherDirectory sec = _mediaType == TMediaType.Animation
-                ? (IWatcherDirectory)Engine.MediaManager.AnimationDirectorySEC
+            var sec = _mediaType == TMediaType.Animation
+                ? (IWatcherDirectory) Engine.MediaManager.AnimationDirectorySEC
                 : Engine.MediaManager.MediaDirectorySEC;
             _searchDirectory = pri != null && await Task.Run(() => pri.DirectoryExists())
                 ? pri
                 : sec != null && await Task.Run(() => sec.DirectoryExists())
                     ? sec
                     : null;
-            if (_searchDirectory != null)
-            {
-                _searchDirectory.MediaAdded += _searchDirectory_MediaAdded;
-                _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
-                _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;
-            }
+            if (_searchDirectory == null)
+                return;
+
+            _searchDirectory.MediaAdded += _searchDirectory_MediaAdded;
+            _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
+            _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;
+
             if (!closeAfterAdd)
                 OkButtonText = resources._button_Add;
             Items = new ObservableCollection<MediaViewViewmodel>(
@@ -79,11 +80,12 @@ namespace TAS.Client.ViewModels
                     .Where(m => _canAddMediaToCollection(m, mediaType))
                     .Select(m => new MediaViewViewmodel(m)));
             _itemsView = CollectionViewSource.GetDefaultView(Items);
-            _itemsView.SortDescriptions.Add(mediaType == TMediaType.Movie
-                ? new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending)
-                : new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
             _itemsView.Filter += _itemsFilter;
 
+            if (mediaType == TMediaType.Movie || mediaType == TMediaType.Audio)
+                SortByIngestDate();
+            else
+                SortByName();
         }
 
         public ObservableCollection<MediaViewViewmodel> Items { get => _items; private set => SetField(ref _items, value); }
@@ -99,10 +101,18 @@ namespace TAS.Client.ViewModels
             get => _searchText;
             set
             {
+                var oldValue = _searchText;
                 value = value.ToLower();
-                if (!SetField(ref _searchText, value.ToLower()))
+                if (!SetField(ref _searchText, value))
                     return;
                 _searchTextSplit = value.Split(' ');
+                if (_mediaType == TMediaType.Audio || _mediaType == TMediaType.Movie)
+                {
+                    if (string.IsNullOrWhiteSpace(value) && !string.IsNullOrWhiteSpace(oldValue))
+                        SortByIngestDate();
+                    if (!string.IsNullOrWhiteSpace(value) && string.IsNullOrWhiteSpace(oldValue))
+                        SortByName();
+                }
                 _itemsView?.Refresh();
                 _itemsView?.MoveCurrentToFirst();
                 SelectedItem = _itemsView?.CurrentItem as MediaViewViewmodel;
@@ -359,11 +369,21 @@ namespace TAS.Client.ViewModels
                 _searchDirectory.MediaRemoved -= _searchDirectory_MediaRemoved;
                 _searchDirectory.MediaVerified -= _searchDirectory_MediaVerified;
             }
-            if (_itemsView != null)
-                _itemsView.Filter -= _itemsFilter;
             foreach (var item in Items)
                 item.Dispose();
             Debug.WriteLine("MediaSearchViewModel disposed");
+        }
+
+        private void SortByName()
+        {
+            _itemsView.SortDescriptions.Clear();
+            _itemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
+        }
+
+        private void SortByIngestDate()
+        {
+            _itemsView.SortDescriptions.Clear();
+            _itemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending));
         }
 
     }
