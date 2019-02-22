@@ -50,6 +50,7 @@ namespace TAS.Server
             Logger.Info("Engines shutdown completed");
             Database?.Close();
             Logger.Info("Database closed");
+            _servers.ForEach(s => s.Dispose());
         }
 
         public static int GetConnectedClientCount() => Engines.Sum(e => e.Remote?.ClientCount ?? 0);

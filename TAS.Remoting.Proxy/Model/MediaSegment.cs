@@ -36,6 +36,7 @@ namespace TAS.Remoting.Model
         }
         public IDictionary<string, int> FieldLengths { get => _fieldLengths; set => Set(value); }
 
+        //TODO: check if it can cause problems
         public IMediaSegments Owner { get; }
 
         public ulong Id { get; set; }
