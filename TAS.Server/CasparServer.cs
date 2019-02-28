@@ -131,7 +131,7 @@ namespace TAS.Server
 
         private void Disconnect()
         {
-            if (_casparDevice.IsConnected)
+            if (_casparDevice?.IsConnected == true)
                 _casparDevice.Disconnect();
         }
 
@@ -172,8 +172,8 @@ namespace TAS.Server
                 _casparDevice.UpdatedRecorders -= CasparDevice_UpdatedRecorders;
                 _casparDevice.Dispose();
             }
-            MediaDirectory.Dispose();
-            AnimationDirectory.Dispose();
+            MediaDirectory?.Dispose();
+            AnimationDirectory?.Dispose();
         }
     }
 
