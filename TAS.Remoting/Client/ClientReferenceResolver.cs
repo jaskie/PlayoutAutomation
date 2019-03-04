@@ -1,9 +1,6 @@
-﻿//#undef DEBUG
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using Newtonsoft.Json.Serialization;
 
@@ -14,11 +11,6 @@ namespace TAS.Remoting.Client
         private readonly Dictionary<Guid, ProxyBase> _knownDtos = new Dictionary<Guid, ProxyBase>();
         private int _disposed;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-        public ClientReferenceResolver()
-        {
-            Debug.WriteLine("Created ReferenceResolver");
-        }
 
         public void Dispose()
         {
@@ -45,7 +37,7 @@ namespace TAS.Remoting.Client
             lock (((IDictionary)_knownDtos).SyncRoot)
                 _knownDtos[id] = proxy;
             proxy.Disposed += _reference_Disposed;
-            Debug.WriteLine("Added reference {0} for {1}", reference, value);
+            Logger.Trace("AddReference {0} for {1}", reference, value);
         }
 
         public string GetReference(object context, object value)
@@ -59,6 +51,7 @@ namespace TAS.Remoting.Client
                 _knownDtos[dto.DtoGuid] = dto;
             }
             dto.Disposed += _reference_Disposed;
+            Logger.Trace("GetReference added {0} for {1}", dto.DtoGuid, value);
             return dto.DtoGuid.ToString();
         }
 
@@ -77,8 +70,8 @@ namespace TAS.Remoting.Client
             lock (((IDictionary) _knownDtos).SyncRoot)
             {
                 if (!_knownDtos.TryGetValue(id, out var value))
-                    throw new UnresolvedReferenceException("ResolveReference failed", id);
-                Debug.WriteLine("Resolved reference {0} with {1}", reference, value);
+                    throw new UnresolvedReferenceException(id);
+                Logger.Trace("Resolved reference {0} with {1}", reference, value);
                 return value;
             }
         }

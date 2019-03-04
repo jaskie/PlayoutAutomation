@@ -385,7 +385,7 @@ namespace Svt.Network
             }
             //We dont need to take care of ObjectDisposedException. 
             //ObjectDisposedException would indicate that the state has been closed, and that means it has been disconnected already
-            //catch { }
+            catch (ObjectDisposedException) { }
         }
 
         #region Send

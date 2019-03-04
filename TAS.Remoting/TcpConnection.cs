@@ -171,6 +171,7 @@ namespace TAS.Remoting
                 }
                 catch (Exception e)
                 {
+                    dataBuffer = null;
                     Logger.Error(e, "Read thread unexpected exception");
                 }
             }

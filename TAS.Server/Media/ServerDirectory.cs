@@ -62,7 +62,7 @@ namespace TAS.Server.Media
             var result = (new ServerMedia
             {
                 MediaName = mediaProperties.MediaName,
-                MediaGuid = mediaProperties.MediaGuid == Guid.Empty ? Guid.NewGuid() : mediaProperties.MediaGuid,
+                MediaGuid = mediaProperties.MediaGuid == Guid.Empty || FindMediaByMediaGuid(mediaProperties.MediaGuid) != null ? Guid.NewGuid() : mediaProperties.MediaGuid,
                 LastUpdated = mediaProperties.LastUpdated,
                 MediaType = mediaProperties.MediaType == TMediaType.Unknown ? TMediaType.Movie : mediaProperties.MediaType,
                 FileName = newFileName,

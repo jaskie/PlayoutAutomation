@@ -316,7 +316,7 @@ namespace TAS.Client.ViewModels
 
         private void _makeFileName()
         {
-            DestFileName = MediaExtensions.MakeFileName(IdAux, DestMediaName, _ingestOperation.MovieContainerFormat);
+            DestFileName = MediaExtensions.MakeFileName(IdAux, DestMediaName,  _ingestOperation.Source.MediaType == TMediaType.Movie ? $".{_ingestOperation.MovieContainerFormat}": FileUtils.DefaultFileExtension(_ingestOperation.Source.MediaType));
         }
 
         private string ValidateTc()

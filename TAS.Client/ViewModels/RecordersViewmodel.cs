@@ -75,7 +75,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public string FileName => MediaExtensions.MakeFileName(IdAux, MediaName, FileFormat);
+        public string FileName => MediaExtensions.MakeFileName(IdAux, MediaName, $".{FileFormat}");
 
         public IRecorder SelectedRecorder
         {

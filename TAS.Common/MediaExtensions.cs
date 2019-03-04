@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Common
@@ -29,15 +28,14 @@ namespace TAS.Common
             return ((media.TcStart + media.Duration).ToSMPTEFrames(frameRate) - 1).SMPTEFramesToTimeSpan(frameRate);
         }
 
-        public static string MakeFileName(string idAux, string mediaName, TMovieContainerFormat fileExtension)
+        public static string MakeFileName(string idAux, string mediaName, string fileExtension)
         {
             var filenameParts = new List<string>();
             if (!string.IsNullOrWhiteSpace(idAux))
                 filenameParts.Add(idAux);
             if (!string.IsNullOrWhiteSpace(mediaName))
                 filenameParts.Add(mediaName);
-            return (FileUtils.SanitizeFileName(string.Join(" ", filenameParts)) +
-                   $".{fileExtension}").Trim();
+            return (FileUtils.SanitizeFileName(string.Join(" ", filenameParts)) + $"{fileExtension}").Trim();
         }
     }
 }

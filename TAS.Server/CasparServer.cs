@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
+using System.Threading;
 using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Remoting.Server;
@@ -20,7 +21,7 @@ namespace TAS.Server
     public class CasparServer : DtoBase, IPlayoutServer, IPlayoutServerProperties
     {
         private bool _isConnected;
-        private bool _isInitialized;
+        private int _isInitialized;
         private bool _needUpdateChannels;
         private Svt.Caspar.CasparDevice _casparDevice;
 
@@ -92,19 +93,16 @@ namespace TAS.Server
         public void Initialize(MediaManager mediaManager)
         {
             Debug.WriteLine(this, "CasparServer initialize");
-            lock (this)
-            {
-                if (_isInitialized) return;
-                MediaDirectory = new ServerDirectory(this, mediaManager) { Folder = MediaFolder };
-                if (!string.IsNullOrWhiteSpace(AnimationFolder))
-                    AnimationDirectory = new AnimationDirectory(this, mediaManager) { Folder = AnimationFolder };
-                _casparDevice = new Svt.Caspar.CasparDevice() { IsRecordingSupported = ServerType == TServerType.CasparTVP };
-                _casparDevice.ConnectionStatusChanged += CasparDevice_ConnectionStatusChanged;
-                _casparDevice.UpdatedChannels += CasparDevice_UpdatedChannels;
-                _casparDevice.UpdatedRecorders += CasparDevice_UpdatedRecorders;
-                Connect();
-                _isInitialized = true;
-            }
+            if (Interlocked.Exchange(ref _isInitialized, 1) != default(int))
+                return;
+            MediaDirectory = new ServerDirectory(this, mediaManager) {Folder = MediaFolder};
+            if (!string.IsNullOrWhiteSpace(AnimationFolder))
+                AnimationDirectory = new AnimationDirectory(this, mediaManager) {Folder = AnimationFolder};
+            _casparDevice = new Svt.Caspar.CasparDevice {IsRecordingSupported = ServerType == TServerType.CasparTVP};
+            _casparDevice.ConnectionStatusChanged += CasparDevice_ConnectionStatusChanged;
+            _casparDevice.UpdatedChannels += CasparDevice_UpdatedChannels;
+            _casparDevice.UpdatedRecorders += CasparDevice_UpdatedRecorders;
+            Connect();
         }
 
         public override string ToString()
@@ -122,8 +120,8 @@ namespace TAS.Server
         
         private void Connect()
         {
-            string[] address = ServerAddress.Split(':');
-            string host = address.Length > 0 ? address[0] : "localhost";
+            var address = ServerAddress.Split(':');
+            var host = address.Length > 0 ? address[0] : "localhost";
             if (!(address.Length > 1 && int.TryParse(address[1], out var port)))
                 port = 5250;
             if (_casparDevice != null && !_casparDevice.IsConnected)
@@ -133,7 +131,7 @@ namespace TAS.Server
 
         private void Disconnect()
         {
-            if (_casparDevice != null && _casparDevice.IsConnected)
+            if (_casparDevice?.IsConnected == true)
                 _casparDevice.Disconnect();
         }
 
@@ -167,12 +165,15 @@ namespace TAS.Server
         protected override void DoDispose()
         {
             Disconnect();
-            _casparDevice.ConnectionStatusChanged -= CasparDevice_ConnectionStatusChanged;
-            _casparDevice.UpdatedChannels -= CasparDevice_UpdatedChannels;
-            _casparDevice.UpdatedRecorders -= CasparDevice_UpdatedRecorders;
-            _casparDevice.Dispose();
-            MediaDirectory.Dispose();
-            AnimationDirectory.Dispose();
+            if (_casparDevice != null)
+            {
+                _casparDevice.ConnectionStatusChanged -= CasparDevice_ConnectionStatusChanged;
+                _casparDevice.UpdatedChannels -= CasparDevice_UpdatedChannels;
+                _casparDevice.UpdatedRecorders -= CasparDevice_UpdatedRecorders;
+                _casparDevice.Dispose();
+            }
+            MediaDirectory?.Dispose();
+            AnimationDirectory?.Dispose();
         }
     }
 

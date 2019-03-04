@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
-using System.ComponentModel;
 using TAS.Common;
 using TAS.Remoting.Server;
 using System.Xml.Serialization;
@@ -27,6 +26,7 @@ namespace TAS.Server
         private long _position;
         [JsonProperty(nameof(IEventPesistent.Engine))]
         private readonly Engine _engine;
+        private readonly object _rundownSync;
         private readonly Lazy<SynchronizedCollection<Event>> _subEvents;
         private Lazy<Event> _parent;
         private Lazy<Event> _prior;
@@ -95,6 +95,7 @@ namespace TAS.Server
                     byte parental)
         {
             _engine = engine;
+            _rundownSync = engine.RundownSync;
             Id = idRundownEvent;
             IdEventBinding = idEventBinding;
             _layer = videoLayer;
@@ -128,14 +129,13 @@ namespace TAS.Server
              _subEvents = new Lazy<SynchronizedCollection<Event>>(() =>
              {
                  var result = new SynchronizedCollection<Event>();
-                 if (Id != 0)
+                 if (Id == 0)
+                     return result;
+                 var seList = EngineController.Database.ReadSubEvents(_engine, this);
+                 foreach (Event e in seList)
                  {
-                     var seList = EngineController.Database.ReadSubEvents(_engine, this);
-                     foreach (Event e in seList)
-                     {
-                         e.Parent = this;
-                         result.Add(e);
-                     }
+                     e.Parent = this;
+                     result.Add(e);
                  }
                  return result;
              });
@@ -675,12 +675,12 @@ namespace TAS.Server
         public void Remove()
         {
             Event next;
-            lock (_engine.RundownSync)
+            lock (_rundownSync)
             {
-                Event parent = Parent as Event;
+                var parent = Parent as Event;
                 next = Next as Event;
-                Event prior = Prior as Event;
-                TStartType startType = _startType;
+                var prior = Prior as Event;
+                var startType = _startType;
                 _engine.RemoveRootEvent(this);
                 if (next != null)
                 {
@@ -726,16 +726,15 @@ namespace TAS.Server
                 return false;
             Event e2;
             Event e4;
-            lock (_engine.RundownSync)
+            lock (_rundownSync)
             {
                 // this = e3
                 e2 = Prior as Event;
                 e4 = Next as Event; // load if nescessary
-                Debug.Assert(e2 != null, "Cannot move up - it's the first event");
                 if (e2 == null)
                     return false;
-                Event e2Parent = e2.Parent as Event;
-                Event e2Prior = e2.Prior as Event;
+                var e2Parent = e2.Parent as Event;
+                var e2Prior = e2.Prior as Event;
                 if (e2Parent != null)
                 {
                     lock (e2Parent._subEvents)
@@ -775,16 +774,15 @@ namespace TAS.Server
                 return false;
             Event e3;
             Event e4;
-            lock (_engine.RundownSync)
+            lock (_rundownSync)
             {
                 // this = e2
                 e3 = Next as Event; // load if nescessary
-                Debug.Assert(e3 != null, "Cannot move down - it's the last event");
                 if (e3 == null)
                     return false;
                 e4 = e3.Next as Event;
-                Event e2Parent = Parent as Event;
-                Event e2Prior = Prior as Event;
+                var e2Parent = Parent as Event;
+                var e2Prior = Prior as Event;
                 if (e2Parent != null)
                 {
                     lock (e2Parent._subEvents)
@@ -822,12 +820,12 @@ namespace TAS.Server
         {
             if (!HaveRight(EventRight.Create))
                 return false;
-            Event eventToInsert = (Event) e;
+            var eventToInsert = (Event) e;
             Event next;
             lock (_engine.RundownSync)
             {
-                Event oldParent = eventToInsert.Parent as Event;
-                Event oldPrior = eventToInsert.Prior as Event;
+                var oldParent = eventToInsert.Parent as Event;
+                var oldPrior = eventToInsert.Prior as Event;
                 oldParent?._subEventsRemove(eventToInsert);
                 _engine.RemoveRootEvent(eventToInsert);
                 if (oldPrior != null)
@@ -840,13 +838,14 @@ namespace TAS.Server
                 eventToInsert.StartType = TStartType.After;
                 eventToInsert.Prior = this;
 
-                // notify about relocation
-                eventToInsert.NotifyLocated();
                 eventToInsert.Next = next;
 
                 if (next != null)
                     next.Prior = eventToInsert;
             }
+            // notify about relocation
+            eventToInsert.NotifyLocated();
+            
             //time calculations
             eventToInsert._uppdateScheduledTime();
             eventToInsert._durationChanged();
@@ -861,13 +860,13 @@ namespace TAS.Server
         {
             if (!HaveRight(EventRight.Create))
                 return false;
-            Event eventToInsert = (Event) e;
+            var eventToInsert = (Event) e;
             lock (_engine.RundownSync)
             {
-                Event prior = this.Prior as Event;
-                Event parent = this.Parent as Event;
-                Event oldParent = eventToInsert.Parent as Event;
-                Event oldPrior = eventToInsert.Prior as Event;
+                var prior = this.Prior as Event;
+                var parent = this.Parent as Event;
+                var oldParent = eventToInsert.Parent as Event;
+                var oldPrior = eventToInsert.Prior as Event;
                 oldParent?._subEventsRemove(eventToInsert);
                 _engine.RemoveRootEvent(eventToInsert);
                 if (oldPrior != null)
@@ -893,12 +892,13 @@ namespace TAS.Server
                 if (prior != null)
                     prior.Next = eventToInsert;
 
-                // notify about relocation
-                eventToInsert.NotifyLocated();
                 this.Prior = eventToInsert;
                 eventToInsert.Next = this;
                 this.StartType = TStartType.After;
             }
+            // notify about relocation
+            eventToInsert.NotifyLocated();
+
             // time calculations
             eventToInsert._uppdateScheduledTime();
             eventToInsert._durationChanged();
@@ -912,11 +912,11 @@ namespace TAS.Server
         {
             if (!HaveRight(EventRight.Create))
                 return false;
-            Event subEventToAdd = (Event) se;
+            var subEventToAdd = (Event) se;
             lock (_engine.RundownSync)
             {
-                Event oldPrior = subEventToAdd.Prior as Event;
-                Event oldParent = subEventToAdd.Parent as Event;
+                var oldPrior = subEventToAdd.Prior as Event;
+                var oldParent = subEventToAdd.Parent as Event;
                 oldParent?._subEventsRemove(subEventToAdd);
                 _engine.RemoveRootEvent(subEventToAdd);
                 if (oldPrior != null)
@@ -939,8 +939,7 @@ namespace TAS.Server
                 NotifySubEventChanged(subEventToAdd, CollectionOperation.Add);
                 if (_eventType == TEventType.Rundown)
                     Duration = _computedDuration();
-                Event prior = subEventToAdd.Prior as Event;
-                if (prior != null)
+                if (subEventToAdd.Prior is Event prior)
                 {
                     prior.Next = null;
                     subEventToAdd.Prior = null;
@@ -950,12 +949,6 @@ namespace TAS.Server
             subEventToAdd._uppdateScheduledTime();
             // notify about relocation
             subEventToAdd.NotifyLocated();
-            Event lastToInsert = subEventToAdd.Next as Event;
-            while (lastToInsert != null)
-            {
-                lastToInsert.NotifyLocated();
-                lastToInsert = lastToInsert.Next as Event;
-            }
             if (IdEventBinding == 0)
                 Save();
             subEventToAdd.Save();
@@ -1365,7 +1358,7 @@ namespace TAS.Server
                 {
                     foreach (Event e in SubEvents.Where(ev => ev.EventType == TEventType.StillImage))
                     {
-                        TimeSpan nd = e._duration + newDuration - oldDuration;
+                        var nd = e._duration + newDuration - oldDuration;
                         e._setDuration(nd > TimeSpan.Zero ? nd : TimeSpan.Zero);
                     }
                 }

@@ -1,6 +1,4 @@
-﻿#undef DEBUG
-
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -13,17 +11,8 @@ namespace TAS.Remoting.Server
     {
         private readonly ConcurrentDictionary<Guid, DtoBase> _knownDtos = new ConcurrentDictionary<Guid, DtoBase>();
         private int _disposed;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public ServerReferenceResolver()
-        {
-            Debug.WriteLine("Created ReferenceResolver");
-        }
-
-#if DEBUG
-        ~ReferenceResolver() {
-            Debug.WriteLine("Finalized ReferenceResolver");
-        }
-#endif
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _disposed, 1) != default(int))
@@ -46,7 +35,7 @@ namespace TAS.Remoting.Server
                 return;
             var id = new Guid(reference);
             _knownDtos[id] = dto;
-            Debug.WriteLine("Added reference {0} for {1}", reference, value);
+            Logger.Trace("AddReference {0} for {1}", reference, value);
         }
 
         public string GetReference(object context, object value)
@@ -58,6 +47,7 @@ namespace TAS.Remoting.Server
             _knownDtos[dto.DtoGuid] = dto;
             dto.PropertyChanged += _referencePropertyChanged;
             dto.Disposed += _reference_Disposed;
+            Logger.Trace("GetReference added {0} for {1}", dto.DtoGuid, value);
             return dto.DtoGuid.ToString();
         }
 
@@ -73,8 +63,8 @@ namespace TAS.Remoting.Server
         {
             var id = new Guid(reference);
             if (!_knownDtos.TryGetValue(id, out var value))
-                throw new UnresolvedReferenceException("ResolveReference failed", id);
-            Debug.WriteLine("Resolved reference {0} with {1}", reference, value);
+                throw new UnresolvedReferenceException(id);
+            Logger.Trace("ResolveReference {0} with {1}", reference, value);
             return value;
         }
 
@@ -83,7 +73,7 @@ namespace TAS.Remoting.Server
         public IDto ResolveReference(Guid reference)
         {
             if (!_knownDtos.TryGetValue(reference, out var p))
-                throw new UnresolvedReferenceException("ResolveReference failed", reference);
+                throw new UnresolvedReferenceException(reference);
             return p;
         }
 
@@ -99,12 +89,11 @@ namespace TAS.Remoting.Server
         private void _reference_Disposed(object sender, EventArgs e)
         {
             ReferenceDisposed?.Invoke(sender, EventArgs.Empty);
-            if (sender is IDto dto && _knownDtos.TryRemove(dto.DtoGuid, out var disposed) && sender == disposed)
-            {
-                disposed.PropertyChanged -= _referencePropertyChanged;
-                disposed.Disposed -= _reference_Disposed;
-                Debug.WriteLine(disposed, $"Reference resolver - object {disposed.DtoGuid} disposed, generation is {GC.GetGeneration(dto)}");
-            }
+            if (!(sender is IDto dto) || !_knownDtos.TryRemove(dto.DtoGuid, out var disposed) || sender != disposed)
+                return;
+            disposed.PropertyChanged -= _referencePropertyChanged;
+            disposed.Disposed -= _reference_Disposed;
+            Logger.Trace("Reference resolver - object {0} disposed, generation is {1}", disposed, GC.GetGeneration(dto));
         }
 
     }

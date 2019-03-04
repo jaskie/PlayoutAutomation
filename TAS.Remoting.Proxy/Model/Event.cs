@@ -294,9 +294,9 @@ namespace TAS.Remoting.Model
                     _positionChanged?.Invoke(this, Deserialize<EventPositionEventArgs>(message));
                     break;
                 case nameof(IEvent.SubEventChanged):
+                    var ea = Deserialize<CollectionOperationEventArgs<IEvent>>(message);
                     if (!_subEvents.IsValueCreated)
                         return;
-                    var ea = Deserialize<CollectionOperationEventArgs<IEvent>>(message);
                     if (ea.Operation == CollectionOperation.Add)
                         _subEvents.Value.Add(ea.Item);
                     else

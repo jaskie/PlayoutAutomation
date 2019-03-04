@@ -567,11 +567,13 @@ namespace TAS.Server.Media
         {
             try
             {
-                var mediaProfile = XDCAM.SerializationHelper<XDCAM.MediaProfile>.Deserialize(ReadXmlDocument("MEDIAPRO.XML", client));
+                var mediaProfile =
+                    XDCAM.SerializationHelper<XDCAM.MediaProfile>.Deserialize(ReadXmlDocument("MEDIAPRO.XML", client));
                 if (mediaProfile == null)
                     return;
                 ClearFiles();
-                XdcamClipCount = mediaProfile.Contents.Length;
+                XdcamClipCount = mediaProfile.Contents?.Length ?? 0;
+                if (mediaProfile.Contents == null) return;
                 var index = 0;
                 foreach (var material in mediaProfile.Contents)
                 {
