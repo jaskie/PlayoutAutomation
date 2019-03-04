@@ -144,6 +144,7 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
+                        <DataGridTextColumn x:Name="folderColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Folder}" Width="*" Binding="{Binding Folder, Mode=OneWay}" Visibility="{Binding IsRecursive, Converter={StaticResource BoolToVis}}"/>
                         <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" />
                         <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="DurationPlay">
                             <DataGridTemplateColumn.CellTemplate>
@@ -179,6 +180,11 @@
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
                                         <GridViewColumn DisplayMemberBinding="{Binding SegmentName, Mode=OneWay}" Width="{Binding ElementName=clipNameColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
+                                        <GridViewColumn Width="{Binding ElementName=folderColumn, Path=ActualWidth}">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate />
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
                                         <GridViewColumn Width="{Binding ElementName=ingestDateColumn, Path=ActualWidth}">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate />

@@ -18,6 +18,7 @@ namespace TAS.Common.Interfaces
         string ServerAddress { get; set; }
         int OscPort { get; set; }
         string MediaFolder { get; set; }
+        bool IsMediaFolderRecursive { get; set; }
         string AnimationFolder { get; set; }
         TServerType ServerType { get; }
         TMovieContainerFormat MovieContainerFormat { get; }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace TAS.Common
 {
@@ -110,6 +112,20 @@ namespace TAS.Common
                         : AnimationFileTypes.Contains(ext)
                             ? TMediaType.Animation
                             : TMediaType.Unknown;
+        }
+
+
+        [DllImport("shlwapi.dll", EntryPoint = "PathRelativePathTo")]
+        private static extern bool PathRelativePathTo(StringBuilder lpszDst,
+            string from, uint attrFrom,
+            string to, uint attrTo);
+
+        public static string GetRelativePath(string from, string to)
+        {
+            if (to.StartsWith(from))
+                return to.Substring(from.Length + 1);
+            var builder = new StringBuilder(1024);
+            return PathRelativePathTo(builder, from, 0, to, 0) ? builder.ToString(): throw new ApplicationException();
         }
     }
 }

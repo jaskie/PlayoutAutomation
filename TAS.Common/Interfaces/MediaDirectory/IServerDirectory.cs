@@ -2,6 +2,7 @@
 {
     public interface IServerDirectory: IWatcherDirectory
     {
+        bool IsRecursive { get; }
     }
 
 }

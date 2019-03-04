@@ -20,6 +20,7 @@ namespace TAS.Client.Config
         private PlayoutRecorderViewmodel _selectedPlayoutRecorder;
         private bool _isAnyChildChanged;
         private TMovieContainerFormat _movieContainerFormat;
+        private bool _isMediaFolderRecursive;
 
         public PlayoutServerViewmodel(Model.CasparServer playoutServer) : base(playoutServer)
         {
@@ -70,6 +71,13 @@ namespace TAS.Client.Config
             get => _mediaFolder;
             set => SetField(ref _mediaFolder, value);
         }
+
+        public bool IsMediaFolderRecursive
+        {
+            get => _isMediaFolderRecursive;
+            set => SetField(ref _isMediaFolderRecursive, value);
+        }
+
 
         public string AnimationFolder
         {

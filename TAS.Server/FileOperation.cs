@@ -280,6 +280,7 @@ namespace TAS.Server
                     if (!File.Exists(source.FullPath) || !Directory.Exists(DestDirectory.Folder))
                         return false;
                     CreateDestMediaIfNotExists();
+                    FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(Dest.FullPath));
                     if (!(Dest.FileExists()
                           && File.GetLastWriteTimeUtc(source.FullPath)
                               .Equals(File.GetLastWriteTimeUtc(Dest.FullPath))

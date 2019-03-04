@@ -574,28 +574,32 @@ namespace TAS.Server
         
         private CasparItem _getItem(Event aEvent)
         {
-            CasparItem item = new CasparItem(string.Empty);
-            IPersistentMedia media = (aEvent.Engine.PlayoutChannelPRI == this) ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
-            if (aEvent.EventType == TEventType.Live || media != null)
+            var media = (aEvent.Engine.PlayoutChannelPRI == this) ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
+            if (aEvent.EventType != TEventType.Live && media == null)
+                return null;
+            var item = new CasparItem(string.Empty);
+            if (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
             {
-                if (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
-                    item.Clipname = string.Format($"\"{Path.GetFileNameWithoutExtension(media.FileName)}\"");
-                if (aEvent.EventType == TEventType.Live)
-                    item.Clipname = string.IsNullOrWhiteSpace(LiveDevice) ? "BLACK" : LiveDevice;
-                if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie)
-                    item.ChannelLayout = ChannelLayout.Stereo;
-                if (aEvent.EventType == TEventType.Movie)
-                    item.FieldOrderInverted = media.FieldOrderInverted;
-                item.VideoLayer = (int)aEvent.Layer;
-                item.Loop = false;
-                item.Transition.Type = (TransitionType)aEvent.TransitionType;
-                item.Transition.Duration = (int)((aEvent.TransitionTime.Ticks - aEvent.TransitionPauseTime.Ticks) / aEvent.Engine.FrameTicks);
-                item.Transition.Pause = (int)(aEvent.TransitionPauseTime.Ticks / aEvent.Engine.FrameTicks);
-                item.Transition.Easing = (Easing)aEvent.TransitionEasing; 
-                item.Seek = (int)aEvent.MediaSeek;
-                return item;
+                if (!string.IsNullOrWhiteSpace(media.Folder) && ((ServerDirectory) media.Directory).IsRecursive)
+                    item.Clipname = $"\"{Path.Combine(media.Folder, media.FileName)}\"";
+                else
+                    item.Clipname = $"\"{Path.GetFileNameWithoutExtension(media.FileName)}\"";
             }
-            return null;
+            if (aEvent.EventType == TEventType.Live)
+                item.Clipname = string.IsNullOrWhiteSpace(LiveDevice) ? "BLACK" : LiveDevice;
+            if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie)
+                item.ChannelLayout = ChannelLayout.Stereo;
+            if (aEvent.EventType == TEventType.Movie)
+                item.FieldOrderInverted = media.FieldOrderInverted;
+            item.VideoLayer = (int)aEvent.Layer;
+            item.Loop = false;
+                
+            item.Transition.Type = (TransitionType)aEvent.TransitionType;
+            item.Transition.Duration = (int)((aEvent.TransitionTime.Ticks - aEvent.TransitionPauseTime.Ticks) / aEvent.Engine.FrameTicks);
+            item.Transition.Pause = (int)(aEvent.TransitionPauseTime.Ticks / aEvent.Engine.FrameTicks);
+            item.Transition.Easing = (Easing)aEvent.TransitionEasing; 
+            item.Seek = (int)aEvent.MediaSeek;
+            return item;
         }
 
         private CasparItem _getItem(MediaBase media, VideoLayer videolayer, long seek)

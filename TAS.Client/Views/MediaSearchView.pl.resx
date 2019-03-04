@@ -126,6 +126,9 @@
   <data name="_grid.Header.Duration" xml:space="preserve">
     <value>Czas trwania</value>
   </data>
+  <data name="_grid.Header.Folder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
   <data name="_grid.Header.IngestDate" xml:space="preserve">
     <value>Data ingestu</value>
   </data>

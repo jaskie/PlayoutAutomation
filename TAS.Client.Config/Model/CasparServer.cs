@@ -13,6 +13,8 @@ namespace TAS.Client.Config.Model
         public string ServerAddress { get; set; }
         public int OscPort { get; set; }
         public string MediaFolder { get; set; }
+        public bool IsMediaFolderRecursive { get; set; }
+
         public string AnimationFolder { get; set; }
         [XmlIgnore]
         public ulong Id { get; set; }

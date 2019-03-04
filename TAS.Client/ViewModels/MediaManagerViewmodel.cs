@@ -289,7 +289,7 @@ namespace TAS.Client.ViewModels
         }
 
 
-        public bool IsDisplayFolder => _selectedDirectory != null && (_selectedDirectory.IsArchiveDirectory || _selectedDirectory.IsRecursive);
+        public bool IsDisplayFolder => _selectedDirectory != null && _selectedDirectory.IsRecursive;
 
         public bool IsDisplayClipNr => _selectedDirectory != null && _selectedDirectory.IsXdcam;
 
@@ -626,7 +626,7 @@ namespace TAS.Client.ViewModels
         private async void _syncSecToPri(object o)
         {
             if (_selectedDirectory?.Directory is IServerDirectory)
-                await Task.Run(() => _mediaManager.SynchronizeMediaSecToPri(true));
+                await Task.Run(() => _mediaManager.SynchronizeMediaSecToPri());
         }
 
         private async void _verifyAllMedia(object o)

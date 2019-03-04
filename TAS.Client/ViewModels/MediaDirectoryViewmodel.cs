@@ -68,7 +68,7 @@ namespace TAS.Client.ViewModels
 
         public TmXFVideoExportFormat MXFVideoExportFormat => (Directory as IIngestDirectory)?.MXFVideoExportFormat ?? TmXFVideoExportFormat.IMX50;
 
-        public bool IsRecursive => (Directory as IIngestDirectory)?.IsRecursive == true;
+        public bool IsRecursive => Directory is IArchiveDirectory || (Directory as IServerDirectory)?.IsRecursive == true || (Directory as IIngestDirectory)?.IsRecursive == true;
 
         public TDirectoryAccessType AccessType => (Directory as IIngestDirectory)?.AccessType ?? TDirectoryAccessType.Direct;
 

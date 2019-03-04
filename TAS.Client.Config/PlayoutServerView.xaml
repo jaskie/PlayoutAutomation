@@ -34,6 +34,7 @@
                     <TextBox Text="{Binding OscPort, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label Content="Media folder"/>
                     <TextBox Text="{Binding MediaFolder, UpdateSourceTrigger=PropertyChanged}"/>
+                    <CheckBox IsChecked="{Binding IsMediaFolderRecursive}">Recursive (with subdirectories)</CheckBox>
                     <Label Content="Animation folder"/>
                     <TextBox Text="{Binding AnimationFolder, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label Content="Server type"/>

@@ -19,14 +19,17 @@ namespace TAS.Server.Media
             : base(manager)
         {
             Server = server;
+            IsRecursive = server.IsMediaFolderRecursive;
         }
+
+        public bool IsRecursive { get; }
 
         public override void Initialize()
         {
             if (IsInitialized)
                 return;
             EngineController.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
-            base.Initialize();
+            BeginWatch("*", IsRecursive, TimeSpan.Zero);
             Debug.WriteLine(this, "Directory initialized");
         }
 
@@ -54,7 +57,15 @@ namespace TAS.Server.Media
         internal override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
             var newFileName = mediaProperties.FileName;
-            if (File.Exists(Path.Combine(Folder, newFileName)))
+            if (IsRecursive)
+            {
+                if (File.Exists(Path.Combine(Folder, mediaProperties.Folder, newFileName)))
+                {
+                    Logger.Trace("{0}: File {1} already exists", nameof(CreateMedia), newFileName);
+                    newFileName = FileUtils.GetUniqueFileName(Path.Combine(Folder, mediaProperties.Folder), newFileName);
+                }
+            }
+            else if (File.Exists(Path.Combine(Folder, newFileName)))
             {
                 Logger.Trace("{0}: File {1} already exists", nameof(CreateMedia), newFileName);
                 newFileName = FileUtils.GetUniqueFileName(Folder, newFileName);
@@ -65,9 +76,11 @@ namespace TAS.Server.Media
                 MediaGuid = mediaProperties.MediaGuid == Guid.Empty || FindMediaByMediaGuid(mediaProperties.MediaGuid) != null ? Guid.NewGuid() : mediaProperties.MediaGuid,
                 LastUpdated = mediaProperties.LastUpdated,
                 MediaType = mediaProperties.MediaType == TMediaType.Unknown ? TMediaType.Movie : mediaProperties.MediaType,
+                Folder = IsRecursive && mediaProperties is IServerMedia ? mediaProperties.Folder : string.Empty,
                 FileName = newFileName,
                 MediaStatus = TMediaStatus.Required,
             });
+ 
             result.CloneMediaProperties(mediaProperties);
             AddMedia(result);
             return result;

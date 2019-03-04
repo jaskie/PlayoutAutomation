@@ -56,10 +56,10 @@ namespace TAS.Client.ViewModels
         private async void SetupSearchDirectory(bool closeAfterAdd, TMediaType mediaType)
         {
             var pri = _mediaType == TMediaType.Animation
-                ? (IWatcherDirectory) Engine.MediaManager.AnimationDirectoryPRI
+                ? (IWatcherDirectory)Engine.MediaManager.AnimationDirectoryPRI
                 : Engine.MediaManager.MediaDirectoryPRI;
             var sec = _mediaType == TMediaType.Animation
-                ? (IWatcherDirectory) Engine.MediaManager.AnimationDirectorySEC
+                ? (IWatcherDirectory)Engine.MediaManager.AnimationDirectorySEC
                 : Engine.MediaManager.MediaDirectorySEC;
             _searchDirectory = pri != null && await Task.Run(() => pri.DirectoryExists())
                 ? pri
@@ -81,6 +81,8 @@ namespace TAS.Client.ViewModels
                     .Select(m => new MediaViewViewmodel(m)));
             _itemsView = CollectionViewSource.GetDefaultView(Items);
             _itemsView.Filter += _itemsFilter;
+
+            IsRecursive = _searchDirectory is IServerDirectory sd && sd.IsRecursive;
 
             if (mediaType == TMediaType.Movie || mediaType == TMediaType.Audio)
                 SortByIngestDate();
@@ -134,6 +136,7 @@ namespace TAS.Client.ViewModels
                 }
             }
         }
+        public bool IsRecursive { get => _isRecursive; private set => SetField(ref _isRecursive, value); }
 
         public IMedia SelectedMedia => _selectedItem?.Media;
 
@@ -176,6 +179,7 @@ namespace TAS.Client.ViewModels
 
         internal TStartType NewEventStartType;
         private ObservableCollection<MediaViewViewmodel> _items;
+        private bool _isRecursive;
 
         internal IEvent BaseEvent
         {

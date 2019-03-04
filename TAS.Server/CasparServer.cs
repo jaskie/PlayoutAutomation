@@ -50,6 +50,8 @@ namespace TAS.Server
 
         public string MediaFolder { get; set; }
 
+        public bool IsMediaFolderRecursive { get; set; }
+
         public string AnimationFolder { get; set; }
 
         public TServerType ServerType { get; set; }

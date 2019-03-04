@@ -58,13 +58,7 @@ namespace TAS.Server.Media
         }
 
 
-        public virtual void Initialize()
-        {
-            if (!_isInitialized)
-            {
-                BeginWatch("*", false, TimeSpan.Zero); 
-            }
-        }
+        public abstract void Initialize();
 
         public virtual void UnInitialize()
         {

@@ -88,11 +88,6 @@ namespace TAS.Remoting.Model
             Invoke(parameters: mediaList);
         }
        
-        public IMedia GetPRVMedia(IMedia media)
-        {
-            return Query<MediaBase>(parameters: media);
-        }
-
         public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList) { Invoke(parameters: mediaList); }
 
         public void Initialize()
@@ -105,9 +100,9 @@ namespace TAS.Remoting.Model
             Invoke();
         }
 
-        public void SynchronizeMediaSecToPri(bool deleteNotExisted)
+        public void SynchronizeMediaSecToPri()
         {
-            Invoke(parameters: deleteNotExisted);
+            Invoke();
         }
 
         public void SynchronizeAnimationsSecToPri()
