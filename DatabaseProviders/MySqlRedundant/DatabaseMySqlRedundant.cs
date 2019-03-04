@@ -440,8 +440,9 @@ namespace TAS.Database.MySqlRedundant
             {
                 lock (_connection)
                 {
-                    var cmd = new DbCommandRedundant("SELECT * FROM rundownevent m WHERE m.idEngine=@idEngine and (SELECT s.idRundownEvent FROM rundownevent s WHERE m.idEventBinding = s.idRundownEvent) IS NULL", _connection);
+                    var cmd = new DbCommandRedundant("SELECT * FROM rundownevent m WHERE m.idEngine=@idEngine and m.typStart <= @typStart and (SELECT s.idRundownEvent FROM rundownevent s WHERE m.idEventBinding = s.idRundownEvent) IS NULL", _connection);
                     cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
+                    cmd.Parameters.AddWithValue("@typStart", (int)TStartType.Manual);
                     var foundEvents = new List<IEvent>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
@@ -456,12 +457,28 @@ namespace TAS.Database.MySqlRedundant
                     }
                     foreach (var e in foundEvents)
                     {
-                        if (e is ITemplated && e is IEventPesistent)
-                            _readAnimatedEvent(((IEventPesistent)e).Id, e as ITemplated);
-                        e.StartType = TStartType.Manual;
-                        ((IEventPesistent)e).IsModified = false;
-                        engine.AddRootEvent(e);
-                        e.Save();
+                        if (e is ITemplated et && e is IEventPesistent ep)
+                            _readAnimatedEvent(ep.Id, et);
+                        if (e.EventType == TEventType.Container) 
+                            continue;
+                        if (e.EventType != TEventType.Rundown)
+                        {
+                            var cont = engine.CreateNewEvent(
+                                eventType: TEventType.Rundown,
+                                eventName: $"Rundown for {e.EventName}", 
+                                scheduledTime: e.ScheduledTime,
+                                startType: TStartType.Manual
+                                );
+                            engine.AddRootEvent(cont);
+                            cont.Save();
+                            cont.InsertUnder(e, false);
+                        }
+                        else
+                        {
+                            e.StartType = TStartType.Manual;
+                            engine.AddRootEvent(e);
+                            e.Save();
+                        }
                     }
                 }
             }
