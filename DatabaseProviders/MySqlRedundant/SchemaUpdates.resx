@@ -223,7 +223,7 @@ CREATE TABLE `engine_acl` (
 );</value>
   </data>
   <data name="V9" xml:space="preserve">
-    <value>ALTER TABLE `tas`.`media_templated` 
+    <value>ALTER TABLE `media_templated` 
 ADD COLUMN `ScheduledDelay` TIME(6) NULL AFTER `TemplateLayer`,
 ADD COLUMN `StartType` TINYINT NULL AFTER `ScheduledDelay`;</value>
   </data>
