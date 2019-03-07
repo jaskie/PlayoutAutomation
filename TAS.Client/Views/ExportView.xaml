@@ -33,7 +33,7 @@
                               SelectedItemChanged="TreeViewEx_SelectedItemChanged" 
                               Width="220">
                         <i:Interaction.Behaviors>
-                            <behaviors:TreeViewTwoWaySelectedItemBehavior SelectedItem="{Binding SelectedDirectory}"></behaviors:TreeViewTwoWaySelectedItemBehavior>
+                            <behaviors:TreeViewTwoWaySelectedItem SelectedItem="{Binding SelectedDirectory}"/>
                         </i:Interaction.Behaviors>
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate DataType="{x:Type vm:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">

@@ -4,7 +4,7 @@ using System.Windows.Interactivity;
 
 namespace TAS.Client.Common.Behaviors
 {
-    public class TreeViewTwoWaySelectedItemBehavior : Behavior<TreeView>
+    public class TreeViewTwoWaySelectedItem : Behavior<TreeView>
     {
         #region SelectedItem Property
 
@@ -15,11 +15,11 @@ namespace TAS.Client.Common.Behaviors
         }
 
         public static readonly DependencyProperty SelectedItemProperty =
-            DependencyProperty.Register("SelectedItem", typeof(object), typeof(TreeViewTwoWaySelectedItemBehavior), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedItemChanged));
+            DependencyProperty.Register("SelectedItem", typeof(object), typeof(TreeViewTwoWaySelectedItem), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedItemChanged));
 
         private static void OnSelectedItemChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
-            if (!(sender is TreeViewTwoWaySelectedItemBehavior behavior))
+            if (!(sender is TreeViewTwoWaySelectedItem behavior))
                 return;
             var tvi = behavior.FindItemNode(e.NewValue);
             if (tvi != null)

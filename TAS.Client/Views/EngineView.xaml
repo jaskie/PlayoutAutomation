@@ -9,6 +9,7 @@
              xmlns:views="clr-namespace:TAS.Client.Views" 
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance vievmodels:EngineViewmodel}"
              d:DesignHeight="850" d:DesignWidth="1150" Focusable="True" 
@@ -497,7 +498,7 @@
                         <controls:SearchTextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Prompt="{Resx _search.EnterTextToSearch}" 
                                                 Width="250" VerticalAlignment="Center" Command="{Binding CommandSearchDo}" ButtonToolTip="{Resx _search.Search.ToolTip}" SearchMode="Regular">
                             <i:Interaction.Behaviors>
-                                <common:FocusExtension IsFocused="{Binding IsSearchBoxFocused}"/>
+                                <behaviors:Focus IsFocused="{Binding IsSearchBoxFocused}"/>
                             </i:Interaction.Behaviors>
                         </controls:SearchTextBox>
                         <TextBlock Text="{Resx _search.NotFound}" Visibility="{Binding IsSearchNotFound, Converter={StaticResource BoolToVis}}" Foreground="Red" Margin="5" VerticalAlignment="Center"/>

@@ -9,6 +9,7 @@
         xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
         xmlns:vm="clr-namespace:TAS.Client.ViewModels"
         xmlns:views="clr-namespace:TAS.Client.Views"
+        xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
         mc:Ignorable="d" 
         Height="450"
         Width="750"
@@ -41,7 +42,7 @@
             </ComboBox>
             <TextBox Name="TbSearch" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" Grid.ColumnSpan="3" Margin="0,6,9.2,6.4" >
                 <i:Interaction.Behaviors>
-                    <common:FocusExtension SelectAllOnFocus="True"/>
+                    <behaviors:Focus SelectAllOnFocus="True"/>
                 </i:Interaction.Behaviors>
             </TextBox>
         </DockPanel>

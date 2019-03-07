@@ -92,7 +92,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Behaviors\TreeViewTwoWaySelectedItemBehavior.cs" />
+    <Compile Include="Behaviors\TreeViewTwoWaySelectedItem.cs" />
     <Compile Include="Controls\AutoGreyableImage.cs" />
     <Compile Include="Behaviors\BindableSelectedItems.cs" />
     <Compile Include="BindingProxy.cs" />
@@ -104,7 +104,7 @@
     <Compile Include="ModifyableViewModelBase.cs" />
     <Compile Include="EditViewModelBase.cs" />
     <Compile Include="EnumerableExtensions.cs" />
-    <Compile Include="FocusExtension.cs" />
+    <Compile Include="Behaviors\Focus.cs" />
     <Compile Include="Controls\FilenameEntry.xaml.cs">
       <DependentUpon>FilenameEntry.xaml</DependentUpon>
     </Compile>
