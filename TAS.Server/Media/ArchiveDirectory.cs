@@ -64,9 +64,9 @@ namespace TAS.Server.Media
             am.Save();
         }
 
-        internal override IMedia CreateMedia(IMediaProperties mediaProperties)
+        internal override IMedia CreateMedia(IMediaProperties media)
         {
-            var newFileName = mediaProperties.FileName;
+            var newFileName = media.FileName;
             if (File.Exists(Path.Combine(Folder, newFileName)))
             {
                 Logger.Trace("{0}: File {1} already exists", nameof(CreateMedia), newFileName);
@@ -74,15 +74,15 @@ namespace TAS.Server.Media
             }
             var result = new ArchiveMedia
             {
-                MediaName = mediaProperties.MediaName,
-                MediaGuid = mediaProperties.MediaGuid,
-                LastUpdated = mediaProperties.LastUpdated,
-                MediaType = mediaProperties.MediaType,
+                MediaName = media.MediaName,
+                MediaGuid = media.MediaGuid,
+                LastUpdated = media.LastUpdated,
+                MediaType = media.MediaType,
                 Folder = GetCurrentFolder(),
                 FileName = newFileName,
                 MediaStatus = TMediaStatus.Required,
             };
-            result.CloneMediaProperties(mediaProperties);
+            result.CloneMediaProperties(media);
             AddMedia(result);
             return result;
         }

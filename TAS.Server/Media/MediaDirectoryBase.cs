@@ -86,7 +86,7 @@ namespace TAS.Server.Media
             MediaRemoved?.Invoke(this, new MediaEventArgs(media));
         }
 
-        internal abstract IMedia CreateMedia(IMediaProperties mediaProperties);
+        internal abstract IMedia CreateMedia(IMediaProperties media);
         
         internal virtual bool DeleteMedia(IMedia media)
         {

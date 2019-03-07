@@ -247,7 +247,7 @@ namespace TAS.Server.Media
                 }
         }
         
-        internal override IMedia CreateMedia(IMediaProperties mediaProperties)
+        internal override IMedia CreateMedia(IMediaProperties media)
         {
             throw new InvalidOperationException();
         }

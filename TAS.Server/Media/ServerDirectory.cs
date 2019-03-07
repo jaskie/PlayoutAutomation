@@ -54,15 +54,15 @@ namespace TAS.Server.Media
             }
         }
 
-        internal override IMedia CreateMedia(IMediaProperties mediaProperties)
+        internal override IMedia CreateMedia(IMediaProperties media)
         {
-            var newFileName = mediaProperties.FileName;
-            if (IsRecursive)
+            var newFileName = media.FileName;
+            if (IsRecursive && media is ServerMedia && !string.IsNullOrEmpty(media.Folder))
             {
-                if (File.Exists(Path.Combine(Folder, mediaProperties.Folder, newFileName)))
+                if (File.Exists(Path.Combine(Folder, media.Folder, newFileName)))
                 {
                     Logger.Trace("{0}: File {1} already exists", nameof(CreateMedia), newFileName);
-                    newFileName = FileUtils.GetUniqueFileName(Path.Combine(Folder, mediaProperties.Folder), newFileName);
+                    newFileName = FileUtils.GetUniqueFileName(Path.Combine(Folder, media.Folder), newFileName);
                 }
             }
             else if (File.Exists(Path.Combine(Folder, newFileName)))
@@ -72,16 +72,16 @@ namespace TAS.Server.Media
             }
             var result = (new ServerMedia
             {
-                MediaName = mediaProperties.MediaName,
-                MediaGuid = mediaProperties.MediaGuid == Guid.Empty || FindMediaByMediaGuid(mediaProperties.MediaGuid) != null ? Guid.NewGuid() : mediaProperties.MediaGuid,
-                LastUpdated = mediaProperties.LastUpdated,
-                MediaType = mediaProperties.MediaType == TMediaType.Unknown ? TMediaType.Movie : mediaProperties.MediaType,
-                Folder = IsRecursive && mediaProperties is IServerMedia ? mediaProperties.Folder : string.Empty,
+                MediaName = media.MediaName,
+                MediaGuid = media.MediaGuid == Guid.Empty || FindMediaByMediaGuid(media.MediaGuid) != null ? Guid.NewGuid() : media.MediaGuid,
+                LastUpdated = media.LastUpdated,
+                MediaType = media.MediaType == TMediaType.Unknown ? TMediaType.Movie : media.MediaType,
+                Folder = IsRecursive && media is IServerMedia && !string.IsNullOrEmpty(media.Folder) ? media.Folder : string.Empty,
                 FileName = newFileName,
                 MediaStatus = TMediaStatus.Required,
             });
  
-            result.CloneMediaProperties(mediaProperties);
+            result.CloneMediaProperties(media);
             AddMedia(result);
             return result;
         }
