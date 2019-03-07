@@ -386,9 +386,6 @@ namespace TAS.Server.Media
 
         protected virtual void OnMediaChanged(IMedia media)
         {
-            if (!media.IsVerified)
-                return;
-            Task.Run(() => media.Verify(true));
             Logger.Trace("Media {0} changed", media);
         }
 
