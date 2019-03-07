@@ -53,6 +53,8 @@ namespace TAS.Client.Common.Behaviors
         private TreeViewItem FindItemNode(object item)
         {
             TreeViewItem node = null;
+            if (AssociatedObject?.Items == null)
+                return null;
             foreach (var data in AssociatedObject.Items)
             {
                 node = AssociatedObject.ItemContainerGenerator.ContainerFromItem(data) as TreeViewItem;

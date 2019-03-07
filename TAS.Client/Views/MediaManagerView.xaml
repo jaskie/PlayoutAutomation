@@ -31,6 +31,7 @@
         <Style x:Key="toggleButtonStyle" TargetType="ToggleButton">
             <Setter Property="Template" Value="{StaticResource toggleButtonTemplate}" />
         </Style>
+
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding CommandRefresh}"/>
@@ -146,11 +147,10 @@
                             <Label Content="{Resx _directory}"/>
                             <toolkit:DropDownButton x:Name="DirectoryCombo"  VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory}" ToolTip="{Binding SelectedDirectory.Folder}" Margin="1">
                                 <toolkit:DropDownButton.DropDownContent>
-                                    <TreeView x:Name="DirectorySelector" MinWidth="120" 
+                                    <TreeView x:Name="DirectorySelector" MinWidth="140" 
                                               ItemsSource="{Binding MediaDirectories}" 
-                                              SelectedItemChanged="TreeViewEx_SelectedItemChanged"
-                                        >
-                                        
+                                              SelectedItemChanged="TreeViewEx_SelectedItemChanged" ItemContainerStyle="{StaticResource StretchedTreeViewItemStyle}" 
+                                    >
                                         <i:Interaction.Behaviors>
                                             <behaviors:TreeViewTwoWaySelectedItem SelectedItem="{Binding SelectedDirectory, Mode=TwoWay}"/>
                                         </i:Interaction.Behaviors>
@@ -328,7 +328,7 @@
                                     <DataGridTemplateColumn.Header>
                                         <Image Margin="-2" Source="/TAS.Client.Common;component/Images/MediaCategories/show.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.MediaCategory.ToolTip}"/>
                                     </DataGridTemplateColumn.Header>
-                                    
+
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Image ToolTip="{Binding MediaCategory}">

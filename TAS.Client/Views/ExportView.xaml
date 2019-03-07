@@ -31,7 +31,9 @@
                 <toolkit:DropDownButton.DropDownContent>
                     <TreeView ItemsSource="{Binding Directories}" 
                               SelectedItemChanged="TreeViewEx_SelectedItemChanged" 
-                              Width="220">
+                              Width="220"
+                              ItemContainerStyle="{StaticResource StretchedTreeViewItemStyle}"
+                              >
                         <i:Interaction.Behaviors>
                             <behaviors:TreeViewTwoWaySelectedItem SelectedItem="{Binding SelectedDirectory}"/>
                         </i:Interaction.Behaviors>

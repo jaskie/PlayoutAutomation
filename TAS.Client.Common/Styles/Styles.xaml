@@ -85,5 +85,6 @@
         <ResourceDictionary Source="../Controls/Resources.xaml"/>
         <ResourceDictionary Source="Images.xaml"/>
         <ResourceDictionary Source="Buttons.xaml"/>
+        <ResourceDictionary Source="StretchedTreeViewItem.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>
