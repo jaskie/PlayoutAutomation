@@ -445,7 +445,7 @@ namespace TAS.Server
             if (priMedia.MediaStatus == TMediaStatus.Deleted)
                 return;
             var compMedia = _findComplementaryMedia(priMedia);
-            if (compMedia?.IsModified == true)
+            if (compMedia?.IsModified == true && compMedia.IdPersistentMedia > 0)
                 compMedia.Save();
         }
 
