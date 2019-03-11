@@ -476,6 +476,7 @@ namespace TAS.Client.ViewModels
             var selections = _multiSelectedEvents.Where(e => e is EventPanelMovieViewmodel m
                                                              && (m.IsEnabled || exportAll)
                                                              && m.Media?.FileExists() == true)
+                .OrderBy(e => e.Event.ScheduledTime)
                 .Select(e => new MediaExportDescription(
                     e.Event.Media,
                     e.Event.SubEvents.Where(sev => sev.EventType == TEventType.StillImage && sev.Media != null)
