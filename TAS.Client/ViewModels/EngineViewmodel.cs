@@ -28,12 +28,13 @@ namespace TAS.Client.ViewModels
         private readonly IUiPlugin[] _plugins;
         private EventEditViewmodel _selectedEventEditViewmodel;
         private IEvent _selectedEvent;
-
+        
         private MediaSearchViewmodel _mediaSearchViewModel;
         private readonly ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
         private readonly ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
         private readonly ObservableCollection<EventPanelViewmodelBase> _multiSelectedEvents;
 
+        internal Views.EngineView View;
 
         public EngineViewmodel(IEngine engine, IPreview preview)
         {
@@ -200,6 +201,12 @@ namespace TAS.Client.ViewModels
         }
 
         public bool IsInterlacedFormat { get; }
+
+
+        public void Focus()
+        {
+            View?.RundownTreeView.Focus();
+        }
 
 
         protected override void OnDispose()

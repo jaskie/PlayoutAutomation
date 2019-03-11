@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using NLog;
 using TAS.Common;
 
 namespace TAS.Server
@@ -11,8 +10,7 @@ namespace TAS.Server
     public class FileOperationQueue
     {
         private readonly Queue<FileOperation> _queue = new Queue<FileOperation>();
-
-
+        
         private FileOperation _currentOperation;
 
         public void Enqueue(FileOperation operation)

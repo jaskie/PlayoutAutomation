@@ -40,11 +40,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (value.DataContext is EngineViewmodel engine)
-                {
-                    var panel = engine.SelectedEventPanel;
-                    if (panel != null)
-                        OnIdle(() => panel.Focus());
-                }
+                    OnIdle(() => engine.Focus());
             }
         }
 

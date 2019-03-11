@@ -40,5 +40,12 @@ namespace TAS.Client.Views
         {
             RundownTreeView.Focus();
         }
+
+        private void EngineView_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (!(e.NewValue is ViewModels.EngineViewmodel vm))
+                return;
+            vm.View = (EngineView) sender;
+        }
     }
 }

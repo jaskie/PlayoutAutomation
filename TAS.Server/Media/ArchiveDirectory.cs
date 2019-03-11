@@ -14,7 +14,7 @@ namespace TAS.Server.Media
 
         public ArchiveDirectory()
         {
-            RefreshVolumeInfo();
+            DirectoryName = "Archive"; //TODO: localize
         }
 
         public IArchiveMedia Find(IMediaProperties media)
@@ -47,14 +47,14 @@ namespace TAS.Server.Media
         {
             return EngineController.Database.ArchiveMediaSearch<ArchiveMedia>(this, category, searchString).ToList<IMedia>();
         }
-        
+
         public void SweepStaleMedia()
         {
             IEnumerable<IMedia> staleMediaList = EngineController.Database.FindArchivedStaleMedia<ArchiveMedia>(this);
             foreach (var m in staleMediaList)
                 m.Delete();
         }
-        
+
         public override void RemoveMedia(IMedia media)
         {
             if (!(media is ArchiveMedia am))

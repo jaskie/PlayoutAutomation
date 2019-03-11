@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common.Interfaces;
@@ -107,37 +106,34 @@ namespace TAS.Server
             Logger.Trace("Cancelled pending operations");
         }
 
-        private async void _queue(FileOperation operation)
+        private void _queue(FileOperation operation)
         {
-            await Task.Run(() =>
+            operation.ScheduledTime = DateTime.UtcNow;
+            operation.OperationStatus = FileOperationStatus.Waiting;
+            Logger.Info("Operation scheduled: {0}", operation);
+            OperationAdded?.Invoke(this, new FileOperationEventArgs(operation));
+            if (operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move ||
+                operation.Kind == TFileOperationKind.Ingest)
             {
-                operation.ScheduledTime = DateTime.UtcNow;
-                operation.OperationStatus = FileOperationStatus.Waiting;
-                Logger.Info("Operation scheduled: {0}", operation);
-                OperationAdded?.Invoke(this, new FileOperationEventArgs(operation));
-                if (operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move ||
-                    operation.Kind == TFileOperationKind.Ingest)
-                {
-                    IMedia destMedia = operation.Dest;
-                    if (destMedia != null)
-                        destMedia.MediaStatus = TMediaStatus.CopyPending;
-                }
-                switch (operation.Kind)
-                {
-                    case TFileOperationKind.Ingest:
-                        _queueConvertOperation.Enqueue(operation);
-                        break;
-                    case TFileOperationKind.Export:
-                        _queueExportOperation.Enqueue(operation);
-                        break;
-                    case TFileOperationKind.Copy:
-                    case TFileOperationKind.Delete:
-                    case TFileOperationKind.Loudness:
-                    case TFileOperationKind.Move:
-                        _queueSimpleOperation.Enqueue(operation);
-                        break;
-                }
-            });
+                IMedia destMedia = operation.Dest;
+                if (destMedia != null)
+                    destMedia.MediaStatus = TMediaStatus.CopyPending;
+            }
+            switch (operation.Kind)
+            {
+                case TFileOperationKind.Ingest:
+                    _queueConvertOperation.Enqueue(operation);
+                    break;
+                case TFileOperationKind.Export:
+                    _queueExportOperation.Enqueue(operation);
+                    break;
+                case TFileOperationKind.Copy:
+                case TFileOperationKind.Delete:
+                case TFileOperationKind.Loudness:
+                case TFileOperationKind.Move:
+                    _queueSimpleOperation.Enqueue(operation);
+                    break;
+            }
         }
 
     }

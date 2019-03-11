@@ -73,6 +73,7 @@ namespace TAS.Client.ViewModels
                 OnModifiedChanged();
                 SelectedOperation = OperationList[Math.Min(OperationList.Count - 1, operaionIndex)];
                 NotifyPropertyChanged(nameof(ShowMediaList));
+                NotifyPropertyChanged(nameof(IsValid));
             }
         }
 

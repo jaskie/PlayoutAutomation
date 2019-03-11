@@ -14,6 +14,7 @@
              d:DataContext="{d:DesignInstance vievmodels:EngineViewmodel}"
              d:DesignHeight="850" d:DesignWidth="1150" Focusable="True" 
              FontSize="13"
+             DataContextChanged="EngineView_OnDataContextChanged"
              >
     <UserControl.Resources>
         <Style x:Key="ControlPanelButtons" TargetType="Button" >

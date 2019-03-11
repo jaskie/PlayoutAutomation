@@ -637,9 +637,8 @@ namespace TAS.Database.MySqlRedundant
                 }
             }
         }
-
-
-        public IArchiveDirectoryServerSide LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectoryServerSide, new()
+        
+        public T LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectoryServerSide, new()
         {
             lock (_connection)
             {

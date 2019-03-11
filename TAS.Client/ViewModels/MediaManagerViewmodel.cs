@@ -654,14 +654,14 @@ namespace TAS.Client.ViewModels
             _mediaManager.MeasureLoudness(_getSelections());
         }
 
-        private async Task _ingestSelectionToDir()
+        private void _ingestSelectionToDir()
         {
             var currentDir = _selectedDirectory?.Directory;
             if (!(currentDir is IIngestDirectory))
                 return;
             var ingestList = new List<IIngestOperation>();
             var selectedMediaList = _getSelections();
-            await Task.Run(() =>
+            Task.Run(() =>
             {
                 selectedMediaList.ForEach(m =>
                 {
@@ -671,7 +671,7 @@ namespace TAS.Client.ViewModels
             });
             foreach (var sourceMedia in selectedMediaList)
                 if (sourceMedia is IIngestMedia media)
-                    ingestList.Add(await Task.Run(() => _mediaManager.FileManager.CreateIngestOperation(media, _mediaManager)));
+                    ingestList.Add(_mediaManager.FileManager.CreateIngestOperation(media, _mediaManager));
             if (ingestList.Count == 0)
                 return;
             using (var ievm = new IngestEditorViewmodel(ingestList, _preview, Engine))
@@ -696,14 +696,15 @@ namespace TAS.Client.ViewModels
             return true;
         }
 
-        private async void _ingestSelectedToServer(object o)
+        private void _ingestSelectedToServer(object o)
         {
             if (!_checkEditMediaSaved())
                 return;
+            UiServices.SetBusyState();
             if (_selectedDirectory.IsIngestDirectory)
-                await _ingestSelectionToDir();
+                _ingestSelectionToDir();
             else
-                await Task.Run(() => _mediaManager.CopyMediaToPlayout(_getSelections()));
+                _mediaManager.CopyMediaToPlayout(_getSelections());
         }
 
         private bool _canSearch(object o)

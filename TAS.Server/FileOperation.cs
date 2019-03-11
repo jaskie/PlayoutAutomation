@@ -238,7 +238,8 @@ namespace TAS.Server
                 AddOutputMessage(e.Message);
             }
             TryCount--;
-            OperationStatus = TryCount > 0 ? FileOperationStatus.Waiting : FileOperationStatus.Failed;
+            if (!IsAborted)
+                OperationStatus = TryCount > 0 ? FileOperationStatus.Waiting : FileOperationStatus.Failed;
             return false;
         }
 
