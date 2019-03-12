@@ -11,9 +11,6 @@ namespace TAS.Remoting.Model
     {
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IWatcherDirectory.DirectoryName))]
-        private string _directoryName;
-
         [JsonProperty(nameof(IWatcherDirectory.Folder))]
         private string _folder;
 
@@ -30,9 +27,6 @@ namespace TAS.Remoting.Model
         private long _volumeTotalSize;
 
         #pragma warning restore
-
-        public string DirectoryName { get => _directoryName; set => Set(value); }
-
         public string Folder { get => _folder; set => Set(value); }
 
         public char PathSeparator => _pathSeparator;
@@ -134,11 +128,6 @@ namespace TAS.Remoting.Model
         public void SweepStaleMedia()
         {
             throw new NotImplementedException();
-        }
-
-        public override string ToString()
-        {
-            return DirectoryName;
         }
 
         public string GetUniqueFileName(string fileName)

@@ -13,7 +13,7 @@ namespace TAS.Client.ViewModels
 {
     public class IngestOperationViewModel: FileOperationViewmodel, IDataErrorInfo
     {
-        private readonly IIngestOperation _ingestOperation;
+        private readonly IIngestOperation _operation;
         private readonly IEngine _engine;
         private readonly IPersistentMediaProperties _destMediaProperties;
 
@@ -26,12 +26,12 @@ namespace TAS.Client.ViewModels
         public IngestOperationViewModel(IIngestOperation operation, IPreview preview, IEngine engine)
             : base(operation)
         {
-            _ingestOperation = operation;
+            _operation = operation;
             _engine = engine;
             var fileExt = operation.Source.MediaType == TMediaType.Movie
-                ? $".{operation.MovieContainerFormat}"
+                ? $".{(operation.DestDirectory as IServerDirectory)?.MovieContainerFormat ?? TMovieContainerFormat.mov}"
                 : FileUtils.DefaultFileExtension(operation.Source.MediaType);
-            string destFileName = $"{Path.GetFileNameWithoutExtension(operation.Source.FileName)}{fileExt}";
+            var destFileName = $"{Path.GetFileNameWithoutExtension(operation.Source.FileName)}{fileExt}";
             _destMediaProperties = new PersistentMediaProxy
             {
                 FileName = operation.DestDirectory.GetUniqueFileName(destFileName),
@@ -40,7 +40,7 @@ namespace TAS.Client.ViewModels
                 Duration = operation.Source.Duration,
                 TcStart = operation.StartTC,
                 MediaGuid = operation.Source.MediaGuid,
-                MediaCategory = operation.Source.MediaCategory
+                MediaCategory = ((IIngestDirectory)operation.Source.Directory).MediaCategory
             };
             
             _audioChannelMappingConversion = operation.AudioChannelMappingConversion;
@@ -91,17 +91,17 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _sourceFieldOrderEnforceConversion, value);
         }
     
-        public bool EncodeVideo => ((IIngestDirectory)_ingestOperation.Source.Directory).VideoCodec != TVideoCodec.copy;
+        public bool EncodeVideo => ((IIngestDirectory)_operation.Source.Directory).VideoCodec != TVideoCodec.copy;
 
-        public bool EncodeAudio => ((IIngestDirectory)_ingestOperation.Source.Directory).AudioCodec != TAudioCodec.copy;
+        public bool EncodeAudio => ((IIngestDirectory)_operation.Source.Directory).AudioCodec != TAudioCodec.copy;
 
         public bool Trim
         {
-            get => _ingestOperation.Trim;
-            set => _ingestOperation.Trim = value;
+            get => _operation.Trim;
+            set => _operation.Trim = value;
         }
 
-        public string SourceFileName => $"{_ingestOperation.Source.Directory.DirectoryName}:{_ingestOperation.Source.FileName}";
+        public string SourceFileName => $"{_operation.Source.Directory}:{_operation.Source.FileName}";
 
         public string DestMediaName
         {
@@ -195,11 +195,11 @@ namespace TAS.Client.ViewModels
 
         public bool ShowParentalCombo => _engine?.CGElementsController?.Parentals != null;
 
-        public bool CanTrim => EncodeVideo && EncodeAudio && _ingestOperation.Source.MediaStatus == TMediaStatus.Available && _ingestOperation.Source.Duration > TimeSpan.Zero;
+        public bool CanTrim => EncodeVideo && EncodeAudio && _operation.Source.MediaStatus == TMediaStatus.Available && _operation.Source.Duration > TimeSpan.Zero;
 
         public PreviewViewmodel PreviewViewmodel { get; }
 
-        public bool CanPreview => (PreviewViewmodel != null && ((IIngestDirectory)_ingestOperation.Source.Directory).AccessType == TDirectoryAccessType.Direct);
+        public bool CanPreview => (PreviewViewmodel != null && ((IIngestDirectory)_operation.Source.Directory).AccessType == TDirectoryAccessType.Direct);
 
         public bool LoudnessCheck {
             get => _loudnessCheck;
@@ -214,15 +214,15 @@ namespace TAS.Client.ViewModels
 
         public void Apply()
         {
-            _ingestOperation.LoudnessCheck = _loudnessCheck;
-            _ingestOperation.AudioVolume = _audioVolume;
-            _ingestOperation.StartTC = StartTC;
-            _ingestOperation.Duration = Duration;
-            _ingestOperation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
-            _ingestOperation.AudioChannelMappingConversion = _audioChannelMappingConversion;
-            _ingestOperation.AspectConversion = _aspectConversion;
-            _ingestOperation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
-            _ingestOperation.DestProperties = _destMediaProperties; 
+            _operation.LoudnessCheck = _loudnessCheck;
+            _operation.AudioVolume = _audioVolume;
+            _operation.StartTC = StartTC;
+            _operation.Duration = Duration;
+            _operation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
+            _operation.AudioChannelMappingConversion = _audioChannelMappingConversion;
+            _operation.AspectConversion = _aspectConversion;
+            _operation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
+            _operation.DestProperties = _destMediaProperties; 
         }
 
         public string this[string propertyName]
@@ -271,10 +271,10 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(e.PropertyName);
                     break;
                 case nameof(IIngestOperation.StartTC):
-                    StartTC = _ingestOperation.StartTC;
+                    StartTC = _operation.StartTC;
                     break;
                 case nameof(IIngestOperation.Duration):
-                    Duration = _ingestOperation.Duration;
+                    Duration = _operation.Duration;
                     break;
                 default:
                     base.OnFileOperationPropertyChanged(sender, e);
@@ -293,11 +293,11 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(nameof(CanTrim));
                     break;
                 case nameof(IMedia.DurationPlay):
-                    Duration = _ingestOperation.Source.DurationPlay;
+                    Duration = _operation.Source.DurationPlay;
                     NotifyPropertyChanged(nameof(CanTrim));
                     break;
                 case nameof(IMedia.TcPlay):
-                    StartTC = _ingestOperation.Source.TcPlay;
+                    StartTC = _operation.Source.TcPlay;
                     break;
                 case nameof(IMedia.IsVerified):
                     NotifyPropertyChanged(nameof(IsValid));
@@ -307,36 +307,36 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            _ingestOperation.Source.PropertyChanged -= OnSourceMediaPropertyChanged;
+            _operation.Source.PropertyChanged -= OnSourceMediaPropertyChanged;
             PreviewViewmodel?.Dispose();
             base.OnDispose();
         }
 
-        private RationalNumber SourceMediaFrameRate() => _ingestOperation.Source.FrameRate();
+        private RationalNumber SourceMediaFrameRate() => _operation.Source.FrameRate();
 
         private void _makeFileName()
         {
-            DestFileName = MediaExtensions.MakeFileName(IdAux, DestMediaName,  _ingestOperation.Source.MediaType == TMediaType.Movie ? $".{_ingestOperation.MovieContainerFormat}": FileUtils.DefaultFileExtension(_ingestOperation.Source.MediaType));
+            DestFileName = MediaExtensions.MakeFileName(IdAux, DestMediaName,  _operation.Source.MediaType == TMediaType.Movie ? $".{(_operation.DestDirectory as IServerDirectory)?.MovieContainerFormat ?? TMovieContainerFormat.mov}": FileUtils.DefaultFileExtension(_operation.Source.MediaType));
         }
 
         private string ValidateTc()
         {
             if (IsStill)
                 return null;
-            if (StartTC < _ingestOperation.Source.TcStart)
-                return string.Format(resources._validate_StartTCBeforeFile, _ingestOperation.Source.TcStart.ToSMPTETimecodeString(_ingestOperation.Source.VideoFormat));
-            if (StartTC > _ingestOperation.Source.TcLastFrame())
-                return string.Format(resources._validate_StartTCAfterFile, _ingestOperation.Source.TcLastFrame().ToSMPTETimecodeString(_ingestOperation.Source.VideoFormat));
-            if (EndTC < _ingestOperation.Source.TcStart)
-                return string.Format(resources._validate_EndTCBeforeFile, _ingestOperation.Source.TcStart.ToSMPTETimecodeString(_ingestOperation.Source.VideoFormat));
-            if (EndTC > _ingestOperation.Source.TcLastFrame())
-                return string.Format(resources._validate_EndTCAfterFile, _ingestOperation.Source.TcLastFrame().ToSMPTETimecodeString(_ingestOperation.Source.VideoFormat));
+            if (StartTC < _operation.Source.TcStart)
+                return string.Format(resources._validate_StartTCBeforeFile, _operation.Source.TcStart.ToSMPTETimecodeString(_operation.Source.VideoFormat));
+            if (StartTC > _operation.Source.TcLastFrame())
+                return string.Format(resources._validate_StartTCAfterFile, _operation.Source.TcLastFrame().ToSMPTETimecodeString(_operation.Source.VideoFormat));
+            if (EndTC < _operation.Source.TcStart)
+                return string.Format(resources._validate_EndTCBeforeFile, _operation.Source.TcStart.ToSMPTETimecodeString(_operation.Source.VideoFormat));
+            if (EndTC > _operation.Source.TcLastFrame())
+                return string.Format(resources._validate_EndTCAfterFile, _operation.Source.TcLastFrame().ToSMPTETimecodeString(_operation.Source.VideoFormat));
             return null;
         }
 
         private string ValidateDestFileName()
         {
-            if (!(_ingestOperation.DestDirectory is IServerDirectory dir))
+            if (!(_operation.DestDirectory is IServerDirectory dir))
                 throw new ApplicationException("Invalid directory in ValidateDestFileName");
             if (_destMediaProperties.FileName.StartsWith(" ") || _destMediaProperties.FileName.EndsWith(" "))
                 return resources._validate_FileNameCanNotStartOrEndWithSpace;

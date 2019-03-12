@@ -151,6 +151,60 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Copy.
+        /// </summary>
+        public static string _mediaOperation_Copy {
+            get {
+                return ResourceManager.GetString("_mediaOperation_Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string _mediaOperation_Delete {
+            get {
+                return ResourceManager.GetString("_mediaOperation_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export.
+        /// </summary>
+        public static string _mediaOperation_Export {
+            get {
+                return ResourceManager.GetString("_mediaOperation_Export", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ingest.
+        /// </summary>
+        public static string _mediaOperation_Ingest {
+            get {
+                return ResourceManager.GetString("_mediaOperation_Ingest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loudness.
+        /// </summary>
+        public static string _mediaOperation_Loudness {
+            get {
+                return ResourceManager.GetString("_mediaOperation_Loudness", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move.
+        /// </summary>
+        public static string _mediaOperation_Move {
+            get {
+                return ResourceManager.GetString("_mediaOperation_Move", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot initialize engines because of error: 
         ///{0}
         ///Use TVPlay.config program to configure the system..

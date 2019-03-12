@@ -20,7 +20,6 @@ namespace TAS.Common.Interfaces.MediaDirectory
 
     public interface IMediaDirectoryProperties
     {
-        string DirectoryName { get; set; }
         string Folder { get; set; }
     }
 

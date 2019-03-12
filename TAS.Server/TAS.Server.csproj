@@ -63,16 +63,19 @@
     <Compile Include="CasparServer.cs" />
     <Compile Include="CasparServerChannel.cs" />
     <Compile Include="CommandScriptEvent.cs" />
+    <Compile Include="MediaOperation\DeleteOperation.cs" />
+    <Compile Include="MediaOperation\MoveOperation.cs" />
+    <Compile Include="MediaOperation\FileOperationBase.cs" />
     <Compile Include="FileOperationQueue.cs" />
-    <Compile Include="IngestOperation.cs" />
+    <Compile Include="MediaOperation\IngestOperation.cs" />
     <Compile Include="Dependencies\TargaImage.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="EngineController.cs" />
     <Compile Include="Event.cs" />
-    <Compile Include="FFMpegOperation.cs" />
+    <Compile Include="MediaOperation\FFMpegHelper.cs" />
     <Compile Include="FileManager.cs" />
-    <Compile Include="FileOperation.cs" />
-    <Compile Include="LoudnessOperation.cs" />
+    <Compile Include="MediaOperation\CopyOperation.cs" />
+    <Compile Include="MediaOperation\LoudnessOperation.cs" />
     <Compile Include="MediaManager.cs" />
     <Compile Include="MediaPropertyChangedEventArgs.cs" />
     <Compile Include="Media\AnimationDirectory.cs" />
@@ -108,7 +111,7 @@
     <Compile Include="XDCAM\XDCAMMedia.cs" />
     <Compile Include="PluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ExportOperation.cs" />
+    <Compile Include="MediaOperation\ExportOperation.cs" />
     <Compile Include="AnimatedEvent.cs" />
     <Compile Include="XDCAM\NonRealTimeMeta.cs" />
     <Compile Include="XDCAM\SerializationHelper.cs" />
@@ -148,6 +151,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

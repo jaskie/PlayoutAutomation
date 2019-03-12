@@ -6,16 +6,11 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IFileOperation: INotifyPropertyChanged
+    public interface IFileOperationBase: INotifyPropertyChanged
     {
-        TFileOperationKind Kind { get; set; }
-        IMedia Source { get; set; }
-        IMediaProperties DestProperties { get; set; }
-        IMediaDirectory DestDirectory { get; set; }
         DateTime ScheduledTime { get; }
         DateTime StartTime { get; }
         DateTime FinishedTime { get; }
-        string Title { get; }
         FileOperationStatus OperationStatus { get; }
         bool IsIndeterminate { get; }
         int TryCount { get; }
@@ -26,4 +21,54 @@ namespace TAS.Common.Interfaces
         void Abort();
         event EventHandler Finished;
     }
+
+    public interface IMoveOperation : IFileOperationBase, IFileOperationOutput
+    {
+        IMedia Source { get; set; }
+    }
+
+    public interface ICopyOperation : IFileOperationBase, IFileOperationOutput
+    {
+        IMedia Source { get; set; }
+    }
+
+    public interface IDeleteOperation : IFileOperationBase
+    {
+        IMedia Source { get; set; }
+    }
+
+
+    public interface IExportOperation : IFileOperationBase, IFileOperationOutput
+    {
+        IEnumerable<MediaExportDescription> Sources { get; }
+    }
+
+    public interface IFileOperationOutput
+    {
+        IMediaProperties DestProperties { get; set; }
+        IMediaDirectory DestDirectory { get; set; }
+
+    }
+
+    public interface IIngestOperation : IFileOperationBase, IFileOperationOutput
+    {
+        IMedia Source { get; set; }
+        TAspectConversion AspectConversion { get; set; }
+        TAudioChannelMappingConversion AudioChannelMappingConversion { get; set; }
+        TFieldOrder SourceFieldOrderEnforceConversion { get; set; }
+        double AudioVolume { get; set; }
+        bool Trim { get; set; }
+        bool LoudnessCheck { get; set; }
+        TimeSpan StartTC { get; set; }
+        TimeSpan Duration { get; set; }
+    }
+
+    public interface ILoudnessOperation : IFileOperationBase
+    {
+        IMedia Source { get; set; }
+        TimeSpan MeasureStart { get; set; }
+        TimeSpan MeasureDuration { get; set; }
+        event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured;
+    }
+
 }

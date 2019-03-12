@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -15,14 +16,25 @@ namespace TAS.Server.Media
         internal readonly IPlayoutServerProperties Server;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public ServerDirectory(IPlayoutServerProperties server, MediaManager manager)
+        public ServerDirectory(IPlayoutServerProperties server, MediaManager manager, bool isPrimary)
             : base(manager)
         {
             Server = server;
             IsRecursive = server.IsMediaFolderRecursive;
+            IsPrimary = isPrimary;
+            MovieContainerFormat = server.MovieContainerFormat;
         }
 
+        [JsonProperty]
         public bool IsRecursive { get; }
+
+        [JsonProperty]
+        public bool IsPrimary { get; }
+
+        [JsonProperty]
+        public string DirectoryName { get; set; }
+
+        public TMovieContainerFormat MovieContainerFormat { get; }
 
         public override void Initialize()
         {

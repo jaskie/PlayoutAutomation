@@ -85,7 +85,6 @@
     <Compile Include="Interfaces\ICGElement.cs" />
     <Compile Include="Interfaces\ICGElementsState.cs" />
     <Compile Include="Interfaces\ICommandScript.cs" />
-    <Compile Include="Interfaces\IIngestOperation.cs" />
     <Compile Include="Interfaces\IEngine.cs" />
     <Compile Include="Interfaces\IEvent.cs" />
     <Compile Include="Interfaces\IFileManager.cs" />
@@ -95,7 +94,6 @@
     <Compile Include="Interfaces\IGroup.cs" />
     <Compile Include="Interfaces\MediaDirectory\IIngestDirectory.cs" />
     <Compile Include="Interfaces\Media\IIngestMedia.cs" />
-    <Compile Include="Interfaces\ILoudnessOperation.cs" />
     <Compile Include="Interfaces\Media\IMedia.cs" />
     <Compile Include="Interfaces\MediaDirectory\IWatcherDirectory.cs" />
     <Compile Include="Interfaces\IMediaManager.cs" />

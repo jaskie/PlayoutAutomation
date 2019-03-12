@@ -8,11 +8,12 @@ namespace TAS.Client.Common
     {
         public static string AsString<TSource>(this IEnumerable<TSource> collection, string separator, int maxItems = 20)
         {
-            StringBuilder sb = new StringBuilder(string.Join(separator, collection.Take(maxItems)));
-            if (collection.Count() > maxItems)
+            var listCopy = new List<TSource>(collection);
+            var sb = new StringBuilder(string.Join(separator, listCopy.Take(maxItems)));
+            if (listCopy.Count > maxItems)
             {
                 sb.AppendLine("...")
-                  .AppendFormat(Properties.Resources._moreItems, collection.Count() - maxItems);
+                  .AppendFormat(Properties.Resources._moreItems, listCopy.Count - maxItems);
             }
             return sb.ToString();
         }

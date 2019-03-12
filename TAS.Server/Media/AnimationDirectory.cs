@@ -12,10 +12,13 @@ namespace TAS.Server.Media
     {
         public readonly CasparServer Server;
 
-        internal AnimationDirectory(CasparServer server, MediaManager manager) : base(manager)
+        internal AnimationDirectory(CasparServer server, MediaManager manager, bool isPrimary) : base(manager)
         {
+            IsPrimary = isPrimary;
             Server = server;
         }
+
+        public bool IsPrimary { get; }
 
         public override void Initialize()
         {

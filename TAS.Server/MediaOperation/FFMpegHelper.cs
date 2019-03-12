@@ -5,21 +5,26 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TAS.Server
+namespace TAS.Server.MediaOperation
 {
-    public abstract class FFMpegOperation: FileOperation
+    public class FFMpegHelper
     {
-        const string FFmpegExe = "ffmpeg.exe";
-        const string LProgressPattern = "time=" + @"\d\d:\d\d:\d\d\.?\d*";
-        const string ProgressPattern = @"\d\d:\d\d:\d\d\.?\d*";
+        private const string FFmpegExe = "ffmpeg.exe";
+        private const string LProgressPattern = "time=" + @"\d\d:\d\d:\d\d\.?\d*";
+        private const string ProgressPattern = @"\d\d:\d\d:\d\d\.?\d*";
+        private readonly FileOperationBase _fileOperation;
+        private readonly TimeSpan _progressDuration;
 
-        internal FFMpegOperation(FileManager ownerFileManager): base(ownerFileManager) { }
+        public FFMpegHelper(FileOperationBase fileOperation, TimeSpan progressDuration)
+        {
+            _fileOperation = fileOperation;
+            _progressDuration = progressDuration;
+        }
 
         protected readonly Regex RegexlProgress = new Regex(LProgressPattern, RegexOptions.None);
         protected readonly Regex RegexProgress = new Regex(ProgressPattern, RegexOptions.None);
-        protected TimeSpan ProgressDuration;
        
-        protected async Task<bool> RunProcess(string parameters)
+        public async Task<bool> RunProcess(string parameters)
         {
             //create a process info
             var oInfo = new ProcessStartInfo(FFmpegExe, parameters)
@@ -31,7 +36,7 @@ namespace TAS.Server
 
             //try the process
             Debug.WriteLine(parameters, "Starting ffmpeg:");
-            AddOutputMessage($"ffmpeg.exe {parameters}");
+            _fileOperation.AddOutputMessage($"ffmpeg.exe {parameters}");
             return await Task.Run(() =>
             {
                 try
@@ -44,15 +49,12 @@ namespace TAS.Server
                         procFFmpeg.ErrorDataReceived += ProcOutputHandler;
                         procFFmpeg.BeginErrorReadLine();
                         var finished = false;
-                        while (!(IsAborted || finished))
+                        while (!(_fileOperation.IsAborted || finished))
                             finished = procFFmpeg.WaitForExit(1000);
-                        if (!IsAborted)
+                        if (!_fileOperation.IsAborted)
                             return finished && procFFmpeg.ExitCode == 0;
                         procFFmpeg.Kill();
                         Thread.Sleep(1000);
-                        var destMedia = Dest;
-                        if (destMedia != null)
-                            System.IO.File.Delete(destMedia.FullPath);
                         Debug.WriteLine(this, "Aborted");
                         return finished && procFFmpeg.ExitCode == 0;
                     }
@@ -60,11 +62,13 @@ namespace TAS.Server
                 catch (Exception e)
                 {
                     Debug.WriteLine(e.Message, "Error running FFmpeg process");
-                    AddOutputMessage(e.ToString());
+                    _fileOperation.AddOutputMessage(e.ToString());
                     return false;
                 }
             });
         }
+
+        public event DataReceivedEventHandler DataReceived;
 
         protected virtual void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
@@ -76,14 +80,22 @@ namespace TAS.Server
                 var mProgressVal = RegexProgress.Match(mProgressLine.Value);
                 if (!mProgressVal.Success)
                     return;
-                var duration = ProgressDuration.Ticks;
+                var duration = _progressDuration.Ticks;
                 if (duration > 0
-                    && TimeSpan.TryParse(mProgressVal.Value.Trim(), CultureInfo.InvariantCulture, out var progressSeconds))
-                    Progress = (int)((progressSeconds.Ticks * 100) / duration);
+                    && TimeSpan.TryParse(mProgressVal.Value.Trim(), CultureInfo.InvariantCulture,
+                        out var progressSeconds))
+                    _fileOperation.Progress = (int) ((progressSeconds.Ticks * 100) / duration);
             }
             else
-                AddOutputMessage(outLine.Data);
+            {
+                _fileOperation.AddOutputMessage(outLine.Data);
+                if (!string.IsNullOrEmpty(outLine.Data)
+                    && outLine.Data.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0)
+                    _fileOperation.AddWarningMessage($"FFmpeg error: {outLine.Data}");
+                DataReceived?.Invoke(this, outLine);
+            }
         }
 
+        
     }
 }

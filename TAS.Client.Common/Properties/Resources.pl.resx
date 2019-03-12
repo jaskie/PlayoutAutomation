@@ -353,4 +353,22 @@ Zamknąć aplikację?</value>
   <data name="_secondary" xml:space="preserve">
     <value>Zapasowy</value>
   </data>
+  <data name="_mediaOperation_Copy" xml:space="preserve">
+    <value>Kopiuj</value>
+  </data>
+  <data name="_mediaOperation_Delete" xml:space="preserve">
+    <value>Usuń</value>
+  </data>
+  <data name="_mediaOperation_Export" xml:space="preserve">
+    <value>Eksport</value>
+  </data>
+  <data name="_mediaOperation_Ingest" xml:space="preserve">
+    <value>Pobierz</value>
+  </data>
+  <data name="_mediaOperation_Loudness" xml:space="preserve">
+    <value>Głośność</value>
+  </data>
+  <data name="_mediaOperation_Move" xml:space="preserve">
+    <value>Przenieś</value>
+  </data>
 </root>

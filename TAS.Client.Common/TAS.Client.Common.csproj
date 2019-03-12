@@ -101,6 +101,7 @@
     <Compile Include="Controls\TimecodeTextBlock.cs" />
     <Compile Include="Controls\WrapPanelFill.cs" />
     <Compile Include="DispatcherHelper.cs" />
+    <Compile Include="MediaDirectoryExtensions.cs" />
     <Compile Include="ModifyableViewModelBase.cs" />
     <Compile Include="EditViewModelBase.cs" />
     <Compile Include="EnumerableExtensions.cs" />

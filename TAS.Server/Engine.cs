@@ -304,15 +304,13 @@ namespace TAS.Server
             if (chSEC != null
                 && chSEC != chPRI)
             {
-                chSEC.Owner.Initialize(_mediaManager);
-                chSEC.Owner.MediaDirectory.DirectoryName = chSEC.ChannelName;
+                chSEC.Owner.Initialize(_mediaManager, false);
                 chSEC.Owner.PropertyChanged += _server_PropertyChanged;
             }
 
             if (chPRI != null)
             {
-                chPRI.Owner.Initialize(_mediaManager);
-                chPRI.Owner.MediaDirectory.DirectoryName = chPRI.ChannelName;
+                chPRI.Owner.Initialize(_mediaManager, true);
                 chPRI.Owner.PropertyChanged += _server_PropertyChanged;
             }
 

@@ -385,7 +385,7 @@ namespace TAS.Client.ViewModels
         {
             var selections = _getSelections();
             if (MessageBox.Show(
-                    string.Format(resources._query_DeleteSelectedFiles, selections.AsString(Environment.NewLine)),
+                    string.Format(resources._query_DeleteSelectedFiles, selections.Select(m => $"{m.Directory.GetDisplayName()}:{m.MediaName}").AsString(Environment.NewLine)),
                     resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
                 return;
             var reasons = _mediaManager.MediaDelete(selections, false);
@@ -656,8 +656,7 @@ namespace TAS.Client.ViewModels
 
         private void _ingestSelectionToDir()
         {
-            var currentDir = _selectedDirectory?.Directory;
-            if (!(currentDir is IIngestDirectory))
+            if (!(_selectedDirectory?.Directory is IIngestDirectory currentDir))
                 return;
             var ingestList = new List<IIngestOperation>();
             var selectedMediaList = _getSelections();
@@ -671,7 +670,18 @@ namespace TAS.Client.ViewModels
             });
             foreach (var sourceMedia in selectedMediaList)
                 if (sourceMedia is IIngestMedia media)
-                    ingestList.Add(_mediaManager.FileManager.CreateIngestOperation(media, _mediaManager));
+                {
+                    var operation = (IIngestOperation) _mediaManager.FileManager.CreateFileOperation(TFileOperationKind.Ingest);
+                    operation.Source = media;
+                    operation.DestDirectory = _mediaManager.DetermineValidServerDirectory();
+                    operation.AudioVolume = currentDir.AudioVolume;
+                    operation.SourceFieldOrderEnforceConversion = currentDir.SourceFieldOrder;
+                    operation.AspectConversion = currentDir.AspectConversion;
+                    operation.LoudnessCheck = currentDir.MediaLoudnessCheckAfterIngest;
+                    operation.StartTC = sourceMedia.TcStart;
+                    operation.Duration = sourceMedia.Duration;
+                    ingestList.Add(operation);
+                }
             if (ingestList.Count == 0)
                 return;
             using (var ievm = new IngestEditorViewmodel(ingestList, _preview, Engine))

@@ -6,11 +6,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:TAS.Client.ViewModels;assembly=TAS.Client"
-             xmlns:client="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
-             xmlns:System ="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type vm:FileManagerViewmodel}"
+             d:DataContext="{d:DesignInstance {x:Type vm:FileManagerViewmodel}}"
              d:DesignHeight="300" d:DesignWidth="800"
              >
     <Grid>
@@ -88,7 +86,13 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Operation}" Binding="{Binding Title, Mode=OneWay}" Width="*" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Operation}" Binding="{Binding Title, Mode=OneWay}" Width="*" >
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding Title}" />
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Scheduled}" Width="100"  Binding="{Binding ScheduledTime, Converter={StaticResource DateTimeToStringConverter}, ConverterParameter=T, Mode=OneWay}" />
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Started}" Width="100" Binding="{Binding StartTime, Converter={StaticResource DateTimeToStringConverter}, ConverterParameter=T,  Mode=OneWay}" />
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Finished}" Width="100" Binding="{Binding FinishedTime, Converter={StaticResource DateTimeToStringConverter}, ConverterParameter=T, Mode=OneWay}" />

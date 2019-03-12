@@ -29,7 +29,6 @@ namespace TAS.Server.Media
             set => SetField(ref _doNotArchive, value);
         }
 
-        [JsonProperty]
         [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public bool IsArchived
         {

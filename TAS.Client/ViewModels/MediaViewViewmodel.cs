@@ -50,7 +50,7 @@ namespace TAS.Client.ViewModels
         public string MediaName => Media.MediaName;
         public string FileName => Media.FileName;
         public string Folder => Media.Folder;
-        public string Location => Media.Directory.DirectoryName;
+        public string Location => Media.Directory.GetDisplayName();
         public TimeSpan TcStart => Media.TcStart;
         public TimeSpan TcPlay => Media.TcPlay;
         public TimeSpan Duration => Media.Duration;

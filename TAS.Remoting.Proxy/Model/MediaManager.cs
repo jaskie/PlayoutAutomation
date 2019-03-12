@@ -83,6 +83,11 @@ namespace TAS.Remoting.Model
         public TVideoFormat VideoFormat => _videoFormat;
 
 
+        public IServerDirectory DetermineValidServerDirectory()
+        {
+            return Query<ServerDirectory>();
+        }
+
         public void MeasureLoudness(IEnumerable<IMedia> mediaList)
         {
             Invoke(parameters: mediaList);

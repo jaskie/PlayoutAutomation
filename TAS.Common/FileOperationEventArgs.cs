@@ -5,11 +5,11 @@ namespace TAS.Common
 {
     public class FileOperationEventArgs : EventArgs
     {
-        public FileOperationEventArgs(IFileOperation operation)
+        public FileOperationEventArgs(IFileOperationBase operation)
         {
             Operation = operation;
         }
         [Newtonsoft.Json.JsonProperty(ItemIsReference = true)]
-        public IFileOperation Operation { get; private set; }
+        public IFileOperationBase Operation { get; private set; }
     }
 }

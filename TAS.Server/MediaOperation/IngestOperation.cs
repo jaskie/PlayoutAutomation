@@ -15,13 +15,15 @@ using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Dependencies;
 using TAS.Server.Media;
 
-namespace TAS.Server
+namespace TAS.Server.MediaOperation
 {
-    public class IngestOperation : FFMpegOperation, IIngestOperation
+    public class IngestOperation : FileOperationBase, IIngestOperation
     {
+        private readonly object _destMediaLock = new object();
 
         private TAspectConversion _aspectConversion;
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
@@ -30,15 +32,26 @@ namespace TAS.Server
         private TimeSpan _startTc;
         private TimeSpan _duration;
         private bool _trim;
-        private TMovieContainerFormat _movieContainerFormat;
+        private IMedia _source;
+        private IMediaProperties _destProperties;
 
         internal IngestOperation(FileManager ownerFileManager) : base(ownerFileManager)
         {
-            Kind = TFileOperationKind.Ingest;
             _aspectConversion = TAspectConversion.NoConversion;
             _sourceFieldOrderEnforceConversion = TFieldOrder.Unknown;
             _audioChannelMappingConversion = TAudioChannelMappingConversion.FirstTwoChannels;
         }
+
+        [JsonProperty]
+        public IMedia Source { get => _source; set => SetField(ref _source, value); }
+
+        [JsonProperty]
+        public IMediaProperties DestProperties { get => _destProperties; set => SetField(ref _destProperties, value); }
+
+        [JsonProperty]
+        public IMediaDirectory DestDirectory { get; set; }
+
+        internal MediaBase Dest { get; set; }
 
         [JsonProperty]
         public TAspectConversion AspectConversion
@@ -83,13 +96,6 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public TMovieContainerFormat MovieContainerFormat
-        {
-            get => _movieContainerFormat;
-            set => SetField(ref _movieContainerFormat, value);
-        }
-
-        [JsonProperty]
         public bool Trim
         {
             get => _trim;
@@ -99,10 +105,12 @@ namespace TAS.Server
         [JsonProperty]
         public bool LoudnessCheck { get; set; }
 
+        protected override void OnOperationStatusChanged()
+        {
+        }
+
         protected override async Task<bool> InternalExecute()
         {
-            if (Kind != TFileOperationKind.Ingest)
-                throw new InvalidOperationException("Invalid operation kind");
             StartTime = DateTime.UtcNow;
             IsIndeterminate = true;
             try
@@ -146,6 +154,18 @@ namespace TAS.Server
             {
                 AddOutputMessage(e.Message);
                 throw;
+            }
+        }
+
+        protected virtual void CreateDestMediaIfNotExists()
+        {
+            lock (_destMediaLock)
+            {
+                if (Dest != null)
+                    return;
+                if (!(DestDirectory is MediaDirectoryBase mediaDirectory))
+                    throw new ApplicationException($"Cannot create destination media on {DestDirectory}");
+                Dest = (MediaBase)mediaDirectory.CreateMedia(DestProperties ?? Source);
             }
         }
 
@@ -339,17 +359,17 @@ namespace TAS.Server
         {
             if (!localSourceMedia.FileExists() || streams == null)
             {
-                Debug.WriteLine(this, "Cannot start conversion: file not readed");
-                AddOutputMessage("Cannot start conversion: file not readed");
+                Debug.WriteLine(this, "Cannot start ingest: file not readed");
+                AddOutputMessage("Cannot start ingest: file not readed");
                 return false;
             }
             CreateDestMediaIfNotExists();
             var destMedia = Dest;
             if (destMedia == null)
                 return false;
-            ProgressDuration = localSourceMedia.Duration;
-            Debug.WriteLine(this, "Convert operation started");
-            AddOutputMessage("Starting convert operation:");
+            var helper = new FFMpegHelper(this, localSourceMedia.Duration);
+            Debug.WriteLine(this, "Ingest operation started");
+            AddOutputMessage("Starting ingest operation:");
             destMedia.MediaStatus = TMediaStatus.Copying;
             var encodeParams = GetEncodeParameters(localSourceMedia, streams);
             var ingestRegion = IsTrimmed() ? string.Format(CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - Source.TcStart, Duration) : string.Empty;
@@ -363,7 +383,7 @@ namespace TAS.Server
             if (Dest is ArchiveMedia)
                 FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));
             Dest.AudioChannelMapping = (TAudioChannelMapping)MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion].OutputFormat;
-            if (await RunProcess(Params)  // FFmpeg 
+            if (await helper.RunProcess(Params)  // FFmpeg 
                 && destMedia.FileExists())
             {
                 destMedia.MediaStatus = TMediaStatus.Copied;
@@ -376,7 +396,7 @@ namespace TAS.Server
                     destMedia.MediaStatus = TMediaStatus.CopyError;
                     (destMedia as PersistentMedia)?.Save();
                     AddWarningMessage($"Durations are different: {localSourceMedia.Duration.ToSMPTETimecodeString(localSourceMedia.FrameRate())} vs {destMedia.Duration.ToSMPTETimecodeString(destMedia.FrameRate())}");
-                    Debug.WriteLine(this, "Convert operation succeed, but durations are diffrent");
+                    Debug.WriteLine(this, "Ingest operation succeed, but durations are diffrent");
                 }
                 else
                 {
@@ -384,10 +404,10 @@ namespace TAS.Server
                         ThreadPool.QueueUserWorkItem(o =>
                        {
                            Thread.Sleep(2000);
-                           OwnerFileManager.Queue(new FileOperation(OwnerFileManager) { Kind = TFileOperationKind.Delete, Source = Source });
+                           OwnerFileManager.Queue(new DeleteOperation(OwnerFileManager) { Source = Source });
                        });
-                    AddOutputMessage("Convert operation finished successfully");
-                    Debug.WriteLine(this, "Convert operation succeed");
+                    AddOutputMessage("Ingest operation finished successfully");
+                    Debug.WriteLine(this, "Ingest operation succeed");
                 }
                 if (LoudnessCheck)
                 {
@@ -404,14 +424,10 @@ namespace TAS.Server
         }
         #endregion //Movie conversion
 
-        protected override void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
+        public override string ToString()
         {
-            base.ProcOutputHandler(sendingProcess, outLine);
-            if (!string.IsNullOrEmpty(outLine.Data)
-                && outLine.Data.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0)
-                AddWarningMessage($"FFmpeg error: {outLine.Data}");
+            return $"{nameof(IngestOperation)}: {Source.MediaName} -> {DestDirectory}";
         }
-
     }
 
 }

@@ -27,6 +27,7 @@ namespace TAS.Common.Interfaces
         void LoadIngestDirs();
         void SynchronizeMediaSecToPri();
         void SynchronizeAnimationsSecToPri();
+        IServerDirectory DetermineValidServerDirectory();
 
         void MeasureLoudness(IEnumerable<IMedia> mediaList);
     }

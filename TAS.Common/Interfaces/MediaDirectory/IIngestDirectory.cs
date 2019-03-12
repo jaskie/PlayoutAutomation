@@ -12,6 +12,7 @@ namespace TAS.Common.Interfaces.MediaDirectory
 
     public interface IIngestDirectoryProperties : IMediaDirectoryProperties
     {
+        string DirectoryName { get; set; }
         TAspectConversion AspectConversion { get; }
         double AudioVolume { get;  }
         bool DeleteSource { get; }

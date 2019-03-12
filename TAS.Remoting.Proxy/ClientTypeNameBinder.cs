@@ -34,16 +34,18 @@ namespace TAS.Remoting
                     return typeof(Model.FileManager);
                 case "TAS.Server.CasparRecorder":
                     return typeof(Model.Recorder);
-                case "TAS.Server.ConvertOperation":
-                    return typeof(Model.IngestOperation);
-                case "TAS.Server.FileOperation":
-                    return typeof(Model.FileOperation);
-                case "TAS.Server.LoudnessOperation":
-                    return typeof(Model.LoudnessOperation);
-                case "TAS.Server.ExportOperation":
-                    return typeof(Model.FileOperation);
-                case "TAS.Server.IngestOperation":
-                    return typeof(Model.IngestOperation);
+                case "TAS.Server.MediaOperation.CopyOperation":
+                    return typeof(Model.MediaOperation.CopyOperation);
+                case "TAS.Server.MediaOperation.MoveOperation":
+                    return typeof(Model.MediaOperation.MoveOperation);
+                case "TAS.Server.MediaOperation.DeleteOperation":
+                    return typeof(Model.MediaOperation.DeleteOperation);
+                case "TAS.Server.MediaOperation.IngestOperation":
+                    return typeof(Model.MediaOperation.IngestOperation);
+                case "TAS.Server.MediaOperation.ExportOperation":
+                    return typeof(Model.MediaOperation.ExportOperation);
+                case "TAS.Server.MediaOperation.LoudnessOperation":
+                    return typeof(Model.MediaOperation.LoudnessOperation);
                 case "TAS.Server.Engine":
                     return typeof(Model.Engine);
                 case "TAS.Server.Event":

@@ -55,9 +55,6 @@ namespace TAS.Server.Media
         [JsonProperty]
         public virtual char PathSeparator => Path.DirectorySeparatorChar;
 
-        [JsonProperty]
-        public string DirectoryName { get; set; }
-
         public bool DirectoryExists()
         {
             return Directory.Exists(Folder);

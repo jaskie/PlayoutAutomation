@@ -4,16 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using TAS.Common;
+using TAS.Server.MediaOperation;
 
 namespace TAS.Server
 {
     public class FileOperationQueue
     {
-        private readonly Queue<FileOperation> _queue = new Queue<FileOperation>();
+        private readonly Queue<FileOperationBase> _queue = new Queue<FileOperationBase>();
         
-        private FileOperation _currentOperation;
+        private FileOperationBase _currentOperation;
 
-        public void Enqueue(FileOperation operation)
+        public void Enqueue(FileOperationBase operation)
         {
             lock (((ICollection)_queue).SyncRoot)
             {
@@ -22,7 +23,7 @@ namespace TAS.Server
             RunOperation();
         }
 
-        public List<FileOperation> GetQueue()
+        public List<FileOperationBase> GetQueue()
         {
             lock (((ICollection)_queue).SyncRoot)
             {
@@ -45,7 +46,7 @@ namespace TAS.Server
         {
             while (true)
             {
-                FileOperation operation;
+                FileOperationBase operation;
                 lock (((ICollection)_queue).SyncRoot)
                 {
                     if (_currentOperation != null)

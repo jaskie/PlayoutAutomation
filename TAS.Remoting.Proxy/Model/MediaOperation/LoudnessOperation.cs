@@ -2,10 +2,11 @@
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
-namespace TAS.Remoting.Model
+namespace TAS.Remoting.Model.MediaOperation
 {
-    public class LoudnessOperation : FileOperation, ILoudnessOperation
+    public class LoudnessOperation : FileOperationBase, ILoudnessOperation
     {
         #pragma warning disable CS0649, CS0169
 
@@ -15,9 +16,14 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(ILoudnessOperation.MeasureStart))]
         private TimeSpan _measureStart;
 
+        [JsonProperty(nameof(ILoudnessOperation.Source))]
+        private MediaBase _source;
+
         #pragma warning restore
 
         private event EventHandler<AudioVolumeEventArgs> _audioVolumeMeasured;
+        
+        public IMedia Source { get => _source; set => Set(value); }
 
         public TimeSpan MeasureDuration { get => _measureDuration; set => Set(value); }
 

@@ -5,17 +5,13 @@ using System.Linq;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
+using TAS.Server.MediaOperation;
 
 namespace TAS.Server.Media
 {
     public sealed class ArchiveDirectory : MediaDirectoryBase, IArchiveDirectoryServerSide
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-        public ArchiveDirectory()
-        {
-            DirectoryName = "Archive"; //TODO: localize
-        }
 
         public IArchiveMedia Find(IMediaProperties media)
         {
@@ -24,13 +20,15 @@ namespace TAS.Server.Media
 
         internal void ArchiveSave(ServerMedia media, bool deleteAfterSuccess)
         {
-            ArchiveMedia archived;
-            if (media.IsArchived
-                && (archived = EngineController.Database.ArchiveMediaFind<ArchiveMedia>(this, media.MediaGuid)) != null
-                && archived.FileExists())
+            if (media.IsArchived)
             {
-                if (deleteAfterSuccess)
-                    MediaManager.FileManager.Queue(new FileOperation((FileManager)MediaManager.FileManager) { Kind = TFileOperationKind.Delete, Source = media });
+                var archived = EngineController.Database.ArchiveMediaFind<ArchiveMedia>(this, media.MediaGuid);
+                if (archived?.FileExists() == true)
+                {
+                    if (deleteAfterSuccess)
+                        MediaManager.FileManager.Queue(
+                            new DeleteOperation((FileManager) MediaManager.FileManager) {Source = media});
+                }
             }
             else
                 _archiveCopy(media, this, deleteAfterSuccess);
@@ -62,6 +60,8 @@ namespace TAS.Server.Media
             am.MediaStatus = TMediaStatus.Deleted;
             am.IsVerified = false;
             am.Save();
+            if (((ServerDirectory) MediaManager.MediaDirectoryPRI)?.FindMediaByMediaGuid(am.MediaGuid) is ServerMedia mediaPgm)
+                mediaPgm.IsArchived = false;
         }
 
         internal override IMedia CreateMedia(IMediaProperties media)
@@ -94,7 +94,10 @@ namespace TAS.Server.Media
 
         private void _archiveCopy(IMedia fromMedia, IMediaDirectory destDirectory, bool deleteAfterSuccess)
         {
-            var operation = new FileOperation((FileManager)MediaManager.FileManager) { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, Source = fromMedia, DestDirectory = destDirectory };
+            var fileManager = (FileManager)MediaManager.FileManager;
+            FileOperationBase operation = deleteAfterSuccess
+                ? (FileOperationBase) new MoveOperation(fileManager) {Source = fromMedia, DestDirectory = destDirectory}
+                : new CopyOperation(fileManager) {Source = fromMedia, DestDirectory = destDirectory};
             operation.Success += _archiveCopy_success;
             operation.Failure += _archiveCopy_failure;
             MediaManager.FileManager.Queue(operation);
@@ -102,7 +105,7 @@ namespace TAS.Server.Media
 
         private void _archiveCopy_failure(object sender, EventArgs e)
         {
-            if (!(sender is FileOperation operation))
+            if (!(sender is CopyOperation operation))
                 return;
             operation.Success -= _archiveCopy_success;
             operation.Failure -= _archiveCopy_failure;
@@ -110,10 +113,10 @@ namespace TAS.Server.Media
 
         private void _archiveCopy_success(object sender, EventArgs e)
         {
-            if (!(sender is FileOperation operation))
+            if (!(sender is FileOperationBase operation))
                 return;
-            if (operation.Source is ServerMedia sourceMedia)
-                sourceMedia.IsArchived = true;
+            if (sender is CopyOperation copyOperation &&  copyOperation.Source is ServerMedia serverMedia)
+                serverMedia.IsArchived = true;
             operation.Success -= _archiveCopy_success;
             operation.Failure -= _archiveCopy_failure;
         }

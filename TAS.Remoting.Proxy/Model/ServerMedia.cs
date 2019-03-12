@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Remoting.Model
@@ -13,13 +14,25 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IServerMedia.IsArchived))]
         private bool _isArchived;
 
+        private readonly Lazy<bool> _isArchivedLazy;
+
         #pragma warning restore
+
+        public ServerMedia()
+        {
+            _isArchivedLazy = new Lazy<bool>(() =>
+            {
+                _isArchived = Get<bool>(nameof(IsArchived));
+                return _isArchived;
+            });
+        }
 
         public bool DoNotArchive
         {
             get => _doNotArchive;
             set => Set(value);
         }
-        public bool IsArchived => _isArchived;
+
+        public bool IsArchived => _isArchivedLazy.IsValueCreated ? _isArchived : _isArchivedLazy.Value;
     }
 }

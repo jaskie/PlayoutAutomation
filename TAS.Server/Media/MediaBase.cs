@@ -11,6 +11,7 @@ using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
+using TAS.Server.MediaOperation;
 
 namespace TAS.Server.Media
 {
@@ -310,7 +311,7 @@ namespace TAS.Server.Media
         
         public override string ToString()
         {
-            return $"{Directory?.DirectoryName}:{MediaName}";
+            return $"{Directory}:{MediaName}";
         }
 
         public virtual bool FileExists()
@@ -364,7 +365,7 @@ namespace TAS.Server.Media
 
         public void GetLoudness()
         {
-            ((WatcherDirectory)Directory).MediaManager.FileManager.Queue(
+            ((MediaDirectoryBase)Directory).MediaManager.FileManager.Queue(
                 new LoudnessOperation((FileManager)((WatcherDirectory)Directory).MediaManager.FileManager)
                 {
                     Source = this,

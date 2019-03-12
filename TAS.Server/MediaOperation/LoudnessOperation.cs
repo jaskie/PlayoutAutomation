@@ -6,11 +6,12 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 using TAS.Server.Media;
 
-namespace TAS.Server
+namespace TAS.Server.MediaOperation
 {
-    public class LoudnessOperation : FFMpegOperation, ILoudnessOperation
+    public class LoudnessOperation : FileOperationBase, ILoudnessOperation
     {
 
         private static readonly string lLufsPattern = @"    I:\s*-?\d*\.?\d* LUFS";
@@ -27,12 +28,15 @@ namespace TAS.Server
         private double _samplePeak = double.MinValue;
         private bool _loudnessMeasured;
         private bool _samplePeakMeasured;
+        private IMedia _source;
 
         public LoudnessOperation(FileManager ownerFileManager) : base(ownerFileManager)
         {
-            Kind = TFileOperationKind.Loudness;
             TryCount = 1;
         }
+
+        [JsonProperty]
+        public IMedia Source { get => _source; set => SetField(ref _source, value); }
 
         public event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured; // will not save to Media object if not null
 
@@ -42,10 +46,13 @@ namespace TAS.Server
         [JsonProperty]
         public TimeSpan MeasureDuration { get; set; }
 
+        protected override void OnOperationStatusChanged()
+        {
+            
+        }
+
         protected override async Task<bool> InternalExecute()
         {
-            if (Kind != TFileOperationKind.Loudness)
-                throw new InvalidOperationException("Invalid operation kind");
             StartTime = DateTime.UtcNow;
             if (!(Source is MediaBase source))
                 throw new ArgumentException("LoudnessOperation: Source is not of type MediaBase");
@@ -64,10 +71,12 @@ namespace TAS.Server
         private async Task<bool> DoExecute(MediaBase inputMedia)
         {
             string Params = $"-nostats -i \"{inputMedia.FullPath}\" -ss {MeasureStart} -t {(MeasureDuration == TimeSpan.Zero ? inputMedia.DurationPlay : MeasureDuration)} -filter_complex ebur128=peak=sample -f null -";
-            return await RunProcess(Params);
+            var helper = new FFMpegHelper(this, MeasureDuration);
+            helper.DataReceived += DataReceived;
+            return await helper.RunProcess(Params);
         }
 
-        protected override void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
+        protected void DataReceived(object sender, DataReceivedEventArgs outLine)
         {
             // Collect the process command output. 
             if (string.IsNullOrEmpty(outLine.Data))

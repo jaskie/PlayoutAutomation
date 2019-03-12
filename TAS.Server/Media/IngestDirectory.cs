@@ -75,6 +75,9 @@ namespace TAS.Server.Media
         public TVideoFormat ExportVideoFormat { get; set; }
 
         [JsonProperty]
+        public string DirectoryName { get; set; }
+
+        [JsonProperty]
         public TIngestDirectoryKind Kind { get; set; } = TIngestDirectoryKind.WatchFolder;
 
         [JsonProperty]

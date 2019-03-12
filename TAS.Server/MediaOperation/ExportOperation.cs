@@ -5,15 +5,18 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using NLog;
 using TAS.Common;
+using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 using TAS.Server.XDCAM;
 
-namespace TAS.Server
+namespace TAS.Server.MediaOperation
 {
-    public class ExportOperation : FFMpegOperation
+    public class ExportOperation : FileOperationBase, IExportOperation
     {
         private const string D10PadFilter = "pad=720:608:0:32";
         private const string D10PalImx50 = "-vsync cfr -r 25 -pix_fmt yuv422p -vcodec mpeg2video -minrate 50000k -maxrate 50000k -b:v 50000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 3 -bufsize 2000000 -rc_init_occupancy 2000000 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx5p";
@@ -25,24 +28,33 @@ namespace TAS.Server
         private const string Pcm16Le8Ch = "-acodec pcm_s16le -ar 48000 -ac 2 -d10_channelcount 8";
 
         private ulong _progressFileSize;
-        private readonly List<MediaExportDescription> _exportMediaList = new List<MediaExportDescription>();
+        private readonly List<MediaExportDescription> _sources = new List<MediaExportDescription>();
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private IMediaProperties _destMediaProperties;
 
         internal ExportOperation(FileManager fileManager) : base(fileManager)
         {
-            Kind = TFileOperationKind.Export;
             TryCount = 1;
         }
 
-        public IEnumerable<MediaExportDescription> ExportMediaList
+        [JsonProperty]
+        public IEnumerable<MediaExportDescription> Sources
         {
-            get => _exportMediaList;
+            get => _sources;
             set
             {
-                _exportMediaList.Clear();
-                _exportMediaList.AddRange(value);
+                _sources.Clear();
+                _sources.AddRange(value);
             }
         }
+
+        [JsonProperty]
+        public IMediaProperties DestProperties { get => _destMediaProperties; set => SetField(ref _destMediaProperties, value); }
+
+        [JsonProperty]
+        public IMediaDirectory DestDirectory { get; set; }
+
+        internal MediaBase Dest { get; set; }
 
         public TimeSpan StartTC { get; set; }
 
@@ -54,12 +66,13 @@ namespace TAS.Server
 
         public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
 
-        public override string Title => $"Export {string.Join(", ", _exportMediaList)} -> {DestDirectory?.DirectoryName}";
+        protected override void OnOperationStatusChanged()
+        {
+            
+        }
 
         protected override async Task<bool> InternalExecute()
         {
-            if (Kind != TFileOperationKind.Export)
-                throw new InvalidOperationException("Invalid operation kind");
             StartTime = DateTime.UtcNow;
             IsIndeterminate = true;
             try
@@ -76,15 +89,15 @@ namespace TAS.Server
         private async Task<bool> DoExecute()
         {
             bool result;
-            ProgressDuration = TimeSpan.FromTicks(_exportMediaList.Sum(e => e.Duration.Ticks));
+            var helper = new FFMpegHelper(this, TimeSpan.FromTicks(_sources.Sum(e => e.Duration.Ticks)));
             AddOutputMessage("Refreshing destination directory content");
             if (!(DestDirectory is IngestDirectory destDirectory))
                 throw new InvalidOperationException("Can only export to IngestDirectory");
             if (destDirectory.AccessType == TDirectoryAccessType.FTP)
             {
-                using (var localDestMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(Source))
+                using (var localDestMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(Sources.First().Media))
                 {
-                    result = await Encode(destDirectory, localDestMedia.FullPath);
+                    result = await Encode(helper, destDirectory, localDestMedia.FullPath);
                     if (result)
                     {
                         _progressFileSize = (ulong) (new FileInfo(localDestMedia.FullPath)).Length;
@@ -109,7 +122,7 @@ namespace TAS.Server
             else
             {
                 Dest = _createDestMedia();
-                result = await Encode(destDirectory, Dest.FullPath);
+                result = await Encode(helper, destDirectory, Dest.FullPath);
                 if (result)
                     Dest.MediaStatus = TMediaStatus.Copied;
             }
@@ -170,7 +183,7 @@ namespace TAS.Server
                 Progress = (int)((media.FileSize * 100ul) / fs);
         }
         
-        private async Task<bool> Encode(IngestDirectory directory, string outFile)
+        private async Task<bool> Encode(FFMpegHelper helper, IngestDirectory directory, string outFile)
         {            
             Debug.WriteLine(this, "Export encode started");
             AddOutputMessage($"Encode started to file {outFile}");
@@ -178,7 +191,7 @@ namespace TAS.Server
             var index = 0;
             var complexFilterElements = new List<string>();
             var overlayOutputs = new StringBuilder();
-            var exportMedia = _exportMediaList.ToList();
+            var exportMedia = _sources.ToList();
             var startTimecode = exportMedia.First().StartTC;
             var isXdcamDirectory = directory.Kind == TIngestDirectoryKind.XDCAM;
             var outputFormatDesc = VideoFormatDescription.Descriptions[isXdcamDirectory || directory.ExportContainerFormat == TMovieContainerFormat.mxf ? TVideoFormat.PAL : directory.ExportVideoFormat];
@@ -246,7 +259,7 @@ namespace TAS.Server
                 //5
                 (isXdcamDirectory || directory.ExportContainerFormat == TMovieContainerFormat.mxf) && MXFVideoExportFormat != TmXFVideoExportFormat.DV25 ? "mxf_d10" : directory.ExportContainerFormat.ToString(),
                 outFile);
-            if (await RunProcess(command))
+            if (await helper.RunProcess(command))
             {
                 AddOutputMessage("Encode finished successfully");
                 Logger.Info("Encode finished successfully");

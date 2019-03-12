@@ -7,6 +7,7 @@ using TAS.Server.Media;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
+using TAS.Server.MediaOperation;
 
 namespace TAS.Server
 {
@@ -47,6 +48,29 @@ namespace TAS.Server
         public event EventHandler<FileOperationEventArgs> OperationAdded;
         public event EventHandler<FileOperationEventArgs> OperationCompleted;
 
+
+        public IFileOperationBase CreateFileOperation(TFileOperationKind kind)
+        {
+            switch (kind)
+            {
+                case TFileOperationKind.Copy:
+                    return new CopyOperation(this);
+                case TFileOperationKind.Delete:
+                    return new DeleteOperation(this);
+                case TFileOperationKind.Export:
+                    return new ExportOperation(this);
+                case TFileOperationKind.Ingest:
+                    return new IngestOperation(this);
+                case TFileOperationKind.Loudness:
+                    return new LoudnessOperation(this);
+                case TFileOperationKind.Move:
+                    return new MoveOperation(this);
+                default:
+                    throw new ArgumentException(nameof(kind));
+            }
+        }
+
+        /*
         public IIngestOperation CreateIngestOperation(IIngestMedia sourceMedia, IMediaManager destMediaManager)
         {
             if (!(sourceMedia.Directory is IIngestDirectory sourceDirectory))
@@ -75,9 +99,11 @@ namespace TAS.Server
             return new LoudnessOperation(this) {Source = media, MeasureStart = startTc, MeasureDuration = duration};
         }
 
-        public IFileOperation CreateSimpleOperation() { return new FileOperation(this); }
+        public IFileOperationBase CreateSimpleOperation() { return new CopyOperation(this); }
         
-        public IEnumerable<IFileOperation> GetOperationQueue()
+    */
+
+        public IEnumerable<IFileOperationBase> GetOperationQueue()
         {
             var retList = _queueSimpleOperation.GetQueue();
             retList.AddRange(_queueConvertOperation.GetQueue());
@@ -85,15 +111,15 @@ namespace TAS.Server
             return retList;
         }
 
-        public void QueueList(IEnumerable<IFileOperation> operationList)
+        public void QueueList(IEnumerable<IFileOperationBase> operationList)
         {
             foreach (var operation in operationList)
                 Queue(operation);
         }
 
-        public void Queue(IFileOperation operation)
+        public void Queue(IFileOperationBase operation)
         {
-            if (!(operation is FileOperation op))
+            if (!(operation is FileOperationBase op))
                 return;
             _queue(op);
         }
@@ -106,34 +132,27 @@ namespace TAS.Server
             Logger.Trace("Cancelled pending operations");
         }
 
-        private void _queue(FileOperation operation)
+        private void _queue(FileOperationBase operation)
         {
             operation.ScheduledTime = DateTime.UtcNow;
             operation.OperationStatus = FileOperationStatus.Waiting;
-            Logger.Info("Operation scheduled: {0}", operation);
-            OperationAdded?.Invoke(this, new FileOperationEventArgs(operation));
-            if (operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move ||
-                operation.Kind == TFileOperationKind.Ingest)
+            switch (operation)
             {
-                IMedia destMedia = operation.Dest;
-                if (destMedia != null)
-                    destMedia.MediaStatus = TMediaStatus.CopyPending;
-            }
-            switch (operation.Kind)
-            {
-                case TFileOperationKind.Ingest:
+                case IngestOperation _:
                     _queueConvertOperation.Enqueue(operation);
                     break;
-                case TFileOperationKind.Export:
+                case ExportOperation _:
                     _queueExportOperation.Enqueue(operation);
                     break;
-                case TFileOperationKind.Copy:
-                case TFileOperationKind.Delete:
-                case TFileOperationKind.Loudness:
-                case TFileOperationKind.Move:
+                case CopyOperation _:
+                case DeleteOperation _:
+                case LoudnessOperation _:
+                case MoveOperation _:
                     _queueSimpleOperation.Enqueue(operation);
                     break;
             }
+            Logger.Info("Operation scheduled: {0}", operation);
+            OperationAdded?.Invoke(this, new FileOperationEventArgs(operation));
         }
 
     }

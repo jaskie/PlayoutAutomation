@@ -353,4 +353,22 @@ Really exit?</value>
   <data name="_secondary" xml:space="preserve">
     <value>Backup</value>
   </data>
+  <data name="_mediaOperation_Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="_mediaOperation_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="_mediaOperation_Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="_mediaOperation_Ingest" xml:space="preserve">
+    <value>Ingest</value>
+  </data>
+  <data name="_mediaOperation_Loudness" xml:space="preserve">
+    <value>Loudness</value>
+  </data>
+  <data name="_mediaOperation_Move" xml:space="preserve">
+    <value>Move</value>
+  </data>
 </root>

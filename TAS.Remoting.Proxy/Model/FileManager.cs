@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
-using TAS.Common.Interfaces.Media;
+using TAS.Remoting.Model.MediaOperation;
 
 namespace TAS.Remoting.Model
 {
@@ -13,29 +13,19 @@ namespace TAS.Remoting.Model
 
         private event EventHandler<FileOperationEventArgs> _operationCompleted;
 
-        public IEnumerable<IFileOperation> GetOperationQueue() { return Query<List<IFileOperation>>(); }
+        public IEnumerable<IFileOperationBase> GetOperationQueue() { return Query<List<IFileOperationBase>>(); }
 
-        public IIngestOperation CreateIngestOperation(IIngestMedia sourceMedia, IMediaManager destMediaManager)
+        public IFileOperationBase CreateFileOperation(TFileOperationKind kind)
         {
-            return Query<IngestOperation>(parameters: new object[] {sourceMedia, destMediaManager});
+            return Query<IngestOperation>(parameters: new object[] { kind });
         }
-
-        public IFileOperation CreateSimpleOperation()
-        {
-            return Query<FileOperation>();
-        }
-
-        public ILoudnessOperation CreateLoudnessOperation(IMedia media, TimeSpan startTc, TimeSpan duration)
-        {
-            return Query<LoudnessOperation>(parameters: new object[]{media, startTc, duration});
-        }
-
-        public void Queue(IFileOperation operation)
+        
+        public void Queue(IFileOperationBase operation)
         {
             Invoke(parameters: operation);
         }
       
-        public void QueueList(IEnumerable<IFileOperation> operationList)
+        public void QueueList(IEnumerable<IFileOperationBase> operationList)
         {
             Invoke(parameters: operationList);
         }

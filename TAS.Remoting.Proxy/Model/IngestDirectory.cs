@@ -12,6 +12,9 @@ namespace TAS.Remoting.Model
     {
         #pragma warning disable CS0649
 
+        [JsonProperty(nameof(IIngestDirectory.DirectoryName))]
+        private string _directoryName;
+
         [JsonProperty(nameof(IIngestDirectory.AccessType))]
         private TDirectoryAccessType _accessType;
 
@@ -103,6 +106,8 @@ namespace TAS.Remoting.Model
         private List<IngestDirectory> _subDirectories;
 
         #pragma warning restore
+
+        public string DirectoryName { get => _directoryName; set => Set(value); }
 
         public TDirectoryAccessType AccessType => _accessType;
 

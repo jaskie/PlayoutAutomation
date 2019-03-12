@@ -92,14 +92,14 @@ namespace TAS.Server
             }
         }
 
-        public void Initialize(MediaManager mediaManager)
+        public void Initialize(MediaManager mediaManager, bool isPrimary)
         {
             Debug.WriteLine(this, "CasparServer initialize");
             if (Interlocked.Exchange(ref _isInitialized, 1) != default(int))
                 return;
-            MediaDirectory = new ServerDirectory(this, mediaManager) {Folder = MediaFolder};
+            MediaDirectory = new ServerDirectory(this, mediaManager, isPrimary) {Folder = MediaFolder};
             if (!string.IsNullOrWhiteSpace(AnimationFolder))
-                AnimationDirectory = new AnimationDirectory(this, mediaManager) {Folder = AnimationFolder};
+                AnimationDirectory = new AnimationDirectory(this, mediaManager, isPrimary) {Folder = AnimationFolder};
             _casparDevice = new Svt.Caspar.CasparDevice {IsRecordingSupported = ServerType == TServerType.CasparTVP};
             _casparDevice.ConnectionStatusChanged += CasparDevice_ConnectionStatusChanged;
             _casparDevice.UpdatedChannels += CasparDevice_UpdatedChannels;

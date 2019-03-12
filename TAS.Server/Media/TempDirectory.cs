@@ -13,7 +13,6 @@ namespace TAS.Server.Media
         public TempDirectory()
         {
             Folder = ConfigurationManager.AppSettings["TempDirectory"];
-            DirectoryName = "TEMP";
             SweepStaleMedia();
         }
 
@@ -42,7 +41,5 @@ namespace TAS.Server.Media
                     Logger.Warn(e);
                 }
         }
-
-
     }
 }

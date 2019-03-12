@@ -1,78 +1,56 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using TAS.Remoting.Client;
+using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
-using TAS.Common.Interfaces.Media;
-using TAS.Common.Interfaces.MediaDirectory;
+using TAS.Remoting.Client;
 
-namespace TAS.Remoting.Model
+namespace TAS.Remoting.Model.MediaOperation
 {
-    public class FileOperation : ProxyBase, IFileOperation
+    public class FileOperationBase : ProxyBase, IFileOperationBase
     {
         #pragma warning disable CS0649 
 
-        [JsonProperty(nameof(IFileOperation.IsAborted))]
+        [JsonProperty(nameof(IFileOperationBase.IsAborted))]
         private bool _isAborted;
 
-        [JsonProperty(nameof(IFileOperation.DestProperties))]
-        private IMediaProperties _destProperties;
-
-        [JsonProperty(nameof(IFileOperation.DestDirectory))]
-        private MediaDirectoryBase _destDirectory;
-
-        [JsonProperty(nameof(IFileOperation.FinishedTime))]
+        [JsonProperty(nameof(IFileOperationBase.FinishedTime))]
         private DateTime _finishedTime;
 
-        [JsonProperty(nameof(IFileOperation.IsIndeterminate))]
+        [JsonProperty(nameof(IFileOperationBase.IsIndeterminate))]
         private bool _isIndeterminate;
 
-        [JsonProperty(nameof(IFileOperation.Kind))]
-        private TFileOperationKind _kind;
-
-        [JsonProperty(nameof(IFileOperation.OperationOutput))]
+        [JsonProperty(nameof(IFileOperationBase.OperationOutput))]
         private List<string> _operationOutput;
 
-        [JsonProperty(nameof(IFileOperation.OperationStatus))]
+        [JsonProperty(nameof(IFileOperationBase.OperationStatus))]
         private FileOperationStatus _operationStatus;
 
-        [JsonProperty(nameof(IFileOperation.OperationWarning))]
+        [JsonProperty(nameof(IFileOperationBase.OperationWarning))]
         private List<string> _operationWarning;
 
-        [JsonProperty(nameof(IFileOperation.Progress))]
+        [JsonProperty(nameof(IFileOperationBase.Progress))]
         private int _progress;
 
-        [JsonProperty(nameof(IFileOperation.ScheduledTime))]
+        [JsonProperty(nameof(IFileOperationBase.ScheduledTime))]
         private DateTime _scheduledTime;
 
-        [JsonProperty(nameof(IFileOperation.Source))]
-        private MediaBase _source;
-
-        [JsonProperty(nameof(IFileOperation.StartTime))]
+        [JsonProperty(nameof(IFileOperationBase.StartTime))]
         private DateTime _startTime;
 
-        [JsonProperty(nameof(IFileOperation.TryCount))]
+        [JsonProperty(nameof(IFileOperationBase.TryCount))]
         private int _tryCount;
 
-        [JsonProperty(nameof(IFileOperation.Title))]
-        private string _title;
-
-#pragma warning restore
+        #pragma warning restore
 
         private event EventHandler _finished;
 
         public bool IsAborted => _isAborted;
 
-        public IMediaProperties DestProperties { get => _destProperties; set => Set(value); }
-
-        public IMediaDirectory DestDirectory { get => _destDirectory; set => Set(value); }
 
         public DateTime FinishedTime => _finishedTime;
 
         public bool IsIndeterminate => _isIndeterminate;
-
-        public TFileOperationKind Kind { get => _kind; set => Set(value); }
 
         public List<string> OperationOutput => _operationOutput;
 
@@ -84,13 +62,9 @@ namespace TAS.Remoting.Model
 
         public DateTime ScheduledTime => _scheduledTime;
 
-        public IMedia Source { get => _source; set => Set(value); }
-
         public DateTime StartTime => _startTime;
 
         public int TryCount => _tryCount;
-
-        public string Title => _title;
 
         public event EventHandler Finished
         {

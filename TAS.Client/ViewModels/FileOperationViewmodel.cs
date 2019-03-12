@@ -12,7 +12,7 @@ namespace TAS.Client.ViewModels
     {
         private bool _isWarning;
 
-        public FileOperationViewmodel(IFileOperation fileOperation)
+        public FileOperationViewmodel(IFileOperationBase fileOperation)
         {
             FileOperation = fileOperation;
             FileOperation.PropertyChanged += OnFileOperationPropertyChanged;
@@ -42,7 +42,7 @@ namespace TAS.Client.ViewModels
 
         public ICommand CommandShowWarning { get; }
 
-        public IFileOperation FileOperation { get; }
+        public IFileOperationBase FileOperation { get; }
 
         public int Progress => FileOperation.Progress;
 
@@ -70,24 +70,45 @@ namespace TAS.Client.ViewModels
             private set => SetField(ref _isWarning, value);
         }
 
-        public string Title => FileOperation.Title;
+        public string Title
+        {
+            get
+            {
+                switch (FileOperation)
+                {
+                    case IExportOperation exportOperation:
+                        return $"{resources._mediaOperation_Export} {string.Join(", ", exportOperation.Sources)} -> {exportOperation.DestDirectory.GetDisplayName()}";
+                    case IIngestOperation ingestOperation:
+                        return $"{resources._mediaOperation_Ingest} {ingestOperation.Source.Directory.GetDisplayName()}:{ingestOperation.Source.MediaName} -> {ingestOperation.DestDirectory.GetDisplayName()}";
+                    case ILoudnessOperation loudnessOperation:
+                        return $"{resources._mediaOperation_Loudness} {loudnessOperation.Source.Directory.GetDisplayName()}:{loudnessOperation.Source.MediaName}";
+                    case ICopyOperation copyOperation:
+                        return $"{resources._mediaOperation_Copy} {copyOperation.Source.Directory.GetDisplayName()}:{copyOperation.Source.MediaName} -> {copyOperation.DestDirectory.GetDisplayName()}";
+                    case IMoveOperation moveOperation:
+                        return $"{resources._mediaOperation_Move} {moveOperation.Source.Directory.GetDisplayName()}:{moveOperation.Source.MediaName} -> {moveOperation.DestDirectory.GetDisplayName()}";
+                    case IDeleteOperation deleteOperation:
+                        return $"{resources._mediaOperation_Delete} {deleteOperation.Source.Directory.GetDisplayName()}:{deleteOperation.Source.MediaName}";
+                    default:
+                        return FileOperation.ToString();
+                }
+            }
+        }
 
         protected virtual void OnFileOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IFileOperation.StartTime) 
-                || e.PropertyName == nameof(IFileOperation.FinishedTime)
-                || e.PropertyName == nameof(IFileOperation.TryCount)
-                || e.PropertyName == nameof(IFileOperation.IsIndeterminate)
-                || e.PropertyName == nameof(IFileOperation.Progress)
-                || e.PropertyName == nameof(IFileOperation.OperationStatus)
-                || e.PropertyName == nameof(IFileOperation.OperationOutput)
-                || e.PropertyName == nameof(IFileOperation.OperationWarning)
-                || e.PropertyName == nameof(IFileOperation.Title)
+            if (e.PropertyName == nameof(IFileOperationBase.StartTime) 
+                || e.PropertyName == nameof(IFileOperationBase.FinishedTime)
+                || e.PropertyName == nameof(IFileOperationBase.TryCount)
+                || e.PropertyName == nameof(IFileOperationBase.IsIndeterminate)
+                || e.PropertyName == nameof(IFileOperationBase.Progress)
+                || e.PropertyName == nameof(IFileOperationBase.OperationStatus)
+                || e.PropertyName == nameof(IFileOperationBase.OperationOutput)
+                || e.PropertyName == nameof(IFileOperationBase.OperationWarning)
                 )
                 NotifyPropertyChanged(e.PropertyName);
-            if (e.PropertyName == nameof(IFileOperation.OperationStatus))
+            if (e.PropertyName == nameof(IFileOperationBase.OperationStatus))
                 InvalidateRequerySuggested();
-            if (e.PropertyName == nameof(IFileOperation.OperationWarning))
+            if (e.PropertyName == nameof(IFileOperationBase.OperationWarning))
                 IsWarning = true;
         }
 
@@ -95,7 +116,6 @@ namespace TAS.Client.ViewModels
         {
             FileOperation.PropertyChanged -= OnFileOperationPropertyChanged;
         }
-
 
     }
 }
