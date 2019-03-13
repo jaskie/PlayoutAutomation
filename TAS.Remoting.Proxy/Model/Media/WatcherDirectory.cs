@@ -2,7 +2,7 @@
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 
-namespace TAS.Remoting.Model
+namespace TAS.Remoting.Model.Media
 {
     public abstract class WatcherDirectory: MediaDirectoryBase, IWatcherDirectory
     {

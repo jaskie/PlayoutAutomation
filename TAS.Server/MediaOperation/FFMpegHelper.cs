@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using NLog;
 
 namespace TAS.Server.MediaOperation
 {
@@ -35,8 +36,7 @@ namespace TAS.Server.MediaOperation
             };
 
             //try the process
-            Debug.WriteLine(parameters, "Starting ffmpeg:");
-            _fileOperation.AddOutputMessage($"ffmpeg.exe {parameters}");
+            _fileOperation.AddOutputMessage(LogLevel.Info,  $"Executing ffmpeg.exe {parameters}");
             return await Task.Run(() =>
             {
                 try
@@ -61,8 +61,7 @@ namespace TAS.Server.MediaOperation
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine(e.Message, "Error running FFmpeg process");
-                    _fileOperation.AddOutputMessage(e.ToString());
+                    _fileOperation.AddOutputMessage(LogLevel.Error, e.ToString());
                     return false;
                 }
             });
@@ -88,7 +87,7 @@ namespace TAS.Server.MediaOperation
             }
             else
             {
-                _fileOperation.AddOutputMessage(outLine.Data);
+                _fileOperation.AddOutputMessage(LogLevel.Trace, outLine.Data);
                 if (!string.IsNullOrEmpty(outLine.Data)
                     && outLine.Data.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0)
                     _fileOperation.AddWarningMessage($"FFmpeg error: {outLine.Data}");

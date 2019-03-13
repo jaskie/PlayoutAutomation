@@ -8,6 +8,7 @@ using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Server.Media;
+using LogLevel = NLog.LogLevel;
 
 namespace TAS.Server.MediaOperation
 {
@@ -129,8 +130,13 @@ namespace TAS.Server.MediaOperation
                     else
                         h(this, new AudioVolumeEventArgs(volume));
                 }
-                AddOutputMessage(outLine.Data);
+                AddOutputMessage(LogLevel.Trace, outLine.Data);
             }
+        }
+
+        public override string ToString()
+        {
+            return $"Loudness {Source}";
         }
     }
 

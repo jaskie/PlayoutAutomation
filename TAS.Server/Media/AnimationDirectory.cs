@@ -100,5 +100,10 @@ namespace TAS.Server.Media
         {
             MediaSaved?.Invoke(this, new MediaEventArgs(animatedMedia));
         }
+
+        public override string ToString()
+        {
+            return $"Archive {(IsPrimary ? "primary" : "secondary")}";
+        }
     }
 }

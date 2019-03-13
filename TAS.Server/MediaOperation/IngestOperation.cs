@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Diagnostics;
 using System.Threading;
 using System.Text;
 using System.ComponentModel;
@@ -18,6 +17,7 @@ using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Dependencies;
 using TAS.Server.Media;
+using LogLevel = NLog.LogLevel;
 
 namespace TAS.Server.MediaOperation
 {
@@ -122,11 +122,11 @@ namespace TAS.Server.MediaOperation
                     {
                         try
                         {
-                            AddOutputMessage($"Copying to local file {localSourceMedia.FullPath}");
+                            AddOutputMessage(LogLevel.Trace, $"Copying to local file {localSourceMedia.FullPath}");
                             localSourceMedia.PropertyChanged += LocalSourceMedia_PropertyChanged;
                             if (!await sourceMedia.CopyMediaTo(localSourceMedia, CancellationTokenSource.Token))
                                 return false;
-                            AddOutputMessage("Verifing local file");
+                            AddOutputMessage(LogLevel.Trace, "Verifing local file");
                             localSourceMedia.Verify(true);
                             return DestProperties.MediaType == TMediaType.Still
                                 ? ConvertStill(localSourceMedia)
@@ -146,13 +146,13 @@ namespace TAS.Server.MediaOperation
                             : await ConvertMovie(sourceMedia, sourceMedia.StreamInfo);
                     }
                     else
-                        AddOutputMessage("Waiting for media to verify");
+                        AddOutputMessage(LogLevel.Trace, "Waiting for media to verify");
                     return false;
                 }
             }
             catch (Exception e)
             {
-                AddOutputMessage(e.Message);
+                AddOutputMessage(LogLevel.Error, e.Message);
                 throw;
             }
         }
@@ -359,8 +359,7 @@ namespace TAS.Server.MediaOperation
         {
             if (!localSourceMedia.FileExists() || streams == null)
             {
-                Debug.WriteLine(this, "Cannot start ingest: file not readed");
-                AddOutputMessage("Cannot start ingest: file not readed");
+                AddOutputMessage(LogLevel.Error, "Cannot start ingest: file not readed");
                 return false;
             }
             CreateDestMediaIfNotExists();
@@ -368,8 +367,6 @@ namespace TAS.Server.MediaOperation
             if (destMedia == null)
                 return false;
             var helper = new FFMpegHelper(this, localSourceMedia.Duration);
-            Debug.WriteLine(this, "Ingest operation started");
-            AddOutputMessage("Starting ingest operation:");
             destMedia.MediaStatus = TMediaStatus.Copying;
             var encodeParams = GetEncodeParameters(localSourceMedia, streams);
             var ingestRegion = IsTrimmed() ? string.Format(CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - Source.TcStart, Duration) : string.Empty;
@@ -396,7 +393,6 @@ namespace TAS.Server.MediaOperation
                     destMedia.MediaStatus = TMediaStatus.CopyError;
                     (destMedia as PersistentMedia)?.Save();
                     AddWarningMessage($"Durations are different: {localSourceMedia.Duration.ToSMPTETimecodeString(localSourceMedia.FrameRate())} vs {destMedia.Duration.ToSMPTETimecodeString(destMedia.FrameRate())}");
-                    Debug.WriteLine(this, "Ingest operation succeed, but durations are diffrent");
                 }
                 else
                 {
@@ -406,8 +402,6 @@ namespace TAS.Server.MediaOperation
                            Thread.Sleep(2000);
                            OwnerFileManager.Queue(new DeleteOperation(OwnerFileManager) { Source = Source });
                        });
-                    AddOutputMessage("Ingest operation finished successfully");
-                    Debug.WriteLine(this, "Ingest operation succeed");
                 }
                 if (LoudnessCheck)
                 {
@@ -419,14 +413,14 @@ namespace TAS.Server.MediaOperation
                 }
                 return true;
             }
-            Debug.WriteLine("FFmpeg rewraper Execute(): Failed for {0}. Command line was {1}", (object)Source, Params);
             return false;
         }
         #endregion //Movie conversion
 
         public override string ToString()
         {
-            return $"{nameof(IngestOperation)}: {Source.MediaName} -> {DestDirectory}";
+            var dest = Dest ?? DestProperties;
+            return $"Ingest {Source} -> {DestDirectory}:{MediaToString(dest)}";
         }
     }
 

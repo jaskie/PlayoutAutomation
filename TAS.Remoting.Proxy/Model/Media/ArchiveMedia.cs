@@ -1,15 +1,14 @@
 ﻿using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 
-namespace TAS.Remoting.Model
+namespace TAS.Remoting.Model.Media
 {
-    public class IngestMedia: MediaBase, IIngestMedia
+    public class ArchiveMedia: PersistentMedia, IArchiveMedia
     {
-        #pragma warning disable CS0649
-
-        [JsonProperty(nameof(IIngestMedia.IngestStatus))]
+        #pragma warning disable CS0649 
+     
+        [JsonProperty(nameof(IArchiveMedia.IngestStatus))]
         private TIngestStatus _ingestStatus;
 
         #pragma warning restore

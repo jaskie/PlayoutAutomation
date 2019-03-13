@@ -41,5 +41,10 @@ namespace TAS.Server.Media
                     Logger.Warn(e);
                 }
         }
+
+        public override string ToString()
+        {
+            return "TEMP";
+        }
     }
 }

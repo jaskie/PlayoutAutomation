@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -81,7 +80,7 @@ namespace TAS.Server.MediaOperation
             }
             catch (Exception e)
             {
-                AddOutputMessage($"Error: {e.Message}");
+                AddOutputMessage(LogLevel.Error, $"Error: {e.Message}");
                 throw;
             }
         }
@@ -90,7 +89,7 @@ namespace TAS.Server.MediaOperation
         {
             bool result;
             var helper = new FFMpegHelper(this, TimeSpan.FromTicks(_sources.Sum(e => e.Duration.Ticks)));
-            AddOutputMessage("Refreshing destination directory content");
+            AddOutputMessage(LogLevel.Trace, "Refreshing destination directory content");
             if (!(DestDirectory is IngestDirectory destDirectory))
                 throw new InvalidOperationException("Can only export to IngestDirectory");
             if (destDirectory.AccessType == TDirectoryAccessType.FTP)
@@ -106,7 +105,7 @@ namespace TAS.Server.MediaOperation
                         try
                         {
 
-                            AddOutputMessage($"Transfering file to device as {Dest.FileName}");
+                            AddOutputMessage(LogLevel.Trace, $"Transfering file to device as {Dest.FileName}");
                             result = await localDestMedia.CopyMediaTo(Dest, CancellationTokenSource.Token);
                             if (result)
                                 Dest.MediaStatus = TMediaStatus.Available;
@@ -185,8 +184,6 @@ namespace TAS.Server.MediaOperation
         
         private async Task<bool> Encode(FFMpegHelper helper, IngestDirectory directory, string outFile)
         {            
-            Debug.WriteLine(this, "Export encode started");
-            AddOutputMessage($"Encode started to file {outFile}");
             var files = new StringBuilder();
             var index = 0;
             var complexFilterElements = new List<string>();
@@ -200,7 +197,7 @@ namespace TAS.Server.MediaOperation
             {
                 if (!(e.Media is MediaBase media))
                     continue;
-                files.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1} -i \"{2}\"", (e.StartTC - media.TcStart).TotalSeconds, e.Duration.TotalSeconds, media.FullPath);
+                files.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "-ss {0} -t {1} -i \"{2}\"", (e.StartTC - media.TcStart).TotalSeconds, e.Duration.TotalSeconds, media.FullPath);
                 var videoOutputName = $"[v{index}]";
                 var itemVideoFilters = new List<string>();
                 if (media.HasExtraLines)
@@ -236,7 +233,7 @@ namespace TAS.Server.MediaOperation
             var command = string.Format(System.Globalization.CultureInfo.InvariantCulture,
                 "{0}{1} -map \"[v]\" -map \"[a]\" {2} -timecode {3}{4} -shortest -f {5} -y \"{6}\"",
                 //0
-                files.ToString(),
+                files,
                 //1
                 complexFilter,
                 //2
@@ -260,17 +257,15 @@ namespace TAS.Server.MediaOperation
                 (isXdcamDirectory || directory.ExportContainerFormat == TMovieContainerFormat.mxf) && MXFVideoExportFormat != TmXFVideoExportFormat.DV25 ? "mxf_d10" : directory.ExportContainerFormat.ToString(),
                 outFile);
             if (await helper.RunProcess(command))
-            {
-                AddOutputMessage("Encode finished successfully");
-                Logger.Info("Encode finished successfully");
                 return true;
-            }
-            AddOutputMessage($"FFmpeg Encode(): Failed for {outFile}");
-            Logger.Warn("FFmpeg Encode(): Failed for {0}", outFile);
+            AddOutputMessage(LogLevel.Error, $"FFmpeg Encode(): Failed for {outFile}");
             return false;
         }
 
-
-
+        public override string ToString()
+        {
+            var dest = Dest ?? DestProperties;
+            return $"Export {string.Join(",", Sources)} -> {DestDirectory}:{MediaToString(dest)}";
+        }
     }
 }

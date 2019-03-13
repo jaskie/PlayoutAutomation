@@ -9,9 +9,22 @@ namespace TAS.Server.Media
 {
     public class IngestMedia : MediaBase, IIngestMedia
     {
-        private TIngestStatus _ingestStatus;
         internal string BmdXmlFile; // Blackmagic's Media Express Xml file containing this media information
         internal StreamInfo[] StreamInfo;
+        private Lazy<TIngestStatus> _ingestStatus; 
+        public IngestMedia()
+        {
+            _ingestStatus =  new Lazy<TIngestStatus>(() =>
+            {
+                if (!(((IngestDirectory)Directory).MediaManager.MediaDirectoryPRI is ServerDirectory sdir))
+                    return TIngestStatus.Unknown;
+                var media = sdir.FindMediaByMediaGuid(MediaGuid);
+                if (media != null && media.MediaStatus == TMediaStatus.Available)
+                    return TIngestStatus.Ready;
+                return TIngestStatus.Unknown;
+            });
+
+        }
 
         public override bool FileExists()
         {
@@ -24,17 +37,12 @@ namespace TAS.Server.Media
         [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public TIngestStatus IngestStatus
         {
-            get
+            get => _ingestStatus.Value;
+            set
             {
-                if (_ingestStatus != TIngestStatus.Unknown) return _ingestStatus;
-                if (!(((IngestDirectory) Directory).MediaManager.MediaDirectoryPRI is ServerDirectory sdir))
-                    return _ingestStatus;
-                var media = sdir.FindMediaByMediaGuid(MediaGuid);
-                if (media != null && media.MediaStatus == TMediaStatus.Available)
-                    _ingestStatus = TIngestStatus.Ready;
-                return _ingestStatus;
+                if (_ingestStatus.IsValueCreated && _ingestStatus.Value != value)
+                    SetField(ref _ingestStatus, new Lazy<TIngestStatus>(() => value));
             }
-            set => SetField(ref _ingestStatus, value);
         }
 
         public override Stream GetFileStream(bool forWrite)

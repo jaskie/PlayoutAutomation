@@ -36,7 +36,7 @@ namespace TAS.Remoting.Server
                 _listener = new TcpListener(IPAddress.Any, ListenPort) {ExclusiveAddressUse = true};
                 _listenerThread = new Thread(ListenerThreadProc)
                 {
-                    Name = "Remote client session listener",
+                    Name = $"Remote client session listener on port {ListenPort}",
                     IsBackground = true
                 };
                 _listenerThread.Start();
@@ -44,7 +44,7 @@ namespace TAS.Remoting.Server
             }
             catch(Exception e)
             {
-                Logger.Error(e, "Initialization of ServerHost error.");
+                Logger.Error(e, "Initialization of {0} error.", this);
             }
             return false;
         }
@@ -66,16 +66,16 @@ namespace TAS.Remoting.Server
                         }
                         catch (Exception e) when (e is SocketException || e is ThreadAbortException)
                         {
-                            Logger.Trace("ServerHost shutdown.");
+                            Logger.Trace("{0} shutdown.", this);
                             break;
                         }
                         catch (UnauthorizedAccessException)
                         {
-                            Logger.Warn($"Unauthorized client from: {client?.Client.RemoteEndPoint}");
+                            Logger.Warn("{0} Unauthorized client from: {1}", this, client?.Client.RemoteEndPoint);
                         }
                         catch (Exception e)
                         {
-                            Logger.Error(e, "Unexpected listener thread exception");
+                            Logger.Error(e, "{0} unexpected listener thread exception", this);
                         }
                     }
                 }
@@ -90,7 +90,7 @@ namespace TAS.Remoting.Server
             }
             catch (Exception e)
             {
-                Logger.Error(e, "ServerHost general error");
+                Logger.Error(e, "{0} general error", this);
             }
         }
 
@@ -129,6 +129,11 @@ namespace TAS.Remoting.Server
         public void UnInitialize()
         {
             _listenerThread.Abort();
+        }
+
+        public override string ToString()
+        {
+            return $"ServerHost on {ListenPort}";
         }
     }
 }

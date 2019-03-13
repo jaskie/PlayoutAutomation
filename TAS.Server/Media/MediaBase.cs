@@ -15,7 +15,7 @@ using TAS.Server.MediaOperation;
 
 namespace TAS.Server.Media
 {
-    [DebuggerDisplay("{Directory.DirectoryName}:{_mediaName} ({FullPath})")]
+    [DebuggerDisplay("{Directory}:{_mediaName} ({FullPath})")]
     public abstract class MediaBase : DtoBase, IMedia
     {
         private string _folder = string.Empty;
@@ -311,7 +311,7 @@ namespace TAS.Server.Media
         
         public override string ToString()
         {
-            return $"{Directory}:{MediaName}";
+            return $"{Directory}:{Folder}\\{MediaName}";
         }
 
         public virtual bool FileExists()

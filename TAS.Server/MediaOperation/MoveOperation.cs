@@ -7,6 +7,7 @@ using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
+using LogLevel = NLog.LogLevel;
 
 namespace TAS.Server.MediaOperation
 {
@@ -22,9 +23,6 @@ namespace TAS.Server.MediaOperation
         {
         }
        
-        [JsonProperty]
-        public IMediaProperties DestProperties { get => _destMediaProperties; set => SetField(ref _destMediaProperties, value); }
-
         [JsonProperty]
         public IMediaDirectory DestDirectory { get; set; }
 
@@ -46,7 +44,7 @@ namespace TAS.Server.MediaOperation
                     return;
                 if (!(DestDirectory is MediaDirectoryBase mediaDirectory))
                     throw new ApplicationException($"Cannot create destination media on {DestDirectory}");
-                Dest = (MediaBase) mediaDirectory.CreateMedia(DestProperties ?? Source);
+                Dest = (MediaBase) mediaDirectory.CreateMedia(Source);
             }
         }
 
@@ -69,7 +67,7 @@ namespace TAS.Server.MediaOperation
                 }
                 else if (!Dest.Delete())
                 {
-                    AddOutputMessage("Move operation failed - destination media not deleted");
+                    AddOutputMessage(LogLevel.Error, "Move operation failed - destination media not deleted");
                     return false;
                 }
             IsIndeterminate = true;
@@ -84,6 +82,10 @@ namespace TAS.Server.MediaOperation
             ((MediaDirectoryBase)DestDirectory).RefreshVolumeInfo();
             return true;
         }
-        
+
+        public override string ToString()
+        {
+            return $"Move {Source} -> {DestDirectory}";
+        }
     }
 }

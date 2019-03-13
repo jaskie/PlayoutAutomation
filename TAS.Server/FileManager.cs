@@ -70,39 +70,6 @@ namespace TAS.Server
             }
         }
 
-        /*
-        public IIngestOperation CreateIngestOperation(IIngestMedia sourceMedia, IMediaManager destMediaManager)
-        {
-            if (!(sourceMedia.Directory is IIngestDirectory sourceDirectory))
-                return null;
-            var pri = destMediaManager.MediaDirectoryPRI;
-            var sec = destMediaManager.MediaDirectorySEC;
-            if (!((pri != null && pri.DirectoryExists() ? pri : sec != null && sec.DirectoryExists() ? sec : null) is ServerDirectory dir))
-                return null;
-            
-            return new IngestOperation(this)
-            {
-                Source = sourceMedia,
-                DestDirectory = dir,
-                AudioVolume = sourceDirectory.AudioVolume,
-                SourceFieldOrderEnforceConversion = sourceDirectory.SourceFieldOrder,
-                AspectConversion = sourceDirectory.AspectConversion,
-                LoudnessCheck = sourceDirectory.MediaLoudnessCheckAfterIngest,
-                StartTC = sourceMedia.TcStart,
-                Duration = sourceMedia.Duration,
-                MovieContainerFormat = dir.Server.MovieContainerFormat
-            };
-        }
-
-        public ILoudnessOperation CreateLoudnessOperation(IMedia media, TimeSpan startTc, TimeSpan duration)
-        {
-            return new LoudnessOperation(this) {Source = media, MeasureStart = startTc, MeasureDuration = duration};
-        }
-
-        public IFileOperationBase CreateSimpleOperation() { return new CopyOperation(this); }
-        
-    */
-
         public IEnumerable<IFileOperationBase> GetOperationQueue()
         {
             var retList = _queueSimpleOperation.GetQueue();
@@ -136,6 +103,7 @@ namespace TAS.Server
         {
             operation.ScheduledTime = DateTime.UtcNow;
             operation.OperationStatus = FileOperationStatus.Waiting;
+            Logger.Info("Operation scheduled: {0}", operation);
             switch (operation)
             {
                 case IngestOperation _:
@@ -151,7 +119,6 @@ namespace TAS.Server
                     _queueSimpleOperation.Enqueue(operation);
                     break;
             }
-            Logger.Info("Operation scheduled: {0}", operation);
             OperationAdded?.Invoke(this, new FileOperationEventArgs(operation));
         }
 

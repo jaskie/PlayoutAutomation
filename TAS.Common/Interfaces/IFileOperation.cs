@@ -22,14 +22,16 @@ namespace TAS.Common.Interfaces
         event EventHandler Finished;
     }
 
-    public interface IMoveOperation : IFileOperationBase, IFileOperationOutput
+    public interface IMoveOperation : IFileOperationBase
     {
         IMedia Source { get; set; }
+        IMediaDirectory DestDirectory { get; set; }
     }
 
-    public interface ICopyOperation : IFileOperationBase, IFileOperationOutput
+    public interface ICopyOperation : IFileOperationBase
     {
         IMedia Source { get; set; }
+        IMediaDirectory DestDirectory { get; set; }
     }
 
     public interface IDeleteOperation : IFileOperationBase
@@ -38,21 +40,18 @@ namespace TAS.Common.Interfaces
     }
 
 
-    public interface IExportOperation : IFileOperationBase, IFileOperationOutput
+    public interface IExportOperation : IFileOperationBase
     {
         IEnumerable<MediaExportDescription> Sources { get; }
-    }
-
-    public interface IFileOperationOutput
-    {
-        IMediaProperties DestProperties { get; set; }
         IMediaDirectory DestDirectory { get; set; }
-
+        IMediaProperties DestProperties { get; set; }
     }
 
-    public interface IIngestOperation : IFileOperationBase, IFileOperationOutput
+    public interface IIngestOperation : IFileOperationBase
     {
         IMedia Source { get; set; }
+        IMediaDirectory DestDirectory { get; set; }
+        IMediaProperties DestProperties { get; set; }
         TAspectConversion AspectConversion { get; set; }
         TAudioChannelMappingConversion AudioChannelMappingConversion { get; set; }
         TFieldOrder SourceFieldOrderEnforceConversion { get; set; }
@@ -68,6 +67,7 @@ namespace TAS.Common.Interfaces
         IMedia Source { get; set; }
         TimeSpan MeasureStart { get; set; }
         TimeSpan MeasureDuration { get; set; }
+
         event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured;
     }
 

@@ -3,8 +3,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Server.Media;
 
@@ -16,6 +16,7 @@ namespace TAS.Server.XDCAM
 
         private int _clipNr;
 
+        [JsonProperty]
         public int ClipNr { get => _clipNr; set => SetField(ref _clipNr, value); }
 
         public override Stream GetFileStream(bool forWrite)

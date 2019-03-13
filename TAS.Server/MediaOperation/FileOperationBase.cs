@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NLog;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 using TAS.Remoting.Server;
 
 namespace TAS.Server.MediaOperation
 {
     public abstract class FileOperationBase : DtoBase, IFileOperationBase
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private int _tryCount = 15;
         private DateTime _scheduledTime;
         private DateTime _startTime;
@@ -55,11 +58,7 @@ namespace TAS.Server.MediaOperation
         public DateTime ScheduledTime
         {
             get => _scheduledTime;
-            internal set
-            {
-                if (SetField(ref _scheduledTime, value))
-                    AddOutputMessage("Operation scheduled");
-            }
+            internal set => SetField(ref _scheduledTime, value);
         }
 
         [JsonProperty]
@@ -171,18 +170,18 @@ namespace TAS.Server.MediaOperation
         {
             try
             {
-                AddOutputMessage("Operation started");
+                AddOutputMessage(LogLevel.Info, $"Operation started: {this}");
                 OperationStatus = FileOperationStatus.InProgress;
                 if (await InternalExecute())
                 {
                     OperationStatus = FileOperationStatus.Finished;
-                    AddOutputMessage("Operation completed successfully.");
+                    AddOutputMessage(LogLevel.Info, $"Operation completed successfully: {this}");
                     return true;
                 }
             }
             catch (Exception e)
             {
-                AddOutputMessage(e.Message);
+                AddOutputMessage(LogLevel.Error, e.Message);
             }
             TryCount--;
             if (!IsAborted)
@@ -192,12 +191,12 @@ namespace TAS.Server.MediaOperation
 
         protected abstract void OnOperationStatusChanged();
         
-        internal void AddOutputMessage(string message)
+        internal void AddOutputMessage(LogLevel level, string message)
         {
             lock (((IList)_operationOutput).SyncRoot)
                 _operationOutput.Add($"{DateTime.UtcNow} {message}");
             NotifyPropertyChanged(nameof(OperationOutput));
-            Logger.Trace(message);
+            Logger.Log(level, message);
         }
 
         internal void AddWarningMessage(string message)
@@ -209,5 +208,15 @@ namespace TAS.Server.MediaOperation
         }
 
         protected abstract Task<bool> InternalExecute();
+
+        protected string MediaToString(IMediaProperties media)
+        {
+            if (media == null)
+                return "None";
+            if (string.IsNullOrWhiteSpace(media.Folder))
+                return media.MediaName ?? media.FileName ?? string.Empty;
+            return Path.Combine(media.Folder, media.MediaName ?? media.FileName ?? string.Empty);
+        }
+
     }
 }

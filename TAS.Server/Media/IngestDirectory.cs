@@ -712,6 +712,10 @@ namespace TAS.Server.Media
         
         #endregion
 
+        public override string ToString()
+        {
+            return DirectoryName;
+        }
     }
 
 }

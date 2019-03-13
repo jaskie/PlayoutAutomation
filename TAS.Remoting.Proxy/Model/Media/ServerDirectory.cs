@@ -5,14 +5,11 @@ using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 
-namespace TAS.Remoting.Model
+namespace TAS.Remoting.Model.Media
 {
     public class ServerDirectory : WatcherDirectory, IServerDirectory
     {
 #pragma warning disable CS0649
-        [JsonProperty(nameof(IServerDirectory.DirectoryName))]
-        private string _directoryName;
-
         [JsonProperty(nameof(IServerDirectory.IsRecursive))]
         private bool _isRecursive;
 
@@ -24,8 +21,6 @@ namespace TAS.Remoting.Model
 
 
 #pragma warning restore
-
-        public string DirectoryName => _directoryName;
 
         public TMovieContainerFormat MovieContainerFormat => _movieContainerFormat;
 

@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using TAS.Remoting.Client;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;
+using TAS.Remoting.Model.Media;
 
 namespace TAS.Remoting.Model
 {

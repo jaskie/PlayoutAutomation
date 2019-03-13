@@ -120,5 +120,10 @@ namespace TAS.Server.Media
             operation.Success -= _archiveCopy_success;
             operation.Failure -= _archiveCopy_failure;
         }
+
+        public override string ToString()
+        {
+            return "Archive";
+        }
     }
 }

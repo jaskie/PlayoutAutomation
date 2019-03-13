@@ -11,38 +11,39 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class IngestOperationViewModel: FileOperationViewmodel, IDataErrorInfo
+    public class IngestOperationViewModel : FileOperationViewmodel, IDataErrorInfo
     {
         private readonly IIngestOperation _operation;
         private readonly IEngine _engine;
-        private readonly IPersistentMediaProperties _destMediaProperties;
 
         private TAspectConversion _aspectConversion;
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
         private double _audioVolume;
         private TFieldOrder _sourceFieldOrderEnforceConversion;
         private bool _loudnessCheck;
-        
+        private TMediaCategory _destCategory;
+        private byte _destParental;
+        private string _destMediaName;
+        private TimeSpan _startTc;
+        private TimeSpan _duration;
+        private string _idAux;
+        private string _destFileName;
+        private TMediaEmphasis _destMediaEmphasis;
+        private TVideoFormat _destMediaVideoFormat;
+
         public IngestOperationViewModel(IIngestOperation operation, IPreview preview, IEngine engine)
             : base(operation)
         {
             _operation = operation;
             _engine = engine;
-            var fileExt = operation.Source.MediaType == TMediaType.Movie
-                ? $".{(operation.DestDirectory as IServerDirectory)?.MovieContainerFormat ?? TMovieContainerFormat.mov}"
-                : FileUtils.DefaultFileExtension(operation.Source.MediaType);
-            var destFileName = $"{Path.GetFileNameWithoutExtension(operation.Source.FileName)}{fileExt}";
-            _destMediaProperties = new PersistentMediaProxy
-            {
-                FileName = operation.DestDirectory.GetUniqueFileName(destFileName),
-                MediaName = FileUtils.GetFileNameWithoutExtension(destFileName, operation.Source.MediaType),
-                MediaType = operation.Source.MediaType == TMediaType.Unknown ? TMediaType.Movie : operation.Source.MediaType,
-                Duration = operation.Source.Duration,
-                TcStart = operation.StartTC,
-                MediaGuid = operation.Source.MediaGuid,
-                MediaCategory = ((IIngestDirectory)operation.Source.Directory).MediaCategory
-            };
-            
+            DestMediaName = FileUtils.GetFileNameWithoutExtension(operation.Source.MediaName, operation.Source.MediaType);
+            Duration = operation.Source.Duration;
+            StartTC = operation.Source.TcStart;
+            DestCategory = ((IIngestDirectory) operation.Source.Directory).MediaCategory;
+            IsMovie = operation.Source.MediaType == TMediaType.Unknown || operation.Source.MediaType == TMediaType.Movie;
+            IsStill = operation.Source.MediaType == TMediaType.Still;
+            _makeFileName();
+
             _audioChannelMappingConversion = operation.AudioChannelMappingConversion;
             _aspectConversion = operation.AspectConversion;
             _audioVolume = operation.AudioVolume;
@@ -56,11 +57,11 @@ namespace TAS.Client.ViewModels
         }
 
         public Array Categories { get; } = Enum.GetValues(typeof(TMediaCategory));
-        public TMediaCategory DestCategory { get => _destMediaProperties.MediaCategory; set => _destMediaProperties.MediaCategory = value; }
-        
+        public TMediaCategory DestCategory { get => _destCategory; set => SetField(ref _destCategory, value); }
+
         public IEnumerable<ICGElement> Parentals => _engine?.CGElementsController?.Parentals;
 
-        public byte DestParental { get => _destMediaProperties.Parental; set => _destMediaProperties.Parental = value; }
+        public byte DestParental { get => _destParental; set => SetField(ref _destParental, value); }
 
         public Array AspectConversions { get; } = Enum.GetValues(typeof(TAspectConversion));
         public Array AspectConversionsEnforce { get; }
@@ -90,7 +91,7 @@ namespace TAS.Client.ViewModels
             get => _sourceFieldOrderEnforceConversion;
             set => SetField(ref _sourceFieldOrderEnforceConversion, value);
         }
-    
+
         public bool EncodeVideo => ((IIngestDirectory)_operation.Source.Directory).VideoCodec != TVideoCodec.copy;
 
         public bool EncodeAudio => ((IIngestDirectory)_operation.Source.Directory).AudioCodec != TAudioCodec.copy;
@@ -105,24 +106,22 @@ namespace TAS.Client.ViewModels
 
         public string DestMediaName
         {
-            get => _destMediaProperties.MediaName;
+            get => _destMediaName;
             set
             {
-                _destMediaProperties.MediaName = value;
+                if (!SetField(ref _destMediaName, value))
+                    return;
                 _makeFileName();
             }
         }
-        
+
         public TimeSpan StartTC
         {
-            get => _destMediaProperties.TcStart;
+            get => _startTc;
             set
             {
-                if (_destMediaProperties.TcStart == value)
+                if (!SetField(ref _startTc, value))
                     return;
-                _destMediaProperties.TcStart = value;
-                _destMediaProperties.TcPlay = value;
-                NotifyPropertyChanged(nameof(StartTC));
                 NotifyPropertyChanged(nameof(Duration));
                 NotifyPropertyChanged(nameof(EndTC));
                 NotifyPropertyChanged(nameof(IsValid));
@@ -131,15 +130,12 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan Duration
         {
-            get => _destMediaProperties.Duration;
+            get => _duration;
             set
             {
-                if (_destMediaProperties.Duration == value)
+                if (!SetField(ref _duration, value))
                     return;
-                _destMediaProperties.Duration = value;
-                _destMediaProperties.DurationPlay = value;
                 NotifyPropertyChanged(nameof(StartTC));
-                NotifyPropertyChanged(nameof(Duration));
                 NotifyPropertyChanged(nameof(EndTC));
                 NotifyPropertyChanged(nameof(IsValid));
             }
@@ -157,40 +153,40 @@ namespace TAS.Client.ViewModels
 
         public string IdAux
         {
-            get => _destMediaProperties.IdAux;
+            get => _idAux;
             set
             {
-                _destMediaProperties.IdAux = value;
+                if (!SetField(ref _idAux, value))
+                    return;
                 _makeFileName();
             }
         }
 
-        public string DestFileName { 
-            get => _destMediaProperties.FileName;
+        public string DestFileName
+        {
+            get => _destFileName;
             set
             {
-                if (_destMediaProperties.FileName == value)
+                if (!SetField(ref _destFileName, value))
                     return;
-                _destMediaProperties.FileName = value;
-                NotifyPropertyChanged();
                 NotifyPropertyChanged(nameof(IsValid));
             }
         }
-        
+
         public Array MediaEmphasises { get; } = Enum.GetValues(typeof(TMediaEmphasis));
 
         public TMediaEmphasis DestMediaEmphasis
         {
-            get => _destMediaProperties.MediaEmphasis;
-            set => _destMediaProperties.MediaEmphasis = value;
+            get => _destMediaEmphasis;
+            set => SetField(ref _destMediaEmphasis, value);
         }
 
         public Array VideoFormats { get; } = Enum.GetValues(typeof(TVideoFormat));
 
         public TVideoFormat DestMediaVideoFormat
         {
-            get => _destMediaProperties.VideoFormat;
-            set => _destMediaProperties.VideoFormat = value;
+            get => _destMediaVideoFormat;
+            set => SetField(ref _destMediaVideoFormat, value);
         }
 
         public bool ShowParentalCombo => _engine?.CGElementsController?.Parentals != null;
@@ -201,16 +197,17 @@ namespace TAS.Client.ViewModels
 
         public bool CanPreview => (PreviewViewmodel != null && ((IIngestDirectory)_operation.Source.Directory).AccessType == TDirectoryAccessType.Direct);
 
-        public bool LoudnessCheck {
+        public bool LoudnessCheck
+        {
             get => _loudnessCheck;
             set => SetField(ref _loudnessCheck, value);
         }
-        
+
         public bool IsValid => (from pi in GetType().GetProperties() select this[pi.Name]).All(string.IsNullOrEmpty);
 
-        public bool IsMovie => _destMediaProperties.MediaType == TMediaType.Movie;
+        public bool IsMovie { get; }
 
-        public bool IsStill => _destMediaProperties.MediaType == TMediaType.Still;
+        public bool IsStill { get; }
 
         public void Apply()
         {
@@ -222,7 +219,16 @@ namespace TAS.Client.ViewModels
             _operation.AudioChannelMappingConversion = _audioChannelMappingConversion;
             _operation.AspectConversion = _aspectConversion;
             _operation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
-            _operation.DestProperties = _destMediaProperties; 
+            _operation.DestProperties = new PersistentMediaProxy
+            {
+                FileName = DestFileName,
+                MediaName = DestMediaName,
+                MediaType = IsMovie ? TMediaType.Movie : TMediaType.Still,
+                Duration = Duration,
+                TcStart = StartTC,
+                MediaGuid = _operation.Source.MediaGuid,
+                MediaCategory = DestCategory
+            };
         }
 
         public string this[string propertyName]
@@ -257,7 +263,7 @@ namespace TAS.Client.ViewModels
         public string Error => string.Empty;
 
         // utilities
-        
+
         protected override void OnFileOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -316,7 +322,7 @@ namespace TAS.Client.ViewModels
 
         private void _makeFileName()
         {
-            DestFileName = MediaExtensions.MakeFileName(IdAux, DestMediaName,  _operation.Source.MediaType == TMediaType.Movie ? $".{(_operation.DestDirectory as IServerDirectory)?.MovieContainerFormat ?? TMovieContainerFormat.mov}": FileUtils.DefaultFileExtension(_operation.Source.MediaType));
+            DestFileName = MediaExtensions.MakeFileName(IdAux, DestMediaName, _operation.Source.MediaType == TMediaType.Movie ? $".{(_operation.DestDirectory as IServerDirectory)?.MovieContainerFormat ?? TMovieContainerFormat.mov}" : FileUtils.DefaultFileExtension(_operation.Source.MediaType));
         }
 
         private string ValidateTc()
@@ -338,22 +344,19 @@ namespace TAS.Client.ViewModels
         {
             if (!(_operation.DestDirectory is IServerDirectory dir))
                 throw new ApplicationException("Invalid directory in ValidateDestFileName");
-            if (_destMediaProperties.FileName.StartsWith(" ") || _destMediaProperties.FileName.EndsWith(" "))
+            if (DestFileName.StartsWith(" ") || DestFileName.EndsWith(" "))
                 return resources._validate_FileNameCanNotStartOrEndWithSpace;
-            if (_destMediaProperties.FileName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
+            if (DestFileName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
                 return resources._validate_FileNameCanNotContainSpecialCharacters;
-            if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.FileName), out var length) && _destMediaProperties.FileName.Length > length)
+            if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.FileName), out var length) && DestFileName.Length > length)
                 return resources._validate_TextTooLong;
-            var newName = _destMediaProperties.FileName.ToLowerInvariant();
-            if (dir.FileExists(newName, _destMediaProperties.Folder))
+            var newName = DestFileName.ToLowerInvariant();
+            if (dir.FileExists(newName))
                 return resources._validate_FileAlreadyExists;
-            switch (_destMediaProperties.MediaType)
-            {
-                case TMediaType.Movie when !FileUtils.VideoFileTypes.Contains(Path.GetExtension(newName).ToLower()):
-                    return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.VideoFileTypes));
-                case TMediaType.Still when !FileUtils.StillFileTypes.Contains(Path.GetExtension(newName).ToLower()):
-                    return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.StillFileTypes));
-            }
+            if (IsMovie && !FileUtils.VideoFileTypes.Contains(Path.GetExtension(newName).ToLower()))
+                return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.VideoFileTypes));
+            if (IsStill && !FileUtils.StillFileTypes.Contains(Path.GetExtension(newName).ToLower()))
+                return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.StillFileTypes));
             return null;
         }
     }

@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 
-namespace TAS.Remoting.Model
+namespace TAS.Remoting.Model.Media
 {
     public class IngestDirectory : WatcherDirectory, IIngestDirectory
     {

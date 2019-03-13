@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using System;
-using TAS.Remoting.Client;
+﻿using System;
+using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
+using TAS.Remoting.Client;
 
-namespace TAS.Remoting.Model
+namespace TAS.Remoting.Model.Media
 {
     public abstract class MediaBase : ProxyBase, IMedia
     {

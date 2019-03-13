@@ -22,9 +22,6 @@ namespace TAS.Server.MediaOperation
         }
        
         [JsonProperty]
-        public IMediaProperties DestProperties { get => _destMediaProperties; set => SetField(ref _destMediaProperties, value); }
-
-        [JsonProperty]
         public IMediaDirectory DestDirectory { get; set; }
 
         [JsonProperty]
@@ -42,7 +39,7 @@ namespace TAS.Server.MediaOperation
                     return;
                 if (!(DestDirectory is MediaDirectoryBase mediaDirectory))
                     throw new ApplicationException($"Cannot create destination media on {DestDirectory}");
-                Dest = (MediaBase) mediaDirectory.CreateMedia(DestProperties ?? Source);
+                Dest = (MediaBase) mediaDirectory.CreateMedia(Source);
             }
         }
 
@@ -104,5 +101,9 @@ namespace TAS.Server.MediaOperation
             return true;
         }
 
+        public override string ToString()
+        {
+            return $"Copy {Source} -> {DestDirectory}";
+        }
     }
 }

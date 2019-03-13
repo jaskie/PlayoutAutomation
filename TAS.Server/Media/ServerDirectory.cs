@@ -148,5 +148,10 @@ namespace TAS.Server.Media
             newMedia.Save();
             return newMedia;
         }
+
+        public override string ToString()
+        {
+            return IsPrimary ? "PRI" : "SEC";
+        }
     }
 }

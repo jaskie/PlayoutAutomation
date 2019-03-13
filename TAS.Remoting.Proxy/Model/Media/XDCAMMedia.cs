@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 
-namespace TAS.Remoting.Model
+namespace TAS.Remoting.Model.Media
 {
     public class XDCAMMedia : IngestMedia, IXdcamMedia
     {

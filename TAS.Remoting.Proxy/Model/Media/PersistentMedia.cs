@@ -5,7 +5,7 @@ using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 
-namespace TAS.Remoting.Model
+namespace TAS.Remoting.Model.Media
 {
     public abstract class PersistentMedia : MediaBase, IPersistentMedia
     {

@@ -36,6 +36,10 @@ namespace TAS.Server.MediaOperation
                 return true;
             });
         }
-        
+
+        public override string ToString()
+        {
+            return $"Delete: {Source}";
+        }
     }
 }
