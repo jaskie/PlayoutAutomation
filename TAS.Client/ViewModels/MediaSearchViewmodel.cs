@@ -81,7 +81,7 @@ namespace TAS.Client.ViewModels
                     .Select(m => new MediaViewViewmodel(m)));
             _itemsView = CollectionViewSource.GetDefaultView(Items);
             _itemsView.Filter += _itemsFilter;
-
+            
             IsRecursive = _searchDirectory is IServerDirectory sd && sd.IsRecursive;
 
             if (mediaType == TMediaType.Movie || mediaType == TMediaType.Audio)
@@ -108,7 +108,7 @@ namespace TAS.Client.ViewModels
                 if (!SetField(ref _searchText, value))
                     return;
                 _searchTextSplit = value.Split(' ');
-                if (_mediaType == TMediaType.Audio || _mediaType == TMediaType.Movie)
+                if (!UserSorted && (_mediaType == TMediaType.Audio || _mediaType == TMediaType.Movie))
                 {
                     if (string.IsNullOrWhiteSpace(value) && !string.IsNullOrWhiteSpace(oldValue))
                         SortByIngestDate();
@@ -200,6 +200,8 @@ namespace TAS.Client.ViewModels
         }
 
         public IEngine Engine { get; }
+
+        public bool UserSorted { get; set; }
 
         private bool _canAddMediaToCollection(IMedia media, TMediaType requiredMediaType)
         {

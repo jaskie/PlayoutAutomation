@@ -25,7 +25,7 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <DockPanel>
-            <Label Content="{Resx _search}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" />
+            <Label Content="{Resx _search}" HorizontalAlignment="Center" VerticalAlignment="Center" />
             <StackPanel DockPanel.Dock="Right" Height="35" Orientation="Horizontal">
                 <Button Style="{StaticResource CancelButtonStyle}" Click="BtnClose_OnClick"/>
                 <Button Content="{Binding OkButtonText}" Command="{Binding CommandAdd}" Click="ButtonOk_OnClick" IsDefault="True" Margin="5" MinWidth="90"/>
@@ -40,7 +40,7 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <TextBox Name="TbSearch" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" Grid.ColumnSpan="3" Margin="0,6,9.2,6.4" >
+            <TextBox Name="TbSearch" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" Margin="5" >
                 <i:Interaction.Behaviors>
                     <behaviors:Focus SelectAllOnFocus="True"/>
                 </i:Interaction.Behaviors>
@@ -64,17 +64,18 @@
                     <CheckBox Margin="5" IsChecked="{Binding Engine.StudioMode}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" Content="{Resx _studioMode}" />
                 </StackPanel>
                 <DataGrid  
-                x:Name="gSearch" 
-                Grid.Row="1"
-                SelectionUnit="FullRow" 
-                SelectionMode="Single" 
-                AutoGenerateColumns="False" 
-                ColumnWidth="Auto"
-                ItemsSource="{Binding Items}" 
-                SelectedItem="{Binding SelectedItem}" 
-                SelectionChanged="DataGrid_SelectionChanged" 
-                IsReadOnly="True"
-                RowHeaderWidth="0">
+                    x:Name="gSearch" 
+                    Grid.Row="1"
+                    SelectionUnit="FullRow" 
+                    SelectionMode="Single" 
+                    AutoGenerateColumns="False" 
+                    ColumnWidth="Auto"
+                    ItemsSource="{Binding Items}" 
+                    SelectedItem="{Binding SelectedItem}" 
+                    SelectionChanged="DataGrid_SelectionChanged" 
+                    Sorting="DataGrid_OnSorting"
+                    IsReadOnly="True"
+                    RowHeaderWidth="0">
                     <DataGrid.Resources>
                         <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
                         <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
@@ -112,7 +113,7 @@
                         </Style>
                     </DataGrid.RowStyle>
                     <DataGrid.Columns>
-                        <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" Width="20" SortMemberPath="HasSegments">
+                        <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" Width="20" SortMemberPath="HasSegments" >
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <ToggleButton Visibility="{Binding HasSegments, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsExpanded, UpdateSourceTrigger=PropertyChanged}" Width="14" Height="14" Style="{StaticResource ToggleButtonStyle}"  />
@@ -145,7 +146,7 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn x:Name="folderColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Folder}" Width="*" Binding="{Binding Folder, Mode=OneWay}" Visibility="{Binding IsRecursive, Converter={StaticResource BoolToVis}}"/>
+                        <DataGridTextColumn x:Name="folderColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Folder}" Width="*" Binding="{Binding Folder, Mode=OneWay}" Visibility="{Binding Data.IsRecursive, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}"/>
                         <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" />
                         <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="DurationPlay">
                             <DataGridTemplateColumn.CellTemplate>

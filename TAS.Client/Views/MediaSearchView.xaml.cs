@@ -65,5 +65,12 @@ namespace TAS.Client.Views
         {
             Close();
         }
+
+        private void DataGrid_OnSorting(object sender, DataGridSortingEventArgs e)
+        {
+            if (!(sender is FrameworkElement fe) || !(fe.DataContext is MediaSearchViewmodel vm))
+                return;
+            vm.UserSorted = true;
+        }
     }
 }
