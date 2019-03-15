@@ -399,6 +399,7 @@ EXPORTS
     av_rc4_crypt
     av_rc4_init
     av_read_image_line
+    av_read_image_line2
     av_realloc
     av_realloc_array
     av_realloc_f
@@ -469,6 +470,7 @@ EXPORTS
     av_thread_message_flush
     av_thread_message_queue_alloc
     av_thread_message_queue_free
+    av_thread_message_queue_nb_elems
     av_thread_message_queue_recv
     av_thread_message_queue_send
     av_thread_message_queue_set_err_recv
@@ -500,6 +502,7 @@ EXPORTS
     av_version_info
     av_vlog
     av_write_image_line
+    av_write_image_line2
     av_xtea_alloc
     av_xtea_crypt
     av_xtea_init
