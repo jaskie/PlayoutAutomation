@@ -409,13 +409,6 @@
                                 <DataGridTextColumn x:Name="clipNrColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipNr}" Width="50" Visibility="{Binding Data.IsDisplayClipNr, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" Binding="{Binding ClipNr, Mode=OneWay}"  />
                                 <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="*" Binding="{Binding MediaName, Mode=OneWay}" />
                                 <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}" />
-                                <DataGridTemplateColumn x:Name="tCStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.TcPlay}" Width="80" SortMemberPath="TcPlay" >
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <controls:TimecodeTextBlock Timecode="{Binding TcPlay}" VideoFormat="{Binding VideoFormat}"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
                                 <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.DurationPlay}"  Width="90" SortMemberPath="DurationPlay">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
@@ -462,12 +455,7 @@
                                                     </GridViewColumn.CellTemplate>
                                                 </GridViewColumn>
                                                 <GridViewColumn TextBlock.TextAlignment="Left" DisplayMemberBinding="{Binding SegmentName, Mode=OneWay}" Width="{Binding ElementName=clipNameColumn, Path=ActualWidth}" />
-                                                <GridViewColumn Width="{Binding ElementName=ingestDateColumn, Path=ActualWidth}">
-                                                    <GridViewColumn.CellTemplate>
-                                                        <DataTemplate />
-                                                    </GridViewColumn.CellTemplate>
-                                                </GridViewColumn>
-                                                <GridViewColumn TextBlock.TextAlignment="Left" Width="{Binding ElementName=tCStartColumn, Path=ActualWidth}" >
+                                                <GridViewColumn TextBlock.TextAlignment="Left" Width="{Binding ElementName=ingestDateColumn, Path=ActualWidth}" >
                                                     <GridViewColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <controls:TimecodeTextBlock Timecode="{Binding TcIn}" VideoFormat="{Binding VideoFormat}"/>
