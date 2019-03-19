@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
-using TAS.Remoting.Model.MediaOperation;
 
 namespace TAS.Remoting.Model
 {
@@ -17,7 +16,7 @@ namespace TAS.Remoting.Model
 
         public IFileOperationBase CreateFileOperation(TFileOperationKind kind)
         {
-            return Query<IngestOperation>(parameters: new object[] { kind });
+            return Query<IFileOperationBase>(parameters: new object[] { kind });
         }
         
         public void Queue(IFileOperationBase operation)

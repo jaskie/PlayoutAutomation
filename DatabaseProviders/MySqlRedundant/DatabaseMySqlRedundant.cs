@@ -448,7 +448,7 @@ namespace TAS.Database.MySqlRedundant
                     {
                         while (dataReader.Read())
                         {
-                            if (engine.GetRootEvents().Any(e => (e as IEventPesistent)?.Id == dataReader.GetUInt64("idRundownEvent")))
+                            if (engine.GetRootEvents().Any(e => (e as IEventPersistent)?.Id == dataReader.GetUInt64("idRundownEvent")))
                                 continue;
                             var newEvent = _eventRead(engine, dataReader);
                             foundEvents.Add(newEvent);
@@ -457,7 +457,7 @@ namespace TAS.Database.MySqlRedundant
                     }
                     foreach (var e in foundEvents)
                     {
-                        if (e is ITemplated et && e is IEventPesistent ep)
+                        if (e is ITemplated et && e is IEventPersistent ep)
                             _readAnimatedEvent(ep.Id, et);
                         if (e.EventType == TEventType.Container) 
                             continue;
@@ -503,10 +503,10 @@ namespace TAS.Database.MySqlRedundant
                         dataReader.Close();
                     }
                     foreach (var ev in foundEvents)
-                        if (ev is ITemplated && ev is IEventPesistent)
+                        if (ev is ITemplated && ev is IEventPersistent)
                         {
-                            _readAnimatedEvent(((IEventPesistent)ev).Id, ev as ITemplated);
-                            ((IEventPesistent)ev).IsModified = false;
+                            _readAnimatedEvent(((IEventPersistent)ev).Id, ev as ITemplated);
+                            ((IEventPersistent)ev).IsModified = false;
                         }
                     return foundEvents;
                 }
@@ -524,10 +524,10 @@ namespace TAS.Database.MySqlRedundant
                 using (var reader = cmd.ExecuteReader())
                     if (reader.Read())
                         futureScheduled = _eventRead(engine, reader);
-                if (futureScheduled is ITemplated && futureScheduled is IEventPesistent)
+                if (futureScheduled is ITemplated && futureScheduled is IEventPersistent)
                 {
-                    _readAnimatedEvent(((IEventPesistent)futureScheduled).Id, futureScheduled as ITemplated);
-                    ((IEventPesistent)futureScheduled).IsModified = false;
+                    _readAnimatedEvent(((IEventPersistent)futureScheduled).Id, futureScheduled as ITemplated);
+                    ((IEventPersistent)futureScheduled).IsModified = false;
                 }
                 if (futureScheduled != null)
                     return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InSchedule, Media = serverMedia, Event = futureScheduled };
@@ -710,7 +710,7 @@ namespace TAS.Database.MySqlRedundant
         #endregion // ArchiveDirectory
 
         #region IEvent
-        public List<IEvent> ReadSubEvents(IEngine engine, IEventPesistent eventOwner)
+        public List<IEvent> ReadSubEvents(IEngine engine, IEventPersistent eventOwner)
         {
             if (eventOwner == null)
                 return null;
@@ -739,13 +739,13 @@ namespace TAS.Database.MySqlRedundant
                     if (e is ITemplated)
                     {
                         _readAnimatedEvent(e.Id, e as ITemplated);
-                        ((IEventPesistent)e).IsModified = false;
+                        ((IEventPersistent)e).IsModified = false;
                     }
                 return subevents;
             }
         }
 
-        public IEvent ReadNext(IEngine engine, IEventPesistent aEvent) 
+        public IEvent ReadNext(IEngine engine, IEventPersistent aEvent) 
         {
             if (aEvent == null)
                 return null;
@@ -760,10 +760,10 @@ namespace TAS.Database.MySqlRedundant
                     if (reader.Read())
                         next = _eventRead(engine, reader);
                 }
-                if (!(next is ITemplated) || !(next is IEventPesistent))
+                if (!(next is ITemplated) || !(next is IEventPersistent))
                     return next;
-                _readAnimatedEvent(((IEventPesistent)next).Id, next as ITemplated);
-                ((IEventPesistent)next).IsModified = false;
+                _readAnimatedEvent(((IEventPersistent)next).Id, next as ITemplated);
+                ((IEventPersistent)next).IsModified = false;
                 return next;
             }
         }
@@ -801,10 +801,10 @@ namespace TAS.Database.MySqlRedundant
                     if (reader.Read())
                         result = _eventRead(engine, reader);
                 }
-                if (!(result is ITemplated) || !(result is IEventPesistent))
+                if (!(result is ITemplated) || !(result is IEventPersistent))
                     return result;
-                _readAnimatedEvent(((IEventPesistent)result).Id, result as ITemplated);
-                ((IEventPesistent)result).IsModified = false;
+                _readAnimatedEvent(((IEventPersistent)result).Id, result as ITemplated);
+                ((IEventPersistent)result).IsModified = false;
                 return result;
             }
         }
@@ -850,7 +850,7 @@ namespace TAS.Database.MySqlRedundant
             return newEvent;
         }
 
-        private bool _eventFillParamsAndExecute(DbCommandRedundant cmd, IEventPesistent aEvent)
+        private bool _eventFillParamsAndExecute(DbCommandRedundant cmd, IEventPersistent aEvent)
         {
             Debug.WriteLineIf(aEvent.Duration.Days > 1, aEvent, "Duration extremely long");
             cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)aEvent.Engine).Id);
@@ -921,7 +921,7 @@ namespace TAS.Database.MySqlRedundant
         }
 
 
-        public bool InsertEvent(IEventPesistent aEvent)
+        public bool InsertEvent(IEventPersistent aEvent)
         {
             lock (_connection)
             {
@@ -946,7 +946,7 @@ VALUES
             return false;
         }
 
-        public bool UpdateEvent<TEvent>(TEvent aEvent) where  TEvent: IEventPesistent
+        public bool UpdateEvent<TEvent>(TEvent aEvent) where  TEvent: IEventPersistent
         {
             lock (_connection)
             {
@@ -992,7 +992,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             }
         }
 
-        public bool DeleteEvent(IEventPesistent aEvent)
+        public bool DeleteEvent(IEventPersistent aEvent)
         {
             lock (_connection)
             {
@@ -1081,7 +1081,7 @@ VALUES
 
         #region ACL
 
-        public List<IAclRight> ReadEventAclList<TEventAcl>(IEventPesistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
+        public List<IAclRight> ReadEventAclList<TEventAcl>(IEventPersistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
         {
             if (aEvent == null)
                 return null;

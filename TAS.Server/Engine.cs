@@ -362,13 +362,13 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        public ICollection<IEventPesistent> VisibleEvents
+        public ICollection<IEventPersistent> VisibleEvents
         {
             get
             {
                 lock (((IList)_visibleEvents).SyncRoot)
                 {
-                    return _visibleEvents.Cast<IEventPesistent>().ToList();
+                    return _visibleEvents.Cast<IEventPersistent>().ToList();
                 }
             }
         }

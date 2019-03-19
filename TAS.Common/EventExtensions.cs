@@ -104,7 +104,7 @@ namespace TAS.Common
             }
         }
 
-        public static void SaveDelayed(this IEventPesistent aEvent)
+        public static void SaveDelayed(this IEventPersistent aEvent)
         {
             if (aEvent.IsModified)
                 Task.Run(() => aEvent.Save());

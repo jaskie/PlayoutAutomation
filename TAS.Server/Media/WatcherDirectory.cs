@@ -15,7 +15,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
-    [DebuggerDisplay("{DirectoryName} ({_folder})")]
+    [DebuggerDisplay("{" + nameof(Folder) + "}")]
     public abstract class WatcherDirectory : MediaDirectoryBase, IWatcherDirectory
     { 
         private FileSystemWatcher _watcher;

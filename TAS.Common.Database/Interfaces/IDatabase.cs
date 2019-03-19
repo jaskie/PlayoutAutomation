@@ -23,7 +23,7 @@ namespace TAS.Common.Database.Interfaces
         void DeleteArchiveDirectory(IArchiveDirectoryProperties dir);
         void DeleteEngine(IEnginePersistent engine);
         bool DeleteEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent;
-        bool DeleteEvent(IEventPesistent aEvent);
+        bool DeleteEvent(IEventPersistent aEvent);
         bool DeleteEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent;
         bool DeleteMedia(IAnimatedMedia animatedMedia);
         bool DeleteMedia(IArchiveMedia archiveMedia);
@@ -35,7 +35,7 @@ namespace TAS.Common.Database.Interfaces
         void InsertArchiveDirectory(IArchiveDirectoryProperties dir);
         void InsertEngine(IEnginePersistent engine);
         bool InsertEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent;
-        bool InsertEvent(IEventPesistent aEvent);
+        bool InsertEvent(IEventPersistent aEvent);
         bool InsertEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent;
         bool InsertMedia(IAnimatedMedia animatedMedia, ulong serverId);
         bool InsertMedia(IArchiveMedia archiveMedia, ulong serverid);
@@ -51,10 +51,10 @@ namespace TAS.Common.Database.Interfaces
         T MediaSegmentsRead<T>(IPersistentMedia media) where T : IMediaSegments;
         List<IAclRight> ReadEngineAclList<TEngineAcl>(IPersistent engine, IAuthenticationServicePersitency authenticationService) where TEngineAcl : IAclRight, IPersistent, new();
         IEvent ReadEvent(IEngine engine, ulong idRundownEvent);
-        List<IAclRight> ReadEventAclList<TEventAcl>(IEventPesistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl : IAclRight, IPersistent, new();
-        IEvent ReadNext(IEngine engine, IEventPesistent aEvent);
+        List<IAclRight> ReadEventAclList<TEventAcl>(IEventPersistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl : IAclRight, IPersistent, new();
+        IEvent ReadNext(IEngine engine, IEventPersistent aEvent);
         void ReadRootEvents(IEngine engine);
-        List<IEvent> ReadSubEvents(IEngine engine, IEventPesistent eventOwner);
+        List<IEvent> ReadSubEvents(IEngine engine, IEventPersistent eventOwner);
         ulong SaveMediaSegment(IMediaSegment mediaSegment);
         List<T> ArchiveMediaSearch<T>(IArchiveDirectoryServerSide dir, TMediaCategory? mediaCategory, string search) where T : IArchiveMedia, new();
         void SearchMissing(IEngine engine);
@@ -62,7 +62,7 @@ namespace TAS.Common.Database.Interfaces
         void UpdateArchiveDirectory(IArchiveDirectoryProperties dir);
         void UpdateEngine(IEnginePersistent engine);
         bool UpdateEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent;
-        bool UpdateEvent<TEvent>(TEvent aEvent) where TEvent : IEventPesistent;
+        bool UpdateEvent<TEvent>(TEvent aEvent) where TEvent : IEventPersistent;
         bool UpdateEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent;
         void UpdateMedia(IAnimatedMedia animatedMedia, ulong serverId);
         void UpdateMedia(IArchiveMedia archiveMedia, ulong serverId);

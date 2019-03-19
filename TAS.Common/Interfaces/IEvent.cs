@@ -6,7 +6,7 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IEventPesistent: IEvent
+    public interface IEventPersistent: IEvent
     {
         ulong IdEventBinding { get; }
         bool IsModified { get; set; }

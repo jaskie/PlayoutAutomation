@@ -58,7 +58,7 @@ namespace TAS.Remoting.Model
             Invoke(parameters: new[] { aVideoLayer });
         }
 
-        public bool Load(IEventPesistent aEvent)
+        public bool Load(IEventPersistent aEvent)
         {
             throw new NotImplementedException();
         }
@@ -73,7 +73,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public bool LoadNext(IEventPesistent aEvent)
+        public bool LoadNext(IEventPersistent aEvent)
         {
             throw new NotImplementedException();
         }
@@ -83,7 +83,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public bool Pause(IEventPesistent aEvent)
+        public bool Pause(IEventPersistent aEvent)
         {
             throw new NotImplementedException();
         }
@@ -93,12 +93,12 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public bool Play(IEventPesistent aEvent)
+        public bool Play(IEventPersistent aEvent)
         {
             throw new NotImplementedException();
         }
 
-        public void ReStart(IEventPesistent ev)
+        public void ReStart(IEventPersistent ev)
         {
             throw new NotImplementedException();
         }
@@ -123,7 +123,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public bool Stop(IEventPesistent aEvent)
+        public bool Stop(IEventPersistent aEvent)
         {
             throw new NotImplementedException();
         }

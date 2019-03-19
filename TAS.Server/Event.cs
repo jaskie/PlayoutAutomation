@@ -18,13 +18,13 @@ using TAS.Server.Security;
 namespace TAS.Server
 {
     [DebuggerDisplay("{" + nameof(_eventName) + "}")]
-    public class Event : DtoBase, IEventPesistent
+    public class Event : DtoBase, IEventPersistent
     {
         bool _isForcedNext;
         private bool _isModified;
         TPlayState _playState;
         private long _position;
-        [JsonProperty(nameof(IEventPesistent.Engine))]
+        [JsonProperty(nameof(IEventPersistent.Engine))]
         private readonly Engine _engine;
         private readonly object _rundownSync;
         private readonly Lazy<SynchronizedCollection<Event>> _subEvents;
