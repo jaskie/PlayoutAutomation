@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
@@ -22,7 +21,6 @@ namespace TAS.Server.Media
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public event EventHandler<MediaEventArgs> MediaVerified;
-        public event EventHandler<MediaEventArgs> MediaDeleted;
         public event EventHandler<MediaEventArgs> MediaAdded;
         public event EventHandler<MediaEventArgs> MediaRemoved;
 
@@ -93,19 +91,17 @@ namespace TAS.Server.Media
                 {
                     File.Delete(((MediaBase)media).FullPath);
                     Logger.Trace("File deleted {0}", media);
-                    Debug.WriteLine(media, "File deleted");
+                    RemoveMedia(media);
                     return true;
                 }
                 catch (Exception e)
                 {
                     Logger.Error(e);
-                    Debug.WriteLine("MediaDirectory.DeleteMedia {0} failed with error {1}", media, e.Message);
                 }
             }
             else
             {
                 RemoveMedia(media);
-                MediaDeleted?.Invoke(this, new MediaEventArgs(media));
                 return true;
             }
             return false;
@@ -136,11 +132,6 @@ namespace TAS.Server.Media
         internal void NotifyMediaVerified(IMedia mediaBase)
         {
             MediaVerified?.Invoke(this, new MediaEventArgs(mediaBase));
-        }
-
-        protected void NotifyMediaDeleted(IMedia media)
-        {
-            MediaDeleted?.Invoke(this, new MediaEventArgs(media));
         }
 
         protected void NotifyMediaPropertyChanged(IMedia media, PropertyChangedEventArgs eventArgs)

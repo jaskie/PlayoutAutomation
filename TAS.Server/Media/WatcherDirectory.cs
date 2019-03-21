@@ -98,7 +98,6 @@ namespace TAS.Server.Media
             else
             {
                 RemoveMedia(media);
-                NotifyMediaDeleted(media);
                 return true;
             }
             return false;
@@ -250,10 +249,7 @@ namespace TAS.Server.Media
         protected virtual void FileRemoved(string fullPath)
         {
             foreach (var m in FindMediaList(m => fullPath.Equals(((MediaBase)m).FullPath, StringComparison.CurrentCultureIgnoreCase) && m.MediaStatus != TMediaStatus.Required))
-            {
                 RemoveMedia(m);
-                NotifyMediaDeleted(m);
-            }
         }
 
         private void OnFileCreated(object source, FileSystemEventArgs e)

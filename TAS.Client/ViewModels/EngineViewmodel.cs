@@ -781,42 +781,41 @@ namespace TAS.Client.ViewModels
 
         private void _search(object o)
         {
-            IEvent current = _selectedEventPanel?.Event;
-            if (current != null && !string.IsNullOrWhiteSpace(SearchText))
-            {
-                string loweredSearchtext = SearchText.ToLower();
-                Func<IEvent, bool> searchFunc = e => e.EventName.ToLower().Contains(loweredSearchtext);
-                var visualRootTrack = current.GetVisualRootTrack();
-                IEvent found = current.FindInside(searchFunc);
-                if (found == null)
-                    foreach (var et in visualRootTrack)
-                    {
-                        current = et.Next;
-                        if (current != null)
-                            found = current.FindNext(searchFunc);
-                        if (found != null)
-                            break;
-                    }
-                if (found != null)
+            var current = _selectedEventPanel?.Event;
+            if (current == null || string.IsNullOrWhiteSpace(SearchText))
+                return;
+            string loweredSearchtext = SearchText.ToLower();
+            bool SearchFunc(IEvent e) => e.EventName.ToLower().Contains(loweredSearchtext);
+            var visualRootTrack = current.GetVisualRootTrack();
+            var found = current.FindInside(SearchFunc);
+            if (found == null)
+                foreach (var et in visualRootTrack)
                 {
-                    var rt = found.GetVisualRootTrack().Reverse();
-                    var cl = RootEventViewModel;
-                    foreach (var ev in rt)
-                    {
-                        cl = cl.Find(ev);
-                        if (cl.Event == found)
-                        {
-                            SelectedEventPanel = cl;
-                            cl.IsSelected = true;
-                            cl.BringIntoView();
-                        }
-                        else
-                            cl.IsExpanded = true;
-                    }
+                    current = et.Next;
+                    if (current != null)
+                        found = current.FindNext(SearchFunc);
+                    if (found != null)
+                        break;
                 }
-                else
-                    IsSearchNotFound = true;
+            if (found != null)
+            {
+                var rt = found.GetVisualRootTrack().Reverse();
+                var cl = RootEventViewModel;
+                foreach (var ev in rt)
+                {
+                    cl = cl.Find(ev);
+                    if (cl.Event == found)
+                    {
+                        SelectedEventPanel = cl;
+                        cl.IsSelected = true;
+                        cl.BringIntoView();
+                    }
+                    else
+                        cl.IsExpanded = true;
+                }
             }
+            else
+                IsSearchNotFound = true;
         }
         #endregion
 

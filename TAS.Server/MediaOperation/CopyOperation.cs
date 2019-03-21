@@ -15,7 +15,6 @@ namespace TAS.Server.MediaOperation
         private readonly object _destMediaLock = new object();
 
         private IMedia _sourceMedia;
-        private IMediaProperties _destMediaProperties;
 
         internal CopyOperation(FileManager ownerFileManager) : base(ownerFileManager)
         {

@@ -686,7 +686,9 @@ namespace TAS.Database.MySqlRedundant
                 using (var dataReader = cmd.ExecuteReader(CommandBehavior.SingleRow))
                 {
                     if (dataReader.Read())
+                    { 
                         result = _readArchiveMedia<T>(dataReader);
+                        }
                     dataReader.Close();
                 }
             }

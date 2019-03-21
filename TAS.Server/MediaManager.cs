@@ -130,11 +130,13 @@ namespace TAS.Server
 
         public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList)
         {
-            foreach (IMedia sourceMedia in mediaList)
+            var destDir = MediaDirectoryPRI != null && MediaDirectoryPRI.DirectoryExists() ? (ServerDirectory)MediaDirectoryPRI :
+                MediaDirectoryPRV != null && MediaDirectoryPRV.DirectoryExists() ? (ServerDirectory)MediaDirectoryPRV :
+                    throw new ApplicationException("No ServerDirectory available to copy media to");
+            foreach (var sourceMedia in mediaList)
             {
-                IServerDirectory destDir = MediaDirectoryPRI != null && MediaDirectoryPRI.DirectoryExists() ? MediaDirectoryPRI :
-                    MediaDirectoryPRV != null && MediaDirectoryPRV.DirectoryExists() ? MediaDirectoryPRV :
-                        null;
+                if (destDir.FindMediaByMediaGuid(sourceMedia.MediaGuid) != null)
+                    continue;
                 if (sourceMedia is PersistentMedia && destDir != null && destDir != sourceMedia.Directory)
                     _fileManager.Queue(new CopyOperation(_fileManager) { Source = sourceMedia, DestDirectory = destDir });
             }

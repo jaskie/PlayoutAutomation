@@ -20,17 +20,17 @@ namespace TAS.Server.Media
 
         internal void ArchiveSave(ServerMedia media, bool deleteAfterSuccess)
         {
-            if (media.IsArchived)
+            var archived = EngineController.Database.ArchiveMediaFind<ArchiveMedia>(this, media.MediaGuid);
+            if (archived != null)
+                archived.Directory = this;
+
+            if (deleteAfterSuccess && archived?.FileExists() == true)
             {
-                var archived = EngineController.Database.ArchiveMediaFind<ArchiveMedia>(this, media.MediaGuid);
-                if (archived?.FileExists() == true)
-                {
-                    if (deleteAfterSuccess)
-                        MediaManager.FileManager.Queue(
-                            new DeleteOperation((FileManager) MediaManager.FileManager) {Source = media});
-                }
+                MediaManager.FileManager.Queue(
+                    new DeleteOperation((FileManager) MediaManager.FileManager) {Source = media});
+                return;
             }
-            else
+            if (archived?.FileExists() != true)
                 _archiveCopy(media, this, deleteAfterSuccess);
         }
 
@@ -62,6 +62,7 @@ namespace TAS.Server.Media
             am.Save();
             if (((ServerDirectory) MediaManager.MediaDirectoryPRI)?.FindMediaByMediaGuid(am.MediaGuid) is ServerMedia mediaPgm)
                 mediaPgm.IsArchived = false;
+            base.RemoveMedia(media);
         }
 
         internal override IMedia CreateMedia(IMediaProperties media)

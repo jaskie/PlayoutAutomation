@@ -2,7 +2,6 @@
 using System.Linq;
 using TAS.Client.Common;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.ViewModels

@@ -538,7 +538,7 @@ namespace TAS.Client.ViewModels
 
         private void _selectedDirectoryMediaAdded(object source, MediaEventArgs e)
         {
-            if (source is IWatcherDirectory dir && dir.IsInitialized)
+            if (source is IWatcherDirectory dir && dir.IsInitialized || source is IArchiveDirectory)
                 OnUiThread(() =>
                 {
                     var media = e.Media;
@@ -549,7 +549,7 @@ namespace TAS.Client.ViewModels
 
         private void _selectedDirectoryMediaRemoved(object source, MediaEventArgs e)
         {
-            if (source is IWatcherDirectory dir && dir.IsInitialized)
+            if (source is IWatcherDirectory dir && dir.IsInitialized || source is IArchiveDirectory)
                 OnUiThread(() =>
                 {
                     var vm = _mediaItems?.FirstOrDefault(v => v.Media == e.Media);
@@ -566,6 +566,7 @@ namespace TAS.Client.ViewModels
 
         private void _notifyDirectoryPropertiesChanged()
         {
+            NotifyPropertyChanged(nameof(ItemsCount));
             NotifyPropertyChanged(nameof(IsMediaDirectoryOk));
             NotifyPropertyChanged(nameof(DirectoryFreePercentage));
             NotifyPropertyChanged(nameof(DirectoryTotalSpace));

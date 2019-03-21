@@ -12,7 +12,7 @@ namespace TAS.Server.Media
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private bool _doNotArchive;
-        Lazy<bool> _isArchived;
+        private Lazy<bool> _isArchived;
 
         public ServerMedia() 
         {

@@ -288,7 +288,7 @@ namespace TAS.Common
                                                                 && (v.FrameRate.Equals(frameRate) || frameRate.Equals(RationalNumber.Zero))
                                                                 && (v.SAR.Equals(sar) || sar.Equals(RationalNumber.Zero))
                                                                 && v.Interlaced == interlaced);
-            return result != null ? result : new VideoFormatDescription(imageSize, frameRate, sar, interlaced);
+            return result ?? new VideoFormatDescription(imageSize, frameRate, sar, interlaced);
         }
 
         public TimeSpan FrameDuration => FrameRate.IsZero ? TimeSpan.Zero : new TimeSpan(TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num);
