@@ -67,7 +67,7 @@ namespace TAS.Server.MediaOperation
             });
         }
 
-        public event DataReceivedEventHandler DataReceived;
+        public event EventHandler<string> DataReceived;
 
         protected virtual void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
@@ -87,11 +87,12 @@ namespace TAS.Server.MediaOperation
             }
             else
             {
-                _fileOperation.AddOutputMessage(LogLevel.Trace, outLine.Data);
-                if (!string.IsNullOrEmpty(outLine.Data)
-                    && outLine.Data.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0)
+                if (outLine.Data.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0)
                     _fileOperation.AddWarningMessage($"FFmpeg error: {outLine.Data}");
-                DataReceived?.Invoke(this, outLine);
+                if (DataReceived == null)
+                    _fileOperation.AddOutputMessage(LogLevel.Trace, outLine.Data);
+                else
+                    DataReceived.Invoke(this, outLine.Data);
             }
         }
 

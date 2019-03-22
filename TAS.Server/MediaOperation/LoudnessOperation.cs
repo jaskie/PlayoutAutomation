@@ -77,12 +77,12 @@ namespace TAS.Server.MediaOperation
             return await helper.RunProcess(Params);
         }
 
-        protected void DataReceived(object sender, DataReceivedEventArgs outLine)
+        protected void DataReceived(object sender,  string outLine)
         {
             // Collect the process command output. 
-            if (string.IsNullOrEmpty(outLine.Data))
+            if (string.IsNullOrEmpty(outLine))
                 return;
-            var lineMatch = RegexLoudnesslProgress.Match(outLine.Data);
+            var lineMatch = RegexLoudnesslProgress.Match(outLine);
             if (lineMatch.Success)
             {
                 var valueMatch = RegexLoudnessProgress.Match(lineMatch.Value);
@@ -95,7 +95,7 @@ namespace TAS.Server.MediaOperation
             }
             else
             {
-                var luFsLineMatch = RegexlLufs.Match(outLine.Data);
+                var luFsLineMatch = RegexlLufs.Match(outLine);
                 if (luFsLineMatch.Success)
                 {
                     var regexLufs = new Regex(LufsPattern, RegexOptions.None);
@@ -105,7 +105,7 @@ namespace TAS.Server.MediaOperation
                 }
                 if (!_samplePeakMeasured)
                 {
-                    var truePeakLineMatch = RegexlPeak.Match(outLine.Data);
+                    var truePeakLineMatch = RegexlPeak.Match(outLine);
                     if (truePeakLineMatch.Success)
                     {
                         var regexLufs = new Regex(LufsPattern, RegexOptions.None);
@@ -130,7 +130,7 @@ namespace TAS.Server.MediaOperation
                     else
                         h(this, new AudioVolumeEventArgs(volume));
                 }
-                AddOutputMessage(LogLevel.Trace, outLine.Data);
+                AddOutputMessage(LogLevel.Trace, outLine);
             }
         }
 
