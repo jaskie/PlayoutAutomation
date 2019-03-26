@@ -627,19 +627,15 @@ namespace TAS.Client.ViewModels
 
         private void _debugShow(object o)
         {
-            if (_debugWindow == null)
+            if (_debugWindow != null)
+                return;
+            _debugWindow = UiServices.ShowWindow<Views.EngineDebugView>(this);
+            _debugWindow.Closed += (w, e) =>
             {
-                _debugWindow = new Views.EngineDebugView();
-                _debugWindow.DataContext = this;
-                _debugWindow.Closed += (w, e) =>
-                {
-                    var window = w as Views.EngineDebugView;
-                    if (window != null)
-                        window.DataContext = null;
-                    _debugWindow = null;
-                };
-            }
-            _debugWindow.Show();
+                if (w is Views.EngineDebugView window)
+                    window.DataContext = null;
+                _debugWindow = null;
+            };
         }
 
         #endregion // Commands

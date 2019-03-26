@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -22,5 +23,11 @@ namespace TAS.Client.Views
         {
             InitializeComponent();
         }
+#if DEBUG
+        ~EngineDebugView()
+        {
+            Debug.WriteLine(this, "Finalized");
+        }
+#endif
     }
 }
