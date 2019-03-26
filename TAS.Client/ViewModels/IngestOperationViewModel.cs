@@ -36,14 +36,13 @@ namespace TAS.Client.ViewModels
         {
             _operation = operation;
             _engine = engine;
+            _destMediaVideoFormat = operation.Source.VideoFormat;
             DestMediaName = FileUtils.GetFileNameWithoutExtension(operation.Source.MediaName, operation.Source.MediaType);
-            Duration = operation.Source.Duration;
-            StartTC = operation.Source.TcStart;
-            DestCategory = ((IIngestDirectory) operation.Source.Directory).MediaCategory;
+            _duration = operation.Source.Duration;
+            _startTc = operation.Source.TcStart;
+            _destCategory = ((IIngestDirectory) operation.Source.Directory).MediaCategory;
             IsMovie = operation.Source.MediaType == TMediaType.Unknown || operation.Source.MediaType == TMediaType.Movie;
             IsStill = operation.Source.MediaType == TMediaType.Still;
-            _makeFileName();
-
             _audioChannelMappingConversion = operation.AudioChannelMappingConversion;
             _aspectConversion = operation.AspectConversion;
             _audioVolume = operation.AudioVolume;
@@ -227,7 +226,8 @@ namespace TAS.Client.ViewModels
                 Duration = Duration,
                 TcStart = StartTC,
                 MediaGuid = _operation.Source.MediaGuid,
-                MediaCategory = DestCategory
+                MediaCategory = DestCategory,
+                VideoFormat = DestMediaVideoFormat
             };
         }
 

@@ -679,8 +679,6 @@ namespace TAS.Client.ViewModels
                     operation.SourceFieldOrderEnforceConversion = currentDir.SourceFieldOrder;
                     operation.AspectConversion = currentDir.AspectConversion;
                     operation.LoudnessCheck = currentDir.MediaLoudnessCheckAfterIngest;
-                    operation.StartTC = sourceMedia.TcStart;
-                    operation.Duration = sourceMedia.Duration;
                     ingestList.Add(operation);
                 }
             if (ingestList.Count == 0)
