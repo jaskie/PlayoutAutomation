@@ -318,10 +318,10 @@
   <data name="TAspectConversion_TiltScan" xml:space="preserve">
     <value>Tilt&amp;Scan(4:3-&gt;16:9)</value>
   </data>
-  <data name="TAudioChannelMappingConversion_Combine1plus2" xml:space="preserve">
+  <data name="TAudioChannelMappingConversion_Combine1Plus2" xml:space="preserve">
     <value>Tracks 1 i 2 -&gt; Mono</value>
   </data>
-  <data name="TAudioChannelMappingConversion_Combine3plus4" xml:space="preserve">
+  <data name="TAudioChannelMappingConversion_Combine3Plus4" xml:space="preserve">
     <value>Tracks 3 i 4 -&gt; Mono</value>
   </data>
   <data name="TAudioChannelMappingConversion_Default" xml:space="preserve">

@@ -297,18 +297,18 @@ namespace TAS.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Tracks 1 i 2 -&gt; Mono.
         /// </summary>
-        public static string TAudioChannelMappingConversion_Combine1plus2 {
+        public static string TAudioChannelMappingConversion_Combine1Plus2 {
             get {
-                return ResourceManager.GetString("TAudioChannelMappingConversion_Combine1plus2", resourceCulture);
+                return ResourceManager.GetString("TAudioChannelMappingConversion_Combine1Plus2", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Tracks 3 i 4 -&gt; Mono.
         /// </summary>
-        public static string TAudioChannelMappingConversion_Combine3plus4 {
+        public static string TAudioChannelMappingConversion_Combine3Plus4 {
             get {
-                return ResourceManager.GetString("TAudioChannelMappingConversion_Combine3plus4", resourceCulture);
+                return ResourceManager.GetString("TAudioChannelMappingConversion_Combine3Plus4", resourceCulture);
             }
         }
         
