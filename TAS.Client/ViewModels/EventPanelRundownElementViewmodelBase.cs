@@ -200,26 +200,6 @@ namespace TAS.Client.ViewModels
                 return media == null ? ((Event.EventType == TEventType.Movie || Event.EventType == TEventType.StillImage) ? Event.MediaGuid.ToString() : string.Empty) : media.FileName;
             }
         }
-
-        public TMediaErrorInfo MediaErrorInfo
-        {
-            get
-            {
-                if (Event == null || Event.EventType == TEventType.Live || Event.EventType == TEventType.Rundown ||
-                    Event.EventType == TEventType.Container)
-                    return TMediaErrorInfo.NoError;
-                var media = Media;
-                if (media == null || media.MediaStatus == TMediaStatus.Deleted || !media.FileExists())
-                    return TMediaErrorInfo.Missing;
-                if (media.MediaStatus == TMediaStatus.Available)
-                    if (media.MediaType == TMediaType.Still
-                        || media.MediaType == TMediaType.Animation
-                        || Event.ScheduledTc + Event.Duration <= media.TcStart + media.Duration
-                    )
-                        return TMediaErrorInfo.NoError;
-                return TMediaErrorInfo.TooShort;
-            }
-        }
         
         public TPlayState PlayState => Event.PlayState;
 
@@ -274,26 +254,25 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public IMedia Media
+        public virtual IMedia Media
         {
             get => _media;
-            private set
+            protected set
             {
                 var oldMedia = _media;
                 if (!SetField(ref _media, value))
                     return;
                 if (oldMedia != null)
-                    oldMedia.PropertyChanged -= _onMediaPropertyChanged;
+                    oldMedia.PropertyChanged -= OnMediaPropertyChanged;
                 _media = value;
                 if (value != null)
                 {
-                    value.PropertyChanged += _onMediaPropertyChanged;
+                    value.PropertyChanged += OnMediaPropertyChanged;
                     VideoFormat = value.VideoFormat;
                 }
                 NotifyPropertyChanged(nameof(MediaFileName));
                 NotifyPropertyChanged(nameof(MediaCategory));
                 NotifyPropertyChanged(nameof(MediaEmphasis));
-                NotifyPropertyChanged(nameof(MediaErrorInfo));
             }
         }
 
@@ -363,13 +342,9 @@ namespace TAS.Client.ViewModels
                 case nameof(IEvent.EndTime):
                     NotifyPropertyChanged(e.PropertyName);
                     break;
-                case nameof(IEvent.ScheduledTc):
-                    NotifyPropertyChanged(nameof(MediaErrorInfo));
-                    break;
                 case nameof(IEvent.Duration):
                     NotifyPropertyChanged(nameof(Duration));
                     NotifyPropertyChanged(nameof(IsEnabled));
-                    NotifyPropertyChanged(nameof(MediaErrorInfo));
                     break;
                 case nameof(IEvent.PlayState):
                     NotifyPropertyChanged(nameof(PlayState));
@@ -392,12 +367,10 @@ namespace TAS.Client.ViewModels
             Event.SubEventChanged -= OnSubeventChanged;
         }
 
-        private void _onMediaPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected virtual void OnMediaPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (Event == null || !(sender is IMedia))
                 return;
-            if (e.PropertyName == nameof(IMedia.MediaStatus))
-                NotifyPropertyChanged(nameof(MediaErrorInfo));
             if (e.PropertyName == nameof(IMedia.FileName))
                 NotifyPropertyChanged(nameof(MediaFileName));
             if (e.PropertyName == nameof(IMedia.MediaCategory)

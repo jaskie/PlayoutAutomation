@@ -168,7 +168,16 @@ namespace TAS.Client.ViewModels
         public IMedia Media
         {
             get => _media;
-            set => SetField(ref _media, value);
+            set
+            {
+                var oldMedia = _media;
+                if (!SetField(ref _media, value))
+                    return;
+                if (oldMedia != null)
+                    oldMedia.PropertyChanged -= OnMediaPropertyChanged;
+                if (value != null)
+                    value.PropertyChanged += OnMediaPropertyChanged;
+            }
         }
 
         public bool IsVolumeChecking
@@ -566,6 +575,19 @@ namespace TAS.Client.ViewModels
                 InvalidateRequerySuggested();
         }
 
+        private void OnMediaPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(IMedia.TcStart):
+                case nameof(IMedia.Duration):
+                    NotifyPropertyChanged(nameof(ScheduledTc));
+                    NotifyPropertyChanged(nameof(Duration));
+                    break;
+            }
+        }
+
+
         protected override void OnDispose()
         {
             Model.PropertyChanged -= ModelPropertyChanged;
@@ -579,6 +601,8 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel.ModifiedChanged -= RightsModifiedChanged;
                 EventRightsEditViewmodel.Dispose();
             }
+            if (_media != null)
+                _media.PropertyChanged -= OnMediaPropertyChanged;
         }
 
         #region Command methods
