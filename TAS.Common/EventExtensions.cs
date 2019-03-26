@@ -18,15 +18,9 @@ namespace TAS.Common
                 string.Join("|", Enum.GetNames(typeof(TEasing)))
             })))?";
 
-        public static readonly string MixerClearCommand =
-            $@"\s*MIXER\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+CLEAR\s*";
+        public static readonly string MixerClearCommand = $@"\s*MIXER\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+CLEAR\s*";
 
-        public static readonly string PlayCommand =
-                $@"\s*PLAY\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+(?<file>((\[HTML\]\s+)?\S+|""[\w\s]*""))(?<transition_block>\s+(?<transition_type>({
-                        string.Join("|", Enum.GetNames(typeof(TTransitionType)))
-                    }))\s+(?<transition_duration>[0-9]+)(\s+(?<easing>({
-                        string.Join("|", Enum.GetNames(typeof(TEasing)))
-                    })))?)?";
+        public static readonly string PlayCommand = $@"\s*PLAY\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+(?<file>([\w\s]*))";
 
         public static readonly string CgCommand =
             $@"CG\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+(?<method>{string.Join("|", Enum.GetNames(typeof(TemplateMethod)))})";

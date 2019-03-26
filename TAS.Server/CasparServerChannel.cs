@@ -449,20 +449,7 @@ namespace TAS.Server
             {
                 VideoLayer layer = (VideoLayer) Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
                 string file = match.Groups["file"].Value;
-                CasparItem item = new CasparItem((int) layer, file);
-                Capture transitionTypeCapture = match.Groups["transition_type"];
-                Capture transitionDurationCapture = match.Groups["transition_duration"];
-                Capture transitionEasingCapture = match.Groups["easing"];
-                if (int.TryParse(transitionDurationCapture.Value, out var transitionDuration) &&
-                    Enum.TryParse(transitionTypeCapture.Value, true, out TransitionType transitionType))
-                {
-                    item.Transition.Type = transitionType;
-                    item.Transition.Duration = transitionDuration;
-                    if (Enum.TryParse(transitionEasingCapture.Value, true, out Easing easing))
-                        item.Transition.Easing = easing;
-                }
-                channel.LoadBG(item);
-                channel.Play(item.VideoLayer);
+                channel.Play((int)layer, file, false);
                 return true;
             }
             match = RegexCg.Match(command);
