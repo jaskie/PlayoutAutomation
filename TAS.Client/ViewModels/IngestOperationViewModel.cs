@@ -227,6 +227,8 @@ namespace TAS.Client.ViewModels
                 TcStart = StartTC,
                 MediaGuid = _operation.Source.MediaGuid,
                 MediaCategory = DestCategory,
+                Parental = DestParental,
+                MediaEmphasis = DestMediaEmphasis,
                 VideoFormat = DestMediaVideoFormat
             };
         }
