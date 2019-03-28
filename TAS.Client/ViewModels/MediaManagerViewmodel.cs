@@ -529,9 +529,9 @@ namespace TAS.Client.ViewModels
             if (MediaItemsView != null)
             {
                 MediaItemsView.Filter = _filter;
-                if (!SelectedDirectory.IsXdcam)
-                    MediaItemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated),
-                        ListSortDirection.Descending));
+                MediaItemsView.SortDescriptions.Add(!SelectedDirectory.IsXdcam
+                    ? new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending)
+                    : new SortDescription(nameof(MediaViewViewmodel.ClipNr), ListSortDirection.Ascending));
             }
             NotifyPropertyChanged(nameof(ItemsCount));
         }

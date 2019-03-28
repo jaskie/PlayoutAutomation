@@ -197,7 +197,7 @@ namespace TAS.Server.MediaOperation
             {
                 if (!(e.Media is MediaBase media))
                     continue;
-                files.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, "-ss {0} -t {1} -i \"{2}\"", (e.StartTC - media.TcStart).TotalSeconds, e.Duration.TotalSeconds, media.FullPath);
+                files.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1} -i \"{2}\"", (e.StartTC - media.TcStart).TotalSeconds, e.Duration.TotalSeconds, media.FullPath);
                 var videoOutputName = $"[v{index}]";
                 var itemVideoFilters = new List<string>();
                 if (media.HasExtraLines)

@@ -105,8 +105,10 @@ namespace TAS.Server.Media
         [JsonProperty]
         public bool IsImport { get; set; }
 
+        [JsonProperty]
         public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
 
+        [JsonProperty]
         public TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
 
         public string ExportParams { get; set; }
