@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.MediaOperation;
@@ -329,14 +328,14 @@ namespace TAS.Server.Media
             if (_mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required || 
                 (Directory is IngestDirectory ingestDirectory && ingestDirectory.AccessType != TDirectoryAccessType.Direct))
                 return;
-            if (Directory != null && System.IO.Directory.Exists(Directory.Folder) && !File.Exists(FullPath))
+            if (Directory?.DirectoryExists() == true && !FileExists())
             {
                 _mediaStatus = TMediaStatus.Deleted;
                 return; // in case that no file was found, and directory exists
             }
             try
             {
-                FileInfo fi = new FileInfo(FullPath);
+                var fi = new FileInfo(FullPath);
                 if (fi.Length == 0L)
                     return;
                 if ((MediaType != TMediaType.Animation)

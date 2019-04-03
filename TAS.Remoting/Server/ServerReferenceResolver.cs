@@ -13,6 +13,13 @@ namespace TAS.Remoting.Server
         private int _disposed;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+
+#if DEBUG
+        ~ServerReferenceResolver()
+        {
+            Debug.WriteLine("Finalized: {0}", this);
+        }
+#endif
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _disposed, 1) != default(int))
@@ -26,7 +33,6 @@ namespace TAS.Remoting.Server
                 value.Disposed -= _reference_Disposed;
             }
         }
-
 
         #region IReferenceResolver
         public void AddReference(object context, string reference, object value)
