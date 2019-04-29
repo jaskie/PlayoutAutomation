@@ -862,10 +862,10 @@ namespace TAS.Client.ViewModels
                 return null;
             if (_scheduledTc > media.Duration + media.TcStart)
                 return string.Format(resources._validate_StartTCAfterFile,
-                    (media.Duration + media.TcStart).ToSMPTETimecodeString(Model.Engine.VideoFormat));
+                    (media.Duration + media.TcStart).ToSmpteTimecodeString(Model.Engine.VideoFormat));
             if (_scheduledTc < media.TcStart)
                 return string.Format(resources._validate_StartTCBeforeFile,
-                    media.TcStart.ToSMPTETimecodeString(Model.Engine.VideoFormat));
+                    media.TcStart.ToSmpteTimecodeString(Model.Engine.VideoFormat));
             return null;
         }
 

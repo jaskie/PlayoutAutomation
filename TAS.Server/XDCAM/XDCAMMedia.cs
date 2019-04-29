@@ -94,7 +94,7 @@ namespace TAS.Server.XDCAM
             var start = xdcamMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
             if (start == null)
                 return true;
-            TimeSpan tcStart = start.value.LTCTimecodeToTimeSpan(rate);
+            TimeSpan tcStart = start.value.LtcTimecodeToTimeSpan(rate);
             if (tcStart >= TimeSpan.FromHours(40)) // TC 40:00:00:00 and greater
                 tcStart -= TimeSpan.FromHours(40);
             TcStart = tcStart;

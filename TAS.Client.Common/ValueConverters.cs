@@ -133,8 +133,8 @@ namespace TAS.Client.Common
             if (dateTime == default(DateTime))
                 return string.Empty;
             if ((string)parameter == "TC")
-                return dateTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(FrameRate);
-            return dateTime.ToLocalTime().Date.ToString("d") + " " + ((DateTime)value).ToLocalTime().TimeOfDay.ToSMPTETimecodeString(FrameRate);
+                return dateTime.ToLocalTime().TimeOfDay.ToSmpteTimecodeString(FrameRate);
+            return dateTime.ToLocalTime().Date.ToString("d") + " " + ((DateTime)value).ToLocalTime().TimeOfDay.ToSmpteTimecodeString(FrameRate);
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -142,11 +142,11 @@ namespace TAS.Client.Common
                 return Binding.DoNothing;
             var v = strValue.Split(' ');
             {
-                if (v.Length != 2 || !v[1].IsValidSMPTETimecode(FrameRate))
+                if (v.Length != 2 || !v[1].IsValidSmpteTimecode(FrameRate))
                     return null;
                 try
                 {
-                    return (DateTime.Parse(v[0]) + v[1].SMPTETimecodeToTimeSpan(FrameRate)).ToUniversalTime();
+                    return (DateTime.Parse(v[0]) + v[1].SmpteTimecodeToTimeSpan(FrameRate)).ToUniversalTime();
                 }
                 catch (FormatException) {}
                 return Binding.DoNothing;

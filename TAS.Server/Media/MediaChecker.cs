@@ -44,9 +44,9 @@ namespace TAS.Server.Media
                             media.HasExtraLines = false;
                         var timecode = ffmpeg.GetTimeCode();
                         if (timecode != null
-                            && timecode.IsValidSMPTETimecode(frameRate))
+                            && timecode.IsValidSmpteTimecode(frameRate))
                         {
-                            media.TcStart = timecode.SMPTETimecodeToTimeSpan(frameRate);
+                            media.TcStart = timecode.SmpteTimecodeToTimeSpan(frameRate);
                             if (media.TcPlay < media.TcStart)
                                 media.TcPlay = media.TcStart;
                         }

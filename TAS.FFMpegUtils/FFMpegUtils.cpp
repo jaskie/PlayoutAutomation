@@ -168,11 +168,11 @@ namespace TAS {
 					{
 						if (codecCtx->field_order == AV_FIELD_UNKNOWN)
 						{
-							std::unique_ptr<AVFrame, std::function<void(AVFrame *)>> picture(av_frame_alloc(), [](AVFrame *frame) { 
+							std::unique_ptr<AVFrame, std::function<void(AVFrame *)>> picture(av_frame_alloc(), [](AVFrame *frame) {
 								av_frame_free(&frame); }
 							);
-							std::unique_ptr<AVPacket, std::function<void(AVPacket *)>> packet(av_packet_alloc(), [](AVPacket *p) { 
-								av_packet_free(&p); 
+							std::unique_ptr<AVPacket, std::function<void(AVPacket *)>> packet(av_packet_alloc(), [](AVPacket *p) {
+								av_packet_free(&p);
 							});
 							AVCodec * codec = avcodec_find_decoder(codecCtx->codec_id);
 							std::unique_ptr<AVCodecContext, std::function<void(AVCodecContext *)>> opened_context(open_codec(codecCtx), [](AVCodecContext * ctx) {
@@ -205,10 +205,9 @@ namespace TAS {
 							} while (!frameFinished && readSuccess);
 							return AV_FIELD_UNKNOWN;
 						}
+						else
+							return codecCtx->field_order;
 					}
-					else
-						return codecCtx->field_order;
-
 				}
 			}
 			return AV_FIELD_UNKNOWN;

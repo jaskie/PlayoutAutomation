@@ -9,57 +9,52 @@ namespace TAS.Common
 
         static readonly Regex validateLTC = new Regex(LTCREGEXSTRING, RegexOptions.ECMAScript);
 
-        public static string ToSMPTETimecodeString(this TimeSpan t, TVideoFormat format)
+        public static string ToSmpteTimecodeString(this TimeSpan t, TVideoFormat format)
         {
             if (!Enum.IsDefined(typeof(TVideoFormat), format))
                 format = TVideoFormat.PAL_FHA;
-            return t.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[format].FrameRate);
+            return t.ToSmpteTimecodeString(VideoFormatDescription.Descriptions[format].FrameRate);
         }
 
-        public static string ToSMPTETimecodeString(this TimeSpan t, RationalNumber rate)
+        public static string ToSmpteTimecodeString(this TimeSpan t, RationalNumber rate)
         {
             if (rate.IsZero)
-            {
                 return t.ToString();
-            }
+            var minus = t < TimeSpan.Zero;
+            var value = minus ? -t : t;
+            var days = value.Days;
+            var hours = value.Hours;
+            var minutes = value.Minutes;
+            var seconds = value.Seconds;
+            var frames = ((value.Ticks % TimeSpan.TicksPerSecond) * rate.Num + (rate.Den * TimeSpan.TicksPerSecond / 2)) / (rate.Den * TimeSpan.TicksPerSecond); // rounding
+            if (days > 0)
+                return $"{(minus ? "-" : "")}{days}:{hours:D2}:{minutes:D2}:{seconds:D2}:{frames:D2}";
             else
-            {
-                bool minus = t < TimeSpan.Zero;
-                TimeSpan value = minus ? -t : t;
-                int days = value.Days;
-                int hours = value.Hours;
-                int minutes = value.Minutes;
-                int seconds = value.Seconds;
-                long frames = ((value.Ticks % TimeSpan.TicksPerSecond) * rate.Num + (rate.Den * TimeSpan.TicksPerSecond / 2)) / (rate.Den * TimeSpan.TicksPerSecond); // rounding
-                if (days > 0)
-                    return $"{(minus ? "-" : "")}{days}:{hours:D2}:{minutes:D2}:{seconds:D2}:{frames:D2}";
-                else
-                    return $"{(minus ? "-" : "")}{hours:D2}:{minutes:D2}:{seconds:D2}:{frames:D2}";
-            }
+                return $"{(minus ? "-" : "")}{hours:D2}:{minutes:D2}:{seconds:D2}:{frames:D2}";
         }
 
-        public static long ToSMPTEFrames(this TimeSpan t, TVideoFormat format)
+        public static long ToSmpteFrames(this TimeSpan t, TVideoFormat format)
         {
             if (!Enum.IsDefined(typeof(TVideoFormat), format))
                 format = TVideoFormat.PAL_FHA;
-            return t.ToSMPTEFrames(VideoFormatDescription.Descriptions[format].FrameRate);
+            return t.ToSmpteFrames(VideoFormatDescription.Descriptions[format].FrameRate);
         }
 
-        public static long ToSMPTEFrames(this TimeSpan t, RationalNumber rate)
+        public static long ToSmpteFrames(this TimeSpan t, RationalNumber rate)
         {
             if (rate.IsInvalid)
                 return 0L;
             return (t.Ticks +1) * rate.Num / (TimeSpan.TicksPerSecond * rate.Den);
         }
 
-        public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, TVideoFormat format)
+        public static TimeSpan SmpteFramesToTimeSpan(this long totalFrames, TVideoFormat format)
         {
             if (!Enum.IsDefined(typeof(TVideoFormat), format))
                 format = TVideoFormat.PAL_FHA;
-            return totalFrames.SMPTEFramesToTimeSpan(VideoFormatDescription.Descriptions[format].FrameRate);
+            return totalFrames.SmpteFramesToTimeSpan(VideoFormatDescription.Descriptions[format].FrameRate);
         }
 
-        public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, RationalNumber rate)
+        public static TimeSpan SmpteFramesToTimeSpan(this long totalFrames, RationalNumber rate)
         {
             if (rate.IsZero)
                 return TimeSpan.Zero;
@@ -73,75 +68,68 @@ namespace TAS.Common
             return TimeSpan.FromTicks(((t.Ticks +1) * frameRate.Num / (TimeSpan.TicksPerSecond * frameRate.Den)) * TimeSpan.TicksPerSecond * frameRate.Den / frameRate.Num);
         }
 
-        public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, string frameRate)
+        public static TimeSpan SmpteFramesToTimeSpan(this long totalFrames, string frameRate)
         {
             long rate = 25;
-            if (frameRate.Length > 0)
+            if (frameRate.Length <= 0)
+                return TimeSpan.FromTicks(totalFrames * TimeSpan.TicksPerSecond / rate);
+            switch (frameRate[frameRate.Length - 1])
             {
-                switch (frameRate[frameRate.Length - 1])
-                {
-                    case 'i':
-                    case 'I':
-                        if (long.TryParse(frameRate.Substring(0, frameRate.Length - 1), out rate))
-                            rate = rate / 2;
-                        break;
-                    case 'p':
-                    case 'P':
-                        long.TryParse(frameRate.Substring(0, frameRate.Length - 1), out rate);
-                        break;
-                    default:
-                        long.TryParse(frameRate, out rate);
-                        break;
-                }
+                case 'i':
+                case 'I':
+                    if (long.TryParse(frameRate.Substring(0, frameRate.Length - 1), out rate))
+                        rate = rate / 2;
+                    break;
+                case 'p':
+                case 'P':
+                    long.TryParse(frameRate.Substring(0, frameRate.Length - 1), out rate);
+                    break;
+                default:
+                    long.TryParse(frameRate, out rate);
+                    break;
             }
             return TimeSpan.FromTicks(totalFrames * TimeSpan.TicksPerSecond / rate);
         }
 
-        public static bool IsValidSMPTETimecode(this string timeCode, TVideoFormat format)
+        public static bool IsValidSmpteTimecode(this string timeCode, TVideoFormat format)
         {
             if (!Enum.IsDefined(typeof(TVideoFormat), format))
                 format = TVideoFormat.PAL_FHA;
-            return IsValidSMPTETimecode(timeCode, VideoFormatDescription.Descriptions[format].FrameRate);
+            return IsValidSmpteTimecode(timeCode, VideoFormatDescription.Descriptions[format].FrameRate);
         }
 
-        public static bool IsValidSMPTETimecode(this string timeCode, RationalNumber rate)
+        public static bool IsValidSmpteTimecode(this string timeCode, RationalNumber rate)
         {
             if (rate.IsZero)
-            {
-                TimeSpan t;
-                return TimeSpan.TryParse(timeCode, out t);
-            }
-            else
-            {
-                string[] times = timeCode.Split(':');
-                if (times.Length < 4 || times.Length > 5)
-                    return false;
+                return TimeSpan.TryParse(timeCode, out var _);
+            var times = timeCode.Split(':');
+            if (times.Length < 4 || times.Length > 5)
+                return false;
 
-                int index = -1;
-                int days = 0;
-                if (!((times.Length == 5 && int.TryParse(times[++index], out days) || times.Length == 4)
-                    && int.TryParse(times[++index], out var hours)
-                    && int.TryParse(times[++index], out var minutes)
-                    && int.TryParse(times[++index], out var seconds)
-                    && int.TryParse(times[++index], out var frames)))
-                    return false;
+            var index = -1;
+            var days = 0;
+            if (!((times.Length == 5 && int.TryParse(times[++index], out days) || times.Length == 4)
+                  && int.TryParse(times[++index], out var hours)
+                  && int.TryParse(times[++index], out var minutes)
+                  && int.TryParse(times[++index], out var seconds)
+                  && int.TryParse(times[++index], out var frames)))
+                return false;
 
-                if ((days != 0 && hours < 0)
-                    || (Math.Abs(hours) >= 24)
-                    || minutes >= 60 || minutes < 0 || seconds >= 60 || seconds < 0 || frames >= (int)(rate.Num / rate.Den) || frames < 0)
-                    return false;
-            }
-            return true;
+            return (days == 0 || hours >= 0) 
+                && (Math.Abs(hours) < 24) 
+                && minutes < 60 && minutes >= 0 
+                && seconds < 60 && seconds >= 0 
+                && frames < (int)(rate.Num / rate.Den) && frames >= 0;
         }
 
-        public static TimeSpan SMPTETimecodeToTimeSpan(this string timeCode, TVideoFormat format)
+        public static TimeSpan SmpteTimecodeToTimeSpan(this string timeCode, TVideoFormat format)
         {
             if (!Enum.IsDefined(typeof(TVideoFormat), format))
                 format = TVideoFormat.PAL_FHA;
-            return SMPTETimecodeToTimeSpan(timeCode, VideoFormatDescription.Descriptions[format].FrameRate);
+            return SmpteTimecodeToTimeSpan(timeCode, VideoFormatDescription.Descriptions[format].FrameRate);
         }
 
-        public static TimeSpan SMPTETimecodeToTimeSpan(this string timeCode, RationalNumber rate)
+        public static TimeSpan SmpteTimecodeToTimeSpan(this string timeCode, RationalNumber rate)
         {
             if (rate.IsZero)
             {
@@ -175,7 +163,7 @@ namespace TAS.Common
             }
         }
 
-        public static TimeSpan LTCTimecodeToTimeSpan(this string timeCode, RationalNumber rate)
+        public static TimeSpan LtcTimecodeToTimeSpan(this string timeCode, RationalNumber rate)
         {
             if (!validateLTC.IsMatch(timeCode))
                 throw new FormatException("Bad LTC timecode format");

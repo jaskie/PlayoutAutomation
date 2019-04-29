@@ -264,7 +264,7 @@ namespace TAS.Server
                 if (!SetField(ref _programAudioVolume, value))
                     return;
                 var playing = Playing;
-                int transitioDuration = playing == null ? 0 : (int)playing.TransitionTime.ToSMPTEFrames(FrameRate);
+                int transitioDuration = playing == null ? 0 : (int)playing.TransitionTime.ToSmpteFrames(FrameRate);
                 _playoutChannelPRI?.SetVolume(VideoLayer.Program, value, transitioDuration);
                 if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
                     _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
@@ -611,7 +611,7 @@ namespace TAS.Server
                 return;
 
             Debug.WriteLine(aVideoLayer, "Clear");
-            Logger.Info("{0} {1}: Clear layer {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aVideoLayer);
+            Logger.Info("{0} {1}: Clear layer {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aVideoLayer);
             Event ev;
             lock (((IList)_visibleEvents).SyncRoot)
                 ev = _visibleEvents.FirstOrDefault(e => e.Layer == aVideoLayer);
@@ -638,7 +638,7 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Play))
                 return;
 
-            Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this);
+            Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this);
             lock (_tickLock)
             {
                 _clearRunning();
@@ -672,7 +672,7 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Play))
                 return;
 
-            Logger.Info("{0} {1}: Restart", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this);
+            Logger.Info("{0} {1}: Restart", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this);
             List<Event> le;
             lock (((IList) _visibleEvents).SyncRoot)
                 le = _visibleEvents.ToList();
@@ -1065,8 +1065,8 @@ namespace TAS.Server
                 aEvent = aEvent.InternalGetSuccessor();
             if (aEvent == null)
                 return;
-            Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent);
-            Logger.Info("{0} {1}: Load {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent);
+            Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent);
+            Logger.Info("{0} {1}: Load {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
             var eventType = aEvent.EventType;
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
@@ -1093,8 +1093,8 @@ namespace TAS.Server
             if ((eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage) &&
                 !(_preloadedEvents.TryGetValue(aEvent.Layer, out var preloaded) && preloaded == aEvent))
             {
-                Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent);
-                Logger.Info("{0} {1}: Preload {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent);
+                Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent);
+                Logger.Info("{0} {1}: Preload {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
                 _preloadedEvents[aEvent.Layer] = aEvent;
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
@@ -1120,8 +1120,8 @@ namespace TAS.Server
             var eventType = aEvent.EventType;
             if (!aEvent.IsEnabled || (aEvent.Length == TimeSpan.Zero && eventType != TEventType.Animation && eventType != TEventType.CommandScript))
                 aEvent = aEvent.InternalGetSuccessor();
-            Debug.WriteLine("{0} Play: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent.EventName);
-            Logger.Info("{0} {1}: Play {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent.EventName);
+            Debug.WriteLine("{0} Play: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent.EventName);
+            Logger.Info("{0} {1}: Play {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent.EventName);
             eventType = aEvent.EventType;
             if (aEvent == _forcedNext)
             {
@@ -1252,8 +1252,8 @@ namespace TAS.Server
                     var eventType = aEvent.EventType;
                     if (eventType != TEventType.Live && eventType != TEventType.CommandScript)
                     {
-                        Debug.WriteLine("{0} Stop: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent.EventName);
-                        Logger.Info("{0} {1}: Stop {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent.EventName);
+                        Debug.WriteLine("{0} Stop: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent.EventName);
+                        Logger.Info("{0} {1}: Stop {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent.EventName);
                         _playoutChannelPRI?.Stop(aEvent);
                         _playoutChannelSEC?.Stop(aEvent);
                     }
@@ -1268,8 +1268,8 @@ namespace TAS.Server
             lock (((IList)_visibleEvents).SyncRoot)
                 if (_visibleEvents.Contains(aEvent))
                 {
-                    Debug.WriteLine("{0} Pause: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent.EventName);
-                    Logger.Info("{0} {1}: Pause {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent.EventName);
+                    Debug.WriteLine("{0} Pause: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent.EventName);
+                    Logger.Info("{0} {1}: Pause {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent.EventName);
                     if (aEvent.EventType != TEventType.Live && aEvent.EventType != TEventType.StillImage)
                     {
                         _playoutChannelPRI?.Pause(aEvent);

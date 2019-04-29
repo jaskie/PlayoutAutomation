@@ -250,7 +250,7 @@ namespace TAS.Server.MediaOperation
                     :
                     directory.ExportParams,
                 //3
-                startTimecode.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[DestProperties.VideoFormat].FrameRate),
+                startTimecode.ToSmpteTimecodeString(VideoFormatDescription.Descriptions[DestProperties.VideoFormat].FrameRate),
                 //4
                 isXdcamDirectory|| directory.ExportContainerFormat == TMovieContainerFormat.mxf ? $" -metadata creation_time=\"{DateTime.UtcNow:o}\"" : string.Empty,
                 //5

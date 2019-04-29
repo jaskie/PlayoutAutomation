@@ -31,13 +31,13 @@ namespace TAS.Client.Common.Controls
             var text = (string)GetValue(TextProperty);
             long frames;
             if (long.TryParse(text, out frames))
-                SetValue(TimecodeProperty, frames.SMPTEFramesToTimeSpan(VideoFormat));
+                SetValue(TimecodeProperty, frames.SmpteFramesToTimeSpan(VideoFormat));
             base.OnTextChanged(e);
         }
 
         private void _updateText()
         {
-            Text = Timecode.ToSMPTEFrames(VideoFormat).ToString();
+            Text = Timecode.ToSmpteFrames(VideoFormat).ToString();
         }
 
         public TimeSpan Timecode

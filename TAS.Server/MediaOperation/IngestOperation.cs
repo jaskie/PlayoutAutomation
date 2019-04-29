@@ -238,16 +238,7 @@ namespace TAS.Server.MediaOperation
                 var inputFormatDescription = inputMedia.FormatDescription();
                 AddConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], videoFilters);
                 if (inputMedia.HasExtraLines)
-                {
                     videoFilters.Add("crop=720:576:0:32");
-                    if (AspectConversion == TAspectConversion.NoConversion)
-                    {
-                        if (inputFormatDescription.IsWideScreen)
-                            videoFilters.Add("setdar=dar=16/9");
-                        else
-                            videoFilters.Add("setdar=dar=4/3");
-                    }
-                }
                 if (AspectConversion == TAspectConversion.NoConversion)
                     videoFilters.Add(inputFormatDescription.IsWideScreen ? "setdar=dar=16/9" : "setdar=dar=4/3");
                 else
@@ -255,14 +246,15 @@ namespace TAS.Server.MediaOperation
                 if (inputFormatDescription.FrameRate / outputFormatDescription.FrameRate == 2 && outputFormatDescription.Interlaced)
                     videoFilters.Add("tinterlace=interleave_top");
                 videoFilters.Add($"fps=fps={outputFormatDescription.FrameRate}");
-                if (outputFormatDescription.Interlaced)
+                if (inputFormatDescription.Interlaced)
                 {
-                    videoFilters.Add("fieldorder=tff");
-                    ep.Append(" -flags +ildct+ilme");
-                }
-                else
-                {
-                    videoFilters.Add("w3fdif");
+                    if (outputFormatDescription.Interlaced)
+                    {
+                        videoFilters.Add("fieldorder=tff");
+                        ep.Append(" -flags +ildct+ilme");
+                    }
+                    else
+                        videoFilters.Add("w3fdif");
                 }
                 var additionalEncodeParams = ((IngestDirectory)Source.Directory).EncodeParams;
                 if (!string.IsNullOrWhiteSpace(additionalEncodeParams))
@@ -375,7 +367,7 @@ namespace TAS.Server.MediaOperation
                 ingestRegion,
                 localSourceMedia.FullPath,
                 encodeParams,
-                StartTC.ToSMPTETimecodeString(destMedia.FrameRate()),
+                StartTC.ToSmpteTimecodeString(destMedia.FrameRate()),
                 destMedia.FullPath);
             if (Dest is ArchiveMedia)
                 FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));
@@ -392,7 +384,7 @@ namespace TAS.Server.MediaOperation
                 {
                     destMedia.MediaStatus = TMediaStatus.CopyError;
                     (destMedia as PersistentMedia)?.Save();
-                    AddWarningMessage($"Durations are different: {localSourceMedia.Duration.ToSMPTETimecodeString(localSourceMedia.FrameRate())} vs {destMedia.Duration.ToSMPTETimecodeString(destMedia.FrameRate())}");
+                    AddWarningMessage($"Durations are different: {localSourceMedia.Duration.ToSmpteTimecodeString(localSourceMedia.FrameRate())} vs {destMedia.Duration.ToSmpteTimecodeString(destMedia.FrameRate())}");
                 }
                 else
                 {

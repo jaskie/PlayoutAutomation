@@ -95,7 +95,7 @@ namespace TAS.Server
                 MediaStatus = TMediaStatus.Copying,
             };
             directory.AddMedia(newMedia);
-            if (_recorder?.Capture(channel.Id, tcIn.ToSMPTETimecodeString(channel.VideoFormat), tcOut.ToSMPTETimecodeString(channel.VideoFormat), narrowMode, fileName, channelMap) == true)
+            if (_recorder?.Capture(channel.Id, tcIn.ToSmpteTimecodeString(channel.VideoFormat), tcOut.ToSmpteTimecodeString(channel.VideoFormat), narrowMode, fileName, channelMap) == true)
             {
                 RecordingMedia = newMedia;
                 Logger.Debug("Started recording from {0} file {1} TcIn {2} TcOut {3}", channel.ChannelName, fileName, tcIn, tcOut);
@@ -122,7 +122,7 @@ namespace TAS.Server
                 MediaStatus = TMediaStatus.Copying,
             };
             directory.AddMedia(newMedia);
-            if (_recorder?.Capture(channel.Id,  timeLimit.ToSMPTEFrames(channel.VideoFormat), narrowMode, fileName, channelMap) == true)
+            if (_recorder?.Capture(channel.Id,  timeLimit.ToSmpteFrames(channel.VideoFormat), narrowMode, fileName, channelMap) == true)
             {
                 RecordingMedia = newMedia;
                 Logger.Debug("Started recording from {0} file {1} with time limit {2} ", channel.ChannelName, fileName, timeLimit);
@@ -136,7 +136,7 @@ namespace TAS.Server
         {
             var media = RecordingMedia;
             if (media != null)
-                _recorder?.SetTimeLimit(value.ToSMPTEFrames(media.VideoFormat));
+                _recorder?.SetTimeLimit(value.ToSmpteFrames(media.VideoFormat));
         }
 
         public void Finish()
@@ -170,7 +170,7 @@ namespace TAS.Server
 
         public void GoToTimecode(TimeSpan tc, TVideoFormat format)
         {
-            _recorder?.GotoTimecode(tc.ToSMPTETimecodeString(format));
+            _recorder?.GotoTimecode(tc.ToSmpteTimecodeString(format));
         }
 
         #endregion IRecorder
@@ -214,7 +214,7 @@ namespace TAS.Server
         {
             var media = _recordingMedia;
             if (media != null)
-                TimeLimit = e.FramesLeft.SMPTEFramesToTimeSpan(media.VideoFormat);
+                TimeLimit = e.FramesLeft.SmpteFramesToTimeSpan(media.VideoFormat);
         }
 
         private void _recorder_DeckState(object sender, DeckStateEventArgs e)
@@ -263,8 +263,8 @@ namespace TAS.Server
 
         private void _recorder_Tc(object sender, TcEventArgs e)
         {
-            if (e.Tc.IsValidSMPTETimecode(_tcFormat))
-                CurrentTc = e.Tc.SMPTETimecodeToTimeSpan(_tcFormat);
+            if (e.Tc.IsValidSmpteTimecode(_tcFormat))
+                CurrentTc = e.Tc.SmpteTimecodeToTimeSpan(_tcFormat);
         }
 
     }

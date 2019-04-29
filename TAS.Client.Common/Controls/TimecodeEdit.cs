@@ -36,14 +36,14 @@ namespace TAS.Client.Common.Controls
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
             var text = (string)GetValue(TextProperty);
-            if (text.IsValidSMPTETimecode(VideoFormat))
-                SetValue(TimecodeProperty, text.SMPTETimecodeToTimeSpan(VideoFormat));
+            if (text.IsValidSmpteTimecode(VideoFormat))
+                SetValue(TimecodeProperty, text.SmpteTimecodeToTimeSpan(VideoFormat));
             base.OnTextChanged(e);
         }
 
         private void _updateText()
         {
-            SetValue(TextProperty, Timecode.ToSMPTETimecodeString(VideoFormat));
+            SetValue(TextProperty, Timecode.ToSmpteTimecodeString(VideoFormat));
         }
 
         public TimeSpan Timecode

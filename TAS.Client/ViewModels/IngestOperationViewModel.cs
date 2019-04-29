@@ -142,10 +142,10 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan EndTC
         {
-            get => ((StartTC + Duration).ToSMPTEFrames(SourceMediaFrameRate()) - 1).SMPTEFramesToTimeSpan(SourceMediaFrameRate());
+            get => ((StartTC + Duration).ToSmpteFrames(SourceMediaFrameRate()) - 1).SmpteFramesToTimeSpan(SourceMediaFrameRate());
             set
             {
-                var duration = ((value - StartTC).ToSMPTEFrames(SourceMediaFrameRate()) + 1).SMPTEFramesToTimeSpan(SourceMediaFrameRate());
+                var duration = ((value - StartTC).ToSmpteFrames(SourceMediaFrameRate()) + 1).SmpteFramesToTimeSpan(SourceMediaFrameRate());
                 Duration = duration;
             }
         }
@@ -332,13 +332,13 @@ namespace TAS.Client.ViewModels
             if (IsStill)
                 return null;
             if (StartTC < _operation.Source.TcStart)
-                return string.Format(resources._validate_StartTCBeforeFile, _operation.Source.TcStart.ToSMPTETimecodeString(_operation.Source.VideoFormat));
+                return string.Format(resources._validate_StartTCBeforeFile, _operation.Source.TcStart.ToSmpteTimecodeString(_operation.Source.VideoFormat));
             if (StartTC > _operation.Source.TcLastFrame())
-                return string.Format(resources._validate_StartTCAfterFile, _operation.Source.TcLastFrame().ToSMPTETimecodeString(_operation.Source.VideoFormat));
+                return string.Format(resources._validate_StartTCAfterFile, _operation.Source.TcLastFrame().ToSmpteTimecodeString(_operation.Source.VideoFormat));
             if (EndTC < _operation.Source.TcStart)
-                return string.Format(resources._validate_EndTCBeforeFile, _operation.Source.TcStart.ToSMPTETimecodeString(_operation.Source.VideoFormat));
+                return string.Format(resources._validate_EndTCBeforeFile, _operation.Source.TcStart.ToSmpteTimecodeString(_operation.Source.VideoFormat));
             if (EndTC > _operation.Source.TcLastFrame())
-                return string.Format(resources._validate_EndTCAfterFile, _operation.Source.TcLastFrame().ToSMPTETimecodeString(_operation.Source.VideoFormat));
+                return string.Format(resources._validate_EndTCAfterFile, _operation.Source.TcLastFrame().ToSmpteTimecodeString(_operation.Source.VideoFormat));
             return null;
         }
 

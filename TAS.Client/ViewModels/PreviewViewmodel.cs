@@ -164,12 +164,12 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan Position
         {
-            get => _loadedMedia == null || _preview.PreviewMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((_preview.PreviewPosition + _preview.PreviewLoadedSeek) * TimeSpan.TicksPerSecond * _formatDescription.FrameRate.Den / _formatDescription.FrameRate.Num + _loadedMedia.TcStart.Ticks);
+            get => _loadedMedia == null || _preview.PreviewMedia == null ? TimeSpan.Zero : (_preview.PreviewPosition + _preview.PreviewLoadedSeek).SmpteFramesToTimeSpan(_formatDescription.FrameRate);
             set
             {
                 if (_loadedMedia == null)
                     return;
-                _preview.PreviewPosition = (long) ((value.Ticks - _loadedMedia?.TcStart.Ticks) / _formatDescription.FrameTicks - _preview.PreviewLoadedSeek);
+                _preview.PreviewPosition = (value - _loadedMedia.TcStart).ToSmpteFrames(_formatDescription.FrameRate); 
             }
         }
 

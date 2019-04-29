@@ -189,8 +189,7 @@ namespace TAS.Server.Media
                         {
                             if (AccessType == TDirectoryAccessType.FTP)
                             {
-                                var client = GetFtpClient() as XdcamClient;
-                                if (client == null)
+                                if (!(GetFtpClient() is XdcamClient client))
                                     return;
                                 client.Connect();
                                 try
@@ -212,7 +211,7 @@ namespace TAS.Server.Media
                             Monitor.Exit(XdcamLockObject);
                         }
                     else
-                        throw new ApplicationException("Nie udało się uzyskać dostępu do XDCAM");
+                        throw new ApplicationException("XDCAM access failed");
                 }
                 else if (AccessType == TDirectoryAccessType.FTP)
                     _ftpDirectoryList();
@@ -541,9 +540,9 @@ namespace TAS.Server.Media
                         IngestMedia m = (IngestMedia)FindMediaFirst(f => f.FileName == fileName);
                         if (m == null)
                             continue;
-                        m.TcStart = clip.SelectSingleNode(@"file/timecode/string").InnerText.SMPTETimecodeToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
+                        m.TcStart = clip.SelectSingleNode(@"file/timecode/string").InnerText.SmpteTimecodeToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
                         m.TcPlay = m.TcStart;
-                        m.Duration = long.Parse(clip.SelectSingleNode(@"duration").InnerText).SMPTEFramesToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
+                        m.Duration = long.Parse(clip.SelectSingleNode(@"duration").InnerText).SmpteFramesToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
                         m.DurationPlay = m.Duration;
                         m.BmdXmlFile = xmlFileName;
                     }
@@ -629,7 +628,7 @@ namespace TAS.Server.Media
                             }
                             break;
                     }
-                    var duration = ((long) material.dur).SMPTEFramesToTimeSpan(format);
+                    var duration = ((long) material.dur).SmpteFramesToTimeSpan(format);
                     var fileName = material.uri;
                     var newMedia = new XDCAM.XdcamMedia
                     {
@@ -661,7 +660,7 @@ namespace TAS.Server.Media
                 IMedia newmedia = AddMediaFromPath(Folder + newPath, item.Modified == default(DateTime) ? item.Created : item.Modified);
                 if (item.Type == FtpFileSystemObjectType.Movie)
                 {
-                    newmedia.Duration = item.Size.SMPTEFramesToTimeSpan("50"); // assuming Grass Valley K2 PAL server
+                    newmedia.Duration = item.Size.SmpteFramesToTimeSpan("50"); // assuming Grass Valley K2 PAL server
                     newmedia.DurationPlay = newmedia.Duration;
                 }
             }

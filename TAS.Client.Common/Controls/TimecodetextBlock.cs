@@ -38,7 +38,7 @@ namespace TAS.Client.Common.Controls
             if (HideZero && Timecode == TimeSpan.Zero)
                 Text = string.Empty;
             else
-                Text = Timecode.ToSMPTETimecodeString(VideoFormat);
+                Text = Timecode.ToSmpteTimecodeString(VideoFormat);
         }
 
         public TimeSpan Timecode

@@ -143,7 +143,7 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _timeLeft, value);
         }
 
-        public string EndTime => Event == null || Event.GetSuccessor() != null ? string.Empty : Event.EndTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(VideoFormat);
+        public string EndTime => Event == null || Event.GetSuccessor() != null ? string.Empty : Event.EndTime.ToLocalTime().TimeOfDay.ToSmpteTimecodeString(VideoFormat);
 
         public bool IsLastEvent => Event != null && Event.GetSuccessor() == null;
 
@@ -215,11 +215,11 @@ namespace TAS.Client.ViewModels
 
         public bool IsLoop => Event.IsLoop;
 
-        public string ScheduledTime => Event.ScheduledTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(VideoFormat);
+        public string ScheduledTime => Event.ScheduledTime.ToLocalTime().TimeOfDay.ToSmpteTimecodeString(VideoFormat);
 
-        public string ScheduledDelay => Event.ScheduledDelay.ToSMPTETimecodeString(VideoFormat);
+        public string ScheduledDelay => Event.ScheduledDelay.ToSmpteTimecodeString(VideoFormat);
 
-        public string Duration => Event.Duration.ToSMPTETimecodeString(VideoFormat);
+        public string Duration => Event.Duration.ToSmpteTimecodeString(VideoFormat);
 
         public virtual bool IsEnabled
         {

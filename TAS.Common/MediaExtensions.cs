@@ -25,7 +25,7 @@ namespace TAS.Common
         public static TimeSpan TcLastFrame(this IMedia media)
         {
             var frameRate = FrameRate(media);
-            return ((media.TcStart + media.Duration).ToSMPTEFrames(frameRate) - 1).SMPTEFramesToTimeSpan(frameRate);
+            return ((media.TcStart + media.Duration).ToSmpteFrames(frameRate) - 1).SmpteFramesToTimeSpan(frameRate);
         }
 
         public static string MakeFileName(string idAux, string mediaName, string fileExtension)
