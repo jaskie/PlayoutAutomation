@@ -15,7 +15,7 @@ namespace TAS.Client.Common.Behaviors
         }
 
         public static readonly DependencyProperty SelectedItemProperty =
-            DependencyProperty.Register("SelectedItem", typeof(object), typeof(TreeViewTwoWaySelectedItem), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedItemChanged));
+            DependencyProperty.Register(nameof(SelectedItem), typeof(object), typeof(TreeViewTwoWaySelectedItem), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedItemChanged));
 
         private static void OnSelectedItemChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
@@ -48,8 +48,7 @@ namespace TAS.Client.Common.Behaviors
         {
             SelectedItem = e.NewValue;
         }
-
-
+        
         private TreeViewItem FindItemNode(object item)
         {
             TreeViewItem node = null;

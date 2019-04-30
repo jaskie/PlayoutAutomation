@@ -12,16 +12,13 @@ namespace TAS.Client.Config
     public class IngestDirectoriesViewmodel: OkCancelViewmodelBase<IEnumerable<IngestDirectory>>
     {
         private readonly string _fileName;
-        private bool _added;
-        private bool _deleted;
-        private bool _moved;
         private IngestDirectoryViewmodel _selectedDirectory;
 
 
         public IngestDirectoriesViewmodel(string fileName) : base(Deserialize(fileName), typeof(IngestDirectoriesView),
             $"Ingest directories ({System.IO.Path.GetFullPath(fileName)})") 
         {
-            foreach (var item in Model.Select(d => new IngestDirectoryViewmodel(d, Directories)))
+            foreach (var item in Model.Select(d => new IngestDirectoryViewmodel(d, this)))
             {
                 Directories.Add(item);
             }
@@ -54,16 +51,15 @@ namespace TAS.Client.Config
             }
         }
         
-        public override bool IsModified { get { return _added || _deleted || _moved|| Directories.Any(d => d.IsModified); } }
+        public override bool IsModified { get { return base.IsModified || Directories.Any(d => d.IsModified); } }
 
         protected override void Update(object parameter = null)
         {
-            Directories.Where(d => d.IsModified).ToList().ForEach(d => d.SaveToModel());
+            Directories.ToList().ForEach(d => d.SaveToModel());
             var writer = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(_fileName))
             {
                 writer.Serialize(file, Directories.Select(d => d.Model).ToList());
-                file.Close();
             }
         }
 
@@ -93,26 +89,19 @@ namespace TAS.Client.Config
 
         private void _delete(object obj)
         {
-            if (_deleteDirectory(Directories, _selectedDirectory))
-            {
-                _deleted = true;
-                SelectedDirectory = null;
-            }
+            if (!_deleteDirectory(_selectedDirectory))
+                return;
+            IsModified = true;
+            SelectedDirectory = Directories.FirstOrDefault();
         }
 
-        private bool _deleteDirectory(ObservableCollection<IngestDirectoryViewmodel> collection, IngestDirectoryViewmodel item)
+        private bool _deleteDirectory(IngestDirectoryViewmodel item)
         {
-            if (collection.Contains(item))
-            {
-                collection.Remove(item);
-                return true;
-            }
-            foreach (var d in collection)
-            {
-                if (_deleteDirectory(d.SubDirectoriesVM, item))
-                    return true;
-            }
-            return false;
+            var collection = item.OwnerCollection;
+            if (!collection.Contains(item))
+                return false;
+            collection.Remove(item);
+            return true;
         }
 
         private bool _canDelete(object obj)
@@ -122,9 +111,9 @@ namespace TAS.Client.Config
 
         private void _add(object obj)
         {
-            var newDir = new IngestDirectoryViewmodel(new IngestDirectory(), Directories) { DirectoryName = Common.Properties.Resources._title_NewDirectory };
+            var newDir = new IngestDirectoryViewmodel(new IngestDirectory(), this) { DirectoryName = Common.Properties.Resources._title_NewDirectory };
             Directories.Add(newDir);
-            _added = true;
+            IsModified = true;
             SelectedDirectory = newDir;
         }
 
@@ -137,7 +126,7 @@ namespace TAS.Client.Config
                 if (oldIndex > 0)
                 {
                     collection.Move(oldIndex, oldIndex - 1);
-                    _moved = true;
+                    IsModified = true;
                 }
             }
         }
@@ -162,7 +151,7 @@ namespace TAS.Client.Config
                 if (oldIndex < collection.Count - 1)
                 {
                     collection.Move(oldIndex, oldIndex + 1);
-                    _moved = true;
+                    IsModified = true;
                 }
             }
         }

@@ -42,11 +42,11 @@ namespace TAS.Client.Config
         private double _audioBitrateRatio;
         private TVideoFormat _exportVideoFormat;
         
-        public IngestDirectoryViewmodel(IngestDirectory model, ObservableCollection<IngestDirectoryViewmodel> ownerCollection):base(model)
+        public IngestDirectoryViewmodel(IngestDirectory model, ModifyableViewModelBase owner):base(model)
         {
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
-            OwnerCollection = ownerCollection;
-            SubDirectoriesVM = new ObservableCollection<IngestDirectoryViewmodel>(model.SubDirectoriesSerialized.Select(s => new IngestDirectoryViewmodel(s, SubDirectoriesVM)));
+            Owner = owner;
+            SubDirectoriesVM = new ObservableCollection<IngestDirectoryViewmodel>(model.SubDirectoriesSerialized.Select(s => new IngestDirectoryViewmodel(s, this)));
         }
         
         #region Enumerations
@@ -290,13 +290,17 @@ namespace TAS.Client.Config
         public IngestDirectoryViewmodel AddSubdirectory()
         {
             var dir = new IngestDirectory { DirectoryName = Common.Properties.Resources._title_NewDirectory };
-            var dirVM = new IngestDirectoryViewmodel(dir, SubDirectoriesVM);
-            SubDirectoriesVM.Add(dirVM);
+            var dirVm = new IngestDirectoryViewmodel(dir, this);
+            SubDirectoriesVM.Add(dirVm);
             IsModified = true;
-            return dirVM;
+            return dirVm;
         }
 
-        public ObservableCollection<IngestDirectoryViewmodel> OwnerCollection { get; }
+        internal ModifyableViewModelBase Owner { get; }
+
+        internal ObservableCollection<IngestDirectoryViewmodel> OwnerCollection => Owner is IngestDirectoriesViewmodel root
+            ? root.Directories
+            : ((IngestDirectoryViewmodel) Owner).SubDirectoriesVM;
 
         protected override void OnDispose() { }
 
