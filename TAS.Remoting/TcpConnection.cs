@@ -75,7 +75,7 @@ namespace TAS.Remoting
         protected virtual void OnDispose()
         {
             IsConnected = false;
-            Client.Client.Close();
+            Client.Client.Dispose();
             _sendAutoResetEvent.Set();
             _sendAutoResetEvent.Dispose();
             Logger.Info("Connection closed.");

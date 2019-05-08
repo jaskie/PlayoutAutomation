@@ -76,6 +76,7 @@
     <Compile Include="SocketMessage.cs" />
     <Compile Include="TcpConnection.cs" />
     <Compile Include="UnresolvedReferenceException.cs" />
+    <Compile Include="WrappedEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

@@ -42,8 +42,8 @@ namespace TVPlayClient
 
         protected override void OnDispose()
         {
-            _client?.Dispose();
             _channel?.Dispose();
+            _client?.Dispose();
             Debug.WriteLine(this, "Disposed");
         }
 

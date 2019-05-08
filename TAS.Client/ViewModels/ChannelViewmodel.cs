@@ -39,7 +39,7 @@ namespace TAS.Client.ViewModels
         {
             set
             {
-                if (value.DataContext is EngineViewmodel engine)
+                if (value?.DataContext is EngineViewmodel engine)
                     OnIdle(() => engine.Focus());
             }
         }

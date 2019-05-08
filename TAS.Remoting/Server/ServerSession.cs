@@ -244,7 +244,7 @@ namespace TAS.Remoting.Server
             {
                 if (_delegates.ContainsKey(signature))
                     return;
-                var delegateToInvoke = ConvertDelegate((Action<object, EventArgs>) delegate(object o, EventArgs ea) { NotifyClient(o, ea, ei.Name); }, ei.EventHandlerType);
+                var delegateToInvoke = ConvertDelegate((Action<object, EventArgs>) delegate(object o, EventArgs ea) { NotifyClient(objectToInvoke, ea, ei.Name); }, ei.EventHandlerType);
                 Debug.WriteLine($"Server: added delegate {ei.Name} on {objectToInvoke}");
                 _delegates[signature] = delegateToInvoke;
                 ei.AddEventHandler(objectToInvoke, delegateToInvoke);
@@ -272,75 +272,81 @@ namespace TAS.Remoting.Server
                 originalDelegate.Method);
         }
 
-        private void NotifyClient(object o, EventArgs e, string eventName)
+        private void NotifyClient(IDto dto, EventArgs e, string eventName)
         {
-            if (!(o is IDto dto))
-                return;
             //Debug.Assert(_referenceResolver.ResolveReference(dto.DtoGuid) != null, "Null reference notified");
-            EventArgs eventArgs;
-            if (e is PropertyChangedEventArgs ea && eventName == nameof(INotifyPropertyChanged.PropertyChanged))
-            {
-                var p = o.GetType().GetProperty(ea.PropertyName);
-                if (p?.CanRead == true)
-                    eventArgs = PropertyChangedWithDataEventArgs.Create(ea.PropertyName, p.GetValue(o, null));
-                else
-                {
-                    eventArgs = PropertyChangedWithDataEventArgs.Create(ea.PropertyName, null);
-                    Debug.WriteLine(o, $"{GetType()}: Couldn't get value of {ea.PropertyName}");
-                }
-                Debug.WriteLine($"Server: PropertyChanged {ea.PropertyName} on {dto} sent");
-            }
-            else
-                eventArgs = e;
-            var message = new SocketMessage
-            {
-                MessageType = SocketMessage.SocketMessageType.EventNotification,
-                DtoGuid = dto.DtoGuid,
-                MemberName = eventName
-            };
-            using (var serialized = SerializeDto(eventArgs))
-            {
-                var bytes = message.ToByteArray(serialized);
-                Send(bytes);
-            }
-        }
-
-        private void ReferencedObjectDisposed(object o, EventArgs a)
-        {
-            if (!(o is IDto dto))
-                return;
-            lock (((IDictionary) _delegates).SyncRoot)
-            {
-                var delegatesToRemove = _delegates.Keys.Where(k => k.DtoGuid == dto.DtoGuid).ToArray();
-                foreach (var dk in delegatesToRemove)
-                {
-                    var ei = dto.GetType().GetEvent(dk.EventName);
-                    RemoveDelegate(dto, ei);
-                }
-            }
-            var message = new SocketMessage
-            {
-                MessageType = SocketMessage.SocketMessageType.ObjectDisposed,
-                DtoGuid = dto.DtoGuid,
-            };
-            using (var serialized = SerializeDto(null))
-            {
-                var bytes = message.ToByteArray(serialized);
-                Send(bytes);
-            }
-            Debug.WriteLine($"Server: ObjectDisposed notification on {dto} sent");
-        }
-
-        private void ReferenceResolver_ReferencePropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
             try
             {
-                NotifyClient(sender, e, nameof(INotifyPropertyChanged.PropertyChanged));
+                EventArgs eventArgs;
+                if (e is WrappedEventArgs ea 
+                    && ea.Args is PropertyChangedEventArgs propertyChangedEventArgs
+                    && eventName == nameof(INotifyPropertyChanged.PropertyChanged))
+                {
+                    var p = dto.GetType().GetProperty(propertyChangedEventArgs.PropertyName);
+                    if (p?.CanRead == true)
+                        eventArgs = PropertyChangedWithDataEventArgs.Create(propertyChangedEventArgs.PropertyName, p.GetValue(dto, null));
+                    else
+                    {
+                        eventArgs = PropertyChangedWithDataEventArgs.Create(propertyChangedEventArgs.PropertyName, null);
+                        Debug.WriteLine(dto, $"{GetType()}: Couldn't get value of {propertyChangedEventArgs.PropertyName}");
+                    }
+                    Debug.WriteLine($"Server: PropertyChanged {propertyChangedEventArgs.PropertyName} on {dto} sent");
+                }
+                else
+                    eventArgs = e;
+                var message = new SocketMessage
+                {
+                    MessageType = SocketMessage.SocketMessageType.EventNotification,
+                    DtoGuid = dto.DtoGuid,
+                    MemberName = eventName
+                };
+                using (var serialized = SerializeDto(eventArgs))
+                {
+                    var bytes = message.ToByteArray(serialized);
+                    Send(bytes);
+                }
             }
             catch (Exception exception)
             {
                 Logger.Error(exception);
             }
+        }
+
+        private void ReferencedObjectDisposed(object o, WrappedEventArgs eventArgs)
+        {
+            try
+            {
+                lock (((IDictionary) _delegates).SyncRoot)
+                {
+                    var delegatesToRemove = _delegates.Keys.Where(k => k.DtoGuid == eventArgs.Dto.DtoGuid).ToArray();
+                    foreach (var dk in delegatesToRemove)
+                    {
+                        var ei = eventArgs.Dto.GetType().GetEvent(dk.EventName);
+                        RemoveDelegate(eventArgs.Dto, ei);
+                    }
+                }
+                var message = new SocketMessage
+                {
+                    MessageType = SocketMessage.SocketMessageType.ObjectDisposed,
+                    DtoGuid = eventArgs.Dto.DtoGuid,
+                };
+                using (var serialized = SerializeDto(null))
+                {
+                    var bytes = message.ToByteArray(serialized);
+                    Send(bytes);
+                }
+                Debug.WriteLine($"Server: ObjectDisposed notification on {eventArgs.Dto} sent");
+
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
+        }
+
+        private void ReferenceResolver_ReferencePropertyChanged(object sender, WrappedEventArgs e)
+        {
+            NotifyClient(e.Dto, e, nameof(INotifyPropertyChanged.PropertyChanged));
         }
 
         private class DelegateKey
@@ -355,7 +361,7 @@ namespace TAS.Remoting.Server
 
             public override bool Equals(object obj)
             {
-                if (ReferenceEquals(null, obj)) return false;
+                if (obj == null) return false;
                 if (ReferenceEquals(this, obj)) return true;
                 return obj.GetType() == typeof(DelegateKey) && Equals((DelegateKey)obj);
             }

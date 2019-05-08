@@ -22,8 +22,7 @@ namespace TVPlayClient
                 return;
             Application.Current.Dispatcher.ShutdownStarted += _dispatcher_ShutdownStarted;
             _configurationFile = Path.Combine(FileUtils.LocalApplicationDataPath, ConfigurationFileName);
-            if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
-                _loadTabs();
+            _loadTabs();
             CommandConfigure = new UiCommand(_configure);
         }
 
