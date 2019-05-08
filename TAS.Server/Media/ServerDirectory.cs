@@ -41,7 +41,7 @@ namespace TAS.Server.Media
             if (IsInitialized)
                 return;
             EngineController.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
-            BeginWatch("*", IsRecursive, TimeSpan.Zero);
+            BeginWatch(IsRecursive);
             Debug.WriteLine(this, "Directory initialized");
         }
 
@@ -119,9 +119,9 @@ namespace TAS.Server.Media
             base.OnMediaRenamed(media, newFullPath);
         }
 
-        protected override void EnumerateFiles(string directory, string filter, bool includeSubdirectories, CancellationToken cancelationToken)
+        protected override void EnumerateFiles(string directory, bool includeSubdirectories, CancellationToken cancelationToken)
         {
-            base.EnumerateFiles(directory, filter, includeSubdirectories, cancelationToken);
+            base.EnumerateFiles(directory, includeSubdirectories, cancelationToken);
             var unverifiedFiles = FindMediaList(mf => ((ServerMedia)mf).IsVerified == false);
             unverifiedFiles.ForEach(media => media.Verify(true));
         }

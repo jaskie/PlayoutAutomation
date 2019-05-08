@@ -21,7 +21,6 @@ namespace TAS.Server.Media
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly List<string> _bMdXmlFiles = new List<string>();
-        private string _filter;
         private int _xdcamClipCount;
         private NetworkCredential _networkCredential;
         private FtpClient _ftpClient;
@@ -57,8 +56,8 @@ namespace TAS.Server.Media
                 {
                     if (string.IsNullOrWhiteSpace(Username)
                         || _connectToRemoteDirectory())
-                        if (IsImport && (!IsWAN || !string.IsNullOrWhiteSpace(_filter)))
-                            BeginWatch(_filter, IsRecursive, TimeSpan.Zero);
+                        if (IsImport && !IsWAN)
+                            BeginWatch(IsRecursive);
                 }
             }
             _subDirectories?.ToList().ForEach(d =>
@@ -133,25 +132,7 @@ namespace TAS.Server.Media
 
         [JsonProperty]
         public TAspectConversion AspectConversion { get; set; }
-
-        [JsonProperty]
-        public string Filter
-        {
-            get => _filter;
-            set
-            {
-                if (!value.Equals(_filter))
-                {
-                    _filter = value;
-                    if (!IsWAN)
-                        return;
-                    CancelBeginWatch();
-                    ClearFiles();
-                    BeginWatch(value, IsRecursive, TimeSpan.FromSeconds(10));
-                }
-            }
-        }
-
+        
         [XmlIgnore]
         [JsonProperty]
         public TDirectoryAccessType AccessType { get; protected set; }
@@ -431,13 +412,13 @@ namespace TAS.Server.Media
                 }
             var m = FindMediaFirstByFullPath(e.FullPath);
             if (m != null)
-                    m.IsVerified = false;
+                m.IsVerified = false;
         }
 
-        protected override void EnumerateFiles(string directory, string filter, bool includeSubdirectories,
+        protected override void EnumerateFiles(string directory, bool includeSubdirectories,
             CancellationToken cancelationToken)
         {
-            base.EnumerateFiles(directory, filter, includeSubdirectories, cancelationToken);
+            base.EnumerateFiles(directory, includeSubdirectories, cancelationToken);
             if (Kind == TIngestDirectoryKind.BmdMediaExpressWatchFolder)
                 lock (((IList) _bMdXmlFiles).SyncRoot)
                     foreach (string xml in _bMdXmlFiles)

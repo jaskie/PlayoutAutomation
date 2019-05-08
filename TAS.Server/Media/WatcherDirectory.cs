@@ -20,8 +20,6 @@ namespace TAS.Server.Media
     { 
         private FileSystemWatcher _watcher;
         private bool _isInitialized;
-        private string _watcherFilter;
-        private TimeSpan _watcherTimeout;
         private bool _watcherIncludeSubdirectories;
         private CancellationTokenSource _watcherTaskCancelationTokenSource;
         private Task _watcherSetupTask;
@@ -139,9 +137,9 @@ namespace TAS.Server.Media
         }
 
 
-        protected virtual void EnumerateFiles(string directory, string filter, bool includeSubdirectories, CancellationToken cancelationToken)
+        protected virtual void EnumerateFiles(string directory, bool includeSubdirectories, CancellationToken cancelationToken)
         {
-            IEnumerable<FileSystemInfo> list = new DirectoryInfo(directory).EnumerateFiles(string.IsNullOrWhiteSpace(filter) ? "*" : $"*{filter}*");
+            IEnumerable<FileSystemInfo> list = new DirectoryInfo(directory).EnumerateFiles("*");
             foreach (var f in list)
             {
                 if (cancelationToken.IsCancellationRequested)
@@ -154,23 +152,20 @@ namespace TAS.Server.Media
             if (!includeSubdirectories) return;
             list = new DirectoryInfo(directory).EnumerateDirectories();
             foreach (var d in list)
-                EnumerateFiles(d.FullName, filter, true, cancelationToken);
+                EnumerateFiles(d.FullName, true, cancelationToken);
         }
 
-        protected void BeginWatch(string filter, bool includeSubdirectories, TimeSpan timeout)
+        protected void BeginWatch(bool includeSubdirectories)
         {
             var oldTask = _watcherSetupTask;
             if (oldTask != null && oldTask.Status != TaskStatus.RanToCompletion)
                 return;
             var watcherTaskCancelationTokenSource = new CancellationTokenSource();
-            _watcherSetupTask = Task.Factory.StartNew(
+            _watcherSetupTask = Task.Run(
                 () =>
                 {
-                    _watcherFilter = filter;
-                    _watcherTimeout = timeout;
                     _watcherIncludeSubdirectories = includeSubdirectories;
-                    var watcherReady = false;
-                    while (!watcherReady && !watcherTaskCancelationTokenSource.IsCancellationRequested)
+                    while (_watcher?.EnableRaisingEvents != true && !watcherTaskCancelationTokenSource.IsCancellationRequested)
                     {
                         try
                         {
@@ -182,31 +177,28 @@ namespace TAS.Server.Media
                             if (Directory.Exists(Folder))
                             {
                                 RefreshVolumeInfo();
-                                EnumerateFiles(Folder, filter, includeSubdirectories, watcherTaskCancelationTokenSource.Token);
-                                _watcher = new FileSystemWatcher(Folder)
+                                EnumerateFiles(Folder, includeSubdirectories, watcherTaskCancelationTokenSource.Token);
+                                _watcher = new FileSystemWatcher()
                                 {
-                                    Filter = string.IsNullOrWhiteSpace(filter)
-                                        ? string.Empty
-                                        : $"*{filter}*",
+                                    Path = Folder,
                                     IncludeSubdirectories = includeSubdirectories,
-                                    EnableRaisingEvents = true
+                                    NotifyFilter =  NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.CreationTime
                                 };
+                                _watcher.EnableRaisingEvents = true;
                                 _watcher.Created += OnFileCreated;
                                 _watcher.Deleted += OnFileDeleted;
                                 _watcher.Renamed += OnFileRenamed;
                                 _watcher.Changed += OnFileChanged;
                                 _watcher.Error += OnError;
-                                watcherReady = _watcher.EnableRaisingEvents;
                             }
                         }
                         catch (Exception e)
                         {
                             Logger.Error(e, "Directory {0} watcher setup error", Folder);
-                        }
-                        if (!watcherReady)
                             Thread.Sleep(30000); //Wait for retry 30 sec.
+                        }
                     }
-                    if (watcherReady)
+                    if (_watcher?.EnableRaisingEvents == true)
                         Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)Folder);
                     else
                     if (watcherTaskCancelationTokenSource.IsCancellationRequested)
@@ -217,21 +209,6 @@ namespace TAS.Server.Media
                     IsInitialized = true;
                 }, watcherTaskCancelationTokenSource.Token);
             _watcherTaskCancelationTokenSource = watcherTaskCancelationTokenSource;
-            if (timeout > TimeSpan.Zero)
-            {
-                ThreadPool.QueueUserWorkItem(o =>
-                {
-                    try
-                    {
-                        if (!_watcherSetupTask.Wait(timeout))
-                            CancelBeginWatch();
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Error(e, "CancelBeginWatch exception");
-                    }
-                });
-            }
         }
 
         protected virtual void CancelBeginWatch()
@@ -328,7 +305,7 @@ namespace TAS.Server.Media
         {
             Debug.WriteLine("MediaDirectory: Watcher {0} returned error: {1}.", Folder, e.GetException());
             Logger.Warn("MediaDirectory: Watcher {0} returned error: {1} and will be restarted.", Folder, e.GetException());
-            BeginWatch(_watcherFilter, _watcherIncludeSubdirectories, _watcherTimeout);
+            BeginWatch(_watcherIncludeSubdirectories);
         }
 
         protected MediaBase FindMediaFirstByFullPath(string fullPath)

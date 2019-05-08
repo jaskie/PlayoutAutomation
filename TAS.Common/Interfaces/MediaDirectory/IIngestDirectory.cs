@@ -7,7 +7,6 @@ namespace TAS.Common.Interfaces.MediaDirectory
     {
         TDirectoryAccessType AccessType { get; }
         int XdcamClipCount { get; }
-        string Filter { get; set; }
     }
 
     public interface IIngestDirectoryProperties : IMediaDirectoryProperties

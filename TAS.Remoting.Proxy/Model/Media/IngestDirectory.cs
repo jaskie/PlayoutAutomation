@@ -32,9 +32,6 @@ namespace TAS.Remoting.Model.Media
         [JsonProperty(nameof(IIngestDirectory.ExportParams))]
         private string _exportParams;
 
-        [JsonProperty(nameof(IIngestDirectory.Filter))]
-        private string _filter;
-
         [JsonProperty(nameof(IIngestDirectory.IsWAN))]
         private bool _isWan;
 
@@ -119,12 +116,6 @@ namespace TAS.Remoting.Model.Media
         public string EncodeParams => _encodeParams;
 
         public string ExportParams => _exportParams;
-
-        public string Filter
-        {
-            get => _filter;
-            set => Set(value);
-        }
 
         public bool IsWAN => _isWan;
 

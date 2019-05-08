@@ -323,18 +323,12 @@ namespace TAS.Client.ViewModels
         public bool IsShowRecorders => RecordersViewmodel.Recorders.Any();
 
 
-        public override string ToString()
-        {
-            return resources._media;
-        }
-
         protected override void OnDispose()
         {
             SelectedDirectory = null;
             if (RecordersViewmodel != null)
                 RecordersViewmodel.PropertyChanged -= _recordersViewmodel_PropertyChanged;
         }
-
 
         // private methods
 
@@ -538,7 +532,7 @@ namespace TAS.Client.ViewModels
 
         private void _selectedDirectoryMediaAdded(object source, MediaEventArgs e)
         {
-            if (source is IWatcherDirectory dir && dir.IsInitialized || source is IArchiveDirectory)
+            if (source is IWatcherDirectory dir && dir.IsInitialized)
                 OnUiThread(() =>
                 {
                     var media = e.Media;
