@@ -101,7 +101,7 @@ namespace TAS.Server.MediaOperation
                     {
                         _progressFileSize = (ulong) (new FileInfo(localDestMedia.FullPath)).Length;
                         Dest = _createDestMedia();
-                        Dest.PropertyChanged += destMedia_PropertyChanged;
+                        Dest.PropertyChanged += DestMedia_PropertyChanged;
                         try
                         {
 
@@ -113,7 +113,7 @@ namespace TAS.Server.MediaOperation
 
                         finally
                         {
-                            Dest.PropertyChanged -= destMedia_PropertyChanged;
+                            Dest.PropertyChanged -= DestMedia_PropertyChanged;
                         }
                     }
                 }
@@ -161,7 +161,7 @@ namespace TAS.Server.MediaOperation
                 result = new IngestMedia
                 {
                     FileName = FileUtils.GetUniqueFileName(directory.Folder,
-                        $"{FileUtils.SanitizeFileName(DestProperties.FileName)}.{directory.ExportContainerFormat}"),
+                        $"{FileUtils.SanitizeFileName(DestProperties.MediaName)}.{directory.ExportContainerFormat}"),
                     MediaName = DestProperties.MediaName,
                     Duration = DestProperties.Duration,
                     VideoFormat = DestProperties.VideoFormat,
@@ -173,7 +173,7 @@ namespace TAS.Server.MediaOperation
             return result;
         }
 
-        private void destMedia_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void DestMedia_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(IMedia.FileSize))
                 return;
@@ -202,7 +202,13 @@ namespace TAS.Server.MediaOperation
                 var itemVideoFilters = new List<string>();
                 if (media.HasExtraLines)
                     itemVideoFilters.Add("crop=720:576:0:32");
-                itemVideoFilters.Add(media.FormatDescription().IsWideScreen ? "setdar=dar=16/9" : "setdar=dar=4/3");
+                var mediaFormatDescription = media.FormatDescription();
+                itemVideoFilters.Add(mediaFormatDescription.IsWideScreen ? "setdar=dar=16/9" : "setdar=dar=4/3");
+                if (!outputFormatDesc.Interlaced && mediaFormatDescription.Interlaced)
+                {
+                    itemVideoFilters.Add("yadif");
+                    itemVideoFilters.Add($"fps={outputFormatDesc.FrameRate.Num}/{outputFormatDesc.FrameRate.Den}");
+                }
                 itemVideoFilters.Add(scaleFilter);
                 complexFilterElements.Add($"[{index}]{string.Join(",", itemVideoFilters)}{videoOutputName}");
                 var audioIndex = index;
