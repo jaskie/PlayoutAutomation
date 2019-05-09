@@ -320,11 +320,9 @@ namespace TAS.Server
             EngineController.Database.ReadRootEvents(this);
 
             EngineState = TEngineState.Idle;
-            var cgElementsController = CGElementsController;
-            if (cgElementsController != null)
+            if (CGElementsController != null)
             {
-                Debug.WriteLine(this, "Initializing CGElementsController");
-                cgElementsController.Started += _gpiStartLoaded;
+                CGElementsController.Started += _gpiStartLoaded;
             }
 
             if (Remote != null)
@@ -650,9 +648,16 @@ namespace TAS.Server
                 ProgramAudioVolume = 1;
                 EngineState = TEngineState.Idle;
                 Playing = null;
-                var cgController = CGElementsController;
-                if (cgController?.IsConnected == true && cgController.IsCGEnabled)
-                    cgController.Clear();
+                if (CGElementsController != null)
+                    try
+                    {
+                        if (CGElementsController?.IsConnected == true && CGElementsController.IsCGEnabled)
+                            CGElementsController.Clear();
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error(e);
+                    }
             }
             NotifyEngineOperation(null, TEngineOperation.Clear);
             _previewUnload();
@@ -1106,7 +1111,14 @@ namespace TAS.Server
                     Task.Run(() =>
                     {
                         Thread.Sleep(_preloadTime + TimeSpan.FromMilliseconds(CGStartDelay));
-                        CGElementsController.SetState(aEvent);
+                        try
+                        {
+                            CGElementsController.SetState(aEvent);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Error(e);
+                        }
                     });
                 }
             }

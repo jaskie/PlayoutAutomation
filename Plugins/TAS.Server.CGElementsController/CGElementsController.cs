@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 using TAS.Common.Interfaces;
 
@@ -58,8 +59,9 @@ namespace TAS.Server
             get => _crawl;
             set
             {
-                if (SetField(ref _crawl, value))
-                    Engine.Execute(_crawls[value].Command);
+                if (!SetField(ref _crawl, value))
+                    return;
+                Engine.Execute(_crawls.ElementAtOrDefault(value)?.Command);
             }
         }
 
@@ -75,8 +77,9 @@ namespace TAS.Server
             get => _logo;
             set
             {
-                if (SetField(ref _logo, value))
-                    Engine.Execute(_logos[value].Command);
+                if (!SetField(ref _logo, value))
+                    return;
+                Engine.Execute(_logos.ElementAtOrDefault(value)?.Command);
             }
         }
 
@@ -93,8 +96,9 @@ namespace TAS.Server
             get => _parental;
             set
             {
-                if (SetField(ref _parental, value))
-                    Engine.Execute(_parentals[value].Command);
+                if (!SetField(ref _parental, value))
+                    return;
+                Engine.Execute(_parentals.ElementAtOrDefault(value)?.Command);
             }
         }
 
@@ -137,5 +141,7 @@ namespace TAS.Server
                 Logger.Error(e);
             }
         }
+
+
     }
 }
