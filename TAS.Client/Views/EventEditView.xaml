@@ -221,18 +221,20 @@
                                 <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-18" Maximum="18" Value="{Binding AudioVolumeLevel}"/>
                             </DockPanel>
                             <Grid Visibility="{Binding IsDisplayCGElements, Converter={StaticResource BoolToVis}}" >
-                                <StackPanel Visibility="{Binding IsCGEnabled, Converter={StaticResource BoolToVis}}">
-                                    <StackPanel Orientation="Horizontal">
+                                <UniformGrid Columns="2" Visibility="{Binding IsCGEnabled, Converter={StaticResource BoolToVis}}">
+                                    <DockPanel Visibility="{Binding Logos.Length, Converter={StaticResource ZeroToVis}}" >
                                         <Label Content="{Resx _gpiLogo}" />
-                                        <ComboBox ItemsSource="{Binding Logos}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Logo}"/>
+                                        <ComboBox ItemsSource="{Binding Logos}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Logo}" Width="Auto"/>
+                                    </DockPanel>
+                                    <DockPanel Visibility="{Binding Crawls.Length, Converter={StaticResource ZeroToVis}}" >
                                         <Label Content="{Resx _gpiCrawl}" Width="44"/>
-                                        <ComboBox ItemsSource="{Binding Crawls}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Crawl}"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
+                                        <ComboBox ItemsSource="{Binding Crawls}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Crawl}" Width="Auto"/>
+                                    </DockPanel>
+                                    <DockPanel Visibility="{Binding Parentals.Length, Converter={StaticResource ZeroToVis}}" >
                                         <Label Content="{Resx _gpiParental}"/>
-                                        <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Parental}" />
-                                    </StackPanel>
-                                </StackPanel>
+                                        <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Parental}" Width="Auto"/>
+                                    </DockPanel>
+                                </UniformGrid>
                                 <CheckBox Content="CG" IsChecked="{Binding IsCGEnabled}" VerticalAlignment="Top" Margin="10,5,0,0" />
                             </Grid>
                         </StackPanel>

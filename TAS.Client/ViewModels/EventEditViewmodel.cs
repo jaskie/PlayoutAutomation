@@ -554,11 +554,11 @@ namespace TAS.Client.ViewModels
 
         public bool IsDisplayCGElements => Model.Engine.CGElementsController != null;
 
-        public IEnumerable<ICGElement> Logos => Model.Engine.CGElementsController?.Logos;
+        public ICGElement[] Logos => Model.Engine.CGElementsController?.Logos.ToArray() ?? new ICGElement[0];
 
-        public IEnumerable<ICGElement> Crawls => Model.Engine.CGElementsController?.Crawls;
+        public ICGElement[] Crawls => Model.Engine.CGElementsController?.Crawls.ToArray() ?? new ICGElement[0];
 
-        public IEnumerable<ICGElement> Parentals => Model.Engine.CGElementsController?.Parentals;
+        public ICGElement[] Parentals => Model.Engine.CGElementsController?.Parentals.ToArray() ?? new ICGElement[0];
 
         public EventRightsEditViewmodel EventRightsEditViewmodel { get; }
 

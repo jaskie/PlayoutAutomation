@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
+	<!-- 
     Microsoft ResX Schema 
     
     Version 2.0
@@ -59,200 +59,200 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <data name="_directory" xml:space="preserve">
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="metadata">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" />
+							</xsd:sequence>
+							<xsd:attribute name="name" use="required" type="xsd:string" />
+							<xsd:attribute name="type" type="xsd:string" />
+							<xsd:attribute name="mimetype" type="xsd:string" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="assembly">
+						<xsd:complexType>
+							<xsd:attribute name="alias" type="xsd:string" />
+							<xsd:attribute name="name" type="xsd:string" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="_directory" xml:space="preserve">
     <value>Folder</value>
   </data>
-  <data name="_grid.Header.ClipName" xml:space="preserve">
+	<data name="_grid.Header.ClipName" xml:space="preserve">
     <value>Clip name</value>
   </data>
-  <data name="_grid.Header.ClipNr" xml:space="preserve">
+	<data name="_grid.Header.ClipNr" xml:space="preserve">
     <value>Clip #</value>
   </data>
-  <data name="_grid.Header.DurationPlay" xml:space="preserve">
+	<data name="_grid.Header.DurationPlay" xml:space="preserve">
     <value>Play duration</value>
   </data>
-  <data name="_grid.Header.FileName" xml:space="preserve">
+	<data name="_grid.Header.FileName" xml:space="preserve">
     <value>File name</value>
   </data>
-  <data name="_grid.Header.Folder" xml:space="preserve">
+	<data name="_grid.Header.Folder" xml:space="preserve">
     <value>Folder</value>
   </data>
-  <data name="_grid.Header.HasSegments.ToolTip" xml:space="preserve">
+	<data name="_grid.Header.HasSegments.ToolTip" xml:space="preserve">
     <value>Has segments</value>
   </data>
-  <data name="_grid.Header.IngestDate" xml:space="preserve">
+	<data name="_grid.Header.IngestDate" xml:space="preserve">
     <value>Ingest date</value>
   </data>
-  <data name="_grid.Header.IsArchived.ToolTip" xml:space="preserve">
+	<data name="_grid.Header.IsArchived.ToolTip" xml:space="preserve">
     <value>Archive status</value>
   </data>
-  <data name="_grid.Header.IsIngested.ToolTip" xml:space="preserve">
+	<data name="_grid.Header.IsIngested.ToolTip" xml:space="preserve">
     <value>Ingest status</value>
   </data>
-  <data name="_grid.Header.IsTrimmed.ToolTip" xml:space="preserve">
+	<data name="_grid.Header.IsTrimmed.ToolTip" xml:space="preserve">
     <value>Trimmed</value>
   </data>
-  <data name="_grid.Header.MediaCategory.ToolTip" xml:space="preserve">
+	<data name="_grid.Header.MediaCategory.ToolTip" xml:space="preserve">
     <value>Category</value>
   </data>
-  <data name="_grid.Header.MediaStatus.ToolTip" xml:space="preserve">
+	<data name="_grid.Header.MediaStatus.ToolTip" xml:space="preserve">
     <value>Status</value>
   </data>
-  <data name="_grid.IsArchived" xml:space="preserve">
+	<data name="_grid.IsArchived" xml:space="preserve">
     <value>Archived</value>
   </data>
-  <data name="_grid.IsTrimmed" xml:space="preserve">
+	<data name="_grid.IsTrimmed" xml:space="preserve">
     <value>Trimmed</value>
   </data>
-  <data name="_hide" xml:space="preserve">
+	<data name="_hide" xml:space="preserve">
     <value>Hide</value>
   </data>
-  <data name="_media" xml:space="preserve">
+	<data name="_media" xml:space="preserve">
     <value>Media files</value>
   </data>
-  <data name="_mediaCategory" xml:space="preserve">
+	<data name="_mediaCategory" xml:space="preserve">
     <value>Category</value>
   </data>
-  <data name="_mediaType" xml:space="preserve">
+	<data name="_mediaType" xml:space="preserve">
     <value>Type</value>
   </data>
-  <data name="_menu.Tools" xml:space="preserve">
+	<data name="_menu.Tools" xml:space="preserve">
     <value>Tools</value>
   </data>
-  <data name="_menu.Tools.SynchronizeSecToPri" xml:space="preserve">
+	<data name="_menu.Tools.SynchronizeSecToPri" xml:space="preserve">
     <value>Synchronize content between servers</value>
   </data>
-  <data name="_menu.Tools.VerifyAllMedia" xml:space="preserve">
+	<data name="_menu.Tools.VerifyAllMedia" xml:space="preserve">
     <value>Verify all media</value>
   </data>
-  <data name="_propertiesPanelExpander.ToolTip" xml:space="preserve">
+	<data name="_propertiesPanelExpander.ToolTip" xml:space="preserve">
     <value>F11</value>
   </data>
-  <data name="_recorders" xml:space="preserve">
+	<data name="_recorders" xml:space="preserve">
     <value>Recording</value>
   </data>
-  <data name="_refresh" xml:space="preserve">
+	<data name="_refresh" xml:space="preserve">
     <value>Refresh | F5</value>
   </data>
-  <data name="_search" xml:space="preserve">
+	<data name="_search" xml:space="preserve">
     <value>Search</value>
   </data>
-  <data name="_searchFor" xml:space="preserve">
+	<data name="_searchFor" xml:space="preserve">
     <value>Enter search phrase</value>
   </data>
-  <data name="_show" xml:space="preserve">
+	<data name="_show" xml:space="preserve">
     <value>Show</value>
   </data>
-  <data name="_statusbar.TotalItems" xml:space="preserve">
+	<data name="_statusbar.TotalItems" xml:space="preserve">
     <value>Files:</value>
   </data>
-  <data name="_statusbar.VolumeFreeSpace" xml:space="preserve">
+	<data name="_statusbar.VolumeFreeSpace" xml:space="preserve">
     <value>Free:</value>
   </data>
-  <data name="_statusbar.VolumeSize" xml:space="preserve">
+	<data name="_statusbar.VolumeSize" xml:space="preserve">
     <value>Size:</value>
   </data>
-  <data name="_toolbar.ArchiveDelete" xml:space="preserve">
+	<data name="_toolbar.ArchiveDelete" xml:space="preserve">
     <value>Archive, then delete</value>
   </data>
-  <data name="_toolbar.ArchiveDelete.ToolTip" xml:space="preserve">
+	<data name="_toolbar.ArchiveDelete.ToolTip" xml:space="preserve">
     <value>Archive selected files (delete from current folder)</value>
   </data>
-  <data name="_toolbar.ArchiveLeft" xml:space="preserve">
+	<data name="_toolbar.ArchiveLeft" xml:space="preserve">
     <value>Archive</value>
   </data>
-  <data name="_toolbar.ArchiveLeft.ToolTip" xml:space="preserve">
+	<data name="_toolbar.ArchiveLeft.ToolTip" xml:space="preserve">
     <value>Archive selected files (leave in current folder)</value>
   </data>
-  <data name="_toolbar.Clear.ToolTip" xml:space="preserve">
+	<data name="_toolbar.Clear.ToolTip" xml:space="preserve">
     <value>Clear filters</value>
   </data>
-  <data name="_toolbar.CloneAnimation" xml:space="preserve">
+	<data name="_toolbar.CloneAnimation" xml:space="preserve">
     <value>Clone animation</value>
   </data>
-  <data name="_toolbar.CloneAnimation.ToolTip" xml:space="preserve">
+	<data name="_toolbar.CloneAnimation.ToolTip" xml:space="preserve">
     <value>Create other animation based on the same template</value>
   </data>
-  <data name="_toolbar.Delete" xml:space="preserve">
+	<data name="_toolbar.Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="_toolbar.Delete.ToolTip" xml:space="preserve">
+	<data name="_toolbar.Delete.ToolTip" xml:space="preserve">
     <value>Delete selected files | Ctrl+Delete</value>
   </data>
-  <data name="_toolbar.Export" xml:space="preserve">
+	<data name="_toolbar.Export" xml:space="preserve">
     <value>Export</value>
   </data>
-  <data name="_toolbar.Export.ToolTip" xml:space="preserve">
+	<data name="_toolbar.Export.ToolTip" xml:space="preserve">
     <value>Export to folder or XDCAM device</value>
   </data>
-  <data name="_toolbar.GetLoudness" xml:space="preserve">
+	<data name="_toolbar.GetLoudness" xml:space="preserve">
     <value>Volume</value>
   </data>
-  <data name="_toolbar.GetLoudness.ToolTip" xml:space="preserve">
+	<data name="_toolbar.GetLoudness.ToolTip" xml:space="preserve">
     <value>Check volume of selected files</value>
   </data>
-  <data name="_toolbar.Ingest" xml:space="preserve">
+	<data name="_toolbar.Ingest" xml:space="preserve">
     <value>Ingest</value>
   </data>
-  <data name="_toolbar.Ingest.ToolTip" xml:space="preserve">
+	<data name="_toolbar.Ingest.ToolTip" xml:space="preserve">
     <value>Ingest to playout</value>
   </data>
 </root>

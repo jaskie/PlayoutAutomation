@@ -9,7 +9,7 @@
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance {x:Type vm:FileManagerViewmodel}}"
-             d:DesignHeight="300" d:DesignWidth="800"
+             d:DesignHeight="300" d:DesignWidth="480"
              >
     <Grid>
         <Grid.RowDefinitions>
@@ -17,9 +17,9 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid VerticalAlignment="Center">
-            <Label Content="{Resx _fileOperations}" Margin="20, 0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10, 0">
-                <CheckBox Content="{Resx _deleteFinishedSuccessfully}" Margin="8, 0" VerticalAlignment="Center" IsChecked="{Binding ClearFinished}"/>
+            <Label Content="{Resx _fileOperations}" Margin="20, 0" VerticalAlignment="Center" HorizontalAlignment="Left" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10, 0" Background="{Binding Background, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}">
+                <CheckBox Content="{Resx _deleteFinishedSuccessfully}" Margin="8, 0" VerticalAlignment="Center" IsChecked="{Binding ClearFinished}" />
                 <Button Margin="5,1,5,5" Command="{Binding CommandClearFinished}">
                     <StackPanel Orientation="Horizontal" Margin="5, 0">
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>

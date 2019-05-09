@@ -13,9 +13,9 @@ namespace TAS.Client.ViewModels
         public EngineCGElementsControllerViewmodel(ICGElementsController controller)
         {
             _controller = controller;
-            Crawls = controller.Crawls?.Select(element => new CGElementViewmodel(element)).ToList();
-            Logos = controller.Logos?.Select(element => new CGElementViewmodel(element)).ToList();
-            Parentals = controller.Parentals?.Select(element => new CGElementViewmodel(element)).ToList();
+            Crawls = controller.Crawls?.Select(element => new CGElementViewmodel(element)).ToArray() ?? new CGElementViewmodel[0];
+            Logos = controller.Logos?.Select(element => new CGElementViewmodel(element)).ToArray() ?? new CGElementViewmodel[0];
+            Parentals = controller.Parentals?.Select(element => new CGElementViewmodel(element)).ToArray() ?? new CGElementViewmodel[0];
             controller.PropertyChanged += controller_PropertyChanged;
         }
 
@@ -25,11 +25,11 @@ namespace TAS.Client.ViewModels
 
         public byte Parental { get => _controller?.Parental ?? None; set { if (_controller != null) _controller.Parental = value; } }
 
-        public IEnumerable<CGElementViewmodel> Crawls { get; private set; }
+        public CGElementViewmodel[] Crawls { get; private set; }
 
-        public IEnumerable<CGElementViewmodel> Parentals { get; private set; }
+        public CGElementViewmodel[] Parentals { get; private set; }
 
-        public IEnumerable<CGElementViewmodel> Logos { get; private set; }
+        public CGElementViewmodel[] Logos { get; private set; }
 
         public bool IsWideScreen { get => _controller?.IsWideScreen ?? false; set { if (_controller != null) _controller.IsWideScreen = value; } }
 
@@ -49,11 +49,11 @@ namespace TAS.Client.ViewModels
         private void controller_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(ICGElementsController.Crawls))
-                Crawls = _controller.Crawls.Select(element => new CGElementViewmodel(element)).ToList();
+                Crawls = _controller.Crawls?.Select(element => new CGElementViewmodel(element)).ToArray() ?? new CGElementViewmodel[0];
             if (e.PropertyName == nameof(ICGElementsController.Parentals))
-                Parentals = _controller.Parentals.Select(element => new CGElementViewmodel(element)).ToList();
+                Parentals = _controller.Parentals?.Select(element => new CGElementViewmodel(element)).ToArray() ?? new CGElementViewmodel[0];
             if (e.PropertyName == nameof(ICGElementsController.Logos))
-                Logos = _controller.Logos.Select(element => new CGElementViewmodel(element)).ToList();
+                Logos = _controller.Logos?.Select(element => new CGElementViewmodel(element)).ToArray() ?? new CGElementViewmodel[0];
             NotifyPropertyChanged(e.PropertyName);
         }
 

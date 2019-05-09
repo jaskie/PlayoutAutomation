@@ -4,11 +4,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TAS.Client.Views"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DesignHeight="30" d:DesignWidth="300">
+             d:DataContext="{d:DesignInstance vm:EngineCGElementsControllerViewmodel}"
+             d:DesignHeight="30" d:DesignWidth="800">
     <StackPanel Orientation="Horizontal" Visibility="{Binding Exists, Converter={StaticResource BoolToVis}}">
         <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
         <controls:StatusIndicator Height="14" IsGreen="{Binding IsConnected}"/>
@@ -56,12 +57,18 @@
                         </TextBlock>
                     </CheckBox.Content>
                 </CheckBox>
-                <Label Padding="5, 0" Content="{Resx _crawl}"/>
-                <ComboBox ItemsSource="{Binding Crawls}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Crawl}" />
-                <Label Padding="5, 0" Content="{Resx _logo}"/>
-                <ComboBox ItemsSource="{Binding Logos}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Logo}" />
-                <Label Padding="5, 0" Content="{Resx _parental}"/>
-                <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Parental}" />
+                <StackPanel Visibility="{Binding Crawls.Length, Converter={StaticResource ZeroToVis}}" Orientation="Horizontal">
+                    <Label Padding="5, 0" Content="{Resx _crawl}"/>
+                    <ComboBox ItemsSource="{Binding Crawls}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Crawl}" />
+                </StackPanel>
+                <StackPanel Visibility="{Binding Logos.Length, Converter={StaticResource ZeroToVis}}" Orientation="Horizontal">
+                    <Label Padding="5, 0" Content="{Resx _logo}"/>
+                    <ComboBox ItemsSource="{Binding Logos}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Logo}" />
+                </StackPanel>
+                <StackPanel Visibility="{Binding Parentals.Length, Converter={StaticResource ZeroToVis}}" Orientation="Horizontal">
+                    <Label Padding="5, 0" Content="{Resx _parental}"/>
+                    <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Parental}" />
+                </StackPanel>
             </StackPanel>
         </StackPanel>
     </StackPanel>
