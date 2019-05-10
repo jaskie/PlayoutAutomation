@@ -18,7 +18,7 @@
         </Grid.RowDefinitions>
         <Grid VerticalAlignment="Center">
             <Label Content="{Resx _fileOperations}" Margin="20, 0" VerticalAlignment="Center" HorizontalAlignment="Left" />
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10, 0" Background="{Binding Background, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10, 0" Background="{Binding Background, RelativeSource={RelativeSource FindAncestor, AncestorType=TabControl}}">
                 <CheckBox Content="{Resx _deleteFinishedSuccessfully}" Margin="8, 0" VerticalAlignment="Center" IsChecked="{Binding ClearFinished}" />
                 <Button Margin="5,1,5,5" Command="{Binding CommandClearFinished}">
                     <StackPanel Orientation="Horizontal" Margin="5, 0">

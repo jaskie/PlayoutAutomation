@@ -304,8 +304,10 @@ namespace TAS.Client.ViewModels
 
         private bool _allowAdd(object o)
         {
-            if (SelectedMedia == null || BaseEvent == null)
+            if (SelectedMedia == null)
                 return false;
+            if (BaseEvent == null)
+                return true;
             var loadedMedia = PreviewViewmodel?.LoadedMedia;
             if (loadedMedia != null && SelectedMedia.MediaGuid != loadedMedia.MediaGuid)
                 return false;

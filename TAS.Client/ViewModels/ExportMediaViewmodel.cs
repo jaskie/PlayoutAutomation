@@ -49,7 +49,10 @@ namespace TAS.Client.ViewModels
                 TMediaType.Still,
                 VideoLayer.CG1,
                 true, // close ater add
-                MediaExport.Media.FormatDescription()))
+                MediaExport.Media.FormatDescription())
+            {
+                BaseEvent = null
+            })
                 if (UiServices.ShowDialog<Views.MediaSearchView>(vm) == true)
                 {
                     Logos.Add(new ExportMediaLogoViewmodel(this, vm.SelectedMedia));

@@ -147,10 +147,7 @@ namespace TAS.Client.ViewModels
                     return;
                 SelectedMedia = value?.Media;
                 if (oldSelectedMedia != null)
-                {
                     oldSelectedMedia.SelectedSegment = null;
-                    oldSelectedMedia.Dispose();
-                }
             }
         }
 
@@ -440,13 +437,13 @@ namespace TAS.Client.ViewModels
 
         private void _selectedDirectoryPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IWatcherDirectory.IsInitialized))
+            switch (e.PropertyName)
             {
-                OnUiThread(async () => await _reloadFiles());
-                _notifyDirectoryPropertiesChanged();
+                case nameof(IWatcherDirectory.IsInitialized):
+                case nameof(IMediaDirectory.VolumeFreeSize):
+                    _notifyDirectoryPropertiesChanged();
+                    break;
             }
-            if (e.PropertyName == nameof(IMediaDirectory.VolumeFreeSize))
-                _notifyDirectoryPropertiesChanged();
         }
 
         private async Task _reloadFiles()

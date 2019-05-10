@@ -248,6 +248,9 @@
                                 <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
                                 <common:BoolToStringConverter x:Key="isArchivedConverter" TrueValue="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.IsArchived}" />
                                 <common:BoolToStringConverter x:Key="isTrimmedConverter" TrueValue="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.IsTrimmed}" />
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Padding" Value="2"/>
+                                </Style>
                             </DataGrid.Resources>
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" Width="20" SortMemberPath="HasSegments">
@@ -262,7 +265,7 @@
                                 </DataGridTemplateColumn>
                                 <DataGridTemplateColumn Width="10" CanUserResize="False" x:Name="trimmedColumn" SortMemberPath="IsTrimmed" >
                                     <DataGridTemplateColumn.Header>
-                                        <Image Margin="-1" Source="/TAS.Client.Common;component/Images/Indicators/scizors.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IsTrimmed.ToolTip}"/>
+                                        <Image Source="/TAS.Client.Common;component/Images/Indicators/scizors.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IsTrimmed.ToolTip}"/>
                                     </DataGridTemplateColumn.Header>
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
@@ -282,7 +285,7 @@
                                 </DataGridTemplateColumn>
                                 <DataGridTemplateColumn Width="10" CanUserSort="True" CanUserResize="False" x:Name="stateColumn" SortMemberPath="MediaStatus">
                                     <DataGridTemplateColumn.Header>
-                                        <Image Margin="-2" Source="/TAS.Client.Common;component/Images/MediaStates/available.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.MediaStatus.ToolTip}"/>
+                                        <Image Source="/TAS.Client.Common;component/Images/MediaStates/available.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.MediaStatus.ToolTip}"/>
                                     </DataGridTemplateColumn.Header>
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
@@ -326,7 +329,7 @@
                                 </DataGridTemplateColumn>
                                 <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserResize="False" Visibility="{Binding Data.IsDisplayMediaCategory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="MediaCategory">
                                     <DataGridTemplateColumn.Header>
-                                        <Image Margin="-2" Source="/TAS.Client.Common;component/Images/MediaCategories/show.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.MediaCategory.ToolTip}"/>
+                                        <Image Source="/TAS.Client.Common;component/Images/MediaCategories/show.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.MediaCategory.ToolTip}"/>
                                     </DataGridTemplateColumn.Header>
 
                                     <DataGridTemplateColumn.CellTemplate>
@@ -365,7 +368,7 @@
                                 </DataGridTemplateColumn>
                                 <DataGridTemplateColumn Width="10" x:Name="isArchivedColumn" CanUserResize="False" Visibility="{Binding Data.IsServerDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="IsArchived">
                                     <DataGridTemplateColumn.Header>
-                                        <Image Margin="-2" Source="/TAS.Client.Common;component/Images/Indicators/archive.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IsArchived.ToolTip}"/>
+                                        <Image Source="/TAS.Client.Common;component/Images/Indicators/archive.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IsArchived.ToolTip}"/>
                                     </DataGridTemplateColumn.Header>
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
@@ -385,7 +388,7 @@
                                 </DataGridTemplateColumn>
                                 <DataGridTemplateColumn Width="10" x:Name="isIngestedColumn"  CanUserResize="False" Visibility="{Binding Data.IsIngestOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="IngestStatus">
                                     <DataGridTemplateColumn.Header>
-                                        <Image Margin="-2" Source="/TAS.Client.Common;component/Images/Indicators/archive.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IsIngested.ToolTip}"/>
+                                        <Image Source="/TAS.Client.Common;component/Images/Indicators/archive.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IsIngested.ToolTip}"/>
                                     </DataGridTemplateColumn.Header>
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
