@@ -117,6 +117,7 @@ namespace TAS.Server.MediaOperation
             {
                 if (!(Source is IngestMedia sourceMedia))
                     throw new ArgumentException("IngestOperation: Source is not of type IngestMedia");
+                sourceMedia.IngestStatus = TIngestStatus.InProgress;
                 if (((IngestDirectory) sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
                     using (var localSourceMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(sourceMedia))
                     {
@@ -128,9 +129,11 @@ namespace TAS.Server.MediaOperation
                                 return false;
                             AddOutputMessage(LogLevel.Trace, "Verifing local file");
                             localSourceMedia.Verify(true);
-                            return DestProperties.MediaType == TMediaType.Still
+                            var result = DestProperties.MediaType == TMediaType.Still
                                 ? ConvertStill(localSourceMedia)
                                 : await ConvertMovie(localSourceMedia, localSourceMedia.StreamInfo);
+                            sourceMedia.IngestStatus = result ? TIngestStatus.Ready : TIngestStatus.NotReady;
+                            return result;
                         }
                         finally
                         {
@@ -141,12 +144,15 @@ namespace TAS.Server.MediaOperation
                 {
                     if (sourceMedia.IsVerified)
                     {
-                        return DestProperties.MediaType == TMediaType.Still
+                        var result = DestProperties.MediaType == TMediaType.Still
                             ? ConvertStill(sourceMedia)
                             : await ConvertMovie(sourceMedia, sourceMedia.StreamInfo);
+                        sourceMedia.IngestStatus = result ? TIngestStatus.Ready : TIngestStatus.NotReady;
+                        return result;
                     }
                     else
                         AddOutputMessage(LogLevel.Trace, "Waiting for media to verify");
+                    sourceMedia.IngestStatus = TIngestStatus.Unknown;
                     return false;
                 }
             }
