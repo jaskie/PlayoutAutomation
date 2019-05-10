@@ -360,13 +360,13 @@ namespace TAS.Client.ViewModels
 
             CommandCopyToTcIn = new UiCommand
             (
-                o => TcIn = Position,
+                o => TcIn = Position + StartTc,
                 _canUnload
             );
 
             CommandCopyToTcOut = new UiCommand
             (
-                o => TcOut = Position,
+                o => TcOut = Position + StartTc,
                 _canUnload
             );
 
