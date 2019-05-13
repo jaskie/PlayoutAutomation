@@ -169,11 +169,6 @@ namespace TAS.Server.Media
                     {
                         try
                         {
-                            if (_watcher != null)
-                            {
-                                _watcher.Dispose();
-                                _watcher = null;
-                            }
                             if (Directory.Exists(Folder))
                             {
                                 RefreshVolumeInfo();
@@ -182,7 +177,9 @@ namespace TAS.Server.Media
                                 {
                                     Path = Folder,
                                     IncludeSubdirectories = includeSubdirectories,
-                                    NotifyFilter =  NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.CreationTime
+                                    NotifyFilter =
+                                        NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite |
+                                        NotifyFilters.Size | NotifyFilters.CreationTime
                                 };
                                 _watcher.EnableRaisingEvents = true;
                                 _watcher.Created += OnFileCreated;
@@ -190,13 +187,17 @@ namespace TAS.Server.Media
                                 _watcher.Renamed += OnFileRenamed;
                                 _watcher.Changed += OnFileChanged;
                                 _watcher.Error += OnError;
+                                break;
                             }
                         }
                         catch (Exception e)
                         {
                             Logger.Error(e, "Directory {0} watcher setup error", Folder);
-                            Thread.Sleep(30000); //Wait for retry 30 sec.
                         }
+                        if (_watcher != null)
+                            DisposeWatcher(_watcher);
+                        _watcher = null;
+                        Thread.Sleep(30000); //Wait for retry 30 sec.
                     }
                     if (_watcher?.EnableRaisingEvents == true)
                         Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)Folder);
@@ -305,6 +306,9 @@ namespace TAS.Server.Media
         {
             Debug.WriteLine("MediaDirectory: Watcher {0} returned error: {1}.", Folder, e.GetException());
             Logger.Warn("MediaDirectory: Watcher {0} returned error: {1} and will be restarted.", Folder, e.GetException());
+            if (source is FileSystemWatcher watcher)
+                DisposeWatcher(watcher);
+            _watcher = null;
             BeginWatch(_watcherIncludeSubdirectories);
         }
 
@@ -375,7 +379,7 @@ namespace TAS.Server.Media
             ClearFiles();
             if (_watcher == null)
                 return;
-            _watcher.Dispose();
+            DisposeWatcher(_watcher);
             _watcher = null;
         }
 
@@ -385,6 +389,16 @@ namespace TAS.Server.Media
         }
 
         protected abstract IMedia AddMediaFromPath(string fullPath, DateTime lastUpdated);
+
+        private void DisposeWatcher(FileSystemWatcher watcher)
+        {
+            watcher.Created -= OnFileCreated;
+            watcher.Deleted -= OnFileDeleted;
+            watcher.Renamed -= OnFileRenamed;
+            watcher.Changed -= OnFileChanged;
+            _watcher.Error -= OnError;
+            watcher.Dispose();
+        }
     }
 
 }
