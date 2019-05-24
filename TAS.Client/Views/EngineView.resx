@@ -352,4 +352,10 @@ Effective until current clip ends.</value>
   <data name="_toolbar.DecreaseSecond" xml:space="preserve">
     <value>Decrease by one second</value>
   </data>
+  <data name="_toolbar.Playing" xml:space="preserve">
+    <value>Playing</value>
+  </data>
+  <data name="_toolbar.Show" xml:space="preserve">
+    <value>Show</value>
+  </data>
 </root>

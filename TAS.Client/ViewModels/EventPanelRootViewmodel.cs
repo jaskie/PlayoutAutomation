@@ -43,7 +43,7 @@ namespace TAS.Client.ViewModels
         {
             OnUiThread(() =>
             {
-                var evm = Find(e.Event);
+                var evm = Find(e.Event, true);
                 evm?.Dispose();
             });
         }
@@ -55,7 +55,7 @@ namespace TAS.Client.ViewModels
                 return;
             OnUiThread(() =>
             {
-                var evm = Find(e.Event);
+                var evm = Find(e.Event, true);
                 if (evm != null)
                 {
                     evm.UpdateLocation();
@@ -81,13 +81,13 @@ namespace TAS.Client.ViewModels
         private EventPanelViewmodelBase PlaceEventInRundown(IEvent e, bool show)
         {
             EventPanelViewmodelBase newVm = null;
-            EventPanelViewmodelBase evm = Find(e);
+            EventPanelViewmodelBase evm = Find(e, true);
             if (evm == null)
             {
                 var vp = e.GetVisualParent();
                 if (vp != null)
                 {
-                    var evmVp = Find(vp);
+                    var evmVp = Find(vp, true);
                     if (evmVp != null)
                     {
                         var eventType = e.EventType;
@@ -97,7 +97,7 @@ namespace TAS.Client.ViewModels
                             if (evmVp.IsExpanded || show || e == EngineViewmodel.LastAddedEvent)
                             {
                                 evmVp.IsExpanded = true;
-                                if (evmVp.Find(e) == null) // find again after expand
+                                if (evmVp.Find(e, true) == null) // find again after expand
                                 {
                                     if (e.Parent == vp) // StartType = With
                                     {
@@ -109,7 +109,7 @@ namespace TAS.Client.ViewModels
                                         var prior = e.Prior;
                                         if (prior != null)
                                         {
-                                            var evmPrior = evmVp.Find(prior);
+                                            var evmPrior = evmVp.Find(prior, true);
                                             if (evmPrior == null)
                                                 evmPrior = PlaceEventInRundown(prior, true); // recurrence here
                                             if (evmPrior != null)
@@ -135,7 +135,7 @@ namespace TAS.Client.ViewModels
                     var prior = e.Prior;
                     if (prior != null)
                     {
-                        var evmPrior = Find(prior);
+                        var evmPrior = Find(prior, true);
                         if (evmPrior != null)
                         {
                             var pos = Childrens.IndexOf(evmPrior);

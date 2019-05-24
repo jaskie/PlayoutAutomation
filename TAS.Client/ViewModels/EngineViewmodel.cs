@@ -56,9 +56,7 @@ namespace TAS.Client.ViewModels
             if (preview != null && engine.HaveRight(EngineRight.Preview))
                 PreviewViewmodel = new PreviewViewmodel(engine, preview) { IsSegmentsVisible = true };
 
-
-            _createCommands();
-
+            
             _multiSelectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
             _multiSelectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged += _engineViewmodel_ClipboardChanged;
@@ -74,6 +72,63 @@ namespace TAS.Client.ViewModels
                 _cGElementsController.PropertyChanged += _cGElementsController_PropertyChanged;
                 CGElementsControllerViewmodel = new EngineCGElementsControllerViewmodel(engine.CGElementsController);
             }
+
+
+            CommandClearAll = new UiCommand(o => Engine.Clear(), _canClear);
+            CommandClearLayer = new UiCommand(layer => Engine.Clear((VideoLayer)int.Parse((string)layer)), _canClear);
+            CommandClearMixer = new UiCommand(o => Engine.ClearMixer(), _canClear);
+            CommandRestart = new UiCommand(ev => Engine.Restart(), _canClear);
+            CommandStartSelected = new UiCommand(_startSelected, _canStartSelected);
+            CommandLoadSelected = new UiCommand(_loadSelected, _canLoadSelected);
+            CommandScheduleSelected = new UiCommand(o => Engine.Schedule(_selectedEventPanel.Event), _canScheduleSelected);
+            CommandRescheduleSelected = new UiCommand(o => Engine.ReSchedule(_selectedEventPanel.Event), _canRescheduleSelected);
+            CommandForceNextSelected = new UiCommand(_forceNext, _canForceNextSelected);
+            CommandTrackingToggle = new UiCommand(o => TrackPlayingEvent = !TrackPlayingEvent);
+            CommandShowRunningItem = new UiCommand(_showRunningItem, o => engine.Playing != null);
+            CommandDebugToggle = new UiCommand(_debugShow);
+            CommandRestartRundown = new UiCommand(_restartRundown, _canClear);
+            CommandRestartLayer = new UiCommand(_restartLayer, o => IsPlayingMovie && Engine.HaveRight(EngineRight.Play));
+            CommandNewRootRundown = new UiCommand(_addNewRootRundown);
+            CommandNewContainer = new UiCommand(_newContainer);
+            CommandSearchMissingEvents = new UiCommand(_searchMissingEvents, o => CurrentUser.IsAdmin);
+            CommandStartLoaded = new UiCommand(o => Engine.StartLoaded(), o => Engine.EngineState == TEngineState.Hold && Engine.HaveRight(EngineRight.Play));
+            CommandDeleteSelected = new UiCommand(_deleteSelected, _canDeleteSelected);
+            CommandCopySelected = new UiCommand(_copySelected, o => _multiSelectedEvents.Count > 0);
+            CommandCutSelected = new UiCommand(_cutSelected, _canDeleteSelected);
+            CommandPasteSelected = new UiCommand(_pasteSelected, o => EventClipboard.CanPaste(_selectedEventPanel, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), o.ToString(), true)));
+            CommandExportMedia = new UiCommand(_exportMedia, _canExportMedia);
+            CommandUndelete = new UiCommand(_undelete, _canUndelete);
+
+            CommandEventHide = new UiCommand(_eventHide);
+            CommandMoveUp = new UiCommand(_moveUp);
+            CommandMoveDown = new UiCommand(_moveDown);
+            CommandAddNextMovie = new UiCommand(_addNextMovie, _canAddNextMovie);
+            CommandAddNextEmptyMovie = new UiCommand(_addNextEmptyMovie, _canAddNextEmptyMovie);
+            CommandAddNextRundown = new UiCommand(_addNextRundown, _canAddNextRundown);
+            CommandAddNextLive = new UiCommand(_addNextLive, _canAddNextLive);
+            CommandAddSubMovie = new UiCommand(_addSubMovie, _canAddSubMovie);
+            CommandAddSubRundown = new UiCommand(_addSubRundown, _canAddSubRundown);
+            CommandAddSubLive = new UiCommand(_addSubLive, _canAddSubLive);
+            CommandAddAnimation = new UiCommand(_addAnimation, _canAddAnimation);
+            CommandToggleLayer = new UiCommand(_toggleLayer);
+            CommandToggleEnabled = new UiCommand(_toggleEnabled);
+            CommandToggleHold = new UiCommand(_toggleHold);
+            CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
+
+            CommandSearchDo = new UiCommand(_search, _canSearch);
+            CommandSearchShowPanel = new UiCommand(_showSearchPanel);
+            CommandSearchHidePanel = new UiCommand(_hideSearchPanel);
+            CommandSetTimeCorrection = new UiCommand(_setTimeCorrection);
+
+            CommandSaveEdit = new UiCommand(_saveEdit);
+            CommandUndoEdit = new UiCommand(_undoEdit);
+
+            CommandSaveRundown = new UiCommand(_saveRundown, o => SelectedEventPanel != null && SelectedEventPanel.Event.EventType == TEventType.Rundown);
+            CommandLoadRundown = new UiCommand(_loadRundown, o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o));
+            CommandUserManager = new UiCommand(_userManager, _canUserManager);
+
+            CommandEngineRights = new UiCommand(_engineRights, _canEngineRights);
+
         }
 
         private void _engine_VisibleEventRemoved(object sender, EventEventArgs e)
@@ -86,60 +141,62 @@ namespace TAS.Client.ViewModels
             OnUiThread(() => _visibleEvents.Add(e.Event));
         }
 
-        public ICommand CommandClearAll { get; private set; }
-        public ICommand CommandClearMixer { get; private set; }
-        public ICommand CommandClearLayer { get; private set; }
-        public ICommand CommandRestart { get; private set; }
-        public ICommand CommandStartSelected { get; private set; }
-        public ICommand CommandForceNextSelected { get; private set; }
-        public ICommand CommandStartLoaded { get; private set; }
-        public ICommand CommandLoadSelected { get; private set; }
-        public ICommand CommandScheduleSelected { get; private set; }
-        public ICommand CommandRescheduleSelected { get; private set; }
-        public ICommand CommandTrackingToggle { get; private set; }
-        public ICommand CommandRestartRundown { get; private set; }
-        public ICommand CommandNewRootRundown { get; private set; }
-        public ICommand CommandNewContainer { get; private set; }
-        public ICommand CommandDebugToggle { get; private set; }
-        public ICommand CommandSearchMissingEvents { get; private set; }
-        public ICommand CommandDeleteSelected { get; private set; }
-        public ICommand CommandCopySelected { get; private set; }
-        public ICommand CommandPasteSelected { get; private set; }
-        public ICommand CommandCutSelected { get; private set; }
-        public ICommand CommandExportMedia { get; private set; }
-        public ICommand CommandUndelete { get; private set; }
-        public ICommand CommandSaveRundown { get; private set; }
-        public ICommand CommandLoadRundown { get; private set; }
-        public ICommand CommandRestartLayer { get; private set; }
-        public ICommand CommandSearchDo { get; private set; }
-        public ICommand CommandSearchShowPanel { get; private set; }
-        public ICommand CommandSearchHidePanel { get; private set; }
-        public ICommand CommandSetTimeCorrection { get; private set; }
+        public ICommand CommandClearAll { get; }
+        public ICommand CommandClearMixer { get; }
+        public ICommand CommandClearLayer { get; }
+        public ICommand CommandRestart { get; }
+        public ICommand CommandStartSelected { get; }
+        public ICommand CommandForceNextSelected { get; }
+        public ICommand CommandStartLoaded { get; }
+        public ICommand CommandLoadSelected { get; }
+        public ICommand CommandScheduleSelected { get; }
+        public ICommand CommandRescheduleSelected { get; }
+        public ICommand CommandTrackingToggle { get; }
+        public ICommand CommandShowRunningItem { get; }
+        public ICommand CommandRestartRundown { get; }
+        public ICommand CommandNewRootRundown { get; }
+        public ICommand CommandNewContainer { get; }
+        public ICommand CommandDebugToggle { get; }
+        public ICommand CommandSearchMissingEvents { get; }
+        public ICommand CommandDeleteSelected { get; }
+        public ICommand CommandCopySelected { get; }
+        public ICommand CommandPasteSelected { get; }
+        public ICommand CommandCutSelected { get; }
+        public ICommand CommandExportMedia { get; }
+        public ICommand CommandUndelete { get; }
+        public ICommand CommandSaveRundown { get; }
+        public ICommand CommandLoadRundown { get; }
+        public ICommand CommandRestartLayer { get; }
+        public ICommand CommandSearchDo { get; }
+        public ICommand CommandSearchShowPanel { get; }
+        public ICommand CommandSearchHidePanel { get; }
+        public ICommand CommandSetTimeCorrection { get; }
 
 
         #region Single selected commands
-        public ICommand CommandEventHide { get; private set; }
-        public ICommand CommandAddNextMovie { get; private set; }
-        public ICommand CommandAddNextEmptyMovie { get; private set; }
-        public ICommand CommandAddNextRundown { get; private set; }
-        public ICommand CommandAddNextLive { get; private set; }
-        public ICommand CommandAddSubMovie { get; private set; }
-        public ICommand CommandAddSubRundown { get; private set; }
-        public ICommand CommandAddSubLive { get; private set; }
-        public ICommand CommandAddAnimation { get; private set; }
-        public ICommand CommandToggleEnabled { get; private set; }
-        public ICommand CommandToggleHold { get; private set; }
-        public ICommand CommandToggleLayer { get; private set; }
-        public ICommand CommandMoveUp { get; private set; }
-        public ICommand CommandMoveDown { get; private set; }
+        public ICommand CommandEventHide { get; }
+        public ICommand CommandAddNextMovie { get; }
+        public ICommand CommandAddNextEmptyMovie { get; }
+        public ICommand CommandAddNextRundown { get; }
+        public ICommand CommandAddNextLive { get; }
+        public ICommand CommandAddSubMovie { get; }
+        public ICommand CommandAddSubRundown { get; }
+        public ICommand CommandAddSubLive { get; }
+        public ICommand CommandAddAnimation { get; }
+        public ICommand CommandToggleEnabled { get; }
+        public ICommand CommandToggleHold { get; }
+        public ICommand CommandToggleLayer { get; }
+        public ICommand CommandMoveUp { get; }
+        public ICommand CommandMoveDown { get; }
         #endregion // Single selected commands
         #region Editor commands
-        public ICommand CommandSaveEdit { get; private set; }
-        public ICommand CommandUndoEdit { get; private set; }
+        public ICommand CommandSaveEdit { get; }
+        public ICommand CommandUndoEdit { get; }
+
         #endregion // Editor commands
-        public ICommand CommandUserManager { get; private set; }
-        public ICommand CommandEngineRights { get; private set; }
-        public ICommand CommandTogglePropertiesPanel { get; private set; }
+        public ICommand CommandUserManager { get; }
+        public ICommand CommandEngineRights { get; }
+        public ICommand CommandTogglePropertiesPanel { get; }
 
 
         #region PreviewCommands
@@ -194,7 +251,7 @@ namespace TAS.Client.ViewModels
                     return;
                 if (!value)
                     return;
-                IEvent cp = Engine.Playing;
+                var cp = Engine.Playing;
                 if (cp != null)
                     SetOnTopView(cp);
             }
@@ -231,63 +288,6 @@ namespace TAS.Client.ViewModels
 
 
         #region Command methods
-
-        private void _createCommands()
-        {
-            CommandClearAll = new UiCommand(o => Engine.Clear(), _canClear);
-            CommandClearLayer = new UiCommand(layer => Engine.Clear((VideoLayer)int.Parse((string)layer)), _canClear);
-            CommandClearMixer = new UiCommand(o => Engine.ClearMixer(), _canClear);
-            CommandRestart = new UiCommand(ev => Engine.Restart(), _canClear);
-            CommandStartSelected = new UiCommand(_startSelected, _canStartSelected);
-            CommandLoadSelected = new UiCommand(_loadSelected, _canLoadSelected);
-            CommandScheduleSelected = new UiCommand(o => Engine.Schedule(_selectedEventPanel.Event), _canScheduleSelected);
-            CommandRescheduleSelected = new UiCommand(o => Engine.ReSchedule(_selectedEventPanel.Event), _canRescheduleSelected);
-            CommandForceNextSelected = new UiCommand(_forceNext, _canForceNextSelected);
-            CommandTrackingToggle = new UiCommand(o => TrackPlayingEvent = !TrackPlayingEvent);
-            CommandDebugToggle = new UiCommand(_debugShow);
-            CommandRestartRundown = new UiCommand(_restartRundown, _canClear);
-            CommandRestartLayer = new UiCommand(_restartLayer, o => IsPlayingMovie && Engine.HaveRight(EngineRight.Play));
-            CommandNewRootRundown = new UiCommand(_addNewRootRundown);
-            CommandNewContainer = new UiCommand(_newContainer);
-            CommandSearchMissingEvents = new UiCommand(_searchMissingEvents, o => CurrentUser.IsAdmin);
-            CommandStartLoaded = new UiCommand(o => Engine.StartLoaded(), o => Engine.EngineState == TEngineState.Hold && Engine.HaveRight(EngineRight.Play));
-            CommandDeleteSelected = new UiCommand(_deleteSelected, _canDeleteSelected);
-            CommandCopySelected = new UiCommand(_copySelected, o => _multiSelectedEvents.Count > 0);
-            CommandCutSelected = new UiCommand(_cutSelected, _canDeleteSelected);
-            CommandPasteSelected = new UiCommand(_pasteSelected, o => EventClipboard.CanPaste(_selectedEventPanel, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), o.ToString(), true)));
-            CommandExportMedia = new UiCommand(_exportMedia, _canExportMedia);
-            CommandUndelete = new UiCommand(_undelete, _canUndelete);
-
-            CommandEventHide = new UiCommand(_eventHide);
-            CommandMoveUp = new UiCommand(_moveUp);
-            CommandMoveDown = new UiCommand(_moveDown);
-            CommandAddNextMovie = new UiCommand(_addNextMovie, _canAddNextMovie);
-            CommandAddNextEmptyMovie = new UiCommand(_addNextEmptyMovie, _canAddNextEmptyMovie);
-            CommandAddNextRundown = new UiCommand(_addNextRundown, _canAddNextRundown);
-            CommandAddNextLive = new UiCommand(_addNextLive, _canAddNextLive);
-            CommandAddSubMovie = new UiCommand(_addSubMovie, _canAddSubMovie);
-            CommandAddSubRundown = new UiCommand(_addSubRundown, _canAddSubRundown);
-            CommandAddSubLive = new UiCommand(_addSubLive, _canAddSubLive);
-            CommandAddAnimation = new UiCommand(_addAnimation, _canAddAnimation);
-            CommandToggleLayer = new UiCommand(_toggleLayer);
-            CommandToggleEnabled = new UiCommand(_toggleEnabled);
-            CommandToggleHold = new UiCommand(_toggleHold);
-            CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
-
-            CommandSearchDo = new UiCommand(_search, _canSearch);
-            CommandSearchShowPanel = new UiCommand(_showSearchPanel);
-            CommandSearchHidePanel = new UiCommand(_hideSearchPanel);
-            CommandSetTimeCorrection = new UiCommand(_setTimeCorrection);
-
-            CommandSaveEdit = new UiCommand(_saveEdit);
-            CommandUndoEdit = new UiCommand(_undoEdit);
-
-            CommandSaveRundown = new UiCommand(_saveRundown, o => SelectedEventPanel != null && SelectedEventPanel.Event.EventType == TEventType.Rundown);
-            CommandLoadRundown = new UiCommand(_loadRundown, o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o));
-            CommandUserManager = new UiCommand(_userManager, _canUserManager);
-
-            CommandEngineRights = new UiCommand(_engineRights, _canEngineRights);
-        }
 
         private void _undoEdit(object obj)
         {
@@ -795,17 +795,15 @@ namespace TAS.Client.ViewModels
                 }
             if (found != null)
             {
-                var rt = found.GetVisualRootTrack().Reverse();
+                var rootTrack = found.GetVisualRootTrack().ToArray();
                 var cl = RootEventViewModel;
-                foreach (var ev in rt)
+                for (var i = rootTrack.Length - 1; i >= 0; i--)
                 {
-                    cl = cl.Find(ev);
+                    cl = cl.Find(rootTrack[i], false);
+                    if (cl == null)
+                        return;
                     if (cl.Event == found)
-                    {
-                        SelectedEventPanel = cl;
                         cl.IsSelected = true;
-                        cl.BringIntoView();
-                    }
                     else
                         cl.IsExpanded = true;
                 }
@@ -814,7 +812,6 @@ namespace TAS.Client.ViewModels
                 IsSearchNotFound = true;
         }
         #endregion
-
 
         public EventPanelViewmodelBase SelectedEventPanel
         {
@@ -1077,7 +1074,16 @@ namespace TAS.Client.ViewModels
 
         private void SetOnTopView(IEvent pe)
         {
-            GetEventViewModel(pe)?.SetOnTop();
+            var rootTrack = pe.GetVisualRootTrack().ToArray();
+            var vm = RootEventViewModel;
+            for (var i = rootTrack.Length - 1; i >= 0; i--)
+            {
+                vm = vm.Find(rootTrack[i], false);
+                if (vm?.IsVisible != true)
+                    return;
+                if (vm.Event == pe)
+                    vm.SetOnTop();
+            }
         }
 
         private void _engineTick(object sender, EngineTickEventArgs e)
@@ -1223,22 +1229,26 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(CGControllerIsMaster));
         }
 
+        private void _showRunningItem(object obj)
+        {
+            var playing = Engine.Playing;
+            if (playing == null)
+                return;
+            var rootTrack = playing.GetVisualRootTrack().ToArray();
+            var vm = RootEventViewModel;
+            for (var i = rootTrack.Length - 1; i >= 0; i--)
+            {
+                vm = vm.Find(rootTrack[i], false);
+                if (vm?.IsVisible != true)
+                    return;
+                if (vm.Event == playing)
+                    vm.SetOnTop();
+                else
+                    vm.IsExpanded = true;
+            }
+        }
+
         private void _engineViewmodel_ClipboardChanged() => InvalidateRequerySuggested();
 
-        private EventPanelViewmodelBase GetEventViewModel(IEvent aEvent)
-        {
-            IEnumerable<IEvent> rt = aEvent.GetVisualRootTrack().Reverse();
-            EventPanelViewmodelBase evm = RootEventViewModel;
-            foreach (IEvent ev in rt)
-            {
-                if (evm != null)
-                {
-                    evm = evm.Childrens.FirstOrDefault(e => e.Event == ev);
-                    if (evm != null && evm.Event == aEvent)
-                        return evm;
-                }
-            }
-            return null;
-        }
     }
 }

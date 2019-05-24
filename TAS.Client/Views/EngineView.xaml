@@ -265,15 +265,24 @@
                                 </Button>
                             </ComboBoxItem>
                         </ComboBox>
-                        <StackPanel>
-                            <ToggleButton Margin="2" Height="22" IsChecked="{Binding TrackPlayingEvent}" Background="{Binding TrackPlayingEvent, Converter={StaticResource BoolToBrush}, ConverterParameter=LightCoral}" HorizontalContentAlignment="Left" >
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/TAS.Client.Common;component/Images/Actions/go-down.png" />
-                                    <Label Content="{Resx _toolbar.Track}" />
-                                </StackPanel>
-                            </ToggleButton>
-                        </StackPanel>
                     </StackPanel>
+                    <GroupBox Margin="0, 8, 0, 0" Header="{Resx _toolbar.Playing}">
+                        <StackPanel >
+                            <ToggleButton Margin="2" Height="22" IsChecked="{Binding TrackPlayingEvent}" Background="{Binding TrackPlayingEvent, Converter={StaticResource BoolToBrush}, ConverterParameter=LightCoral}" 
+                                      ToolTip="Scroll Lock">
+                                <DockPanel>
+                                    <Image Source="/TAS.Client.Common;component/Images/Actions/go-down.png" />
+                                    <TextBlock FontSize="12" Text="{Resx _toolbar.Track}" />
+                                </DockPanel>
+                            </ToggleButton>
+                            <Button Command="{Binding CommandShowRunningItem}" Height="22" Margin="2" ToolTip="Ctrl+F12">
+                                <DockPanel>
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit-find-6.png"/>
+                                    <TextBlock FontSize="12" Text="{Resx _toolbar.Show}" />
+                                </DockPanel>
+                            </Button>
+                        </StackPanel>
+                    </GroupBox>
                     <StackPanel Width="125">
                         <Label Content="{Resx _toolbar.TimeToAttention}" />
                         <TextBlock Text="{Binding TimeToAttention, Converter={StaticResource TimeSpanToString}}" TextAlignment="Center" VerticalAlignment="Center" FontSize="26" Margin="5, 0">

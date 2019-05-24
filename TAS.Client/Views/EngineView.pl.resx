@@ -349,4 +349,10 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
   <data name="_toolbar.DecreaseSecond" xml:space="preserve">
     <value>Odejmij sekundę</value>
   </data>
+  <data name="_toolbar.Playing" xml:space="preserve">
+    <value>Odtwarzany</value>
+  </data>
+  <data name="_toolbar.Show" xml:space="preserve">
+    <value>Pokaż</value>
+  </data>
 </root>

@@ -145,7 +145,7 @@ namespace TAS.Client.ViewModels
 
         public TEventType? EventType => Event?.EventType;
 
-        public EventPanelViewmodelBase Find(IEvent aEvent)
+        public EventPanelViewmodelBase Find(IEvent aEvent, bool searchOnNextLevels)
         {
             if (aEvent == null)
                 return null;
@@ -153,9 +153,12 @@ namespace TAS.Client.ViewModels
             {
                 if (m.Event == aEvent)
                     return m;
-                var ret = m.Find(aEvent);
-                if (ret != null)
-                    return ret;
+                if (searchOnNextLevels)
+                {
+                    var ret = m.Find(aEvent, true);
+                    if (ret != null)
+                        return ret;
+                }
             }
             return null;
         }
@@ -185,7 +188,7 @@ namespace TAS.Client.ViewModels
                     || index <= 0
                     || Parent.Childrens[index - 1].Event != prior)
                 {
-                    var priorVm = Root.Find(prior);
+                    var priorVm = Root.Find(prior, true);
                     if (priorVm != null)
                     {
                         var newParent = priorVm.Parent;
@@ -218,7 +221,7 @@ namespace TAS.Client.ViewModels
                     || index <= 0
                     || Parent.Childrens[index].Event != next)
                 {
-                    var nextVm = Root.Find(next);
+                    var nextVm = Root.Find(next, true);
                     if (nextVm != null)
                     {
                         var newParent = nextVm.Parent;
@@ -248,7 +251,7 @@ namespace TAS.Client.ViewModels
             }
             else
             {
-                var newParent = Root.Find(parent);
+                var newParent = Root.Find(parent, true);
                 if (newParent != null)
                 {
                     if (newParent == Parent)
@@ -263,18 +266,6 @@ namespace TAS.Client.ViewModels
                 }
             }
             BringIntoView();
-        }
-
-        public bool Contains(IEvent  aEvent)
-        {
-            foreach (var m in Childrens)
-            {
-                if (m.Event == aEvent)
-                    return true;
-                if (m.Contains(aEvent))
-                    return true;
-            }
-            return false;
         }
 
         public IEvent Event { get; }
