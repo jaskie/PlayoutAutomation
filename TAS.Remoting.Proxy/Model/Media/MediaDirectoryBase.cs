@@ -11,20 +11,24 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IWatcherDirectory.Folder))]
+        [JsonProperty(nameof(IMediaDirectory.Folder))]
         private string _folder;
 
-        [JsonProperty(nameof(IWatcherDirectory.PathSeparator))]
+        [JsonProperty(nameof(IMediaDirectory.PathSeparator))]
         private char _pathSeparator;
 
         [JsonProperty(nameof(IWatcherDirectory.IsInitialized))]
         private bool _isInitialized;
 
-        [JsonProperty(nameof(IWatcherDirectory.VolumeFreeSize))]
+        [JsonProperty(nameof(IMediaDirectory.VolumeFreeSize))]
         private long _volumeFreeSize;
 
-        [JsonProperty(nameof(IWatcherDirectory.VolumeTotalSize))]
+        [JsonProperty(nameof(IMediaDirectory.VolumeTotalSize))]
         private long _volumeTotalSize;
+
+        [JsonProperty(nameof(IMediaDirectory.HaveFileWatcher))]
+        private bool _haveFileWatcher;
+
 
         #pragma warning restore
         public string Folder { get => _folder; set => Set(value); }
@@ -36,6 +40,9 @@ namespace TAS.Remoting.Model.Media
         public long VolumeFreeSize => _volumeFreeSize;
 
         public long VolumeTotalSize => _volumeTotalSize;
+
+        public bool HaveFileWatcher => _haveFileWatcher;
+
 
         #region Event handling
         private event EventHandler<MediaEventArgs> MediaAddedEvent;

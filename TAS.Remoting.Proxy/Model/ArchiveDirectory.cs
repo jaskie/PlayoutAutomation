@@ -18,10 +18,9 @@ namespace TAS.Remoting.Model
 
         public IMediaManager MediaManager { get; set; }
 
-        public List<IMedia> Search(TMediaCategory? category, string searchString)
+        IMediaSearchProvider ISearchableDirectory.Search(TMediaCategory? category, string searchString)
         {
-            return Query<List<IMedia>>(parameters: new object[] {category, searchString});
+            return Query<MediaSearchProvider>(parameters: new object[] {category, searchString});
         }
-        
     }
 }

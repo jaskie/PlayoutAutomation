@@ -11,6 +11,7 @@ namespace TAS.Common.Interfaces.MediaDirectory
         char PathSeparator { get; }
         bool DirectoryExists();
         bool FileExists(string filename, string subfolder = null);
+        bool HaveFileWatcher { get; }
 
         string GetUniqueFileName(string fileName);
 

@@ -87,6 +87,7 @@
     <Compile Include="Media\MediaBase.cs" />
     <Compile Include="Media\MediaChecker.cs" />
     <Compile Include="Media\MediaDirectoryBase.cs" />
+    <Compile Include="Media\MediaSearchProvider.cs" />
     <Compile Include="Media\WatcherDirectory.cs" />
     <Compile Include="Media\MediaSegment.cs" />
     <Compile Include="Media\MediaSegments.cs" />

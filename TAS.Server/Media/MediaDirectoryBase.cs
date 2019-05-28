@@ -26,6 +26,10 @@ namespace TAS.Server.Media
 
         internal event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged;
 
+
+        [JsonProperty, XmlIgnore]
+        public bool HaveFileWatcher { get; protected set; }
+
         [XmlIgnore]
         public IMediaManager MediaManager { get; set; }
 

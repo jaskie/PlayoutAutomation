@@ -181,7 +181,7 @@
                             <Button DockPanel.Dock="Right" Margin="1, 2" Style="{StaticResource ClearButton}" Command="{Binding CommandClearFilters}" ToolTip="{Resx _toolbar.Clear.ToolTip}">
                                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
                             </Button>
-                            <controls:SearchTextBox Prompt="{Resx _searchFor}" Margin="0, 2" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" SearchMode="Regular" Command="{Binding CommandSearch}" />
+                            <controls:SearchTextBox Prompt="{Resx _searchFor}" Margin="0, 2" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" IsSearching="{Binding IsSearching}" TabIndex="0" Command="{Binding CommandSearch}" />
                         </DockPanel>
                         <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True" Height="35" >
                             <ToolBar.Resources>

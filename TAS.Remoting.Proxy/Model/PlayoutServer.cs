@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Remoting.Client;
 using TAS.Common.Interfaces;
@@ -37,21 +36,6 @@ namespace TAS.Remoting.Model
         public bool IsConnected => _isConnected;
 
         public IServerDirectory MediaDirectory => _mediaDirectory;
-
-        public void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Save()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Delete()
-        {
-            throw new NotImplementedException();
-        }
 
         protected override void OnEventNotification(SocketMessage message) { }
 

@@ -23,6 +23,7 @@ namespace TAS.Server.Media
             IsRecursive = server.IsMediaFolderRecursive;
             IsPrimary = isPrimary;
             MovieContainerFormat = server.MovieContainerFormat;
+            HaveFileWatcher = true;
         }
 
         [JsonProperty]

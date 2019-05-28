@@ -16,6 +16,7 @@ namespace TAS.Server.Media
         {
             IsPrimary = isPrimary;
             Server = server;
+            HaveFileWatcher = true;
         }
 
         public bool IsPrimary { get; }

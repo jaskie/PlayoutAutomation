@@ -1,9 +1,7 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
-using TAS.Common.Interfaces.Media;
 
 namespace TAS.Remoting.Model
 {
@@ -47,86 +45,6 @@ namespace TAS.Remoting.Model
         public string PreviewUrl => _previewUrl;
 
         public int AudioChannelCount => _audioChannelCount;
-
-        public void Clear()
-        {
-            Invoke();
-        }
-
-        public void Clear(VideoLayer aVideoLayer)
-        {
-            Invoke(parameters: new[] { aVideoLayer });
-        }
-
-        public bool Load(IEventPersistent aEvent)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Load(System.Drawing.Color color, VideoLayer layer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Load(IMedia media, VideoLayer videolayer, long seek, long duration)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool LoadNext(IEventPersistent aEvent)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Pause(VideoLayer videolayer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Pause(IEventPersistent aEvent)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Play(VideoLayer videolayer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Play(IEventPersistent aEvent)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ReStart(IEventPersistent ev)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Seek(VideoLayer videolayer, long position)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetAspect(VideoLayer layer, bool narrow)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetVolume(VideoLayer videolayer, double volume)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Stop(VideoLayer videolayer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Stop(IEventPersistent aEvent)
-        {
-            throw new NotImplementedException();
-        }
 
         protected override void OnEventNotification(SocketMessage message) { }
 

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 // Based in large part on the work of David Owens:
 // http://davidowens.wordpress.com/2009/02/18/wpf-search-text-box/
@@ -32,13 +28,13 @@ namespace TAS.Client.Common.Controls
         static SearchTextBox()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(SearchTextBox), new FrameworkPropertyMetadata(typeof(SearchTextBox)));
-            TextProperty.OverrideMetadata(typeof(SearchTextBox), new FrameworkPropertyMetadata(String.Empty, new PropertyChangedCallback(OnTextPropertyChanged)));
+            TextProperty.OverrideMetadata(typeof(SearchTextBox), new FrameworkPropertyMetadata(string.Empty, OnTextPropertyChanged));
         }
 
         private static readonly DependencyPropertyKey HasTextPropertyKey =
             DependencyProperty.RegisterReadOnly(
-                "HasText",
-                typeof(Boolean),
+                nameof(HasText),
+                typeof(bool),
                 typeof(SearchTextBox),
                 new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
 
@@ -48,78 +44,68 @@ namespace TAS.Client.Common.Controls
         /// </summary>
         public static readonly DependencyProperty AllowEmptySearchesProperty =
             DependencyProperty.Register(
-                "AllowEmptySearches",
+                nameof(AllowEmptySearches),
                 typeof(Boolean),
                 typeof(SearchTextBox),
                 new FrameworkPropertyMetadata(
                     true,
-                    new PropertyChangedCallback(OnAllowEmptySearchesChanged)));
+                    OnAllowEmptySearchesChanged));
         /// <summary>
         /// Identifies the <see cref="Command" /> dependency property.
         /// </summary>
         public static readonly DependencyProperty CommandProperty =
             DependencyProperty.Register(
-                "Command",
+                nameof(Command),
                 typeof(ICommand),
                 typeof(SearchTextBox),
                 new FrameworkPropertyMetadata(
                     null,
-                    new PropertyChangedCallback(OnCommandPropsChanged)));
+                    OnCommandPropsChanged));
         /// <summary>
         /// Identifies the <see cref="CommandParameter" /> dependency property.
         /// </summary>
         public static readonly DependencyProperty CommandParameterProperty =
             DependencyProperty.Register(
-                "CommandParameter",
+                nameof(CommandParameter),
                 typeof(Object),
                 typeof(SearchTextBox),
                 new FrameworkPropertyMetadata(
                     null,
-                    new PropertyChangedCallback(OnCommandPropsChanged)));
+                    OnCommandPropsChanged));
         /// <summary>
         /// Identifies the <see cref="CommandParameter" /> dependency property.
         /// </summary>
         public static readonly DependencyProperty ButtonToolTipProperty =
             DependencyProperty.Register(
-                "ButtonToolTip",
+                nameof(ButtonToolTip),
                 typeof(string),
                 typeof(SearchTextBox),
                 new FrameworkPropertyMetadata(
                     null,
-                    new PropertyChangedCallback(OnCommandPropsChanged)));
+                    OnCommandPropsChanged));
         /// <summary>
         /// Identifies the <see cref="CommandTarget" /> dependency property.
         /// </summary>
         public static readonly DependencyProperty CommandTargetProperty =
             DependencyProperty.Register(
-                "CommandTarget",
+                nameof(CommandTarget),
                 typeof(IInputElement),
                 typeof(SearchTextBox),
                 new FrameworkPropertyMetadata(
                     null,
-                    new PropertyChangedCallback(OnCommandPropsChanged)));
+                    OnCommandPropsChanged));
         /// <summary>
         /// Identifies the <see cref="HasText" /> dependency property.
         /// </summary>
         public static readonly DependencyProperty HasTextProperty =
             HasTextPropertyKey.DependencyProperty;
-        /// <summary>
-        /// Identifies the <see cref="InstantSearchDelay" /> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty InstantSearchDelayProperty =
-            DependencyProperty.Register(
-                "InstantSearchDelay",
-                typeof(Duration),
-                typeof(SearchTextBox),
-                new FrameworkPropertyMetadata(
-                    new Duration(TimeSpan.Zero),
-                    new PropertyChangedCallback(OnInstantSearchDelayChanged)));
+
         /// <summary>
         /// Identifies the <see cref="Prompt" /> dependency property.
         /// </summary>
         public static readonly DependencyProperty PromptProperty =
             DependencyProperty.Register(
-                "Prompt",
+                nameof(Prompt),
                 typeof(object),
                 typeof(SearchTextBox),
                 new FrameworkPropertyMetadata("Search", FrameworkPropertyMetadataOptions.AffectsRender));
@@ -128,28 +114,28 @@ namespace TAS.Client.Common.Controls
         /// </summary>
         public static readonly DependencyProperty PromptTemplateProperty =
             DependencyProperty.Register(
-                "PromptTemplate",
+                nameof(PromptTemplate),
                 typeof(DataTemplate),
                 typeof(SearchTextBox),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         /// <summary>
-        /// Identifies the <see cref="SearchMode" /> dependency property.
+        /// Notifies user of running search
         /// </summary>
-        public static readonly DependencyProperty SearchModeProperty =
+        public static readonly DependencyProperty IsSearchingProperty =
             DependencyProperty.Register(
-                "SearchMode",
-                typeof(SearchTextBoxMode),
+                nameof(IsSearching),
+                typeof(bool),
                 typeof(SearchTextBox),
-                new FrameworkPropertyMetadata(
-                    SearchTextBoxMode.Instant,
-                    FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsMeasure));
+                new FrameworkPropertyMetadata(false)
+            );
+
         /// <summary>
         /// Identifies the <see cref="Search"/> routed event.
         /// </summary>
         [Category("Behavior")]
         public static readonly RoutedEvent SearchEvent
             = EventManager.RegisterRoutedEvent(
-                "Search",
+                nameof(Search),
                 RoutingStrategy.Bubble,
                 typeof(RoutedEventHandler),
                 typeof(SearchTextBox));
@@ -178,14 +164,7 @@ namespace TAS.Client.Common.Controls
                 stb.UpdateSearchButtonIsEnabled();
             }
         }
-        private static void OnInstantSearchDelayChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-            if (o is SearchTextBox stb)
-            {
-                stb._searchDelayTimer.Interval = ((Duration)e.NewValue).TimeSpan;
-                stb._searchDelayTimer.Stop();
-            }
-        }
+
         private static void OnTextPropertyChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
         {
             if (o is SearchTextBox stb)
@@ -198,17 +177,7 @@ namespace TAS.Client.Common.Controls
         //private FrameworkElement _promptHost;
         private ButtonBase _searchButtonHost;
         private ButtonBase _clearButtonHost;
-
-        private DispatcherTimer _searchDelayTimer;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SearchTextBox"/> class.
-        /// </summary>
-        public SearchTextBox()
-        {
-            _searchDelayTimer = new DispatcherTimer {Interval = TimeSpan.Zero};
-            _searchDelayTimer.Tick += HandleSearchDelayTimerTick;
-        }
+        
 
         /// <summary>
         /// Gets or sets a value indicating whether empty text searches are allowed.
@@ -275,12 +244,6 @@ namespace TAS.Client.Common.Controls
         /// <summary>
         /// Gets or sets the delay between firing command during instant search mode.
         /// </summary>
-        [Category("Common Properties")]
-        public Duration InstantSearchDelay
-        {
-            get => (Duration)GetValue(InstantSearchDelayProperty);
-            set => SetValue(InstantSearchDelayProperty, value);
-        }
         /// <summary>
         /// Gets or sets content to display as a prompt when the textbox is empty.
         /// </summary>
@@ -308,11 +271,13 @@ namespace TAS.Client.Common.Controls
         /// One of the <see cref="SearchTextBoxMode"/> values. The default is Instant.
         /// </value>
         [Category("Common Properties")]
-        public SearchTextBoxMode SearchMode
+
+        public bool IsSearching
         {
-            get => (SearchTextBoxMode)GetValue(SearchModeProperty);
-            set => SetValue(SearchModeProperty, value);
+            get => (bool) GetValue(IsSearchingProperty);
+            set => SetValue(IsSearchingProperty, value);
         }
+
         /// <summary>
         /// Occurs when the search button is pressed or during instant search.
         /// </summary>
@@ -328,8 +293,7 @@ namespace TAS.Client.Common.Controls
         /// </summary>
         public void Reset()
         {
-            Text = String.Empty;
-            _searchDelayTimer.Stop();
+            Text = string.Empty;
             RaiseSearchEvent();
             ExecuteSearchCommand();
         }
@@ -371,13 +335,7 @@ namespace TAS.Client.Common.Controls
         /// <param name="e">Provides data about the event.</param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            if (SearchMode == SearchTextBoxMode.Instant && e.Key == Key.Escape)
-            {
-                Text = String.Empty;
-
-                e.Handled = true;
-            }
-            else if (SearchMode == SearchTextBoxMode.Regular && (e.Key == Key.Return || e.Key == Key.Enter))
+            if (e.Key == Key.Return || e.Key == Key.Enter)
             {
                 RaiseSearchEvent();
                 ExecuteSearchCommand();
@@ -397,15 +355,10 @@ namespace TAS.Client.Common.Controls
         {
             base.OnTextChanged(e);
 
-            HasText = !String.IsNullOrEmpty(Text);
+            HasText = !string.IsNullOrEmpty(Text);
 
             UpdateSearchButtonIsEnabled();
 
-            if (SearchMode == SearchTextBoxMode.Instant)
-            {
-                _searchDelayTimer.Stop();
-                _searchDelayTimer.Start();
-            }
         }
         /// <summary>
         /// Raises the <see cref="E:Search"/> event.
@@ -425,20 +378,17 @@ namespace TAS.Client.Common.Controls
         {
             UpdateSearchButtonIsEnabled();
         }
-        private void HandleSearchDelayTimerTick(object sender, EventArgs e)
-        {
-            _searchDelayTimer.Stop();
-            RaiseSearchEvent();
-            ExecuteSearchCommand();
-        }
+
         private void HandleSearchButtonClick(object sender, RoutedEventArgs e)
         {
             RaiseSearchEvent();
         }
+
         private void HandleClearButtonClick(object sender, RoutedEventArgs e)
         {
             Reset();
         }
+
         private void RaiseSearchEvent()
         {
             if (AllowEmptySearches || HasText)
@@ -478,7 +428,7 @@ namespace TAS.Client.Common.Controls
                 }
                 else
                 {
-                    _searchButtonHost.IsEnabled = HasText ? Command.CanExecute(CommandParameter) : false;
+                    _searchButtonHost.IsEnabled = HasText && Command.CanExecute(CommandParameter);
                 }
             }
         }
@@ -489,22 +439,4 @@ namespace TAS.Client.Common.Controls
         }
     }
 
-    /// <summary>
-    /// Defines a list of modes for the <see cref="SearchTextBox"/> control.
-    /// </summary>
-    public enum SearchTextBoxMode
-    {
-        /// <summary>
-        /// Command will be fired automatically as the user types. The default
-        /// is to fire on every keystroke, but you can optionally define the
-        /// InstantSearchDelay.
-        /// </summary>
-        Instant,
-        /// <summary>
-        /// Command will be fired only when the search button is explicitly
-        /// clicked or when the user presses Enter while focus is in the
-        /// textbox.
-        /// </summary>
-        Regular
-    }
 }

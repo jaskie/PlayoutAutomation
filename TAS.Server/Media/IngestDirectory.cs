@@ -50,10 +50,15 @@ namespace TAS.Server.Media
                 }
                 else if (Kind == TIngestDirectoryKind.XDCAM || Kind == TIngestDirectoryKind.SimpleFolder || IsWAN)
                 {
-                    IsInitialized = true;
+                    if (string.IsNullOrWhiteSpace(Username) || _connectToRemoteDirectory())
+                    {
+                        RefreshVolumeInfo();
+                        IsInitialized = true;
+                    }
                 }
                 else
                 {
+                    HaveFileWatcher = true;
                     if (string.IsNullOrWhiteSpace(Username)
                         || _connectToRemoteDirectory())
                         if (IsImport && !IsWAN)
@@ -319,7 +324,7 @@ namespace TAS.Server.Media
         {
             if (!(media is MediaBase mediaBase))
                 throw new ArgumentException(nameof(media));
-            if (IsWAN || Kind == TIngestDirectoryKind.SimpleFolder)
+            if (!HaveFileWatcher)
             {
                 mediaBase.Directory = this;
                 return;
@@ -327,13 +332,12 @@ namespace TAS.Server.Media
             base.AddMedia(media);
         }
 
-        public List<IMedia> Search(TMediaCategory? category, string searchString)
+        
+        public IMediaSearchProvider Search(TMediaCategory? category, string searchString)
         {
-            var result = new List<IMedia>();
-            SearchForMedia(ref result, Folder, searchString, CancellationToken.None);
-            return result;
+            return new MediaSearchProvider(SearchForMediaForProvider(category, Folder, searchString));
         }
-
+        
         protected override void OnError(object source, ErrorEventArgs e)
         {
             base.OnError(source, e);
@@ -674,22 +678,25 @@ namespace TAS.Server.Media
             }
         }
 
-        private void SearchForMedia(ref List<IMedia> result, string directory, string filter, CancellationToken cancellationToken)
+        private IEnumerable<IMedia> SearchForMediaForProvider(TMediaCategory? category, string directory, string filter)
         {
             var files = new DirectoryInfo(directory).EnumerateFiles(string.IsNullOrWhiteSpace(filter) ? "*" : $"*{filter}*");
             foreach (var f in files)
             {
-                if (cancellationToken.IsCancellationRequested)
-                    return;
+                if (!AcceptFile(f.FullName))
+                    continue;
                 var m = AddMediaFromPath(f.FullName, f.LastWriteTimeUtc);
                 if (m == null)
                     continue;
-                result.Add(m);
+                if (category.HasValue && m.MediaCategory != category)
+                    continue;
+                yield return m;
             }
-            if (!IsRecursive) return;
+            if (!IsRecursive) yield break;
             var directories = new DirectoryInfo(directory).EnumerateDirectories();
             foreach (var d in directories)
-                SearchForMedia(ref result, d.FullName, filter, cancellationToken);
+                foreach (var m in SearchForMediaForProvider(category, d.FullName, filter))
+                    yield return m;
         }
         
         #endregion

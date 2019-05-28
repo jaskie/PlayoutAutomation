@@ -11,6 +11,7 @@ using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
 using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using TAS.Client.Common.Plugin;
 using TAS.Common.Interfaces;
@@ -38,6 +39,8 @@ namespace TAS.Client.ViewModels
         private bool _isPropertiesPanelVisible = true;
         private ICollectionView _mediaItemsView;
         private IMedia _selectedMedia;
+        private IMediaSearchProvider _currentSearchProvider;
+        private bool _isSearching;
 
         public MediaManagerViewmodel(IEngine engine, IPreview preview)
         {
@@ -70,24 +73,24 @@ namespace TAS.Client.ViewModels
             if (_mediaManager.FileManager != null)
                 FileManagerViewmodel = new FileManagerViewmodel(_mediaManager.FileManager);
             RecordersViewmodel = new RecordersViewmodel(Engine, _mediaManager.Recorders);
-            RecordersViewmodel.PropertyChanged += _recordersViewmodel_PropertyChanged;
+            RecordersViewmodel.PropertyChanged += RecordersViewmodel_PropertyChanged;
             VideoPreview = UiPluginManager.ComposePart<IVideoPreview>(this);
             VideoPreview?.SetSource(RecordersViewmodel.Channel?.PreviewUrl);
 
-            CommandSearch = new UiCommand(_search, _canSearch);
-            CommandClearFilters = new UiCommand(_clearFilters, _canClearFilters);
-            CommandDeleteSelected = new UiCommand(_deleteSelected, o => _isSomethingSelected() && engine.HaveRight(EngineRight.MediaDelete));
-            CommandIngestSelectedToServer = new UiCommand(_ingestSelectedToServer, _canIngestSelectedToServer);
-            CommandMoveSelectedToArchive = new UiCommand(_moveSelectedToArchive, o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && _isSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive) && engine.HaveRight(EngineRight.MediaDelete));
-            CommandCopySelectedToArchive = new UiCommand(_copySelectedToArchive, o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && _isSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive));
-            CommandSweepStaleMedia = new UiCommand(_sweepStaleMedia, o => CurrentUser.IsAdmin);
-            CommandGetLoudness = new UiCommand(_getLoudness, o => _isSomethingSelected() && engine.HaveRight(EngineRight.MediaEdit));
-            CommandExport = new UiCommand(_export, _canExport);
-            CommandRefresh = new UiCommand(async ob => await _reloadFiles(), _canRefresh);
-            CommandSyncPriToSec = new UiCommand(_syncSecToPri, o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
-            CommandCloneAnimation = new UiCommand(_cloneAnimation, _canCloneAnimation);
+            CommandSearch = new UiCommand(Search, CanSearch);
+            CommandClearFilters = new UiCommand(ClearFilters, CanClearFilters);
+            CommandDeleteSelected = new UiCommand(DeleteSelected, o => IsSomethingSelected() && engine.HaveRight(EngineRight.MediaDelete));
+            CommandIngestSelectedToServer = new UiCommand(IngestSelectedToServer, CanIngestSelectedToServer);
+            CommandMoveSelectedToArchive = new UiCommand(MoveSelectedToArchive, o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && IsSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive) && engine.HaveRight(EngineRight.MediaDelete));
+            CommandCopySelectedToArchive = new UiCommand(CopySelectedToArchive, o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && IsSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive));
+            CommandSweepStaleMedia = new UiCommand(SweepStaleMedia, o => CurrentUser.IsAdmin);
+            CommandGetLoudness = new UiCommand(GetLoudness, o => IsSomethingSelected() && engine.HaveRight(EngineRight.MediaEdit));
+            CommandExport = new UiCommand(Export, CanExport);
+            CommandRefresh = new UiCommand(ob => ReloadFiles(), CanRefresh);
+            CommandSyncPriToSec = new UiCommand(SyncSecToPri, o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
+            CommandCloneAnimation = new UiCommand(CloneAnimation, CanCloneAnimation);
             CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
-            CommandVerifyAllMedia = new UiCommand(_verifyAllMedia, o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
+            CommandVerifyAllMedia = new UiCommand(VerifyAllMedia, o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
         }
 
         public ICommand CommandSearch { get; }
@@ -137,7 +140,7 @@ namespace TAS.Client.ViewModels
             get => _selectedMediaVm;
             set
             {
-                if (!_checkEditMediaSaved())
+                if (!CheckEditMediaSaved())
                 {
                     NotifyPropertyChanged(nameof(SelectedMediaVm));
                     return;
@@ -208,7 +211,7 @@ namespace TAS.Client.ViewModels
                 if (SetField(ref _mediaCategory, value))
                 {
                     NotifyPropertyChanged(nameof(IsDisplayMediaCategory));
-                    _search(null);
+                    Search(null);
                 }
             }
         }
@@ -222,7 +225,7 @@ namespace TAS.Client.ViewModels
                 if (SetField(ref _mediaType, value))
                 {
                     NotifyPropertyChanged(nameof(IsMediaCategoryVisible));
-                    _search(null);
+                    Search(null);
                 }
             }
         }
@@ -234,31 +237,24 @@ namespace TAS.Client.ViewModels
             get => _selectedDirectory;
             set
             {
-                if (_checkEditMediaSaved())
+                if (CheckEditMediaSaved())
                 {
                     var oldSelectedDirectory = SelectedDirectory;
                     if (!SetField(ref _selectedDirectory, value))
                         return;
                     if (oldSelectedDirectory != null)
                     {
-                        oldSelectedDirectory.Directory.MediaAdded -= _selectedDirectoryMediaAdded;
-                        oldSelectedDirectory.Directory.MediaRemoved -= _selectedDirectoryMediaRemoved;
-                        oldSelectedDirectory.Directory.PropertyChanged -= _selectedDirectoryPropertyChanged;
+                        oldSelectedDirectory.Directory.MediaAdded -= SelectedDirectory_MediaAdded;
+                        oldSelectedDirectory.Directory.MediaRemoved -= SelectedDirectory_MediaRemoved;
+                        oldSelectedDirectory.Directory.PropertyChanged -= SelectedDirectory_PropertyChanged;
                     }
                     if (value != null)
                     {
-                        value.Directory.MediaAdded += _selectedDirectoryMediaAdded;
-                        value.Directory.MediaRemoved += _selectedDirectoryMediaRemoved;
-                        value.Directory.PropertyChanged += _selectedDirectoryPropertyChanged;
-                        Application.Current?.Dispatcher.InvokeAsync(_reloadFiles);
-                        IsDisplayPreview = PreviewViewmodel != null
-                                           && (!(value.Directory is IIngestDirectory) ||
-                                               ((IIngestDirectory)value.Directory).AccessType ==
-                                               TDirectoryAccessType.Direct);
-
-                        if (PreviewViewmodel != null)
-                            PreviewViewmodel.IsSegmentsVisible =
-                                value.Directory is IServerDirectory || value.Directory is IArchiveDirectory;
+                        value.Directory.MediaAdded += SelectedDirectory_MediaAdded;
+                        value.Directory.MediaRemoved += SelectedDirectory_MediaRemoved;
+                        value.Directory.PropertyChanged += SelectedDirectory_PropertyChanged;
+                        ReloadFiles();
+                        SetupPreview(value.Directory);
                     }
                     else
                         IsDisplayPreview = false;
@@ -270,12 +266,11 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(nameof(IsIngestOrArchiveDirectory));
                     NotifyPropertyChanged(nameof(IsAnimationDirectory));
                     NotifyPropertyChanged(nameof(IsDisplayClipNr));
+                    NotifyDirectoryPropertiesChanged();
                     InvalidateRequerySuggested();
-                    _notifyDirectoryPropertiesChanged();
                 }
                 else
-                    OnIdle(() =>
-                        NotifyPropertyChanged(nameof(SelectedDirectory))); //revert folder display, deferred execution
+                    OnIdle(() => NotifyPropertyChanged(nameof(SelectedDirectory))); //revert folder display, deferred execution
             }
         }
 
@@ -284,7 +279,6 @@ namespace TAS.Client.ViewModels
             get => _isPropertiesPanelVisible;
             set => SetField(ref _isPropertiesPanelVisible, value);
         }
-
 
         public bool IsDisplayFolder => _selectedDirectory != null && _selectedDirectory.IsRecursive;
 
@@ -313,7 +307,7 @@ namespace TAS.Client.ViewModels
 
         public float DirectoryFreePercentage => _selectedDirectory?.DirectoryFreePercentage ?? 0;
 
-        public int ItemsCount => _mediaItems?.Count(_filter) ?? 0;
+        public int ItemsCount => _mediaItems?.Count(MediaItemFilter) ?? 0;
 
         public ICollectionView MediaItemsView { get => _mediaItemsView; private set => SetField(ref _mediaItemsView, value); }
 
@@ -324,12 +318,12 @@ namespace TAS.Client.ViewModels
         {
             SelectedDirectory = null;
             if (RecordersViewmodel != null)
-                RecordersViewmodel.PropertyChanged -= _recordersViewmodel_PropertyChanged;
+                RecordersViewmodel.PropertyChanged -= RecordersViewmodel_PropertyChanged;
         }
 
         // private methods
 
-        private bool _checkAskMediaDelete(IEnumerable<MediaDeleteResult> results)
+        private bool CheckAskMediaDelete(IEnumerable<MediaDeleteResult> results)
         {
             var reasons = results.Where(r => r.Result != MediaDeleteResult.MediaDeleteResultEnum.Success).ToArray();
             if (reasons.Length == 0)
@@ -372,36 +366,35 @@ namespace TAS.Client.ViewModels
                    MessageBoxResult.Yes;
         }
 
-        private void _deleteSelected(object o)
+        private void DeleteSelected(object o)
         {
-            var selections = _getSelections();
+            var selections = GetSelections();
             if (MessageBox.Show(
                     string.Format(resources._query_DeleteSelectedFiles, selections.Select(m => $"{m.Directory.GetDisplayName()}:{m.MediaName}").AsString(Environment.NewLine)),
                     resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
                 return;
             var reasons = _mediaManager.MediaDelete(selections, false);
-            if (_checkAskMediaDelete(reasons))
+            if (CheckAskMediaDelete(reasons))
                 _mediaManager.MediaDelete(reasons.Where(r => r.Result != MediaDeleteResult.MediaDeleteResultEnum.Success).Select(r => r.Media).ToArray(), true);
         }
 
-        private void _moveSelectedToArchive(object o)
+        private void MoveSelectedToArchive(object o)
         {
-            var selections = _getSelections();
+            var selections = GetSelections();
             var reasons = _mediaManager.MediaArchive(selections, true, false);
-            if (_checkAskMediaDelete(reasons))
+            if (CheckAskMediaDelete(reasons))
                 _mediaManager.MediaArchive(reasons.Where(r => r.Result != MediaDeleteResult.MediaDeleteResultEnum.Success).Select(r => r.Media).ToArray(), true, true);
         }
 
-        private void _copySelectedToArchive(object o)
+        private void CopySelectedToArchive(object o)
         {
-            _mediaManager.MediaArchive(_getSelections(), false, false);
+            _mediaManager.MediaArchive(GetSelections(), false, false);
         }
 
-        private bool _filter(object item)
+        private bool MediaItemFilter(object item)
         {
             var dir = _selectedDirectory?.Directory;
-            if (dir is IArchiveDirectory
-                || (dir is IIngestDirectory && ((IIngestDirectory)dir).IsWAN))
+            if (dir?.HaveFileWatcher != true)
                 return true;
             if (!(item is MediaViewViewmodel m))
                 return false;
@@ -411,13 +404,13 @@ namespace TAS.Client.ViewModels
                    && (!(_mediaType is TMediaType mediaType) || m.Media.MediaType == mediaType);
         }
 
-        private bool _canRefresh(object obj)
+        private bool CanRefresh(object obj)
         {
             return _selectedDirectory?.Directory is IIngestDirectory directory
                 && (!directory.IsWAN || _searchText.Length >= MinSearchLength);
         }
 
-        private void _recordersViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void RecordersViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(RecordersViewmodel.RecordingMedia))
             {
@@ -435,110 +428,118 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _selectedDirectoryPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void SelectedDirectory_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
                 case nameof(IWatcherDirectory.IsInitialized):
                 case nameof(IMediaDirectory.VolumeFreeSize):
-                    _notifyDirectoryPropertiesChanged();
+                    NotifyDirectoryPropertiesChanged();
                     break;
             }
         }
 
-        private async Task _reloadFiles()
+        private async void ReloadFiles()
         {
             UiServices.SetBusyState();
-            var selectedDirectory = SelectedDirectory.Directory;
-            _setMediaItems(null);
-            await Task.Run(async () =>
+            if (_currentSearchProvider != null)
             {
-                if (selectedDirectory is IArchiveDirectory archiveDirectory)
+                _currentSearchProvider.ItemAdded -= Search_ItemAdded;
+                _currentSearchProvider.Cancel();
+            }
+            SetMediaItems(null);
+            var mediaDirectory = SelectedDirectory.Directory;
+            if (mediaDirectory.HaveFileWatcher)
+            {
+                switch (mediaDirectory)
                 {
-                    var mediaItems = archiveDirectory.Search(MediaCategory as TMediaCategory?, "");
-                    OnUiThread(() => _setMediaItems(mediaItems));
-                }
-                else if (selectedDirectory is IIngestDirectory ingestDirectory)
-                {
-                    if (!ingestDirectory.IsWAN)
-                    {
-                        if (ingestDirectory.Kind == TIngestDirectoryKind.XDCAM)
+                    case IServerDirectory serverDirectory:
+                        SetMediaItems(serverDirectory.GetFiles());
+                        break;
+                    case IIngestDirectory ingestDirectory:
+                        try
                         {
-                            try
-                            {
+                            if (ingestDirectory.Kind == TIngestDirectoryKind.XDCAM)
                                 await Task.Run(() => ingestDirectory.Refresh());
-                                var mediaItems = ingestDirectory.GetFiles();
-                                OnUiThread(() => _setMediaItems(mediaItems));
-                            }
-                            catch (Exception e)
-                            {
-                                if (ingestDirectory == SelectedDirectory.Directory)
-                                    MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message),
-                                        resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
-                            }
                         }
-                        else if (ingestDirectory.Kind == TIngestDirectoryKind.SimpleFolder)
+                        catch (Exception e)
                         {
-                            var mediaItems = ingestDirectory.Search(MediaCategory as TMediaCategory?, "");
-                            OnUiThread(() => _setMediaItems(mediaItems));
+                            if (ingestDirectory == SelectedDirectory.Directory)
+                                MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message),
+                                    resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                         }
-                        else
-                        {
-                            var mediaItems = ingestDirectory.GetFiles();
-                            OnUiThread(() => _setMediaItems(mediaItems));
-                        }
-                    }
-                    else
-                    {
-                        var mediaItems = ingestDirectory.GetFiles();
-                        OnUiThread(() => _setMediaItems(mediaItems));
-                    }
+                        SetMediaItems(ingestDirectory.GetFiles());
+                        break;
                 }
-                else if (selectedDirectory is IServerDirectory serverDirectory)
+            }
+            else
+            {
+                if (!(mediaDirectory is ISearchableDirectory searchableDirectory))
+                    return;
+                if (!CanSearch(null))
+                    return;
+                var newSearch = searchableDirectory.Search(MediaCategory as TMediaCategory?, SearchText);
+                _currentSearchProvider = newSearch;
+                newSearch.ItemAdded += Search_ItemAdded;
+                newSearch.Finished += (sender, args) =>
                 {
-                    var mediaItems = serverDirectory.GetFiles();
-                    OnUiThread(() => _setMediaItems(mediaItems));
-                }
-                else if (selectedDirectory is IAnimationDirectory animationDirectory)
-                {
-                    var mediaItems = animationDirectory.GetFiles();
-                    OnUiThread(() => _setMediaItems(mediaItems));
-                }
-            });
+                    if (!(sender is IMediaSearchProvider provider))
+                        return;
+                    provider.Dispose();
+                    provider.ItemAdded -= Search_ItemAdded;
+                    if (provider != _currentSearchProvider)
+                        return;
+                    _currentSearchProvider = null;
+                    IsSearching = false;
+                };
+                IsSearching = true;
+                newSearch.Start();
+            }
         }
 
-        private void _setMediaItems(IEnumerable<IMedia> items)
+        private void Search_ItemAdded(object sender, EventArgs<IMedia> e)
         {
-            var newItems = items == null ? null : new ObservableCollection<MediaViewViewmodel>(items.Select(f => new MediaViewViewmodel(f)));
+            AddMediaToItems(e.Item);
+        }
+
+        public bool IsSearching { get => _isSearching; set => SetField(ref _isSearching, value); }
+
+        private void SetMediaItems(IEnumerable<IMedia> items)
+        {
+            var newItems = items == null
+                ? new ObservableCollection<MediaViewViewmodel>()
+                : new ObservableCollection<MediaViewViewmodel>(items.Select(f => new MediaViewViewmodel(f)));
             var oldMediaItems = _mediaItems;
             _mediaItems = newItems;
             if (oldMediaItems != null)
                 foreach (var m in oldMediaItems)
                     m.Dispose();
             SelectedMediaVm = null;
-            MediaItemsView = newItems == null ? null : CollectionViewSource.GetDefaultView(newItems);
-            if (MediaItemsView != null)
-            {
-                MediaItemsView.Filter = _filter;
-                MediaItemsView.SortDescriptions.Add(!SelectedDirectory.IsXdcam
-                    ? new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending)
-                    : new SortDescription(nameof(MediaViewViewmodel.ClipNr), ListSortDirection.Ascending));
-            }
+            MediaItemsView = CollectionViewSource.GetDefaultView(newItems);
+            if (items != null)
+                MediaItemsView.Filter = MediaItemFilter;
+            MediaItemsView.SortDescriptions.Add(!SelectedDirectory.IsXdcam
+                ? new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending)
+                : new SortDescription(nameof(MediaViewViewmodel.ClipNr), ListSortDirection.Ascending));
             NotifyPropertyChanged(nameof(ItemsCount));
         }
 
-        private void _selectedDirectoryMediaAdded(object source, MediaEventArgs e)
+        private void AddMediaToItems(IMedia media)
         {
-            if (source is IWatcherDirectory dir && dir.IsInitialized)
-                OnUiThread(() =>
-                {
-                    var media = e.Media;
-                    _mediaItems?.Add(new MediaViewViewmodel(media));
-                    _notifyDirectoryPropertiesChanged();
-                });
+            OnUiThread(() =>
+            {
+                _mediaItems?.Add(new MediaViewViewmodel(media));
+                NotifyDirectoryPropertiesChanged();
+            });
         }
 
-        private void _selectedDirectoryMediaRemoved(object source, MediaEventArgs e)
+        private void SelectedDirectory_MediaAdded(object source, MediaEventArgs e)
+        {
+            if (source is IWatcherDirectory dir && dir.IsInitialized)
+                OnUiThread(() => AddMediaToItems(e.Media));
+        }
+
+        private void SelectedDirectory_MediaRemoved(object source, MediaEventArgs e)
         {
             if (source is IWatcherDirectory dir && dir.IsInitialized || source is IArchiveDirectory)
                 OnUiThread(() =>
@@ -551,11 +552,11 @@ namespace TAS.Client.ViewModels
                         _mediaItems.Remove(vm);
                         vm.Dispose();
                     }
-                    _notifyDirectoryPropertiesChanged();
+                    NotifyDirectoryPropertiesChanged();
                 });
         }
 
-        private void _notifyDirectoryPropertiesChanged()
+        private void NotifyDirectoryPropertiesChanged()
         {
             NotifyPropertyChanged(nameof(ItemsCount));
             NotifyPropertyChanged(nameof(IsMediaDirectoryOk));
@@ -564,94 +565,94 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(DirectoryFreeSpace));
         }
 
-        private List<IMedia> _getSelections()
+        private List<IMedia> GetSelections()
         {
             return _selectedMediaList?.OfType<MediaViewViewmodel>().Select(m => m.Media).ToList() ?? new List<IMedia>();
         }
 
-        private bool _isSomethingSelected()
+        private bool IsSomethingSelected()
         {
             return _selectedMediaList != null && _selectedMediaList.Count > 0;
         }
 
-        private bool _canIngestSelectedToServer(object o)
+        private bool CanIngestSelectedToServer(object o)
         {
-            return _selectedDirectory != null && Engine.HaveRight(EngineRight.MediaIngest) && (_selectedDirectory.IsIngestDirectory || _selectedDirectory.IsArchiveDirectory) && _isSomethingSelected();
+            return _selectedDirectory != null && Engine.HaveRight(EngineRight.MediaIngest) && (_selectedDirectory.IsIngestDirectory || _selectedDirectory.IsArchiveDirectory) && IsSomethingSelected();
         }
 
-        private bool _canExport(object o)
+        private bool CanExport(object o)
         {
             return _selectedMediaList != null && _selectedMediaList.Cast<MediaViewViewmodel>().Any(m => m.Media.MediaType == TMediaType.Movie);
         }
 
-        private bool _canClearFilters(object obj)
+        private bool CanClearFilters(object obj)
         {
             return IsMediaCategoryVisible && _mediaCategory != MediaCategories.FirstOrDefault()
                    || _mediaType != MediaTypes.FirstOrDefault()
                    || !string.IsNullOrWhiteSpace(_searchText);
         }
 
-        private void _clearFilters(object obj)
+        private void ClearFilters(object obj)
         {
             _mediaCategory = MediaCategories.FirstOrDefault();
             _mediaType = MediaTypes.FirstOrDefault();
             NotifyPropertyChanged(nameof(MediaCategory));
             NotifyPropertyChanged(nameof(MediaType));
             SearchText = string.Empty;
-            if (_canSearch(obj))
-                _search(obj);
+            if (CanSearch(obj))
+                Search(obj);
         }
 
-        private void _cloneAnimation(object obj)
+        private void CloneAnimation(object obj)
         {
             var dir = _selectedDirectory?.Directory as IAnimationDirectory;
             if (_selectedMediaVm?.Media is IAnimatedMedia media)
                 dir?.CloneMedia(media, Guid.NewGuid());
         }
 
-        private bool _canCloneAnimation(object obj)
+        private bool CanCloneAnimation(object obj)
         {
             return _selectedMediaVm?.Media is IAnimatedMedia && Engine.HaveRight(EngineRight.MediaEdit);
         }
 
 
-        private async void _syncSecToPri(object o)
+        private async void SyncSecToPri(object o)
         {
             if (_selectedDirectory?.Directory is IServerDirectory)
                 await Task.Run(() => _mediaManager.SynchronizeMediaSecToPri());
         }
 
-        private async void _verifyAllMedia(object o)
+        private async void VerifyAllMedia(object o)
         {
             foreach (var media in _mediaItems.Where(m => !m.IsVerified).Select(m => m.Media).ToArray())
                 await Task.Run(() => media.Verify(true));
         }
 
-        private void _export(object obj)
+        private void Export(object obj)
         {
-            var selections = _getSelections().Select(m => new MediaExportDescription(m, new List<IMedia>(), m.TcPlay, m.DurationPlay, m.AudioVolume));
+            var selections = GetSelections().Select(m => new MediaExportDescription(m, new List<IMedia>(), m.TcPlay, m.DurationPlay, m.AudioVolume));
             using (var vm = new ExportViewmodel(Engine, selections))
             {
                 UiServices.ShowDialog<Views.ExportView>(vm);
             }
         }
 
-        private void _sweepStaleMedia(object o)
+        private void SweepStaleMedia(object o)
         {
             SelectedDirectory.SweepStaleMedia();
         }
 
-        private void _getLoudness(object o)
+        private void GetLoudness(object o)
         {
-            _mediaManager.MeasureLoudness(_getSelections());
+            _mediaManager.MeasureLoudness(GetSelections());
         }
 
-        private void _ingestSelectionToDir()
+        private void IngestSelectionToDir()
         {
             if (!(_selectedDirectory?.Directory is IIngestDirectory currentDir))
                 return;
             var ingestList = new List<IIngestOperation>();
-            var selectedMediaList = _getSelections();
+            var selectedMediaList = GetSelections();
             Task.Run(() =>
             {
                 selectedMediaList.ForEach(m =>
@@ -663,7 +664,7 @@ namespace TAS.Client.ViewModels
             foreach (var sourceMedia in selectedMediaList)
                 if (sourceMedia is IIngestMedia media)
                 {
-                    var operation = (IIngestOperation) _mediaManager.FileManager.CreateFileOperation(TFileOperationKind.Ingest);
+                    var operation = (IIngestOperation)_mediaManager.FileManager.CreateFileOperation(TFileOperationKind.Ingest);
                     operation.Source = media;
                     operation.DestDirectory = _mediaManager.DetermineValidServerDirectory();
                     operation.AudioVolume = currentDir.AudioVolume;
@@ -681,11 +682,11 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private bool _checkEditMediaSaved()
+        private bool CheckEditMediaSaved()
         {
             if (EditMedia == null || !EditMedia.IsModified)
                 return true;
-            switch (MessageBox.Show(String.Format(resources._query_SaveChangedData, EditMedia), resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
+            switch (MessageBox.Show(string.Format(resources._query_SaveChangedData, EditMedia), resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
             {
                 case MessageBoxResult.Cancel:
                     return false;
@@ -696,18 +697,18 @@ namespace TAS.Client.ViewModels
             return true;
         }
 
-        private void _ingestSelectedToServer(object o)
+        private void IngestSelectedToServer(object o)
         {
-            if (!_checkEditMediaSaved())
+            if (!CheckEditMediaSaved())
                 return;
             UiServices.SetBusyState();
             if (_selectedDirectory.IsIngestDirectory)
-                _ingestSelectionToDir();
+                IngestSelectionToDir();
             else
-                _mediaManager.CopyMediaToPlayout(_getSelections());
+                _mediaManager.CopyMediaToPlayout(GetSelections());
         }
 
-        private bool _canSearch(object o)
+        private bool CanSearch(object o)
         {
             var dir = _selectedDirectory?.Directory;
             return dir is IServerDirectory
@@ -716,18 +717,30 @@ namespace TAS.Client.ViewModels
                    || (dir is IIngestDirectory && (!((IIngestDirectory)dir).IsWAN || _searchText.Length >= MinSearchLength));
         }
 
-        private async void _search(object o)
+        private void Search(object o)
         {
-            var dir = _selectedDirectory?.Directory;
-            if (dir is IArchiveDirectory archiveDirectory)
-                _setMediaItems(await Task.Run(() => archiveDirectory.Search(_mediaCategory as TMediaCategory?, _searchText)));
-            else
-            if (dir is IIngestDirectory ingestDirectory && (ingestDirectory.IsWAN || ingestDirectory.Kind == TIngestDirectoryKind.SimpleFolder))
-                _setMediaItems(await Task.Run(() => ingestDirectory.Search(_mediaCategory as TMediaCategory?, _searchText)));
-            else
+            var dir = SelectedDirectory?.Directory;
+            if (dir == null)
+                return;
+            if (dir.HaveFileWatcher)
+            {
                 MediaItemsView?.Refresh();
-            NotifyPropertyChanged(nameof(ItemsCount));
+                NotifyPropertyChanged(nameof(ItemsCount));
+                return;
+            }
+            ReloadFiles();
         }
+
+        private void SetupPreview(IMediaDirectory directory)
+        {
+            if (PreviewViewmodel == null)
+                return;
+            IsDisplayPreview = directory is IServerDirectory ||
+                               directory is IArchiveDirectory ||
+                               (directory is IIngestDirectory ingestDirectory && ingestDirectory.AccessType == TDirectoryAccessType.Direct);
+            PreviewViewmodel.IsSegmentsVisible = directory is IServerDirectory || directory is IArchiveDirectory;
+        }
+
 
     }
 }

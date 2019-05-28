@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -12,6 +11,7 @@ namespace TAS.Server.Media
     public sealed class ArchiveDirectory : MediaDirectoryBase, IArchiveDirectoryServerSide
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
 
         public IArchiveMedia Find(IMediaProperties media)
         {
@@ -41,9 +41,10 @@ namespace TAS.Server.Media
 
         public ulong IdArchive { get; set; }
 
-        public List<IMedia> Search(TMediaCategory? category, string searchString)
+
+        IMediaSearchProvider ISearchableDirectory.Search(TMediaCategory? category, string searchString)
         {
-            return EngineController.Database.ArchiveMediaSearch<ArchiveMedia>(this, category, searchString).ToList<IMedia>();
+            return new MediaSearchProvider(EngineController.Database.ArchiveMediaSearch<ArchiveMedia>(this, category, searchString));
         }
 
         public void SweepStaleMedia()
@@ -126,5 +127,6 @@ namespace TAS.Server.Media
         {
             return "Archive";
         }
+
     }
 }

@@ -506,7 +506,7 @@
                     <StackPanel Orientation="Horizontal" >
                         <Label Content="{Resx _search.SearchFor}" VerticalAlignment="Center" Margin="5, 0" Padding="0"/>
                         <controls:SearchTextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Prompt="{Resx _search.EnterTextToSearch}" 
-                                                Width="250" VerticalAlignment="Center" Command="{Binding CommandSearchDo}" ButtonToolTip="{Resx _search.Search.ToolTip}" SearchMode="Regular">
+                                                Width="250" VerticalAlignment="Center" Command="{Binding CommandSearchDo}" ButtonToolTip="{Resx _search.Search.ToolTip}" >
                             <i:Interaction.Behaviors>
                                 <behaviors:Focus IsFocused="{Binding IsSearchBoxFocused}"/>
                             </i:Interaction.Behaviors>

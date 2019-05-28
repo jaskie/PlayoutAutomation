@@ -1,5 +1,4 @@
 ﻿using System;
-using TAS.Remoting.Model.Media;
 
 namespace TAS.Remoting
 {
@@ -10,23 +9,25 @@ namespace TAS.Remoting
             switch (typeName)
             {
                 case "TAS.Server.Media.ServerMedia":
-                    return typeof(ServerMedia);
+                    return typeof(Model.Media.ServerMedia);
                 case "TAS.Server.Media.IngestMedia":
-                    return typeof(IngestMedia);
+                    return typeof(Model.Media.IngestMedia);
                 case "TAS.Server.XDCAM.XdcamMedia":
-                    return typeof(XDCAMMedia);
+                    return typeof(Model.Media.XDCAMMedia);
                 case "TAS.Server.Media.ArchiveMedia":
-                    return typeof(ArchiveMedia);
+                    return typeof(Model.Media.ArchiveMedia);
                 case "TAS.Server.Media.AnimatedMedia":
-                    return typeof(AnimatedMedia);
+                    return typeof(Model.Media.AnimatedMedia);
                 case "TAS.Server.Media.ServerDirectory":
-                    return typeof(ServerDirectory);
+                    return typeof(Model.Media.ServerDirectory);
                 case "TAS.Server.Media.IngestDirectory":
-                    return typeof(IngestDirectory);
+                    return typeof(Model.Media.IngestDirectory);
                 case "TAS.Server.Media.ArchiveDirectory":
                     return typeof(Model.ArchiveDirectory);
                 case "TAS.Server.Media.AnimationDirectory":
                     return typeof(Model.AnimationDirectory);
+                case "TAS.Server.Media.MediaSearchProvider":
+                    return typeof(Model.Media.MediaSearchProvider);
                 case "TAS.Server.Media.MediaSegment":
                     return typeof(Model.MediaSegment);
                 case "TAS.Server.Media.MediaSegments":
