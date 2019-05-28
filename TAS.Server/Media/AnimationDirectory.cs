@@ -12,7 +12,7 @@ namespace TAS.Server.Media
     {
         public readonly CasparServer Server;
 
-        internal AnimationDirectory(CasparServer server, MediaManager manager, bool isPrimary) : base(manager)
+        internal AnimationDirectory(CasparServer server, bool isPrimary)
         {
             IsPrimary = isPrimary;
             Server = server;
@@ -21,10 +21,11 @@ namespace TAS.Server.Media
 
         public bool IsPrimary { get; }
 
-        public override void Initialize()
+        public override void Initialize(MediaManager mediaManager)
         {
             if (IsInitialized)
                 return;
+            base.Initialize(mediaManager);
             EngineController.Database.LoadAnimationDirectory<AnimatedMedia>(this, Server.Id);
             BeginWatch(false);
             Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");

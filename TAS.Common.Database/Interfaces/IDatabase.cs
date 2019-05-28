@@ -72,7 +72,7 @@ namespace TAS.Common.Database.Interfaces
         bool DropDatabase(string connectionString);
         void LoadAnimationDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IAnimatedMedia, new();
         void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IServerMedia, new();
-        T LoadArchiveDirectory<T>(IMediaManager manager, ulong idArchive) where T : IArchiveDirectoryServerSide, new();
+        T LoadArchiveDirectory<T>(ulong idArchive) where T : IArchiveDirectoryServerSide, new();
         void Open(string connectionStringPrimary = null, string connectionStringSecondary = null);
         void TestConnect(string connectionString);
         bool UpdateDb();

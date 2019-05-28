@@ -14,7 +14,5 @@ namespace TAS.Common.Interfaces.MediaDirectory
 
     public interface IArchiveDirectoryServerSide : IMediaDirectoryServerSide, IArchiveDirectory, IArchiveDirectoryProperties
     {
-        IMediaManager MediaManager { get; set; }
     }
-
 }

@@ -83,8 +83,12 @@ namespace TAS.Server
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Begin initializing");
             _fileManager.ReferenceLoudness = _engine.VolumeReferenceLoudness;
-            var archiveDirectory = EngineController.Database.LoadArchiveDirectory<ArchiveDirectory>(this, _engine.IdArchive);
-            archiveDirectory?.RefreshVolumeInfo();
+            var archiveDirectory = EngineController.Database.LoadArchiveDirectory<ArchiveDirectory>(_engine.IdArchive);
+            if (archiveDirectory != null)
+            {
+                archiveDirectory.Initialize(this);
+                archiveDirectory.RefreshVolumeInfo();
+            }
             ArchiveDirectory = archiveDirectory;
             MediaDirectoryPRI = ((CasparServerChannel)_engine.PlayoutChannelPRI)?.Owner.MediaDirectory;
             MediaDirectorySEC = ((CasparServerChannel)_engine.PlayoutChannelSEC)?.Owner.MediaDirectory;
@@ -94,7 +98,7 @@ namespace TAS.Server
             AnimationDirectoryPRV = ((CasparServerChannel)_engine.PlayoutChannelPRV)?.Owner.AnimationDirectory;
             IWatcherDirectory[] initializationList = { MediaDirectoryPRI, MediaDirectorySEC, MediaDirectoryPRV, AnimationDirectoryPRI, AnimationDirectorySEC, AnimationDirectoryPRV };
             foreach (var mediaDirectory in initializationList.Distinct())
-                (mediaDirectory as WatcherDirectory)?.Initialize();
+                (mediaDirectory as WatcherDirectory)?.Initialize(this);
 
             if (MediaDirectoryPRI is ServerDirectory sdir)
             {
@@ -337,7 +341,7 @@ namespace TAS.Server
             foreach (var d in _ingestDirectories)
             {
                 d.MediaManager = this;
-                d.Initialize();
+                d.Initialize(this);
             }
         }
 

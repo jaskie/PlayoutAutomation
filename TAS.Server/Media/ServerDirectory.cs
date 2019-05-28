@@ -16,8 +16,7 @@ namespace TAS.Server.Media
         internal readonly IPlayoutServerProperties Server;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public ServerDirectory(IPlayoutServerProperties server, MediaManager manager, bool isPrimary)
-            : base(manager)
+        public ServerDirectory(IPlayoutServerProperties server, bool isPrimary)
         {
             Server = server;
             IsRecursive = server.IsMediaFolderRecursive;
@@ -37,10 +36,11 @@ namespace TAS.Server.Media
 
         public TMovieContainerFormat MovieContainerFormat { get; }
 
-        public override void Initialize()
+        public override void Initialize(MediaManager mediaManager = null)
         {
             if (IsInitialized)
                 return;
+            MediaManager = mediaManager;
             EngineController.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
             BeginWatch(IsRecursive);
             Debug.WriteLine(this, "Directory initialized");

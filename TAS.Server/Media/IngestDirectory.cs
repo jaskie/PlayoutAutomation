@@ -30,17 +30,11 @@ namespace TAS.Server.Media
 
         internal readonly object XdcamLockObject = new object();
 
-        internal IngestDirectory() : base(null)
-        {
-            IsImport = true;
-            AudioBitrateRatio = 1;
-            VideoBitrateRatio = 1;
-        }
-
         public bool DeleteSource { get; set; }
 
-        public override void Initialize()
+        public override void Initialize(MediaManager mediaManager)
         {
+            base.Initialize(mediaManager);
             if (!string.IsNullOrWhiteSpace(Folder))
             {
                 if (Folder.StartsWith("ftp://"))
@@ -65,11 +59,7 @@ namespace TAS.Server.Media
                             BeginWatch(IsRecursive);
                 }
             }
-            _subDirectories?.ToList().ForEach(d =>
-            {
-                d.MediaManager = MediaManager;
-                d.Initialize();
-            });
+            _subDirectories?.ToList().ForEach(d => d.Initialize(mediaManager));
         }
 
         public string EncodeParams { get; set; }
@@ -102,12 +92,12 @@ namespace TAS.Server.Media
         [JsonProperty]
         public TAudioCodec AudioCodec { get; set; }
 
-        public double VideoBitrateRatio { get; set; }
-        public double AudioBitrateRatio { get; set; }
-        
+        public double VideoBitrateRatio { get; set; } = 1;
+        public double AudioBitrateRatio { get; set; } = 1;
+
         [DefaultValue(true)]
         [JsonProperty]
-        public bool IsImport { get; set; }
+        public bool IsImport { get; set; } = true;
 
         [JsonProperty]
         public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
@@ -341,9 +331,9 @@ namespace TAS.Server.Media
         protected override void OnError(object source, ErrorEventArgs e)
         {
             base.OnError(source, e);
-            IsInitialized = false;
             ClearFiles();
-            Initialize();
+            if (HaveFileWatcher)
+                BeginWatch(IsRecursive);
         }
 
         internal override void RefreshVolumeInfo()

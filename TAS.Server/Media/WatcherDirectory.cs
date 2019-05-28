@@ -36,11 +36,6 @@ namespace TAS.Server.Media
             });
         }
         
-        protected WatcherDirectory(MediaManager mediaManager)
-        {
-            MediaManager = mediaManager;
-        }
-
 #if DEBUG
         ~WatcherDirectory()
         {
@@ -54,9 +49,12 @@ namespace TAS.Server.Media
             get => _isInitialized;
             protected set => SetField(ref _isInitialized, value);
         }
-
-
-        public abstract void Initialize();
+        
+        public virtual void Initialize(MediaManager mediaManager = null)
+        {
+            if (mediaManager != null)
+                MediaManager = mediaManager;
+        }
 
         public virtual void UnInitialize()
         {

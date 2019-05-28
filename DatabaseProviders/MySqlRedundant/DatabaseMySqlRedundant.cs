@@ -638,7 +638,7 @@ namespace TAS.Database.MySqlRedundant
             }
         }
         
-        public T LoadArchiveDirectory<T>(IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectoryServerSide, new()
+        public T LoadArchiveDirectory<T>(ulong idArchive) where T: IArchiveDirectoryServerSide, new()
         {
             lock (_connection)
             {
@@ -649,7 +649,6 @@ namespace TAS.Database.MySqlRedundant
                     return default(T);
                 return new T
                 {
-                    MediaManager = manager,
                     IdArchive = idArchive,
                     Folder = folder
                 };

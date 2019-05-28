@@ -34,6 +34,11 @@ namespace TAS.Server.Media
                 _archiveCopy(media, this, deleteAfterSuccess);
         }
 
+        internal void Initialize(MediaManager mediaManager)
+        {
+            MediaManager = mediaManager;
+        }
+
         public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory)
         {
             _archiveCopy((MediaBase)srcMedia, destDirectory, false);
