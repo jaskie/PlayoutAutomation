@@ -328,7 +328,7 @@ namespace TAS.Server
             if (Remote != null)
             {
                 Debug.WriteLine(this, "Initializing Remote interface");
-                Remote.Initialize(this, "/Engine", _authenticationService);
+                Remote.Initialize(this, _authenticationService);
             }
 
             if (_localGpis != null)

@@ -27,7 +27,6 @@ namespace TAS.Remoting.Client
         {
             _serializer = JsonSerializer.CreateDefault();
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting, this);
-            _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
             _referenceResolver = new ClientReferenceResolver();
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.Objects | TypeNameHandling.Arrays;

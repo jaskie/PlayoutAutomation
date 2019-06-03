@@ -34,6 +34,7 @@ namespace TAS.Server.MediaOperation
         private bool _trim;
         private IMedia _source;
         private IMediaProperties _destProperties;
+        private IMediaDirectory _destDirectory;
 
         internal IngestOperation(FileManager ownerFileManager) : base(ownerFileManager)
         {
@@ -49,7 +50,7 @@ namespace TAS.Server.MediaOperation
         public IMediaProperties DestProperties { get => _destProperties; set => SetField(ref _destProperties, value); }
 
         [JsonProperty]
-        public IMediaDirectory DestDirectory { get; set; }
+        public IMediaDirectory DestDirectory { get => _destDirectory; set => SetField(ref _destDirectory, value); }
 
         internal MediaBase Dest { get; set; }
 
@@ -118,8 +119,8 @@ namespace TAS.Server.MediaOperation
                 if (!(Source is IngestMedia sourceMedia))
                     throw new ArgumentException("IngestOperation: Source is not of type IngestMedia");
                 sourceMedia.IngestStatus = TIngestStatus.InProgress;
-                if (((IngestDirectory) sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
-                    using (var localSourceMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(sourceMedia))
+                if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
+                    using (var localSourceMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(sourceMedia))
                     {
                         try
                         {
