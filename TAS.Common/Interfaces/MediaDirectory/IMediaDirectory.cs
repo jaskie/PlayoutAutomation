@@ -12,9 +12,8 @@ namespace TAS.Common.Interfaces.MediaDirectory
         bool DirectoryExists();
         bool FileExists(string filename, string subfolder = null);
         bool HaveFileWatcher { get; }
-
         string GetUniqueFileName(string fileName);
-
+        IMediaSearchProvider Search(TMediaCategory? category, string searchString);
         event EventHandler<MediaEventArgs> MediaAdded;
         event EventHandler<MediaEventArgs> MediaRemoved;
     }

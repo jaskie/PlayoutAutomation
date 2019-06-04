@@ -376,10 +376,10 @@ namespace TAS.Client.ViewModels
                     {
                         var mediaFiles =
                             (Engine.MediaManager.MediaDirectoryPRI ?? Engine.MediaManager.MediaDirectorySEC)
-                            ?.GetFiles();
+                            ?.GetAllFiles();
                         var animationFiles =
                             (Engine.MediaManager.AnimationDirectoryPRI ?? Engine.MediaManager.AnimationDirectorySEC)
-                            ?.GetFiles();
+                            ?.GetAllFiles();
                         var newEvent = obj.Equals("Under")
                             ? proxy.InsertUnder(SelectedEventPanel.Event, false, mediaFiles, animationFiles)
                             : proxy.InsertAfter(SelectedEventPanel.Event, mediaFiles, animationFiles);
@@ -460,7 +460,13 @@ namespace TAS.Client.ViewModels
 
         private void _eventHide(object obj) => (SelectedEventPanel as EventPanelContainerViewmodel)?.CommandHide.Execute(obj);
 
-        private async void _pasteSelected(object obj) => LastAddedEvent = await EventClipboard.Paste(_selectedEventPanel, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), (string)obj, true));
+        private async void _pasteSelected(object obj)
+        {
+            var added = await EventClipboard.Paste(_selectedEventPanel, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), (string)obj, true));
+            var vm = RootEventViewModel.Find(added, true);
+            if (vm != null)
+                vm.IsSelected = true;
+        }
 
         private async void _copySelected(object obj) => await EventClipboard.Copy(_multiSelectedEvents);
 
@@ -735,6 +741,7 @@ namespace TAS.Client.ViewModels
         /// Used to determine if it should be selected when it's viewmodel is created
         /// </summary>
         public IEvent LastAddedEvent { get; private set; }
+        
         #endregion // MediaSearch
 
         #region Search panel

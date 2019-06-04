@@ -85,6 +85,8 @@ namespace TAS.Server.Media
             MediaRemoved?.Invoke(this, new MediaEventArgs(media));
         }
 
+        public abstract IMediaSearchProvider Search(TMediaCategory? category, string searchString);
+
         internal abstract IMedia CreateMedia(IMediaProperties media);
         
         internal virtual bool DeleteMedia(IMedia media)
@@ -110,9 +112,7 @@ namespace TAS.Server.Media
             }
             return false;
         }
-
-
-
+        
         internal virtual void RefreshVolumeInfo()
         {
             if (GetDiskFreeSpaceEx(Folder, out var free, out var total, out var dummy))

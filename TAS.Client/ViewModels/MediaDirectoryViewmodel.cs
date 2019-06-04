@@ -51,8 +51,6 @@ namespace TAS.Client.ViewModels
 
         public bool IsXdcam => (Directory as IIngestDirectory)?.Kind == TIngestDirectoryKind.XDCAM;
 
-        public bool IsWan => (Directory as IIngestDirectory)?.IsWAN == true;
-
         public bool IsExport => (Directory as IIngestDirectory)?.IsExport == true;
 
         public bool IsImport => (Directory as IIngestDirectory)?.IsImport == true;

@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using TAS.Common.Interfaces.Media;
 
 namespace TAS.Common.Interfaces.MediaDirectory
 {
 
-    public interface IIngestDirectory: IWatcherDirectory, ISearchableDirectory, IIngestDirectoryProperties
+    public interface IIngestDirectory: IWatcherDirectory, IIngestDirectoryProperties
     {
         TDirectoryAccessType AccessType { get; }
         int XdcamClipCount { get; }

@@ -142,5 +142,9 @@ namespace TAS.Remoting.Model.Media
             return Query<string>(parameters: new object[] {fileName});
         }
 
+        public IMediaSearchProvider Search(TMediaCategory? category, string searchString)
+        {
+            return Query<MediaSearchProvider>(parameters: new object[] { category, searchString });
+        }
     }
 }

@@ -2,7 +2,9 @@
 using System;
 using System.Configuration;
 using System.IO;
+using TAS.Common;
 using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
@@ -18,6 +20,11 @@ namespace TAS.Server.Media
 
         public override void RemoveMedia(IMedia media)
         {
+        }
+
+        public override IMediaSearchProvider Search(TMediaCategory? category, string searchString)
+        {
+            throw new NotImplementedException();
         }
 
         internal override IMedia CreateMedia(IMediaProperties media)

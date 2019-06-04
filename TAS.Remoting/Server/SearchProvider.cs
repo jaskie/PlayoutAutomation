@@ -10,6 +10,7 @@ namespace TAS.Remoting.Server
     {
 
         private readonly IEnumerable<T> _result;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         protected SearchProvider(IEnumerable<T> result)
         {
@@ -19,17 +20,24 @@ namespace TAS.Remoting.Server
 
         public async void Start()
         {
-            await Task.Run(() =>
+            try
             {
-                using (var enumerator = _result.GetEnumerator())
-                    while (enumerator.MoveNext())
-                    {
-                        if (TokenSource.IsCancellationRequested)
-                            break;
-                        ItemAdded?.Invoke(this, new EventArgs<T>(enumerator.Current));
-                    }
-            }, TokenSource.Token);
-            Finished?.Invoke(this, EventArgs.Empty);
+                await Task.Run(() =>
+                {
+                    using (var enumerator = _result.GetEnumerator())
+                        while (enumerator.MoveNext())
+                        {
+                            if (TokenSource.IsCancellationRequested)
+                                break;
+                            ItemAdded?.Invoke(this, new EventArgs<T>(enumerator.Current));
+                        }
+                }, TokenSource.Token);
+                Finished?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
         }
 
         public CancellationTokenSource TokenSource { get; }

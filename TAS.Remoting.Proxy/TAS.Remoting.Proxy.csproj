@@ -58,8 +58,8 @@
     <Compile Include="ClientTypeNameBinder.cs" />
     <Compile Include="Model\AnimatedEvent.cs" />
     <Compile Include="Model\Media\AnimatedMedia.cs" />
-    <Compile Include="Model\AnimationDirectory.cs" />
-    <Compile Include="Model\ArchiveDirectory.cs" />
+    <Compile Include="Model\Media\AnimationDirectory.cs" />
+    <Compile Include="Model\Media\ArchiveDirectory.cs" />
     <Compile Include="Model\Media\ArchiveMedia.cs" />
     <Compile Include="Model\CGElement.cs" />
     <Compile Include="Model\CGElementsController.cs" />

@@ -131,7 +131,7 @@ namespace TAS.Server.XDCAM
             var umid = r.src.Substring(umidSpecifier.Length);
             var startFrame = r.clipBegin.SmpteToFrame();
             var length = r.clipEnd.SmpteToFrame() - startFrame;
-            var media = _directory.GetFiles().Cast<XdcamMedia>().FirstOrDefault(m => umid.Equals(m.XdcamMaterial?.umid));
+            var media = _directory.GetAllFiles().Cast<XdcamMedia>().FirstOrDefault(m => umid.Equals(m.XdcamMaterial?.umid));
             if (media?.XdcamMaterial == null)
                 return null;
             var fileName = media.XdcamMaterial.uri.TrimStart('.', '/');

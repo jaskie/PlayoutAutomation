@@ -6,11 +6,15 @@ namespace TAS.Remoting.Model.Media
 {
     public abstract class WatcherDirectory: MediaDirectoryBase, IWatcherDirectory
     {
-        public abstract IReadOnlyCollection<IMedia> GetFiles();
 
         public void Refresh()
         {
             Invoke();
+        }
+
+        public virtual IReadOnlyCollection<IMedia> GetAllFiles()
+        {
+            return Query<IReadOnlyCollection<IMedia>>();
         }
     }
 }

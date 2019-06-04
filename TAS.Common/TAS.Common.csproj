@@ -70,12 +70,12 @@
     <Compile Include="EventProxy.cs" />
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
+    <Compile Include="Interfaces\EventArgs.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
     <Compile Include="Interfaces\IRemoteHostConfig.cs" />
     <Compile Include="Interfaces\ISearchProvider.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaDirectory.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaSearchProvider.cs" />
-    <Compile Include="Interfaces\MediaDirectory\ISearchableDirectory.cs" />
     <Compile Include="Interfaces\IEnginePlugin.cs" />
     <Compile Include="Interfaces\IEnginePluginFactory.cs" />
     <Compile Include="EventEventArgs.cs" />

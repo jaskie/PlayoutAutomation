@@ -76,7 +76,7 @@ namespace TAS.Client.ViewModels
             if (!closeAfterAdd)
                 OkButtonText = resources._button_Add;
             Items = new ObservableCollection<MediaViewViewmodel>(
-                _searchDirectory.GetFiles()
+                _searchDirectory.GetAllFiles()
                     .Where(m => _canAddMediaToCollection(m, mediaType))
                     .Select(m => new MediaViewViewmodel(m)));
             _itemsView = CollectionViewSource.GetDefaultView(Items);

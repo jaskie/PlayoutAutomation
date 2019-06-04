@@ -8,13 +8,14 @@ namespace TAS.Common.Interfaces.MediaDirectory
     {
         bool IsInitialized { get; }
 
-        IReadOnlyCollection<IMedia> GetFiles();
-
         void SweepStaleMedia();
 
         void Refresh();
 
+        IReadOnlyCollection<IMedia> GetAllFiles();
+
         event EventHandler<MediaEventArgs> MediaVerified;
+        
     }
 
 

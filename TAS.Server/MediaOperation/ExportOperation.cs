@@ -140,8 +140,7 @@ namespace TAS.Server.MediaOperation
             IngestMedia result;
             if (directory.Kind == TIngestDirectoryKind.XDCAM)
             {
-                directory.Refresh();
-                var existingFiles = directory.GetFiles().Where(f =>
+                var existingFiles = directory.GetAllFiles().Where(f =>
                     f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
                 var maxFile = existingFiles.Length == 0
                     ? 1
