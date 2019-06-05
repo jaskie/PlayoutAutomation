@@ -70,7 +70,6 @@ namespace TAS.Remoting.Server
                 {
                     SendResponse(message, _initialObject);
                     _referenceResolver.ReferencePropertyChanged += ReferenceResolver_ReferencePropertyChanged;
-                    _referenceResolver.ReferenceDisposed += ReferencedObjectDisposed;
                 }
                 else // method of particular object
                 {
@@ -192,7 +191,6 @@ namespace TAS.Remoting.Server
         {
             base.OnDispose();
             _referenceResolver.ReferencePropertyChanged -= ReferenceResolver_ReferencePropertyChanged;
-            _referenceResolver.ReferenceDisposed -= ReferencedObjectDisposed;
             lock (((IDictionary) _delegates).SyncRoot)
             {
                 foreach (var d in _delegates.Keys.ToArray())
@@ -308,38 +306,6 @@ namespace TAS.Remoting.Server
             catch (Exception exception)
             {
                 Logger.Error(exception);
-            }
-        }
-
-        private void ReferencedObjectDisposed(object o, WrappedEventArgs eventArgs)
-        {
-            try
-            {
-                lock (((IDictionary) _delegates).SyncRoot)
-                {
-                    var delegatesToRemove = _delegates.Keys.Where(k => k.DtoGuid == eventArgs.Dto.DtoGuid).ToArray();
-                    foreach (var dk in delegatesToRemove)
-                    {
-                        var ei = eventArgs.Dto.GetType().GetEvent(dk.EventName);
-                        RemoveDelegate(eventArgs.Dto, ei);
-                    }
-                }
-                var message = new SocketMessage
-                {
-                    MessageType = SocketMessage.SocketMessageType.ObjectDisposed,
-                    DtoGuid = eventArgs.Dto.DtoGuid,
-                };
-                using (var serialized = SerializeDto(null))
-                {
-                    var bytes = message.ToByteArray(serialized);
-                    Send(bytes);
-                }
-                Debug.WriteLine($"Server: ObjectDisposed notification on {eventArgs.Dto} sent");
-
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
             }
         }
 

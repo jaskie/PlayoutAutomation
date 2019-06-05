@@ -17,10 +17,8 @@ namespace TAS.Remoting
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private int _disposed;
-
         private readonly List<byte[]> _sendQueue = new List<byte[]>();
-        private const int MaxQueueSize = 0x1000;
-
+        private readonly int _maxQueueSize;
         private Thread _readThread;
         private Thread _writeThread;
         private readonly AutoResetEvent _sendAutoResetEvent = new AutoResetEvent(false);
@@ -32,10 +30,12 @@ namespace TAS.Remoting
         {
             Client = client;
             client.NoDelay = true;
+            _maxQueueSize = 0x1000;
         }
 
         protected TcpConnection(string address)
         {
+            _maxQueueSize = 0x10000;
             var port = 1060;
             var addressParts = address.Split(':');
             if (addressParts.Length > 1)
@@ -55,7 +55,7 @@ namespace TAS.Remoting
             try
             {
                 lock (((ICollection) _sendQueue).SyncRoot)
-                    if (_sendQueue.Count < MaxQueueSize)
+                    if (_sendQueue.Count < _maxQueueSize)
                     {
                         _sendQueue.Add(bytes);
                         _sendAutoResetEvent.Set();

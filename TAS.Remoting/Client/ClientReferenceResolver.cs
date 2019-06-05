@@ -10,7 +10,7 @@ namespace TAS.Remoting.Client
 {
     public class ClientReferenceResolver : IReferenceResolver, IDisposable
     {
-        private readonly Dictionary<Guid, ProxyBase> _knownDtos = new Dictionary<Guid, ProxyBase>();
+        private readonly Dictionary<Guid, WeakReference<ProxyBase>> _knownDtos = new Dictionary<Guid, WeakReference<ProxyBase>>();
         private int _disposed;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -20,10 +20,6 @@ namespace TAS.Remoting.Client
                 return;
             lock (((IDictionary) _knownDtos).SyncRoot)
             {
-                foreach (var dto in _knownDtos)
-                {
-                    dto.Value.Disposed -= Proxy_Disposed;
-                }
                 _knownDtos.Clear();
             }
         }
@@ -36,8 +32,7 @@ namespace TAS.Remoting.Client
             var id = new Guid(reference);
             proxy.DtoGuid = id;
             lock (((IDictionary)_knownDtos).SyncRoot)
-                _knownDtos[id] = proxy;
-            proxy.Disposed += Proxy_Disposed;
+                _knownDtos[id] = new WeakReference<ProxyBase>(proxy);
             proxy.Finalized += Proxy_Finalized;
             Logger.Trace("AddReference {0} for {1}", reference, value);
         }
@@ -50,9 +45,8 @@ namespace TAS.Remoting.Client
             {
                 if (IsReferenced(context, value))
                     return proxy.DtoGuid.ToString();
-                _knownDtos[proxy.DtoGuid] = proxy;
+                _knownDtos[proxy.DtoGuid] = new WeakReference<ProxyBase>(proxy);
             }
-            proxy.Disposed += Proxy_Disposed;
             proxy.Finalized += Proxy_Finalized;
             Logger.Warn("GetReference added {0} for {1}", proxy.DtoGuid, value);
             return proxy.DtoGuid.ToString();
@@ -61,9 +55,15 @@ namespace TAS.Remoting.Client
 
         public bool IsReferenced(object context, object value)
         {
+            if (!(value is IDto dto))
+                return false;
             lock (((IDictionary) _knownDtos).SyncRoot)
-                if (value is IDto p && !p.DtoGuid.Equals(Guid.Empty))
-                    return _knownDtos.ContainsKey(p.DtoGuid);
+                if (_knownDtos.TryGetValue(dto.DtoGuid, out var reference))
+                {
+                    if (reference.TryGetTarget(out var _))
+                        return true;
+                    _knownDtos.Remove(dto.DtoGuid);
+                }
             return false;
         }
 
@@ -75,7 +75,10 @@ namespace TAS.Remoting.Client
                 if (!_knownDtos.TryGetValue(id, out var value))
                     throw new UnresolvedReferenceException(id);
                 Logger.Trace("Resolved reference {0} with {1}", reference, value);
-                return value;
+                if (value.TryGetTarget(out var target))
+                    return target;
+                _knownDtos.Remove(id);
+                return null;
             }
         }
 
@@ -87,29 +90,34 @@ namespace TAS.Remoting.Client
         {
             lock (((IDictionary) _knownDtos).SyncRoot)
             {
-                if (_knownDtos.TryGetValue(reference, out var p))
-                    return p;
+                if (!_knownDtos.TryGetValue(reference, out var p))
+                    return null;
+                if (p.TryGetTarget(out var target))
+                    return target;
+                _knownDtos.Remove(reference);
                 return null;
             }
-        }
-
-        private void Proxy_Disposed(object sender, EventArgs e)
-        {
-            lock (((IDictionary) _knownDtos).SyncRoot)
-                if (sender is ProxyBase proxy && _knownDtos.TryGetValue(proxy.DtoGuid, out var _) && sender == proxy)
-                {
-                    _knownDtos.Remove(proxy.DtoGuid);
-                    proxy.Disposed -= Proxy_Disposed;
-                    Logger.Trace("Reference resolver - object {0} disposed, generation is {1}", proxy, GC.GetGeneration(proxy));
-                }
         }
 
         private void Proxy_Finalized(object sender, EventArgs e)
         {
             Debug.Assert(sender is ProxyBase);
-            Proxy_Disposed(sender, e);
-            ((ProxyBase) sender).Finalized -= Proxy_Finalized;
-            ReferenceFinalized?.Invoke(this, new EventArgs<ProxyBase>((ProxyBase)sender));
+            ((ProxyBase)sender).Finalized -= Proxy_Finalized;
+            try
+            {
+                lock (((IDictionary) _knownDtos).SyncRoot)
+                    if (_knownDtos.TryGetValue(((ProxyBase) sender).DtoGuid, out var _))
+                    {
+                        _knownDtos.Remove(((ProxyBase) sender).DtoGuid);
+                        Logger.Trace("Reference resolver - object {0} disposed, generation is {1}", sender,
+                            GC.GetGeneration(sender));
+                    }
+                ReferenceFinalized?.Invoke(this, new EventArgs<ProxyBase>((ProxyBase) sender));
+            }
+            catch
+            {
+                // ignored because invoked in garbage collector thread
+            }
         }
 
     }

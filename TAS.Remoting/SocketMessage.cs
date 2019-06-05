@@ -18,7 +18,6 @@ namespace TAS.Remoting
             EventRemove,
             EventNotification,
             Exception,
-            ObjectDisposed,
             ProxyFinalized
         }
 

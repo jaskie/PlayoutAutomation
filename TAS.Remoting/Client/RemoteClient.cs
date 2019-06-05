@@ -18,8 +18,6 @@ namespace TAS.Remoting.Client
         private readonly ClientReferenceResolver _referenceResolver;
         private object _initialObject;
         private readonly Dictionary<Guid, SocketMessage> _receivedMessages = new Dictionary<Guid, SocketMessage>();
-        private readonly List<SocketMessage> _futureNotificationMessages = new List<SocketMessage>();
-        private readonly List<SocketMessage> _futureDisposalMessages = new List<SocketMessage>();
         private readonly AutoResetEvent _messageReceivedAutoResetEvent = new AutoResetEvent(false);
 
 
@@ -180,19 +178,7 @@ namespace TAS.Remoting.Client
             {
                 case SocketMessage.SocketMessageType.EventNotification:
                     var notifyObject = _referenceResolver.ResolveReference(message.DtoGuid);
-                    if (notifyObject != null)
-                        notifyObject.OnEventNotificationMessage(message);
-                    else
-                        lock (((IList)_futureNotificationMessages).SyncRoot)
-                            _futureNotificationMessages.Add(message);
-                    break;
-                case SocketMessage.SocketMessageType.ObjectDisposed:
-                    var disposedObject = _referenceResolver.ResolveReference(message.DtoGuid);
-                    if (disposedObject != null)
-                        disposedObject.Dispose();
-                    else
-                        lock (((IList)_futureDisposalMessages).SyncRoot)
-                            _futureDisposalMessages.Add(message);
+                    notifyObject?.OnEventNotificationMessage(message);
                     break;
                 default:
                     lock (((IDictionary)_receivedMessages).SyncRoot)
@@ -236,10 +222,6 @@ namespace TAS.Remoting.Client
                 if (response.MessageType == SocketMessage.SocketMessageType.Exception)
                     throw Deserialize<Exception>(response);
                 var result = Deserialize<T>(response);
-                if (_futureNotificationMessages.Count > 0)
-                    ApplyDelayedNotifications();
-                if (_futureDisposalMessages.Count > 0)
-                    ApplyDelayedDisposals();
                 return result;
             }
             return default(T);
@@ -255,38 +237,21 @@ namespace TAS.Remoting.Client
             Send(message.ToByteArray(null));
         }
 
-        private void ApplyDelayedDisposals()
-        {
-            var unprocessedMessages = new Dictionary<SocketMessage, ProxyBase>();
-            lock (((IList) _futureDisposalMessages).SyncRoot)
-            {
-                foreach (var message in _futureDisposalMessages)
-                    unprocessedMessages.Add(message, _referenceResolver.ResolveReference(message.DtoGuid));   
-                foreach (var unprocessedMessage in unprocessedMessages)
-                {
-                    if (unprocessedMessage.Value == null)
-                        continue;
-                    unprocessedMessage.Value.Dispose();
-                    _futureDisposalMessages.Remove(unprocessedMessage.Key);
-                }
-            }
-        }
-
-        private void ApplyDelayedNotifications()
-        {
-            var unprocessedMessages = new Dictionary<SocketMessage, ProxyBase>();
-            lock (((IList)_futureNotificationMessages).SyncRoot)
-            {
-                foreach (var message in _futureNotificationMessages)
-                    unprocessedMessages.Add(message, _referenceResolver.ResolveReference(message.DtoGuid));
-                foreach (var unprocessedMessage in unprocessedMessages)
-                {
-                    if (unprocessedMessage.Value == null)
-                        continue;
-                    unprocessedMessage.Value.OnEventNotificationMessage(unprocessedMessage.Key);
-                    _futureNotificationMessages.Remove(unprocessedMessage.Key);
-                }
-            }
-        }
+        //private void ApplyDelayedNotifications()
+        //{
+        //    var unprocessedMessages = new Dictionary<SocketMessage, ProxyBase>();
+        //    lock (((IList)_futureNotificationMessages).SyncRoot)
+        //    {
+        //        foreach (var message in _futureNotificationMessages)
+        //            unprocessedMessages.Add(message, _referenceResolver.ResolveReference(message.DtoGuid));
+        //        foreach (var unprocessedMessage in unprocessedMessages)
+        //        {
+        //            if (unprocessedMessage.Value == null)
+        //                continue;
+        //            unprocessedMessage.Value.OnEventNotificationMessage(unprocessedMessage.Key);
+        //            _futureNotificationMessages.Remove(unprocessedMessage.Key);
+        //        }
+        //    }
+        //}
     }
 }
