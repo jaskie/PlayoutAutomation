@@ -77,50 +77,46 @@ namespace TAS.Remoting.Server
                     var objectToInvoke = _referenceResolver.ResolveReference(message.DtoGuid);
                     if (objectToInvoke != null)
                     {
-                        if (message.MessageType == SocketMessage.SocketMessageType.Query
-                            || message.MessageType == SocketMessage.SocketMessageType.Invoke)
+                        switch (message.MessageType)
                         {
-                            var objectToInvokeType = objectToInvoke.GetType();
-                            var methodToInvoke = objectToInvokeType.GetMethods()
-                                .FirstOrDefault(m => m.Name == message.MemberName &&
-                                                     m.GetParameters().Length == message.ParametersCount);
-                            if (methodToInvoke != null)
-                            {
-                                var parameters = DeserializeDto<SocketMessageArrayValue>(message.ValueStream);
-                                var methodParameters = methodToInvoke.GetParameters();
-                                for (var i = 0; i < methodParameters.Length; i++)
-                                    MethodParametersAlignment.AlignType(ref parameters.Value[i],
-                                        methodParameters[i].ParameterType);
-                                object response;
-                                try
+                            case SocketMessage.SocketMessageType.Query:
+                            case SocketMessage.SocketMessageType.Invoke:
+                                var objectToInvokeType = objectToInvoke.GetType();
+                                var methodToInvoke = objectToInvokeType.GetMethods()
+                                    .FirstOrDefault(m => m.Name == message.MemberName &&
+                                                         m.GetParameters().Length == message.ParametersCount);
+                                if (methodToInvoke != null)
                                 {
-                                    response = methodToInvoke.Invoke(objectToInvoke, parameters.Value);
+                                    var parameters = DeserializeDto<SocketMessageArrayValue>(message.ValueStream);
+                                    var methodParameters = methodToInvoke.GetParameters();
+                                    for (var i = 0; i < methodParameters.Length; i++)
+                                        MethodParametersAlignment.AlignType(ref parameters.Value[i],
+                                            methodParameters[i].ParameterType);
+                                    object response;
+                                    try
+                                    {
+                                        response = methodToInvoke.Invoke(objectToInvoke, parameters.Value);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        SendException(message, e);
+                                        throw;
+                                    }
+                                    if (message.MessageType == SocketMessage.SocketMessageType.Query)
+                                        SendResponse(message, response);
                                 }
-                                catch (Exception e)
-                                {
-                                    SendException(message, e);
-                                    throw;
-                                }
-                                if (message.MessageType == SocketMessage.SocketMessageType.Query)
-                                    SendResponse(message, response);
-                            }
-                            else
-                                throw new ApplicationException(
-                                    $"Server: unknown method: {objectToInvoke}:{message.MemberName}");
-                        }
-                        else if (message.MessageType == SocketMessage.SocketMessageType.Get
-                                 || message.MessageType == SocketMessage.SocketMessageType.Set)
-                        {
-                            var property = objectToInvoke.GetType().GetProperty(message.MemberName);
-                            if (property != null)
-                            {
-                                if (message.MessageType == SocketMessage.SocketMessageType.Get &&
-                                    property.CanRead)
+                                else
+                                    throw new ApplicationException(
+                                        $"Server: unknown method: {objectToInvoke}:{message.MemberName}");
+                                break;
+                            case SocketMessage.SocketMessageType.Get:
+                                var getProperty = objectToInvoke.GetType().GetProperty(message.MemberName);
+                                if (getProperty != null)
                                 {
                                     object response;
                                     try
                                     {
-                                        response = property.GetValue(objectToInvoke, null);
+                                        response = getProperty.GetValue(objectToInvoke, null);
                                     }
                                     catch (Exception e)
                                     {
@@ -129,45 +125,47 @@ namespace TAS.Remoting.Server
                                     }
                                     SendResponse(message, response);
                                 }
-                                else // Set
+                                else
+                                    throw new ApplicationException(
+                                        $"Server: unknown property: {objectToInvoke}:{message.MemberName}");
+                                break;
+                            case SocketMessage.SocketMessageType.Set:
+                                var setProperty = objectToInvoke.GetType().GetProperty(message.MemberName);
+                                if (setProperty != null)
                                 {
-                                    if (property.CanWrite)
+                                    var parameter = DeserializeDto<object>(message.ValueStream);
+                                    MethodParametersAlignment.AlignType(ref parameter, setProperty.PropertyType);
+                                    try
                                     {
-                                        var parameter = DeserializeDto<object>(message.ValueStream);
-                                        MethodParametersAlignment.AlignType(ref parameter, property.PropertyType);
-                                        try
-                                        {
-                                            property.SetValue(objectToInvoke, parameter, null);
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            SendException(message, e);
-                                            throw;
-                                        }
+                                        setProperty.SetValue(objectToInvoke, parameter, null);
                                     }
-                                    else
-                                        throw new ApplicationException(
-                                            $"Server: not writable property: {objectToInvoke}:{message.MemberName}");
+                                    catch (Exception e)
+                                    {
+                                        SendException(message, e);
+                                        throw;
+                                    }
                                 }
-                            }
-                            else
-                                throw new ApplicationException(
-                                    $"Server: unknown property: {objectToInvoke}:{message.MemberName}");
-                        }
-                        else if (message.MessageType == SocketMessage.SocketMessageType.EventAdd
-                                 || message.MessageType == SocketMessage.SocketMessageType.EventRemove)
-                        {
-                            var ei = objectToInvoke.GetType().GetEvent(message.MemberName);
-                            if (ei != null)
-                            {
-                                if (message.MessageType == SocketMessage.SocketMessageType.EventAdd)
-                                    AddDelegate(objectToInvoke, ei);
-                                else if (message.MessageType == SocketMessage.SocketMessageType.EventRemove)
-                                    RemoveDelegate(objectToInvoke, ei);
-                            }
-                            else
-                                throw new ApplicationException(
-                                    $"Server: unknown event: {objectToInvoke}:{message.MemberName}");
+                                else
+                                    throw new ApplicationException(
+                                        $"Server: unknown property: {objectToInvoke}:{message.MemberName}");
+                                break;
+                            case SocketMessage.SocketMessageType.EventAdd:
+                            case SocketMessage.SocketMessageType.EventRemove:
+                                var ei = objectToInvoke.GetType().GetEvent(message.MemberName);
+                                if (ei != null)
+                                {
+                                    if (message.MessageType == SocketMessage.SocketMessageType.EventAdd)
+                                        AddDelegate(objectToInvoke, ei);
+                                    else if (message.MessageType == SocketMessage.SocketMessageType.EventRemove)
+                                        RemoveDelegate(objectToInvoke, ei);
+                                }
+                                else
+                                    throw new ApplicationException(
+                                        $"Server: unknown event: {objectToInvoke}:{message.MemberName}");
+                                break;
+                            case SocketMessage.SocketMessageType.ProxyFinalized:
+                                RemoveReference(objectToInvoke);
+                                break;
                         }
                     }
                     else
@@ -183,6 +181,7 @@ namespace TAS.Remoting.Server
             }
         }
 
+        
         private void SendException(SocketMessage message, Exception exception)
         {
             message.MessageType = SocketMessage.SocketMessageType.Exception;
@@ -343,6 +342,22 @@ namespace TAS.Remoting.Server
                 Logger.Error(e);
             }
         }
+
+        private void RemoveReference(IDto dto)
+        {
+            lock(((IDictionary)_delegates).SyncRoot)
+            {
+                var delegatesToRemove = _delegates.Keys.Where(k => k.DtoGuid == dto.DtoGuid).ToArray();
+                foreach (var dk in delegatesToRemove)
+                {
+                    var ei = dto.GetType().GetEvent(dk.EventName);
+                    RemoveDelegate(dto, ei);
+                }
+            }
+            _referenceResolver.RemoveReference(dto);
+            Debug.WriteLine($"Server: Reference removed: {dto}");
+        }
+
 
         private void ReferenceResolver_ReferencePropertyChanged(object sender, WrappedEventArgs e)
         {

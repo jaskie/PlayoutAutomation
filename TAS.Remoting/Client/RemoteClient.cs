@@ -28,6 +28,7 @@ namespace TAS.Remoting.Client
             _serializer = JsonSerializer.CreateDefault();
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting, this);
             _referenceResolver = new ClientReferenceResolver();
+            _referenceResolver.ReferenceFinalized += Resolver_ReferenceFinalized;
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.Objects | TypeNameHandling.Arrays;
 #if DEBUG
@@ -35,7 +36,6 @@ namespace TAS.Remoting.Client
 #endif      
             StartThreads();
         }
-
 
         protected override void OnDispose()
         {
@@ -204,7 +204,6 @@ namespace TAS.Remoting.Client
             }
         }
 
-
         private SocketMessage WebSocketMessageCreate(SocketMessage.SocketMessageType socketMessageType, IDto dto, string memberName, int paramsCount)
         {
             return new SocketMessage
@@ -244,6 +243,16 @@ namespace TAS.Remoting.Client
                 return result;
             }
             return default(T);
+        }
+
+        private void Resolver_ReferenceFinalized(object sender, Common.EventArgs<ProxyBase> e)
+        {
+            var message = WebSocketMessageCreate(
+                SocketMessage.SocketMessageType.ProxyFinalized,
+                e.Item,
+                string.Empty,
+                0);
+            Send(message.ToByteArray(null));
         }
 
         private void ApplyDelayedDisposals()

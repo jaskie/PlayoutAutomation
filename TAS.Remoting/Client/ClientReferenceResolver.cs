@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using Newtonsoft.Json.Serialization;
+using TAS.Common;
 
 namespace TAS.Remoting.Client
 {
@@ -20,12 +22,11 @@ namespace TAS.Remoting.Client
             {
                 foreach (var dto in _knownDtos)
                 {
-                    dto.Value.Disposed -= _reference_Disposed;
+                    dto.Value.Disposed -= Proxy_Disposed;
                 }
                 _knownDtos.Clear();
             }
         }
-
 
         #region IReferenceResolver
         public void AddReference(object context, string reference, object value)
@@ -36,23 +37,25 @@ namespace TAS.Remoting.Client
             proxy.DtoGuid = id;
             lock (((IDictionary)_knownDtos).SyncRoot)
                 _knownDtos[id] = proxy;
-            proxy.Disposed += _reference_Disposed;
+            proxy.Disposed += Proxy_Disposed;
+            proxy.Finalized += Proxy_Finalized;
             Logger.Trace("AddReference {0} for {1}", reference, value);
         }
 
         public string GetReference(object context, object value)
         {
-            if (!(value is ProxyBase dto)) return
+            if (!(value is ProxyBase proxy)) return
                 string.Empty;
             lock (((IDictionary)_knownDtos).SyncRoot)
             {
                 if (IsReferenced(context, value))
-                    return dto.DtoGuid.ToString();
-                _knownDtos[dto.DtoGuid] = dto;
+                    return proxy.DtoGuid.ToString();
+                _knownDtos[proxy.DtoGuid] = proxy;
             }
-            dto.Disposed += _reference_Disposed;
-            Logger.Trace("GetReference added {0} for {1}", dto.DtoGuid, value);
-            return dto.DtoGuid.ToString();
+            proxy.Disposed += Proxy_Disposed;
+            proxy.Finalized += Proxy_Finalized;
+            Logger.Warn("GetReference added {0} for {1}", proxy.DtoGuid, value);
+            return proxy.DtoGuid.ToString();
         }
 
 
@@ -78,6 +81,8 @@ namespace TAS.Remoting.Client
 
         #endregion //IReferenceResolver
 
+        internal event EventHandler<EventArgs<ProxyBase>> ReferenceFinalized;
+
         internal ProxyBase ResolveReference(Guid reference)
         {
             lock (((IDictionary) _knownDtos).SyncRoot)
@@ -88,15 +93,23 @@ namespace TAS.Remoting.Client
             }
         }
 
-        private void _reference_Disposed(object sender, EventArgs e)
+        private void Proxy_Disposed(object sender, EventArgs e)
         {
             lock (((IDictionary) _knownDtos).SyncRoot)
-                if (sender is IDto dto && _knownDtos.TryGetValue(dto.DtoGuid, out var _) && sender == dto)
+                if (sender is ProxyBase proxy && _knownDtos.TryGetValue(proxy.DtoGuid, out var _) && sender == proxy)
                 {
-                    _knownDtos.Remove(dto.DtoGuid);
-                    dto.Disposed -= _reference_Disposed;
-                    Logger.Trace("Reference resolver - object {0} disposed, generation is {1}", dto, GC.GetGeneration(dto));
+                    _knownDtos.Remove(proxy.DtoGuid);
+                    proxy.Disposed -= Proxy_Disposed;
+                    Logger.Trace("Reference resolver - object {0} disposed, generation is {1}", proxy, GC.GetGeneration(proxy));
                 }
+        }
+
+        private void Proxy_Finalized(object sender, EventArgs e)
+        {
+            Debug.Assert(sender is ProxyBase);
+            Proxy_Disposed(sender, e);
+            ((ProxyBase) sender).Finalized -= Proxy_Finalized;
+            ReferenceFinalized?.Invoke(this, new EventArgs<ProxyBase>((ProxyBase)sender));
         }
 
     }

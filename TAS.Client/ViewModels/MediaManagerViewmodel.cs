@@ -438,7 +438,7 @@ namespace TAS.Client.ViewModels
         private async void ReloadFiles()
         {
             UiServices.SetBusyState();
-            CancelSearchProvider();
+            CancelMediaSearchProvider();
             SetMediaItems(null);
             switch (SelectedDirectory.Directory)
             {
@@ -473,13 +473,16 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void CancelSearchProvider()
+        private void CancelMediaSearchProvider()
         {
             if (_currentSearchProvider == null)
                 return;
             _currentSearchProvider.ItemAdded -= Search_ItemAdded;
+            _currentSearchProvider.Finished -= Search_Finished;
             _currentSearchProvider.Cancel();
+            _currentSearchProvider.Dispose();
             _currentSearchProvider = null;
+            IsSearching = false;
         }
 
         private void StartMediaSearchProvider(IMediaDirectory mediaDirectory)
@@ -487,17 +490,7 @@ namespace TAS.Client.ViewModels
             var newSearch = mediaDirectory.Search(MediaCategory as TMediaCategory?, SearchText?.ToLower());
             _currentSearchProvider = newSearch;
             newSearch.ItemAdded += Search_ItemAdded;
-            newSearch.Finished += (sender, args) =>
-            {
-                if (!(sender is IMediaSearchProvider provider))
-                    return;
-                provider.Dispose();
-                provider.ItemAdded -= Search_ItemAdded;
-                if (provider != _currentSearchProvider)
-                    return;
-                _currentSearchProvider = null;
-                IsSearching = false;
-            };
+            newSearch.Finished += Search_Finished;
             IsSearching = true;
             newSearch.Start();
         }
@@ -507,6 +500,19 @@ namespace TAS.Client.ViewModels
             if (_currentSearchProvider == null)
                 return;
             OnUiThread(() => AddMediaToItems(e.Item));
+        }
+
+        private void Search_Finished(object sender, EventArgs e)
+        {
+            if (!(sender is IMediaSearchProvider provider))
+                return;
+            provider.Dispose();
+            provider.ItemAdded -= Search_ItemAdded;
+            provider.Finished -= Search_Finished;
+            if (provider != _currentSearchProvider)
+                return;
+            _currentSearchProvider = null;
+            IsSearching = false;
         }
 
         public bool IsSearching { get => _isSearching; set => SetField(ref _isSearching, value); }

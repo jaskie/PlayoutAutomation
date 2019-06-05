@@ -19,6 +19,7 @@ namespace TAS.Remoting
             EventNotification,
             Exception,
             ObjectDisposed,
+            ProxyFinalized
         }
 
         private static readonly byte[] Version = { 0x1, 0x0,

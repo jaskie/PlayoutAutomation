@@ -93,15 +93,8 @@ namespace TAS.Remoting.Server
 
             if (!(sender is DtoBase dto))
                 throw new InvalidOperationException("Object provided is not DtoBase");
-            if (!_knownDtos.TryRemove(dto.DtoGuid, out var disposed))
-                throw new InvalidOperationException("DtoBase wasn't in dictionary");
-            if (!Equals(sender, disposed))
-                throw new InvalidOperationException("Object in dictionary was different than was notifying");
-
             ReferenceDisposed?.Invoke(this, new WrappedEventArgs(dto, e));
-            RemoveDelegates(disposed);
-
-            Logger.Trace("Reference resolver - object {0} disposed, generation is {1}", disposed, GC.GetGeneration(dto));
+            Logger.Trace("Reference resolver - object {0} disposed, generation is {1}", dto, GC.GetGeneration(dto));
         }
 
         private void AttachDelegates(IDto dto)
@@ -116,6 +109,11 @@ namespace TAS.Remoting.Server
             dto.Disposed -= _reference_Disposed;
         }
 
+        public void RemoveReference(IDto dto)
+        {
+            _knownDtos.TryRemove(dto.DtoGuid, out var _);
+            RemoveDelegates(dto);
+        }
     }
 
 }

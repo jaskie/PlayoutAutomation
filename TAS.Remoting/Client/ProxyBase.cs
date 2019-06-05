@@ -25,12 +25,11 @@ namespace TAS.Remoting.Client
                 DoDispose();
         }
 
-#if DEBUG
         ~ProxyBase()
         {
             Debug.WriteLine(this, $"{GetType().FullName} Finalized");
+            Finalized?.Invoke(this, EventArgs.Empty);
         }
-#endif
 
         [JsonProperty]
         public Guid DtoGuid { get; set; }
@@ -38,6 +37,8 @@ namespace TAS.Remoting.Client
         public event PropertyChangedEventHandler PropertyChanged;
 
         public event EventHandler Disposed;
+
+        internal event EventHandler Finalized; 
 
         protected T Get<T>([CallerMemberName] string propertyName = null)
         {

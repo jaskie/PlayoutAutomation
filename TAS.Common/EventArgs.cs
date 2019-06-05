@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TAS.Common.Interfaces
+namespace TAS.Common
 {
     public class EventArgs<T> : EventArgs
     {
@@ -8,6 +8,7 @@ namespace TAS.Common.Interfaces
         {
             Item = item;
         }
+
         public T Item { get; }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Server
