@@ -98,6 +98,7 @@
     <Compile Include="Media\TempDirectory.cs" />
     <Compile Include="Media\AnimatedMedia.cs" />
     <Compile Include="Media\TempMedia.cs" />
+    <Compile Include="SearchProvider.cs" />
     <Compile Include="Security\AclRightBase.cs" />
     <Compile Include="Security\EngineAclRight.cs" />
     <Compile Include="Security\EventAclRight.cs" />

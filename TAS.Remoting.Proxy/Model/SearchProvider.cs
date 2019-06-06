@@ -1,8 +1,9 @@
 ﻿using System;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Remoting.Client;
 
-namespace TAS.Remoting.Client
+namespace TAS.Remoting.Model
 {
     public abstract class SearchProvider<T> : ProxyBase, ISearchProvider<T>
     {

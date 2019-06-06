@@ -4,8 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Remoting.Server;
 
-namespace TAS.Remoting.Server
+namespace TAS.Server
 {
     public abstract class SearchProvider<T> : DtoBase, ISearchProvider<T>
     {
