@@ -3,50 +3,38 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Security.Principal;
-using System.Text;
 using System.Threading;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Security;
 using System.Collections;
 
 namespace TAS.Remoting.Server
 {
-    public class ServerSession : TcpConnection
+    public class ServerSession : SocketConnection
     {
-        private readonly JsonSerializer _serializer = JsonSerializer.CreateDefault();
-        private readonly ServerReferenceResolver _referenceResolver = new ServerReferenceResolver();
         private readonly Dictionary<DelegateKey, Delegate> _delegates = new Dictionary<DelegateKey, Delegate>();
         private readonly IUser _sessionUser;
         private readonly IDto _initialObject;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public ServerSession(TcpClient client, IAuthenticationService authenticationService, IDto initialObject): base(client)
+
+        public ServerSession(TcpClient client, IAuthenticationService authenticationService, IDto initialObject): base(client, new ServerReferenceResolver())
         {
             _initialObject = initialObject;
            
-            _serializer.ReferenceResolver = _referenceResolver;
-            _serializer.TypeNameHandling = TypeNameHandling.Objects;
-            _serializer.Context = new StreamingContext(StreamingContextStates.Remoting);
-
-#if DEBUG
-            _serializer.Formatting = Formatting.Indented;
-#endif
             if (!(client.Client.RemoteEndPoint is IPEndPoint endPoint))
                 throw new UnauthorizedAccessException($"Client RemoteEndpoint {Client.Client.RemoteEndPoint} is invalid");
             _sessionUser = authenticationService.FindUser(AuthenticationSource.IpAddress, endPoint.Address.ToString());
             if (_sessionUser == null)
                 throw new UnauthorizedAccessException($"Access from {Client.Client.RemoteEndPoint} not allowed");
+            ((ServerReferenceResolver)ReferenceResolver).ReferencePropertyChanged += ReferenceResolver_ReferencePropertyChanged;
             StartThreads();
         }
-        
 
 #if DEBUG
         ~ServerSession()
@@ -61,19 +49,18 @@ namespace TAS.Remoting.Server
             base.ReadThreadProc();
         }
 
-        protected override void OnMessage(byte[] data)
+        protected override void OnMessage(SocketMessage message)
         {
-            var message = new SocketMessage(data);
             try
             {
                 if (message.MessageType == SocketMessage.SocketMessageType.RootQuery)
                 {
                     SendResponse(message, _initialObject);
-                    _referenceResolver.ReferencePropertyChanged += ReferenceResolver_ReferencePropertyChanged;
                 }
                 else // method of particular object
                 {
-                    var objectToInvoke = _referenceResolver.ResolveReference(message.DtoGuid);
+                    Debug.WriteLine(message.MemberName);
+                    var objectToInvoke = ((ServerReferenceResolver)ReferenceResolver).ResolveReference(message.DtoGuid);
                     if (objectToInvoke != null)
                     {
                         switch (message.MessageType)
@@ -190,49 +177,26 @@ namespace TAS.Remoting.Server
         protected override void OnDispose()
         {
             base.OnDispose();
-            _referenceResolver.ReferencePropertyChanged -= ReferenceResolver_ReferencePropertyChanged;
+            ((ServerReferenceResolver)ReferenceResolver).ReferencePropertyChanged -= ReferenceResolver_ReferencePropertyChanged;
             lock (((IDictionary) _delegates).SyncRoot)
             {
                 foreach (var d in _delegates.Keys.ToArray())
                 {
-                    var havingDelegate = _referenceResolver.ResolveReference(d.DtoGuid);
+                    var havingDelegate = ((ServerReferenceResolver)ReferenceResolver).ResolveReference(d.DtoGuid);
                     if (havingDelegate == null)
                         throw new ApplicationException("Referenced object not found");
                     var ei = havingDelegate.GetType().GetEvent(d.EventName);
                     RemoveDelegate(havingDelegate, ei);
                 }
             }
-            _referenceResolver.Dispose();
+            ((ServerReferenceResolver)ReferenceResolver).Dispose();
         }
 
         private void SendResponse(SocketMessage message, object response)
         {
-            using (var serialized = SerializeDto(response))
-            {
-                var bytes = message.ToByteArray(serialized);
-                Send(bytes);
-            }
+            Send(new SocketMessage(message, response));
         }
 
-        private Stream SerializeDto(object response)
-        {
-            if (response == null)
-                return null;
-            var serialized = new MemoryStream();
-            using (var writer = new StreamWriter(serialized, Encoding.UTF8, 1024, true))
-                _serializer.Serialize(writer, response);
-            return serialized;
-        }
-
-        private T DeserializeDto<T>(Stream stream)
-        {
-            if (stream == null)
-                return default(T);
-            using (var reader = new StreamReader(stream))
-            {
-                return (T)_serializer.Deserialize(reader, typeof(T));
-            }
-        }
 
         private void AddDelegate(IDto objectToInvoke, EventInfo ei)
         {
@@ -291,17 +255,14 @@ namespace TAS.Remoting.Server
                 }
                 else
                     eventArgs = e;
-                var message = new SocketMessage
+                var message = new SocketMessage(eventArgs)
                 {
                     MessageType = SocketMessage.SocketMessageType.EventNotification,
                     DtoGuid = dto.DtoGuid,
-                    MemberName = eventName
+                    MemberName = eventName,
+                    
                 };
-                using (var serialized = SerializeDto(eventArgs))
-                {
-                    var bytes = message.ToByteArray(serialized);
-                    Send(bytes);
-                }
+                Send(message);
             }
             catch (Exception exception)
             {
@@ -320,7 +281,7 @@ namespace TAS.Remoting.Server
                     RemoveDelegate(dto, ei);
                 }
             }
-            _referenceResolver.RemoveReference(dto);
+            ((ServerReferenceResolver)ReferenceResolver).RemoveReference(dto);
             Debug.WriteLine($"Server: Reference removed: {dto}");
         }
 

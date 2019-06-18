@@ -935,6 +935,7 @@ namespace TAS.Server
 
         #endregion // IAclObject
 
+
         public bool HaveRight(EngineRight right)
         {
             if (!(Thread.CurrentPrincipal.Identity is IUser user))

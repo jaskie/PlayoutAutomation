@@ -74,7 +74,7 @@
     <Compile Include="Server\ServerSession.cs" />
     <Compile Include="Server\DtoBase.cs" />
     <Compile Include="SocketMessage.cs" />
-    <Compile Include="TcpConnection.cs" />
+    <Compile Include="SocketConnection.cs" />
     <Compile Include="UnresolvedReferenceException.cs" />
     <Compile Include="WrappedEventArgs.cs" />
   </ItemGroup>

@@ -32,9 +32,19 @@ namespace TAS.Remoting
         private readonly byte[] _rawData;
         private readonly int _valueStartIndex;
 
-        public SocketMessage()
+        public SocketMessage(object value)
         {
             MessageGuid = Guid.NewGuid();
+            Value = value;
+        }
+
+        public SocketMessage(SocketMessage originalMessage, object value)
+        {
+            MessageGuid = originalMessage.MessageGuid;
+            MessageType = originalMessage.MessageType;
+            DtoGuid = originalMessage.DtoGuid;
+            MemberName = originalMessage.MemberName;
+            Value = value;
         }
 
         public SocketMessage(byte[] rawData)
@@ -61,6 +71,7 @@ namespace TAS.Remoting
             _rawData = rawData;
         }
 
+        public object Value { get; }
         public readonly Guid MessageGuid;
         public Guid DtoGuid;
         public SocketMessageType MessageType;
@@ -118,13 +129,6 @@ namespace TAS.Remoting
         public Stream ValueStream => _rawData.Length > _valueStartIndex ? new MemoryStream(_rawData, _valueStartIndex, _rawData.Length - _valueStartIndex) : null;
         
         public string ValueString => Encoding.UTF8.GetString(_rawData, _valueStartIndex, _rawData.Length - _valueStartIndex);
-    }
-
-    [JsonObject(IsReference = false)]
-    public class SocketMessageSingleValue 
-    {
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
-        public object Value;
     }
 
     [JsonObject(IsReference = false)]
