@@ -20,10 +20,12 @@ namespace TAS {
 			return ctx;
 		}
 
-		AVCodecContext * open_codec(AVCodecContext * codec)
+		AVCodecContext * open_codec(AVCodecContext * ctx)
 		{
-			if (avcodec_open2(codec, NULL, NULL) == 0)
-				return codec;
+			AVCodec * codec = avcodec_find_decoder(ctx->codec_id);
+			int ret = avcodec_open2(ctx, codec, NULL);
+			if (ret == 0)
+				return ctx;
 			return nullptr;
 		}
 
@@ -174,7 +176,6 @@ namespace TAS {
 							std::unique_ptr<AVPacket, std::function<void(AVPacket *)>> packet(av_packet_alloc(), [](AVPacket *p) {
 								av_packet_free(&p);
 							});
-							AVCodec * codec = avcodec_find_decoder(codecCtx->codec_id);
 							std::unique_ptr<AVCodecContext, std::function<void(AVCodecContext *)>> opened_context(open_codec(codecCtx), [](AVCodecContext * ctx) {
 								avcodec_close(ctx);
 							});
