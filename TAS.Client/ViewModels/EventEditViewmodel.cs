@@ -819,6 +819,9 @@ namespace TAS.Client.ViewModels
                     case nameof(IEvent.Parent):
                         NotifyPropertyChanged(nameof(BoundEventName));
                         break;
+                    case nameof(IEvent.CurrentUserRights):
+                        InvalidateRequerySuggested();
+                        break;
                 }
             });
         }

@@ -8,6 +8,7 @@
                 EngineController.Database.InsertEventAcl(this);
             else
                 EngineController.Database.UpdateEventAcl(this);
+            base.Save();
         }
 
         public override void Delete()

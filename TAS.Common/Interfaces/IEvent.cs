@@ -36,7 +36,6 @@ namespace TAS.Common.Interfaces
         bool AllowDelete();
         bool IsDeleted { get; }
         bool IsForcedNext { get; }
-        ulong CurrentUserRights { get; }
         bool HaveRight(EventRight right);
         IEvent GetSuccessor();
 

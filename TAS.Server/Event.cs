@@ -165,8 +165,15 @@ namespace TAS.Server
                 return null;
             });
 
-            _rights = new Lazy<List<IAclRight>>(() => EngineController.Database.ReadEventAclList<EventAclRight>(this, _engine.AuthenticationService as IAuthenticationServicePersitency));
-            FieldLengths = EngineController.Database.EventFieldLengths;
+            _rights = new Lazy<List<IAclRight>>(() =>
+            {
+                var rights = EngineController.Database.ReadEventAclList<EventAclRight>(this, _engine.AuthenticationService as IAuthenticationServicePersitency);
+                rights.ForEach(r => ((EventAclRight)r).Saved += AclEvent_Saved);
+                return rights;
+            });
+
+
+        FieldLengths = EngineController.Database.EventFieldLengths;
         }
         #endregion //Constructor
 
@@ -405,19 +412,46 @@ namespace TAS.Server
             lock (_rights)
             {
                 _rights.Value.Add(right);
+                right.Saved += AclEvent_Saved;
             }
             return right;
         }
 
-        public bool DeleteRight(IAclRight item)
+        public void DeleteRight(IAclRight item)
         {
             var right = (AclRightBase)item;
             lock (_rights)
             {
                 var success = _rights.Value.Remove(right);
-                if (success)
-                    right.Delete();
-                return success;
+                if (!success)
+                    return;
+                right.Delete();
+                right.Saved -= AclEvent_Saved;
+            }
+        }
+
+        [JsonProperty]
+        public ulong CurrentUserRights
+        {
+            get
+            {
+                if (!(Thread.CurrentPrincipal.Identity is IUser user))
+                    return 0UL;
+                if (user.IsAdmin)
+                {
+                    var values = Enum.GetValues(typeof(EventRight)).Cast<ulong>();
+                    return values.Aggregate<ulong, ulong>(0, (current, value) => current | value);
+                }
+                var acl = _getVisualParent()?.CurrentUserRights ?? 0;
+                var groups = user.GetGroups();
+                lock (_rights)
+                {
+                    var userRights = _rights.Value.Where(r => r.SecurityObject == user);
+                    acl = userRights.Aggregate(acl, (current, right) => current | right.Acl);
+                    var groupRights = _rights.Value.Where(r => groups.Any(g => g == r.SecurityObject));
+                    acl = groupRights.Aggregate(acl, (current, groupRight) => current | groupRight.Acl);
+                }
+                return acl;
             }
         }
 
@@ -1243,14 +1277,6 @@ namespace TAS.Server
             }
         }
 
-        private Lazy<PersistentMedia> GetLazyMedia(PersistentMedia media, Guid mediaGuid)
-        {
-            return new Lazy<PersistentMedia>(() =>
-            {
-                var priMedia = media ?? _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (WatcherDirectory)Engine.MediaManager.AnimationDirectoryPRI : (WatcherDirectory)Engine.MediaManager.MediaDirectoryPRI);
-                return priMedia;
-            });
-        }
 
         private void _setDuration(TimeSpan newDuration)
         {
@@ -1292,36 +1318,20 @@ namespace TAS.Server
             SubEventChanged?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, operation));
         }
 
-        private PersistentMedia _getMediaFromDir(Guid mediaGuid, WatcherDirectory dir)
+        private void AclEvent_Saved(object sender, EventArgs e)
         {
-            var newMedia = dir?.FindMediaByMediaGuid(mediaGuid);
-            if (newMedia is PersistentMedia media)
-                return media;
-            return null;
-        }
-
-        [JsonProperty]
-        public ulong CurrentUserRights
-        {
-            get
+            NotifyPropertyChanged(nameof(CurrentUserRights));
+            if (!_subEvents.IsValueCreated)
+                return;
+            foreach (var subEvent in _subEvents.Value)
             {
-                if (!(Thread.CurrentPrincipal.Identity is IUser user))
-                    return 0UL;
-                if (user.IsAdmin)
+                subEvent.AclEvent_Saved(sender, e);
+                var current = subEvent._next;
+                while (current?.IsValueCreated == true)
                 {
-                    var values = Enum.GetValues(typeof(EventRight)).Cast<ulong>();
-                    return values.Aggregate<ulong, ulong>(0, (current, value) => current | value);
+                    current.Value?.AclEvent_Saved(sender, e);
+                    current = current.Value?._next;
                 }
-                var acl = _getVisualParent()?.CurrentUserRights ?? 0;
-                var groups = user.GetGroups();
-                lock (_rights)
-                {
-                    var userRights = _rights.Value.Where(r => r.SecurityObject == user);
-                    acl = userRights.Aggregate(acl, (current, right) => current | right.Acl);
-                    var groupRights = _rights.Value.Where(r => groups.Any(g => g == r.SecurityObject));
-                    acl = groupRights.Aggregate(acl, (current, groupRight) => current | groupRight.Acl);
-                }
-                return acl;
             }
         }
 

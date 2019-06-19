@@ -83,7 +83,6 @@ namespace TAS.Common.Interfaces
         bool IsWideScreen { get; }
         IAuthenticationService AuthenticationService { get; }
         bool HaveRight(EngineRight right);
-        ulong CurrentUserRights { get; }
         event EventHandler<EventEventArgs> EventLocated;
         event EventHandler<EventEventArgs> EventDeleted;
         event EventHandler<EngineTickEventArgs> EngineTick;
