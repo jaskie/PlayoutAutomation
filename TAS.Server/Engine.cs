@@ -935,6 +935,29 @@ namespace TAS.Server
 
         #endregion // IAclObject
 
+        [JsonProperty]
+        public ulong CurrentUserRights
+        {
+            get
+            {
+                if (!(Thread.CurrentPrincipal.Identity is IUser user))
+                    return 0UL;
+                if (user.IsAdmin)
+                {
+                    var values = Enum.GetValues(typeof(EngineRight)).Cast<ulong>();
+                    return values.Aggregate<ulong, ulong>(0, (current, value) => current | value);
+                }
+                var groups = user.GetGroups();
+                lock (_rights)
+                {
+                    var userRights = _rights.Value.Where(r => r.SecurityObject == user);
+                    var result = userRights.Aggregate(0UL, (current, right) => current | right.Acl);
+                    var groupRights = _rights.Value.Where(r => groups.Any(g => g == r.SecurityObject));
+                    result = groupRights.Aggregate(result, (current, groupRight) => current | groupRight.Acl);
+                    return result;
+                }
+            }
+        }
 
         public bool HaveRight(EngineRight right)
         {

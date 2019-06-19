@@ -309,9 +309,12 @@ namespace TAS.Remoting.Model
 
         public bool DeleteRight(IAclRight item) { return Query<bool>(parameters: new object[] { item }); }
 
+        [JsonProperty]
+        public ulong CurrentUserRights { get; set; }
+
         public bool HaveRight(EngineRight right)
         {
-            return Query<bool>(parameters: new object[] { right });
+            return (CurrentUserRights & (ulong) right) > 0;
         }
 
         #region Event handling

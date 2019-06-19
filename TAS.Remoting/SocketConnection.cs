@@ -132,7 +132,7 @@ namespace TAS.Remoting
 
         public event EventHandler Disconnected;
 
-        private void WriteThreadProc()
+        protected virtual void WriteThreadProc()
         {
             while (IsConnected)
             {

@@ -49,6 +49,13 @@ namespace TAS.Remoting.Server
             base.ReadThreadProc();
         }
 
+        protected override void WriteThreadProc()
+        {
+            Thread.CurrentPrincipal = new GenericPrincipal(_sessionUser, new string[0]);
+            base.WriteThreadProc();
+        }
+
+
         protected override void OnMessage(SocketMessage message)
         {
             try
