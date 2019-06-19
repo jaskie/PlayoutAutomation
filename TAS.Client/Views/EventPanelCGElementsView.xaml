@@ -6,6 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TAS.Client.Views"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance vm:EventPanelRundownElementViewmodelBase}"
              d:DesignHeight="30" d:DesignWidth="800"
@@ -23,7 +24,7 @@
             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
         </StackPanel>
         <Button Command="{Binding CommandToggleLayer}" CommandParameter="CG1" ToolTip="{Resx _toggleLayer.ToolTip}">
-            <Image>
+            <controls:AutoGreyableImage>
                 <Image.Style>
                     <Style TargetType="Image">
                         <Style.Triggers>
@@ -36,11 +37,11 @@
                         </Style.Triggers>
                     </Style>
                 </Image.Style>
-            </Image>
+            </controls:AutoGreyableImage>
         </Button>
         <TextBlock Text="{Binding Layer1SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
         <Button Command="{Binding CommandToggleLayer}" CommandParameter="CG2" ToolTip="{Resx _toggleLayer.ToolTip}">
-            <Image>
+            <controls:AutoGreyableImage>
                 <Image.Style>
                     <Style TargetType="Image">
                         <Style.Triggers>
@@ -53,12 +54,12 @@
                         </Style.Triggers>
                     </Style>
                 </Image.Style>
-            </Image>
+            </controls:AutoGreyableImage>
 
         </Button>
         <TextBlock Text="{Binding Layer2SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
         <Button Command="{Binding CommandToggleLayer}" CommandParameter="CG3" ToolTip="{Resx _toggleLayer.ToolTip}">
-            <Image>
+            <controls:AutoGreyableImage>
                 <Image.Style>
                     <Style TargetType="Image">
                         <Style.Triggers>
@@ -71,16 +72,16 @@
                         </Style.Triggers>
                     </Style>
                 </Image.Style>
-            </Image>
+            </controls:AutoGreyableImage>
         </Button>
         <TextBlock Text="{Binding Layer3SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
         <StackPanel Orientation="Horizontal" Visibility="{Binding IsAnimationEnabled, Converter={StaticResource BoolToVis}}">
             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
             <Button Command="{Binding CommandAddAnimation}" ToolTip="{Resx _addAnimation.ToolTip}">
-                <Image Source="/TAS.Client.Common;component/Images/Layers/layerA.png"/>
+                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layerA.png"/>
             </Button>
             <Button Command="{Binding CommandAddCommandScript}" ToolTip="{Resx _addCommandScript.ToolTip}">
-                <Image Source="/TAS.Client.Common;component/Images/Layers/layerS.png"/>
+                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layerS.png"/>
             </Button>
         </StackPanel>
     </StackPanel>

@@ -323,7 +323,7 @@ namespace TAS.Client.ViewModels
             Engine.TimeCorrection += intValue;
         }
 
-        private bool _canDeleteSelected(object obj) => _multiSelectedEvents.Count > 0 && _multiSelectedEvents.All(e => e.Event.AllowDelete());
+        private bool _canDeleteSelected(object obj) => _multiSelectedEvents.Count > 0 && _multiSelectedEvents.All(e => e.Event.HaveRight(EventRight.Delete) && e.Event.AllowDelete());
 
         private void _engineRights(object obj)
         {

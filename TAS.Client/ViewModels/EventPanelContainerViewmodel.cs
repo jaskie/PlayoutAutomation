@@ -19,7 +19,7 @@ namespace TAS.Client.ViewModels
 
             CommandHide = new UiCommand(o => IsVisible = false, o => _isVisible);
             CommandShow = new UiCommand(o => IsVisible = true, o => !_isVisible);
-            CommandAddSubRundown = new UiCommand(_addSubRundown, o => Engine.HaveRight(EngineRight.Rundown));
+            CommandAddSubRundown = new UiCommand(_addSubRundown, o => Event.HaveRight(EventRight.Create));
             ev.SubEventChanged += SubEventChanged;
         }
 

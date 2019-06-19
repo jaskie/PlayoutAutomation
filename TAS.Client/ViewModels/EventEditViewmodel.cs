@@ -84,7 +84,7 @@ namespace TAS.Client.ViewModels
                         Model.StartType == TStartType.After ? Model.Prior : Model.Parent);
                     Model.Delete();
                 },
-                o => Model.AllowDelete()
+                o => Model.HaveRight(EventRight.Delete) && Model.AllowDelete()
             );
             if (@event is ITemplated templated)
             {

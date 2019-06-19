@@ -338,9 +338,14 @@ namespace TAS.Remoting.Model
 
         public bool DeleteRight(IAclRight item) { return Query<bool>(parameters: new object[] { item }); }
 
+        [JsonProperty]
+        public ulong CurrentUserRights { get; set; }
+
         public bool HaveRight(EventRight right)
         {
-            return Query<bool>(parameters: new object[] { right });
+            if (_engine.HaveRight(EngineRight.Rundown))
+                return true;
+            return (CurrentUserRights & (ulong)right) > 0;
         }
 
         private void ResetSlibbings()

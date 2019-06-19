@@ -66,10 +66,10 @@ namespace TAS.Remoting.Server
                 }
                 else // method of particular object
                 {
-                    Debug.WriteLine(message.MemberName);
                     var objectToInvoke = ((ServerReferenceResolver)ReferenceResolver).ResolveReference(message.DtoGuid);
                     if (objectToInvoke != null)
                     {
+                        Debug.WriteLine($"{objectToInvoke}:{message.MemberName}");
                         switch (message.MessageType)
                         {
                             case SocketMessage.SocketMessageType.Query:

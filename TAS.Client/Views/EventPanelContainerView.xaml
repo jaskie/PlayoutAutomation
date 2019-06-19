@@ -9,6 +9,7 @@
              xmlns:local="clr-namespace:TAS.Client.Views"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance vm:EventPanelContainerViewmodel}"
              FontSize="12" 
@@ -33,7 +34,7 @@
             <Image Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
             <TextBlock Grid.Column="1" Text="{Binding Event.SubEventsCount, StringFormat={Resx _childrenCount, ResxName=TAS.Client.Views.EventPanelView}}" TextAlignment="Center" VerticalAlignment="Center"/>
             <Button Grid.Column="2" Margin="3" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _addSubRundown.ToolTip}" Command="{Binding CommandAddSubRundown}" Style="{StaticResource EventPanelCommandButton}">
-                <Image Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png"/>
+                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png"/>
             </Button>
             <TextBlock Grid.Column="3" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" />
         </Grid>

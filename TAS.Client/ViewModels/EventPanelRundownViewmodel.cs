@@ -63,7 +63,7 @@ namespace TAS.Client.ViewModels
 
         private bool _canAddSubEvent(object o)
         {
-            return Event.SubEventsCount == 0 && Engine.HaveRight(EngineRight.Rundown);
+            return Event.SubEventsCount == 0 && Event.HaveRight(EventRight.Create);
         }
 
     }
