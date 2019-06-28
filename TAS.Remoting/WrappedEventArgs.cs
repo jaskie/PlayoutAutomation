@@ -2,7 +2,7 @@
 
 namespace TAS.Remoting
 {
-    public class WrappedEventArgs: EventArgs
+    internal class WrappedEventArgs: EventArgs
     {
         public IDto Dto { get; }
         public EventArgs Args { get; }

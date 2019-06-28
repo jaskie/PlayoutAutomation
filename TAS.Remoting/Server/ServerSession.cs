@@ -15,7 +15,7 @@ using System.Collections;
 
 namespace TAS.Remoting.Server
 {
-    public class ServerSession : SocketConnection
+    internal class ServerSession : SocketConnection
     {
         private readonly Dictionary<DelegateKey, Delegate> _delegates = new Dictionary<DelegateKey, Delegate>();
         private readonly IUser _sessionUser;
@@ -245,31 +245,38 @@ namespace TAS.Remoting.Server
             //Debug.Assert(_referenceResolver.ResolveReference(dto.DtoGuid) != null, "Null reference notified");
             try
             {
-                EventArgs eventArgs;
-                if (e is WrappedEventArgs ea 
+                if (e is WrappedEventArgs ea
                     && ea.Args is PropertyChangedEventArgs propertyChangedEventArgs
                     && eventName == nameof(INotifyPropertyChanged.PropertyChanged))
                 {
                     var p = dto.GetType().GetProperty(propertyChangedEventArgs.PropertyName);
+                    PropertyChangedValueReader valueReader;
                     if (p?.CanRead == true)
-                        eventArgs = PropertyChangedWithDataEventArgs.Create(propertyChangedEventArgs.PropertyName, p.GetValue(dto, null));
+                        valueReader = new PropertyChangedValueReader(propertyChangedEventArgs.PropertyName,
+                            () => p.GetValue(dto, null));
                     else
                     {
-                        eventArgs = PropertyChangedWithDataEventArgs.Create(propertyChangedEventArgs.PropertyName, null);
-                        Debug.WriteLine(dto, $"{GetType()}: Couldn't get value of {propertyChangedEventArgs.PropertyName}");
+                        valueReader = new PropertyChangedValueReader(propertyChangedEventArgs.PropertyName, () => null);
+                        Debug.WriteLine(dto,
+                            $"{GetType()}: Couldn't get value of {propertyChangedEventArgs.PropertyName}");
                     }
                     Debug.WriteLine($"Server: PropertyChanged {propertyChangedEventArgs.PropertyName} on {dto} sent");
+                    Send(new SocketMessage(valueReader)
+                    {
+                        MessageType = SocketMessage.SocketMessageType.EventNotification,
+                        DtoGuid = dto.DtoGuid,
+                        MemberName = eventName,
+
+                    });
                 }
                 else
-                    eventArgs = e;
-                var message = new SocketMessage(eventArgs)
-                {
-                    MessageType = SocketMessage.SocketMessageType.EventNotification,
-                    DtoGuid = dto.DtoGuid,
-                    MemberName = eventName,
-                    
-                };
-                Send(message);
+                    Send(new SocketMessage(e)
+                    {
+                        MessageType = SocketMessage.SocketMessageType.EventNotification,
+                        DtoGuid = dto.DtoGuid,
+                        MemberName = eventName,
+
+                    });
             }
             catch (Exception exception)
             {

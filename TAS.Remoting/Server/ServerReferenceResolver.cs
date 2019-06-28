@@ -77,7 +77,7 @@ namespace TAS.Remoting.Server
             return p;
         }
 
-        public event EventHandler<WrappedEventArgs> ReferencePropertyChanged;
+        internal event EventHandler<WrappedEventArgs> ReferencePropertyChanged;
 
         private void Dto_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {

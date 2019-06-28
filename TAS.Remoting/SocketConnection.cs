@@ -74,7 +74,7 @@ namespace TAS.Remoting
             Serializer.SerializationBinder = binder;
         }
 
-        public void Send(SocketMessage message)
+        internal void Send(SocketMessage message)
         {
             if (!IsConnected)
                 return;

@@ -31,23 +31,30 @@ namespace TAS.Remoting
 
         private readonly byte[] _rawData;
         private readonly int _valueStartIndex;
+        private readonly PropertyChangedValueReader _propertChangedValueReader;
+        private readonly object _value;
 
-        public SocketMessage(object value)
+        internal SocketMessage(object value)
         {
             MessageGuid = Guid.NewGuid();
-            Value = value;
+            _value = value;
         }
 
-        public SocketMessage(SocketMessage originalMessage, object value)
+        internal SocketMessage(PropertyChangedValueReader propertyChangedValueReader)
+        {
+            _propertChangedValueReader = propertyChangedValueReader;
+        }
+
+        internal SocketMessage(SocketMessage originalMessage, object value)
         {
             MessageGuid = originalMessage.MessageGuid;
             MessageType = originalMessage.MessageType;
             DtoGuid = originalMessage.DtoGuid;
             MemberName = originalMessage.MemberName;
-            Value = value;
+            _value = value;
         }
 
-        public SocketMessage(byte[] rawData)
+        internal SocketMessage(byte[] rawData)
         {
             var index = 0;
             var version = new byte[Version.Length];
@@ -71,7 +78,17 @@ namespace TAS.Remoting
             _rawData = rawData;
         }
 
-        public object Value { get; }
+        public object Value
+        {
+            get
+            {
+                if (_propertChangedValueReader == null)
+                    return _value;
+                var value = _propertChangedValueReader.ValueFunc();
+                return PropertyChangedWithDataEventArgs.Create(_propertChangedValueReader.PropertyName, value);
+            }
+        }
+
         public readonly Guid MessageGuid;
         public Guid DtoGuid;
         public SocketMessageType MessageType;
