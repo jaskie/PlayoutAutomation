@@ -252,8 +252,7 @@ namespace TAS.Remoting.Server
                     var p = dto.GetType().GetProperty(propertyChangedEventArgs.PropertyName);
                     PropertyChangedValueReader valueReader;
                     if (p?.CanRead == true)
-                        valueReader = new PropertyChangedValueReader(propertyChangedEventArgs.PropertyName,
-                            () => p.GetValue(dto, null));
+                        valueReader = new PropertyChangedValueReader(propertyChangedEventArgs.PropertyName, () => p.GetValue(dto, null));
                     else
                     {
                         valueReader = new PropertyChangedValueReader(propertyChangedEventArgs.PropertyName, () => null);

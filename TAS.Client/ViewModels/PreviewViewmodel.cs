@@ -18,7 +18,6 @@ namespace TAS.Client.ViewModels
         private readonly IEngine _engine;
         private readonly IPreview _preview;
         private readonly IPlayoutServerChannel _channel;
-        private readonly VideoFormatDescription _formatDescription;
         private IMediaSegment _lastAddedSegment;
         private bool _playWholeClip;
         private IMedia _loadedMedia;
@@ -42,11 +41,13 @@ namespace TAS.Client.ViewModels
                 _channel.PropertyChanged += OnChannelPropertyChanged;
             _engine = engine;
             _preview = preview;
-            _formatDescription = _preview.FormatDescription;
+            FormatDescription = _preview.FormatDescription;
             CreateCommands();
         }
 
-        public TVideoFormat VideoFormat => _formatDescription.Format;
+        public VideoFormatDescription FormatDescription { get; }
+
+        public TVideoFormat VideoFormat => FormatDescription.Format;
 
         public IMedia SelectedMedia
         {
@@ -160,16 +161,14 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public TimeSpan DurationSelection => new TimeSpan(TcOut.Ticks - TcIn.Ticks + _formatDescription.FrameTicks);
-
         public TimeSpan Position
         {
-            get => _loadedMedia == null || _preview.PreviewMedia == null ? TimeSpan.Zero : (_preview.PreviewPosition + _preview.PreviewLoadedSeek).SmpteFramesToTimeSpan(_formatDescription.FrameRate);
+            get => _loadedMedia == null || _preview.PreviewMedia == null ? TimeSpan.Zero : (_preview.PreviewPosition + _preview.PreviewLoadedSeek).SmpteFramesToTimeSpan(FormatDescription.FrameRate) + _loadedMedia.TcStart;
             set
             {
                 if (_loadedMedia == null)
                     return;
-                _preview.PreviewPosition = (value - _loadedMedia.TcStart).ToSmpteFrames(_formatDescription.FrameRate); 
+                _preview.PreviewPosition = (value - _loadedMedia.TcStart).ToSmpteFrames(FormatDescription.FrameRate); 
             }
         }
 
@@ -198,7 +197,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public long FramesPerSecond => _formatDescription.FrameRate.Num / _formatDescription.FrameRate.Den;
+        public long FramesPerSecond => FormatDescription.FrameRate.Num / FormatDescription.FrameRate.Den;
 
         public ObservableCollection<MediaSegmentViewmodel> MediaSegments { get; } = new ObservableCollection<MediaSegmentViewmodel>();
 
@@ -360,13 +359,13 @@ namespace TAS.Client.ViewModels
 
             CommandCopyToTcIn = new UiCommand
             (
-                o => TcIn = Position + StartTc,
+                o => TcIn = Position,
                 _canUnload
             );
 
             CommandCopyToTcOut = new UiCommand
             (
-                o => TcOut = Position + StartTc,
+                o => TcOut = Position,
                 _canUnload
             );
 
@@ -423,34 +422,36 @@ namespace TAS.Client.ViewModels
             (
                 o =>
                 {
+                    var durationSelection =TcOut.Ticks - TcIn.Ticks + FormatDescription.FrameTicks;
                     if (SelectedMedia is IPersistentMedia media)
                     {
                         media.TcPlay = TcIn;
-                        media.DurationPlay = DurationSelection;
+                        media.DurationPlay = new TimeSpan(durationSelection);
                         media.Save();
                     }
                     if (SelectedEvent != null)
                     {
                         SelectedEvent.ScheduledTc = TcIn;
-                        SelectedEvent.Duration = DurationSelection;
+                        SelectedEvent.Duration = new TimeSpan(durationSelection);
                         SelectedEvent.Save();
                     }
                     if (SelectedIngestOperation != null)
                     {
                         SelectedIngestOperation.StartTC = TcIn;
-                        SelectedIngestOperation.Duration = DurationSelection;
+                        SelectedIngestOperation.Duration = new TimeSpan(durationSelection);
                     }
                 },
                 o =>
                 {
-                    if (IsLoaded && LoadedMedia == (MediaToLoad))
+                    var durationSelection = TcOut.Ticks - TcIn.Ticks + FormatDescription.FrameTicks;
+                    if (IsLoaded && LoadedMedia == MediaToLoad)
                     {
                         if (SelectedMedia != null && _engine.HaveRight(EngineRight.MediaEdit))
-                            return SelectedMedia.TcStart != TcIn || SelectedMedia.DurationPlay != DurationSelection;
+                            return SelectedMedia.TcPlay != TcIn || SelectedMedia.DurationPlay.Ticks != durationSelection;
                         if (SelectedEvent?.HaveRight(EventRight.Modify) == true)
-                            return SelectedEvent.ScheduledTc != TcIn || SelectedEvent.Duration != DurationSelection;
+                            return SelectedEvent.ScheduledTc != TcIn || SelectedEvent.Duration.Ticks != durationSelection;
                         if (SelectedIngestOperation != null)
-                            return SelectedIngestOperation.Trim && (SelectedIngestOperation.StartTC != TcIn || SelectedIngestOperation.Duration != DurationSelection);
+                            return SelectedIngestOperation.Trim && (SelectedIngestOperation.StartTC != TcIn || SelectedIngestOperation.Duration.Ticks != durationSelection);
                     }
                     return false;
                 }
@@ -524,21 +525,21 @@ namespace TAS.Client.ViewModels
             TimeSpan duration = Duration;
             TimeSpan tcIn = StartTc;
             double audioVolume = _selectedEvent?.AudioVolume ?? media.AudioVolume;
-            if (duration.Ticks >= _formatDescription.FrameTicks)
+            if (duration.Ticks >= FormatDescription.FrameTicks)
             {
                 TcIn = tcIn;
-                TcOut = tcIn + duration - TimeSpan.FromTicks(_formatDescription.FrameTicks);
+                TcOut = tcIn + duration - TimeSpan.FromTicks(FormatDescription.FrameTicks);
                 if (reloadSegments && media is IPersistentMedia)
                 {
                     MediaSegments.Clear();
                     foreach (IMediaSegment ms in ((IPersistentMedia)media).GetMediaSegments().Segments)
                         MediaSegments.Add(new MediaSegmentViewmodel((IPersistentMedia)media, ms));
                 }
-                var seek = (tcIn.Ticks - media.TcStart.Ticks) / _formatDescription.FrameTicks;
+                var seek = (tcIn.Ticks - media.TcStart.Ticks) / FormatDescription.FrameTicks;
                 long newPosition = _preview.PreviewLoaded && _loadedMedia != null ? _preview.PreviewLoadedSeek + _preview.PreviewPosition - seek : 0;
                 if (newPosition < 0)
                     newPosition = 0;
-                LoadedDuration = duration.Ticks / _formatDescription.FrameTicks;
+                LoadedDuration = duration.Ticks / FormatDescription.FrameTicks;
                 _preview.PreviewLoad(media, seek, LoadedDuration, newPosition, audioVolume);
             }
         }

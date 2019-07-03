@@ -279,7 +279,7 @@ namespace TAS.Client.ViewModels
                     return s.Duration;
                 if (PreviewViewmodel.TcIn != pvlm.TcPlay ||
                     PreviewViewmodel.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
-                    return PreviewViewmodel.DurationSelection;
+                    return new TimeSpan(PreviewViewmodel.TcOut.Ticks - PreviewViewmodel.TcIn.Ticks + PreviewViewmodel.FormatDescription.FrameTicks);
             }
             return SelectedItem?.SelectedSegment?.Duration ?? SelectedItem?.DurationPlay ?? TimeSpan.Zero;
         }
