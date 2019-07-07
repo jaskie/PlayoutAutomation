@@ -307,11 +307,14 @@ namespace TAS.Remoting.Model
 
         public IAclRight AddRightFor(ISecurityObject securityObject) { return Query<IAclRight>(parameters: new object[] { securityObject }); }
 
-        public bool DeleteRight(IAclRight item) { return Query<bool>(parameters: new object[] { item }); }
+        public void DeleteRight(IAclRight item) { Invoke(parameters: new object[] { item }); }
+
+        [JsonProperty]
+        public ulong CurrentUserRights { get; set; }
 
         public bool HaveRight(EngineRight right)
         {
-            return Query<bool>(parameters: new object[] { right });
+            return (CurrentUserRights & (ulong) right) > 0;
         }
 
         #region Event handling

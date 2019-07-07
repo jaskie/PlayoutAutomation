@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
@@ -33,7 +34,12 @@ namespace TAS.Server.Security
 
         public IDictionary<string, int> FieldLengths { get; } = new Dictionary<string, int>();
 
-        public abstract void Save();
+        public event EventHandler Saved;
+
+        public virtual void Save()
+        {
+            Saved?.Invoke(this, EventArgs.Empty);
+        }
 
         public abstract void Delete();
     }

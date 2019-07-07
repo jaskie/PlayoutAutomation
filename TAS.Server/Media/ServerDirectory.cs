@@ -85,7 +85,6 @@ namespace TAS.Server.Media
             }
             var result = (new ServerMedia
             {
-                MediaName = media.MediaName,
                 MediaGuid = media.MediaGuid == Guid.Empty || FindMediaByMediaGuid(media.MediaGuid) != null ? Guid.NewGuid() : media.MediaGuid,
                 LastUpdated = media.LastUpdated,
                 MediaType = media.MediaType == TMediaType.Unknown ? TMediaType.Movie : media.MediaType,
@@ -93,7 +92,6 @@ namespace TAS.Server.Media
                 FileName = newFileName,
                 MediaStatus = TMediaStatus.Required,
             });
- 
             result.CloneMediaProperties(media);
             AddMedia(result);
             return result;

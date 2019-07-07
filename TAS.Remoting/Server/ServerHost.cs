@@ -25,7 +25,7 @@ namespace TAS.Remoting.Server
         [XmlAttribute]
         public ushort ListenPort { get; set; }
 
-        public bool Initialize(DtoBase rootDto, string path, IAuthenticationService authenticationService)
+        public bool Initialize(DtoBase rootDto, IAuthenticationService authenticationService)
         {
             if (ListenPort < 1024)
                 return false;

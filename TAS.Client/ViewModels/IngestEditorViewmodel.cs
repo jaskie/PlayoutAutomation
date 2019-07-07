@@ -4,7 +4,6 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using TAS.Client.Common;
-using System.Windows.Input;
 using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
@@ -20,22 +19,24 @@ namespace TAS.Client.ViewModels
             OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op => new IngestOperationViewModel(op, preview, engine)));
             SelectedOperation = OperationList.FirstOrDefault();
             foreach (var c in OperationList)
-                c.PropertyChanged += _convertOperationPropertyChanged;
-            CommandDeleteOperation = new UiCommand(_deleteOperation);
+            {
+                c.PropertyChanged += Operation_PropertyChanged;
+                c.Removed += Operation_Removed;
+            }
         }
+
+
 
         public void ScheduleAll()
         {
-            foreach (IngestOperationViewModel c in OperationList)
+            foreach (var c in OperationList)
             {
                 c.Apply();
                 _engine.MediaManager?.FileManager?.Queue(c.FileOperation);
             }
         }
 
-        public ICommand CommandDeleteOperation { get; }
-        
-        public ObservableCollection<IngestOperationViewModel> OperationList { get; }
+        public ObservableCollection<IngestOperationViewModel> OperationList { get; } 
 
         public IngestOperationViewModel SelectedOperation
         {
@@ -49,7 +50,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                foreach (IngestOperationViewModel operation in OperationList)
+                foreach (var operation in OperationList)
                 {
                     if (!operation.IsValid)
                         return false;
@@ -59,25 +60,23 @@ namespace TAS.Client.ViewModels
                 return true;
             }
         }
-        
 
-        private void _deleteOperation(object obj)
+        private void Operation_Removed(object sender, EventArgs e)
         {
-            if (!(obj is IngestOperationViewModel operation))
+            if (!(sender is IngestOperationViewModel operation))
                 return;
-            int operaionIndex = OperationList.IndexOf(operation);
-            if (OperationList.Remove(operation))
-            {
-                operation.PropertyChanged -= _convertOperationPropertyChanged;
-                operation.Dispose();
-                OnModifiedChanged();
-                SelectedOperation = OperationList[Math.Min(OperationList.Count - 1, operaionIndex)];
-                NotifyPropertyChanged(nameof(ShowMediaList));
-                NotifyPropertyChanged(nameof(IsValid));
-            }
+            var operaionIndex = OperationList.IndexOf(operation);
+            if (!OperationList.Remove(operation)) return;
+            operation.PropertyChanged -= Operation_PropertyChanged;
+            operation.Removed -= Operation_Removed;
+            operation.Dispose();
+            OnModifiedChanged();
+            SelectedOperation = OperationList[Math.Min(OperationList.Count - 1, operaionIndex)];
+            NotifyPropertyChanged(nameof(ShowMediaList));
+            NotifyPropertyChanged(nameof(IsValid));
         }
 
-        void _convertOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
+        void Operation_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IngestOperationViewModel.IsValid))
                 NotifyPropertyChanged(nameof(IsValid));
@@ -87,7 +86,8 @@ namespace TAS.Client.ViewModels
         {
             foreach (var c in OperationList)
             {
-                c.PropertyChanged -= _convertOperationPropertyChanged;
+                c.PropertyChanged -= Operation_PropertyChanged;
+                c.Removed -= Operation_Removed;
                 c.Dispose();
             }
             OperationList.Clear();

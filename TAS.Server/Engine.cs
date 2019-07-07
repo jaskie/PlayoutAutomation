@@ -89,7 +89,13 @@ namespace TAS.Server
             _mediaManager = new MediaManager(this);
             _databaseConnectionState = EngineController.Database.ConnectionState;
             EngineController.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
-            _rights = new Lazy<List<IAclRight>>(() => EngineController.Database.ReadEngineAclList<EngineAclRight>(this, AuthenticationService as IAuthenticationServicePersitency));
+            _rights = new Lazy<List<IAclRight>>(() =>
+            {
+                var rights = EngineController.Database.ReadEngineAclList<EngineAclRight>(this,
+                        AuthenticationService as IAuthenticationServicePersitency);
+                rights.ForEach(r => ((EngineAclRight)r).Saved += AclRight_Saved);
+                return rights;
+            });
             FieldLengths = EngineController.Database.EngineFieldLengths;
             ServerMediaFieldLengths = EngineController.Database.ServerMediaFieldLengths;
             ArchiveMediaFieldLengths = EngineController.Database.ArchiveMediaFieldLengths;
@@ -220,18 +226,18 @@ namespace TAS.Server
                         if (value == TEngineState.Hold)
                             foreach (var ev in _runningEvents.Where(e =>
                                 (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) &&
-                                ((Event)e).IsFinished()).ToArray())
+                                e.IsFinished()).ToArray())
                             {
-                                _pause((Event)ev, true);
+                                _pause(ev, true);
                                 Debug.WriteLine(ev, "Hold: Played");
                             }
                         if (value == TEngineState.Idle && _runningEvents.Count > 0)
                         {
                             foreach (var ev in _runningEvents.Where(e =>
                                 (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) &&
-                                ((Event)e).IsFinished()).ToArray())
+                                e.IsFinished()).ToArray())
                             {
-                                _pause((Event)ev, true);
+                                _pause(ev, true);
                                 Debug.WriteLine(ev, "Idle: Played");
                             }
                         }
@@ -328,7 +334,7 @@ namespace TAS.Server
             if (Remote != null)
             {
                 Debug.WriteLine(this, "Initializing Remote interface");
-                Remote.Initialize(this, "/Engine", _authenticationService);
+                Remote.Initialize(this, _authenticationService);
             }
 
             if (_localGpis != null)
@@ -521,7 +527,7 @@ namespace TAS.Server
             set
             {
                 if (SetField(ref _previewAudioVolume, value))
-                    _playoutChannelPRV.SetVolume(VideoLayer.Preview, (double)Math.Pow(10, (double)value / 20), 0);
+                    _playoutChannelPRV.SetVolume(VideoLayer.Preview, Math.Pow(10, value / 20), 0);
             }
         }
 
@@ -789,7 +795,7 @@ namespace TAS.Server
             if (idRundownEvent != 0)
                 _events.TryAdd(idRundownEvent, result);
             if (startType == TStartType.OnFixedTime)
-                _fixedTimeEvents.Add((Event)result);
+                _fixedTimeEvents.Add(result);
             return result;
         }
 
@@ -918,18 +924,44 @@ namespace TAS.Server
             {
                 _rights.Value.Add(right);
             }
+            right.Saved += AclRight_Saved;
             return right;
         }
 
-        public bool DeleteRight(IAclRight item)
+        public void DeleteRight(IAclRight item)
         {
             var right = (AclRightBase)item;
             lock (_rights)
             {
                 var success = _rights.Value.Remove(right);
-                if (success)
-                    right.Delete();
-                return success;
+                if (!success)
+                    return;
+                right.Delete();
+                right.Saved -= AclRight_Saved;
+            }
+        }
+
+        [JsonProperty]
+        public ulong CurrentUserRights
+        {
+            get
+            {
+                if (!(Thread.CurrentPrincipal.Identity is IUser user))
+                    return 0UL;
+                if (user.IsAdmin)
+                {
+                    var values = Enum.GetValues(typeof(EngineRight)).Cast<ulong>();
+                    return values.Aggregate<ulong, ulong>(0, (current, value) => current | value);
+                }
+                var groups = user.GetGroups();
+                lock (_rights)
+                {
+                    var userRights = _rights.Value.Where(r => r.SecurityObject == user);
+                    var result = userRights.Aggregate(0UL, (current, right) => current | right.Acl);
+                    var groupRights = _rights.Value.Where(r => groups.Any(g => g == r.SecurityObject));
+                    result = groupRights.Aggregate(result, (current, groupRight) => current | groupRight.Acl);
+                    return result;
+                }
             }
         }
 
@@ -1143,7 +1175,7 @@ namespace TAS.Server
                     {
                         if (e.PlayState == TPlayState.Playing)
                         {
-                            ((Event)e).PlayState = ((Event)e).IsFinished() ? TPlayState.Played : TPlayState.Aborted;
+                            e.PlayState = e.IsFinished() ? TPlayState.Played : TPlayState.Aborted;
                             _runningEvents.Remove(e);
                             RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Remove));
                         }
@@ -1161,7 +1193,7 @@ namespace TAS.Server
                 if (aEvent.Layer == VideoLayer.Program)
                 {
                     Playing = aEvent;
-                    ProgramAudioVolume = (double)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20); ;
+                    ProgramAudioVolume = Math.Pow(10, aEvent.GetAudioVolume() / 20);
                     _setAspectRatio(aEvent);
                     var cgController = CGElementsController;
                     if (cgController?.IsConnected == true && cgController.IsCGEnabled)
@@ -1182,8 +1214,8 @@ namespace TAS.Server
             }
             if (eventType == TEventType.Animation || eventType == TEventType.CommandScript)
             {
-                _playoutChannelPRI?.Play((Event)aEvent);
-                _playoutChannelSEC?.Play((Event)aEvent);
+                _playoutChannelPRI?.Play(aEvent);
+                _playoutChannelSEC?.Play(aEvent);
                 aEvent.PlayState = TPlayState.Played;
             }
             else
@@ -1212,7 +1244,7 @@ namespace TAS.Server
                     foreach (var e in _runningEvents.ToArray())
                     {
                         if (!(e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading))
-                            _play((Event)e, false);
+                            _play(e, false);
                     }
                     EngineState = TEngineState.Running;
                 }
@@ -1224,7 +1256,7 @@ namespace TAS.Server
             foreach (var e in _runningEvents.ToArray())
             {
                 _runningEvents.Remove(e);
-                ((Event)e).PlayState = ((Event)e).Position == 0 ? TPlayState.Scheduled : TPlayState.Aborted;
+                e.PlayState = e.Position == 0 ? TPlayState.Scheduled : TPlayState.Aborted;
                 RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Remove));
                 e.SaveDelayed();
             }
@@ -1383,7 +1415,7 @@ namespace TAS.Server
                 if (EngineState == TEngineState.Running)
                 {
                     foreach (var e in _runningEvents.Where(ev => ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading))
-                        ((Event)e).Position += nFrames;
+                        e.Position += nFrames;
 
                     Event playingEvent = _playing;
                     Event succEvent = null;
@@ -1557,6 +1589,11 @@ namespace TAS.Server
         {
             foreach (var e in _rootEvents)
                 e.SaveLoadedTree();
+            lock (_rights)
+            {
+                if (_rights.IsValueCreated)
+                    _rights.Value.ForEach(r => ((EngineAclRight) r).Saved -= AclRight_Saved);
+            }
             EngineController.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
             CGElementsController?.Dispose();
             Remote?.Dispose();
@@ -1739,6 +1776,12 @@ namespace TAS.Server
                 if (_visibleEvents.Remove(aEvent))
                     VisibleEventRemoved?.Invoke(this, new EventEventArgs(aEvent));
         }
+
+        private void AclRight_Saved(object sender, EventArgs e)
+        {
+            NotifyPropertyChanged(nameof(CurrentUserRights));
+        }
+
 
         #region PInvoke
         [DllImport("kernel32.dll")]

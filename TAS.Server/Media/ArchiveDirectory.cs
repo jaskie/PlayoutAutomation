@@ -13,9 +13,9 @@ namespace TAS.Server.Media
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
 
-        public IArchiveMedia Find(IMediaProperties media)
+        public IArchiveMedia Find(Guid mediaGuid)
         {
-            return EngineController.Database.ArchiveMediaFind<ArchiveMedia>(this, media.MediaGuid);
+            return EngineController.Database.ArchiveMediaFind<ArchiveMedia>(this, mediaGuid);
         }
 
         internal void ArchiveSave(ServerMedia media, bool deleteAfterSuccess)
@@ -47,7 +47,7 @@ namespace TAS.Server.Media
         public ulong IdArchive { get; set; }
 
 
-        IMediaSearchProvider ISearchableDirectory.Search(TMediaCategory? category, string searchString)
+        public override IMediaSearchProvider Search(TMediaCategory? category, string searchString)
         {
             return new MediaSearchProvider(EngineController.Database.ArchiveMediaSearch<ArchiveMedia>(this, category, searchString));
         }

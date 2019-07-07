@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model.Media
@@ -162,16 +160,5 @@ namespace TAS.Remoting.Model.Media
         public int XdcamClipCount => _xdcamClipCount;
 
         public IEnumerable<IIngestDirectoryProperties> SubDirectories => _subDirectories;
-
-        public override IReadOnlyCollection<IMedia> GetFiles()
-        {
-            return Query<ReadOnlyCollection<IngestMedia>>();
-        }
-
-        IMediaSearchProvider ISearchableDirectory.Search(TMediaCategory? category, string searchString)
-        {
-            return Query<MediaSearchProvider>(parameters: new object[] { category, searchString });
-        }
-
     }
 }

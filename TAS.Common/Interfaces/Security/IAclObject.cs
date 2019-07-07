@@ -11,6 +11,8 @@ namespace TAS.Common.Interfaces.Security
 
         IAclRight AddRightFor(ISecurityObject securityObject);
 
-        bool DeleteRight(IAclRight item);
+        void DeleteRight(IAclRight item);
+
+        ulong CurrentUserRights { get; }
     }
 }

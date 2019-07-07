@@ -87,10 +87,10 @@ namespace TAS.Client
                 throw new InvalidOperationException($"Cannot undo: {source.EventName}");
             var mediaFiles =
                 (_undoEngine.MediaManager.MediaDirectoryPRI ?? _undoEngine.MediaManager.MediaDirectorySEC)
-                ?.GetFiles();
+                ?.GetAllFiles();
             var animationFiles =
                 (_undoEngine.MediaManager.AnimationDirectoryPRI ?? _undoEngine.MediaManager.AnimationDirectorySEC)
-                ?.GetFiles();
+                ?.GetAllFiles();
             switch (sourceProxy.StartType)
             {
                 case TStartType.After:
@@ -196,8 +196,8 @@ namespace TAS.Client
             {
                 if (source is EventProxy sourceProxy)
                 {
-                    var mediaFiles = (dest.Engine.MediaManager.MediaDirectoryPRI ?? dest.Engine.MediaManager.MediaDirectorySEC)?.GetFiles();
-                    var animationFiles = (dest.Engine.MediaManager.AnimationDirectoryPRI ?? dest.Engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
+                    var mediaFiles = (dest.Engine.MediaManager.MediaDirectoryPRI ?? dest.Engine.MediaManager.MediaDirectorySEC)?.GetAllFiles();
+                    var animationFiles = (dest.Engine.MediaManager.AnimationDirectoryPRI ?? dest.Engine.MediaManager.AnimationDirectorySEC)?.GetAllFiles();
                     switch (location)
                     {
                         case PasteLocation.After:

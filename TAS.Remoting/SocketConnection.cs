@@ -4,7 +4,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
+using System.Runtime.Serialization;
+using System.Text;
 using System.Threading;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting
 {
@@ -13,33 +17,50 @@ namespace TAS.Remoting
     /// <summary>
     /// Class to ensure non-blocking send and preserving order of messages
     /// </summary>
-    public abstract class TcpConnection : IDisposable
+    public abstract class SocketConnection : IDisposable
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private int _disposed;
-
-        private readonly List<byte[]> _sendQueue = new List<byte[]>();
-        private const int MaxQueueSize = 0x1000;
-
+        private readonly List<SocketMessage> _sendQueue = new List<SocketMessage>();
+        private readonly int _maxQueueSize;
         private Thread _readThread;
         private Thread _writeThread;
         private readonly AutoResetEvent _sendAutoResetEvent = new AutoResetEvent(false);
 
-
         public TcpClient Client { get; }
+        public JsonSerializer Serializer { get; } = JsonSerializer.CreateDefault();
+        protected IReferenceResolver ReferenceResolver { get; }
 
-        protected TcpConnection(TcpClient client)
+        protected SocketConnection(TcpClient client, IReferenceResolver referenceResolver)
         {
             Client = client;
             client.NoDelay = true;
+            ReferenceResolver = referenceResolver;
+            _maxQueueSize = 0x1000;
+            Serializer.ReferenceResolver = referenceResolver;
+            Serializer.TypeNameHandling = TypeNameHandling.Objects;
+            Serializer.Context = new StreamingContext(StreamingContextStates.Remoting);
+#if DEBUG
+            Serializer.Formatting = Formatting.Indented;
+#endif
         }
 
-        protected TcpConnection(string address)
+        protected SocketConnection(string address, IReferenceResolver referenceResolver)
         {
+            ReferenceResolver = referenceResolver;
+            _maxQueueSize = 0x10000;
             var port = 1060;
             var addressParts = address.Split(':');
             if (addressParts.Length > 1)
                 int.TryParse(addressParts[1], out port);
+            Serializer = JsonSerializer.CreateDefault();
+            Serializer.Context = new StreamingContext(StreamingContextStates.Remoting, this);
+            Serializer.ReferenceResolver = referenceResolver;
+            Serializer.TypeNameHandling = TypeNameHandling.Objects | TypeNameHandling.Arrays;
+#if DEBUG
+            Serializer.Formatting = Formatting.Indented;
+#endif      
+            
             Client = new TcpClient
             {
                 NoDelay = true,
@@ -48,16 +69,21 @@ namespace TAS.Remoting
             Logger.Info("Connection opened to {0}:{1}.", addressParts[0], port);
         }
 
-        public void Send(byte[] bytes)
+        protected void SetBinder(ISerializationBinder binder)
+        {
+            Serializer.SerializationBinder = binder;
+        }
+
+        internal void Send(SocketMessage message)
         {
             if (!IsConnected)
                 return;
             try
             {
                 lock (((ICollection) _sendQueue).SyncRoot)
-                    if (_sendQueue.Count < MaxQueueSize)
+                    if (_sendQueue.Count < _maxQueueSize)
                     {
-                        _sendQueue.Add(bytes);
+                        _sendQueue.Add(message);
                         _sendAutoResetEvent.Set();
                         return;
                     }
@@ -106,21 +132,25 @@ namespace TAS.Remoting
 
         public event EventHandler Disconnected;
 
-        private void WriteThreadProc()
+        protected virtual void WriteThreadProc()
         {
             while (IsConnected)
             {
                 try
                 {
                     _sendAutoResetEvent.WaitOne();
-                    byte[][] sendPackets;
+                    SocketMessage[] sendPackets;
                     lock (((ICollection) _sendQueue).SyncRoot)
                     {
                         sendPackets = _sendQueue.ToArray();
                         _sendQueue.Clear();
                     }
-                    foreach (var bytes in sendPackets)
-                        Client.Client.Send(bytes);
+                    foreach (var message in sendPackets)
+                        using (var serialized = SerializeDto(message.Value))
+                        {
+                            var bytes = message.ToByteArray(serialized);
+                            Client.Client.Send(bytes);
+                        }
                 }
                 catch (Exception e) when (e is IOException || e is ArgumentNullException ||
                                           e is ObjectDisposedException || e is SocketException)
@@ -160,7 +190,7 @@ namespace TAS.Remoting
                         dataIndex += receivedLength;
                         if (dataIndex != dataBuffer.Length)
                             continue;
-                        OnMessage(dataBuffer);
+                        OnMessage(new SocketMessage(dataBuffer));
                         dataBuffer = null;
                     }
                 }
@@ -185,7 +215,27 @@ namespace TAS.Remoting
             Debug.WriteLine("Disconnected");
         }
 
-        protected abstract void OnMessage(byte[] dataBuffer);
-        
+        protected abstract void OnMessage(SocketMessage message);
+
+        protected Stream SerializeDto(object dto)
+        {
+            if (dto == null)
+                return null;
+            var serialized = new MemoryStream();
+            using (var writer = new StreamWriter(serialized, Encoding.UTF8, 1024, true))
+                Serializer.Serialize(writer, dto);
+            return serialized;
+        }
+
+        protected T DeserializeDto<T>(Stream stream)
+        {
+            if (stream == null)
+                return default(T);
+            using (var reader = new StreamReader(stream))
+            {
+                return (T)Serializer.Deserialize(reader, typeof(T));
+            }
+        }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.ComponentModel;
+using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -46,6 +47,14 @@ namespace TAS.Client.ViewModels
             base.OnDispose();
         }
 
+        protected override void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            base.OnEventPropertyChanged(sender, e);
+            if (e.PropertyName == nameof(IEvent.CurrentUserRights))
+                InvalidateRequerySuggested();
+
+        }
+
         private void _addSubLive(object obj)
         {
             EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, true);
@@ -63,7 +72,7 @@ namespace TAS.Client.ViewModels
 
         private bool _canAddSubEvent(object o)
         {
-            return Event.SubEventsCount == 0 && Engine.HaveRight(EngineRight.Rundown);
+            return Event.SubEventsCount == 0 && Event.HaveRight(EventRight.Create);
         }
 
     }

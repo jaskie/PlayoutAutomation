@@ -11,7 +11,6 @@ using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
 using System.Globalization;
-using System.Threading;
 using System.Threading.Tasks;
 using TAS.Client.Common.Plugin;
 using TAS.Common.Interfaces;
@@ -208,11 +207,10 @@ namespace TAS.Client.ViewModels
             get => _mediaCategory;
             set
             {
-                if (SetField(ref _mediaCategory, value))
-                {
-                    NotifyPropertyChanged(nameof(IsDisplayMediaCategory));
-                    Search(null);
-                }
+                if (!SetField(ref _mediaCategory, value))
+                    return;
+                NotifyPropertyChanged(nameof(IsDisplayMediaCategory));
+                Search(null);
             }
         }
 
@@ -222,11 +220,10 @@ namespace TAS.Client.ViewModels
             get => _mediaType;
             set
             {
-                if (SetField(ref _mediaType, value))
-                {
-                    NotifyPropertyChanged(nameof(IsMediaCategoryVisible));
-                    Search(null);
-                }
+                if (!SetField(ref _mediaType, value))
+                    return;
+                NotifyPropertyChanged(nameof(IsMediaCategoryVisible));
+                Search(null);
             }
         }
 
@@ -406,8 +403,7 @@ namespace TAS.Client.ViewModels
 
         private bool CanRefresh(object obj)
         {
-            return _selectedDirectory?.Directory is IIngestDirectory directory
-                && (!directory.IsWAN || _searchText.Length >= MinSearchLength);
+            return _selectedDirectory?.Directory is IIngestDirectory;
         }
 
         private void RecordersViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -442,25 +438,29 @@ namespace TAS.Client.ViewModels
         private async void ReloadFiles()
         {
             UiServices.SetBusyState();
-            if (_currentSearchProvider != null)
-            {
-                _currentSearchProvider.ItemAdded -= Search_ItemAdded;
-                _currentSearchProvider.Cancel();
-            }
+            CancelMediaSearchProvider();
             SetMediaItems(null);
-            var mediaDirectory = SelectedDirectory.Directory;
-            if (mediaDirectory.HaveFileWatcher)
+            switch (SelectedDirectory.Directory)
             {
-                switch (mediaDirectory)
-                {
-                    case IServerDirectory serverDirectory:
-                        SetMediaItems(serverDirectory.GetFiles());
-                        break;
-                    case IIngestDirectory ingestDirectory:
+                case IServerDirectory serverDirectory:
+                    SetMediaItems(serverDirectory.GetAllFiles());
+                    break;
+                case IAnimationDirectory animationDirectory:
+                    SetMediaItems(animationDirectory.GetAllFiles());
+                    break;
+                case IArchiveDirectory archiveDirectory:
+                    await Task.Run(() => StartMediaSearchProvider(archiveDirectory));
+                    break;
+                case IIngestDirectory ingestDirectory:
+                    if (ingestDirectory.HaveFileWatcher)
+                        SetMediaItems(ingestDirectory.GetAllFiles());
+                    else
+                    {
+                        if (!CanSearch(null))
+                            return;
                         try
                         {
-                            if (ingestDirectory.Kind == TIngestDirectoryKind.XDCAM)
-                                await Task.Run(() => ingestDirectory.Refresh());
+                            await Task.Run(() => StartMediaSearchProvider(ingestDirectory));
                         }
                         catch (Exception e)
                         {
@@ -468,38 +468,51 @@ namespace TAS.Client.ViewModels
                                 MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message),
                                     resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                         }
-                        SetMediaItems(ingestDirectory.GetFiles());
-                        break;
-                }
+                    }
+                    break;
             }
-            else
-            {
-                if (!(mediaDirectory is ISearchableDirectory searchableDirectory))
-                    return;
-                if (!CanSearch(null))
-                    return;
-                var newSearch = searchableDirectory.Search(MediaCategory as TMediaCategory?, SearchText);
-                _currentSearchProvider = newSearch;
-                newSearch.ItemAdded += Search_ItemAdded;
-                newSearch.Finished += (sender, args) =>
-                {
-                    if (!(sender is IMediaSearchProvider provider))
-                        return;
-                    provider.Dispose();
-                    provider.ItemAdded -= Search_ItemAdded;
-                    if (provider != _currentSearchProvider)
-                        return;
-                    _currentSearchProvider = null;
-                    IsSearching = false;
-                };
-                IsSearching = true;
-                newSearch.Start();
-            }
+        }
+
+        private void CancelMediaSearchProvider()
+        {
+            if (_currentSearchProvider == null)
+                return;
+            _currentSearchProvider.ItemAdded -= Search_ItemAdded;
+            _currentSearchProvider.Finished -= Search_Finished;
+            _currentSearchProvider.Cancel();
+            _currentSearchProvider.Dispose();
+            _currentSearchProvider = null;
+            IsSearching = false;
+        }
+
+        private void StartMediaSearchProvider(IMediaDirectory mediaDirectory)
+        {
+            var newSearch = mediaDirectory.Search(MediaCategory as TMediaCategory?, SearchText?.ToLower());
+            _currentSearchProvider = newSearch;
+            newSearch.ItemAdded += Search_ItemAdded;
+            newSearch.Finished += Search_Finished;
+            IsSearching = true;
+            newSearch.Start();
         }
 
         private void Search_ItemAdded(object sender, EventArgs<IMedia> e)
         {
-            AddMediaToItems(e.Item);
+            if (_currentSearchProvider == null)
+                return;
+            OnUiThread(() => AddMediaToItems(e.Item));
+        }
+
+        private void Search_Finished(object sender, EventArgs e)
+        {
+            if (!(sender is IMediaSearchProvider provider))
+                return;
+            provider.Dispose();
+            provider.ItemAdded -= Search_ItemAdded;
+            provider.Finished -= Search_Finished;
+            if (provider != _currentSearchProvider)
+                return;
+            _currentSearchProvider = null;
+            IsSearching = false;
         }
 
         public bool IsSearching { get => _isSearching; set => SetField(ref _isSearching, value); }
@@ -526,11 +539,8 @@ namespace TAS.Client.ViewModels
 
         private void AddMediaToItems(IMedia media)
         {
-            OnUiThread(() =>
-            {
-                _mediaItems?.Add(new MediaViewViewmodel(media));
-                NotifyDirectoryPropertiesChanged();
-            });
+            _mediaItems?.Add(new MediaViewViewmodel(media));
+            NotifyDirectoryPropertiesChanged();
         }
 
         private void SelectedDirectory_MediaAdded(object source, MediaEventArgs e)
@@ -711,10 +721,11 @@ namespace TAS.Client.ViewModels
         private bool CanSearch(object o)
         {
             var dir = _selectedDirectory?.Directory;
-            return dir is IServerDirectory
-                   || dir is IAnimationDirectory
+            if (dir == null)
+                return false;
+            return dir.HaveFileWatcher
                    || dir is IArchiveDirectory
-                   || (dir is IIngestDirectory && (!((IIngestDirectory)dir).IsWAN || _searchText.Length >= MinSearchLength));
+                   || (dir is IIngestDirectory ingestDirectory && (!(ingestDirectory.Kind == TIngestDirectoryKind.SimpleFolder && ingestDirectory.IsWAN) || _searchText.Length >= MinSearchLength));
         }
 
         private void Search(object o)

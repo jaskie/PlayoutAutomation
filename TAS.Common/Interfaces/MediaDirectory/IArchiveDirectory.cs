@@ -1,10 +1,11 @@
-﻿using TAS.Common.Interfaces.Media;
+﻿using System;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Common.Interfaces.MediaDirectory
 {
-    public interface IArchiveDirectory: ISearchableDirectory
+    public interface IArchiveDirectory: IMediaDirectory
     {
-        IArchiveMedia Find(IMediaProperties media);
+        IArchiveMedia Find(Guid mediaGuid);
     }
 
     public interface IArchiveDirectoryProperties: IMediaDirectoryProperties

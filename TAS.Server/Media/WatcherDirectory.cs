@@ -63,10 +63,10 @@ namespace TAS.Server.Media
             IsInitialized = false;
         }
 
-        public virtual IReadOnlyCollection<IMedia> GetFiles()
+        public virtual IReadOnlyCollection<IMedia> GetAllFiles()
         {
             lock (((IDictionary) Files).SyncRoot)
-                return Files.Values.Cast<IMedia>().ToList().AsReadOnly();
+                return Files.Values.ToList().AsReadOnly();
         }
 
         internal override bool DeleteMedia(IMedia media)
@@ -352,6 +352,15 @@ namespace TAS.Server.Media
             base.RemoveMedia(media);
             media.PropertyChanged -= _media_PropertyChanged;
             ((MediaBase)media).Dispose();
+        }
+
+        public override IMediaSearchProvider Search(TMediaCategory? category, string searchString)
+        {
+            lock (((IDictionary) Files).SyncRoot)
+                return new MediaSearchProvider(Files.Values.Where(m =>
+                        (!category.HasValue || category.Value == m.MediaCategory) && m.MediaName.IndexOf(searchString, StringComparison.CurrentCultureIgnoreCase) >= 0)
+                    .ToList()
+                    .AsReadOnly());
         }
 
         protected virtual void OnMediaRenamed(MediaBase media, string newFullPath)

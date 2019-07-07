@@ -66,7 +66,7 @@
                         </mwt:ClassicBorderDecorator>
                         <Button x:Name="PART_SearchButtonHost" Grid.Column="1" Height="{Binding ActualHeight, ElementName=Bd}">
                             <Grid>
-                                <Image Stretch="None" Source="/TAS.Client.Common;component/Images/Actions/search_glyph.png"/>
+                                <local:AutoGreyableImage Stretch="None" Source="/TAS.Client.Common;component/Images/Actions/search_glyph.png"/>
                                 <Image x:Name="Hourglass" Margin="5, 5, 0, 0" Stretch="Uniform" Source="/TAS.Client.Common;component/Images/Actions/hourglass.png"/>
                             </Grid>
                         </Button>

@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -25,12 +26,11 @@ namespace TAS.Remoting.Client
                 DoDispose();
         }
 
-#if DEBUG
         ~ProxyBase()
         {
             Debug.WriteLine(this, $"{GetType().FullName} Finalized");
+            Finalized?.Invoke(this, EventArgs.Empty);
         }
-#endif
 
         [JsonProperty]
         public Guid DtoGuid { get; set; }
@@ -38,6 +38,8 @@ namespace TAS.Remoting.Client
         public event PropertyChangedEventHandler PropertyChanged;
 
         public event EventHandler Disposed;
+
+        internal event EventHandler Finalized; 
 
         protected T Get<T>([CallerMemberName] string propertyName = null)
         {
@@ -121,7 +123,15 @@ namespace TAS.Remoting.Client
 
         protected T Deserialize<T>(SocketMessage message)
         {
-            return _client == null ? default(T) : _client.Deserialize<T>(message);
+            if (_client == null)
+                return default(T);
+            using (var valueStream = message.ValueStream)
+            {
+                if (valueStream == null)
+                    return default(T);
+                using (var reader = new StreamReader(valueStream))
+                    return (T) _client.Serializer.Deserialize(reader, typeof(T));
+            }
         }
 
         internal void OnEventNotificationMessage(SocketMessage message)
@@ -163,5 +173,7 @@ namespace TAS.Remoting.Client
             var foundField = t.GetFields(flags).FirstOrDefault(f => f.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a =>((JsonPropertyAttribute)a).PropertyName == fieldName));
             return foundField ?? GetField(t.BaseType, fieldName);
         }
+
+
     }
 }

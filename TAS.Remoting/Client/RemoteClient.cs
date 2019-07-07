@@ -11,52 +11,34 @@ using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting.Client
 {
-    public class RemoteClient: TcpConnection
+    public class RemoteClient: SocketConnection
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        private readonly JsonSerializer _serializer;
-        private readonly ClientReferenceResolver _referenceResolver;
         private object _initialObject;
         private readonly Dictionary<Guid, SocketMessage> _receivedMessages = new Dictionary<Guid, SocketMessage>();
-        private readonly List<SocketMessage> _futureNotificationMessages = new List<SocketMessage>();
-        private readonly List<SocketMessage> _futureDisposalMessages = new List<SocketMessage>();
         private readonly AutoResetEvent _messageReceivedAutoResetEvent = new AutoResetEvent(false);
 
 
-        public RemoteClient(string address): base(address)
+        public RemoteClient(string address): base(address, new ClientReferenceResolver())
         {
-            _serializer = JsonSerializer.CreateDefault();
-            _serializer.Context = new StreamingContext(StreamingContextStates.Remoting, this);
-            _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-            _referenceResolver = new ClientReferenceResolver();
-            _serializer.ReferenceResolver = _referenceResolver;
-            _serializer.TypeNameHandling = TypeNameHandling.Objects | TypeNameHandling.Arrays;
-#if DEBUG
-            _serializer.Formatting = Formatting.Indented;
-#endif      
+            ((ClientReferenceResolver)ReferenceResolver).ReferenceFinalized += Resolver_ReferenceFinalized;
             StartThreads();
         }
-
 
         protected override void OnDispose()
         {
             base.OnDispose();
-            _referenceResolver.Dispose();
+            ((ClientReferenceResolver)ReferenceResolver).Dispose();
         }
         
-        public ISerializationBinder Binder
-        {
-            get => _serializer.SerializationBinder;
-            set => _serializer.SerializationBinder = value;
-        }
+        public ISerializationBinder Binder { set => SetBinder(value); }
 
         public T GetInitalObject<T>()
         {
             try
             {
-                var queryMessage =
-                    WebSocketMessageCreate(SocketMessage.SocketMessageType.RootQuery, null, null, 0);
-                var response = SendAndGetResponse<T>(queryMessage, null);
+                var queryMessage = WebSocketMessageCreate(SocketMessage.SocketMessageType.RootQuery, null, null, 0, null);
+                var response = SendAndGetResponse<T>(queryMessage);
                 _initialObject = response;
                 return response;
             }
@@ -75,8 +57,9 @@ namespace TAS.Remoting.Client
                     SocketMessage.SocketMessageType.Query,
                     dto,
                     methodName,
-                    parameters.Length);
-                return SendAndGetResponse<T>(queryMessage, new SocketMessageArrayValue {Value = parameters});
+                    parameters.Length,
+                    new SocketMessageArrayValue { Value = parameters });
+                return SendAndGetResponse<T>(queryMessage);
             }
             catch (Exception e)
             {
@@ -93,9 +76,10 @@ namespace TAS.Remoting.Client
                     SocketMessage.SocketMessageType.Get,
                     dto,
                     propertyName,
-                    0
+                    0,
+                    null
                 );
-                return SendAndGetResponse<T>(queryMessage, null);
+                return SendAndGetResponse<T>(queryMessage);
             }
             catch (Exception e)
             {
@@ -106,94 +90,53 @@ namespace TAS.Remoting.Client
 
         public void Invoke(ProxyBase dto, string methodName, params object[] parameters)
         {
-            var queryMessage = WebSocketMessageCreate(
+            Send(WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.Invoke,
                 dto,
                 methodName,
-                parameters.Length);
-            using (var valueStream = Serialize(new SocketMessageArrayValue {Value = parameters}))
-            {
-                Send(queryMessage.ToByteArray(valueStream));
-            }
+                parameters.Length,
+                new SocketMessageArrayValue{Value = parameters}));
         }
 
         public void Set(ProxyBase dto, object value, string propertyName)
         {
-            var queryMessage = WebSocketMessageCreate(
+            Send(WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.Set,
                 dto,
                 propertyName,
-                1);
-            using (var valueStream = Serialize(value))
-                Send(queryMessage.ToByteArray(valueStream));
+                1,
+                value));
         }
 
         public void EventAdd(ProxyBase dto, string eventName)
         {
-            var queryMessage = WebSocketMessageCreate(
+            Send(WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.EventAdd,
                 dto,
                 eventName,
-                0);
-            Send(queryMessage.ToByteArray(null));
+                0,
+                null));
         }
 
         public void EventRemove(ProxyBase dto, string eventName)
         {
-            var queryMessage = WebSocketMessageCreate(
+            Send(WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.EventRemove,
                 dto,
                 eventName,
-                0);
-            Send(queryMessage.ToByteArray(null));
+                0,
+                null));
         }
 
-        private Stream Serialize(object o)
+        protected override void OnMessage(SocketMessage message)
         {
-            if (o == null)
-                return null;
-            var stream = new MemoryStream();
-            using (var writer = new StreamWriter(stream, Encoding.UTF8, 1024, true))
-            {
-                _serializer.Serialize(writer, o);
-                return stream;
-            }
-        }
-
-        internal T Deserialize<T>(SocketMessage message)
-        {
-            using (var valueStream = message.ValueStream)
-            {
-                if (valueStream == null)
-                    return default(T);
-                using (var reader = new StreamReader(valueStream))
-                using (var jsonReader = new JsonTextReader(reader))
-                    return _serializer.Deserialize<T>(jsonReader);
-            }
-        }
-
-        protected override void OnMessage(byte[] data)
-        {
-            var message = new SocketMessage(data);
             if (message.MessageType != SocketMessage.SocketMessageType.RootQuery && _initialObject == null)
                 return;
             switch (message.MessageType)
             {
                 case SocketMessage.SocketMessageType.EventNotification:
-                    var notifyObject = _referenceResolver.ResolveReference(message.DtoGuid);
-                    if (notifyObject != null)
-                        notifyObject.OnEventNotificationMessage(message);
-                    else
-                        lock (((IList)_futureNotificationMessages).SyncRoot)
-                            _futureNotificationMessages.Add(message);
-                    break;
-                case SocketMessage.SocketMessageType.ObjectDisposed:
-                    var disposedObject = _referenceResolver.ResolveReference(message.DtoGuid);
-                    if (disposedObject != null)
-                        disposedObject.Dispose();
-                    else
-                        lock (((IList)_futureDisposalMessages).SyncRoot)
-                            _futureDisposalMessages.Add(message);
+                    var notifyObject = ((ClientReferenceResolver)ReferenceResolver).ResolveReference(message.DtoGuid);
+                    notifyObject?.OnEventNotificationMessage(message);
                     break;
                 default:
                     lock (((IDictionary)_receivedMessages).SyncRoot)
@@ -205,10 +148,9 @@ namespace TAS.Remoting.Client
             }
         }
 
-
-        private SocketMessage WebSocketMessageCreate(SocketMessage.SocketMessageType socketMessageType, IDto dto, string memberName, int paramsCount)
+        private SocketMessage WebSocketMessageCreate(SocketMessage.SocketMessageType socketMessageType, IDto dto, string memberName, int paramsCount, object value)
         {
-            return new SocketMessage
+            return new SocketMessage(value)
             {
                 MessageType = socketMessageType,
                 DtoGuid = dto?.DtoGuid ?? Guid.Empty,
@@ -217,13 +159,9 @@ namespace TAS.Remoting.Client
             };
         }
 
-        private T SendAndGetResponse<T>(SocketMessage query, object value)
+        private T SendAndGetResponse<T>(SocketMessage query)
         {
-            using (var valueStream = Serialize(value))
-            {
-                var valueBytes = query.ToByteArray(valueStream);
-                Send(valueBytes);
-            }
+            Send(query);
             while (IsConnected)
             {
                 _messageReceivedAutoResetEvent.WaitOne(5);
@@ -238,46 +176,29 @@ namespace TAS.Remoting.Client
                 if (response.MessageType == SocketMessage.SocketMessageType.Exception)
                     throw Deserialize<Exception>(response);
                 var result = Deserialize<T>(response);
-                if (_futureNotificationMessages.Count > 0)
-                    ApplyDelayedNotifications();
-                if (_futureDisposalMessages.Count > 0)
-                    ApplyDelayedDisposals();
                 return result;
             }
             return default(T);
         }
 
-        private void ApplyDelayedDisposals()
+        private void Resolver_ReferenceFinalized(object sender, Common.EventArgs<ProxyBase> e)
         {
-            var unprocessedMessages = new Dictionary<SocketMessage, ProxyBase>();
-            lock (((IList) _futureDisposalMessages).SyncRoot)
-            {
-                foreach (var message in _futureDisposalMessages)
-                    unprocessedMessages.Add(message, _referenceResolver.ResolveReference(message.DtoGuid));   
-                foreach (var unprocessedMessage in unprocessedMessages)
-                {
-                    if (unprocessedMessage.Value == null)
-                        continue;
-                    unprocessedMessage.Value.Dispose();
-                    _futureDisposalMessages.Remove(unprocessedMessage.Key);
-                }
-            }
+            Send(WebSocketMessageCreate(
+                SocketMessage.SocketMessageType.ProxyFinalized,
+                e.Item,
+                string.Empty,
+                0,
+                null));
         }
 
-        private void ApplyDelayedNotifications()
+        private T Deserialize<T>(SocketMessage message)
         {
-            var unprocessedMessages = new Dictionary<SocketMessage, ProxyBase>();
-            lock (((IList)_futureNotificationMessages).SyncRoot)
+            using (var valueStream = message.ValueStream)
             {
-                foreach (var message in _futureNotificationMessages)
-                    unprocessedMessages.Add(message, _referenceResolver.ResolveReference(message.DtoGuid));
-                foreach (var unprocessedMessage in unprocessedMessages)
-                {
-                    if (unprocessedMessage.Value == null)
-                        continue;
-                    unprocessedMessage.Value.OnEventNotificationMessage(unprocessedMessage.Key);
-                    _futureNotificationMessages.Remove(unprocessedMessage.Key);
-                }
+                if (valueStream == null)
+                    return default(T);
+                using (var reader = new StreamReader(valueStream))
+                    return (T)Serializer.Deserialize(reader, typeof(T));
             }
         }
     }

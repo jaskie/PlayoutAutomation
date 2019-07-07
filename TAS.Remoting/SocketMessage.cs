@@ -18,7 +18,7 @@ namespace TAS.Remoting
             EventRemove,
             EventNotification,
             Exception,
-            ObjectDisposed,
+            ProxyFinalized
         }
 
         private static readonly byte[] Version = { 0x1, 0x0,
@@ -31,13 +31,30 @@ namespace TAS.Remoting
 
         private readonly byte[] _rawData;
         private readonly int _valueStartIndex;
+        private readonly PropertyChangedValueReader _propertChangedValueReader;
+        private readonly object _value;
 
-        public SocketMessage()
+        internal SocketMessage(object value)
         {
             MessageGuid = Guid.NewGuid();
+            _value = value;
         }
 
-        public SocketMessage(byte[] rawData)
+        internal SocketMessage(PropertyChangedValueReader propertyChangedValueReader)
+        {
+            _propertChangedValueReader = propertyChangedValueReader;
+        }
+
+        internal SocketMessage(SocketMessage originalMessage, object value)
+        {
+            MessageGuid = originalMessage.MessageGuid;
+            MessageType = originalMessage.MessageType;
+            DtoGuid = originalMessage.DtoGuid;
+            MemberName = originalMessage.MemberName;
+            _value = value;
+        }
+
+        internal SocketMessage(byte[] rawData)
         {
             var index = 0;
             var version = new byte[Version.Length];
@@ -59,6 +76,17 @@ namespace TAS.Remoting
             ParametersCount = BitConverter.ToInt32(rawData, index);
             _valueStartIndex = index + sizeof(int);
             _rawData = rawData;
+        }
+
+        public object Value
+        {
+            get
+            {
+                if (_propertChangedValueReader == null)
+                    return _value;
+                var value = _propertChangedValueReader.ValueFunc();
+                return PropertyChangedWithDataEventArgs.Create(_propertChangedValueReader.PropertyName, value);
+            }
         }
 
         public readonly Guid MessageGuid;
@@ -118,13 +146,6 @@ namespace TAS.Remoting
         public Stream ValueStream => _rawData.Length > _valueStartIndex ? new MemoryStream(_rawData, _valueStartIndex, _rawData.Length - _valueStartIndex) : null;
         
         public string ValueString => Encoding.UTF8.GetString(_rawData, _valueStartIndex, _rawData.Length - _valueStartIndex);
-    }
-
-    [JsonObject(IsReference = false)]
-    public class SocketMessageSingleValue 
-    {
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
-        public object Value;
     }
 
     [JsonObject(IsReference = false)]

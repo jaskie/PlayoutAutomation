@@ -1,7 +1,9 @@
 ﻿using System;
+using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Remoting.Client;
 
-namespace TAS.Remoting.Client
+namespace TAS.Remoting.Model
 {
     public abstract class SearchProvider<T> : ProxyBase, ISearchProvider<T>
     {
@@ -52,7 +54,7 @@ namespace TAS.Remoting.Client
             switch (message.MemberName)
             {
                 case nameof(Finished):
-                    _finished?.Invoke(this, Deserialize<EventArgs>(message));
+                    _finished?.Invoke(this, EventArgs.Empty);
                     break;
                 case nameof(ItemAdded):
                     _itemAdded?.Invoke(this, Deserialize<EventArgs<T>>(message));

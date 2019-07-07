@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.ComponentModel;
+using System.Windows.Input;
+using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -53,7 +55,12 @@ namespace TAS.Client.ViewModels
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             if (preview != null)
                 PreviewViewmodel = new PreviewViewmodel(engine, preview) { SelectedIngestOperation = operation };
+            CommandRemove = new UiCommand(o => Removed?.Invoke(this, EventArgs.Empty));
         }
+
+        public ICommand CommandRemove { get; }
+
+        public event EventHandler Removed;
 
         public Array Categories { get; } = Enum.GetValues(typeof(TMediaCategory));
         public TMediaCategory DestCategory { get => _destCategory; set => SetField(ref _destCategory, value); }
@@ -101,7 +108,7 @@ namespace TAS.Client.ViewModels
             set => _operation.Trim = value;
         }
 
-        public string SourceFileName => $"{_operation.Source.Directory}:{_operation.Source.FileName}";
+        public string SourceFileName => $"{_operation.Source.Directory.GetDisplayName()}:{_operation.Source.MediaName}";
 
         public string DestMediaName
         {

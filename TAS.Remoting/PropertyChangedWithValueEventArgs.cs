@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -21,7 +22,7 @@ namespace TAS.Remoting
         {
             get => (this as PropertyChangedWithValueEventArgs)?.Value ??
                    (this as PropertyChangedWithArrayEventArgs)?.Value;
-            internal set => throw new System.NotImplementedException();
+            internal set => throw new NotImplementedException();
         }
     }
 
@@ -43,4 +44,17 @@ namespace TAS.Remoting
         [JsonProperty(ItemIsReference = true, TypeNameHandling = TypeNameHandling.All, ItemTypeNameHandling = TypeNameHandling.All)]
         public override object Value { get; internal set; }
     }
+
+
+    internal class PropertyChangedValueReader
+    {
+        public PropertyChangedValueReader(string propertyName, Func<object> valueFunc)
+        {
+            PropertyName = propertyName;
+            ValueFunc = valueFunc;
+        }
+        public string PropertyName { get; }
+        public Func<object> ValueFunc { get; }
+    }
+
 }

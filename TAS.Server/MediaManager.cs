@@ -270,7 +270,7 @@ namespace TAS.Server
                     {
                         Debug.WriteLine(this, "SynchronizeAnimationsSecToPri started");
                         Logger.Debug("SynchronizeAnimationsSecToPri started");
-                        var priAnimations = pri.GetFiles();
+                        var priAnimations = pri.GetAllFiles();
                         foreach (var priAnimation in priAnimations)
                         {
                             if (priAnimation.MediaStatus != TMediaStatus.Available)
@@ -556,7 +556,7 @@ namespace TAS.Server
         private void CopyMissingMediaPriToSec(ServerDirectory pri, ServerDirectory sec)
         {
             Logger.Debug("SynchronizeMediaSecToPri started");
-            var pRiMediaList = pri.GetFiles();
+            var pRiMediaList = pri.GetAllFiles();
             foreach (var pRImedia in pRiMediaList)
             {
                 if (pRImedia.MediaStatus != TMediaStatus.Available || !pRImedia.FileExists())
@@ -588,7 +588,7 @@ namespace TAS.Server
 
         private void DeleteExtraSecMedia(ServerDirectory pri, ServerDirectory sec)
         {
-            var secMediaList = sec.GetFiles();
+            var secMediaList = sec.GetAllFiles();
             foreach (var secMedia in secMediaList)
             {
                 if (pri.FindMediaByMediaGuid(secMedia.MediaGuid) == null)

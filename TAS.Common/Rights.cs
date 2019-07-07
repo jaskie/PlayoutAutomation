@@ -17,7 +17,7 @@ namespace TAS.Common
 
     [Flags]
     [TypeConverter(typeof(EventRightsEnumConverter))]
-    public enum EventRight
+    public enum EventRight: ulong
     {
         Create = 0x01,
         Delete = 0x02,
@@ -33,7 +33,7 @@ namespace TAS.Common
 
     [Flags]
     [TypeConverter(typeof(EngineRightsEnumConverter))]
-    public enum EngineRight
+    public enum EngineRight: ulong
     {
         Play = 0x01,
         Preview = 0x02,
@@ -55,7 +55,7 @@ namespace TAS.Common
 
     [Flags]
     [TypeConverter(typeof(IngestFolderRightsEnumConverter))]
-    public enum IngestFolderRight
+    public enum IngestFolderRight : ulong
     {
         Ingest = 0x01,
         Export = 0x02,

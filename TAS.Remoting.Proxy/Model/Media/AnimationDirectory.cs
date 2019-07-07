@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -21,11 +20,6 @@ namespace TAS.Remoting.Model
         }
 
         public bool IsPrimary => _isPrimary;
-
-        public override IReadOnlyCollection<IMedia> GetFiles()
-        {
-            return Query<List<AnimatedMedia>>();
-        }
 
     }
 }

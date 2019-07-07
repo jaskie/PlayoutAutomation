@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Remoting.Server;
 
-namespace TAS.Remoting.Server
+namespace TAS.Server
 {
     public abstract class SearchProvider<T> : DtoBase, ISearchProvider<T>
     {
 
         private readonly IEnumerable<T> _result;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         protected SearchProvider(IEnumerable<T> result)
         {
@@ -19,17 +22,24 @@ namespace TAS.Remoting.Server
 
         public async void Start()
         {
-            await Task.Run(() =>
+            try
             {
-                using (var enumerator = _result.GetEnumerator())
-                    while (enumerator.MoveNext())
-                    {
-                        if (TokenSource.IsCancellationRequested)
-                            break;
-                        ItemAdded?.Invoke(this, new EventArgs<T>(enumerator.Current));
-                    }
-            }, TokenSource.Token);
-            Finished?.Invoke(this, EventArgs.Empty);
+                await Task.Run(() =>
+                {
+                    using (var enumerator = _result.GetEnumerator())
+                        while (enumerator.MoveNext())
+                        {
+                            if (TokenSource.IsCancellationRequested)
+                                break;
+                            ItemAdded?.Invoke(this, new EventArgs<T>(enumerator.Current));
+                        }
+                }, TokenSource.Token);
+                Finished?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
         }
 
         public CancellationTokenSource TokenSource { get; }

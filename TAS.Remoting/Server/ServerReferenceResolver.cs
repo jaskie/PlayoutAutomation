@@ -27,9 +27,9 @@ namespace TAS.Remoting.Server
             var allKeys = _knownDtos.Keys;
             foreach (var key in allKeys)
             {
-                if (!_knownDtos.TryRemove(key, out var value))
+                if (!_knownDtos.TryRemove(key, out var removed))
                     continue;
-                RemoveDelegates(value);
+                removed.PropertyChanged -= Dto_PropertyChanged;
             }
         }
 
@@ -45,7 +45,7 @@ namespace TAS.Remoting.Server
                     string.Empty;
             if (IsReferenced(context, value))
                 return dto.DtoGuid.ToString();
-            AttachDelegates(dto);
+            dto.PropertyChanged += Dto_PropertyChanged;
             _knownDtos[dto.DtoGuid] = dto;
             Logger.Trace("GetReference added {0} for {1}", dto.DtoGuid, value);
             return dto.DtoGuid.ToString();
@@ -70,52 +70,28 @@ namespace TAS.Remoting.Server
 
         #endregion //IReferenceResolver
 
-        public IDto ResolveReference(Guid reference)
+        public DtoBase ResolveReference(Guid reference)
         {
             if (!_knownDtos.TryGetValue(reference, out var p))
                 throw new UnresolvedReferenceException(reference);
             return p;
         }
 
-        public event EventHandler<WrappedEventArgs> ReferencePropertyChanged;
+        internal event EventHandler<WrappedEventArgs> ReferencePropertyChanged;
 
-        public event EventHandler<WrappedEventArgs> ReferenceDisposed;
-
-        private void _referencePropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void Dto_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (!(sender is DtoBase dto))
                 throw new InvalidOperationException("Object provided is not DtoBase");
             ReferencePropertyChanged?.Invoke(this, new WrappedEventArgs(dto, e));
         }
 
-        private void _reference_Disposed(object sender, EventArgs e)
+
+        public void RemoveReference(IDto dto)
         {
-
-            if (!(sender is DtoBase dto))
-                throw new InvalidOperationException("Object provided is not DtoBase");
-            if (!_knownDtos.TryRemove(dto.DtoGuid, out var disposed))
-                throw new InvalidOperationException("DtoBase wasn't in dictionary");
-            if (!Equals(sender, disposed))
-                throw new InvalidOperationException("Object in dictionary was different than was notifying");
-
-            ReferenceDisposed?.Invoke(this, new WrappedEventArgs(dto, e));
-            RemoveDelegates(disposed);
-
-            Logger.Trace("Reference resolver - object {0} disposed, generation is {1}", disposed, GC.GetGeneration(dto));
+            if (_knownDtos.TryRemove(dto.DtoGuid, out var removed))
+                removed.PropertyChanged -= Dto_PropertyChanged;
         }
-
-        private void AttachDelegates(IDto dto)
-        {
-            dto.PropertyChanged += _referencePropertyChanged;
-            dto.Disposed += _reference_Disposed;
-        }
-
-        private void RemoveDelegates(IDto dto)
-        {
-            dto.PropertyChanged -= _referencePropertyChanged;
-            dto.Disposed -= _reference_Disposed;
-        }
-
     }
 
 }

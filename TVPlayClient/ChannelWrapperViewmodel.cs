@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
 using TAS.Remoting;
