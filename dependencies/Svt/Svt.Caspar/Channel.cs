@@ -91,9 +91,9 @@ namespace Svt.Caspar
 	    {
 	        clipName = clipName.Replace("\\", "\\\\");
 	        if (videoLayer == -1)
-	            Connection.SendString("LOADBG " + Id + " " + clipName + "" + (loop ? " LOOP" : ""));
+	            Connection.SendString("PLAY " + Id + " " + clipName + "" + (loop ? " LOOP" : ""));
 	        else
-	            Connection.SendString("LOADBG " + Id + "-" + videoLayer + " " + clipName + (loop ? " LOOP" : ""));
+	            Connection.SendString("PLAY " + Id + "-" + videoLayer + " " + clipName + (loop ? " LOOP" : ""));
         }
 
         public void Pause()
