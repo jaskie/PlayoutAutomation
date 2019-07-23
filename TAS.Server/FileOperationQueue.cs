@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Server.MediaOperation;
 
@@ -20,7 +21,7 @@ namespace TAS.Server
             {
                 _queue.Enqueue(operation);
             }
-            RunOperation();
+            Task.Run(() => RunOperation());
         }
 
         public List<FileOperationBase> GetQueue()
