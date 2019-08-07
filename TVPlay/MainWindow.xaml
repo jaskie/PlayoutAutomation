@@ -8,8 +8,7 @@
         xmlns:views="clr-namespace:TAS.Client.Views;assembly=TAS.Client"
         Name="AppMainWindow" 
         Title="{Resx Window.Title}" Height="864" Width="1152"
-        KeyDown="AppMainWindow_KeyDown" 
-        Closing="AppMainWindow_Closing">
+>
     <Window.Resources>
         <client:MainWindowViewmodel x:Key="MainWindowVM"/>
     </Window.Resources>

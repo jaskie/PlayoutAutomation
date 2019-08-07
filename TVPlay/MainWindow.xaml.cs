@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Diagnostics;
@@ -23,18 +24,20 @@ namespace TAS.Client
             base.OnClosed(e);
         }
 
-        private void AppMainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
 #if DEBUG == false
             int connectedClientCount = EngineController.GetConnectedClientCount();
-            e.Cancel = !((App) Application.Current).IsShutdown
+            e.Cancel = !((App)Application.Current).IsShutdown
                        && (MessageBox.Show(resources._query_ExitApplication, resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes
-                       || (connectedClientCount > 0 && MessageBox.Show(string.Format(resources._query_ClientsConnectedOnExit, connectedClientCount), resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes));
+                           || (connectedClientCount > 0 && MessageBox.Show(string.Format(resources._query_ClientsConnectedOnExit, connectedClientCount), resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes));
 #endif // DEBUG
+            base.OnClosing(e);
         }
 
-        private void AppMainWindow_KeyDown(object sender, KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
+            base.OnKeyDown(e);
 #if DEBUG
             if (e.Key == Key.G && e.KeyboardDevice.Modifiers == (ModifierKeys.Alt | ModifierKeys.Control))
             {
@@ -44,5 +47,6 @@ namespace TAS.Client
             }
 #endif
         }
+
     }
 }
