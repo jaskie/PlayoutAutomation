@@ -317,8 +317,9 @@ namespace TAS.Client.ViewModels
             (
                 o =>
                 {
-                    if (LoadedMedia != null)
-                        Position = StartTc + Duration - EndDuration;
+                    if (LoadedMedia == null)
+                        return;
+                    Position = LoadedMedia.TcStart + Duration - EndDuration;
                     _preview.PreviewPlay();
                 },
                 o => LoadedMedia?.MediaStatus == TMediaStatus.Available && Duration > EndDuration

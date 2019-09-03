@@ -6,6 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:viewModels="clr-namespace:TAS.Client.ViewModels"
              FontSize="12" 
              MinHeight="55"
              d:DesignHeight="300"
