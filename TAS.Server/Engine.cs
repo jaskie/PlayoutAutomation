@@ -1232,7 +1232,7 @@ namespace TAS.Server
             NotifyEngineOperation(aEvent, TEngineOperation.Play);
             if (aEvent.Layer == VideoLayer.Program
                 && (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live))
-                Task.Run(() => EngineController.Database.AsRunLogWrite(aEvent));
+                Task.Run(() => EngineController.Database.AsRunLogWrite(Id, aEvent));
         }
 
         private void _startLoaded()

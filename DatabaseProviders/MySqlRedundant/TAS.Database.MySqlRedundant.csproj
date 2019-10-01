@@ -72,7 +72,6 @@
     <Compile Include="DbDataReaderRedundant.cs" />
     <Compile Include="DbParameterCollectionRedundant.cs" />
     <Compile Include="DbParameterRedundant.cs" />
-    <Compile Include="DbSchema.cs" />
     <Compile Include="DbTransactionRedundant.cs" />
     <Compile Include="DbEventExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

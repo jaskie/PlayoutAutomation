@@ -1005,7 +1005,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             }
         }
 
-        public void AsRunLogWrite(IEvent e)
+        public void AsRunLogWrite(ulong idEngine, IEvent e)
         {
             try
             {
@@ -1013,6 +1013,7 @@ WHERE idRundownEvent=@idRundownEvent;";
                 {
                     var cmd = new DbCommandRedundant(
 @"INSERT INTO asrunlog (
+idEngine,
 ExecuteTime, 
 MediaName, 
 StartTC,
@@ -1027,6 +1028,7 @@ Flags
 )
 VALUES
 (
+@idEngine,
 @ExecuteTime, 
 @MediaName, 
 @StartTC,
@@ -1039,7 +1041,7 @@ VALUES
 @typAudio,
 @Flags
 );", _connection);
-
+                    cmd.Parameters.AddWithValue("@idEngine", idEngine);
                     cmd.Parameters.AddWithValue("@ExecuteTime", e.StartTime);
                     var media = e.Media;
                     if (media != null)

@@ -35,6 +35,7 @@ CREATE TABLE `archivemedia` (
 
 CREATE TABLE `asrunlog` (
   `idAsRunLog` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `idEngine` BIGINT(20) NULL,
   `ExecuteTime` datetime(3) NULL DEFAULT NULL,
   `MediaName` varchar(255) DEFAULT NULL,
   `StartTC` time(6) DEFAULT NULL,
@@ -47,7 +48,8 @@ CREATE TABLE `asrunlog` (
   `typAudio` tinyint(3) unsigned DEFAULT NULL,
   `Flags` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`idAsRunLog`),
-  KEY `ixExecuteTime` (`ExecuteTime`)
+  KEY `ixExecuteTime` (`ExecuteTime`),
+  KEY `ixIdEngine` (`idEngine`)
 );
 
 CREATE TABLE `customcommand` (

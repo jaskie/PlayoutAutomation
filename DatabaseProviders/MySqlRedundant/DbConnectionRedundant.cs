@@ -28,27 +28,27 @@ namespace TAS.Database.MySqlRedundant
 
         public static bool CreateEmptyDatabase(string connectionString, string collate)
         {
-            MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(connectionString);
-            string databaseName = csb.Database;
-            string charset = csb.CharacterSet;
+            var csb = new MySqlConnectionStringBuilder(connectionString);
+            var databaseName = csb.Database;
+            var charset = csb.CharacterSet;
             if (string.IsNullOrWhiteSpace(databaseName))
                 return false;
             csb.Remove("Database");
             csb.Remove("CharacterSet");
-            using (MySqlConnection connection = new MySqlConnection(csb.ConnectionString))
+            using (var connection = new MySqlConnection(csb.ConnectionString))
             {
                 connection.Open();
-                using (var createCommand = new MySqlCommand(string.Format("CREATE DATABASE `{0}` CHARACTER SET = {1} COLLATE = {2};", databaseName, charset, collate), connection))
+                using (var createCommand = new MySqlCommand($"CREATE DATABASE `{databaseName}` CHARACTER SET = {charset} COLLATE = {collate};", connection))
                 {
                     if (createCommand.ExecuteNonQuery() == 1)
                     {
-                        using (var useCommand = new MySqlCommand(string.Format("use {0};", databaseName), connection))
+                        using (var useCommand = new MySqlCommand($"use {databaseName};", connection))
                         {
                             useCommand.ExecuteNonQuery();
-                            using (StreamReader scriptReader = new StreamReader(DbSchema.GetSchemaDefinitionStream()))
+                            using (var scriptReader = new StreamReader(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TAS.Database.MySqlRedundant.database.sql")))
                             {
-                                string createStatements = scriptReader.ReadToEnd();
-                                MySqlScript createScript = new MySqlScript(connection, createStatements);
+                                var createStatements = scriptReader.ReadToEnd();
+                                var createScript = new MySqlScript(connection, createStatements);
                                 if (createScript.Execute() > 0)
                                     return true;
                             }
@@ -61,15 +61,15 @@ namespace TAS.Database.MySqlRedundant
 
         public static bool DropDatabase(string connectionString)
         {
-            MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(connectionString);
-            string databaseName = csb.Database;
+            var csb = new MySqlConnectionStringBuilder(connectionString);
+            var databaseName = csb.Database;
             if (string.IsNullOrWhiteSpace(databaseName))
                 return false;
             csb.Remove("Database");
-            using (MySqlConnection connection = new MySqlConnection(csb.ConnectionString))
+            using (var connection = new MySqlConnection(csb.ConnectionString))
             {
                 connection.Open();
-                using (var dropCommand = new MySqlCommand(string.Format("DROP DATABASE `{0}`;", databaseName), connection))
+                using (var dropCommand = new MySqlCommand($"DROP DATABASE `{databaseName}`;", connection))
                 {
                     if (dropCommand.ExecuteNonQuery() > 0)
                         return true;
@@ -80,21 +80,21 @@ namespace TAS.Database.MySqlRedundant
 
         public static void CloneDatabase(string connectionStringSource, string connectionStringDestination)
         {
-            string backupFile = Path.GetTempFileName();
-            MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(connectionStringDestination);
-            string databaseName = csb.Database;
-            string charset = csb.CharacterSet;
+            var backupFile = Path.GetTempFileName();
+            var csb = new MySqlConnectionStringBuilder(connectionStringDestination);
+            var databaseName = csb.Database;
+            var charset = csb.CharacterSet;
             if (string.IsNullOrWhiteSpace(databaseName))
                 return;
             csb.Remove("Database");
             csb.Remove("CharacterSet");
             try
             {
-                using (MySqlConnection conn = new MySqlConnection(connectionStringSource))
+                using (var conn = new MySqlConnection(connectionStringSource))
                 {
-                    using (MySqlCommand cmd = new MySqlCommand())
+                    using (var cmd = new MySqlCommand())
                     {
-                        using (MySqlBackup mb = new MySqlBackup(cmd) )
+                        using (var mb = new MySqlBackup(cmd) )
                         {
                             mb.ExportInfo.MaxSqlLength = 1024 * 1024; // 1M
                             cmd.Connection = conn;
@@ -105,23 +105,22 @@ namespace TAS.Database.MySqlRedundant
                     }
                 }
                 //file ready
-                using (MySqlConnection conn = new MySqlConnection(csb.ConnectionString))
+                using (var conn = new MySqlConnection(csb.ConnectionString))
                 {
                     conn.Open();
-                    using (var createCommand = new MySqlCommand(string.Format("CREATE DATABASE `{0}` CHARACTER SET = {1};", databaseName, charset), conn))
+                    using (var createCommand = new MySqlCommand($"CREATE DATABASE `{databaseName}` CHARACTER SET = {charset};", conn))
                     {
-                        if (createCommand.ExecuteNonQuery() == 1)
+                        if (createCommand.ExecuteNonQuery() != 1)
+                            return;
+                        using (var useCommand = new MySqlCommand($"use {databaseName};", conn))
                         {
-                            using (var useCommand = new MySqlCommand(string.Format("use {0};", databaseName), conn))
+                            useCommand.ExecuteNonQuery();
+                            using (var cmd = new MySqlCommand())
                             {
-                                useCommand.ExecuteNonQuery();
-                                using (MySqlCommand cmd = new MySqlCommand())
+                                using (var mb = new MySqlBackup(cmd))
                                 {
-                                    using (MySqlBackup mb = new MySqlBackup(cmd))
-                                    {
-                                        cmd.Connection = conn;
-                                        mb.ImportFromFile(backupFile);
-                                    }
+                                    cmd.Connection = conn;
+                                    mb.ImportFromFile(backupFile);
                                 }
                             }
                         }
@@ -157,7 +156,7 @@ namespace TAS.Database.MySqlRedundant
         {
             lock (_stateLock)
             {
-                ConnectionStateRedundant newState = StateRedundant;
+                var newState = StateRedundant;
                 if (sender == ConnectionPrimary)
                 {
                     switch (e.CurrentState)
