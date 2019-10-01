@@ -17,8 +17,10 @@ namespace TAS.Remoting
             EventAdd,
             EventRemove,
             EventNotification,
-            Exception,
-            ProxyFinalized
+
+            ProxyFinalized,
+            UnresolvedReference,
+            Exception
         }
 
         private static readonly byte[] Version = { 0x1, 0x0,

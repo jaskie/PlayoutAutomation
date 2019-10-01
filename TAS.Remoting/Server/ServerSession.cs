@@ -64,6 +64,10 @@ namespace TAS.Remoting.Server
                 {
                     SendResponse(message, _initialObject);
                 }
+                else if (message.MessageType == SocketMessage.SocketMessageType.UnresolvedReference)
+                {
+                    SendResponse(message, DtoBase.FindDto(message.DtoGuid));
+                }
                 else // method of particular object
                 {
                     var objectToInvoke = ((ServerReferenceResolver)ReferenceResolver).ResolveReference(message.DtoGuid);

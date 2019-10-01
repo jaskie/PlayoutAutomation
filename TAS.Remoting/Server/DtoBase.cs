@@ -1,6 +1,7 @@
 ﻿//#undef DEBUG
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -13,17 +14,31 @@ namespace TAS.Remoting.Server
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.Objects, IsReference = true, MemberSerialization = MemberSerialization.OptIn)]
     public abstract class DtoBase: IDto
     {
+        private static readonly ConcurrentDictionary<Guid, WeakReference<DtoBase>> AllDtos = new ConcurrentDictionary<Guid, WeakReference<DtoBase>>();
+
+        internal static DtoBase FindDto(Guid guid)
+        {
+            if (AllDtos.TryGetValue(guid, out var reference) && reference.TryGetTarget(out var result))
+                return result;
+            return null;
+        }
+
+        protected DtoBase()
+        {
+            DtoGuid = Guid.NewGuid();
+            AllDtos.TryAdd(DtoGuid, new WeakReference<DtoBase>(this));
+        }
+
         [XmlIgnore]
-        public virtual Guid DtoGuid { get; } = Guid.NewGuid();
+        public Guid DtoGuid { get; }
 
         private int _disposed;
 
-#if DEBUG
         ~DtoBase()
         {
+            AllDtos.TryRemove(DtoGuid, out var _);
             Debug.WriteLine(this, $"{GetType().FullName} Finalized");
         }
-#endif // DEBUG
 
         protected virtual bool SetField<T>(ref T field, T value, [CallerMemberName]string propertyName = null)
         {
