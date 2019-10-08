@@ -64,6 +64,7 @@
     <Compile Include="Interop\Ndi.cs" />
     <Compile Include="Interop\Structs.cs" />
     <Compile Include="Interop\Utilities.cs" />
+    <Compile Include="NevionCommunicator.cs" />
     <Compile Include="VideoPreviewViewmodel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VideoPreviewView.xaml.cs">

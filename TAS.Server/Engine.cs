@@ -165,6 +165,10 @@ namespace TAS.Server
         [JsonProperty]
         public ICGElementsController CGElementsController { get; private set; }
 
+        [XmlIgnore]
+        public INevionRouter NevionRouter { get; private set; }
+
+
         public ServerHost Remote { get; set; }
         public TAspectRatioControl AspectRatioControl { get; set; }
         public double VolumeReferenceLoudness { get; set; }
@@ -302,6 +306,7 @@ namespace TAS.Server
             _localGpis = this.ComposeParts<IGpi>();
             _plugins = this.ComposeParts<IEnginePlugin>();
             CGElementsController = this.ComposePart<ICGElementsController>();
+            NevionRouter = this.ComposePart<INevionRouter>();
             FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
             FrameTicks = FormatDescription.FrameTicks;
             FrameRate = FormatDescription.FrameRate;

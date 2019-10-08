@@ -71,6 +71,8 @@
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
     <Compile Include="EventArgs.cs" />
+    <Compile Include="Interfaces\INevionPort.cs" />
+    <Compile Include="Interfaces\INevionRouter.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
     <Compile Include="Interfaces\IRemoteHostConfig.cs" />
     <Compile Include="Interfaces\ISearchProvider.cs" />

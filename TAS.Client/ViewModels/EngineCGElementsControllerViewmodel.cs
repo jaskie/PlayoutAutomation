@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
 
@@ -39,7 +40,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsConnected => _controller?.IsConnected ?? false;
 
-        public bool Exists => _controller != null;
+        public bool Exists => _controller != null || System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()) ;
 
         protected override void OnDispose()
         {
