@@ -112,26 +112,19 @@
                         </Style>
                     </Image.Style>
                 </Image>
-                <Image Grid.Column="0"  Grid.RowSpan="2" ToolTip="{Binding MediaErrorInfo}" HorizontalAlignment="Right" >
-                    <Image.Style>
-                        <Style TargetType="Image">
+                <Image Grid.Column="0"  Grid.RowSpan="2" ToolTip="{Binding MediaErrorInfo}" HorizontalAlignment="Right" Style="{StaticResource EventErrorInfoImage}"/>
+                <Image Grid.Column="1" Grid.RowSpan="2" ToolTip="{Binding PlayState}" Style="{StaticResource EventPlayStateImage}"/>
+                <StackPanel Grid.Column="2" Grid.RowSpan="2">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel" >
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
-                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/error-overlay.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding MediaErrorInfo}" Value="TooShort">
-                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/warning-overlay.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding MediaErrorInfo}" Value="NoError">
-                                    <Setter Property="Source" Value="{x:Null}"/>
+                                <DataTrigger Binding="{Binding IsInvalidInSchedule}" Value="True">
+                                    <Setter Property="Background" Value="Red"/>
+                                    <Setter Property="ToolTip" Value="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_isInvalidInSchedule.ToolTip}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Image.Style>
-                </Image>
-                <Image Grid.Column="1" Grid.RowSpan="2" ToolTip="{Binding PlayState}" Style="{StaticResource EventPlayStateImage}"/>
-                <Border Grid.Column="2"  Grid.RowSpan="2" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" Background="Red" ToolTip="{Resx _isInvalidInSchedule.ToolTip}"/>
-                <StackPanel Grid.Column="2" Grid.RowSpan="2">
+                    </StackPanel.Style>
                     <StackPanel.Resources>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource EventPanelTextBlock}">
                             <Setter Property="VerticalAlignment" Value="Center"/>

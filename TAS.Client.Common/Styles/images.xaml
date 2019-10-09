@@ -79,6 +79,22 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
+    <Style x:Key="EventErrorInfoImage" TargetType="Image" BasedOn="{StaticResource {x:Type Image}}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/error-overlay.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Expired">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/error-overlay.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding MediaErrorInfo}" Value="TooShort">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/warning-overlay.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding MediaErrorInfo}" Value="NoError">
+                <Setter Property="Source" Value="{x:Null}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
     <Style x:Key="SecurityObjectTypeImage" TargetType="Image" BasedOn="{StaticResource {x:Type Image}}">
         <Style.Triggers>
             <DataTrigger Binding="{Binding SecurityObjectTypeType}" Value="User">

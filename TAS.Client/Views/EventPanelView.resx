@@ -214,4 +214,7 @@
   <data name="_addCommandScript.ToolTip" xml:space="preserve">
     <value>Add command script</value>
   </data>
+  <data name="_isMediaExpired.ToolTip" xml:space="preserve">
+    <value>Media is expired</value>
+  </data>
 </root>

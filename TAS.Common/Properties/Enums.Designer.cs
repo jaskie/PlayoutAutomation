@@ -691,6 +691,15 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clip expired.
+        /// </summary>
+        public static string TMediaErrorInfo_Expired {
+            get {
+                return ResourceManager.GetString("TMediaErrorInfo_Expired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to File missing.
         /// </summary>
         public static string TMediaErrorInfo_Missing {
@@ -1020,6 +1029,15 @@ namespace TAS.Common.Properties {
         public static string TVideoFormat_NTSC_FHA {
             get {
                 return ResourceManager.GetString("TVideoFormat_NTSC_FHA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Other.
+        /// </summary>
+        public static string TVideoFormat_Other {
+            get {
+                return ResourceManager.GetString("TVideoFormat_Other", resourceCulture);
             }
         }
         

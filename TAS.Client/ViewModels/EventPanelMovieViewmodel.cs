@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -31,6 +32,10 @@ namespace TAS.Client.ViewModels
                 if (Event.ScheduledTc + Event.Duration > media.TcStart + media.Duration ||
                     Event.ScheduledTc < media.TcStart)
                     return TMediaErrorInfo.TooShort;
+                if (media is IPersistentMedia persistentMedia &&
+                    persistentMedia.KillDate.HasValue &&
+                    persistentMedia.KillDate.Value < DateTime.Today)
+                    return TMediaErrorInfo.Expired;
                 return TMediaErrorInfo.NoError;
             }
         }
@@ -55,6 +60,7 @@ namespace TAS.Client.ViewModels
                 case nameof(IMedia.MediaStatus):
                 case nameof(IMedia.TcStart):
                 case nameof(IMedia.Duration):
+                case nameof(IPersistentMedia.KillDate):
                     NotifyPropertyChanged(nameof(MediaErrorInfo));
                     break;
             }

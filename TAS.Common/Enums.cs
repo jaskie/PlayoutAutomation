@@ -321,6 +321,7 @@ namespace TAS.Common
         NoError,
         Missing,
         TooShort,
+        Expired
     }
     class TMediaErrorInfoEnumConverter : ResourceEnumConverter
     {
