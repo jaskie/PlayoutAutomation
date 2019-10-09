@@ -410,7 +410,25 @@
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
                                 <DataGridTextColumn x:Name="clipNrColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipNr}" Width="50" Visibility="{Binding Data.IsDisplayClipNr, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" Binding="{Binding ClipNr, Mode=OneWay}"  />
-                                <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="*" Binding="{Binding MediaName, Mode=OneWay}" />
+                                <DataGridTemplateColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding MediaName}">
+                                                <TextBlock.Style >
+                                                    <Style TargetType="TextBlock">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsExpired}" Value="True">
+                                                                <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                                <Setter Property="Background" Value="Crimson"/>
+                                                                <Setter Property="ToolTip" Value="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_media.ClipName.IsExpired}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}" />
                                 <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.DurationPlay}"  Width="90" SortMemberPath="DurationPlay">
                                     <DataGridTemplateColumn.CellTemplate>

@@ -18,7 +18,7 @@ namespace TAS.Remoting.Model.Media
         private string _idAux;
 
         [JsonProperty(nameof(IPersistentMedia.KillDate))]
-        private DateTime _killDate;
+        private DateTime? _killDate;
 
         [JsonProperty(nameof(IPersistentMedia.IdProgramme))]
         private ulong _idProgramme;
@@ -26,7 +26,7 @@ namespace TAS.Remoting.Model.Media
         [JsonProperty(nameof(IPersistentMedia.IsModified))]
         private bool _isModified;
 
-        [JsonProperty(nameof(IPersistentMedia.Protected))]
+        [JsonProperty(nameof(IPersistentMedia.IsProtected))]
         private bool _protected;
 
         [JsonProperty(nameof(FieldLengths))]
@@ -38,13 +38,13 @@ namespace TAS.Remoting.Model.Media
 
         public string IdAux { get => _idAux; set => Set(value); }
 
-        public DateTime KillDate { get => _killDate; set => Set(value); }
+        public DateTime? KillDate { get => _killDate; set => Set(value); }
 
         public ulong IdProgramme { get => _idProgramme; set => Set(value); }
 
         public bool IsModified { get => _isModified; set => Set(value); }
 
-        public bool Protected { get => _protected; set => Set(value); }
+        public bool IsProtected { get => _protected; set => Set(value); }
 
         public IDictionary<string, int> FieldLengths { get => _fieldsLengths; set => Set(value); }
 

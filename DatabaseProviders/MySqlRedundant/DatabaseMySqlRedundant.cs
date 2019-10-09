@@ -812,7 +812,7 @@ namespace TAS.Database.MySqlRedundant
 
         private IEvent _eventRead(IEngine engine, DbDataReaderRedundant dataReader)
         {
-            var flags = dataReader.IsDBNull(dataReader.GetOrdinal("flagsEvent")) ? 0 : dataReader.GetUInt32("flagsEvent");
+            var flags = dataReader.IsDBNull("flagsEvent") ? 0 : dataReader.GetUInt32("flagsEvent");
             var transitionType = dataReader.GetUInt16("typTransition");
             var eventType = (TEventType)dataReader.GetByte("typEvent");
             var newEvent = engine.CreateNewEvent(
@@ -830,12 +830,12 @@ namespace TAS.Database.MySqlRedundant
                 dataReader.GetString("EventName"),
                 dataReader.GetDateTime("StartTime"),
                 dataReader.GetTimeSpan("StartTC"),
-                dataReader.IsDBNull(dataReader.GetOrdinal("RequestedStartTime")) ? null : (TimeSpan?)dataReader.GetTimeSpan("RequestedStartTime"),
+                dataReader.IsDBNull("RequestedStartTime") ? null : (TimeSpan?)dataReader.GetTimeSpan("RequestedStartTime"),
                 dataReader.GetTimeSpan("TransitionTime"),
                 dataReader.GetTimeSpan("TransitionPauseTime"),
                 (TTransitionType)(transitionType & 0xFF),
                 (TEasing)(transitionType >> 8),
-                dataReader.IsDBNull(dataReader.GetOrdinal("AudioVolume")) ? null : (double?)dataReader.GetDouble("AudioVolume"),
+                dataReader.IsDBNull("AudioVolume") ? null : (double?)dataReader.GetDouble("AudioVolume"),
                 dataReader.GetUInt64("idProgramme"),
                 dataReader.GetString("IdAux"),
                 flags.IsEnabled(),
@@ -1056,10 +1056,7 @@ VALUES
                     }
                     else
                     {
-                        if (e.EventType == TEventType.Live)
-                            cmd.Parameters.AddWithValue("@MediaName", "LIVE");
-                        else
-                            cmd.Parameters.AddWithValue("@MediaName", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@MediaName", TrimText("asrunlog", "MediaName", e.EventName));
                         cmd.Parameters.AddWithValue("@idAuxMedia", DBNull.Value);
                         cmd.Parameters.AddWithValue("@typVideo", DBNull.Value);
                         cmd.Parameters.AddWithValue("@typAudio", DBNull.Value);
@@ -1245,12 +1242,12 @@ VALUES
                 cmd.Parameters.AddWithValue("@MediaGuid", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
-            if (media.KillDate == default(DateTime))
+            if (media.KillDate == null)
                 cmd.Parameters.AddWithValue("@KillDate", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@KillDate", media.KillDate);
             var flags = ((media is IServerMedia serverMedia && serverMedia.DoNotArchive) ? 0x1 : (uint)0x0)
-                        | (media.Protected ? 0x2 : (uint)0x0)
+                        | (media.IsProtected ? 0x2 : (uint)0x0)
                         | (media.FieldOrderInverted ? 0x4 : (uint)0x0)
                         | ((uint)media.MediaCategory << 4) // bits 4-7 of 1st byte
                         | ((uint)media.MediaEmphasis << 8) // bits 1-3 of second byte
@@ -1300,32 +1297,32 @@ VALUES
 
         private void _mediaReadFields(IPersistentMedia media, DbDataReaderRedundant dataReader)
         {
-            var flags = dataReader.IsDBNull(dataReader.GetOrdinal("flags")) ? 0 : dataReader.GetUInt32("flags");
-            media.MediaName = dataReader.IsDBNull(dataReader.GetOrdinal("MediaName")) ? string.Empty : dataReader.GetString("MediaName");
+            var flags = dataReader.IsDBNull("flags") ? 0 : dataReader.GetUInt32("flags");
+            media.MediaName = dataReader.IsDBNull("MediaName") ? string.Empty : dataReader.GetString("MediaName");
             media.LastUpdated = dataReader.GetDateTime("LastUpdated");
             media.MediaGuid = dataReader.GetGuid("MediaGuid");
-            media.MediaType = (TMediaType)(dataReader.IsDBNull(dataReader.GetOrdinal("typMedia")) ? 0 : dataReader.GetInt32("typMedia"));
-            media.Duration = dataReader.IsDBNull(dataReader.GetOrdinal("Duration")) ? default(TimeSpan) : dataReader.GetTimeSpan("Duration");
-            media.DurationPlay = dataReader.IsDBNull(dataReader.GetOrdinal("DurationPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("DurationPlay");
-            media.Folder = dataReader.IsDBNull(dataReader.GetOrdinal("Folder")) ? string.Empty : dataReader.GetString("Folder");
-            media.FileName = dataReader.IsDBNull(dataReader.GetOrdinal("FileName")) ? string.Empty : dataReader.GetString("FileName");
-            media.FileSize = dataReader.IsDBNull(dataReader.GetOrdinal("FileSize")) ? 0 : dataReader.GetUInt64("FileSize");
-            media.MediaStatus = (TMediaStatus)(dataReader.IsDBNull(dataReader.GetOrdinal("statusMedia")) ? 0 : dataReader.GetInt32("statusMedia"));
-            media.TcStart = dataReader.IsDBNull(dataReader.GetOrdinal("TCStart")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCStart");
-            media.TcPlay = dataReader.IsDBNull(dataReader.GetOrdinal("TCPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCPlay");
-            media.IdProgramme = dataReader.IsDBNull(dataReader.GetOrdinal("idProgramme")) ? 0 : dataReader.GetUInt64("idProgramme");
-            media.AudioVolume = dataReader.IsDBNull(dataReader.GetOrdinal("AudioVolume")) ? 0 : dataReader.GetDouble("AudioVolume");
-            media.AudioLevelIntegrated = dataReader.IsDBNull(dataReader.GetOrdinal("AudioLevelIntegrated")) ? 0 : dataReader.GetDouble("AudioLevelIntegrated");
-            media.AudioLevelPeak = dataReader.IsDBNull(dataReader.GetOrdinal("AudioLevelPeak")) ? 0 : dataReader.GetDouble("AudioLevelPeak");
-            media.AudioChannelMapping = dataReader.IsDBNull(dataReader.GetOrdinal("typAudio")) ? TAudioChannelMapping.Stereo : (TAudioChannelMapping)dataReader.GetByte("typAudio");
-            media.VideoFormat = dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ?  TVideoFormat.Other : (TVideoFormat)dataReader.GetByte("typVideo");
-            media.IdAux = dataReader.IsDBNull(dataReader.GetOrdinal("idAux")) ? string.Empty : dataReader.GetString("idAux");
-            media.KillDate = dataReader.GetDateTime("KillDate");
+            media.MediaType = (TMediaType)(dataReader.IsDBNull("typMedia") ? 0 : dataReader.GetInt32("typMedia"));
+            media.Duration = dataReader.IsDBNull("Duration") ? default(TimeSpan) : dataReader.GetTimeSpan("Duration");
+            media.DurationPlay = dataReader.IsDBNull("DurationPlay") ? default(TimeSpan) : dataReader.GetTimeSpan("DurationPlay");
+            media.Folder = dataReader.IsDBNull("Folder") ? string.Empty : dataReader.GetString("Folder");
+            media.FileName = dataReader.IsDBNull("FileName") ? string.Empty : dataReader.GetString("FileName");
+            media.FileSize = dataReader.IsDBNull("FileSize") ? 0 : dataReader.GetUInt64("FileSize");
+            media.MediaStatus = (TMediaStatus)(dataReader.IsDBNull("statusMedia") ? 0 : dataReader.GetInt32("statusMedia"));
+            media.TcStart = dataReader.IsDBNull("TCStart") ? default(TimeSpan) : dataReader.GetTimeSpan("TCStart");
+            media.TcPlay = dataReader.IsDBNull("TCPlay") ? default(TimeSpan) : dataReader.GetTimeSpan("TCPlay");
+            media.IdProgramme = dataReader.IsDBNull("idProgramme") ? 0 : dataReader.GetUInt64("idProgramme");
+            media.AudioVolume = dataReader.IsDBNull("AudioVolume") ? 0 : dataReader.GetDouble("AudioVolume");
+            media.AudioLevelIntegrated = dataReader.IsDBNull("AudioLevelIntegrated") ? 0 : dataReader.GetDouble("AudioLevelIntegrated");
+            media.AudioLevelPeak = dataReader.IsDBNull("AudioLevelPeak") ? 0 : dataReader.GetDouble("AudioLevelPeak");
+            media.AudioChannelMapping = dataReader.IsDBNull("typAudio") ? TAudioChannelMapping.Stereo : (TAudioChannelMapping)dataReader.GetByte("typAudio");
+            media.VideoFormat = dataReader.IsDBNull("typVideo") ?  TVideoFormat.Other : (TVideoFormat)dataReader.GetByte("typVideo");
+            media.IdAux = dataReader.IsDBNull("idAux") ? string.Empty : dataReader.GetString("idAux");
+            media.KillDate = dataReader.IsDBNull("KillDate") ? (DateTime?)null : dataReader.GetDateTime("KillDate");
             media.MediaEmphasis = (TMediaEmphasis)((flags >> 8) & 0xF);
             media.Parental = (byte)((flags >> 12) & 0xF);
             if (media is IServerMedia serverMedia)
                 serverMedia.DoNotArchive = (flags & 0x1) != 0;
-            media.Protected = (flags & 0x2) != 0;
+            media.IsProtected = (flags & 0x2) != 0;
             media.FieldOrderInverted = (flags & 0x4) != 0;
             media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
             if (media is ITemplated templated)
@@ -1707,9 +1704,9 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
                     while (dataReader.Read())
                     {
                         var newSegment = segments.Add(
-                            dataReader.IsDBNull(dataReader.GetOrdinal("TCIn")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCIn"),
-                            dataReader.IsDBNull(dataReader.GetOrdinal("TCOut")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCOut"),
-                            dataReader.IsDBNull(dataReader.GetOrdinal("SegmentName")) ? string.Empty : dataReader.GetString("SegmentName")
+                            dataReader.IsDBNull("TCIn") ? default(TimeSpan) : dataReader.GetTimeSpan("TCIn"),
+                            dataReader.IsDBNull("TCOut") ? default(TimeSpan) : dataReader.GetTimeSpan("TCOut"),
+                            dataReader.IsDBNull("SegmentName") ? string.Empty : dataReader.GetString("SegmentName")
                             );
                         newSegment.Id = dataReader.GetUInt64("idMediaSegment");
                     }

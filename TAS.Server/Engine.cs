@@ -712,7 +712,7 @@ namespace TAS.Server
         public MediaDeleteResult CanDeleteMedia(PersistentMedia media)
         {
             MediaDeleteResult reason = MediaDeleteResult.NoDeny;
-            if (media.Protected)
+            if (media.IsProtected)
                 return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.Protected, Media = media };
             if (!(media is ServerMedia serverMedia))
                 return reason;

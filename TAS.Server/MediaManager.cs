@@ -371,7 +371,7 @@ namespace TAS.Server
                     e.PropertyName != nameof(IServerMedia.AudioLevelIntegrated) &&
                     e.PropertyName != nameof(IServerMedia.AudioLevelPeak) &&
                     e.PropertyName != nameof(IServerMedia.IsArchived) &&
-                    e.PropertyName != nameof(IServerMedia.Protected) &&
+                    e.PropertyName != nameof(IServerMedia.IsProtected) &&
                     e.PropertyName != nameof(IServerMedia.FieldOrderInverted) && 
                     e.PropertyName != nameof(IServerMedia.IsArchived)
                 ))

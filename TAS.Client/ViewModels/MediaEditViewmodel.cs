@@ -35,7 +35,7 @@ namespace TAS.Client.ViewModels
         private string _mediaName;
         private TMediaEmphasis _mediaEmphasis;
         private DateTime? _killDate;
-        private bool _protected;
+        private bool _isProtected;
         private bool _doNotArchive;
         private byte _parental;
         private TMediaCategory _mediaCategory;
@@ -202,12 +202,9 @@ namespace TAS.Client.ViewModels
             get => _killDate;
             set
             {
-                if (_killDate == value)
+                if (!SetField(ref _killDate, value))
                     return;
-                _killDate = value == default(DateTime) ? null : value;
-                IsModified = true;
                 NotifyPropertyChanged(nameof(IsKillDate));
-                NotifyPropertyChanged();
             }
         }
 
@@ -228,10 +225,10 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool Protected
+        public bool IsProtected
         {
-            get => _protected;
-            set => SetField(ref _protected, value);
+            get => _isProtected;
+            set => SetField(ref _isProtected, value);
         }
 
         public TMediaStatus MediaStatus => Model.MediaStatus;

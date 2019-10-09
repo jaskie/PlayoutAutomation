@@ -135,6 +135,9 @@
   <data name="_search" xml:space="preserve">
     <value>Search</value>
   </data>
+  <data name="_showExpired" xml:space="preserve">
+    <value>Show expired items</value>
+  </data>
   <data name="_studioMode" xml:space="preserve">
     <value>Hold new items (studio mode)</value>
   </data>

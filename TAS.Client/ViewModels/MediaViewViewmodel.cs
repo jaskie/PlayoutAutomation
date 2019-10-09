@@ -62,6 +62,17 @@ namespace TAS.Client.ViewModels
         public bool HasSegments => SegmentCount != 0;
         public bool IsTrimmed => TcPlay != TcStart || Duration != DurationPlay;
         public bool IsArchived => (Media as IServerMedia)?.IsArchived ?? false;
+        public bool IsExpired
+        {
+            get
+            {
+                var killDate = (Media as IPersistentMedia)?.KillDate;
+                if (killDate.HasValue && killDate.Value < DateTime.Today)
+                    return true;
+                return false;
+            }
+        }
+
         public string ClipNr => (Media as IXdcamMedia)?.ClipNr > 0  ? $"{((IXdcamMedia) Media).ClipNr}/{(Media.Directory as IIngestDirectory)?.XdcamClipCount}" : string.Empty;
         public TIngestStatus IngestStatus => (Media as IIngestMedia)?.IngestStatus ?? ((Media as IArchiveMedia)?.IngestStatus ?? TIngestStatus.NotReady);
         public TVideoFormat VideoFormat => Media.VideoFormat;
@@ -94,20 +105,26 @@ namespace TAS.Client.ViewModels
         {
             if (!string.IsNullOrEmpty(e.PropertyName) && GetType().GetProperty(e.PropertyName) != null)
                 NotifyPropertyChanged(e.PropertyName);
-            if (e.PropertyName == nameof(IMedia.TcPlay)
-                || e.PropertyName == nameof(IMedia.TcStart)
-                || e.PropertyName == nameof(IMedia.Duration)
-                || e.PropertyName == nameof(IMedia.DurationPlay))
-                NotifyPropertyChanged(nameof(IsTrimmed));
-            if (e.PropertyName == nameof(IMedia.VideoFormat))
+            switch (e.PropertyName)
             {
-                NotifyPropertyChanged(nameof(VideoFormat));
-                if (media is IPersistentMedia && _mediaSegments.IsValueCreated)
-                    OnUiThread(() =>
-                    {
-                        foreach (MediaSegmentViewmodel segment in _mediaSegments.Value)
-                            segment.VideoFormat = ((IMedia) media).VideoFormat;
-                    });
+                case nameof(IMedia.TcPlay):
+                case nameof(IMedia.TcStart):
+                case nameof(IMedia.Duration):
+                case nameof(IMedia.DurationPlay):
+                    NotifyPropertyChanged(nameof(IsTrimmed));
+                    break;
+                case nameof(IMedia.VideoFormat):
+                    NotifyPropertyChanged(nameof(VideoFormat));
+                    if (media is IPersistentMedia && _mediaSegments.IsValueCreated)
+                        OnUiThread(() =>
+                        {
+                            foreach (MediaSegmentViewmodel segment in _mediaSegments.Value)
+                                segment.VideoFormat = ((IMedia) media).VideoFormat;
+                        });
+                    break;
+                case nameof(IPersistentMedia.KillDate):
+                    NotifyPropertyChanged(nameof(IsExpired));
+                    break;
             }
         }
 

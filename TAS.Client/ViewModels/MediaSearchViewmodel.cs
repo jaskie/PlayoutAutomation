@@ -81,7 +81,7 @@ namespace TAS.Client.ViewModels
                     .Select(m => new MediaViewViewmodel(m)));
             _itemsView = CollectionViewSource.GetDefaultView(Items);
             _itemsView.Filter += _itemsFilter;
-            
+
             IsRecursive = _searchDirectory is IServerDirectory sd && sd.IsRecursive;
 
             if (mediaType == TMediaType.Movie || mediaType == TMediaType.Audio)
@@ -136,6 +136,18 @@ namespace TAS.Client.ViewModels
                 }
             }
         }
+
+        public bool ShowExpired
+        {
+            get => _showExpired;
+            set
+            {
+                if (!SetField(ref _showExpired, value))
+                    return;
+                _itemsView.Refresh();
+            }
+        }
+
         public bool IsRecursive { get => _isRecursive; private set => SetField(ref _isRecursive, value); }
 
         public IMedia SelectedMedia => _selectedItem?.Media;
@@ -180,6 +192,7 @@ namespace TAS.Client.ViewModels
         internal TStartType NewEventStartType;
         private ObservableCollection<MediaViewViewmodel> _items;
         private bool _isRecursive;
+        private bool _showExpired;
 
         internal IEvent BaseEvent
         {
@@ -251,6 +264,7 @@ namespace TAS.Client.ViewModels
             string mediaName = mvm.MediaName.ToLower();
             return mvm.MediaStatus == TMediaStatus.Available
                 && (!(MediaCategory is TMediaCategory) || (MediaCategory as TMediaCategory?) == mvm.MediaCategory)
+                && (ShowExpired || !mvm.IsExpired)
                 && (_searchTextSplit.All(s => mediaName.Contains(s)));
         }
 

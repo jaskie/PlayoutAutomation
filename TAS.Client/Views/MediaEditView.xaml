@@ -185,7 +185,7 @@
                         <TextBox FlowDirection="LeftToRight" Text="{Binding MediaStatus, Mode=OneWay}" IsReadOnly="True" />
                     </DockPanel>
                 </DockPanel>
-                <CheckBox Content="{Resx _protect}" Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}" IsChecked="{Binding Protected}" />
+                <CheckBox Content="{Resx _protect}" Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsProtected}" />
                 <DockPanel>
                     <Label Content="{Resx _mediaType}" />
                     <TextBox Text="{Binding MediaType, Mode=OneWay}" IsReadOnly="True" />

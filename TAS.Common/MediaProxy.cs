@@ -57,15 +57,15 @@ namespace TAS.Common
     public class PersistentMediaProxy: MediaProxy, IPersistentMediaProperties
     {
         public TMediaEmphasis MediaEmphasis { get; set; }
-        public DateTime KillDate { get; set; }
+        public DateTime? KillDate { get; set; }
         public ulong IdProgramme { get; set; }
         public ulong IdPersistentMedia { get; set; }
-        public bool Protected { get; set; }
+        public bool IsProtected { get; set; }
         public string IdAux { get; set; }
 
         public static PersistentMediaProxy FromMedia(IPersistentMediaProperties media)
         {
-            return new PersistentMediaProxy()
+            return new PersistentMediaProxy
             {
                 AudioChannelMapping = media.AudioChannelMapping,
                 AudioLevelIntegrated = media.AudioLevelIntegrated,

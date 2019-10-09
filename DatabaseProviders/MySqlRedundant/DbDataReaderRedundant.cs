@@ -230,11 +230,16 @@ namespace TAS.Database.MySqlRedundant
             return _reader.GetSchemaTable();
         }
 
-
         public override bool IsDBNull(int ordinal)
         {
             return _reader.IsDBNull(ordinal);
         }
+
+        public bool IsDBNull(string name)
+        {
+            return _reader.IsDBNull(GetOrdinal(name));
+        }
+
 
         public override bool NextResult()
         {

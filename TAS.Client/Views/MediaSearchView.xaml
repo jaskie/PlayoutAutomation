@@ -59,10 +59,11 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <StackPanel>
+                <UniformGrid Columns="2">
+                    <CheckBox Margin="5" IsChecked="{Binding ShowExpired}" Content="{Resx _showExpired}"/>
                     <CheckBox Margin="5" IsChecked="{Binding Engine.EnableCGElementsForNewEvents}" Content="{Resx _enableCGForNewEvents}" Visibility="{Binding CanEnableCGElements, Converter={StaticResource BoolToVis}}"/>
                     <CheckBox Margin="5" IsChecked="{Binding Engine.StudioMode}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" Content="{Resx _studioMode}" />
-                </StackPanel>
+                </UniformGrid>
                 <DataGrid  
                     x:Name="gSearch" 
                     Grid.Row="1"
@@ -142,7 +143,20 @@
                         <DataGridTemplateColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.ClipName}" Width="3*" SortMemberPath="MediaName" >
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding MediaName, Mode=OneWay}" ToolTip="{Binding FileName, Mode=OneWay}"/>
+                                    <TextBlock Text="{Binding MediaName, Mode=OneWay}">
+                                        <TextBlock.Style >
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="ToolTip" Value="{Binding FileName}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsExpired}" Value="True">
+                                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                        <Setter Property="Background" Value="Crimson"/>
+                                                        <Setter Property="ToolTip" Value="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_media.ClipName.IsExpired}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

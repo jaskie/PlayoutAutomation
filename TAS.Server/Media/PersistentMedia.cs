@@ -10,7 +10,7 @@ namespace TAS.Server.Media
     public abstract class PersistentMedia: MediaBase, Common.Database.Interfaces.Media.IPersistentMedia
     {
 
-        private DateTime _killDate;
+        private DateTime? _killDate;
         private string _idAux;
         private TMediaEmphasis _mediaEmphasis;
         private bool _protected;
@@ -25,7 +25,7 @@ namespace TAS.Server.Media
         // media properties
 
         [JsonProperty]
-        public DateTime KillDate
+        public DateTime? KillDate
         {
             get => _killDate;
             set => SetField(ref _killDate, value);
@@ -50,7 +50,7 @@ namespace TAS.Server.Media
         }
 
         [JsonProperty]
-        public bool Protected
+        public bool IsProtected
         {
             get => _protected;
             set => SetField(ref _protected, value);
