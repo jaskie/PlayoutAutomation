@@ -69,6 +69,7 @@ namespace TAS.Server.Media
             IdAux = properties.IdAux;
             IdProgramme = properties.IdProgramme;
             MediaEmphasis = properties.MediaEmphasis;
+            KillDate = properties.KillDate;
         }
 
         public abstract bool Save();

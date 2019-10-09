@@ -216,7 +216,7 @@ namespace TAS.Client.ViewModels
                 if (value == IsKillDate)
                     return;
                 if (value)
-                    _killDate = DateTime.UtcNow.Date + TimeSpan.FromDays(30);
+                    _killDate = DateTime.UtcNow.Date.AddDays(30);
                 else
                     _killDate = null;
                 IsModified = true;

@@ -153,6 +153,9 @@
   <data name="_idAux" xml:space="preserve">
     <value>Zewnętrzne ID (ZDP)</value>
   </data>
+  <data name="_killDate" xml:space="preserve">
+    <value>Ważny do</value>
+  </data>
   <data name="_loudnessCheck" xml:space="preserve">
     <value>Sprawdź głośność po zakończeniu</value>
   </data>

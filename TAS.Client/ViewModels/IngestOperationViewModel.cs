@@ -32,6 +32,7 @@ namespace TAS.Client.ViewModels
         private string _destFileName;
         private TMediaEmphasis _destMediaEmphasis;
         private TVideoFormat _destMediaVideoFormat;
+        private DateTime? _killDate;
 
         public IngestOperationViewModel(IIngestOperation operation, IPreview preview, IEngine engine)
             : base(operation)
@@ -42,7 +43,7 @@ namespace TAS.Client.ViewModels
             DestMediaName = FileUtils.GetFileNameWithoutExtension(operation.Source.MediaName, operation.Source.MediaType);
             _duration = operation.Source.Duration;
             _startTc = operation.Source.TcStart;
-            _destCategory = ((IIngestDirectory) operation.Source.Directory).MediaCategory;
+            _destCategory = ((IIngestDirectory)operation.Source.Directory).MediaCategory;
             IsMovie = operation.Source.MediaType == TMediaType.Unknown || operation.Source.MediaType == TMediaType.Movie;
             IsStill = operation.Source.MediaType == TMediaType.Still;
             _audioChannelMappingConversion = operation.AudioChannelMappingConversion;
@@ -131,6 +132,33 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(Duration));
                 NotifyPropertyChanged(nameof(EndTC));
                 NotifyPropertyChanged(nameof(IsValid));
+            }
+        }
+
+        public DateTime? KillDate
+        {
+            get => _killDate;
+            set
+            {
+                if(!SetField(ref _killDate, value))
+                    return;
+                NotifyPropertyChanged(nameof(IsKillDate));
+            }
+        }
+
+        public bool IsKillDate
+        {
+            get => _killDate != null;
+            set
+            {
+                if (value == IsKillDate)
+                    return;
+                if (value)
+                    _killDate = DateTime.UtcNow.Date.AddDays(30);
+                else
+                    _killDate = null;
+                NotifyPropertyChanged(nameof(KillDate));
+                NotifyPropertyChanged();
             }
         }
 
@@ -236,7 +264,8 @@ namespace TAS.Client.ViewModels
                 MediaCategory = DestCategory,
                 Parental = DestParental,
                 MediaEmphasis = DestMediaEmphasis,
-                VideoFormat = DestMediaVideoFormat
+                VideoFormat = DestMediaVideoFormat,
+                KillDate = KillDate
             };
         }
 

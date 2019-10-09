@@ -7,6 +7,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              d:DataContext="{x:Type vm:IngestOperationViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="420">
@@ -69,6 +70,14 @@
                     <Label Content="{Resx _parental}" />
                     <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValue="{Binding DestParental}" SelectedValuePath="Id" />
                 </StackPanel>
+                <Grid Margin="0 5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox Grid.Column="0" Margin="5 0" IsChecked="{Binding IsKillDate}" Content="{Resx _killDate}" VerticalAlignment="Center"/>
+                    <xctk:DateTimePicker Grid.Column="1" IsEnabled="{Binding IsKillDate}" Value="{Binding KillDate}" TimePickerVisibility="Collapsed" Format="ShortDate" AutoCloseCalendar="True" />
+                </Grid>
                 <CheckBox IsChecked="{Binding LoudnessCheck}"  Margin="5" Content="{Resx _loudnessCheck}"/>
             </StackPanel>
         </StackPanel>
