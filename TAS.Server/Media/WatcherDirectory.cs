@@ -177,7 +177,8 @@ namespace TAS.Server.Media
                                     IncludeSubdirectories = includeSubdirectories,
                                     NotifyFilter =
                                         NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite |
-                                        NotifyFilters.Size | NotifyFilters.CreationTime
+                                        NotifyFilters.Size | NotifyFilters.CreationTime,
+                                    InternalBufferSize = 64000
                                 };
                                 _watcher.EnableRaisingEvents = true;
                                 _watcher.Created += OnFileCreated;
@@ -313,7 +314,7 @@ namespace TAS.Server.Media
         protected MediaBase FindMediaFirstByFullPath(string fullPath)
         {
             lock (((IDictionary) Files).SyncRoot)
-                return Files.Values.FirstOrDefault(f => fullPath.Equals(f.FullPath, StringComparison.CurrentCultureIgnoreCase));
+                return Files.Values.FirstOrDefault(f => fullPath.Equals(f.FullPath, StringComparison.OrdinalIgnoreCase));
         }
 
         public override void AddMedia(IMedia media)
