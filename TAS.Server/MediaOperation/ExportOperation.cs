@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -89,14 +91,13 @@ namespace TAS.Server.MediaOperation
         {
             bool result;
             var helper = new FFMpegHelper(this, TimeSpan.FromTicks(_sources.Sum(e => e.Duration.Ticks)));
-            AddOutputMessage(LogLevel.Trace, "Refreshing destination directory content");
             if (!(DestDirectory is IngestDirectory destDirectory))
                 throw new InvalidOperationException("Can only export to IngestDirectory");
             if (destDirectory.AccessType == TDirectoryAccessType.FTP)
             {
                 using (var localDestMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(Sources.First().Media))
                 {
-                    result = await Encode(helper, destDirectory, localDestMedia.FullPath);
+                    result = await EncodeToLocalFile(helper, destDirectory, localDestMedia.FullPath);
                     if (result)
                     {
                         _progressFileSize = (ulong) (new FileInfo(localDestMedia.FullPath)).Length;
@@ -121,7 +122,7 @@ namespace TAS.Server.MediaOperation
             else
             {
                 Dest = _createDestMedia();
-                result = await Encode(helper, destDirectory, Dest.FullPath);
+                result = await EncodeToLocalFile(helper, destDirectory, Dest.FullPath);
                 if (result)
                     Dest.MediaStatus = TMediaStatus.Copied;
             }
@@ -172,7 +173,7 @@ namespace TAS.Server.MediaOperation
             return result;
         }
 
-        private void DestMedia_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void DestMedia_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(IMedia.FileSize))
                 return;
@@ -180,14 +181,44 @@ namespace TAS.Server.MediaOperation
             if (fs > 0 && sender is MediaBase media)
                 Progress = (int)((media.FileSize * 100ul) / fs);
         }
-        
-        private async Task<bool> Encode(FFMpegHelper helper, IngestDirectory directory, string outFile)
+
+        private async Task<bool> EncodeToLocalFile(FFMpegHelper helper, IngestDirectory directory, string outFile)
+        {
+            var localExportDescriptions = _sources.ToArray();
+            var tempMediae = new List<TempMedia>();
+            try
+            {
+                for (var i = 0; i < localExportDescriptions.Length; i++)
+                {
+                    var s = localExportDescriptions[i];
+                    if (s.Media.Directory is IIngestDirectory ingestDirectory &&
+                        ingestDirectory.AccessType == TDirectoryAccessType.FTP)
+                    {
+                        var localSourceMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(null);
+                        tempMediae.Add(localSourceMedia);
+                        AddOutputMessage(LogLevel.Trace, $"Copying to local file {localSourceMedia.FullPath}");
+                        if (!await ((MediaBase) s.Media).CopyMediaTo(localSourceMedia, CancellationTokenSource.Token))
+                            throw new ApplicationException("File not copied");
+                        AddOutputMessage(LogLevel.Trace, "Verifing local file");
+                        localSourceMedia.Verify(true);
+                        localExportDescriptions[i] = new MediaExportDescription(localSourceMedia, s.Logos, s.StartTC,
+                            s.Duration, s.AudioVolume);
+                    }
+                }
+                return await EncodeFromLocalFiles(helper, directory, outFile, localExportDescriptions);
+            }
+            finally
+            {
+                tempMediae.ForEach(m => m.Dispose());
+            }
+        }
+
+        private async Task<bool> EncodeFromLocalFiles(FFMpegHelper helper, IngestDirectory directory, string outFile, ICollection<MediaExportDescription> exportMedia)
         {            
             var files = new StringBuilder();
             var index = 0;
             var complexFilterElements = new List<string>();
             var overlayOutputs = new StringBuilder();
-            var exportMedia = _sources.ToList();
             var startTimecode = exportMedia.First().StartTC;
             var isXdcamDirectory = directory.Kind == TIngestDirectoryKind.XDCAM;
             var outputFormatDesc = VideoFormatDescription.Descriptions[isXdcamDirectory || directory.ExportContainerFormat == TMovieContainerFormat.mxf ? TVideoFormat.PAL : directory.ExportVideoFormat];
