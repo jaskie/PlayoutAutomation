@@ -75,7 +75,7 @@ namespace TAS.Server
                 var eventType = aEvent.EventType;
                 if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
                 {
-                    CasparItem item = _getItem(aEvent);
+                    var item = _getItem(aEvent);
                     if (item != null)
                     {
                         channel.LoadBG(item);
@@ -561,7 +561,9 @@ namespace TAS.Server
         
         private CasparItem _getItem(Event aEvent)
         {
-            var media = (aEvent.Engine.PlayoutChannelPRI == this) ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
+            if (aEvent.EventType == TEventType.Live && string.IsNullOrWhiteSpace(LiveDevice))
+                return null;
+            var media = aEvent.Engine.PlayoutChannelPRI == this ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
             if (aEvent.EventType != TEventType.Live && media == null)
                 return null;
             var item = new CasparItem(string.Empty);
@@ -573,7 +575,7 @@ namespace TAS.Server
                     item.Clipname = $"\"{Path.GetFileNameWithoutExtension(media.FileName)}\"";
             }
             if (aEvent.EventType == TEventType.Live)
-                item.Clipname = string.IsNullOrWhiteSpace(LiveDevice) ? "BLACK" : LiveDevice;
+                item.Clipname = LiveDevice;
             if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie)
                 item.ChannelLayout = ChannelLayout.Stereo;
             if (aEvent.EventType == TEventType.Movie)
