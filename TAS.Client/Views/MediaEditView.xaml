@@ -7,7 +7,6 @@
              xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
-             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d"
              d:DesignWidth="300"
              >
@@ -147,7 +146,7 @@
                         </DockPanel>
                         <DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
                             <CheckBox IsChecked="{Binding IsKillDate}" Content="{Resx _killDate}" VerticalAlignment="Center"/>
-                            <xctk:DateTimePicker IsEnabled="{Binding IsKillDate}" Margin="10, 3, 0, 3" Value="{Binding KillDate}" TimePickerVisibility="Collapsed" Format="ShortDate" AutoCloseCalendar="True"  />
+                            <DatePicker IsEnabled="{Binding IsKillDate}" Margin="10, 3, 0, 3" SelectedDate="{Binding KillDate}" SelectedDateFormat="Short" />
                         </DockPanel>
                         <DockPanel>
                             <Label  Content="{Resx _audioVolume}" />

@@ -26,6 +26,8 @@ namespace TAS.Client.ViewModels
         {
             get
             {
+                if (Event.PlayState != TPlayState.Scheduled)
+                    return TMediaErrorInfo.NoError;
                 var media = Media;
                 if (media == null || media.MediaStatus != TMediaStatus.Available || !media.FileExists())
                     return TMediaErrorInfo.Missing;
@@ -34,7 +36,7 @@ namespace TAS.Client.ViewModels
                     return TMediaErrorInfo.TooShort;
                 if (media is IPersistentMedia persistentMedia &&
                     persistentMedia.KillDate.HasValue &&
-                    persistentMedia.KillDate.Value < DateTime.Today)
+                    persistentMedia.KillDate.Value < Event.ScheduledTime.Date)
                     return TMediaErrorInfo.Expired;
                 return TMediaErrorInfo.NoError;
             }

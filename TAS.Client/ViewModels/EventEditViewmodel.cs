@@ -129,39 +129,33 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                string validationResult = null;
+                if (!IsModified)
+                    return null;
                 switch (propertyName)
                 {
                     case nameof(Duration):
-                        validationResult = _validateDuration();
-                        break;
+                        return _validateDuration();
                     case nameof(ScheduledTc):
-                        validationResult = _validateScheduledTc();
-                        break;
+                        return _validateScheduledTc();
                     case nameof(ScheduledTime):
                     case nameof(ScheduledTimeOfDay):
                     case nameof(ScheduledDate):
-                        validationResult = _validateScheduledTime();
-                        break;
+                        return _validateScheduledTime();
                     case nameof(TransitionTime):
-                        validationResult = _validateTransitionTime();
-                        break;
+                        return _validateTransitionTime();
                     case nameof(TransitionPauseTime):
-                        validationResult = _validateTransitionPauseTime();
-                        break;
+                        return _validateTransitionPauseTime();
                     case nameof(ScheduledDelay):
-                        validationResult = _validateScheduledDelay();
-                        break;
+                        return _validateScheduledDelay();
                     case nameof(EventName):
-                        validationResult = _validateEventName();
-                        break;
+                        return _validateEventName();
                     case nameof(Command):
-                        validationResult = IsValidCommand(_command)
+                        return IsValidCommand(_command)
                             ? string.Empty
                             : resources._validate_CommandSyntax;
-                        break;
+                    default:
+                        return null;
                 }
-                return validationResult;
             }
         }
 

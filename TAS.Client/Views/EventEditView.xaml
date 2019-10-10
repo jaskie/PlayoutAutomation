@@ -54,9 +54,6 @@
                     <Setter Property="Margin" Value="1"/>
                     <Setter Property="Padding" Value="2,1"/>
                 </Style>
-                <Style TargetType="Button">
-                    <Setter Property="Height" Value="20"/>
-                </Style>
                 <Style TargetType="controls:TimecodeEdit">
                     <Setter Property="Margin" Value="1"/>
                     <Style.Triggers>
@@ -98,7 +95,7 @@
                     <DockPanel Visibility="{Binding IsContainer, Converter={StaticResource InvertedBoolToVis}}">
                         <DockPanel DockPanel.Dock="Top">
                             <CheckBox Content="{Resx _starting}" IsChecked="{Binding IsEnabled}" HorizontalContentAlignment="Right" VerticalAlignment="Center" ToolTip="{Resx _starting.ToolTip}" />
-                            <Button DockPanel.Dock="Right" Visibility="{Binding IsStartEvent, Converter={StaticResource BoolToVis}}" Command="{Binding CommandTriggerStartType}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                            <Button DockPanel.Dock="Right" Height="20" Margin="5" Visibility="{Binding IsStartEvent, Converter={StaticResource BoolToVis}}" Command="{Binding CommandTriggerStartType}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
                                 <Image>
                                     <Image.Style>
                                         <Style TargetType="Image">
@@ -145,9 +142,27 @@
                         <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsContainer, Converter={StaticResource InvertedBoolToVis}}">
                             <Label Content="{Resx _scheduledTime}" />
                             <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsStartEvent}">
-                                <TextBox Text="{Binding ScheduledDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, StringFormat=d}" Width="100" Visibility="{Binding IsScheduledDateVisible, Converter={StaticResource BoolToVis}}"/>
+                                <DatePicker Margin="1" Width="110" 
+                                            SelectedDate="{Binding ScheduledDate, ValidatesOnDataErrors=True}" 
+                                            Visibility="{Binding IsScheduledDateVisible, Converter={StaticResource BoolToVis}}" 
+                                            SelectedDateFormat="Short" >
+                                    <DatePicker.Resources>
+                                        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}"/>
+                                    </DatePicker.Resources>
+                                    <DatePicker.Style>
+                                        <Style TargetType="DatePicker">
+                                            <Style.Triggers>
+                                                <Trigger Property="Validation.HasError" Value="True">
+                                                    <Trigger.Setters>
+                                                        <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self},Path=(Validation.Errors)/ErrorContent}"/>
+                                                    </Trigger.Setters>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DatePicker.Style>
+                                </DatePicker>
                                 <Label Content="{Resx _at}" Width="Auto"/>
-                                <controls:TimecodeEdit Grid.Column="1" Timecode="{Binding ScheduledTimeOfDay, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
+                                <controls:TimecodeEdit Timecode="{Binding ScheduledTimeOfDay, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
                             </StackPanel>
                         </DockPanel>
                         <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
@@ -156,10 +171,10 @@
                         </DockPanel>
                         <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                             <Label Content="{Resx _clip}" />
-                            <Button DockPanel.Dock="Right" ToolTip="{Resx _changeMovie.ToolTip}" Command="{Binding CommandChangeMovie}">
+                            <Button Height="20" Margin="5" DockPanel.Dock="Right" ToolTip="{Resx _changeMovie.ToolTip}" Command="{Binding CommandChangeMovie}">
                                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/select.png" />
                             </Button>
-                            <Button DockPanel.Dock="Right" ToolTip="{Resx _editMovie.ToolTip}" Command="{Binding CommandEditMovie}">
+                            <Button Height="20" Margin="5" DockPanel.Dock="Right" ToolTip="{Resx _editMovie.ToolTip}" Command="{Binding CommandEditMovie}">
                                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png" />
                             </Button>
                             <TextBox Text="{Binding Media.FileName, Mode=OneWay}" IsReadOnly="True" VerticalContentAlignment="Center" Background="#F0F0F0" />
@@ -213,7 +228,7 @@
                             </DockPanel>
                             <DockPanel>
                                 <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" IsChecked="{Binding HasAudioVolume}" ToolTip="{Resx _audioVolume.ToolTip}" />
-                                <Button DockPanel.Dock="Right" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">
+                                <Button Height="20" Margin="5" DockPanel.Dock="Right" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">
                                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png" />
                                 </Button>
                                 <Label DockPanel.Dock="Right" VerticalAlignment="Center" Content="dB" Width="25" />
