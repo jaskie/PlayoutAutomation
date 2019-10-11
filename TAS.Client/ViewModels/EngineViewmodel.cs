@@ -52,6 +52,7 @@ namespace TAS.Client.ViewModels
             Engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _plugins = UiPluginManager.ComposeParts<IUiPlugin>(this);
             VideoPreview = UiPluginManager.ComposePart<IVideoPreview>(this);
+            Router = UiPluginManager.ComposePart<IRouter>(this);
 
             if (preview != null && engine.HaveRight(EngineRight.Preview))
                 PreviewViewmodel = new PreviewViewmodel(engine, preview) { IsSegmentsVisible = true };
@@ -999,6 +1000,8 @@ namespace TAS.Client.ViewModels
 
 
         public IVideoPreview VideoPreview { get; }
+
+        public IRouter Router { get; }
 
         public bool IsAnyPluginVisible => _plugins != null && _plugins.Any(p => p.Menu != null);
 

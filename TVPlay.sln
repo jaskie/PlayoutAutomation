@@ -96,7 +96,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.XKeys", "Plugins
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.ExportRundownAsXml", "Plugins\TAS.Client.ExportRundownAsXml\TAS.Client.ExportRundownAsXml.csproj", "{811B2F72-5DFA-4FA2-AEF5-250D69B64711}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.Nevion", "TAS.Client.Nevion\TAS.Client.Nevion.csproj", "{AD45E333-FBC5-42EE-BA3F-66DA6B2C8C1C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.Router", "Plugins\TAS.Client.Nevion\TAS.Client.Router.csproj", "{AD45E333-FBC5-42EE-BA3F-66DA6B2C8C1C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

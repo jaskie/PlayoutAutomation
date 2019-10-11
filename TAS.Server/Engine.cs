@@ -163,11 +163,7 @@ namespace TAS.Server
 
         [XmlIgnore]
         [JsonProperty]
-        public ICGElementsController CGElementsController { get; private set; }
-
-        [XmlIgnore]
-        public INevionRouter NevionRouter { get; private set; }
-
+        public ICGElementsController CGElementsController { get; private set; }        
 
         public ServerHost Remote { get; set; }
         public TAspectRatioControl AspectRatioControl { get; set; }
@@ -305,8 +301,7 @@ namespace TAS.Server
 
             _localGpis = this.ComposeParts<IGpi>();
             _plugins = this.ComposeParts<IEnginePlugin>();
-            CGElementsController = this.ComposePart<ICGElementsController>();
-            NevionRouter = this.ComposePart<INevionRouter>();
+            CGElementsController = this.ComposePart<ICGElementsController>();            
             FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
             FrameTicks = FormatDescription.FrameTicks;
             FrameRate = FormatDescription.FrameRate;

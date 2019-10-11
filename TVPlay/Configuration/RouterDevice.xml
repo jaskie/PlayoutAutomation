@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RouterDevice xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <IP>192.168.0.1</IP>
+  <Port>4381</Port>
+  <Type>Nevion</Type> <!--Nevion/Blackmagic-->
+  <OutputPorts>
+    <OutputPort>0</OutputPort>
+    <OutputPort>1</OutputPort>
+  </OutputPorts>
+</RouterDevice>
