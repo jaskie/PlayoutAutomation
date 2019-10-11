@@ -25,6 +25,6 @@
                 </Style>
             </Ellipse.Style>
         </Ellipse>
-        <ComboBox Margin="5" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding InputPorts}" />
+        <ComboBox DisplayMemberPath="Name" SelectedItem="{Binding SelectedInputPort}" Margin="5" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding InputPorts}" />
     </Grid>
 </UserControl>

@@ -53,7 +53,7 @@ namespace TAS.Client.Router.RouterCommunicators
         private void ProcessCommand(string localResponse)
         {
             IList<string> lines = localResponse.Split('\n');
-            Debug.Write($"Processing command... First line: {lines[0]}");
+            //Debug.WriteLine($"Processing command... First line: {lines[0]}");
             if (!lines[0].StartsWith("?"))
                 return;                        
             
@@ -61,7 +61,7 @@ namespace TAS.Client.Router.RouterCommunicators
                 IOListProcess(lines.Skip(1).ToList(), Enums.ListType.Input);
             else if (lines[0].Contains("outlist"))
                 IOListProcess(lines.Skip(1).ToList(), Enums.ListType.Output);
-            Debug.Write("Command processed");
+            Debug.WriteLine("Command processed");
 
         }
 
@@ -73,7 +73,7 @@ namespace TAS.Client.Router.RouterCommunicators
                 var lineParams = line.Split(' ');
                 try
                 {
-                    var port = new RouterPort(Int32.Parse(lineParams[2]), lineParams[4]);
+                    var port = new RouterPort(Int32.Parse(lineParams[2].Trim('\"')), lineParams[3].Trim('\"'));
                     Ports.Add(port);
                     Debug.WriteLine($"Port {port.ID} added");
                 }
@@ -83,14 +83,14 @@ namespace TAS.Client.Router.RouterCommunicators
                 }                
             }
             
-            if (listType == Enums.ListType.Input)
-            {
-                Debug.WriteLine("InputList event send");
-                OnInputPortsListReceived?.Invoke(this, new RouterEventArgs(Ports));
-            }
+            if (listType == Enums.ListType.Input)                            
+                OnInputPortsListReceived?.Invoke(this, new RouterEventArgs(Ports));               
+            
                 
             else if (listType == Enums.ListType.Output)
                 OnOutputPortsListReceived?.Invoke(this, new RouterEventArgs(Ports));
+
+            Send("login admin password");
         }
 
         public async Task<bool> Connect(string ip, int port)
@@ -106,10 +106,8 @@ namespace TAS.Client.Router.RouterCommunicators
                         return false;
                     Debug.WriteLine("Connected!");
 
-                    _stream = _tcpClient.GetStream();
-                    Send("login admin password");
-                    Listen();                   
-
+                    _stream = _tcpClient.GetStream();                   
+                    Listen();                    
                     break;
                 }
                 catch
@@ -128,9 +126,16 @@ namespace TAS.Client.Router.RouterCommunicators
             return false;
         }
 
+        public bool RequestOutputPorts()
+        {
+            if (Send("outlist l1"))
+                return true;
+            return false;
+        }
+
         public bool SwitchInput(RouterPort inPort, IEnumerable<RouterPort> outPorts)
         {
-            if (Send($"x l1 {inPort} {String.Join(",", outPorts.Select(param => param.ToString()))}"))
+            if (Send($"x l1 {inPort.ID} {String.Join(",", outPorts.Select(param => param.ID.ToString()))}"))
                 return true;
             return false;
         }
@@ -155,7 +160,7 @@ namespace TAS.Client.Router.RouterCommunicators
 
         private async void Listen()
         {
-            await Task.Run(async() =>
+            await Task.Run(() =>
             {
                 Byte[] bytesReceived = new Byte[256];
                 string response = String.Empty;
@@ -165,17 +170,13 @@ namespace TAS.Client.Router.RouterCommunicators
                 while (true)
                 {
                     try
-                    {
-                        if (cancellationToken.IsCancellationRequested)
-                            break;
-
-                        bytes = await _stream.ReadAsync(bytesReceived, 0, bytesReceived.Length, cancellationToken.Token);
-                        if (bytes != 0)
+                    {                                                       
+                        if ((bytes = _stream.Read(bytesReceived, 0, bytesReceived.Length)) != 0)
                         {
                             response = System.Text.Encoding.ASCII.GetString(bytesReceived, 0, bytes);
-                            Debug.Write($"{response}");
+                            Debug.Write(response);
                             OnResponseReceived?.Invoke(this, new RouterEventArgs(response));
-                            
+
                             bytesReceived = new byte[256];
                             bytes = 0;
                         }
@@ -186,7 +187,7 @@ namespace TAS.Client.Router.RouterCommunicators
                     }
                 }
                 Debug.WriteLine("Nevion listener stopped!");
-            });
+            }, cancellationToken.Token);
         }
 
         public void Disconnect()

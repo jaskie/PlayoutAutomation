@@ -31,7 +31,12 @@ namespace TAS.Client.Router.RouterCommunicators
         public bool RequestInputPorts()
         {
             throw new NotImplementedException();
-        }        
+        }
+
+        public bool RequestOutputPorts()
+        {
+            throw new NotImplementedException();
+        }
 
         public bool SwitchInput(RouterPort inPort, IEnumerable<RouterPort> outPorts)
         {

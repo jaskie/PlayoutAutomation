@@ -71,6 +71,7 @@ namespace TAS.Client.Router
             _routerCommunicator.OnInputPortChangeReceived += OnInputPortChangeReceived;
 
             _routerCommunicator.RequestInputPorts();
+            _routerCommunicator.RequestOutputPorts();
         }
 
         private void OnOutputPortsListReceived(object sender, RouterEventArgs e)
@@ -85,8 +86,7 @@ namespace TAS.Client.Router
         }
 
         private void OnInputPortsListReceived(object sender, RouterEventArgs e)
-        {
-            Debug.WriteLine("New InputList received");
+        {           
             InputPorts = new ObservableCollection<RouterPort>(e.RouterPorts);
         }
 

@@ -12,6 +12,7 @@ namespace TAS.Client.Router.Model
         bool SwitchInput(RouterPort inPort, IEnumerable<RouterPort> outPorts);
         
         bool RequestInputPorts();
+        bool RequestOutputPorts();
 
         event EventHandler<RouterEventArgs> OnInputPortsListReceived;
         event EventHandler<RouterEventArgs> OnInputPortChangeReceived;
