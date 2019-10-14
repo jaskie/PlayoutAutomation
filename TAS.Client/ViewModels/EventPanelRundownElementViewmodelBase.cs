@@ -285,14 +285,14 @@ namespace TAS.Client.ViewModels
         internal override void SetOnTop()
         {
             var p = Parent;
-            if (p != null)
-                if (p.IsExpanded && View != null)
-                {
-                    View.SetOnTop();
-                }
-                else
-                    p.SetOnTop();
-
+            if (p == null)
+                return;
+            if (p.IsExpanded && View != null)
+            {
+                View?.SetOnTop();
+            }
+            else
+                p.SetOnTop();
         }
         protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {

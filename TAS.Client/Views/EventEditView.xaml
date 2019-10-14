@@ -5,9 +5,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance vm:EventEditViewmodel, IsDesignTimeCreatable=False}"
              d:DesignWidth="360"
@@ -89,7 +91,11 @@
                 </DockPanel>
                 <DockPanel DockPanel.Dock="Top">
                     <Label Content="{Resx _name}"/>
-                    <TextBox Name="EventName" Text="{Binding EventName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                    <TextBox Name="EventName" Text="{Binding EventName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" ToolTip="{Resx _eventName.ToolTip}">
+                        <i:Interaction.Behaviors>
+                            <behaviors:Focus IsFocused="{Binding IsEventNameFocused}" SelectAllOnFocus="True" />
+                        </i:Interaction.Behaviors>
+                    </TextBox>
                 </DockPanel>
                 <Grid >
                     <DockPanel Visibility="{Binding IsContainer, Converter={StaticResource InvertedBoolToVis}}">

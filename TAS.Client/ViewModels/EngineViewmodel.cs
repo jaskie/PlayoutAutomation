@@ -114,6 +114,7 @@ namespace TAS.Client.ViewModels
             CommandToggleEnabled = new UiCommand(_toggleEnabled);
             CommandToggleHold = new UiCommand(_toggleHold);
             CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
+            CommandFocusEventName = new UiCommand(_focusEventName, o => IsPropertiesPanelVisible && SelectedEventEditViewmodel != null);
 
             CommandSearchDo = new UiCommand(_search, _canSearch);
             CommandSearchShowPanel = new UiCommand(_showSearchPanel);
@@ -129,6 +130,11 @@ namespace TAS.Client.ViewModels
 
             CommandEngineRights = new UiCommand(_engineRights, _canEngineRights);
 
+        }
+
+        private void _focusEventName(object obj)
+        {
+            SelectedEventEditViewmodel?.SetFocusOnEventName();
         }
 
         private void _engine_VisibleEventRemoved(object sender, EventEventArgs e)
@@ -197,7 +203,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandUserManager { get; }
         public ICommand CommandEngineRights { get; }
         public ICommand CommandTogglePropertiesPanel { get; }
-
+        public ICommand CommandFocusEventName { get; }
 
         #region PreviewCommands
 

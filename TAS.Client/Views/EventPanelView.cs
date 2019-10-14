@@ -8,18 +8,17 @@ namespace TAS.Client.Views
     public class EventPanelView: UserControl
     {
 
-        private string _viewName;
         public EventPanelView()
         {
             DataContextChanged += UserControl_DataContextChanged;
         }
+
 
         protected void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (!(e.NewValue is EventPanelViewmodelBase vm))
                 return;
             vm.View = (EventPanelView)sender;
-            _viewName = vm.EventName;
             if (vm.IsSelected)
                 BringIntoView();
             DataContextChanged -= UserControl_DataContextChanged;

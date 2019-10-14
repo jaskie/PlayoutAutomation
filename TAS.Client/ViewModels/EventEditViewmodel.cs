@@ -38,6 +38,8 @@ namespace TAS.Client.ViewModels
         private TimeSpan _duration;
         private TimeSpan _scheduledDelay;
         private sbyte _layer;
+        private bool _isEventNameFocused;
+
 
         public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
         public static readonly Regex RegexMixerClip = new Regex(TAS.Common.EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
@@ -383,6 +385,18 @@ namespace TAS.Client.ViewModels
 
         public bool IsDisplayBindToEnd => (_eventType == TEventType.CommandScript || _eventType == TEventType.StillImage)
                                           && (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd);
+
+        public bool IsEventNameFocused
+        {
+            get => _isEventNameFocused;
+            set
+            {
+                if (_isEventNameFocused == value)
+                    return;
+                _isEventNameFocused = value;
+                NotifyPropertyChanged();
+            }
+        }
 
         public TimeSpan ScheduledTc
         {
@@ -940,6 +954,10 @@ namespace TAS.Client.ViewModels
         }
 
 
+        public void SetFocusOnEventName()
+        {
+            IsEventNameFocused = true;
+        }
     }
 
 }

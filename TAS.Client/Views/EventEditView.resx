@@ -168,6 +168,9 @@
   <data name="_editMovie.ToolTip" xml:space="preserve">
     <value>Properties</value>
   </data>
+  <data name="_eventName.ToolTip" xml:space="preserve">
+    <value>Ctrl+E to enter this field</value>
+  </data>
   <data name="_eventType" xml:space="preserve">
     <value>Type</value>
   </data>
