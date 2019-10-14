@@ -10,7 +10,7 @@
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Ellipse Margin="5" VerticalAlignment="Center" Width="20px" Height="{Binding Width, RelativeSource={RelativeSource Self}}">
+        <Ellipse Margin="5" VerticalAlignment="Center" Width="20px" Stretch="Uniform" Height="{Binding Width, RelativeSource={RelativeSource Self}}">
             <Ellipse.Style>
                 <Style TargetType="Ellipse">
                     <Setter Property="Fill" Value="LightGray" />
@@ -25,6 +25,6 @@
                 </Style>
             </Ellipse.Style>
         </Ellipse>
-        <ComboBox DisplayMemberPath="Name" SelectedItem="{Binding SelectedInputPort}" Margin="5" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding InputPorts}" />
+        <ComboBox Margin="0" DisplayMemberPath="Name" SelectedItem="{Binding SelectedInputPort}" Grid.Column="1" VerticalAlignment="Center" Height="auto" ItemsSource="{Binding InputPorts}" />
     </Grid>
 </UserControl>

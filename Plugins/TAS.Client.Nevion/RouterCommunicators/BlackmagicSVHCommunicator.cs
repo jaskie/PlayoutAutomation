@@ -13,17 +13,17 @@ namespace TAS.Client.Router.RouterCommunicators
         public event EventHandler<RouterEventArgs> OnOutputPortsListReceived;
         public event EventHandler<RouterEventArgs> OnOutputPortChangeReceived;
 
-        public async Task<bool> Connect(string ip, int port)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Disconnect()
+        public Task<bool> Connect(string ip, int port)
         {
             throw new NotImplementedException();
         }
 
         public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool RequestCurrentInputPort()
         {
             throw new NotImplementedException();
         }

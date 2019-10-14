@@ -13,7 +13,6 @@ using TAS.Client.Router.Model;
 using TAS.Client.Router.RouterCommunicators;
 using TAS.Common;
 using TAS.Common.Interfaces;
-using TAS.Common.Properties;
 
 namespace TAS.Client.Router
 {
@@ -31,16 +30,19 @@ namespace TAS.Client.Router
 
         public bool? IsInputSignalPresent { get; set; }
 
-        private ObservableCollection<RouterPort> _inputPorts;
+        private ObservableCollection<RouterPort> _inputPorts = new ObservableCollection<RouterPort>();
         public ObservableCollection<RouterPort> InputPorts { get => _inputPorts; set => SetField(ref _inputPorts, value); }
 
         private IEnumerable<RouterPort> _outputPorts;
 
-        private RouterPort _selectedInputPort;
+        private RouterPort _selectedInputPort = new RouterPort();
         public RouterPort SelectedInputPort { get => _selectedInputPort;
             set 
             {
                 if (!SetField(ref _selectedInputPort, value))
+                    return;
+
+                if (_outputPorts == null)
                     return;
                 _routerCommunicator.SwitchInput(value, _outputPorts);
             }
@@ -58,7 +60,7 @@ namespace TAS.Client.Router
                 Debug.WriteLine("Błąd deserializacji XML");
                 return;
             }
-            Task.Run(() => Init());                            
+            Task.Run(() => Init());            
         }
 
         private void Init()
@@ -70,8 +72,10 @@ namespace TAS.Client.Router
             _routerCommunicator.OnInputPortsListReceived += OnInputPortsListReceived;
             _routerCommunicator.OnInputPortChangeReceived += OnInputPortChangeReceived;
 
-            _routerCommunicator.RequestInputPorts();
-            _routerCommunicator.RequestOutputPorts();
+           
+            _routerCommunicator.RequestInputPorts();           
+            _routerCommunicator.RequestOutputPorts();            
+            _routerCommunicator.RequestCurrentInputPort();
         }
 
         private void OnOutputPortsListReceived(object sender, RouterEventArgs e)
@@ -80,8 +84,13 @@ namespace TAS.Client.Router
         }
 
         private void OnInputPortChangeReceived(object sender, RouterEventArgs e)
-        {
-            _selectedInputPort = e.RouterPorts.FirstOrDefault();
+        {           
+            var changedIn = e.RouterPorts.Where(p=> _outputPorts.Any(q => q.ID == p.ID)).FirstOrDefault();
+
+            if (changedIn == null)
+                return;
+
+            _selectedInputPort = _inputPorts.Where(p => p.ID == changedIn.ID).FirstOrDefault();           
             NotifyPropertyChanged(nameof(SelectedInputPort));
         }
 
@@ -99,7 +108,7 @@ namespace TAS.Client.Router
                     case Model.Enums.Router.Nevion:
                         {
                             Debug.WriteLine("Nevion communicator registered");
-                            _routerCommunicator = new NevionCommunicator();
+                            _routerCommunicator = new NevionCommunicator(Device);
                             break;
                         }
                     case Model.Enums.Router.Blackmagic:
@@ -133,7 +142,9 @@ namespace TAS.Client.Router
         {
             _routerCommunicator.OnInputPortsListReceived -= OnInputPortsListReceived;
             _routerCommunicator.OnInputPortChangeReceived -= OnInputPortChangeReceived;
-            _routerCommunicator.Disconnect();
+            _routerCommunicator.OnInputPortChangeReceived -= OnInputPortChangeReceived;
+            _routerCommunicator.Dispose();
+            Debug.WriteLine("Router Plugin Disposed");
         }       
     }
 }

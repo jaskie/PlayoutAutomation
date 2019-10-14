@@ -3,7 +3,8 @@
   <IP>192.168.0.1</IP>
   <Port>4381</Port>
   <Type>Nevion</Type> <!--Nevion/Blackmagic-->
-  <OutputPorts>
+  <Level>1</Level>
+  <OutputPorts> <!--ID in Level-->
     <OutputPort>0</OutputPort>
     <OutputPort>1</OutputPort>
   </OutputPorts>

@@ -342,7 +342,7 @@
             </StatusBar.Resources>
             <StatusBarItem>
                 <StackPanel Orientation="Horizontal" >
-                    <ContentControl Content="{Binding Router.View}" Visibility="{Binding Router, Converter={StaticResource NullToVis}}" />
+                    <ContentControl Content="{Binding Router.View}" Padding="0" Margin="0" Visibility="{Binding Router, Converter={StaticResource NullToVis}}" />
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Indicators/on-air.png" Visibility="{Binding CGControllerExists, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding CGControllerIsMaster}" />
                     <Menu Height="22" Margin="5, 0" VerticalAlignment="Center" >
                         <MenuItem Margin="0" Padding="0" Height="{Binding ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Menu}}}" >

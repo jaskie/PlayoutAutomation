@@ -285,6 +285,7 @@ namespace TAS.Client.ViewModels
             if (Engine.PlayoutChannelPRV != null)
                 Engine.PlayoutChannelPRV.PropertyChanged -= OnServerChannelPropertyChanged;
             VideoPreview?.Dispose();
+            Router?.Dispose();
         }
 
 

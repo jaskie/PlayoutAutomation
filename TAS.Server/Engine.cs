@@ -1596,6 +1596,7 @@ namespace TAS.Server
             }
             EngineController.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
             CGElementsController?.Dispose();
+            
             Remote?.Dispose();
             _mediaManager.Dispose();
             if (_plugins != null)

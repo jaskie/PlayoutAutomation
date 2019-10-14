@@ -16,7 +16,8 @@ namespace TAS.Client.Router.RouterCommunicators
     {
         private TcpClient _tcpClient;
         private NetworkStream _stream;
-        private CancellationTokenSource cancellationToken = new CancellationTokenSource();
+        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private RouterDevice Device;
 
         public event EventHandler<RouterEventArgs> OnInputPortsListReceived;
         public event EventHandler<RouterEventArgs> OnOutputPortsListReceived;
@@ -29,8 +30,9 @@ namespace TAS.Client.Router.RouterCommunicators
         private readonly object _responseLock = new object();
         private string Response;
 
-        public NevionCommunicator()
+        public NevionCommunicator(RouterDevice device)
         {
+            Device = device;
             OnResponseReceived += NevionCommunicator_OnResponseReceived;
         }
 
@@ -50,20 +52,39 @@ namespace TAS.Client.Router.RouterCommunicators
             }
         }
 
+        
+
         private void ProcessCommand(string localResponse)
         {
             IList<string> lines = localResponse.Split('\n');
-            //Debug.WriteLine($"Processing command... First line: {lines[0]}");
-            if (!lines[0].StartsWith("?"))
-                return;                        
-            
+            Debug.WriteLine($"DebugProcessing command: {lines[0]}");
+            if (!lines[0].StartsWith("?") && !lines[0].StartsWith("%"))
+                return;
+
+            Debug.WriteLine($"Processing command: {lines[0]}");
+
             if (lines[0].Contains("inlist"))
-                IOListProcess(lines.Skip(1).ToList(), Enums.ListType.Input);
+                IOListProcess(lines
+                    .Skip(1)
+                    .Where(param => !String.IsNullOrEmpty(param))
+                    .ToList(), 
+                    Enums.ListType.Input);
             else if (lines[0].Contains("outlist"))
-                IOListProcess(lines.Skip(1).ToList(), Enums.ListType.Output);
+                IOListProcess(lines
+                    .Skip(1)
+                    .Where(param => !String.IsNullOrEmpty(param))
+                    .ToList(), 
+                    Enums.ListType.Output);
+            else if (lines[0].Contains("%"))
+                IOListProcess(lines
+                    .Skip(1)
+                    .Where(param=> !String.IsNullOrEmpty(param))
+                    .ToList(),
+                    Enums.ListType.CrosspointStatus);
+
             Debug.WriteLine("Command processed");
 
-        }
+        }        
 
         private void IOListProcess(IList<string> listResponse, Enums.ListType listType)
         {
@@ -83,14 +104,26 @@ namespace TAS.Client.Router.RouterCommunicators
                 }                
             }
             
-            if (listType == Enums.ListType.Input)                            
-                OnInputPortsListReceived?.Invoke(this, new RouterEventArgs(Ports));               
-            
-                
-            else if (listType == Enums.ListType.Output)
-                OnOutputPortsListReceived?.Invoke(this, new RouterEventArgs(Ports));
+            switch(listType)
+            {
+                case Enums.ListType.Input:
+                    {
+                        OnInputPortsListReceived?.Invoke(this, new RouterEventArgs(Ports));
+                        break;
+                    }
 
-            Send("login admin password");
+                case Enums.ListType.Output:
+                    {
+                        OnOutputPortsListReceived?.Invoke(this, new RouterEventArgs(Ports));
+                        break;
+                    }
+
+                case Enums.ListType.CrosspointStatus:
+                    {
+                        OnInputPortChangeReceived?.Invoke(this, new RouterEventArgs(Ports));
+                        break;
+                    }
+            }           
         }
 
         public async Task<bool> Connect(string ip, int port)
@@ -100,42 +133,54 @@ namespace TAS.Client.Router.RouterCommunicators
                 try
                 {
                     Debug.WriteLine("Connecting to Nevion...");
-                    _tcpClient = new TcpClient(ip, port);
+                    _tcpClient = new TcpClient();
+                    await  _tcpClient.ConnectAsync(ip, port);
                     
                     if (!_tcpClient.Connected)
                         return false;
                     Debug.WriteLine("Connected!");
 
                     _stream = _tcpClient.GetStream();                   
-                    Listen();                    
+                    Listen();
+                    //Send("login admin password");
                     break;
                 }
                 catch
                 {
+                    if (cancellationTokenSource.IsCancellationRequested)
+                        break;
+
                     Debug.WriteLine("Attempting to reconnect to Nevion Router in 1s");
                     await Task.Delay(1000);
                 }
             }
             return true;
-        }
+        }      
+
+        public bool RequestCurrentInputPort()
+        {
+            if (Send($"si l{Device.Level} {String.Join(",", Device.OutputPorts)}"))
+                return true;
+            return false;
+        }        
 
         public bool RequestInputPorts()
         {
-            if (Send("inlist l1"))
+            if (Send($"inlist l{Device.Level}"))
                 return true;
             return false;
         }
 
         public bool RequestOutputPorts()
         {
-            if (Send("outlist l1"))
+            if (Send($"outlist l{Device.Level}"))
                 return true;
             return false;
         }
 
         public bool SwitchInput(RouterPort inPort, IEnumerable<RouterPort> outPorts)
         {
-            if (Send($"x l1 {inPort.ID} {String.Join(",", outPorts.Select(param => param.ID.ToString()))}"))
+            if (Send($"x l{Device.Level} {inPort.ID} {String.Join(",", outPorts.Select(param => param.ID.ToString()))}"))
                 return true;
             return false;
         }
@@ -147,7 +192,7 @@ namespace TAS.Client.Router.RouterCommunicators
                 try
                 {                    
                     var data = Encoding.ASCII.GetBytes(String.Concat(message, "\n\n"));
-                    await _stream.WriteAsync(data, 0, data.Length, cancellationToken.Token);
+                    await _stream.WriteAsync(data, 0, data.Length, cancellationTokenSource.Token);
                     Debug.WriteLine($"Nevion message sent: {message}");
                     return true;
                 }
@@ -158,9 +203,10 @@ namespace TAS.Client.Router.RouterCommunicators
             }).Result;          
         }
 
+
         private async void Listen()
         {
-            await Task.Run(() =>
+            await Task.Run(async() =>
             {
                 Byte[] bytesReceived = new Byte[256];
                 string response = String.Empty;
@@ -170,36 +216,45 @@ namespace TAS.Client.Router.RouterCommunicators
                 while (true)
                 {
                     try
-                    {                                                       
-                        if ((bytes = _stream.Read(bytesReceived, 0, bytesReceived.Length)) != 0)
+                    {
+                        if (cancellationTokenSource.IsCancellationRequested)                                                    
+                            throw new OperationCanceledException(cancellationTokenSource.Token);
+                        
+                            
+
+                        if ((bytes = await _stream.ReadAsync(bytesReceived, 0, bytesReceived.Length, cancellationTokenSource.Token)) != 0)
                         {
                             response = System.Text.Encoding.ASCII.GetString(bytesReceived, 0, bytes);
-                            Debug.Write(response);
+                            //Debug.Write(response);
                             OnResponseReceived?.Invoke(this, new RouterEventArgs(response));
 
                             bytesReceived = new byte[256];
                             bytes = 0;
                         }
                     }
+                    catch(OperationCanceledException canceledEx)
+                    {
+                        Debug.WriteLine($"Listener canceled {canceledEx.Message}");
+                        break;
+                    }
                     catch(Exception ex)
                     {
                         Debug.WriteLine($"Failed to read nevion response. {ex.Message}");
                     }
-                }
-                Debug.WriteLine("Nevion listener stopped!");
-            }, cancellationToken.Token);
+                }                
+            }, cancellationTokenSource.Token);
         }
 
         public void Disconnect()
         {
-            cancellationToken.Cancel();
+            cancellationTokenSource.Cancel();
         }
 
         public void Dispose()
         {
-            Disconnect();
-            _stream.Close();
-            _tcpClient.Close();
+            Disconnect();           
+            _tcpClient?.Close();
+            Debug.WriteLine("Nevion communicator disposed");
         }        
     }
 }

@@ -8,6 +8,11 @@ namespace TAS.Common
 {
     public class RouterPort
     {
+        public RouterPort()
+        {
+
+        }
+
         public RouterPort(int id, string name)
         {
             ID = id;

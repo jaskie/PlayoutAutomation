@@ -21,7 +21,8 @@ namespace TAS.Client.Router.Model
         public enum ListType
         {
             Input,
-            Output
+            Output,
+            CrosspointStatus
         }
     }
 }

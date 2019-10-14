@@ -14,7 +14,7 @@ namespace TAS.Client.Router.Model
         public string IP { get; set; }
         public int Port { get; set; }
         public Enums.Router Type { get; set; }
-
+        public int Level { get; set; }
         [XmlArray("OutputPorts")]
         [XmlArrayItem("OutputPort")]
         public List<int> OutputPorts { get; set; }
