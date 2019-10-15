@@ -67,7 +67,7 @@ namespace TAS.Remoting.Server
             
         }
 
-        protected virtual void NotifyPropertyChanged(string propertyName)
+        protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

@@ -1,4 +1,4 @@
-﻿//#undef DEBUG
+﻿#undef DEBUG
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -472,7 +472,7 @@ namespace TAS.Server
                 if (_isModified == value)
                     return;
                 _isModified = value;
-                NotifyPropertyChanged(nameof(IsModified));
+                NotifyPropertyChanged();
             }
         }
 
@@ -540,10 +540,8 @@ namespace TAS.Server
         {
             get => _parent.Value;
             private set            {
-                if (!_parent.IsValueCreated && value == _parent.Value)
-                    return;
                 _parent = new Lazy<Event>(() => (Event)value);
-                NotifyPropertyChanged(nameof(Parent));
+                NotifyPropertyChanged();
             }
         }
 
@@ -552,10 +550,8 @@ namespace TAS.Server
             get => _prior.Value;
             private set
             {
-                if (_prior.IsValueCreated && value == _prior.Value)
-                    return;
                 _prior = new Lazy<Event>(() => (Event)value);
-                NotifyPropertyChanged(nameof(Prior));
+                NotifyPropertyChanged();
             }
         }
 
@@ -564,10 +560,8 @@ namespace TAS.Server
             get => _next.Value;
             private set
             {
-                if (_next.IsValueCreated && value == _next.Value)
-                    return;
                 _next = new Lazy<Event>(() => (Event)value);
-                NotifyPropertyChanged(nameof(Next));
+                NotifyPropertyChanged();
                 if (value != null)
                     IsLoop = false;
             }

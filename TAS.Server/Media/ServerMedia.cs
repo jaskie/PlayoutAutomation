@@ -33,11 +33,7 @@ namespace TAS.Server.Media
         public bool IsArchived
         {
             get => _isArchived?.Value ?? false;
-            set
-            {
-                if (_isArchived.IsValueCreated && _isArchived.Value != value)
-                    SetField(ref _isArchived, new Lazy<bool>(() => value));
-            }
+            set => SetField(ref _isArchived, new Lazy<bool>(() => value));
         }
 
         internal override void CloneMediaProperties(IMediaProperties fromMedia)

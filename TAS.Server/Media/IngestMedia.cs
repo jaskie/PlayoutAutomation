@@ -38,11 +38,7 @@ namespace TAS.Server.Media
         public TIngestStatus IngestStatus
         {
             get => _ingestStatus.Value;
-            set
-            {
-                if (_ingestStatus.IsValueCreated && _ingestStatus.Value != value)
-                    SetField(ref _ingestStatus, new Lazy<TIngestStatus>(() => value));
-            }
+            set => SetField(ref _ingestStatus, new Lazy<TIngestStatus>(() => value));
         }
 
         public override Stream GetFileStream(bool forWrite)
