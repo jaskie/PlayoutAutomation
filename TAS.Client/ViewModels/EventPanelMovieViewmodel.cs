@@ -49,6 +49,7 @@ namespace TAS.Client.ViewModels
             {
                 case nameof(IEvent.Duration):
                 case nameof(IEvent.ScheduledTc):
+                case nameof(IEvent.ScheduledTime):
                     NotifyPropertyChanged(nameof(MediaErrorInfo));
                     break;
             }
