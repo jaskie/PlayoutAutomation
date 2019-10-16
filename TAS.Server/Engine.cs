@@ -163,7 +163,11 @@ namespace TAS.Server
 
         [XmlIgnore]
         [JsonProperty]
-        public ICGElementsController CGElementsController { get; private set; }        
+        public ICGElementsController CGElementsController { get; private set; }
+
+        [XmlIgnore]
+        [JsonProperty]
+        public IRouter Router { get; private set; }
 
         public ServerHost Remote { get; set; }
         public TAspectRatioControl AspectRatioControl { get; set; }
@@ -301,7 +305,8 @@ namespace TAS.Server
 
             _localGpis = this.ComposeParts<IGpi>();
             _plugins = this.ComposeParts<IEnginePlugin>();
-            CGElementsController = this.ComposePart<ICGElementsController>();            
+            CGElementsController = this.ComposePart<ICGElementsController>();
+            Router = this.ComposePart<IRouter>();
             FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
             FrameTicks = FormatDescription.FrameTicks;
             FrameRate = FormatDescription.FrameRate;
@@ -1130,6 +1135,7 @@ namespace TAS.Server
             if ((eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage) &&
                 !(_preloadedEvents.TryGetValue(aEvent.Layer, out var preloaded) && preloaded == aEvent))
             {
+                Router.SwitchInput(aEvent);
                 Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent);
                 Logger.Info("{0} {1}: Preload {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
                 _preloadedEvents[aEvent.Layer] = aEvent;
@@ -1145,14 +1151,14 @@ namespace TAS.Server
                         Thread.Sleep(_preloadTime + TimeSpan.FromMilliseconds(CGStartDelay));
                         try
                         {
-                            CGElementsController.SetState(aEvent);
+                            CGElementsController.SetState(aEvent);                                                        
                         }
                         catch (Exception e)
                         {
                             Logger.Error(e);
                         }
                     });
-                }
+                }                
             }
             _run(aEvent);
         }
@@ -1596,7 +1602,8 @@ namespace TAS.Server
             }
             EngineController.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
             CGElementsController?.Dispose();
-            
+            Router?.Dispose();
+
             Remote?.Dispose();
             _mediaManager.Dispose();
             if (_plugins != null)

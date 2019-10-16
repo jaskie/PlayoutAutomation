@@ -1,7 +1,7 @@
 ﻿using System.Windows.Controls;
 
 
-namespace TAS.Client.Router
+namespace TAS.Server.Router
 {
     /// <summary>
     /// Interaction logic for NevionView.xaml

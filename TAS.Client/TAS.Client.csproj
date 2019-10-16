@@ -91,6 +91,7 @@
     <Compile Include="ViewModels\AclRightViewmodel.cs" />
     <Compile Include="ViewModels\CGElementViewmodel.cs" />
     <Compile Include="ViewModels\ChannelViewmodel.cs" />
+    <Compile Include="ViewModels\EngineRouterViewModel.cs" />
     <Compile Include="ViewModels\IngestOperationViewModel.cs" />
     <Compile Include="ViewModels\EngineCGElementsControllerViewmodel.cs" />
     <Compile Include="ViewModels\EngineStateViewmodel.cs" />
@@ -136,6 +137,9 @@
     <Compile Include="ViewModels\UserViewmodel.cs" />
     <Compile Include="Views\ChannelView.xaml.cs">
       <DependentUpon>ChannelView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EngineRouterView.xaml.cs">
+      <DependentUpon>EngineRouterView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\IngestOperationView.xaml.cs">
       <DependentUpon>IngestOperationView.xaml</DependentUpon>
@@ -257,6 +261,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\ChannelView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EngineRouterView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -403,6 +411,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ChannelView.resx">
       <DependentUpon>ChannelView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineRouterView.resx">
+      <DependentUpon>EngineRouterView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\IngestOperationView.pl.resx">
       <DependentUpon>IngestOperationView.xaml</DependentUpon>

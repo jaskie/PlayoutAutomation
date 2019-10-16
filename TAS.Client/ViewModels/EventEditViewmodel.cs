@@ -10,6 +10,8 @@ using System.Text.RegularExpressions;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using resources = TAS.Client.Common.Properties.Resources;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace TAS.Client.ViewModels
 {
@@ -38,6 +40,10 @@ namespace TAS.Client.ViewModels
         private TimeSpan _duration;
         private TimeSpan _scheduledDelay;
         private sbyte _layer;
+        private IRouter _router;
+        private ObservableCollection<RouterPort> _inputPorts;
+        private RouterPort _selectedInputPort;
+
 
         public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
         public static readonly Regex RegexMixerClip = new Regex(TAS.Common.EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
@@ -54,6 +60,9 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel = new EventRightsEditViewmodel(@event, engineViewModel.Engine.AuthenticationService);
                 EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
+            _router = engineViewModel.Router;
+            Task.Run(() => { InputPorts = new ObservableCollection<RouterPort>(_router?.GetInputPorts().Result); });
+                     
             CommandSaveEdit = new UiCommand(o => Save(), _canSave);
             CommandUndoEdit = new UiCommand(o => UndoEdit(), o => IsModified);
             CommandChangeMovie = new UiCommand(_changeMovie, _canChangeMovie);
@@ -209,7 +218,9 @@ namespace TAS.Client.ViewModels
 
         public bool IsAutoStartEvent => _startType == TStartType.OnFixedTime;
 
-        public bool IsMovieOrLive => Model.EventType == TEventType.Movie || Model.EventType == TEventType.Live;
+        public bool IsMovieOrLive => Model.EventType == TEventType.Movie || Model.EventType == TEventType.Live;        
+
+        public bool IsLive => Model.EventType == TEventType.Live;
 
         public bool IsMovieOrLiveOrRundown
         {
@@ -526,6 +537,31 @@ namespace TAS.Client.ViewModels
         }
 
         public TVideoFormat VideoFormat => _engineViewModel.VideoFormat;
+
+        #region IRouterPortState
+        private int _inputID;
+        public int InputID
+        {
+            get => _inputID;
+            set => SetField(ref _inputID, value);
+        }
+        #endregion
+        public ObservableCollection<RouterPort> InputPorts
+        {
+            get => _inputPorts;
+            set => SetField(ref _inputPorts, value);
+        }
+
+        public RouterPort SelectedInputPort
+        {
+            get => _selectedInputPort;
+            set
+            {
+                if (!SetField(ref _selectedInputPort, value))
+                    return;
+                InputID = value.ID;
+            }
+        }
 
         public TimeSpan ScheduledDelay
         {

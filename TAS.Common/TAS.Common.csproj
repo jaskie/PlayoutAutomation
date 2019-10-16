@@ -74,6 +74,7 @@
     <Compile Include="Interfaces\IRouter.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
     <Compile Include="Interfaces\IRemoteHostConfig.cs" />
+    <Compile Include="Interfaces\IRouterPortState.cs" />
     <Compile Include="Interfaces\ISearchProvider.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaDirectory.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaSearchProvider.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="RationalNumber.cs" />
     <Compile Include="Rights.cs" />
     <Compile Include="Roles.cs" />
+    <Compile Include="RouterEventArgs.cs" />
     <Compile Include="RouterPort.cs" />
     <Compile Include="SMPTETimecodeExtensions.cs" />
     <Compile Include="CurrentUser.cs" />

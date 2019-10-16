@@ -43,7 +43,7 @@ namespace TAS.Common.Interfaces
         event EventHandler<EventPositionEventArgs> PositionChanged;
     }
 
-    public interface IEventProperties : ICGElementsState
+    public interface IEventProperties : ICGElementsState, IRouterPortState
     {
         double? AudioVolume { get; set; }
         TimeSpan Duration { get; set; }

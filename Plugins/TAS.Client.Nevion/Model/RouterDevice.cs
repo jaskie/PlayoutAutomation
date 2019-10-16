@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace TAS.Client.Router.Model
+namespace TAS.Server.Router.Model
 {
     [Serializable]
     public class RouterDevice

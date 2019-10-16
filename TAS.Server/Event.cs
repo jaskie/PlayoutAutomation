@@ -36,6 +36,7 @@ namespace TAS.Server
         private byte _crawl;
         private byte _logo;
         private byte _parental;
+        private byte _inputID;
         private double? _audioVolume;
         private TimeSpan _duration;
         private bool _isEnabled;
@@ -59,6 +60,8 @@ namespace TAS.Server
         private AutoStartFlags _autoStartFlags;
         private Guid _mediaGuid;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        private RouterPort _inputPort;
 
         #region Constructor
         internal Event(
@@ -596,6 +599,13 @@ namespace TAS.Server
         }
 
         [JsonProperty]
+        public RouterPort InputPort
+        {
+            get => _inputPort;
+            set => SetField(ref _inputPort, value);
+        }
+
+        [JsonProperty]
         public byte Crawl
         {
             get => _crawl;
@@ -614,6 +624,13 @@ namespace TAS.Server
         {
             get => _parental;
             set => SetField(ref _parental, value);
+        }
+
+        [JsonProperty]
+        public byte InputID
+        {
+            get => _inputID;
+            set => SetField(ref _inputID, value);
         }
 
         public event EventHandler<EventPositionEventArgs> PositionChanged;

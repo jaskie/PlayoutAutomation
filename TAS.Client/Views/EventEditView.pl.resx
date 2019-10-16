@@ -189,6 +189,9 @@
   <data name="_hold.ToolTip" xml:space="preserve">
     <value>Natychmisatowa zmiana - F6</value>
   </data>
+  <data name="_inputPort" xml:space="preserve">
+    <value>Źródło</value>
+  </data>
   <data name="_loop" xml:space="preserve">
     <value>Pętla</value>
   </data>

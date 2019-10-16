@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TAS.Client.Router.Model;
+using TAS.Server.Router.Model;
 using TAS.Common;
 
-namespace TAS.Client.Router.RouterCommunicators
+namespace TAS.Server.Router.RouterCommunicators
 {
     class BlackmagicSVHCommunicator : IRouterCommunicator
     {

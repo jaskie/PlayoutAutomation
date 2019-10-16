@@ -238,6 +238,10 @@
                                 <CheckBox Content="CG" IsChecked="{Binding IsCGEnabled}" VerticalAlignment="Top" Margin="10,5,0,0" />
                             </Grid>
                         </StackPanel>
+                        <StackPanel DockPanel.Dock="Top" Visibility="{Binding IsLive, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="{Resx _inputPort}" />
+                            <ComboBox ItemsSource="{Binding InputPorts}" SelectedItem="{Binding SelectedInputPort}" />
+                        </StackPanel>
                         <Grid DockPanel.Dock="Top" Visibility="{Binding IsStillImage, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -256,6 +260,7 @@
                             <Label Content="{Resx _command}" />
                             <TextBox Text="{Binding Command, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Resx _command.ToolTip}"/>
                         </DockPanel>
+                        
                         <ContentControl Content="{Binding TemplatedEditViewmodel}">
                             <ContentControl.Resources>
                                 <DataTemplate DataType="{x:Type vm:TemplatedEditViewmodel}">

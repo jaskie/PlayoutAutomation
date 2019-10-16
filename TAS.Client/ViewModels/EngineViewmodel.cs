@@ -42,6 +42,7 @@ namespace TAS.Client.ViewModels
             Engine = engine;
             VideoFormat = engine.VideoFormat;
             IsInterlacedFormat = engine.FormatDescription.Interlaced;
+            Router = engine.Router;
 
             RootEventViewModel = new EventPanelRootViewmodel(this);
             Engine.EngineTick += _engineTick;
@@ -52,7 +53,7 @@ namespace TAS.Client.ViewModels
             Engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _plugins = UiPluginManager.ComposeParts<IUiPlugin>(this);
             VideoPreview = UiPluginManager.ComposePart<IVideoPreview>(this);
-            Router = UiPluginManager.ComposePart<IRouter>(this);
+            
 
             if (preview != null && engine.HaveRight(EngineRight.Preview))
                 PreviewViewmodel = new PreviewViewmodel(engine, preview) { IsSegmentsVisible = true };

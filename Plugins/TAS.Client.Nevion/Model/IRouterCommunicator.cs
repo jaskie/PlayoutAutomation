@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TAS.Common;
 
-namespace TAS.Client.Router.Model
+namespace TAS.Server.Router.Model
 {
     public interface IRouterCommunicator : IDisposable
     {

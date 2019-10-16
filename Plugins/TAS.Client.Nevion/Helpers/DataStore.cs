@@ -2,7 +2,7 @@
 using System.IO;
 using System.Xml.Serialization;
 
-namespace TAS.Client.Router.Helpers
+namespace TAS.Server.Router.Helpers
 {
     public static class DataStore
     {             

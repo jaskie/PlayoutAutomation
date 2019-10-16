@@ -7,13 +7,15 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TAS.Client.Router.Model;
+using TAS.Server.Router.Model;
 using TAS.Common;
 
-namespace TAS.Client.Router.RouterCommunicators
+namespace TAS.Server.Router.RouterCommunicators
 {
     public class NevionCommunicator : IRouterCommunicator
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private TcpClient _tcpClient;
         private NetworkStream _stream;
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -56,13 +58,12 @@ namespace TAS.Client.Router.RouterCommunicators
 
         private void ProcessCommand(string localResponse)
         {
-            IList<string> lines = localResponse.Split('\n');
-            Debug.WriteLine($"DebugProcessing command: {lines[0]}");
+            IList<string> lines = localResponse.Split('\n');            
             if (!lines[0].StartsWith("?") && !lines[0].StartsWith("%"))
                 return;
 
             Debug.WriteLine($"Processing command: {lines[0]}");
-
+           
             if (lines[0].Contains("inlist"))
                 IOListProcess(lines
                     .Skip(1)
@@ -75,12 +76,18 @@ namespace TAS.Client.Router.RouterCommunicators
                     .Where(param => !String.IsNullOrEmpty(param))
                     .ToList(), 
                     Enums.ListType.Output);
-            else if (lines[0].Contains("%"))
+            else if (lines[0].Contains("si"))
                 IOListProcess(lines
                     .Skip(1)
-                    .Where(param=> !String.IsNullOrEmpty(param))
+                    .Where(param => !String.IsNullOrEmpty(param))
                     .ToList(),
                     Enums.ListType.CrosspointStatus);
+            else if (lines[0].StartsWith("%"))
+                IOListProcess(lines                                       
+                    .Skip(1)
+                    .Where(param=> !String.IsNullOrEmpty(param) && param != "%")
+                    .ToList(),
+                    Enums.ListType.CrosspointChange);
 
             Debug.WriteLine("Command processed");
 
@@ -89,8 +96,9 @@ namespace TAS.Client.Router.RouterCommunicators
         private void IOListProcess(IList<string> listResponse, Enums.ListType listType)
         {
             IList<RouterPort> Ports = new List<RouterPort>();
+                        
             foreach (var line in listResponse)
-            {
+            {                
                 var lineParams = line.Split(' ');
                 try
                 {
@@ -98,9 +106,9 @@ namespace TAS.Client.Router.RouterCommunicators
                     Ports.Add(port);
                     Debug.WriteLine($"Port {port.ID} added");
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Debug.WriteLine($"Failed to generate port from response. \n {line}");
+                    Debug.WriteLine($"Failed to generate port from response. \n{line}\n{ex.Message}");
                 }                
             }
             
@@ -119,6 +127,7 @@ namespace TAS.Client.Router.RouterCommunicators
                     }
 
                 case Enums.ListType.CrosspointStatus:
+                case Enums.ListType.CrosspointChange:
                     {
                         OnInputPortChangeReceived?.Invoke(this, new RouterEventArgs(Ports));
                         break;
@@ -234,7 +243,7 @@ namespace TAS.Client.Router.RouterCommunicators
                     }
                     catch(OperationCanceledException canceledEx)
                     {
-                        Debug.WriteLine($"Listener canceled {canceledEx.Message}");
+                        Debug.WriteLine($"Listener canceled");
                         break;
                     }
                     catch(Exception ex)

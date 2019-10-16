@@ -75,6 +75,7 @@ namespace TAS.Common.Interfaces
         DateTime CurrentTime { get; }
         int TimeCorrection { get; set; }
         ICGElementsController CGElementsController { get; }
+        IRouter Router { get; }
         void SearchMissingEvents();
         IEvent Playing { get; }
         IEvent NextToPlay { get; }

@@ -13,6 +13,11 @@ namespace TAS.Common
 
         }
 
+        public RouterPort(int id)
+        {
+            ID = id;          
+        }
+
         public RouterPort(int id, string name)
         {
             ID = id;

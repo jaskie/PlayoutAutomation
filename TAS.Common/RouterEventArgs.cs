@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TAS.Common;
 
-namespace TAS.Client.Router.Model
+namespace TAS.Common
 {
     public class RouterEventArgs
     {

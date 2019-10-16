@@ -7,8 +7,8 @@
     <ProjectGuid>{AD45E333-FBC5-42EE-BA3F-66DA6B2C8C1C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TAS.Client.Router</RootNamespace>
-    <AssemblyName>TAS.Client.Router</AssemblyName>
+    <RootNamespace>TAS.Server.Router</RootNamespace>
+    <AssemblyName>TAS.Server.Router</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\NLog.4.5.9\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -50,15 +54,15 @@
     <Compile Include="Model\RouterDevice.cs" />
     <Compile Include="Model\Enums.cs" />
     <Compile Include="Model\IRouterCommunicator.cs" />
-    <Compile Include="Model\RouterEventArgs.cs" />
     <Compile Include="RouterCommunicators\BlackmagicSVHCommunicator.cs" />
     <Compile Include="RouterCommunicators\NevionCommunicator.cs" />
-    <Compile Include="RouterViewModelFactory.cs" />
+    <Compile Include="RouterControllerFactory.cs" />
     <Compile Include="RouterView.xaml.cs">
       <DependentUpon>RouterView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RouterViewModel.cs" />
+    <Compile Include="RouterController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Task.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="RouterView.xaml">
