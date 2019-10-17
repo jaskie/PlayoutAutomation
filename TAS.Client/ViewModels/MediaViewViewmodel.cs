@@ -73,7 +73,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public string ClipNr => (Media as IXdcamMedia)?.ClipNr > 0  ? $"{((IXdcamMedia) Media).ClipNr}/{(Media.Directory as IIngestDirectory)?.XdcamClipCount}" : string.Empty;
+        public int ClipNr => (Media as IXdcamMedia)?.ClipNr ?? 0;
+        public int TotalClipCount => (Media.Directory as IIngestDirectory)?.XdcamClipCount ?? 0;
+
         public TIngestStatus IngestStatus => (Media as IIngestMedia)?.IngestStatus ?? ((Media as IArchiveMedia)?.IngestStatus ?? TIngestStatus.NotReady);
         public TVideoFormat VideoFormat => Media.VideoFormat;
         public bool IsExpanded

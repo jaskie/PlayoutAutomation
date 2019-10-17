@@ -262,7 +262,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(nameof(IsMediaCategoryVisible));
                     NotifyPropertyChanged(nameof(IsIngestOrArchiveDirectory));
                     NotifyPropertyChanged(nameof(IsAnimationDirectory));
-                    NotifyPropertyChanged(nameof(IsDisplayClipNr));
+                    NotifyPropertyChanged(nameof(IsXdcam));
                     NotifyDirectoryPropertiesChanged();
                     InvalidateRequerySuggested();
                 }
@@ -277,26 +277,26 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _isPropertiesPanelVisible, value);
         }
 
-        public bool IsDisplayFolder => _selectedDirectory != null && _selectedDirectory.IsRecursive;
+        public bool IsDisplayFolder => _selectedDirectory?.IsRecursive ?? false;
 
-        public bool IsDisplayClipNr => _selectedDirectory != null && _selectedDirectory.IsXdcam;
+        public bool IsXdcam => _selectedDirectory?.IsXdcam ?? false;
 
-        public bool IsDisplayMediaCategory => _selectedDirectory != null && _selectedDirectory.IsPersistentDirectory && !(_mediaCategory is TMediaCategory);
+        public bool IsDisplayMediaCategory => _selectedDirectory?.IsPersistentDirectory == true && !(_mediaCategory is TMediaCategory);
 
-        public bool IsMediaCategoryVisible => _selectedDirectory != null && _selectedDirectory.IsPersistentDirectory && (!(_mediaType is TMediaType) || Equals(_mediaType, TMediaType.Movie));
+        public bool IsMediaCategoryVisible => _selectedDirectory?.IsPersistentDirectory == true && (!(_mediaType is TMediaType) || Equals(_mediaType, TMediaType.Movie));
 
-        public bool IsServerDirectory => _selectedDirectory != null && _selectedDirectory.IsServerDirectory;
+        public bool IsServerDirectory => _selectedDirectory?.IsServerDirectory ?? false;
 
         public bool IsIngestOrArchiveDirectory => _selectedDirectory != null && (_selectedDirectory.IsArchiveDirectory || _selectedDirectory.IsIngestDirectory);
 
-        public bool IsAnimationDirectory => _selectedDirectory != null && _selectedDirectory.IsAnimationDirectory;
+        public bool IsAnimationDirectory => _selectedDirectory?.IsAnimationDirectory ?? false;
 
         public bool IsMediaExportVisible { get { return MediaDirectories.Any(d => d.IsExport) && Engine.HaveRight(EngineRight.MediaExport); } }
 
         public bool DisplayDirectoryInfo => _selectedDirectory != null
                                             && (_selectedDirectory.IsServerDirectory || _selectedDirectory.IsArchiveDirectory || (_selectedDirectory.IsIngestDirectory && (_selectedDirectory.AccessType == TDirectoryAccessType.Direct || _selectedDirectory.IsXdcam)));
 
-        public bool IsMediaDirectoryOk => _selectedDirectory?.IsOK == true;
+        public bool IsMediaDirectoryOk => _selectedDirectory?.IsOK ?? false;
 
         public float DirectoryTotalSpace => _selectedDirectory?.VolumeTotalSize / 1073741824F ?? 0F;
 

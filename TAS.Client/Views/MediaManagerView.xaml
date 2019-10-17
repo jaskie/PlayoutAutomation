@@ -409,7 +409,14 @@
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTextColumn x:Name="clipNrColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipNr}" Width="50" Visibility="{Binding Data.IsDisplayClipNr, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" Binding="{Binding ClipNr, Mode=OneWay}"  />
+                                <DataGridTextColumn x:Name="clipNrColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipNr}" Width="50" Visibility="{Binding Data.IsXdcam, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="ClipNr" >
+                                    <DataGridTextColumn.Binding>
+                                        <MultiBinding StringFormat="{}{0}/{1}">
+                                            <Binding Path="ClipNr" Mode="OneWay" />
+                                            <Binding Path="TotalClipCount" Mode="OneWay" />
+                                        </MultiBinding>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
                                 <DataGridTemplateColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="*" SortMemberPath="MediaName">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
