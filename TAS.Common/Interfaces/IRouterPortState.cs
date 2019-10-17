@@ -8,6 +8,6 @@ namespace TAS.Common.Interfaces
 {
     public interface IRouterPortState
     {
-        byte InputID { get; set; }
+        int InputID { get; set; }
     }
 }

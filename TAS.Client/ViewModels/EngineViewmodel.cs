@@ -30,6 +30,7 @@ namespace TAS.Client.ViewModels
         private IEvent _selectedEvent;
         
         private MediaSearchViewmodel _mediaSearchViewModel;
+        public EngineRouterViewModel EngineRouterViewModel { get; }
         private readonly ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
         private readonly ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
         private readonly ObservableCollection<EventPanelViewmodelBase> _multiSelectedEvents;
@@ -43,6 +44,9 @@ namespace TAS.Client.ViewModels
             VideoFormat = engine.VideoFormat;
             IsInterlacedFormat = engine.FormatDescription.Interlaced;
             Router = engine.Router;
+
+            if (Router != null)
+                EngineRouterViewModel = new EngineRouterViewModel(Router);
 
             RootEventViewModel = new EventPanelRootViewmodel(this);
             Engine.EngineTick += _engineTick;

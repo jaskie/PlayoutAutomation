@@ -144,6 +144,10 @@ ADD COLUMN `idEngine` BIGINT(20) NULL AFTER `idAsRunLog`,
 ADD INDEX `ixIdEngine` (`idEngine` ASC);
 </value>
   </data>
+  <data name="V12" xml:space="preserve">
+    <value>ALTER TABLE `rundownevent`
+ADD COLUMN `RouterPort` smallint DEFAULT NULL;</value>
+  </data>
   <data name="V2" xml:space="preserve">
     <value>CREATE TABLE `media_templated` (
   `MediaGuid` binary(16) NOT NULL,

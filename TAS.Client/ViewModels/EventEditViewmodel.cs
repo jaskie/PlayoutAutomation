@@ -60,9 +60,15 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel = new EventRightsEditViewmodel(@event, engineViewModel.Engine.AuthenticationService);
                 EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
-            _router = engineViewModel.Router;
-            Task.Run(() => { InputPorts = new ObservableCollection<RouterPort>(_router?.GetInputPorts().Result); });
-                     
+            _router = engineViewModel.Router;           
+            InputPorts = engineViewModel.EngineRouterViewModel?.InputPorts;
+            if (_isInputIDSet)
+            {
+                _selectedInputPort = InputPorts?.FirstOrDefault(param => param.ID == _inputID);
+                NotifyPropertyChanged(nameof(SelectedInputPort));
+            }
+                
+
             CommandSaveEdit = new UiCommand(o => Save(), _canSave);
             CommandUndoEdit = new UiCommand(o => UndoEdit(), o => IsModified);
             CommandChangeMovie = new UiCommand(_changeMovie, _canChangeMovie);
@@ -539,17 +545,28 @@ namespace TAS.Client.ViewModels
         public TVideoFormat VideoFormat => _engineViewModel.VideoFormat;
 
         #region IRouterPortState
-        private int _inputID;
+        private int _inputID = -1;
+        private bool _isInputIDSet;
+
         public int InputID
         {
             get => _inputID;
-            set => SetField(ref _inputID, value);
+            set
+            {
+                SetField(ref _inputID, value);
+                _isInputIDSet = true;
+            }
         }
         #endregion
+        
         public ObservableCollection<RouterPort> InputPorts
         {
             get => _inputPorts;
-            set => SetField(ref _inputPorts, value);
+            set
+            {
+                SetField(ref _inputPorts, value);
+                IsModified = false;
+            }
         }
 
         public RouterPort SelectedInputPort

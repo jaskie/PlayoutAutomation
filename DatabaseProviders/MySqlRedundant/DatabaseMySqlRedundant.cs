@@ -846,7 +846,8 @@ namespace TAS.Database.MySqlRedundant
                 flags.Logo(),
                 flags.Parental(),
                 flags.AutoStartFlags(),
-                dataReader.GetString("Commands")
+                dataReader.GetString("Commands"), 
+                inputID: dataReader.IsDBNull(dataReader.GetOrdinal("RouterPort")) ? -1 : dataReader.GetUInt16("RouterPort")
                 );
             return newEvent;
         }
@@ -898,6 +899,10 @@ namespace TAS.Database.MySqlRedundant
             else
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent.AudioVolume);
             cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
+            if (aEvent.InputID == -1)
+                cmd.Parameters.AddWithValue("@RouterPort", DBNull.Value);
+            else
+                cmd.Parameters.AddWithValue("@RouterPort", aEvent.InputID);
             var command = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript
                 ? (object)((ICommandScript) aEvent).Command
                 : DBNull.Value;
@@ -929,9 +934,9 @@ namespace TAS.Database.MySqlRedundant
                 using (var transaction = _connection.BeginTransaction())
                 {
                     const string query = @"INSERT INTO RundownEvent 
-(idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, TransitionPauseTime, typTransition, AudioVolume, idProgramme, flagsEvent, Commands) 
+(idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, TransitionPauseTime, typTransition, AudioVolume, idProgramme, flagsEvent, Commands, RouterPort) 
 VALUES 
-(@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @TransitionPauseTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent, @Commands);";
+(@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @TransitionPauseTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent, @Commands, @RouterPort);";
                     using (var cmd = new DbCommandRedundant(query, _connection))
                         if (_eventFillParamsAndExecute(cmd, aEvent))
                         {
@@ -976,7 +981,8 @@ typTransition=@typTransition,
 AudioVolume=@AudioVolume, 
 idProgramme=@idProgramme, 
 flagsEvent=@flagsEvent,
-Commands=@Commands
+Commands=@Commands,
+RouterPort=@RouterPort
 WHERE idRundownEvent=@idRundownEvent;";
                     using (var cmd = new DbCommandRedundant(query, _connection))
                     {

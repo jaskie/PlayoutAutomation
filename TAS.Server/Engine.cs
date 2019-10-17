@@ -779,7 +779,8 @@ namespace TAS.Server
             string command = null,
             IDictionary<string, string> fields = null,
             TemplateMethod method = TemplateMethod.Add,
-            int templateLayer = 10
+            int templateLayer = 10,
+            int inputID = -1
         )
         {
             if (idRundownEvent != 0
@@ -1110,6 +1111,10 @@ namespace TAS.Server
             Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent);
             Logger.Info("{0} {1}: Load {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
             var eventType = aEvent.EventType;
+
+            if (eventType == TEventType.Live)
+                Router?.SwitchInput(aEvent);
+
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
                 _playoutChannelPRI?.Load(aEvent);
@@ -1131,16 +1136,22 @@ namespace TAS.Server
                 aEvent = aEvent.InternalGetSuccessor();
             if (aEvent == null)
                 return;
+
             var eventType = aEvent.EventType;
+            
             if ((eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage) &&
                 !(_preloadedEvents.TryGetValue(aEvent.Layer, out var preloaded) && preloaded == aEvent))
             {
-                Router.SwitchInput(aEvent);
+
                 Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent);
                 Logger.Info("{0} {1}: Preload {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
                 _preloadedEvents[aEvent.Layer] = aEvent;
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
+
+                if (eventType == TEventType.Live && _playing.EventType != TEventType.Live)
+                    Router?.SwitchInput(aEvent);
+
                 if (!aEvent.IsHold
                     && CGElementsController?.IsConnected == true
                     && CGElementsController.IsCGEnabled
@@ -1193,6 +1204,9 @@ namespace TAS.Server
                 aEvent.Position = 0;
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
+                if (eventType == TEventType.Live && _playing.EventType == TEventType.Live)
+                    Router?.SwitchInput(aEvent);
+
                 _playoutChannelPRI?.Play(aEvent);
                 _playoutChannelSEC?.Play(aEvent);
                 SetVisibleEvent(aEvent);

@@ -8,27 +8,27 @@ using TAS.Server.Router.Model;
 using TAS.Server.Router.RouterCommunicators;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using System.Threading;
+using System.Linq;
 
 namespace TAS.Server.Router
 {
     public class RouterController : IRouter, IRouterPortState
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-        public UserControl View { get; }
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();       
 
         private IRouterCommunicator _routerCommunicator;
         private RouterDevice _device;
         private IEnumerable<RouterPort> _inputPorts;
-        private IEnumerable<RouterPort> _outputPorts;
-
-        public event EventHandler<RouterEventArgs> OnInputPortsListReceived;
+        private IEnumerable<RouterPort> _outputPorts;        
+        private SemaphoreSlim _semaphoreInputList = new SemaphoreSlim(0);
+       
         public event EventHandler<RouterEventArgs> OnInputPortChangeReceived;
 
         #region IRouterPortState
-        private byte _inputID;
+        private int _inputID;
 
-        public byte InputID
+        public int InputID
         {
             get => _inputID;
             set => _inputID = value;
@@ -36,9 +36,7 @@ namespace TAS.Server.Router
         #endregion
 
         public RouterController()
-        {
-            View = new RouterView();
-            View.DataContext = this;
+        {                        
             _device = DataStore.Load<RouterDevice>("RouterDevice");
 
             if (_device == null)
@@ -59,9 +57,7 @@ namespace TAS.Server.Router
             _routerCommunicator.OnOutputPortsListReceived += Communicator_OnOutputPortsListReceived;
             _routerCommunicator.OnInputPortsListReceived += Communicator_OnInputPortsListReceived;
             _routerCommunicator.OnInputPortChangeReceived += Communicator_OnInputPortChangeReceived;
-
-           
-            _routerCommunicator.RequestInputPorts();           
+                               
             _routerCommunicator.RequestOutputPorts();                        
         }        
 
@@ -99,27 +95,44 @@ namespace TAS.Server.Router
             return _routerCommunicator.SwitchInput(new RouterPort(inPort.InputID), _outputPorts);
         }
 
-        public async Task<IEnumerable<RouterPort>> GetInputPorts()
+        public bool SwitchInput(RouterPort inPort)
+        {
+            return _routerCommunicator.SwitchInput(inPort, _outputPorts);
+        }
+
+        public async Task<IEnumerable<RouterPort>> GetInputPorts(bool requestCurrentInput = false)
         {
             _inputPorts = null;
             _routerCommunicator.RequestInputPorts();
-            await Task.Run(() => { while (_inputPorts == null) ; });
+
+            if (_inputPorts == null)
+                await _semaphoreInputList.WaitAsync();
+            
+            if (requestCurrentInput == true)
+                _routerCommunicator.RequestCurrentInputPort();
+
             return _inputPorts;
         }
 
         private void Communicator_OnOutputPortsListReceived(object sender, RouterEventArgs e)
-        {
-            _routerCommunicator.RequestCurrentInputPort();
+        {                       
+            _outputPorts = e.RouterPorts.Where(param => _device.OutputPorts.Contains(param.ID));            
         }
 
         private void Communicator_OnInputPortChangeReceived(object sender, RouterEventArgs e)
         {
-            throw new NotImplementedException();
+            var changedIn = e.RouterPorts.Where(p => _outputPorts.Any(q => q.ID == p.ID)).FirstOrDefault();
+
+            if (changedIn == null)
+                return;
+
+            OnInputPortChangeReceived?.Invoke(this, new RouterEventArgs(e.RouterPorts));
         }
 
         private void Communicator_OnInputPortsListReceived(object sender, RouterEventArgs e)
         {
             _inputPorts = new List<RouterPort>(e.RouterPorts);
+            _semaphoreInputList.Release();            
         }
 
         public void Dispose()
@@ -129,6 +142,8 @@ namespace TAS.Server.Router
             _routerCommunicator.OnInputPortChangeReceived -= Communicator_OnInputPortChangeReceived;
             _routerCommunicator.Dispose();
             Debug.WriteLine("Router Plugin Disposed");
-        }       
+        }
+
+        
     }
 }

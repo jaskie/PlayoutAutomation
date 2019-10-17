@@ -6,13 +6,11 @@ using System.Windows.Controls;
 namespace TAS.Common.Interfaces
 {
     public interface IRouter : IDisposable
-    {
-        UserControl View { get; }
-
-        Task<IEnumerable<RouterPort>> GetInputPorts();
+    {       
+        Task<IEnumerable<RouterPort>> GetInputPorts(bool requestCurrentInput = false);
         bool SwitchInput(IRouterPortState events);
-
-        event EventHandler<RouterEventArgs> OnInputPortsListReceived;
+        bool SwitchInput(RouterPort inPort);
+        
         event EventHandler<RouterEventArgs> OnInputPortChangeReceived;        
     }
 }

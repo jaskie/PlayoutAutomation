@@ -36,7 +36,7 @@ namespace TAS.Server
         private byte _crawl;
         private byte _logo;
         private byte _parental;
-        private byte _inputID;
+        private int _inputID = -1;
         private double? _audioVolume;
         private TimeSpan _duration;
         private bool _isEnabled;
@@ -627,7 +627,7 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public byte InputID
+        public int InputID
         {
             get => _inputID;
             set => SetField(ref _inputID, value);

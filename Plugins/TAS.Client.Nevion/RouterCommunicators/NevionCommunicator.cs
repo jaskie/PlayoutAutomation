@@ -143,7 +143,9 @@ namespace TAS.Server.Router.RouterCommunicators
                 {
                     Debug.WriteLine("Connecting to Nevion...");
                     _tcpClient = new TcpClient();
-                    await  _tcpClient.ConnectAsync(ip, port);
+                    if (!_tcpClient.ConnectAsync(ip, port).Wait(3000))                                       
+                        continue;
+                    
                     
                     if (!_tcpClient.Connected)
                         return false;
@@ -159,7 +161,7 @@ namespace TAS.Server.Router.RouterCommunicators
                     if (cancellationTokenSource.IsCancellationRequested)
                         break;
 
-                    Debug.WriteLine("Attempting to reconnect to Nevion Router in 1s");
+                    Debug.WriteLine("Exception, attempting to reconnect to Nevion Router in 1s");
                     await Task.Delay(1000);
                 }
             }

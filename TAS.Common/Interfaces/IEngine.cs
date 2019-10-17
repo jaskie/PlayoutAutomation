@@ -54,10 +54,11 @@ namespace TAS.Common.Interfaces
             byte logo = 0,
             byte parental = 0,
             AutoStartFlags autoStartFlags = AutoStartFlags.None,
-            string command = null,
+            string command = null,            
             IDictionary<string, string> fields = null,
             TemplateMethod method = TemplateMethod.Add,
-            int templateLayer = 10
+            int templateLayer = 10,
+            int inputID = -1
         );
 
         void Load(IEvent aEvent);
