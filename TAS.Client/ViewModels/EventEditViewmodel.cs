@@ -62,6 +62,7 @@ namespace TAS.Client.ViewModels
             }
             _router = engineViewModel.Router;           
             InputPorts = engineViewModel.EngineRouterViewModel?.InputPorts;
+
             if (_isInputIDSet)
             {
                 _selectedInputPort = InputPorts?.FirstOrDefault(param => param.ID == _inputID);
@@ -564,8 +565,16 @@ namespace TAS.Client.ViewModels
             get => _inputPorts;
             set
             {
-                SetField(ref _inputPorts, value);
+                SetField(ref _inputPorts, value);                
                 IsModified = false;
+
+                if (InputID == -1)
+                    return;
+
+                _selectedInputPort = value.FirstOrDefault(param => param.ID == InputID);
+                if (_selectedInputPort == null)
+                    return;
+                NotifyPropertyChanged(nameof(SelectedInputPort));
             }
         }
 
@@ -871,6 +880,9 @@ namespace TAS.Client.ViewModels
                     case nameof(IEvent.Prior):
                     case nameof(IEvent.Parent):
                         NotifyPropertyChanged(nameof(BoundEventName));
+                        break;
+                    case nameof(IEvent.InputID):
+                        NotifyPropertyChanged(nameof(InputID));
                         break;
                     case nameof(IEvent.CurrentUserRights):
                         InvalidateRequerySuggested();

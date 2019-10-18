@@ -21,9 +21,12 @@ namespace TAS.Server.Router
         private RouterDevice _device;
         private IEnumerable<RouterPort> _inputPorts;
         private IEnumerable<RouterPort> _outputPorts;        
-        private SemaphoreSlim _semaphoreInputList = new SemaphoreSlim(0);
-       
-        public event EventHandler<RouterEventArgs> OnInputPortChangeReceived;
+        private SemaphoreSlim _semaphoreSignalPresence = new SemaphoreSlim(0);
+        private CancellationTokenSource cTokenSourceSignalPresence = new CancellationTokenSource();
+                
+        public event EventHandler<RouterEventArgs> OnInputPortChange;
+        public event EventHandler<RouterEventArgs> OnInputSignalPresenceListReceived;
+        public event EventHandler<RouterEventArgs> OnInputPortListChange;    
 
         #region IRouterPortState
         private int _inputID;
@@ -52,14 +55,36 @@ namespace TAS.Server.Router
         private void Init()
         {
             if (!Connect())
-                return;           
-
+                return;
+           
             _routerCommunicator.OnOutputPortsListReceived += Communicator_OnOutputPortsListReceived;
             _routerCommunicator.OnInputPortsListReceived += Communicator_OnInputPortsListReceived;
             _routerCommunicator.OnInputPortChangeReceived += Communicator_OnInputPortChangeReceived;
+            _routerCommunicator.OnInputSignalPresenceListReceived += Communicator_OnInputSignalPresenceListReceived;
                                
             _routerCommunicator.RequestOutputPorts();                        
-        }        
+        }
+
+        private void Communicator_OnOutputPortsListReceived(object sender, RouterEventArgs e)
+        {
+            _outputPorts = e.RouterPorts.Where(param => _device.OutputPorts.Contains(param.ID));
+        }
+
+        private void KeepUpdatingSignalPresence()
+        {
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    if (cTokenSourceSignalPresence.IsCancellationRequested)
+                        throw new OperationCanceledException(cTokenSourceSignalPresence.Token);
+
+                    RequestSignalPresenceStates();
+                    await _semaphoreSignalPresence.WaitAsync();
+                    await Task.Delay(3000);
+                }
+            });            
+        }
 
         private bool Connect()
         {        
@@ -81,42 +106,55 @@ namespace TAS.Server.Router
                     default:
                         return false;
                 }
-                return _routerCommunicator.Connect(_device.IP, _device.Port).Result;
+                return _routerCommunicator.Connect(_device.IP, _device.Port);
             }
             catch
             {
                 return false;
             }
             
-        }       
-             
-        public bool SwitchInput(IRouterPortState inPort)
-        {
-            return _routerCommunicator.SwitchInput(new RouterPort(inPort.InputID), _outputPorts);
-        }
+        }    
 
-        public bool SwitchInput(RouterPort inPort)
+        public void RequestInputPorts()
         {
-            return _routerCommunicator.SwitchInput(inPort, _outputPorts);
-        }
-
-        public async Task<IEnumerable<RouterPort>> GetInputPorts(bool requestCurrentInput = false)
-        {
-            _inputPorts = null;
             _routerCommunicator.RequestInputPorts();
-
-            if (_inputPorts == null)
-                await _semaphoreInputList.WaitAsync();
-            
-            if (requestCurrentInput == true)
-                _routerCommunicator.RequestCurrentInputPort();
-
-            return _inputPorts;
         }
 
-        private void Communicator_OnOutputPortsListReceived(object sender, RouterEventArgs e)
-        {                       
-            _outputPorts = e.RouterPorts.Where(param => _device.OutputPorts.Contains(param.ID));            
+        private void Communicator_OnInputPortsListReceived(object sender, RouterEventArgs e)
+        {
+            if (_inputPorts == null)
+            {
+                _inputPorts = new List<RouterPort>(e.RouterPorts);
+                OnInputPortListChange?.Invoke(this, new RouterEventArgs(e.RouterPorts.ToList()));
+                Task.Run(() => KeepUpdatingSignalPresence(), cTokenSourceSignalPresence.Token);
+            }
+            else
+            {
+                foreach(var port in _inputPorts)
+                {
+                    if (e.RouterPorts.FirstOrDefault(param => param.ID == port.ID && param.Name == port.Name) != null)
+                        continue;
+                    OnInputPortListChange?.Invoke(this, new RouterEventArgs(e.RouterPorts.ToList()));
+                    break;
+                }
+            }
+            
+        }
+
+        public void RequestSignalPresenceStates()
+        {
+            _routerCommunicator.RequestSignalPresence();
+        }
+
+        private void Communicator_OnInputSignalPresenceListReceived(object sender, RouterEventArgs e)
+        {
+            OnInputSignalPresenceListReceived?.Invoke(this, new RouterEventArgs(e.RouterPorts.ToList()));
+            _semaphoreSignalPresence.Release();
+        }
+
+        public void RequestCurrentInputPort()
+        {
+            _routerCommunicator.RequestCurrentInputPort();
         }
 
         private void Communicator_OnInputPortChangeReceived(object sender, RouterEventArgs e)
@@ -126,24 +164,28 @@ namespace TAS.Server.Router
             if (changedIn == null)
                 return;
 
-            OnInputPortChangeReceived?.Invoke(this, new RouterEventArgs(e.RouterPorts));
+            OnInputPortChange?.Invoke(this, new RouterEventArgs(e.RouterPorts));
         }
 
-        private void Communicator_OnInputPortsListReceived(object sender, RouterEventArgs e)
+        public void SwitchInput(IRouterPortState inPort)
         {
-            _inputPorts = new List<RouterPort>(e.RouterPorts);
-            _semaphoreInputList.Release();            
+            _routerCommunicator.SwitchInput(new RouterPort(inPort.InputID), _outputPorts);
         }
+
+        public void SwitchInput(RouterPort inPort)
+        {
+            _routerCommunicator.SwitchInput(inPort, _outputPorts);
+        }             
 
         public void Dispose()
         {
+            cTokenSourceSignalPresence.Cancel();
             _routerCommunicator.OnInputPortsListReceived -= Communicator_OnInputPortsListReceived;
             _routerCommunicator.OnInputPortChangeReceived -= Communicator_OnInputPortChangeReceived;
             _routerCommunicator.OnInputPortChangeReceived -= Communicator_OnInputPortChangeReceived;
+            _routerCommunicator.OnInputSignalPresenceListReceived -= Communicator_OnInputSignalPresenceListReceived;
             _routerCommunicator.Dispose();
             Debug.WriteLine("Router Plugin Disposed");
-        }
-
-        
+        }        
     }
 }

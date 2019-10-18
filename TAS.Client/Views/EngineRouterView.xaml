@@ -6,24 +6,32 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TAS.Client.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="50" d:DesignWidth="250">
+             d:DesignHeight="50" d:DesignWidth="220">
     <StackPanel Orientation="Horizontal">
-        <Ellipse Margin="5,0,5,0" VerticalAlignment="Center" Width="15px" Height="{Binding Width, RelativeSource={RelativeSource Self}}">
-            <Ellipse.Style>
-                <Style TargetType="Ellipse">
-                    <Setter Property="Fill" Value="LightGray" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsInputSignalPresent}" Value="True">
-                            <Setter Property="Fill" Value="Green" />
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding IsInputSignalPresent}" Value="False">
-                            <Setter Property="Fill" Value="Red" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Ellipse.Style>
-        </Ellipse>
         <TextBlock Margin="5" Text="{Resx _inputSource}" VerticalAlignment="Center" />
-        <ComboBox DisplayMemberPath="Name" MinWidth="100" ItemsSource="{Binding InputPorts}" VerticalAlignment="Center" SelectedItem="{Binding SelectedInputPort}" />
+        <ComboBox Margin="0,0,5,0" MinWidth="100" ItemsSource="{Binding InputPorts}" VerticalAlignment="Center" SelectedItem="{Binding SelectedInputPort}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Margin="5,0,5,0" VerticalAlignment="Center" Width="15px" Height="{Binding Width, RelativeSource={RelativeSource Self}}">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Fill" Value="LightGray" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSignalPresent}" Value="True">
+                                            <Setter Property="Fill" Value="Green" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsSignalPresent}" Value="False">
+                                            <Setter Property="Fill" Value="Red" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                    </StackPanel>   
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
     </StackPanel>
 </UserControl>

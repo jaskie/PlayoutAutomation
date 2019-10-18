@@ -7,10 +7,15 @@ namespace TAS.Common.Interfaces
 {
     public interface IRouter : IDisposable
     {       
-        Task<IEnumerable<RouterPort>> GetInputPorts(bool requestCurrentInput = false);
-        bool SwitchInput(IRouterPortState events);
-        bool SwitchInput(RouterPort inPort);
+        void SwitchInput(IRouterPortState events);
+        void SwitchInput(RouterPort inPort);
+
+        void RequestInputPorts();
+        void RequestSignalPresenceStates();
+        void RequestCurrentInputPort();
         
-        event EventHandler<RouterEventArgs> OnInputPortChangeReceived;        
+        event EventHandler<RouterEventArgs> OnInputPortChange; 
+        event EventHandler<RouterEventArgs> OnInputSignalPresenceListReceived;
+        event EventHandler<RouterEventArgs> OnInputPortListChange;
     }
 }

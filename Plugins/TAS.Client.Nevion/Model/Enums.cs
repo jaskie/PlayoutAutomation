@@ -23,7 +23,8 @@ namespace TAS.Server.Router.Model
             Input,
             Output,
             CrosspointChange,
-            CrosspointStatus
+            CrosspointStatus,
+            SignalPresence
         }
     }
 }

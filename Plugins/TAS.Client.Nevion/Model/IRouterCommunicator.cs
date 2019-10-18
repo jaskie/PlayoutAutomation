@@ -7,16 +7,17 @@ namespace TAS.Server.Router.Model
 {
     public interface IRouterCommunicator : IDisposable
     {
-        Task<bool> Connect(string ip, int port);       
-        bool SwitchInput(RouterPort inPort, IEnumerable<RouterPort> outPorts);
+        bool Connect(string ip, int port);       
+        void SwitchInput(RouterPort inPort, IEnumerable<RouterPort> outPorts);
         
-        bool RequestInputPorts();
-        bool RequestOutputPorts();
-
-        bool RequestCurrentInputPort();
+        void RequestInputPorts();
+        void RequestOutputPorts();
+        void RequestSignalPresence();
+        void RequestCurrentInputPort();
 
         event EventHandler<RouterEventArgs> OnInputPortsListReceived;
         event EventHandler<RouterEventArgs> OnInputPortChangeReceived;
+        event EventHandler<RouterEventArgs> OnInputSignalPresenceListReceived;
 
         event EventHandler<RouterEventArgs> OnOutputPortsListReceived;
         event EventHandler<RouterEventArgs> OnOutputPortChangeReceived;

@@ -10,10 +10,11 @@ namespace TAS.Server.Router.RouterCommunicators
     {
         public event EventHandler<RouterEventArgs> OnInputPortsListReceived;
         public event EventHandler<RouterEventArgs> OnInputPortChangeReceived;
+        public event EventHandler<RouterEventArgs> OnInputSignalPresenceListReceived;
         public event EventHandler<RouterEventArgs> OnOutputPortsListReceived;
         public event EventHandler<RouterEventArgs> OnOutputPortChangeReceived;
 
-        public Task<bool> Connect(string ip, int port)
+        public bool Connect(string ip, int port)
         {
             throw new NotImplementedException();
         }
@@ -23,22 +24,27 @@ namespace TAS.Server.Router.RouterCommunicators
             throw new NotImplementedException();
         }
 
-        public bool RequestCurrentInputPort()
+        public void RequestCurrentInputPort()
         {
             throw new NotImplementedException();
         }
 
-        public bool RequestInputPorts()
+        public void RequestInputPorts()
         {
             throw new NotImplementedException();
         }
 
-        public bool RequestOutputPorts()
+        public void RequestOutputPorts()
         {
             throw new NotImplementedException();
         }
 
-        public bool SwitchInput(RouterPort inPort, IEnumerable<RouterPort> outPorts)
+        public void RequestSignalPresence()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SwitchInput(RouterPort inPort, IEnumerable<RouterPort> outPorts)
         {
             throw new NotImplementedException();
         }

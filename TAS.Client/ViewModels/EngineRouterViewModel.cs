@@ -37,19 +37,39 @@ namespace TAS.Client.ViewModels
         public EngineRouterViewModel(IRouter router)
         {
             _router = router;
-            _router.OnInputPortChangeReceived += _router_OnInputPortChangeReceived;
-            Task.Run(() => InputPorts = new ObservableCollection<RouterPort>(_router.GetInputPorts(true).Result));
+            _router.OnInputPortListChange += _router_OnInputPortListChange;
+            _router.OnInputPortChange += _router_OnInputPortChange;            
+            _router.OnInputSignalPresenceListReceived += _router_OnInputSignalPresenceListReceived;
+
+            _router.RequestInputPorts();                                 
         }
 
-        private void _router_OnInputPortChangeReceived(object sender, RouterEventArgs e)
-        {            
+        private void _router_OnInputPortListChange(object sender, RouterEventArgs e)
+        {
+            InputPorts = new ObservableCollection<RouterPort>(e.RouterPorts);
+            _router.RequestCurrentInputPort();            
+        }
+
+        private void _router_OnInputSignalPresenceListReceived(object sender, RouterEventArgs e)
+        {
+            foreach (var port in _inputPorts)            
+                port.IsSignalPresent = e.RouterPorts.FirstOrDefault(param => param.ID == port.ID).IsSignalPresent;            
+        }
+
+        private void _router_OnInputPortChange(object sender, RouterEventArgs e)
+        {
+            if (_selectedInputPort?.ID == e.RouterPorts.FirstOrDefault().ID)
+                return;
+
             _selectedInputPort = InputPorts.FirstOrDefault(param=>param.ID == e.RouterPorts.FirstOrDefault().ID);
             NotifyPropertyChanged(nameof(SelectedInputPort));
         }
 
         protected override void OnDispose()
         {
-            
+            _router.OnInputPortListChange -= _router_OnInputPortListChange;
+            _router.OnInputPortChange -= _router_OnInputPortChange;
+            _router.OnInputSignalPresenceListReceived -= _router_OnInputSignalPresenceListReceived;
         }
     }
 }
