@@ -929,7 +929,9 @@ namespace TAS.Server
 
         public MediaDeleteResult CheckCanDeleteMedia(IServerMedia media)
         {
-            Event nev = this;
+            if (EventType == TEventType.Rundown && (PlayState == TPlayState.Played || EndTime < DateTime.Now))
+                return MediaDeleteResult.NoDeny;
+            var nev = this;
             while (nev != null)
             {
                 if (nev.EventType == TEventType.Movie
@@ -938,9 +940,9 @@ namespace TAS.Server
                     return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InSchedule, Event = nev, Media = media };
                 lock (nev._subEvents)
                 {
-                    foreach (Event se in nev._subEvents.Value.ToList())
+                    foreach (var se in nev._subEvents.Value.ToList())
                     {
-                        MediaDeleteResult reason = se.CheckCanDeleteMedia(media);
+                        var reason = se.CheckCanDeleteMedia(media);
                         if (reason.Result != MediaDeleteResult.MediaDeleteResultEnum.Success)
                             return reason;
                     }
