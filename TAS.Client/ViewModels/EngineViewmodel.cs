@@ -28,7 +28,7 @@ namespace TAS.Client.ViewModels
         private readonly IUiPlugin[] _plugins;
         private EventEditViewmodel _selectedEventEditViewmodel;
         private IEvent _selectedEvent;
-        
+
         private MediaSearchViewmodel _mediaSearchViewModel;
         private readonly ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
         private readonly ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
@@ -56,7 +56,7 @@ namespace TAS.Client.ViewModels
             if (preview != null && engine.HaveRight(EngineRight.Preview))
                 PreviewViewmodel = new PreviewViewmodel(engine, preview) { IsSegmentsVisible = true };
 
-            
+
             _multiSelectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
             _multiSelectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged += _engineViewmodel_ClipboardChanged;
@@ -115,6 +115,7 @@ namespace TAS.Client.ViewModels
             CommandToggleHold = new UiCommand(_toggleHold);
             CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
             CommandFocusEventName = new UiCommand(_focusEventName, o => IsPropertiesPanelVisible && SelectedEventEditViewmodel != null);
+            CommandFocusRundown = new UiCommand(_focusRundown);
 
             CommandSearchDo = new UiCommand(_search, _canSearch);
             CommandSearchShowPanel = new UiCommand(_showSearchPanel);
@@ -130,6 +131,11 @@ namespace TAS.Client.ViewModels
 
             CommandEngineRights = new UiCommand(_engineRights, _canEngineRights);
 
+        }
+
+        private void _focusRundown(object obj)
+        {
+            Focus();
         }
 
         private void _focusEventName(object obj)
@@ -204,6 +210,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandEngineRights { get; }
         public ICommand CommandTogglePropertiesPanel { get; }
         public ICommand CommandFocusEventName { get; }
+        public ICommand CommandFocusRundown { get; }
 
         #region PreviewCommands
 
@@ -297,12 +304,17 @@ namespace TAS.Client.ViewModels
 
         private void _undoEdit(object obj)
         {
-            SelectedEventEditViewmodel?.UndoEdit();
+            if (SelectedEventEditViewmodel == null)
+                return;
+            if (SelectedEventEditViewmodel.IsModified)
+                SelectedEventEditViewmodel.UndoEdit();
         }
 
         private void _saveEdit(object obj)
         {
-            if (SelectedEventEditViewmodel?.IsValid == true)
+            if (SelectedEventEditViewmodel == null) 
+                return;
+            if (SelectedEventEditViewmodel.CanSave)
                 SelectedEventEditViewmodel.Save();
         }
 
@@ -747,7 +759,7 @@ namespace TAS.Client.ViewModels
         /// Used to determine if it should be selected when it's viewmodel is created
         /// </summary>
         public IEvent LastAddedEvent { get; private set; }
-        
+
         #endregion // MediaSearch
 
         #region Search panel
@@ -772,6 +784,8 @@ namespace TAS.Client.ViewModels
         public bool IsSearchNotFound { get => _isSearchNotFound; set => SetField(ref _isSearchNotFound, value); }
 
         private string _searchText;
+        private bool _isRundownFocused;
+
         public string SearchText
         {
             get => _searchText;

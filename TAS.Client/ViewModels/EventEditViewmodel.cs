@@ -56,7 +56,7 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel = new EventRightsEditViewmodel(@event, engineViewModel.Engine.AuthenticationService);
                 EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
-            CommandSaveEdit = new UiCommand(o => Save(), _canSave);
+            CommandSaveEdit = new UiCommand(o => Save(), o => CanSave);
             CommandUndoEdit = new UiCommand(o => UndoEdit(), o => IsModified);
             CommandChangeMovie = new UiCommand(_changeMovie, _canChangeMovie);
             CommandEditMovie = new UiCommand(_editMovie, _canEditMovie);
@@ -693,12 +693,7 @@ namespace TAS.Client.ViewModels
             return !_isVolumeChecking && _canChangeMovie(o);
         }
 
-        private bool _canSave(object o)
-        {
-            return IsModified
-                   && IsValid
-                   && Model.HaveRight(EventRight.Modify);
-        }
+        public bool CanSave => IsModified && IsValid && Model.HaveRight(EventRight.Modify);
 
         private void _setCGElements(IMedia media)
         {
