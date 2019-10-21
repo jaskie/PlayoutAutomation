@@ -70,6 +70,10 @@
       <Project>{9ACA6AE7-49ED-4599-91AC-927680CF9623}</Project>
       <Name>TAS.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\TAS.Remoting\TAS.Remoting.csproj">
+      <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
+      <Name>TAS.Remoting</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

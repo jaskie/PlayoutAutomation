@@ -43,7 +43,7 @@ namespace TAS.Common.Interfaces
         event EventHandler<EventPositionEventArgs> PositionChanged;
     }
 
-    public interface IEventProperties : ICGElementsState, IRouterPortState
+    public interface IEventProperties : ICGElementsState
     {
         double? AudioVolume { get; set; }
         TimeSpan Duration { get; set; }
@@ -54,6 +54,7 @@ namespace TAS.Common.Interfaces
         bool IsLoop { get; set; }
         string IdAux { get; set; } // auxiliary Id for external systems
         ulong IdProgramme { get; set; }
+        int RouterPort { get; set; }
         VideoLayer Layer { get; set; }
         TimeSpan? RequestedStartTime { get; set; } // informational only: when it should run according to schedule. Usefull when adding or removing previous events
         TimeSpan ScheduledDelay { get; set; }
@@ -69,5 +70,4 @@ namespace TAS.Common.Interfaces
         AutoStartFlags AutoStartFlags { get; set; }
         Guid MediaGuid { get; set; }
     }
-
 }

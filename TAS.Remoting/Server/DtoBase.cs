@@ -52,7 +52,7 @@ namespace TAS.Remoting.Server
 
         public event EventHandler Disposed;
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (Interlocked.Exchange(ref _disposed, 1) != default(int))
                 return;
@@ -67,7 +67,7 @@ namespace TAS.Remoting.Server
             
         }
 
-        protected virtual void NotifyPropertyChanged(string propertyName)
+        protected virtual void NotifyPropertyChanged([CallerMemberName]string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

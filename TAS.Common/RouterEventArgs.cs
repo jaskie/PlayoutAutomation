@@ -10,6 +10,7 @@ namespace TAS.Common
     {
         public IList<RouterPort> RouterPorts { get; }
         public string Response { get; }
+        public bool IsConnected { get; }
 
         public RouterEventArgs(IList<RouterPort> routerPorts)
         {
@@ -19,6 +20,11 @@ namespace TAS.Common
         public RouterEventArgs(string response)
         {
             Response = response;
+        }
+
+        public RouterEventArgs(bool isConnected)
+        {
+            IsConnected = isConnected;
         }
     }
 }

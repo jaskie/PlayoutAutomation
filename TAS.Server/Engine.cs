@@ -780,7 +780,7 @@ namespace TAS.Server
             IDictionary<string, string> fields = null,
             TemplateMethod method = TemplateMethod.Add,
             int templateLayer = 10,
-            int inputID = -1
+            short routerPort = -1
         )
         {
             if (idRundownEvent != 0
@@ -795,7 +795,7 @@ namespace TAS.Server
                     result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, startType, playState, scheduledDelay, eventName, startTime, isEnabled, command);
                     break;
                 default:
-                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
+                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental, routerPort);
                     break;
             }
             if (idRundownEvent != 0)
@@ -1113,7 +1113,7 @@ namespace TAS.Server
             var eventType = aEvent.EventType;
 
             if (eventType == TEventType.Live)
-                Router?.SwitchInput(aEvent);
+                Router?.SelectInput(aEvent.RouterPort);
 
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
@@ -1150,7 +1150,7 @@ namespace TAS.Server
                 _playoutChannelSEC?.LoadNext(aEvent);
 
                 if (eventType == TEventType.Live && _playing.EventType != TEventType.Live)
-                    Router?.SwitchInput(aEvent);
+                    Router?.SelectInput(aEvent.RouterPort);
 
                 if (!aEvent.IsHold
                     && CGElementsController?.IsConnected == true
@@ -1205,7 +1205,7 @@ namespace TAS.Server
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
                 if (eventType == TEventType.Live && _playing.EventType == TEventType.Live)
-                    Router?.SwitchInput(aEvent);
+                    Router?.SelectInput(aEvent.RouterPort);
 
                 _playoutChannelPRI?.Play(aEvent);
                 _playoutChannelSEC?.Play(aEvent);

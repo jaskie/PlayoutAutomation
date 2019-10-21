@@ -847,7 +847,7 @@ namespace TAS.Database.MySqlRedundant
                 flags.Parental(),
                 flags.AutoStartFlags(),
                 dataReader.GetString("Commands"), 
-                inputID: dataReader.IsDBNull(dataReader.GetOrdinal("RouterPort")) ? -1 : dataReader.GetUInt16("RouterPort")
+                RouterPort: dataReader.IsDBNull(dataReader.GetOrdinal("RouterPort")) ? (short)-1 : dataReader.GetInt16("RouterPort")
                 );
             return newEvent;
         }
@@ -899,10 +899,10 @@ namespace TAS.Database.MySqlRedundant
             else
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent.AudioVolume);
             cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
-            if (aEvent.InputID == -1)
+            if (aEvent.RouterPort == -1)
                 cmd.Parameters.AddWithValue("@RouterPort", DBNull.Value);
             else
-                cmd.Parameters.AddWithValue("@RouterPort", aEvent.InputID);
+                cmd.Parameters.AddWithValue("@RouterPort", aEvent.RouterPort);
             var command = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript
                 ? (object)((ICommandScript) aEvent).Command
                 : DBNull.Value;

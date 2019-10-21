@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TAS.Server.Router.Model;
 using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server.Router.RouterCommunicators
 {
     class BlackmagicSVHCommunicator : IRouterCommunicator
     {
-        public event EventHandler<RouterEventArgs> OnInputPortsListReceived;
-        public event EventHandler<RouterEventArgs> OnInputPortChangeReceived;
-        public event EventHandler<RouterEventArgs> OnInputSignalPresenceListReceived;
-        public event EventHandler<RouterEventArgs> OnOutputPortsListReceived;
-        public event EventHandler<RouterEventArgs> OnOutputPortChangeReceived;
+        public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputPortsListReceived;
+        public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputPortChangeReceived;
+        public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputSignalPresenceListReceived;
+        public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
+        public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnOutputPortsListReceived;
 
         public bool Connect(string ip, int port)
         {
@@ -44,7 +45,7 @@ namespace TAS.Server.Router.RouterCommunicators
             throw new NotImplementedException();
         }
 
-        public void SwitchInput(RouterPort inPort, IEnumerable<RouterPort> outPorts)
+        public void SelectInput(int inPort, IEnumerable<IRouterPort> outPorts)
         {
             throw new NotImplementedException();
         }

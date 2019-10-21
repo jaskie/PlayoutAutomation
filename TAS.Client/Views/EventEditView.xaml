@@ -240,7 +240,7 @@
                         </StackPanel>
                         <StackPanel DockPanel.Dock="Top" Visibility="{Binding IsLive, Converter={StaticResource BoolToVis}}" Orientation="Horizontal">
                             <TextBlock Margin="5" Text="{Resx _inputPort}" />
-                            <ComboBox ItemsSource="{Binding InputPorts}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedInputPort}" />
+                            <ComboBox ItemsSource="{Binding InputPorts}" DisplayMemberPath="PortName" SelectedItem="{Binding SelectedInputPort}" />
                         </StackPanel>
                         <Grid DockPanel.Dock="Top" Visibility="{Binding IsStillImage, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>

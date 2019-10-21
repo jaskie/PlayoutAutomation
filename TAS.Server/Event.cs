@@ -36,7 +36,8 @@ namespace TAS.Server
         private byte _crawl;
         private byte _logo;
         private byte _parental;
-        private int _inputID = -1;
+        private int _routerPort = -1;
+        
         private double? _audioVolume;
         private TimeSpan _duration;
         private bool _isEnabled;
@@ -95,7 +96,8 @@ namespace TAS.Server
                     bool isCGEnabled,
                     byte crawl,
                     byte logo,
-                    byte parental)
+                    byte parental,
+                    short routerPort)
         {
             _engine = engine;
             _rundownSync = engine.RundownSync;
@@ -174,7 +176,7 @@ namespace TAS.Server
                 rights.ForEach(r => ((EventAclRight)r).Saved += AclEvent_Saved);
                 return rights;
             });
-
+            _routerPort = routerPort;
 
         FieldLengths = EngineController.Database.EventFieldLengths;
         }
@@ -227,7 +229,8 @@ namespace TAS.Server
             }
         }
 
-        string _eventName;
+        string _eventName;        
+
         [JsonProperty]
         public string EventName
         {
@@ -625,16 +628,15 @@ namespace TAS.Server
             get => _parental;
             set => SetField(ref _parental, value);
         }
-
+                     
         [JsonProperty]
-        public int InputID
+        public int RouterPort
         {
-            get => _inputID;
-            set => SetField(ref _inputID, value);
-        }
+            get => _routerPort;
+            set => SetField(ref _routerPort, value);
+        }       
 
         public event EventHandler<EventPositionEventArgs> PositionChanged;
-
         public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
 
         public void Remove()

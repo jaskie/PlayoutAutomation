@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server.Router.Model
 {
     public interface IRouterCommunicator : IDisposable
     {
         bool Connect(string ip, int port);       
-        void SwitchInput(RouterPort inPort, IEnumerable<RouterPort> outPorts);
+        void SelectInput(int inPort, IEnumerable<IRouterPort> outPorts);
         
         void RequestInputPorts();
         void RequestOutputPorts();
         void RequestSignalPresence();
         void RequestCurrentInputPort();
 
-        event EventHandler<RouterEventArgs> OnInputPortsListReceived;
-        event EventHandler<RouterEventArgs> OnInputPortChangeReceived;
-        event EventHandler<RouterEventArgs> OnInputSignalPresenceListReceived;
+        event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputPortsListReceived;
+        event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputPortChangeReceived;
+        event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputSignalPresenceListReceived;
 
-        event EventHandler<RouterEventArgs> OnOutputPortsListReceived;
-        event EventHandler<RouterEventArgs> OnOutputPortChangeReceived;
+        event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
+
+        event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnOutputPortsListReceived;      
     }
 }

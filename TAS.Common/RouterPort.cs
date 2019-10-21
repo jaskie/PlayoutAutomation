@@ -5,10 +5,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using TAS.Common.Interfaces;
 
 namespace TAS.Common
 {
-    public class RouterPort : INotifyPropertyChanged
+    public class RouterPort : IRouterPort
     {
         public RouterPort()
         {
@@ -17,53 +18,53 @@ namespace TAS.Common
 
         public RouterPort(int id)
         {
-            _id = id;          
+            _portID = id;          
         }
 
         public RouterPort(int id, string name)
         {
-            _id = id;
-            _name = name;
+            _portID = id;
+            _portName = name;
         }
 
         public RouterPort(int id, bool isSignalPresent)
         {
-            _id = id;            
-            _isSignalPresent = isSignalPresent;
+            _portID = id;            
+            _portIsSignalPresent = isSignalPresent;
         }
 
-        private int _id;
-        public int ID { 
-            get => _id; 
+        private int _portID;
+        public int PortID { 
+            get => _portID; 
             set 
             {
-                if (value == _id)
+                if (value == _portID)
                     return;
-                _id = value;
+                _portID = value;
                 NotifyPropertyChanged();
             }
         }
 
-        private string _name;
-        public string Name {
-            get => _name;
+        private string _portName;
+        public string PortName {
+            get => _portName;
             set
             {
-                if (value == _name)
+                if (value == _portName)
                     return;
-                _name = value;
+                _portName = value;
                 NotifyPropertyChanged();
             }
         }
 
-        private bool? _isSignalPresent;
-        public bool? IsSignalPresent {
-            get => _isSignalPresent;
+        private bool? _portIsSignalPresent;
+        public bool? PortIsSignalPresent {
+            get => _portIsSignalPresent;
             set
             {
-                if (value == _isSignalPresent)
+                if (value == _portIsSignalPresent)
                     return;
-                _isSignalPresent = value;
+                _portIsSignalPresent = value;
                 NotifyPropertyChanged();
             }
         }

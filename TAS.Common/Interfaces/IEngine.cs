@@ -58,7 +58,7 @@ namespace TAS.Common.Interfaces
             IDictionary<string, string> fields = null,
             TemplateMethod method = TemplateMethod.Add,
             int templateLayer = 10,
-            int inputID = -1
+            short RouterPort = -1
         );
 
         void Load(IEvent aEvent);

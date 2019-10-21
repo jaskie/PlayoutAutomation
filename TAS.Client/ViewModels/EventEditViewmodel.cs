@@ -40,9 +40,8 @@ namespace TAS.Client.ViewModels
         private TimeSpan _duration;
         private TimeSpan _scheduledDelay;
         private sbyte _layer;
-        private IRouter _router;
-        private ObservableCollection<RouterPort> _inputPorts;
-        private RouterPort _selectedInputPort;
+        private IRouter _router;       
+        private IRouterPort _selectedInputPort;
 
 
         public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
@@ -61,14 +60,10 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
             _router = engineViewModel.Router;           
-            InputPorts = engineViewModel.EngineRouterViewModel?.InputPorts;
-
-            if (_isInputIDSet)
-            {
-                _selectedInputPort = InputPorts?.FirstOrDefault(param => param.ID == _inputID);
-                NotifyPropertyChanged(nameof(SelectedInputPort));
-            }
-                
+                        
+            _selectedInputPort = InputPorts?.FirstOrDefault(param => param.PortID == _routerPort);
+            if (_selectedInputPort != null)
+                NotifyPropertyChanged(nameof(SelectedInputPort));                            
 
             CommandSaveEdit = new UiCommand(o => Save(), _canSave);
             CommandUndoEdit = new UiCommand(o => UndoEdit(), o => IsModified);
@@ -545,47 +540,39 @@ namespace TAS.Client.ViewModels
 
         public TVideoFormat VideoFormat => _engineViewModel.VideoFormat;
 
-        #region IRouterPortState
-        private int _inputID = -1;
-        private bool _isInputIDSet;
+        #region IRouterPort
+        private int _routerPort = -1;       
 
-        public int InputID
+        public int RouterPort
         {
-            get => _inputID;
-            set
-            {
-                SetField(ref _inputID, value);
-                _isInputIDSet = true;
-            }
+            get => _routerPort;
+            set => SetField(ref _routerPort, value);
         }
         #endregion
-        
-        public ObservableCollection<RouterPort> InputPorts
+
+        public IList<IRouterPort> InputPorts
         {
-            get => _inputPorts;
+            get => _router.InputPorts;
             set
             {
-                SetField(ref _inputPorts, value);                
-                IsModified = false;
-
-                if (InputID == -1)
+                if (RouterPort == -1)
                     return;
 
-                _selectedInputPort = value.FirstOrDefault(param => param.ID == InputID);
+                _selectedInputPort = InputPorts.FirstOrDefault(param => param.PortID == RouterPort);
                 if (_selectedInputPort == null)
                     return;
                 NotifyPropertyChanged(nameof(SelectedInputPort));
             }
         }
 
-        public RouterPort SelectedInputPort
+        public IRouterPort SelectedInputPort
         {
             get => _selectedInputPort;
             set
             {
                 if (!SetField(ref _selectedInputPort, value))
                     return;
-                InputID = value.ID;
+                RouterPort = value.PortID;
             }
         }
 
@@ -881,8 +868,8 @@ namespace TAS.Client.ViewModels
                     case nameof(IEvent.Parent):
                         NotifyPropertyChanged(nameof(BoundEventName));
                         break;
-                    case nameof(IEvent.InputID):
-                        NotifyPropertyChanged(nameof(InputID));
+                    case nameof(IEvent.RouterPort):
+                        NotifyPropertyChanged(nameof(RouterPort));
                         break;
                     case nameof(IEvent.CurrentUserRights):
                         InvalidateRequerySuggested();
