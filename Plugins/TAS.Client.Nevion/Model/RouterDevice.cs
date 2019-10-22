@@ -15,6 +15,8 @@ namespace TAS.Server.Router.Model
         public int Port { get; set; }
         public Enums.Router Type { get; set; }
         public int Level { get; set; }
+        public string Login { get; set; }
+        public string Password { get; set; }
         [XmlArray("OutputPorts")]
         [XmlArrayItem("OutputPort")]
         public List<int> OutputPorts { get; set; }

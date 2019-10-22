@@ -120,4 +120,7 @@
   <data name="_inputSource" xml:space="preserve">
     <value>Input Source:</value>
   </data>
+  <data name="_routerDisconnected" xml:space="preserve">
+    <value>Router disconnected</value>
+  </data>
 </root>

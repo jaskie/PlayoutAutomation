@@ -39,8 +39,7 @@ namespace TAS.Client.ViewModels
         private TimeSpan? _requestedStartTime;
         private TimeSpan _duration;
         private TimeSpan _scheduledDelay;
-        private sbyte _layer;
-        private IRouter _router;       
+        private sbyte _layer;             
         private IRouterPort _selectedInputPort;
 
 
@@ -59,8 +58,8 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel = new EventRightsEditViewmodel(@event, engineViewModel.Engine.AuthenticationService);
                 EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
-            _router = engineViewModel.Router;           
-                        
+            Router = engineViewModel.Router;
+            Router.PropertyChanged += Router_PropertyChanged;    
             _selectedInputPort = InputPorts?.FirstOrDefault(param => param.PortID == _routerPort);
             if (_selectedInputPort != null)
                 NotifyPropertyChanged(nameof(SelectedInputPort));                            
@@ -104,6 +103,22 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        private void Router_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch(e.PropertyName)
+            {
+                case nameof(IRouter.InputPorts):
+                    {
+                        NotifyPropertyChanged(nameof(InputPorts));
+
+                        _selectedInputPort = InputPorts?.FirstOrDefault(param => param.PortID == _routerPort);
+                        if (_selectedInputPort != null)
+                            NotifyPropertyChanged(nameof(SelectedInputPort));
+                        break;
+                    }
+            }
+        }
+
         public void Save()
         {
             Update();
@@ -135,6 +150,8 @@ namespace TAS.Client.ViewModels
         public ICommand CommandDelete { get; }
 
         public string Error => null;
+
+        public IRouter Router { get; private set; }
 
         public string this[string propertyName]
         {
@@ -552,17 +569,19 @@ namespace TAS.Client.ViewModels
 
         public IList<IRouterPort> InputPorts
         {
-            get => _router.InputPorts;
-            set
-            {
-                if (RouterPort == -1)
-                    return;
+            get => Router?.InputPorts;
+            //set
+            //{
+            //    NotifyPropertyChanged(nameof(InputPorts));
 
-                _selectedInputPort = InputPorts.FirstOrDefault(param => param.PortID == RouterPort);
-                if (_selectedInputPort == null)
-                    return;
-                NotifyPropertyChanged(nameof(SelectedInputPort));
-            }
+            //    if (RouterPort == -1)
+            //        return;
+                
+            //    _selectedInputPort = InputPorts?.FirstOrDefault(param => param.PortID == RouterPort);
+            //    if (_selectedInputPort == null)
+            //        return;
+            //    NotifyPropertyChanged(nameof(SelectedInputPort));
+            //}
         }
 
         public IRouterPort SelectedInputPort
@@ -870,7 +889,7 @@ namespace TAS.Client.ViewModels
                         break;
                     case nameof(IEvent.RouterPort):
                         NotifyPropertyChanged(nameof(RouterPort));
-                        break;
+                        break;                    
                     case nameof(IEvent.CurrentUserRights):
                         InvalidateRequerySuggested();
                         break;

@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\DataStore.cs" />
+    <Compile Include="Model\Crosspoint.cs" />
     <Compile Include="Model\RouterDevice.cs" />
     <Compile Include="Model\Enums.cs" />
     <Compile Include="Model\IRouterCommunicator.cs" />

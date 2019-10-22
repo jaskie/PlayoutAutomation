@@ -12,38 +12,38 @@ namespace TAS.Client.ViewModels
 {
     public class EngineRouterViewModel : ViewModelBase
     {               
-        public IList<IRouterPort> InputPorts { get => _router.InputPorts; }
+        public IList<IRouterPort> InputPorts { get => Router.InputPorts; }
         
-        public IRouterPort SelectedInputPort { get => _router.SelectedInputPort; 
+        public IRouterPort SelectedInputPort { get => Router.SelectedInputPort; 
             set 
             {
                 if (SelectedInputPort == value)
                     return;
 
                 if (value != null)
-                    _router.SelectInput(value.PortID); 
+                    Router.SelectInput(value.PortID); 
             } 
         }
 
-        private IRouter _router;
+        public IRouter Router { get; private set; }
 
         public EngineRouterViewModel(IRouter router)
         {
-            _router = router;
-            _router.PropertyChanged += _router_PropertyChanged;
+            Router = router;
+            Router.PropertyChanged += _router_PropertyChanged;
         }
 
         private void _router_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch(e.PropertyName)
             {
-                case nameof(_router.InputPorts):
+                case nameof(Router.InputPorts):
                     {
                         NotifyPropertyChanged(nameof(InputPorts));
                         break;
                     }
 
-                case nameof(_router.SelectedInputPort):
+                case nameof(Router.SelectedInputPort):
                     {
                         NotifyPropertyChanged(nameof(SelectedInputPort));
                         break;

@@ -7,17 +7,17 @@ namespace TAS.Server.Router.Model
 {
     public interface IRouterCommunicator : IDisposable
     {
-        bool Connect(string ip, int port);       
-        void SelectInput(int inPort, IEnumerable<IRouterPort> outPorts);
+        bool Connect();       
+        void SelectInput(int inPort);
         
         void RequestInputPorts();
         void RequestOutputPorts();
-        void RequestSignalPresence();
-        void RequestCurrentInputPort();
+        void RequestRouterState();
+        void RequestCurrentInputPort();       
 
         event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputPortsListReceived;
-        event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputPortChangeReceived;
-        event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputSignalPresenceListReceived;
+        event EventHandler<EventArgs<IEnumerable<Crosspoint>>> OnInputPortChangeReceived;
+        event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnRouterStateReceived;
 
         event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
 

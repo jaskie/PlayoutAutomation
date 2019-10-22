@@ -342,7 +342,7 @@
             </StatusBar.Resources>
             <StatusBarItem>
                 <StackPanel Orientation="Horizontal" >
-                    <ContentControl Content="{Binding EngineRouterViewModel}">
+                    <ContentControl Content="{Binding EngineRouterViewModel}" Visibility="{Binding Router, Converter={StaticResource NullToVis}}">
                         <ContentControl.Resources>
                             <DataTemplate DataType="{x:Type vievmodels:EngineRouterViewModel}">
                                 <views:EngineRouterView />

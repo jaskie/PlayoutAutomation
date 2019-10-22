@@ -35,18 +35,18 @@ namespace TAS.Server.Router.RouterCommunicators
 
         private NetworkStream _stream;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private RouterDevice Device;
+        private RouterDevice _device;
         
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
         private SemaphoreSlim _requestHandlerSemaphore = new SemaphoreSlim(0);
 
-        public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputSignalPresenceListReceived;
+        public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnRouterStateReceived;
 
         public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputPortsListReceived;
         public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnOutputPortsListReceived;
 
         public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
-        public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputPortChangeReceived;       
+        public event EventHandler<EventArgs<IEnumerable<Crosspoint>>> OnInputPortChangeReceived;       
 
         private event EventHandler<RouterEventArgs> OnResponseReceived;
 
@@ -54,14 +54,14 @@ namespace TAS.Server.Router.RouterCommunicators
         private bool CurrentInputPortRequested;
         private bool InputSignalPresenceRequested;
         private bool OutputPortsListRequested;
+        private bool LoginRequested;
 
         private readonly object _responseLock = new object();
         private string Response;
 
         public NevionCommunicator(RouterDevice device)
         {
-            Device = device;   
-            
+            _device = device;               
             OnResponseReceived += NevionCommunicator_OnResponseReceived;
         }
 
@@ -71,16 +71,15 @@ namespace TAS.Server.Router.RouterCommunicators
             Response += e.Response;            
 
             while (Response.Contains("\n\n"))
-            {
-                //Debug.WriteLine($"{Response.IndexOf("\n\n")}/{Response.Length}");
+            {                
                 command = Response.Substring(0, Response.IndexOf("\n\n") + 2);
                 Response = Response.Remove(0, Response.IndexOf("\n\n") + 2);
-                //Debug.WriteLine($"[{command}]");
+                Debug.WriteLine(command);
                 ProcessCommand(command);                
             }            
         }
 
-        private void RequestsHandler()
+        private void StartRequestsHandler()
         {
             Task.Run(async() => 
             {
@@ -107,10 +106,12 @@ namespace TAS.Server.Router.RouterCommunicators
                 }
                 catch(OperationCanceledException cEx)
                 {
+                    Logger.Info("Nevion request handler canceled");
                     Debug.WriteLine("Nevion request handler canceled");
                 }
                 catch(Exception ex)
                 {
+                    Logger.Error($"Unexpected exception in Nevion request handler {ex}");
                     Debug.WriteLine($"Unexpected exception in Nevion request handler {ex}");
                 }
                 
@@ -125,18 +126,18 @@ namespace TAS.Server.Router.RouterCommunicators
                 return;
 
             Debug.WriteLine($"Processing command: {lines[0]}");
-           
+
             if (lines[0].Contains("inlist"))
                 IOListProcess(lines
                     .Skip(1)
                     .Where(param => !String.IsNullOrEmpty(param))
-                    .ToList(), 
+                    .ToList(),
                     Enums.ListType.Input);
             else if (lines[0].Contains("outlist"))
                 IOListProcess(lines
                     .Skip(1)
                     .Where(param => !String.IsNullOrEmpty(param))
-                    .ToList(), 
+                    .ToList(),
                     Enums.ListType.Output);
             else if (lines[0].Contains("si"))
                 IOListProcess(lines
@@ -150,11 +151,16 @@ namespace TAS.Server.Router.RouterCommunicators
                     .Where(param => !String.IsNullOrEmpty(param))
                     .ToList(),
                     Enums.ListType.SignalPresence);
+            else if (lines[0].Contains("login"))
+                if (lines[1].Contains("ok"))
+                    Logger.Info("Nevion login ok");
+                else
+                    Logger.Error("Nevion login incorrect");
 
             else if (lines[0].StartsWith("%"))
-                IOListProcess(lines                                       
+                IOListProcess(lines
                     .Skip(1)
-                    .Where(param=> !String.IsNullOrEmpty(param) && param != "%")
+                    .Where(param => !String.IsNullOrEmpty(param) && param != "%")
                     .ToList(),
                     Enums.ListType.CrosspointChange);
             
@@ -166,27 +172,42 @@ namespace TAS.Server.Router.RouterCommunicators
         private void IOListProcess(IList<string> listResponse, Enums.ListType listType)
         {
             IList<RouterPort> Ports = new List<RouterPort>();
+            IList<Crosspoint> Crosspoints = new List<Crosspoint>();
             RouterPort port = null;
+            Crosspoint crossPoint = null;
 
             foreach (var line in listResponse)
             {                
                 var lineParams = line.Split(' ');
                 try
-                {                    
-                    if (listType != Enums.ListType.SignalPresence)
-                    {                        
-                        port = new RouterPort(Int32.Parse(lineParams[2].Trim('\"')), lineParams[3].Trim('\"'));
-                        //Debug.WriteLine($"Port {port.PortID} added");
-                    }                      
-                    else
-                        port = new RouterPort(Int32.Parse(lineParams[2].Trim('\"')), lineParams[3].Trim('\"') == "p" ? true : false);
-
-                    Ports.Add(port);
-                    
+                {
+                    switch(listType)
+                    {
+                        case Enums.ListType.Input:
+                        case Enums.ListType.Output:
+                            {
+                                Ports.Add(new RouterPort(Int32.Parse(lineParams[2].Trim('\"')), lineParams[3].Trim('\"')));
+                                break;
+                            }
+                        case Enums.ListType.SignalPresence:
+                            {
+                                Ports.Add(new RouterPort(Int32.Parse(lineParams[2].Trim('\"')), lineParams[3].Trim('\"') == "p" ? true : false));
+                                break;
+                            }
+                        case Enums.ListType.CrosspointChange:
+                        case Enums.ListType.CrosspointStatus:
+                            {
+                                if (lineParams[0] == "x" && lineParams[1].StartsWith("l"))
+                                    Crosspoints.Add(new Crosspoint(Int32.Parse(lineParams[2].Trim('\"')), Int32.Parse(lineParams[3].Trim('\"'))));
+                                else continue;
+                                break;
+                            }
+                    }                    
                 }
                 catch (Exception ex)
                 {
-                    //Debug.WriteLine($"Failed to generate port from response. [\n{line}\n{ex.Message}]");
+                    Logger.Error($"Failed to generate port from response. [\n{line}\n{ex.Message}]");
+                    Debug.WriteLine($"Failed to generate port from response. [\n{line}\n{ex.Message}]");
                 }                
             }
             
@@ -208,50 +229,52 @@ namespace TAS.Server.Router.RouterCommunicators
 
                 case Enums.ListType.CrosspointStatus:
                     {
-                        OnInputPortChangeReceived?.Invoke(this, new EventArgs<IEnumerable<IRouterPort>>(Ports));
+                        OnInputPortChangeReceived?.Invoke(this, new EventArgs<IEnumerable<Crosspoint>>(Crosspoints));
                         CurrentInputPortRequested = false;
                         break;
                     }
                 case Enums.ListType.CrosspointChange:
                     {
-                        OnInputPortChangeReceived?.Invoke(this, new EventArgs<IEnumerable<IRouterPort>>(Ports));                        
+                        OnInputPortChangeReceived?.Invoke(this, new EventArgs<IEnumerable<Crosspoint>>(Crosspoints));                        
                         break;
                     }
 
                 case Enums.ListType.SignalPresence:
                     {
-                        OnInputSignalPresenceListReceived?.Invoke(this, new EventArgs<IEnumerable<IRouterPort>>(Ports));
+                        OnRouterStateReceived?.Invoke(this, new EventArgs<IEnumerable<IRouterPort>>(Ports));
                         InputSignalPresenceRequested = false;
                         break;
                     }
             }           
         }
 
-        public bool Connect(string ip, int port)
+        public bool Connect()
         {
             Task.Run(async() =>
             {
-                _cancellationTokenSource = new CancellationTokenSource();
+                _cancellationTokenSource = new CancellationTokenSource();               
                 while (true)
                 {
                     try
-                    {
+                    {                        
                         Debug.WriteLine("Connecting to Nevion...");
                         _tcpClient = new TcpClient();
 
-                        if (!_tcpClient.ConnectAsync(ip, port).Wait(3000))
+                        if (!_tcpClient.ConnectAsync(_device.IP, _device.Port).Wait(3000))
                             continue;
 
                         if (!_tcpClient.Connected)
                             break;
 
-                        IsConnected = true;
-                        Debug.WriteLine("Connected!");
-                        RequestsHandler();
+                        IsConnected = true;                        
+                        Debug.WriteLine("Nevion connected!");
+                        StartRequestsHandler();
 
                         _stream = _tcpClient.GetStream();
                         Listen();
+                        Logger.Info("Nevion router connected and ready!");
 
+                        Login();
                         break;
                     }
                     catch
@@ -268,14 +291,21 @@ namespace TAS.Server.Router.RouterCommunicators
             return true;
         }
 
-        public void RequestSignalPresence()
+        public void Login()
+        {
+            if (LoginRequested)
+                return;
+            LoginRequested = true;
+            AddToRequestQueue($"login {_device.Login} {_device.Password}");            
+        }
+
+        public void RequestRouterState()
         {
             if (InputSignalPresenceRequested)
                 return;
 
             InputSignalPresenceRequested = true;
-            _requestsQueue.Enqueue($"sspi l{Device.Level}");
-            _requestHandlerSemaphore.Release();
+            AddToRequestQueue($"sspi l{_device.Level}");            
         }
 
         public void RequestCurrentInputPort()
@@ -284,8 +314,7 @@ namespace TAS.Server.Router.RouterCommunicators
                 return;
 
             CurrentInputPortRequested = true;
-            _requestsQueue.Enqueue($"si l{Device.Level} {String.Join(",", Device.OutputPorts)}");
-            _requestHandlerSemaphore.Release();
+            AddToRequestQueue($"si l{_device.Level} {String.Join(",", _device.OutputPorts)}");            
         }        
 
         public void RequestInputPorts()
@@ -294,8 +323,7 @@ namespace TAS.Server.Router.RouterCommunicators
                 return;
 
             InputPortsListRequested = true;
-            _requestsQueue.Enqueue($"inlist l{Device.Level}");
-            _requestHandlerSemaphore.Release();
+            AddToRequestQueue($"inlist l{_device.Level}");            
         }
 
         public void RequestOutputPorts()
@@ -303,13 +331,17 @@ namespace TAS.Server.Router.RouterCommunicators
             if (OutputPortsListRequested)
                 return;
             OutputPortsListRequested = true;
-            _requestsQueue.Enqueue($"outlist l{Device.Level}");
-            _requestHandlerSemaphore.Release();             
+            AddToRequestQueue($"outlist l{_device.Level}");               
         }
 
-        public void SelectInput(int inPort, IEnumerable<IRouterPort> outPorts)
+        public void SelectInput(int inPort)
         {
-            _requestsQueue.Enqueue($"x l{Device.Level} {inPort} {String.Join(",", outPorts.Select(param => param.PortID.ToString()))}");
+           AddToRequestQueue($"x l{_device.Level} {inPort} {String.Join(",", _device.OutputPorts.Select(param => param.ToString()))}");            
+        }
+
+        private void AddToRequestQueue(string request)
+        {
+            _requestsQueue.Enqueue(request);
             _requestHandlerSemaphore.Release();
         }
 
@@ -351,8 +383,7 @@ namespace TAS.Server.Router.RouterCommunicators
 
                         if ((bytes = await _stream.ReadAsync(bytesReceived, 0, bytesReceived.Length, _cancellationTokenSource.Token)) != 0)
                         {
-                            response = System.Text.Encoding.ASCII.GetString(bytesReceived, 0, bytes);
-                            //Debug.Write($"[{response}]");
+                            response = System.Text.Encoding.ASCII.GetString(bytesReceived, 0, bytes);                            
                             OnResponseReceived?.Invoke(this, new RouterEventArgs(response));
                             
                             bytes = 0;
