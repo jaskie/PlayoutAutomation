@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -7,7 +8,7 @@ namespace TAS.Server.Router.Model
 {
     public interface IRouterCommunicator : IDisposable
     {
-        bool Connect();       
+        Task<bool> Connect();       
         void SelectInput(int inPort);
         
         void RequestInputPorts();

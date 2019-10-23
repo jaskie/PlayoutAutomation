@@ -248,7 +248,7 @@ namespace TAS.Server.Router.RouterCommunicators
             }           
         }
 
-        public bool Connect()
+        public async Task<bool> Connect()
         {
             Task.Run(async() =>
             {

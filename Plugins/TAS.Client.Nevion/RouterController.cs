@@ -19,6 +19,8 @@ namespace TAS.Server.Router
 
         private IRouterCommunicator _routerCommunicator;
         private RouterDevice _device;
+
+        private Task _keepAliveTask;      
         
         private IEnumerable<IRouterPort> _outputPorts;        
         private SemaphoreSlim _semaphoreRouterState = new SemaphoreSlim(0);
@@ -47,7 +49,7 @@ namespace TAS.Server.Router
                 Debug.WriteLine("Błąd deserializacji XML");
                 return;
             }
-            Task.Run(() => Init());            
+            Init();     
         }
 
         public void SelectInput(int inPort)
@@ -55,9 +57,10 @@ namespace TAS.Server.Router
             _routerCommunicator.SelectInput(inPort);
         }
 
-        private void Init()
+        private async Task Init()
         {
-            if (!Connect())
+            var isConnected = await Connect().ConfigureAwait(false);
+            if (!isConnected)
                 return;
            
             _routerCommunicator.OnOutputPortsListReceived += Communicator_OnOutputPortsListReceived;
@@ -77,7 +80,7 @@ namespace TAS.Server.Router
             InputPorts = null;
             SelectedInputPort = null;
 
-            Task.Run(() => Init());
+            Init();
         }
 
         private void Communicator_OnOutputPortsListReceived(object sender, EventArgs<IEnumerable<IRouterPort>> e)
@@ -85,23 +88,28 @@ namespace TAS.Server.Router
             _outputPorts = e.Item.Where(param => _device.OutputPorts.Contains(param.PortID));
         }
 
-        private void KeepUpdatingRouterState()
+        private async Task KeepUpdatingRouterState()
         {
-            Task.Run(async () =>
+            while (true)
             {
-                while (true)
+                try
                 {
                     if (cTokenSourceRouterState.IsCancellationRequested)
                         throw new OperationCanceledException(cTokenSourceRouterState.Token);
 
                     _routerCommunicator.RequestRouterState();
-                    await _semaphoreRouterState.WaitAsync();
+                    await _semaphoreRouterState.WaitAsync(cTokenSourceRouterState.Token);
                     await Task.Delay(3000);
                 }
-            });            
+                catch (OperationCanceledException cancelEx)
+                {
+                    Debug.WriteLine("RouterStateUpdater task canceled.");
+                    break;
+                }
+            }
         }
 
-        private bool Connect()
+        private async Task<bool> Connect()
         {        
             try
             {
@@ -121,7 +129,8 @@ namespace TAS.Server.Router
                     default:
                         return false;
                 }
-                return _routerCommunicator.Connect();
+                var isConnected = await _routerCommunicator.Connect().ConfigureAwait(false);
+                return isConnected;
             }
             catch
             {
@@ -134,8 +143,8 @@ namespace TAS.Server.Router
         {
             if (_inputPorts == null)
             {
-                InputPorts = new List<IRouterPort>(e.Item);                        
-                Task.Run(() => KeepUpdatingRouterState(), cTokenSourceRouterState.Token);
+                InputPorts = new List<IRouterPort>(e.Item);
+                _keepAliveTask = KeepUpdatingRouterState();
             }
             else
             {
@@ -155,7 +164,7 @@ namespace TAS.Server.Router
         private void Communicator_OnRouterStateReceived(object sender, EventArgs<IEnumerable<IRouterPort>> e)
         {
             foreach (var port in _inputPorts)
-                port.PortIsSignalPresent = e.Item != null ? e.Item.FirstOrDefault(param => param.PortID == port.PortID).PortIsSignalPresent : null;
+                port.PortIsSignalPresent = e.Item?.FirstOrDefault(param => param.PortID == port.PortID).PortIsSignalPresent;
 
             _semaphoreRouterState.Release();
         }
@@ -170,7 +179,7 @@ namespace TAS.Server.Router
             SelectedInputPort = InputPorts.FirstOrDefault(param => param.PortID == changedIn.InPort.PortID);
         }
 
-        public new void Dispose()
+        protected override void DoDispose()
         {
             base.Dispose();
             cTokenSourceRouterState.Cancel();
@@ -178,7 +187,9 @@ namespace TAS.Server.Router
             _routerCommunicator.OnInputPortChangeReceived -= Communicator_OnInputPortChangeReceived;
             _routerCommunicator.OnInputPortChangeReceived -= Communicator_OnInputPortChangeReceived;
             _routerCommunicator.OnRouterStateReceived -= Communicator_OnRouterStateReceived;
-            _routerCommunicator.Dispose();
+
+            _keepAliveTask?.Wait();
+            _routerCommunicator?.Dispose();
             Debug.WriteLine("Router Plugin Disposed");
         }        
     }
