@@ -8,7 +8,6 @@ using System.Security.Principal;
 using System.Threading;
 using System.Xml.Serialization;
 using NLog;
-using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Server
 {

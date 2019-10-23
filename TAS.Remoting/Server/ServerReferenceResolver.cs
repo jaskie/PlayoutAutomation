@@ -7,7 +7,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting.Server
 {
-    public class ServerReferenceResolver : IReferenceResolver, IDisposable
+    internal class ServerReferenceResolver : IReferenceResolver, IDisposable
     {
         private readonly ConcurrentDictionary<Guid, DtoBase> _knownDtos = new ConcurrentDictionary<Guid, DtoBase>();
         private int _disposed;

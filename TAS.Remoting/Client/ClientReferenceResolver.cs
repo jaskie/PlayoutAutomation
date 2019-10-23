@@ -7,7 +7,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting.Client
 {
-    public class ClientReferenceResolver : IReferenceResolver, IDisposable
+    internal class ClientReferenceResolver : IReferenceResolver, IDisposable
     {
         private readonly Dictionary<Guid, WeakReference<ProxyBase>> _knownDtos = new Dictionary<Guid, WeakReference<ProxyBase>>();
         private int _disposed;

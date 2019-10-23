@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace TAS.Remoting
 {
-    public static class MethodParametersAlignment
+    internal static class MethodParametersAlignment
     {
         public static T AlignType<T>(this JsonSerializer serializer, object input)
         {

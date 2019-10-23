@@ -7,7 +7,7 @@ using System.Diagnostics;
 namespace TAS.Remoting
 {
     [JsonObject(IsReference = false)]
-    public class PropertyChangedWithDataEventArgs : PropertyChangedEventArgs
+    internal class PropertyChangedWithDataEventArgs : PropertyChangedEventArgs
     {
         protected PropertyChangedWithDataEventArgs(string propertyName): base(propertyName) { }
 
@@ -27,7 +27,7 @@ namespace TAS.Remoting
     }
 
     [DebuggerDisplay("{PropertyName} = {Value}")]
-    public class PropertyChangedWithValueEventArgs : PropertyChangedWithDataEventArgs
+    internal class PropertyChangedWithValueEventArgs : PropertyChangedWithDataEventArgs
     {
         public PropertyChangedWithValueEventArgs(string propertyName) : base(propertyName) { }
 
@@ -37,7 +37,7 @@ namespace TAS.Remoting
     }
 
     [DebuggerDisplay("{PropertyName} = {Value}")]
-    public class PropertyChangedWithArrayEventArgs : PropertyChangedWithDataEventArgs
+    internal class PropertyChangedWithArrayEventArgs : PropertyChangedWithDataEventArgs
     {
         public PropertyChangedWithArrayEventArgs(string propertyName) : base(propertyName) { }
 

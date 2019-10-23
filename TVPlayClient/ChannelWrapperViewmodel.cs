@@ -75,7 +75,7 @@ namespace TVPlayClient
                             Binder = new ClientTypeNameBinder()
                         };
                         _client.Disconnected += ClientDisconnected;
-                        var engine = _client.GetInitalObject<Engine>();
+                        var engine = _client.GetRootObject<Engine>();
                         if (engine == null)
                         {
                             Thread.Sleep(1000);

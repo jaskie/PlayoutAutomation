@@ -2,7 +2,7 @@
 
 namespace TAS.Remoting.Client
 {
-    public class ProxyBaseEventArgs: EventArgs
+    internal class ProxyBaseEventArgs: EventArgs
     {
         public ProxyBaseEventArgs(ProxyBase proxy)
         {

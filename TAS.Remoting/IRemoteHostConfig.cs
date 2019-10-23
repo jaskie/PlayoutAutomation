@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace TAS.Common.Interfaces
+namespace TAS.Remoting
 {
     public interface IRemoteHostConfig
     {

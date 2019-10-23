@@ -5,9 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Newtonsoft.Json;
-using System.Runtime.Serialization;
-using System.Text;
 using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting.Client
@@ -34,7 +31,7 @@ namespace TAS.Remoting.Client
         
         public ISerializationBinder Binder { set => SetBinder(value); }
 
-        public T GetInitalObject<T>()
+        public T GetRootObject<T>()
         {
             try
             {
@@ -45,7 +42,7 @@ namespace TAS.Remoting.Client
             }
             catch (Exception e)
             {
-                Logger.Error(e, "From GetInitialObject:");
+                Logger.Error(e, $"From {nameof(GetRootObject)}:");
                 throw;
             }
         }
