@@ -72,7 +72,6 @@
     <Compile Include="FileUtils.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
-    <Compile Include="Interfaces\IRemoteHostConfig.cs" />
     <Compile Include="Interfaces\ISearchProvider.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaDirectory.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaSearchProvider.cs" />

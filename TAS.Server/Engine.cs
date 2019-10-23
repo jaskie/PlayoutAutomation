@@ -11,6 +11,7 @@ using System.Collections.Concurrent;
 using TAS.Remoting.Server;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -334,7 +335,7 @@ namespace TAS.Server
             if (Remote != null)
             {
                 Debug.WriteLine(this, "Initializing Remote interface");
-                Remote.Initialize(this, _authenticationService);
+                Remote.Initialize(this, address => new GenericPrincipal(_authenticationService.FindUser(AuthenticationSource.IpAddress, address.ToString()), new string[0]));
             }
 
             if (_localGpis != null)

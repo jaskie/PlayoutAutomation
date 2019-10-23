@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Principal;
 using System.Threading;
 using System.Xml.Serialization;
 using NLog;
 using TAS.Common.Interfaces;
-using TAS.Common.Interfaces.Security;
 
 namespace TAS.Remoting.Server
 {
@@ -18,19 +18,19 @@ namespace TAS.Remoting.Server
         private TcpListener _listener;
         private Thread _listenerThread;
         private IDto _rootDto;
-        private IAuthenticationService _authenticationService;
+        private Func<IPAddress, IPrincipal> _findUserFunc;
         private readonly List<ServerSession> _clients = new List<ServerSession>();
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         
         [XmlAttribute]
         public ushort ListenPort { get; set; }
 
-        public bool Initialize(DtoBase rootDto, IAuthenticationService authenticationService)
+        public bool Initialize(DtoBase rootDto, Func<IPAddress, IPrincipal> findUserFunc)
         {
             if (ListenPort < 1024)
                 return false;
             _rootDto = rootDto;
-            _authenticationService = authenticationService;
+            _findUserFunc = findUserFunc;
             try
             {
                 _listener = new TcpListener(IPAddress.Any, ListenPort) {ExclusiveAddressUse = true};
@@ -96,7 +96,7 @@ namespace TAS.Remoting.Server
 
         private void AddClient(TcpClient client)
         {
-            var clientSession = new ServerSession(client, _authenticationService, _rootDto);
+            var clientSession = new ServerSession(client, _rootDto, _findUserFunc);
             clientSession.Disconnected += ClientSessionDisconnected;
             lock (((IList)_clients).SyncRoot)
                 _clients.Add(clientSession);

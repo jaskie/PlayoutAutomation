@@ -9,8 +9,6 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
-using TAS.Common;
-using TAS.Common.Interfaces.Security;
 using System.Collections;
 
 namespace TAS.Remoting.Server
@@ -18,18 +16,18 @@ namespace TAS.Remoting.Server
     internal class ServerSession : SocketConnection
     {
         private readonly Dictionary<DelegateKey, Delegate> _delegates = new Dictionary<DelegateKey, Delegate>();
-        private readonly IUser _sessionUser;
+        private readonly IPrincipal _sessionUser;
         private readonly IDto _initialObject;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
 
-        public ServerSession(TcpClient client, IAuthenticationService authenticationService, IDto initialObject): base(client, new ServerReferenceResolver())
+        public ServerSession(TcpClient client, IDto initialObject, Func<IPAddress, IPrincipal> findUserFunc): base(client, new ServerReferenceResolver())
         {
             _initialObject = initialObject;
            
             if (!(client.Client.RemoteEndPoint is IPEndPoint endPoint))
                 throw new UnauthorizedAccessException($"Client RemoteEndpoint {Client.Client.RemoteEndPoint} is invalid");
-            _sessionUser = authenticationService.FindUser(AuthenticationSource.IpAddress, endPoint.Address.ToString());
+            _sessionUser = findUserFunc(endPoint.Address);
             if (_sessionUser == null)
                 throw new UnauthorizedAccessException($"Access from {Client.Client.RemoteEndPoint} not allowed");
             ((ServerReferenceResolver)ReferenceResolver).ReferencePropertyChanged += ReferenceResolver_ReferencePropertyChanged;
@@ -45,13 +43,13 @@ namespace TAS.Remoting.Server
 
         protected override void ReadThreadProc()
         {
-            Thread.CurrentPrincipal = new GenericPrincipal(_sessionUser, new string[0]);
+            Thread.CurrentPrincipal = _sessionUser;
             base.ReadThreadProc();
         }
 
         protected override void WriteThreadProc()
         {
-            Thread.CurrentPrincipal = new GenericPrincipal(_sessionUser, new string[0]);
+            Thread.CurrentPrincipal = _sessionUser;
             base.WriteThreadProc();
         }
 

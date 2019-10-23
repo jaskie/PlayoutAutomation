@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Newtonsoft.Json.Serialization;
-using TAS.Common;
 
 namespace TAS.Remoting.Client
 {
@@ -84,7 +83,7 @@ namespace TAS.Remoting.Client
 
         #endregion //IReferenceResolver
 
-        internal event EventHandler<EventArgs<ProxyBase>> ReferenceFinalized;
+        internal event EventHandler<ProxyBaseEventArgs> ReferenceFinalized;
 
         internal ProxyBase ResolveReference(Guid reference)
         {
@@ -112,7 +111,7 @@ namespace TAS.Remoting.Client
                         Logger.Trace("Reference resolver - object {0} disposed, generation is {1}", sender,
                             GC.GetGeneration(sender));
                     }
-                ReferenceFinalized?.Invoke(this, new EventArgs<ProxyBase>((ProxyBase) sender));
+                ReferenceFinalized?.Invoke(this, new ProxyBaseEventArgs((ProxyBase) sender));
             }
             catch
             {

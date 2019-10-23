@@ -192,11 +192,11 @@ namespace TAS.Remoting.Client
             return default(T);
         }
 
-        private void Resolver_ReferenceFinalized(object sender, Common.EventArgs<ProxyBase> e)
+        private void Resolver_ReferenceFinalized(object sender, ProxyBaseEventArgs e)
         {
             Send(WebSocketMessageCreate(
                 SocketMessage.SocketMessageType.ProxyFinalized,
-                e.Item,
+                e.Proxy,
                 string.Empty,
                 0,
                 null));
