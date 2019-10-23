@@ -1,5 +1,6 @@
-﻿using Newtonsoft.Json;
-using TAS.Remoting.Client;
+﻿using ComponentModelRPC;
+using ComponentModelRPC.Client;
+using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 

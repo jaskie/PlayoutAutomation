@@ -16,7 +16,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("")];
 [assembly:AssemblyProductAttribute("FFMpegUtils")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c)  2014")];
+[assembly:AssemblyCopyrightAttribute("Copyright (c)  2019")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
 
@@ -31,7 +31,7 @@ using namespace System::Security::Permissions;
 // You can specify all the value or you can default the Revision and Build Numbers
 // by using the '*' as shown below:
 
-[assembly:AssemblyVersionAttribute("1.5.*")];
+[assembly:AssemblyVersionAttribute("1.6.*")];
 
 [assembly:ComVisible(false)];
 

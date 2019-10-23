@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Xml.Serialization;
 using TAS.Common;
-using TAS.Remoting.Server;
+using ComponentModelRPC.Server;
 using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;

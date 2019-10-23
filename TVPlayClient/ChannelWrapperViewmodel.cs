@@ -3,10 +3,10 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using ComponentModelRPC.Client;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
 using TAS.Remoting;
-using TAS.Remoting.Client;
 using TAS.Remoting.Model;
 
 namespace TVPlayClient

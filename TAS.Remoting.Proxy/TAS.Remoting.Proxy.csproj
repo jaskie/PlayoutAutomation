@@ -100,9 +100,9 @@
     <Compile Include="Model\Media\XDCAMMedia.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
+    <ProjectReference Include="..\dependencies\ComponentModelRPC\ComponentModelRPC\ComponentModelRPC.csproj">
       <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
-      <Name>TAS.Remoting</Name>
+      <Name>ComponentModelRPC</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Common\TAS.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using ComponentModelRPC;
+using ComponentModelRPC.Client;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Security;
-using TAS.Remoting.Client;
 
 namespace TAS.Remoting.Model.Security
 {

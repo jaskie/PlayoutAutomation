@@ -1,7 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using ComponentModelRPC;
+using ComponentModelRPC.Client;
+using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
-using TAS.Remoting.Client;
 
 namespace TAS.Remoting.Model.Security
 {

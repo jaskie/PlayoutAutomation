@@ -5,12 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ComponentModelRPC.Server;
 using Newtonsoft.Json;
 using NLog;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
-using TAS.Remoting.Server;
 
 namespace TAS.Server.MediaOperation
 {

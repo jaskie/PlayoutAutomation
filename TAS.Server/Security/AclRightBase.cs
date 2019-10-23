@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
-using TAS.Remoting.Server;
+using ComponentModelRPC.Server;
 
 namespace TAS.Server.Security
 {

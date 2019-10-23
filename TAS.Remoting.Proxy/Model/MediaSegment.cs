@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using ComponentModelRPC;
+using ComponentModelRPC.Client;
 using Newtonsoft.Json;
-using TAS.Remoting.Client;
 using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model

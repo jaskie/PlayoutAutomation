@@ -6,13 +6,12 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
-using TAS.Remoting.Server;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using TAS.Common;
 using System.Text.RegularExpressions;
+using ComponentModelRPC.Server;
 using TAS.Common.Interfaces;
-using TAS.Common.Interfaces.Media;
 using TAS.Server.Media;
 
 namespace TAS.Server

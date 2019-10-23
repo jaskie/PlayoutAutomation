@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Xml.Serialization;
 using TAS.Common;
 using System.Collections.Concurrent;
-using TAS.Remoting.Server;
+using ComponentModelRPC.Server;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
 using System.Security.Principal;

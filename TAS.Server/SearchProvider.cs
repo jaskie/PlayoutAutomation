@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ComponentModelRPC.Server;
 using TAS.Common;
 using TAS.Common.Interfaces;
-using TAS.Remoting.Server;
 
 namespace TAS.Server
 {

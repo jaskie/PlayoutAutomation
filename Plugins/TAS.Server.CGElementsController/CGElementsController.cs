@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
+using ComponentModelRPC.Server;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
-    public class CgElementsController : Remoting.Server.DtoBase, ICGElementsController, IEnginePlugin
+    public class CgElementsController : DtoBase, ICGElementsController, IEnginePlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 

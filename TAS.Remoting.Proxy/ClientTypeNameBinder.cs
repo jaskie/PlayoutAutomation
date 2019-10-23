@@ -23,9 +23,9 @@ namespace TAS.Remoting
                 case "TAS.Server.Media.IngestDirectory":
                     return typeof(Model.Media.IngestDirectory);
                 case "TAS.Server.Media.ArchiveDirectory":
-                    return typeof(Model.ArchiveDirectory);
+                    return typeof(Model.Media.ArchiveDirectory);
                 case "TAS.Server.Media.AnimationDirectory":
-                    return typeof(Model.AnimationDirectory);
+                    return typeof(Model.Media.AnimationDirectory);
                 case "TAS.Server.Media.MediaSearchProvider":
                     return typeof(Model.Media.MediaSearchProvider);
                 case "TAS.Server.Media.MediaSegment":

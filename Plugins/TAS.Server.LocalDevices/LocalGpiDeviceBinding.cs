@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Xml.Serialization;
+using ComponentModelRPC.Server;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
-    public class LocalGpiDeviceBinding : Remoting.Server.DtoBase, IGpi, IEnginePlugin
+    public class LocalGpiDeviceBinding : DtoBase, IGpi, IEnginePlugin
     {
 
         public class GPIPin

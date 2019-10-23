@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
+using ComponentModelRPC.Server;
 using Newtonsoft.Json;
-using TAS.Remoting.Server;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
 
 namespace TAS.Server.Security

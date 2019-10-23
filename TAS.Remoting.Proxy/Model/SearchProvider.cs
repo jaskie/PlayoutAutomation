@@ -1,7 +1,8 @@
 ﻿using System;
+using ComponentModelRPC;
+using ComponentModelRPC.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
-using TAS.Remoting.Client;
 
 namespace TAS.Remoting.Model
 {

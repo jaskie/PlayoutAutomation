@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
-using TAS.Remoting.Model.Media;
 
-namespace TAS.Remoting.Model
+namespace TAS.Remoting.Model.Media
 {
     public class ArchiveDirectory : MediaDirectoryBase, IArchiveDirectory
     {

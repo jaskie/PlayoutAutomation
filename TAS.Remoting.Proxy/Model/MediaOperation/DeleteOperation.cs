@@ -1,4 +1,5 @@
 ﻿using System;
+using ComponentModelRPC;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;

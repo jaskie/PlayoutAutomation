@@ -4,13 +4,14 @@ using System.Xml.Serialization;
 using TAS.Common;
 using Newtonsoft.Json;
 using System.Drawing;
-using TAS.Remoting;
+using ComponentModelRPC;
+using ComponentModelRPC.Server;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
     [DebuggerDisplay("{Id}:{Name}")]
-    public class CGElement : Remoting.Server.DtoBase, ICGElement
+    public class CGElement : DtoBase, ICGElement
     {
         private readonly object _imageLock = new object();
         
