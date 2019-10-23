@@ -10,7 +10,10 @@ namespace TAS.Server.Router.Model
 {
     [Serializable]
     public class RouterDevice
-    {        
+    {
+        [XmlAttribute]
+        public string EngineName { get; set; }
+
         public string IP { get; set; }
         public int Port { get; set; }
         public Enums.Router Type { get; set; }

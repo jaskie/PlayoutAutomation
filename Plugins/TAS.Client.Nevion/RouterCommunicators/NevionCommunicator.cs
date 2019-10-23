@@ -36,7 +36,11 @@ namespace TAS.Server.Router.RouterCommunicators
         private NetworkStream _stream;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private RouterDevice _device;
-        
+
+        private Task _requestHandlerTask;
+        private Task _listenerTask;
+        private Task<bool> _sendTask;
+
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
         private SemaphoreSlim _requestHandlerSemaphore = new SemaphoreSlim(0);
 
@@ -79,44 +83,41 @@ namespace TAS.Server.Router.RouterCommunicators
             }            
         }
 
-        private void StartRequestsHandler()
+        private async Task RequestsHandler()
         {
-            Task.Run(async() => 
+            try
             {
-                try
+                while (true)
                 {
-                    while (true)
-                    {                       
-                        if (_requestsQueue.Count < 1)
-                            await _requestHandlerSemaphore.WaitAsync(_cancellationTokenSource.Token);
+                    if (_requestsQueue.Count < 1)
+                        await _requestHandlerSemaphore.WaitAsync(_cancellationTokenSource.Token);
 
-                        if (_cancellationTokenSource.IsCancellationRequested)
-                            throw new OperationCanceledException();
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException();
 
-                        while(!_requestsQueue.IsEmpty)
-                        {
-                            if (!_tcpClient.Connected)
-                                break;            
-                            
-                            if (_requestsQueue.TryDequeue(out var request))
-                                Send(request);
-                        }                                              
-                        
+                    while (!_requestsQueue.IsEmpty)
+                    {
+                        if (!_tcpClient.Connected)
+                            break;
+
+                        if (!_requestsQueue.TryDequeue(out var request))
+                            continue;
+
+                        _sendTask = Send(request);
+                        await _sendTask.ConfigureAwait(false);
                     }
+
                 }
-                catch(OperationCanceledException cEx)
-                {
-                    Logger.Info("Nevion request handler canceled");
-                    Debug.WriteLine("Nevion request handler canceled");
-                }
-                catch(Exception ex)
-                {
-                    Logger.Error($"Unexpected exception in Nevion request handler {ex}");
-                    Debug.WriteLine($"Unexpected exception in Nevion request handler {ex}");
-                }
-                
-            }, _cancellationTokenSource.Token);
-            
+            }
+            catch (OperationCanceledException cEx)
+            {               
+                Debug.WriteLine("Nevion request handler canceled");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Unexpected exception in Nevion request handler {ex}");
+                Debug.WriteLine($"Unexpected exception in Nevion request handler {ex}");
+            }
         }
 
         private void ProcessCommand(string localResponse)
@@ -125,7 +126,7 @@ namespace TAS.Server.Router.RouterCommunicators
             if (!lines[0].StartsWith("?") && !lines[0].StartsWith("%"))
                 return;
 
-            Debug.WriteLine($"Processing command: {lines[0]}");
+            //Debug.WriteLine($"Processing command: {lines[0]}");
 
             if (lines[0].Contains("inlist"))
                 IOListProcess(lines
@@ -165,7 +166,7 @@ namespace TAS.Server.Router.RouterCommunicators
                     Enums.ListType.CrosspointChange);
             
 
-            Debug.WriteLine("Command processed");
+            //Debug.WriteLine("Command processed");
 
         }        
 
@@ -250,44 +251,39 @@ namespace TAS.Server.Router.RouterCommunicators
 
         public async Task<bool> Connect()
         {
-            Task.Run(async() =>
+            _cancellationTokenSource = new CancellationTokenSource();
+            while (true)
             {
-                _cancellationTokenSource = new CancellationTokenSource();               
-                while (true)
+                try
                 {
-                    try
-                    {                        
-                        Debug.WriteLine("Connecting to Nevion...");
-                        _tcpClient = new TcpClient();
+                    Debug.WriteLine("Connecting to Nevion...");
+                    _tcpClient = new TcpClient();
 
-                        if (!_tcpClient.ConnectAsync(_device.IP, _device.Port).Wait(3000))
-                            continue;
+                    await _tcpClient.ConnectAsync(_device.IP, _device.Port).ConfigureAwait(false);
 
-                        if (!_tcpClient.Connected)
-                            break;
-
-                        IsConnected = true;                        
-                        Debug.WriteLine("Nevion connected!");
-                        StartRequestsHandler();
-
-                        _stream = _tcpClient.GetStream();
-                        Listen();
-                        Logger.Info("Nevion router connected and ready!");
-
-                        Login();
+                    if (!_tcpClient.Connected)
                         break;
-                    }
-                    catch
-                    {
-                        if (_cancellationTokenSource.IsCancellationRequested)
-                            break;
 
-                        Debug.WriteLine("Exception, attempting to reconnect to Nevion Router in 1s");
-                        await Task.Delay(1000);
-                    }
+                    IsConnected = true;
+                    Debug.WriteLine("Nevion connected!");
+                    _requestHandlerTask = RequestsHandler();
+
+                    _stream = _tcpClient.GetStream();
+                    _listenerTask = Listen();
+                    Logger.Info("Nevion router connected and ready!");
+
+                    Login();
+                    break;
                 }
-            }).Wait();
+                catch
+                {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        break;
 
+                    Debug.WriteLine("Exception, attempting to reconnect to Nevion Router in 1s");
+                    await Task.Delay(1000);
+                }
+            }
             return true;
         }
 
@@ -345,85 +341,90 @@ namespace TAS.Server.Router.RouterCommunicators
             _requestHandlerSemaphore.Release();
         }
 
-        private bool Send(string message)
+        private async Task<bool> Send(string message)
         {
-            return Task.Run(async() =>
+            try
             {
-                try
-                {                    
-                    var data = Encoding.ASCII.GetBytes(String.Concat(message, "\n\n"));
-                    await _stream.WriteAsync(data, 0, data.Length, _cancellationTokenSource.Token);
-                    Debug.WriteLine($"Nevion message sent: {message}");
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
-            }).Result;          
+                var data = Encoding.ASCII.GetBytes(String.Concat(message, "\n\n"));
+                await _stream.WriteAsync(data, 0, data.Length, _cancellationTokenSource.Token).ConfigureAwait(false);
+                Debug.WriteLine($"Nevion message sent: {message}");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-
-        private async void Listen()
+        private async Task Listen()
         {
-            await Task.Run(async() =>
-            {
-                Byte[] bytesReceived = new Byte[256];
-                string response = String.Empty;
-                int bytes = 0;
-                
-                Debug.WriteLine("Nevion listener started!");
-                while (true)
-                {
-                    try
-                    {
-                        if (_cancellationTokenSource.IsCancellationRequested)                                                    
-                            throw new OperationCanceledException(_cancellationTokenSource.Token);
-                                                    
+            Byte[] bytesReceived = new Byte[256];
+            string response = String.Empty;
+            int bytes = 0;
+            Task<int> readTask = null;
 
-                        if ((bytes = await _stream.ReadAsync(bytesReceived, 0, bytesReceived.Length, _cancellationTokenSource.Token)) != 0)
-                        {
-                            response = System.Text.Encoding.ASCII.GetString(bytesReceived, 0, bytes);                            
-                            OnResponseReceived?.Invoke(this, new RouterEventArgs(response));
-                            
-                            bytes = 0;
-                        }
-                    }
-                    catch(OperationCanceledException cancelEx)
+            Debug.WriteLine("Nevion listener started!");
+            while (true)
+            {
+                try
+                {
+                    readTask = _stream.ReadAsync(bytesReceived, 0, bytesReceived.Length, _cancellationTokenSource.Token);
+                    await Task.WhenAny(readTask, Task.Delay(-1, _cancellationTokenSource.Token)).ConfigureAwait(false);
+
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
+                    if (!readTask.IsCompleted)
+                        continue;
+
+                    if ((bytes = readTask.Result) != 0)
                     {
-                        Debug.WriteLine($"Listener canceled");
-                        break;
+                        response = System.Text.Encoding.ASCII.GetString(bytesReceived, 0, bytes);
+                        OnResponseReceived?.Invoke(this, new RouterEventArgs(response));
+
+                        bytes = 0;
                     }
-                    catch(System.IO.IOException ioException)
-                    {                                 
-                        if (_tcpClient.Connected)
-                        {
-                            Debug.WriteLine($"Nevion listener encountered error: {ioException}");
-                            continue;
-                        }
-                        
-                        Debug.WriteLine("Nevion listener was closed forcibly: {ioException}\n Attempting to reconnect to Nevion...");
-                        _cancellationTokenSource.Cancel();
-                        IsConnected = false;
-                        break;
-                    }
-                    catch(Exception ex)
+                }
+                catch (OperationCanceledException cancelEx)
+                {
+                    Debug.WriteLine($"Listener canceled");
+                    break;
+                }
+                catch (System.IO.IOException ioException)
+                {
+                    if (_tcpClient.Connected)
                     {
-                        Debug.WriteLine($"Failed to read nevion response. {ex.Message}");
+                        Debug.WriteLine($"Nevion listener encountered error: {ioException}");
+                        continue;
                     }
-                }                
-            }, _cancellationTokenSource.Token);
+
+                    Debug.WriteLine("Nevion listener was closed forcibly: {ioException}\n Attempting to reconnect to Nevion...");
+                    _cancellationTokenSource.Cancel();
+                    IsConnected = false;
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to read nevion response. {ex.Message}");
+                }
+            }
         }
 
         public void Disconnect()
         {
             _cancellationTokenSource.Cancel();
+
+            _sendTask?.Wait();
+            _listenerTask?.Wait();
+            _requestHandlerTask?.Wait();
         }
 
         public void Dispose()
         {
+            OnResponseReceived -= NevionCommunicator_OnResponseReceived;
             Disconnect();           
             _tcpClient?.Close();
+            
             Debug.WriteLine("Nevion communicator disposed");
         }        
     }

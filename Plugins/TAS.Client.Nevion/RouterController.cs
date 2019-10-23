@@ -40,15 +40,9 @@ namespace TAS.Server.Router
             set => SetField(ref _inputPorts, value);
         }
 
-        public RouterController()
-        {                        
-            _device = DataStore.Load<RouterDevice>("RouterDevice");
-
-            if (_device == null)
-            {
-                Debug.WriteLine("Błąd deserializacji XML");
-                return;
-            }
+        public RouterController(RouterDevice device)
+        {
+            _device = device;
             Init();     
         }
 
@@ -75,7 +69,8 @@ namespace TAS.Server.Router
 
         private void _routerCommunicator_OnRouterConnectionStateChanged(object sender, EventArgs<bool> e)
         {
-            if (e.Item) return;
+            if (e.Item) 
+                return;
 
             InputPorts = null;
             SelectedInputPort = null;
@@ -187,6 +182,7 @@ namespace TAS.Server.Router
             _routerCommunicator.OnInputPortChangeReceived -= Communicator_OnInputPortChangeReceived;
             _routerCommunicator.OnInputPortChangeReceived -= Communicator_OnInputPortChangeReceived;
             _routerCommunicator.OnRouterStateReceived -= Communicator_OnRouterStateReceived;
+            _routerCommunicator.OnRouterConnectionStateChanged -= _routerCommunicator_OnRouterConnectionStateChanged;
 
             _keepAliveTask?.Wait();
             _routerCommunicator?.Dispose();

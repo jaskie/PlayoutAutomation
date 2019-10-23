@@ -260,11 +260,7 @@ namespace TAS.Server.Router.RouterCommunicators
                     _cancellationTokenSource.Cancel();
                     IsConnected = false;
                     break;
-                }
-                catch(TimeoutException timeEx)
-                {
-                    //
-                }
+                }                
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Blackmagic listener error. {ex.Message}");
@@ -394,8 +390,10 @@ namespace TAS.Server.Router.RouterCommunicators
 
         public void Dispose()
         {
+            OnResponseReceived -= BlackmagicCommunicator_OnResponseReceived;
             Disconnect();
             _tcpClient?.Close();
+            
             Debug.WriteLine("Blackmagic communicator disposed");
         }
     }

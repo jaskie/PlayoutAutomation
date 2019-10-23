@@ -18,15 +18,20 @@ namespace TAS.Server.Router.Helpers
                 serializer.Serialize(writer, data);
         }
 
-        public static T Load<T>(string fileNameStem)
+        public static T Load<T>(string fileNameStem, XmlRootAttribute atrib = null)
         {
             var fullPath = $"{Path.Combine(ConfigurationFolder, fileNameStem)}.xml";
             if (!File.Exists(fullPath))
                 return default(T);
 
+            XmlSerializer serializer = null;
             using (var reader = new StreamReader(fullPath))
             {
-                var serializer = new XmlSerializer(typeof(T));
+                if (atrib == null)
+                    serializer = new XmlSerializer(typeof(T));
+                else
+                    serializer = new XmlSerializer(typeof(T), atrib);
+
                 return (T)serializer.Deserialize(reader);
             }
         }
