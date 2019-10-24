@@ -282,6 +282,7 @@ namespace TAS.Server.Router.RouterCommunicators
                 {
                     OnRouterStateReceived?.Invoke(this, new EventArgs<IEnumerable<IRouterPort>>(null));
                     _routerStateRequested = false;
+                    return;
                 }
 
             }
