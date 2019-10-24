@@ -1,3 +1,3 @@
 [submodule "dependencies/ComponentModelRPC"]
 	path = dependencies/ComponentModelRPC
-	url = git@github.com:jaskie/ComponentModelRPC.git
+	url = https://github.com/jaskie/ComponentModelRPC.git
