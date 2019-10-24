@@ -259,10 +259,11 @@ namespace TAS.Server.Router.RouterCommunicators
                     Debug.WriteLine("Connecting to Nevion...");
                     _tcpClient = new TcpClient();
 
-                    await _tcpClient.ConnectAsync(_device.IP, _device.Port).ConfigureAwait(false);
+                    var connectTask = _tcpClient.ConnectAsync(_device.IP, _device.Port);
+                    await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
 
                     if (!_tcpClient.Connected)
-                        break;
+                        continue;
 
                     IsConnected = true;
                     Debug.WriteLine("Nevion connected!");

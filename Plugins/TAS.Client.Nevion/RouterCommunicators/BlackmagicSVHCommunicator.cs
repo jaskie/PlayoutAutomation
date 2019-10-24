@@ -72,11 +72,13 @@ namespace TAS.Server.Router.RouterCommunicators
                 try
                 {
                     Debug.WriteLine("Connecting to Blackmagic...");
-                    _tcpClient = new TcpClient();                    
-                    await _tcpClient.ConnectAsync(_device.IP, _device.Port).ConfigureAwait(false);
-                                       
+                    _tcpClient = new TcpClient();
+
+                    var connectTask = _tcpClient.ConnectAsync(_device.IP, _device.Port);
+                    await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
+
                     if (!_tcpClient.Connected)
-                        break;
+                        continue;
 
                     IsConnected = true;
                     Debug.WriteLine("Blackmagic connected!");
