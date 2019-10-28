@@ -43,6 +43,9 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEngine.CGElementsController))]
         private CGElementsController _cGElementsController;
 
+        [JsonProperty(nameof(IEngine.Router))]
+        private Router _router;
+
         [JsonProperty(nameof(IEngine.EnableCGElementsForNewEvents))]
         private bool _enableCGElementsForNewEvents;
 
@@ -142,6 +145,8 @@ namespace TAS.Remoting.Model
         public long FrameTicks => _frameTicks;
 
         public ICGElementsController CGElementsController => _cGElementsController;
+
+        public IRouter Router => _router;
 
         public bool EnableCGElementsForNewEvents
         {
@@ -258,7 +263,8 @@ namespace TAS.Remoting.Model
                     string command = null,
                     IDictionary<string, string> fields = null,
                     TemplateMethod method = TemplateMethod.Add,
-                    int templateLayer = -1
+                    int templateLayer = -1,
+                    short Router = -1
             )
         {
             return Query<Event>(parameters: new object[] { idRundownEvent, idEventBinding , videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName,

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -6,10 +7,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using TAS.Common.Interfaces;
+using TAS.Remoting.Server;
 
-namespace TAS.Common
+namespace TAS.Server.Router.Model
 {
-    public class RouterPort : IRouterPort
+    public class RouterPort : DtoBase, IRouterPort
     {
         public RouterPort()
         {
@@ -34,6 +36,7 @@ namespace TAS.Common
         }
 
         private int _portID;
+        [JsonProperty]
         public int PortID { 
             get => _portID; 
             set 
@@ -46,6 +49,7 @@ namespace TAS.Common
         }
 
         private string _portName;
+        [JsonProperty]
         public string PortName {
             get => _portName;
             set
@@ -58,6 +62,7 @@ namespace TAS.Common
         }
 
         private bool? _portIsSignalPresent;
+        [JsonProperty]
         public bool? PortIsSignalPresent {
             get => _portIsSignalPresent;
             set
@@ -67,12 +72,6 @@ namespace TAS.Common
                 _portIsSignalPresent = value;
                 NotifyPropertyChanged();
             }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void NotifyPropertyChanged([CallerMemberName]string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        }      
     }
 }

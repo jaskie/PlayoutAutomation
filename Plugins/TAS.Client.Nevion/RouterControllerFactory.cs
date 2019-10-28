@@ -9,7 +9,7 @@ using TAS.Common.Interfaces;
 using TAS.Server.Router.Helpers;
 using TAS.Server.Router.Model;
 
-namespace TAS.Server.Router
+namespace TAS.Server
 {
     [Export(typeof(IEnginePluginFactory))]
     public class RouterControllerFactory: IEnginePluginFactory

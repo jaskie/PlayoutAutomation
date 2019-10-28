@@ -17,21 +17,7 @@ namespace TAS.Server.Router.RouterCommunicators
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private TcpClient _tcpClient;
-
-        private bool _isConnected;
-        private bool IsConnected
-        {
-            get => _isConnected;
-            set
-            {
-                if (_isConnected == value)
-                    return;
-
-                _isConnected = value;
-                OnRouterConnectionStateChanged?.Invoke(this, new EventArgs<bool>(value));
-            }
-        }
+        private TcpClient _tcpClient;           
 
         private NetworkStream _stream;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -39,7 +25,7 @@ namespace TAS.Server.Router.RouterCommunicators
 
         private Task _requestHandlerTask;
         private Task _listenerTask;
-        private Task<bool> _sendTask;
+        private Task<bool> _sendTask;        
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
         private SemaphoreSlim _requestHandlerSemaphore = new SemaphoreSlim(0);
@@ -56,7 +42,7 @@ namespace TAS.Server.Router.RouterCommunicators
         public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnOutputPortsListReceived;
         public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
         public event EventHandler<EventArgs<IEnumerable<Crosspoint>>> OnInputPortChangeReceived;
-        private event EventHandler<RouterEventArgs> OnResponseReceived;        
+        private event EventHandler<EventArgs<string>> OnResponseReceived;        
 
         public BlackmagicSVHCommunicator(RouterDevice device)
         {
@@ -71,22 +57,28 @@ namespace TAS.Server.Router.RouterCommunicators
             {
                 try
                 {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
                     Debug.WriteLine("Connecting to Blackmagic...");
-                    _tcpClient = new TcpClient();
+                    _tcpClient = new TcpClient();                    
 
                     var connectTask = _tcpClient.ConnectAsync(_device.IP, _device.Port);
                     await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
 
                     if (!_tcpClient.Connected)
                         continue;
-
-                    IsConnected = true;
+                    
                     Debug.WriteLine("Blackmagic connected!");
                     _requestHandlerTask = RequestsHandler();
 
                     _stream = _tcpClient.GetStream();
                     _listenerTask = Listen();
                     Logger.Info("Blackmagic router connected and ready!");
+                    break;
+                }
+                catch (OperationCanceledException cEx)
+                {
+                    Debug.WriteLine("Connecting canceled");
                     break;
                 }
                 catch
@@ -147,10 +139,10 @@ namespace TAS.Server.Router.RouterCommunicators
             AddToRequestQueue(request);
         }
 
-        private void BlackmagicCommunicator_OnResponseReceived(object sender, RouterEventArgs e)
+        private void BlackmagicCommunicator_OnResponseReceived(object sender, EventArgs<string> e)
         {
             string command = String.Empty;
-            _response += e.Response;
+            _response += e.Item;
 
             while (_response.Contains("\n\n"))
             {
@@ -183,6 +175,7 @@ namespace TAS.Server.Router.RouterCommunicators
 
                         _sendTask = Send(request);
                         await _sendTask.ConfigureAwait(false);
+
                     }
                 }
             }
@@ -211,7 +204,13 @@ namespace TAS.Server.Router.RouterCommunicators
                 Debug.WriteLine($"Blackmagic message sent: {message}");
                 return true;
             }
-            catch
+            catch(TimeoutException tEx)
+            {
+                Debug.WriteLine("Router send timeout.");
+                Disconnect();
+                return false;
+            }
+            catch(Exception ex)
             {
                 return false;
             }
@@ -241,7 +240,7 @@ namespace TAS.Server.Router.RouterCommunicators
                     if ((bytes = readTask.Result) != 0)
                     {
                         response = System.Text.Encoding.ASCII.GetString(bytesReceived, 0, bytes);
-                        OnResponseReceived?.Invoke(this, new RouterEventArgs(response));
+                        OnResponseReceived?.Invoke(this, new EventArgs<string>(response));
                         bytes = 0;
                     }
                 }
@@ -257,10 +256,10 @@ namespace TAS.Server.Router.RouterCommunicators
                         Debug.WriteLine($"Blackmagic listener encountered error: {ioException}");
                         continue;
                     }
+                    Logger.Error($"Blackmagic listener was closed forcibly: {ioException}\n Attempting to reconnect to Blackmagic...");
+                    Debug.WriteLine($"Blackmagic listener was closed forcibly: {ioException}\n Attempting to reconnect to Blackmagic...");
 
-                    Debug.WriteLine("Blackmagic listener was closed forcibly: {ioException}\n Attempting to reconnect to Blackmagic...");
-                    _cancellationTokenSource.Cancel();
-                    IsConnected = false;
+                    Disconnect();
                     break;
                 }                
                 catch (Exception ex)
@@ -315,7 +314,7 @@ namespace TAS.Server.Router.RouterCommunicators
 
         private void IOListProcess(IList<string> listResponse, Enums.ListType listType)
         {
-            IList<RouterPort> Ports = new List<RouterPort>();
+            IList<IRouterPort> Ports = new List<IRouterPort>();
             IList<Crosspoint> Crosspoints = new List<Crosspoint>();
 
             foreach (var line in listResponse)
@@ -384,11 +383,13 @@ namespace TAS.Server.Router.RouterCommunicators
 
         public void Disconnect()
         {
-            _cancellationTokenSource.Cancel();            
-
+            _cancellationTokenSource.Cancel();
+            _requestsQueue = new ConcurrentQueue<string>();
+          
             _sendTask?.Wait();
             _listenerTask?.Wait();
             _requestHandlerTask?.Wait();
+            OnRouterConnectionStateChanged?.Invoke(this, new EventArgs<bool>(false));
         }
 
         public void Dispose()

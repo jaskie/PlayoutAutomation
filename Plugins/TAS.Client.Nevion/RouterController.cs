@@ -10,8 +10,9 @@ using TAS.Common.Interfaces;
 using System.Threading;
 using System.Linq;
 using TAS.Remoting.Server;
+using Newtonsoft.Json;
 
-namespace TAS.Server.Router
+namespace TAS.Server
 {
     public class RouterController : DtoBase, IRouter
     {
@@ -27,13 +28,15 @@ namespace TAS.Server.Router
         private CancellationTokenSource cTokenSourceRouterState = new CancellationTokenSource();
 
         private IRouterPort _selectedInputPort;
+        [JsonProperty]
         public IRouterPort SelectedInputPort
         {
             get => _selectedInputPort;
             set => SetField(ref _selectedInputPort, value);
         }
 
-        private IList<IRouterPort> _inputPorts;
+        private IList<IRouterPort> _inputPorts;        
+        [JsonProperty]
         public IList<IRouterPort> InputPorts
         {
             get => _inputPorts;
@@ -43,7 +46,7 @@ namespace TAS.Server.Router
         public RouterController(RouterDevice device)
         {
             _device = device;
-            Init();     
+            _ = Init();     
         }
 
         public void SelectInput(int inPort)
@@ -74,8 +77,8 @@ namespace TAS.Server.Router
 
             InputPorts = null;
             SelectedInputPort = null;
-
-            Init();
+            if (!cTokenSourceRouterState.IsCancellationRequested)
+                _ = Init();
         }
 
         private void Communicator_OnOutputPortsListReceived(object sender, EventArgs<IEnumerable<IRouterPort>> e)
@@ -110,13 +113,13 @@ namespace TAS.Server.Router
             {
                 switch (_device.Type)
                 {
-                    case Model.Enums.Router.Nevion:
+                    case Router.Model.Enums.Router.Nevion:
                         {
                             Debug.WriteLine("Nevion communicator registered");
                             _routerCommunicator = new NevionCommunicator(_device);
                             break;
                         }
-                    case Model.Enums.Router.Blackmagic:
+                    case Router.Model.Enums.Router.Blackmagic:
                         {
                             _routerCommunicator = new BlackmagicSVHCommunicator(_device);
                             break;

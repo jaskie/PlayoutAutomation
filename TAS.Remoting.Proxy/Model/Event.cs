@@ -30,6 +30,9 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEvent.Crawl))]
         private byte _crawl;
 
+        [JsonProperty(nameof(IEvent.RouterPort))]
+        private int _routerPort;
+
         [JsonProperty(nameof(IEvent.Duration))]
         private TimeSpan _duration;
 
@@ -152,6 +155,8 @@ namespace TAS.Remoting.Model
         public AutoStartFlags AutoStartFlags { get => _autoStartFlags; set => Set(value); }
 
         public byte Crawl { get => _crawl; set => Set(value); }
+
+        public int RouterPort { get => _routerPort; set => Set(value); }
 
         public TimeSpan Duration { get => _duration; set => Set(value); }
 

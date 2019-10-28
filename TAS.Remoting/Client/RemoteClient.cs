@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json.Serialization;
+using System.Diagnostics;
 
 namespace TAS.Remoting.Client
 {
@@ -41,6 +42,7 @@ namespace TAS.Remoting.Client
                 var queryMessage = WebSocketMessageCreate(SocketMessage.SocketMessageType.RootQuery, null, null, 0, null);
                 var response = SendAndGetResponse<T>(queryMessage);
                 _initialObject = response;
+                
                 return response;
             }
             catch (Exception e)
@@ -184,6 +186,7 @@ namespace TAS.Remoting.Client
                 }
                 if (response == null)
                     continue;
+                
                 if (response.MessageType == SocketMessage.SocketMessageType.Exception)
                     throw Deserialize<Exception>(response);
                 var result = Deserialize<T>(response);

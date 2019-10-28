@@ -62,7 +62,7 @@ namespace TAS.Server
         private Guid _mediaGuid;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private RouterPort _inputPort;
+        private IRouterPort _inputPort;
 
         #region Constructor
         internal Event(
@@ -602,7 +602,7 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public RouterPort InputPort
+        public IRouterPort InputPort
         {
             get => _inputPort;
             set => SetField(ref _inputPort, value);
