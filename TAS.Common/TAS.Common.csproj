@@ -71,7 +71,9 @@
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
     <Compile Include="EventArgs.cs" />
+    <Compile Include="Interfaces\IRouter.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
+    <Compile Include="Interfaces\IRouterPort.cs" />
     <Compile Include="Interfaces\ISearchProvider.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaDirectory.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaSearchProvider.cs" />

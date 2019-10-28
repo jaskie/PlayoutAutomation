@@ -42,6 +42,10 @@ namespace TAS.Client.ViewModels
             Engine = engine;
             VideoFormat = engine.VideoFormat;
             IsInterlacedFormat = engine.FormatDescription.Interlaced;
+            Router = engine.Router;
+
+            if (Router != null)
+                EngineRouterViewModel = new EngineRouterViewModel(Router);
 
             RootEventViewModel = new EventPanelRootViewmodel(this);
             Engine.EngineTick += _engineTick;
@@ -52,6 +56,7 @@ namespace TAS.Client.ViewModels
             Engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _plugins = UiPluginManager.ComposeParts<IUiPlugin>(this);
             VideoPreview = UiPluginManager.ComposePart<IVideoPreview>(this);
+            
 
             if (preview != null && engine.HaveRight(EngineRight.Preview))
                 PreviewViewmodel = new PreviewViewmodel(engine, preview) { IsSegmentsVisible = true };
@@ -66,10 +71,9 @@ namespace TAS.Client.ViewModels
                 engine.PlayoutChannelSEC.PropertyChanged += OnServerChannelPropertyChanged;
             if (engine.PlayoutChannelPRV != null)
                 engine.PlayoutChannelPRV.PropertyChanged += OnServerChannelPropertyChanged;
-            var _cGElementsController = engine.CGElementsController;
-            if (_cGElementsController != null)
+            if (engine.CGElementsController != null)
             {
-                _cGElementsController.PropertyChanged += _cGElementsController_PropertyChanged;
+                engine.CGElementsController.PropertyChanged += _cGElementsController_PropertyChanged;
                 CGElementsControllerViewmodel = new EngineCGElementsControllerViewmodel(engine.CGElementsController);
             }
 
@@ -242,6 +246,7 @@ namespace TAS.Client.ViewModels
 
         public PreviewViewmodel PreviewViewmodel { get; }
 
+        public EngineRouterViewModel EngineRouterViewModel { get; }
 
         public bool IsSearchPanelVisible { get => _isSearchPanelVisible; set => SetField(ref _isSearchPanelVisible, value); }
 
@@ -297,6 +302,9 @@ namespace TAS.Client.ViewModels
             if (Engine.PlayoutChannelPRV != null)
                 Engine.PlayoutChannelPRV.PropertyChanged -= OnServerChannelPropertyChanged;
             VideoPreview?.Dispose();
+            if (Engine.CGElementsController != null)
+                Engine.CGElementsController.PropertyChanged -= _cGElementsController_PropertyChanged;
+            EngineRouterViewModel?.Dispose();
         }
 
 
@@ -1019,6 +1027,8 @@ namespace TAS.Client.ViewModels
 
 
         public IVideoPreview VideoPreview { get; }
+
+        public IRouter Router { get; }
 
         public bool IsAnyPluginVisible => _plugins != null && _plugins.Any(p => p.Menu != null);
 

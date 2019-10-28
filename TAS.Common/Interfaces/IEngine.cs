@@ -54,10 +54,11 @@ namespace TAS.Common.Interfaces
             byte logo = 0,
             byte parental = 0,
             AutoStartFlags autoStartFlags = AutoStartFlags.None,
-            string command = null,
+            string command = null,            
             IDictionary<string, string> fields = null,
             TemplateMethod method = TemplateMethod.Add,
-            int templateLayer = 10
+            int templateLayer = 10,
+            short routerPort = -1
         );
 
         void Load(IEvent aEvent);
@@ -75,6 +76,7 @@ namespace TAS.Common.Interfaces
         DateTime CurrentTime { get; }
         int TimeCorrection { get; set; }
         ICGElementsController CGElementsController { get; }
+        IRouter Router { get; }
         void SearchMissingEvents();
         IEvent Playing { get; }
         IEvent NextToPlay { get; }

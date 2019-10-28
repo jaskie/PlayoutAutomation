@@ -36,6 +36,8 @@ namespace TAS.Server
         private byte _crawl;
         private byte _logo;
         private byte _parental;
+        private int _routerPort = -1;
+        
         private double? _audioVolume;
         private TimeSpan _duration;
         private bool _isEnabled;
@@ -59,6 +61,8 @@ namespace TAS.Server
         private AutoStartFlags _autoStartFlags;
         private Guid _mediaGuid;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        private IRouterPort _inputPort;
 
         #region Constructor
         internal Event(
@@ -92,7 +96,8 @@ namespace TAS.Server
                     bool isCGEnabled,
                     byte crawl,
                     byte logo,
-                    byte parental)
+                    byte parental,
+                    short routerPort)
         {
             _engine = engine;
             _rundownSync = engine.RundownSync;
@@ -171,7 +176,7 @@ namespace TAS.Server
                 rights.ForEach(r => ((EventAclRight)r).Saved += AclEvent_Saved);
                 return rights;
             });
-
+            _routerPort = routerPort;
 
         FieldLengths = EngineController.Database.EventFieldLengths;
         }
@@ -224,7 +229,8 @@ namespace TAS.Server
             }
         }
 
-        string _eventName;
+        string _eventName;        
+
         [JsonProperty]
         public string EventName
         {
@@ -590,6 +596,13 @@ namespace TAS.Server
         }
 
         [JsonProperty]
+        public IRouterPort InputPort
+        {
+            get => _inputPort;
+            set => SetField(ref _inputPort, value);
+        }
+
+        [JsonProperty]
         public byte Crawl
         {
             get => _crawl;
@@ -609,9 +622,15 @@ namespace TAS.Server
             get => _parental;
             set => SetField(ref _parental, value);
         }
+                     
+        [JsonProperty]
+        public int RouterPort
+        {
+            get => _routerPort;
+            set => SetField(ref _routerPort, value);
+        }       
 
         public event EventHandler<EventPositionEventArgs> PositionChanged;
-
         public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
 
         public void Remove()

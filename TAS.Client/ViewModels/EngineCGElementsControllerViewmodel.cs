@@ -39,8 +39,6 @@ namespace TAS.Client.ViewModels
 
         public bool IsConnected => _controller?.IsConnected ?? false;
 
-        public bool Exists => _controller != null;
-
         protected override void OnDispose()
         {
             _controller.PropertyChanged -= controller_PropertyChanged;

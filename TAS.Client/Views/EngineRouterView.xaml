@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="TAS.Client.Views.EngineRouterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             ResxExtension.DefaultResxName="TAS.Client.Views.EngineRouterView"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
+             mc:Ignorable="d" 
+             d:DesignHeight="50" 
+             d:DesignWidth="220">
+    <StackPanel Orientation="Horizontal" Margin="5, 0, 0, 0">
+        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+        <TextBlock Margin="0, 0, 5, 0" Text="{Resx _inputSource}" VerticalAlignment="Center" />
+        <Grid>
+            <ComboBox Width="120" ItemsSource="{Binding InputPorts}" VerticalAlignment="Center" SelectedItem="{Binding SelectedInputPort}">
+                <ComboBox.Style>
+                    <Style TargetType="ComboBox">
+                        <Setter Property="IsEnabled" Value="True" />
+                        <Setter Property="ItemTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Margin="1" Visibility="{Binding PortIsSignalPresent, Converter={StaticResource NullToVis}}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Fill" Value="LightGray" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding PortIsSignalPresent}" Value="True">
+                                                            <Setter Property="Fill" Value="Green" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding PortIsSignalPresent}" Value="False">
+                                                            <Setter Property="Fill" Value="Red" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="3, 0"/>
+                                        <TextBlock  Text="{Binding PortName}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding InputPorts}" Value="{x:Null}">
+                                <Setter Property="IsEnabled" Value="False" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ComboBox.Style>
+            </ComboBox>
+            <Viewbox Stretch="Uniform" HorizontalAlignment="Center" ToolTip="{Resx _routerDisconnected}" Visibility="{Binding InputPorts, Converter={StaticResource InvertedNullToVisibilityConverter}}" >
+                <Path Fill="#FFFF0000" Width="32" Height="32" StrokeThickness="1" Data="M14.4242327 6.14839275 C15.2942987 4.74072976 16.707028 4.74408442 17.5750205 6.14839275 L28.3601099 23.59738 C29.5216388 25.4765951 28.6755462 27 26.4714068 27 L5.5278464 27 C3.32321557 27 2.47386317 25.4826642 3.63914331 23.59738 Z M16 20 C16.5522847 20 17 19.5469637 17 19.0029699 L17 12.9970301 C17 12.4463856 16.5561352 12 16 12 C15.4477153 12 15 12.4530363 15 12.9970301 L15 19.0029699 C15 19.5536144 15.4438648 20 16 20 Z M16 24 C16.5522848 24 17 23.5522848 17 23 C17 22.4477152 16.5522848 22 16 22 C15.4477152 22 15 22.4477152 15 23 C15 23.5522848 15.4477152 24 16 24 Z M16 24"/>
+            </Viewbox>
+        </Grid>
+    </StackPanel>
+</UserControl>

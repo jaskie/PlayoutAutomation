@@ -166,6 +166,10 @@ namespace TAS.Server
         [JsonProperty]
         public ICGElementsController CGElementsController { get; private set; }
 
+        [XmlIgnore]
+        [JsonProperty]
+        public IRouter Router { get; private set; }
+
         public ServerHost Remote { get; set; }
         public TAspectRatioControl AspectRatioControl { get; set; }
         public double VolumeReferenceLoudness { get; set; }
@@ -303,6 +307,7 @@ namespace TAS.Server
             _localGpis = this.ComposeParts<IGpi>();
             _plugins = this.ComposeParts<IEnginePlugin>();
             CGElementsController = this.ComposePart<ICGElementsController>();
+            Router = this.ComposePart<IRouter>();
             FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
             FrameTicks = FormatDescription.FrameTicks;
             FrameRate = FormatDescription.FrameRate;
@@ -775,7 +780,8 @@ namespace TAS.Server
             string command = null,
             IDictionary<string, string> fields = null,
             TemplateMethod method = TemplateMethod.Add,
-            int templateLayer = 10
+            int templateLayer = 10,
+            short routerPort = -1
         )
         {
             if (idRundownEvent != 0
@@ -790,7 +796,7 @@ namespace TAS.Server
                     result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, startType, playState, scheduledDelay, eventName, startTime, isEnabled, command);
                     break;
                 default:
-                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
+                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental, routerPort);
                     break;
             }
             if (idRundownEvent != 0)
@@ -1106,6 +1112,10 @@ namespace TAS.Server
             Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent);
             Logger.Info("{0} {1}: Load {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
             var eventType = aEvent.EventType;
+
+            if (eventType == TEventType.Live)
+                Router?.SelectInput(aEvent.RouterPort);
+
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
                 _playoutChannelPRI?.Load(aEvent);
@@ -1127,15 +1137,22 @@ namespace TAS.Server
                 aEvent = aEvent.InternalGetSuccessor();
             if (aEvent == null)
                 return;
+
             var eventType = aEvent.EventType;
+            
             if ((eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage) &&
                 !(_preloadedEvents.TryGetValue(aEvent.Layer, out var preloaded) && preloaded == aEvent))
             {
+
                 Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent);
                 Logger.Info("{0} {1}: Preload {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
                 _preloadedEvents[aEvent.Layer] = aEvent;
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
+
+                if (eventType == TEventType.Live && _playing.EventType != TEventType.Live)
+                    Router?.SelectInput(aEvent.RouterPort);
+
                 if (!aEvent.IsHold
                     && CGElementsController?.IsConnected == true
                     && CGElementsController.IsCGEnabled
@@ -1146,14 +1163,14 @@ namespace TAS.Server
                         Thread.Sleep(_preloadTime + TimeSpan.FromMilliseconds(CGStartDelay));
                         try
                         {
-                            CGElementsController.SetState(aEvent);
+                            CGElementsController.SetState(aEvent);                                                        
                         }
                         catch (Exception e)
                         {
                             Logger.Error(e);
                         }
                     });
-                }
+                }                
             }
             _run(aEvent);
         }
@@ -1188,6 +1205,9 @@ namespace TAS.Server
                 aEvent.Position = 0;
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
+                if (eventType == TEventType.Live && _playing.EventType == TEventType.Live)
+                    Router?.SelectInput(aEvent.RouterPort);
+
                 _playoutChannelPRI?.Play(aEvent);
                 _playoutChannelSEC?.Play(aEvent);
                 SetVisibleEvent(aEvent);
@@ -1597,6 +1617,7 @@ namespace TAS.Server
             }
             EngineController.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
             CGElementsController?.Dispose();
+            Router?.Dispose();
             Remote?.Dispose();
             _mediaManager.Dispose();
             if (_plugins != null)

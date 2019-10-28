@@ -10,7 +10,7 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance vm:EngineCGElementsControllerViewmodel}"
              d:DesignHeight="30" d:DesignWidth="800">
-    <StackPanel Orientation="Horizontal" Visibility="{Binding Exists, Converter={StaticResource BoolToVis}}">
+    <StackPanel Orientation="Horizontal">
         <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
         <controls:StatusIndicator Height="14" IsGreen="{Binding IsConnected}"/>
         <Label Content="CG" VerticalContentAlignment="Center" Padding="5, 0, 0, 0"/>

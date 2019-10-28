@@ -12,7 +12,6 @@ namespace TAS.Server
 {
     public static class PluginManager
     {
-
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private static readonly IEnumerable<IEnginePluginFactory> EnginePlugins;
         

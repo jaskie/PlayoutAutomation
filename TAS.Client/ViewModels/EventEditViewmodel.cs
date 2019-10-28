@@ -10,6 +10,8 @@ using System.Text.RegularExpressions;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using resources = TAS.Client.Common.Properties.Resources;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace TAS.Client.ViewModels
 {
@@ -39,6 +41,7 @@ namespace TAS.Client.ViewModels
         private TimeSpan _scheduledDelay;
         private sbyte _layer;
         private bool _isEventNameFocused;
+        private IRouterPort _selectedInputPort;
 
 
         public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
@@ -56,6 +59,13 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel = new EventRightsEditViewmodel(@event, engineViewModel.Engine.AuthenticationService);
                 EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
+            Router = engineViewModel.Router;
+            if (Router != null)
+                Router.PropertyChanged += Router_PropertyChanged;    
+            _selectedInputPort = InputPorts?.FirstOrDefault(param => param.PortId == _routerPort);
+            if (_selectedInputPort != null)
+                NotifyPropertyChanged(nameof(SelectedInputPort));                            
+
             CommandSaveEdit = new UiCommand(o => Save(), o => CanSave);
             CommandUndoEdit = new UiCommand(o => UndoEdit(), o => IsModified);
             CommandChangeMovie = new UiCommand(_changeMovie, _canChangeMovie);
@@ -95,6 +105,22 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        private void Router_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch(e.PropertyName)
+            {
+                case nameof(IRouter.InputPorts):
+                    {
+                        NotifyPropertyChanged(nameof(InputPorts));
+
+                        _selectedInputPort = InputPorts?.FirstOrDefault(param => param.PortId == _routerPort);
+                        if (_selectedInputPort != null)
+                            NotifyPropertyChanged(nameof(SelectedInputPort));
+                        break;
+                    }
+            }
+        }
+
         public void Save()
         {
             Update();
@@ -126,6 +152,8 @@ namespace TAS.Client.ViewModels
         public ICommand CommandDelete { get; }
 
         public string Error => null;
+
+        public IRouter Router { get; }
 
         public string this[string propertyName]
         {
@@ -206,6 +234,8 @@ namespace TAS.Client.ViewModels
         public bool IsAutoStartEvent => _startType == TStartType.OnFixedTime;
 
         public bool IsMovieOrLive => Model.EventType == TEventType.Movie || Model.EventType == TEventType.Live;
+
+        public bool IsLive => Model.EventType == TEventType.Live;
 
         public bool IsMovieOrLiveOrRundown
         {
@@ -535,6 +565,37 @@ namespace TAS.Client.ViewModels
 
         public TVideoFormat VideoFormat => _engineViewModel.VideoFormat;
 
+        #region IRouterPort
+        private int _routerPort = -1;       
+
+        public int RouterPort
+        {
+            get => _routerPort;
+            set
+            {
+                if (_routerPort == value)
+                    return;
+
+                _routerPort = value;
+                _selectedInputPort = InputPorts?.FirstOrDefault(p => p.PortId == value);
+                NotifyPropertyChanged(nameof(SelectedInputPort));
+            }
+        }
+        #endregion
+
+        public IList<IRouterPort> InputPorts => Router?.InputPorts;
+
+        public IRouterPort SelectedInputPort
+        {
+            get => _selectedInputPort;
+            set
+            {
+                if (!SetField(ref _selectedInputPort, value))
+                    return;
+                RouterPort = value.PortId;
+            }
+        }
+
         public TimeSpan ScheduledDelay
         {
             get => _scheduledDelay;
@@ -611,6 +672,8 @@ namespace TAS.Client.ViewModels
             }
             if (_media != null)
                 _media.PropertyChanged -= OnMediaPropertyChanged;
+            if (Router != null)
+                Router.PropertyChanged -= Router_PropertyChanged;
         }
 
         #region Command methods
@@ -822,6 +885,9 @@ namespace TAS.Client.ViewModels
                     case nameof(IEvent.Parent):
                         NotifyPropertyChanged(nameof(BoundEventName));
                         break;
+                    case nameof(IEvent.RouterPort):
+                        RouterPort = s.RouterPort;                        
+                        break;                    
                     case nameof(IEvent.CurrentUserRights):
                         InvalidateRequerySuggested();
                         break;

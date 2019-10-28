@@ -192,6 +192,9 @@
   <data name="_hold.ToolTip" xml:space="preserve">
     <value>Instant change - F6</value>
   </data>
+  <data name="_inputPort" xml:space="preserve">
+    <value>Input source</value>
+  </data>
   <data name="_loop" xml:space="preserve">
     <value>Loop</value>
   </data>

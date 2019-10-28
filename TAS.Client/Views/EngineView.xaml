@@ -413,6 +413,13 @@
                             </StackPanel>
                         </MenuItem>
                     </Menu>
+                    <ContentControl Content="{Binding EngineRouterViewModel}">
+                        <ContentControl.Resources>
+                            <DataTemplate DataType="{x:Type vievmodels:EngineRouterViewModel}">
+                                <views:EngineRouterView />
+                            </DataTemplate>
+                        </ContentControl.Resources>
+                    </ContentControl>
                     <ContentControl Content="{Binding CGElementsControllerViewmodel}">
                         <ContentControl.Resources>
                             <DataTemplate DataType="{x:Type vievmodels:EngineCGElementsControllerViewmodel}">

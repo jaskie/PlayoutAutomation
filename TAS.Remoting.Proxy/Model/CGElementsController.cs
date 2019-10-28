@@ -48,7 +48,7 @@ namespace TAS.Remoting.Model
         private byte _parental;
 
 
-#pragma warning restore
+        #pragma warning restore
 
         public IEnumerable<ICGElement> Crawls => _crawls;
 

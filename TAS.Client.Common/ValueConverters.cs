@@ -285,6 +285,20 @@ namespace TAS.Client.Common
         }
     }
 
+    [ValueConversion(typeof(object), typeof(System.Windows.Visibility))]
+    public class InvertedNullToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value == null ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Binding.DoNothing;
+        }
+    }
+
     [ValueConversion(typeof(long), typeof(System.Windows.Visibility))]
     public class ZeroToVisibilityConverter : IValueConverter
     {

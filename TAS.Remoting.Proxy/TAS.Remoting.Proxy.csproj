@@ -86,6 +86,8 @@
     <Compile Include="Model\PlayoutServer.cs" />
     <Compile Include="Model\PlayoutServerChannel.cs" />
     <Compile Include="Model\Recorder.cs" />
+    <Compile Include="Model\Router.cs" />
+    <Compile Include="Model\RouterPort.cs" />
     <Compile Include="Model\SearchProvider.cs" />
     <Compile Include="Model\Security\AuthenticationService.cs" />
     <Compile Include="Model\Security\EngineAclRight.cs" />

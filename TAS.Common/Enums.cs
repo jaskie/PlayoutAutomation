@@ -558,6 +558,5 @@ namespace TAS.Common
         Console, // user 
         IpAddress,
         // WindowsCredentials // not implemented yet
-    }
-
+    }    
 }

@@ -121,6 +121,7 @@ CREATE TABLE `rundownevent` (
   `flagsEvent` int(10) unsigned DEFAULT NULL,
   `idAux` varchar(16) COLLATE `utf8_general_ci` DEFAULT NULL,
   `Commands` TEXT NULL,
+  `RouterPort` smallint DEFAULT NULL,
   PRIMARY KEY (`idRundownEvent`),
   KEY `idEventBinding` (`idEventBinding`) USING BTREE,
   KEY `id_ScheduledTime` (`ScheduledTime`) USING BTREE,
@@ -209,4 +210,4 @@ CREATE TABLE `engine_acl` (
 );
 
 
-INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '11');
+INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '12');

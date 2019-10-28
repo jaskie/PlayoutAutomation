@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RouterDevices>
+  <RouterDevice EngineName="TVP Szczecin" Type="BlackmagicSmartVideoHub" IpAddress="192.168.0.1" Port="9990">
+    <IpAddress>192.168.0.1</IpAddress>
+    <Port>9990</Port>
+    <Type>Blackmagic</Type>
+    <OutputPorts>
+      <OutputPort>0</OutputPort>
+      <OutputPort>1</OutputPort>
+    </OutputPorts>
+  </RouterDevice>
+</RouterDevices>

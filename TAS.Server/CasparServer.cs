@@ -43,7 +43,7 @@ namespace TAS.Server
             throw new NotImplementedException();
         }
         #endregion
-
+        
         public string ServerAddress { get; set; }
 
         public int OscPort { get; set; }
