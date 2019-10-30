@@ -63,8 +63,6 @@ namespace TAS.Client.ViewModels
             if (Router != null)
                 Router.PropertyChanged += Router_PropertyChanged;    
             _selectedInputPort = InputPorts?.FirstOrDefault(param => param.PortId == _routerPort);
-            if (_selectedInputPort != null)
-                NotifyPropertyChanged(nameof(SelectedInputPort));                            
 
             CommandSaveEdit = new UiCommand(o => Save(), o => CanSave);
             CommandUndoEdit = new UiCommand(o => UndoEdit(), o => IsModified);
@@ -109,10 +107,9 @@ namespace TAS.Client.ViewModels
         {
             switch(e.PropertyName)
             {
-                case nameof(IRouter.InputPorts):
+                case nameof(Router.InputPorts):
                     {
                         NotifyPropertyChanged(nameof(InputPorts));
-
                         _selectedInputPort = InputPorts?.FirstOrDefault(param => param.PortId == _routerPort);
                         if (_selectedInputPort != null)
                             NotifyPropertyChanged(nameof(SelectedInputPort));
@@ -152,8 +149,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandDelete { get; }
 
         public string Error => null;
-
-        public IRouter Router { get; }
 
         public string this[string propertyName]
         {
@@ -565,7 +560,7 @@ namespace TAS.Client.ViewModels
 
         public TVideoFormat VideoFormat => _engineViewModel.VideoFormat;
 
-        #region IRouterPort
+        #region Router
         private int _routerPort = -1;       
 
         public int RouterPort
@@ -581,7 +576,8 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(SelectedInputPort));
             }
         }
-        #endregion
+
+        public IRouter Router { get; }
 
         public IList<IRouterPort> InputPorts => Router?.InputPorts;
 
@@ -595,6 +591,8 @@ namespace TAS.Client.ViewModels
                 RouterPort = value.PortId;
             }
         }
+
+        #endregion
 
         public TimeSpan ScheduledDelay
         {

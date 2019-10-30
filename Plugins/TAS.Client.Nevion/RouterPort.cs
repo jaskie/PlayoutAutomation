@@ -2,31 +2,18 @@
 using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 
-namespace TAS.Server.Model
+namespace TAS.Server
 {
     public class RouterPort : DtoBase, IRouterPort
     {
         private short _portId;
         private string _portName;
-        private bool? _portIsSignalPresent;
+        private bool? _isSignalPresent;
 
-        public RouterPort() {}
-
-        public RouterPort(short id)
-        {
-            _portId = id;          
-        }
-
-        public RouterPort(short id, string name)
+        public RouterPort(short id, string portName)
         {
             _portId = id;
-            _portName = name;
-        }
-
-        public RouterPort(short id, bool isSignalPresent)
-        {
-            _portId = id;            
-            _portIsSignalPresent = isSignalPresent;
+            PortName = portName;
         }
 
         [JsonProperty]
@@ -44,10 +31,10 @@ namespace TAS.Server.Model
         }
 
         [JsonProperty]
-        public bool? PortIsSignalPresent
+        public bool? IsSignalPresent
         {
-            get => _portIsSignalPresent;
-            set => SetField(ref _portIsSignalPresent, value);
+            get => _isSignalPresent;
+            set => SetField(ref _isSignalPresent, value);
         }      
     }
 }

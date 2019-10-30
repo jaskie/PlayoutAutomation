@@ -6,6 +6,6 @@ namespace TAS.Common.Interfaces
     {
         short PortId { get; }
         string PortName { get; }
-        bool? PortIsSignalPresent { get; }
+        bool? IsSignalPresent { get; }
     }
 }

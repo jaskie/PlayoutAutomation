@@ -35,15 +35,18 @@
       <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\NLog.4.5.9\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -55,13 +58,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\DataStore.cs" />
-    <Compile Include="Model\Crosspoint.cs" />
+    <Compile Include="Model\CrosspointInfo.cs" />
+    <Compile Include="Model\PortInfo.cs" />
+    <Compile Include="Model\PortState.cs" />
     <Compile Include="Model\RouterDevice.cs" />
     <Compile Include="Model\ListTypeEnum.cs" />
     <Compile Include="Model\IRouterCommunicator.cs" />
-    <Compile Include="Model\RouterPort.cs" />
+    <Compile Include="RouterPort.cs" />
     <Compile Include="Model\RouterTypeEnum.cs" />
-    <Compile Include="RouterCommunicators\BlackmagicSmartVideoHubCommunicator.cs" />
     <Compile Include="RouterCommunicators\NevionCommunicator.cs" />
     <Compile Include="RouterControllerFactory.cs" />
     <Compile Include="RouterController.cs" />

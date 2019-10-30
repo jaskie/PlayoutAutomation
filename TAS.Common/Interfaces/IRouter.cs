@@ -8,5 +8,6 @@ namespace TAS.Common.Interfaces
         IList<IRouterPort> InputPorts { get; }
         void SelectInput(int inputId);       
         IRouterPort SelectedInputPort { get; }
+        bool IsConnected { get; }
     }
 }

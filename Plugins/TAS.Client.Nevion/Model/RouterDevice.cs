@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server.Model
 {
-    [Serializable]
     public class RouterDevice
     {
         [XmlAttribute]
@@ -24,7 +22,7 @@ namespace TAS.Server.Model
         public string Password { get; set; }
         [XmlArray("OutputPorts")]
         [XmlArrayItem("OutputPort")]
-        public List<int> OutputPorts { get; set; }
+        public short[] OutputPorts { get; set; }
 
         internal IEngine Engine;
     }

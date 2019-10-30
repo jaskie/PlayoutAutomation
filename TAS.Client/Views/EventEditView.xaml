@@ -277,21 +277,7 @@
                                 </Style>
                             </StackPanel.Style>
                             <TextBlock Margin="5" Text="{Resx _inputPort}" VerticalAlignment="Center" />
-                            <ComboBox ItemsSource="{Binding InputPorts}" DisplayMemberPath="PortName" SelectedItem="{Binding SelectedInputPort}">
-                                <ComboBox.Style>
-                                    <Style TargetType="ComboBox">
-                                        <Setter Property="VerticalAlignment" Value="Center" />
-                                        <Setter Property="IsEnabled" Value="True" />
-                                        <Setter Property="MinWidth" Value="100" />
-                                        <Setter Property="IsEnabled" Value="True" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding InputPorts}" Value="{x:Null}">
-                                                <Setter Property="IsEnabled" Value="False" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ComboBox.Style>
-                            </ComboBox>
+                            <ComboBox ItemsSource="{Binding InputPorts}" DisplayMemberPath="PortName" SelectedItem="{Binding SelectedInputPort}" IsEnabled="{Binding Router.IsConnected}" MinWidth="100" VerticalAlignment="Center"/>
                         </StackPanel>
                         <Grid DockPanel.Dock="Top" Visibility="{Binding IsStillImage, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>

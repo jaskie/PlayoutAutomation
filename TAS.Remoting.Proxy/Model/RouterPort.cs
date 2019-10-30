@@ -12,13 +12,13 @@ namespace TAS.Remoting.Model
         private short _portId;
         [JsonProperty(nameof(IRouterPort.PortName))]
         private string _portName;
-        [JsonProperty(nameof(IRouterPort.PortIsSignalPresent))]
+        [JsonProperty(nameof(IRouterPort.IsSignalPresent))]
         private bool? _portIsSignalPresent;
         #pragma warning restore
 
         public short PortId => _portId;
         public string PortName => _portName;
-        public bool? PortIsSignalPresent => _portIsSignalPresent;
+        public bool? IsSignalPresent => _portIsSignalPresent;
 
         protected override void OnEventNotification(SocketMessage message) { }
     }

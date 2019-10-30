@@ -25,6 +25,8 @@ namespace TAS.Client.ViewModels
             } 
         }
 
+        public bool IsConnected => Router.IsConnected;
+
         public IRouter Router { get; }
 
         protected override void OnDispose()
@@ -41,6 +43,9 @@ namespace TAS.Client.ViewModels
                     break;
                 case nameof(Router.SelectedInputPort):
                     NotifyPropertyChanged(nameof(SelectedInputPort));
+                    break;
+                case nameof(Router.IsConnected):
+                    NotifyPropertyChanged(nameof(IsConnected));
                     break;
             }
         }

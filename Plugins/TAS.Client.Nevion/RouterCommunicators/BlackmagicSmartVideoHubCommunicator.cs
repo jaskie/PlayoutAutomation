@@ -39,7 +39,7 @@ namespace TAS.Server.RouterCommunicators
         public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputPortsListReceived;
         public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnOutputPortsListReceived;
         public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
-        public event EventHandler<EventArgs<IEnumerable<Crosspoint>>> OnInputPortChangeReceived;
+        public event EventHandler<EventArgs<IEnumerable<CrosspointInfo>>> OnInputPortChangeReceived;
         private event EventHandler<EventArgs<string>> OnResponseReceived;        
 
         public BlackmagicSmartVideoHubCommunicator(RouterDevice device)
@@ -133,7 +133,7 @@ namespace TAS.Server.RouterCommunicators
 
         private void BlackmagicCommunicator_OnResponseReceived(object sender, EventArgs<string> e)
         {
-            _response += e.Item;
+            _response += e.Value;
 
             while (_response.Contains("\n\n"))
             {
@@ -299,7 +299,7 @@ namespace TAS.Server.RouterCommunicators
         private void IoListProcess(IList<string> listResponse, ListTypeEnum listType)
         {
             var ports = new List<IRouterPort>();
-            var crosspoints = new List<Crosspoint>();
+            var crosspoints = new List<CrosspointInfo>();
 
             foreach (var line in listResponse)
             {
@@ -320,7 +320,7 @@ namespace TAS.Server.RouterCommunicators
                         case ListTypeEnum.CrosspointChange:
                         case ListTypeEnum.CrosspointStatus:
                             {
-                                crosspoints.Add(new Crosspoint(short.Parse(lineParams[1]), short.Parse(lineParams[0])));
+                                crosspoints.Add(new CrosspointInfo(short.Parse(lineParams[1]), short.Parse(lineParams[0])));
                                 break;
                             }
                     }
@@ -350,13 +350,13 @@ namespace TAS.Server.RouterCommunicators
 
                 case ListTypeEnum.CrosspointStatus:
                     {
-                        OnInputPortChangeReceived?.Invoke(this, new EventArgs<IEnumerable<Crosspoint>>(crosspoints));
+                        OnInputPortChangeReceived?.Invoke(this, new EventArgs<IEnumerable<CrosspointInfo>>(crosspoints));
                         _currentInputPortRequested = false;
                         break;
                     }
                 case ListTypeEnum.CrosspointChange:
                     {
-                        OnInputPortChangeReceived?.Invoke(this, new EventArgs<IEnumerable<Crosspoint>>(crosspoints));
+                        OnInputPortChangeReceived?.Invoke(this, new EventArgs<IEnumerable<CrosspointInfo>>(crosspoints));
                         break;
                     }
             }

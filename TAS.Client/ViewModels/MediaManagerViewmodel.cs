@@ -499,7 +499,7 @@ namespace TAS.Client.ViewModels
         {
             if (_currentSearchProvider == null)
                 return;
-            OnUiThread(() => AddMediaToItems(e.Item));
+            OnUiThread(() => AddMediaToItems(e.Value));
         }
 
         private void Search_Finished(object sender, EventArgs e)

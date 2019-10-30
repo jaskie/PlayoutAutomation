@@ -4,11 +4,11 @@ namespace TAS.Common
 {
     public class EventArgs<T> : EventArgs
     {
-        public EventArgs(T item)
+        public EventArgs(T value)
         {
-            Item = item;
+            Value = value;
         }
 
-        public T Item { get; }
+        public T Value { get; }
     }
 }
