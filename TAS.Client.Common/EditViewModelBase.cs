@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Reflection;
 
 namespace TAS.Client.Common
 {
@@ -36,13 +37,15 @@ namespace TAS.Client.Common
         {
             if ((!IsModified || Model == null) && destObject == null)
                 return;
-            var copiedProperties = GetType().GetProperties();
+            var copiedProperties = GetType().GetProperties().Where(p => p.CanRead && p.GetCustomAttribute(typeof(IgnoreOnUpdateAttribute)) == null);
             foreach (var copyPi in copiedProperties)
             {
                 var destPi = (destObject ?? Model).GetType().GetProperty(copyPi.Name);
                 if (destPi == null)
                     continue;
-                if (destPi.GetValue(destObject ?? Model, null) != copyPi.GetValue(this, null)
+                var newValue = copyPi.GetValue(this, null);
+                var oldValue = destPi.GetValue(destObject ?? Model, null);
+                if (((oldValue == null && newValue != null) || (oldValue != null && !oldValue.Equals(newValue)))
                     && destPi.CanWrite)
                     destPi.SetValue(destObject ?? Model, copyPi.GetValue(this, null), null);
             }

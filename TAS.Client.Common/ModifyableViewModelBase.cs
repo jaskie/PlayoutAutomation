@@ -9,6 +9,7 @@ namespace TAS.Client.Common
 
         protected bool IsLoading;
 
+        [IgnoreOnUpdate]
         public virtual bool IsModified
         {
             get => _isModified;

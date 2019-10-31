@@ -10,8 +10,6 @@ using System.Text.RegularExpressions;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using resources = TAS.Client.Common.Properties.Resources;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 
 namespace TAS.Client.ViewModels
 {
@@ -598,12 +596,6 @@ namespace TAS.Client.ViewModels
         {
             get => _scheduledDelay;
             set => SetField(ref _scheduledDelay, value);
-        }
-
-        public sbyte Layer
-        {
-            get => _layer;
-            set => SetField(ref _layer, value);
         }
 
         public bool IsStartEvent

@@ -380,7 +380,11 @@ namespace TAS.Server
             if (compMedia == null)
                 return;
             var pi = typeof(ServerMedia).GetProperty(e.PropertyName);
-            if (pi != null)
+            if (pi == null || !pi.CanWrite)
+                return;
+            if (e.PropertyName == nameof(IServerMedia.FileName) && pi.GetValue(media, null) is string newFileName)
+                compMedia.RenameFileTo(newFileName);
+            else
                 pi.SetValue(compMedia, pi.GetValue(media, null), null);
         }
 

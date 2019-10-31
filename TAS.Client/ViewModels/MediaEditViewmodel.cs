@@ -70,6 +70,8 @@ namespace TAS.Client.ViewModels
         public void Save()
         {
             TemplatedEditViewmodel?.Save();
+            if (FileName != Model.FileName)
+                Model.RenameFileTo(FileName);
             Update(Model);
         }
 
@@ -100,6 +102,7 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _folder, value);
         }
 
+        [IgnoreOnUpdate]
         public string FileName 
         {
             get => _fileName;
@@ -113,13 +116,13 @@ namespace TAS.Client.ViewModels
         public DateTime LastUpdated
         {
             get => _lastUpdated;
-            set => SetField(ref _lastUpdated, value);
+            protected set => SetField(ref _lastUpdated, value);
         }
 
         public DateTime LastAccess
         {
             get => _lastAccess;
-            set => SetField(ref _lastAccess, value);
+            protected set => SetField(ref _lastAccess, value);
         }
 
         public TMediaType MediaType

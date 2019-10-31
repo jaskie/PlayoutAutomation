@@ -219,9 +219,9 @@ namespace TAS.Remoting.Model.Media
             Invoke();
         }
 
-        public bool RenameFileTo(string newFileName)
+        public void RenameFileTo(string newFileName)
         {
-            return Query<bool>(parameters: new object[] {newFileName});
+            Invoke(parameters: new object[] {newFileName});
         }
 
         public void Verify(bool updateFormatAndDurations)

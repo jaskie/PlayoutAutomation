@@ -291,20 +291,18 @@ namespace TAS.Server.Media
             }, cancellationToken);
         }
 
-        public bool RenameFileTo(string newFileName)
+        public void RenameFileTo(string newFileName)
         {
             if (_fileName == newFileName || MediaStatus != TMediaStatus.Available || !File.Exists(FullPath))
-                return false;
+                return;
             try
             {
                 File.Move(FullPath, _getFullPath(newFileName));
                 FileName = newFileName;
-                return true;
             }
             catch (Exception e)
             {
                 Logger.Warn(e, "File {0} rename failed", this);
-                return false;
             }
         }
         

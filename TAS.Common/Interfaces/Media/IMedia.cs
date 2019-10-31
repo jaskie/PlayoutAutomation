@@ -12,7 +12,7 @@ namespace TAS.Common.Interfaces.Media
         bool IsVerified { get; }
         void Verify(bool updateFormatAndDurations);
         void GetLoudness();
-        bool RenameFileTo(string newFileName);
+        void RenameFileTo(string newFileName);
     }
 
     public interface IMediaProperties
@@ -23,7 +23,7 @@ namespace TAS.Common.Interfaces.Media
         double AudioVolume { get; set; }
         TimeSpan Duration { get; set; }
         TimeSpan DurationPlay { get; set; }
-        string FileName { get; set; }
+        string FileName { get; }
         ulong FileSize { get; set; }
         string Folder { get; set; }
         DateTime LastUpdated { get; set; }
