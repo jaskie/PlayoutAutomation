@@ -12,11 +12,12 @@ namespace TAS.Server.Media
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private bool _doNotArchive;
-        private Lazy<bool> _isArchived;
+        private readonly Lazy<bool> _isArchivedLazy;
+        private bool? _isArchived;
 
         public ServerMedia() 
         {
-            _isArchived = new Lazy<bool>(() => (Directory is ServerDirectory dir) && EngineController.Database.ArchiveContainsMedia(dir.MediaManager.ArchiveDirectory as IArchiveDirectoryProperties, this));
+            _isArchivedLazy = new Lazy<bool>(() => Directory is ServerDirectory dir && EngineController.Database.ArchiveContainsMedia(dir.MediaManager.ArchiveDirectory as IArchiveDirectoryProperties, this));
         }
 
         [JsonProperty]
@@ -32,8 +33,8 @@ namespace TAS.Server.Media
         [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public bool IsArchived
         {
-            get => _isArchived?.Value ?? false;
-            set => SetField(ref _isArchived, new Lazy<bool>(() => value));
+            get => _isArchived ?? _isArchivedLazy.Value;
+            set => SetField(ref _isArchived, value);
         }
 
         internal override void CloneMediaProperties(IMediaProperties fromMedia)

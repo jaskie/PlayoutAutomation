@@ -11,10 +11,11 @@ namespace TAS.Server.Media
     {
         internal string BmdXmlFile; // Blackmagic's Media Express Xml file containing this media information
         internal StreamInfo[] StreamInfo;
-        private Lazy<TIngestStatus> _ingestStatus; 
+        private Lazy<TIngestStatus> _ingestStatusLazy;
+        private TIngestStatus? _ingestStatus;
         public IngestMedia()
         {
-            _ingestStatus =  new Lazy<TIngestStatus>(() =>
+            _ingestStatusLazy =  new Lazy<TIngestStatus>(() =>
             {
                 if (!(((IngestDirectory)Directory).MediaManager.MediaDirectoryPRI is ServerDirectory sdir))
                     return TIngestStatus.Unknown;
@@ -37,8 +38,8 @@ namespace TAS.Server.Media
         [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public TIngestStatus IngestStatus
         {
-            get => _ingestStatus.Value;
-            set => SetField(ref _ingestStatus, new Lazy<TIngestStatus>(() => value));
+            get => _ingestStatus ?? _ingestStatusLazy.Value;
+            set => SetField(ref _ingestStatus, value);
         }
 
         public override Stream GetFileStream(bool forWrite)
