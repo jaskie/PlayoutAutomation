@@ -4,10 +4,11 @@ using System.Diagnostics;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using System.Linq;
-using ComponentModelRPC.Server;
 using Newtonsoft.Json;
 using TAS.Server.Model;
 using TAS.Server.RouterCommunicators;
+using ComponentModelRPC.Server;
+using System.Threading;
 
 namespace TAS.Server
 {
@@ -19,6 +20,8 @@ namespace TAS.Server
         private IRouterPort _selectedInputPort;
         private bool _isConnected;
 
+        private int _disposed;
+
         public RouterController(RouterDevice device)
         {
             _device = device;
@@ -28,14 +31,14 @@ namespace TAS.Server
                     _routerCommunicator = new NevionCommunicator(_device);
                     break;
                 case RouterTypeEnum.BlackmagicSmartVideoHub:
-                    //_routerCommunicator = new BlackmagicSmartVideoHubCommunicator(_device);
+                    _routerCommunicator = new BlackmagicSmartVideoHubCommunicator(_device);
                     break;
                 default:
                     return;
             }
-            _routerCommunicator.OnInputPortsReceived += Communicator_OnInputPortsListReceived;
+            
             _routerCommunicator.OnInputPortChangeReceived += Communicator_OnInputPortChangeReceived;
-            _routerCommunicator.OnRouterStateReceived += Communicator_OnRouterStateReceived;
+            _routerCommunicator.OnRouterPortsStatesReceived += Communicator_OnRouterPortStateReceived;
             _routerCommunicator.OnRouterConnectionStateChanged += Communicator_OnRouterConnectionStateChanged;
             Init();
         }
@@ -66,9 +69,12 @@ namespace TAS.Server
         {
             if (_routerCommunicator == null)
                 return;
+
             try
             {
-                await _routerCommunicator.Connect();
+                IsConnected = await _routerCommunicator.Connect();
+                if (IsConnected)
+                    ParseInputMeta(await _routerCommunicator.GetInputPorts());
             }
             catch (Exception e)
             {
@@ -76,41 +82,44 @@ namespace TAS.Server
             }
         }
 
-        private void Communicator_OnRouterConnectionStateChanged(object sender, EventArgs<bool> e)
+        private async void ParseInputMeta(PortInfo[] ports)
         {
-            IsConnected = e.Value;
-            if (!e.Value)
-                return;
-            _routerCommunicator.RequestInputPorts();
-            _routerCommunicator.RequestOutputPorts();
-        }
-
-        private void Communicator_OnInputPortsListReceived(object sender, EventArgs<PortInfo[]> e)
-        {
-            foreach (var port in e.Value)
+            foreach (var port in ports)
             {
                 if (InputPorts.FirstOrDefault(inPort => inPort.PortId == port.Id && inPort.PortName == port.Name) != null)
                     continue;
-                if (InputPorts.FirstOrDefault(inPort => inPort.PortId == port.Id && inPort.PortName != port.Name) is RouterPort foundPort)
+                else if (InputPorts.FirstOrDefault(inPort => inPort.PortId == port.Id && inPort.PortName != port.Name) is RouterPort foundPort)
                     foundPort.PortName = port.Name;
                 else if (InputPorts.All(inPort => inPort.PortId != port.Id))
                     InputPorts.Add(new RouterPort(port.Id, port.Name));
             }
-            _routerCommunicator.RequestCurrentInputPort();
+            var selectedInput = await _routerCommunicator.GetCurrentInputPort();
+
+            if (SelectedInputPort == null || SelectedInputPort.PortId != selectedInput.InPort)            
+                SelectedInputPort = InputPorts.FirstOrDefault(port => port.PortId == selectedInput.InPort);
         }
 
-        private void Communicator_OnRouterStateReceived(object sender, EventArgs<PortState[]> e)
+        private void Communicator_OnRouterConnectionStateChanged(object sender, EventArgs<bool> e)
+        {
+            IsConnected = e.Value;
+            if (e.Value)
+                return;            
+
+            Init();           
+        }        
+
+        private void Communicator_OnRouterPortStateReceived(object sender, EventArgs<PortState[]> e)
         {
             foreach (var port in InputPorts)
                 ((RouterPort)port).IsSignalPresent = e.Value?.FirstOrDefault(param => param.PortId == port.PortId)?.IsSignalPresent;
         }
 
-        private void Communicator_OnInputPortChangeReceived(object sender, EventArgs<CrosspointInfo[]> e)
+        private void Communicator_OnInputPortChangeReceived(object sender, EventArgs<CrosspointInfo> e)
         {
             if (_device.OutputPorts.Length == 0)
                 return;
             var port = _device.OutputPorts[0];
-            var changedIn = e.Value.FirstOrDefault(p => p.OutPort == port);
+            var changedIn = e.Value.OutPort == port ? e.Value : null;
             if (changedIn == null)
                 return;
             SelectedInputPort = InputPorts.FirstOrDefault(param => param.PortId == changedIn.InPort);
@@ -118,10 +127,12 @@ namespace TAS.Server
 
         protected override void DoDispose()
         {
-            base.DoDispose();
-            _routerCommunicator.OnInputPortsReceived -= Communicator_OnInputPortsListReceived;
+            if (Interlocked.Exchange(ref _disposed, 1) != default(int))
+                return;
+
+            base.DoDispose();            
             _routerCommunicator.OnInputPortChangeReceived -= Communicator_OnInputPortChangeReceived;
-            _routerCommunicator.OnRouterStateReceived -= Communicator_OnRouterStateReceived;
+            _routerCommunicator.OnRouterPortsStatesReceived -= Communicator_OnRouterPortStateReceived;
             _routerCommunicator.OnRouterConnectionStateChanged -= Communicator_OnRouterConnectionStateChanged;
             _routerCommunicator.Dispose();
             Debug.WriteLine("Router Plugin Disposed");

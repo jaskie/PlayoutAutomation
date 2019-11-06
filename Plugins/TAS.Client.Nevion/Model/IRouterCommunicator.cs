@@ -9,14 +9,11 @@ namespace TAS.Server.Model
         Task<bool> Connect();       
         void SelectInput(int inPort);
         
-        void RequestInputPorts();
-        void RequestOutputPorts();
-        void RequestRouterState();
-        void RequestCurrentInputPort();       
+        Task<PortInfo[]> GetInputPorts();               
+        Task<CrosspointInfo> GetCurrentInputPort();
 
-        event EventHandler<EventArgs<PortInfo[]>> OnInputPortsReceived;
-        event EventHandler<EventArgs<CrosspointInfo[]>> OnInputPortChangeReceived;
-        event EventHandler<EventArgs<PortState[]>> OnRouterStateReceived;
+        event EventHandler<EventArgs<CrosspointInfo>> OnInputPortChangeReceived;
+        event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;
         event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
     }
 }
