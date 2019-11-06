@@ -29,19 +29,19 @@ namespace TAS.Server
         private string _engineName;
         private bool _pst2Prv;
 
-        [JsonProperty(nameof(PlayoutChannelPRI), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
+        [JsonProperty(nameof(PlayoutChannelPRI))]
         private CasparServerChannel _playoutChannelPRI;
 
-        [JsonProperty(nameof(PlayoutChannelSEC), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
+        [JsonProperty(nameof(PlayoutChannelSEC))]
         private CasparServerChannel _playoutChannelSEC;
 
-        [JsonProperty(nameof(PlayoutChannelPRV), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
+        [JsonProperty(nameof(PlayoutChannelPRV))]
         private CasparServerChannel _playoutChannelPRV;
 
-        [JsonProperty(nameof(MediaManager), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
+        [JsonProperty(nameof(MediaManager))]
         private readonly MediaManager _mediaManager;
 
-        [JsonProperty(nameof(AuthenticationService), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
+        [JsonProperty(nameof(AuthenticationService))]
         private AuthenticationService _authenticationService;
 
         Thread _engineThread;
@@ -67,7 +67,7 @@ namespace TAS.Server
         private double _programAudioVolume = 1;
         private bool _fieldOrderInverted;
 
-        [JsonProperty(nameof(PreviewMedia), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
+        [JsonProperty(nameof(PreviewMedia))]
         private IMedia _previewMedia;
         private long _previewDuration;
         private long _previewPosition;

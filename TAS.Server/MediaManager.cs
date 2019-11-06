@@ -72,10 +72,10 @@ namespace TAS.Server
         [JsonProperty]
         public TVideoFormat VideoFormat => _engine.VideoFormat;
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects, TypeNameHandling = TypeNameHandling.None)]
+        [JsonProperty]
         public IEnumerable<IIngestDirectory> IngestDirectories => _ingestDirectories;
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects, TypeNameHandling = TypeNameHandling.None)]
+        [JsonProperty]
         public IEnumerable<IRecorder> Recorders => _recorders;
 
         public void Initialize()

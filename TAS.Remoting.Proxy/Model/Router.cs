@@ -16,7 +16,10 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IRouter.SelectedInputPort))]
         private IRouterPort _selectedInputPort;
 
-        #pragma warning restore
+        [JsonProperty(nameof(IRouter.IsConnected))]
+        private readonly bool _isConnected;
+
+#pragma warning restore
 
         public IList<IRouterPort> InputPorts
         {
@@ -29,6 +32,8 @@ namespace TAS.Remoting.Model
             get => _selectedInputPort;
             set => Set(value);
         }
+
+        public bool IsConnected => _isConnected;
 
         public void SelectInput(int inputId)
         {
