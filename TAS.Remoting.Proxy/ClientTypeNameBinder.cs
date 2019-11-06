@@ -66,7 +66,7 @@ namespace TAS.Remoting
                     return typeof(Model.CGElementsController);
                 case "TAS.Server.RouterController":
                     return typeof(Model.Router);
-                case "TAS.Server.Router.Model.RouterPort":
+                case "TAS.Server.RouterPort":
                     return typeof(Model.RouterPort);
                 case "TAS.Server.CGElement":
                     return typeof(Model.CGElement);

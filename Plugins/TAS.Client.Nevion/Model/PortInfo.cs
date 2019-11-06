@@ -1,4 +1,7 @@
-﻿namespace TAS.Server.Model
+﻿using System;
+using System.Collections.Generic;
+
+namespace TAS.Server.Model
 {
     internal class PortInfo
     {
@@ -9,5 +12,5 @@
         }
         public short Id { get; }
         public string Name { get; }
-    }
+    }   
 }
