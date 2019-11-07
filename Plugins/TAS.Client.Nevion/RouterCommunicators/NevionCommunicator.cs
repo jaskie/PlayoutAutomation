@@ -49,20 +49,19 @@ namespace TAS.Server.RouterCommunicators
             {                
                 _tcpClient = new TcpClient();
 
-                Debug.WriteLine("Connecting to Nevion...");
+                Logger.Debug("Connecting to Nevion...");
                 try
-                {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
-
+                {                    
                     var connectTask = _tcpClient.ConnectAsync(_device.IpAddress, _device.Port);
                     await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
 
                     if (!_tcpClient.Connected)
+                    {
+                        _tcpClient.Close();
                         continue;
+                    }                        
 
-
-                    Debug.WriteLine("Nevion connected!");
+                    Logger.Debug("Nevion connected!");
 
                     _requestsQueue = new ConcurrentQueue<string>();
                     _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
@@ -81,15 +80,13 @@ namespace TAS.Server.RouterCommunicators
                     AddToRequestQueue($"login {_device.Login} {_device.Password}");
                     return true;
                 }
-                catch(OperationCanceledException)
-                {
-                    Logger.Debug("Router connecting canceled");
-                    break;
-                }
+                
                 catch (Exception ex)
                 {
                     if (ex is ObjectDisposedException || ex is System.IO.IOException)
                         Logger.Debug("Network stream closed");
+                    else if (ex is OperationCanceledException || ex is TaskCanceledException)
+                        Logger.Debug("Router connecting canceled");
                     else
                         Logger.Error(ex);
 
@@ -107,7 +104,7 @@ namespace TAS.Server.RouterCommunicators
 
         public void Disconnect()
         {
-            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource?.Cancel();
             _tcpClient?.Close();            
             OnRouterConnectionStateChanged?.Invoke(this, new EventArgs<bool>(false));
         }
@@ -117,7 +114,7 @@ namespace TAS.Server.RouterCommunicators
             if (Interlocked.Exchange(ref _disposed, 1) != default(int))
                 return;
             Disconnect();           
-            Debug.WriteLine("Nevion communicator disposed");
+            Logger.Debug("Nevion communicator disposed");
         }
 
         public event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;        
@@ -132,18 +129,28 @@ namespace TAS.Server.RouterCommunicators
             AddToRequestQueue($"inlist l{_device.Level}");
             while (true)
             {
-                if (!_responseDictionary.TryRemove(ListTypeEnum.Input, out var response))
-                    await semaphore.WaitAsync().ConfigureAwait(false);
-
-                if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.Input, out response))                
-                    continue;
-                
-                return response.Select(line =>
+                try
                 {
-                    var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    return lineParams.Length >= 4 ? new PortInfo(short.Parse(lineParams[2].Trim('\"')), lineParams[3].Trim('\"')) : null;
-                }).Where(c => c != null).ToArray();
-            }
+                    if (!_responseDictionary.TryRemove(ListTypeEnum.Input, out var response))
+                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);                    
+
+                    if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.Input, out response))
+                        continue;
+
+                    return response.Select(line =>
+                    {
+                        var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        return lineParams.Length >= 4 ? new PortInfo(short.Parse(lineParams[2].Trim('\"')), lineParams[3].Trim('\"')) : null;
+                    }).Where(c => c != null).ToArray();
+                }
+                catch(Exception ex)
+                {
+                    if (ex is OperationCanceledException || ex is TaskCanceledException)
+                        Logger.Debug("Input ports request cancelled");
+
+                    return null;
+                }
+            }           
         }       
 
         public async Task<CrosspointInfo> GetCurrentInputPort()
@@ -154,24 +161,34 @@ namespace TAS.Server.RouterCommunicators
             AddToRequestQueue($"si l{_device.Level} {string.Join(",", _device.OutputPorts)}");
             while (true)
             {
-                if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
-                    await semaphore.WaitAsync().ConfigureAwait(false);
-
-                if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out response))                
-                    continue;                
-
-                return response.Select(line =>
+                try
                 {
-                    var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (lineParams.Length >= 4 && lineParams[0] == "x" &&
-                        lineParams[1] == $"l{_device.Level}" &&
-                        lineParams[3] == _device.OutputPorts[0].ToString() &&
-                        short.TryParse(lineParams[2], out var inPort) &&
-                        short.TryParse(lineParams[3], out var outPort))
+                    if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
+                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+
+                    if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out response))
+                        continue;
+
+                    return response.Select(line =>
+                    {
+                        var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (lineParams.Length >= 4 && lineParams[0] == "x" &&
+                            lineParams[1] == $"l{_device.Level}" &&
+                            lineParams[3] == _device.OutputPorts[0].ToString() &&
+                            short.TryParse(lineParams[2], out var inPort) &&
+                            short.TryParse(lineParams[3], out var outPort))
                             return new CrosspointInfo(inPort, outPort);
+                        return null;
+                    }).FirstOrDefault(c => c != null);
+                }
+                catch (Exception ex)
+                {
+                    if (ex is OperationCanceledException || ex is TaskCanceledException)
+                        Logger.Debug("Current Input Port request cancelled");
+
                     return null;
-                }).Where(c => c != null).First();
-            }
+                }
+            }           
         }       
 
         private async void StartRequestQueueHandler()
@@ -179,22 +196,24 @@ namespace TAS.Server.RouterCommunicators
             try
             {
                 while (true)
-                {
-                    await _requestQueueSemaphore.WaitAsync().ConfigureAwait(false);
+                {                    
+                    await _requestQueueSemaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
                     while (!_requestsQueue.IsEmpty)
-                    {
+                    {                        
                         if (!_requestsQueue.TryDequeue(out var request))
                             continue;
                         var data = System.Text.Encoding.ASCII.GetBytes(string.Concat(request, "\n\n"));
                         await _stream.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
-                        Debug.WriteLine($"Nevion message sent: {request}");
+                        Logger.Debug($"Nevion message sent: {request}");
                     }
                 }
             }
             catch (Exception ex)
             {
                 if (ex is ObjectDisposedException || ex is System.IO.IOException)
-                    Debug.WriteLine("Router request handler stream closed/disposed.");
+                    Logger.Debug("Router request handler stream closed/disposed.");
+                else if (ex is OperationCanceledException || ex is TaskCanceledException)
+                    Logger.Debug("Router request handler cancelled");
                 else
                     Logger.Error(ex, "Unexpected exception in Nevion request handler");
             }
@@ -205,8 +224,8 @@ namespace TAS.Server.RouterCommunicators
             try
             {
                 while (true)
-                {
-                    await _responsesQueueSemaphore.WaitAsync().ConfigureAwait(false);
+                {                    
+                    await _responsesQueueSemaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
                     while (!_responsesQueue.IsEmpty)
                     {
                         if (!_responsesQueue.TryDequeue(out var response))
@@ -214,11 +233,10 @@ namespace TAS.Server.RouterCommunicators
 
                         if (_responseDictionary.TryAdd(response.Key, response.Value))
                         {
-                            if (_semaphores.TryGetValue(response.Key, out var semaphore))
-                            {
-                                semaphore.Release();
+                            if (!_semaphores.TryGetValue(response.Key, out var semaphore))
                                 continue;
-                            }                          
+
+                            semaphore.Release();                            
                         }
                             
                         else
@@ -229,16 +247,18 @@ namespace TAS.Server.RouterCommunicators
             catch (Exception ex)
             {
                 if (ex is ObjectDisposedException || ex is System.IO.IOException)
-                    Debug.WriteLine("Router request handler stream closed/disposed.");
+                    Logger.Debug("Router response handler stream closed/disposed.");
+                else if (ex is OperationCanceledException || ex is TaskCanceledException)
+                    Logger.Debug("Router response handler cancelled");
                 else
-                    Logger.Error(ex, "Unexpected exception in Nevion request handler");
+                    Logger.Error(ex, "Unexpected exception in Blackmagic response handler");
             }
         }
 
         private async void StartListener()
         {
             var bytesReceived = new byte[256];
-            Debug.WriteLine("Nevion listener started!");
+            Logger.Debug("Nevion listener started!");
             while (true)
             {
                 try
@@ -252,7 +272,7 @@ namespace TAS.Server.RouterCommunicators
                 {
                     if (ex is ObjectDisposedException || ex is System.IO.IOException)
                     {
-                        Debug.WriteLine("Router listener network stream closed/disposed.");
+                        Logger.Debug("Router listener network stream closed/disposed.");
                         Disconnect();
                     }                        
                     else
@@ -274,26 +294,35 @@ namespace TAS.Server.RouterCommunicators
             
             while (true)
             {
-                if (!_responseDictionary.TryRemove(ListTypeEnum.SignalPresence, out var response))
-                    await semaphore.WaitAsync().ConfigureAwait(false);
-                
-                if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.SignalPresence, out response))
+                try
                 {
+                    if (!_responseDictionary.TryRemove(ListTypeEnum.SignalPresence, out var response))
+                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                    
+                    if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.SignalPresence, out response))
+                        continue;
+                    
                     if (_cancellationTokenSource.IsCancellationRequested)
-                        break;
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    continue;
+                    var portsSignal = response.Select(line =>
+                    {
+                        var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        return lineParams.Length >= 4 ? new PortState(short.Parse(lineParams[2].Trim('\"')), lineParams[3].Trim('\"') == "p") : null;
+                    }).Where(c => c != null).ToArray();
+                    OnRouterPortsStatesReceived?.Invoke(this, new EventArgs<PortState[]>(portsSignal));
+
+                    await Task.Delay(3000);
+                    AddToRequestQueue($"sspi l{_device.Level}");
                 }
-                                                   
-                var portsSignal = response.Select(line =>
+                catch (Exception ex)
                 {
-                    var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    return lineParams.Length >= 4 ? new PortState(short.Parse(lineParams[2].Trim('\"')), lineParams[3].Trim('\"') == "p") : null;
-                }).Where(c => c != null).ToArray();
-                OnRouterPortsStatesReceived?.Invoke(this, new EventArgs<PortState[]>(portsSignal));
-
-                await Task.Delay(3000);
-                AddToRequestQueue($"sspi l{_device.Level}");                
+                    if (ex is OperationCanceledException || ex is TaskCanceledException)
+                        Logger.Debug("Router Signal Presence Watcher cancelled");
+                    
+                    return;
+                }
+                
             }
         }
 
@@ -304,32 +333,41 @@ namespace TAS.Server.RouterCommunicators
             
             while (true)
             {
-                if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out var response))                                   
-                    await semaphore.WaitAsync().ConfigureAwait(false);                                    
-               
-                if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out response))
+                try
                 {
+                    if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out var response))
+                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+
+                    if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out response))
+                        continue;
+
                     if (_cancellationTokenSource.IsCancellationRequested)
-                        break;
-                    continue;
-                }                    
-               
-                var crosspoints = response.Select(line =>
-                {
-                    var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (lineParams.Length >= 4 && lineParams[0] == "x" &&
-                        lineParams[1] == $"l{_device.Level}" &&
-                        lineParams[3] == _device.OutputPorts[0].ToString() &&
-                        short.TryParse(lineParams[2], out var inPort) &&
-                        short.TryParse(lineParams[3], out var outPort))
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
+                    var crosspoints = response.Select(line =>
+                    {
+                        var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (lineParams.Length >= 4 && lineParams[0] == "x" &&
+                            lineParams[1] == $"l{_device.Level}" &&
+                            lineParams[3] == _device.OutputPorts[0].ToString() &&
+                            short.TryParse(lineParams[2], out var inPort) &&
+                            short.TryParse(lineParams[3], out var outPort))
                             return new CrosspointInfo(inPort, outPort);
-                    return null;
-                }).FirstOrDefault(c => c != null);
+                        return null;
+                    }).FirstOrDefault(c => c != null);
 
-                if (crosspoints == null)
-                    continue;
+                    if (crosspoints == null)
+                        continue;
 
-                OnInputPortChangeReceived?.Invoke(this, new EventArgs<CrosspointInfo>(crosspoints));
+                    OnInputPortChangeReceived?.Invoke(this, new EventArgs<CrosspointInfo>(crosspoints));
+                }
+                catch(Exception ex)
+                {
+                    if (ex is OperationCanceledException || ex is TaskCanceledException)
+                        Logger.Debug("Input Port Watcher cancelled");
+
+                    return;
+                }
             }
         }
 
@@ -414,7 +452,7 @@ namespace TAS.Server.RouterCommunicators
             {
                 var command = _response.Substring(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
                 _response = _response.Remove(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
-                //Debug.WriteLine(command);                
+                //Logger.Debug(command);                
                 ProcessCommand(command);
             }
         }        

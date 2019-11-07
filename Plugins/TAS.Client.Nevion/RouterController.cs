@@ -84,6 +84,9 @@ namespace TAS.Server
 
         private async void ParseInputMeta(PortInfo[] ports)
         {
+            if (ports == null)
+                return;
+
             foreach (var port in ports)
             {
                 if (InputPorts.FirstOrDefault(inPort => inPort.PortId == port.Id && inPort.PortName == port.Name) != null)
