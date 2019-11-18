@@ -296,6 +296,29 @@ namespace TAS.Server.Media
             return media;
         }
 
+        private IMedia AddMediaFromFtp(string fullPath, FtpListItem item)
+        {
+            var relativeName = fullPath.Substring(Folder.Length);
+            var fileName = Path.GetFileName(fullPath);
+            var mediaType = FileUtils.GetMediaType(fileName);
+            var isVerified = AccessType == TDirectoryAccessType.FTP && Kind != TIngestDirectoryKind.XDCAM;
+            var media = new IngestMedia
+            {
+                MediaName = FileUtils.GetFileNameWithoutExtension(fileName, mediaType),
+                MediaGuid = Guid.NewGuid(),
+                MediaType = mediaType,
+                Duration = item.Type == FtpFileSystemObjectType.Movie ? item.Size.SmpteFramesToTimeSpan("50") : TimeSpan.Zero,
+                DurationPlay = item.Type == FtpFileSystemObjectType.Movie ? item.Size.SmpteFramesToTimeSpan("50") : TimeSpan.Zero,
+                FileName = fileName,
+                LastUpdated = item.Modified == default(DateTime) ? item.Created : item.Modified,
+                Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
+                MediaStatus = isVerified ? TMediaStatus.Available : TMediaStatus.Unknown,
+                IsVerified = isVerified
+            };
+            AddMedia(media);
+            return media;
+        }
+
         public override void AddMedia(IMedia media)
         {
             if (!(media is MediaBase mediaBase))
@@ -538,16 +561,7 @@ namespace TAS.Server.Media
             var newPath = localPath + '/' + item.Name;
             if ((item.Type == FtpFileSystemObjectType.Movie || item.Type == FtpFileSystemObjectType.File)
                 && (string.IsNullOrEmpty(filter) || item.Name.ToLower().Contains(filter)))
-            {
-                var newmedia = AddMediaFromPath(Folder + newPath,
-                    item.Modified == default(DateTime) ? item.Created : item.Modified);
-                if (item.Type == FtpFileSystemObjectType.Movie)
-                {
-                    newmedia.Duration = item.Size.SmpteFramesToTimeSpan("50"); // assuming Grass Valley K2 PAL server
-                    newmedia.DurationPlay = newmedia.Duration;
-                }
-                yield return newmedia;
-            }
+                yield return AddMediaFromFtp(Folder + newPath, item);
             if (!IsRecursive || item.Type != FtpFileSystemObjectType.Directory)
                 yield break;
             foreach (var file in client.GetListing(rootPath + newPath))
