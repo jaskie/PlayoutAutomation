@@ -44,13 +44,11 @@ namespace TAS.Server
 
         public static void ShutDown()
         {
-            if (Engines != null)
-                foreach (var e in Engines)
-                    e.Dispose();
+            Engines?.ForEach(e => e.Dispose());
             Logger.Info("Engines shutdown completed");
             Database?.Close();
             Logger.Info("Database closed");
-            _servers.ForEach(s => s.Dispose());
+            _servers?.ForEach(s => s.Dispose());
         }
 
         public static int GetConnectedClientCount() => Engines.Sum(e => e.Remote?.ClientCount ?? 0);
