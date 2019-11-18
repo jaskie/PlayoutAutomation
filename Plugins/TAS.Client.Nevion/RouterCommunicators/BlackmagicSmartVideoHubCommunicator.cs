@@ -7,7 +7,6 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Server.Model;
 
 namespace TAS.Server.RouterCommunicators
@@ -28,6 +27,7 @@ namespace TAS.Server.RouterCommunicators
 
         private ConcurrentQueue<string> _requestsQueue;
         private ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>> _responsesQueue;
+
         private readonly ConcurrentDictionary<ListTypeEnum, string[]> _responseDictionary = new ConcurrentDictionary<ListTypeEnum, string[]>();
 
         private readonly Dictionary<ListTypeEnum, SemaphoreSlim> _semaphores = Enum.GetValues(typeof(ListTypeEnum)).Cast<ListTypeEnum>().ToDictionary(t => t, t => new SemaphoreSlim(t == ListTypeEnum.CrosspointStatus ? 1 : 0));
@@ -42,7 +42,7 @@ namespace TAS.Server.RouterCommunicators
 
         public BlackmagicSmartVideoHubCommunicator(RouterDevice device)
         {
-            _device = device;                                   
+            _device = device;
         }
 
         public async Task<bool> Connect()
@@ -56,7 +56,7 @@ namespace TAS.Server.RouterCommunicators
 
                 Debug.WriteLine("Connecting to Blackmagic...");
                 try
-                {                    
+                {
                     var connectTask = _tcpClient.ConnectAsync(_device.IpAddress, _device.Port);
                     await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
 
@@ -64,7 +64,7 @@ namespace TAS.Server.RouterCommunicators
                     {
                         _tcpClient.Close();
                         continue;
-                    }                        
+                    }
 
                     Debug.WriteLine("Blackmagic connected!");
 
@@ -81,21 +81,20 @@ namespace TAS.Server.RouterCommunicators
                     InputPortWatcher();
 
                     Logger.Info("Blackmagic router connected and ready!");
-                    
+
                     return true;
-                }                
+                }
                 catch (Exception ex)
                 {
                     if (ex is ObjectDisposedException || ex is System.IO.IOException)
                         Logger.Debug("Network stream closed");
-                    else if (ex is OperationCanceledException || ex is TaskCanceledException)
+                    else if (ex is OperationCanceledException)
                         Logger.Debug("Router connecting canceled");
                     else
                         Logger.Error(ex);
 
                     break;
                 }
-
             }
             return false;
         }
@@ -129,13 +128,13 @@ namespace TAS.Server.RouterCommunicators
             if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
                 return null;
 
-            AddToRequestQueue($"INPUT LABELS:");
+            AddToRequestQueue("INPUT LABELS:");
             while (true)
             {
                 try
                 {
                     if (!_responseDictionary.TryRemove(ListTypeEnum.Input, out var response))
-                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);                    
+                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.Input, out response))
                         continue;
@@ -144,27 +143,28 @@ namespace TAS.Server.RouterCommunicators
 
                     return response.Select(line =>
                     {
-                        var lineParams = line.Split(new[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
-                        return lineParams.Length >= 2 ? new PortInfo(short.Parse(lineParams[0]), lineParams.ElementAtOrDefault(1) ?? string.Empty) : null;
+                        var lineParams = line.Split(new[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
+                        return lineParams.Length >= 2
+                            ? new PortInfo(short.Parse(lineParams[0]), lineParams.ElementAtOrDefault(1) ?? string.Empty)
+                            : null;
                     }).Where(c => c != null).ToArray();
                 }
                 catch (Exception ex)
                 {
-                    if (ex is OperationCanceledException || ex is TaskCanceledException)
+                    if (ex is OperationCanceledException)
                         Logger.Debug("Input ports request cancelled");
 
                     return null;
                 }
-                
-            }            
+            }
         }
 
         public async Task<CrosspointInfo> GetCurrentInputPort()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
                 return null;
-            
-            AddToRequestQueue($"VIDEO OUTPUT ROUTING:");
+
+            AddToRequestQueue("VIDEO OUTPUT ROUTING:");
             while (true)
             {
                 try
@@ -178,7 +178,7 @@ namespace TAS.Server.RouterCommunicators
                     semaphore.Release(); // reset semaphore to 1
                     return response.Select(line =>
                     {
-                        var lineParams = line.Split(new[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                        var lineParams = line.Split(new[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
                         if (lineParams.Length >= 2 &&
                             short.TryParse(lineParams[0], out var outPort) &&
                             outPort == _device.OutputPorts[0] &&
@@ -190,13 +190,12 @@ namespace TAS.Server.RouterCommunicators
                 }
                 catch (Exception ex)
                 {
-                    if (ex is OperationCanceledException || ex is TaskCanceledException)
+                    if (ex is OperationCanceledException)
                         Logger.Debug("Current Input Port request cancelled");
 
                     return null;
                 }
-
-            }            
+            }
         }
 
         private async void StartRequestQueueHandler()
@@ -220,7 +219,7 @@ namespace TAS.Server.RouterCommunicators
             {
                 if (ex is ObjectDisposedException || ex is System.IO.IOException)
                     Debug.WriteLine("Router request handler stream closed/disposed.");
-                else if (ex is OperationCanceledException || ex is TaskCanceledException)
+                else if (ex is OperationCanceledException)
                     Logger.Debug("Router request handler cancelled");
                 else
                     Logger.Error(ex, "Unexpected exception in Blackmagic request handler");
@@ -232,7 +231,7 @@ namespace TAS.Server.RouterCommunicators
             try
             {
                 while (true)
-                {                   
+                {
                     await _responsesQueueSemaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
                     while (!_responsesQueue.IsEmpty)
                     {
@@ -241,12 +240,10 @@ namespace TAS.Server.RouterCommunicators
 
                         if (_responseDictionary.TryAdd(response.Key, response.Value))
                         {
-                            if (_semaphores.TryGetValue(response.Key, out var semaphore))
+                            if (!_semaphores.TryGetValue(response.Key, out var semaphore))
                                 continue;
-
-                            semaphore.Release();                            
+                            semaphore.Release();
                         }
-
                         else
                             _responsesQueue.Enqueue(response);
                     }
@@ -256,7 +253,7 @@ namespace TAS.Server.RouterCommunicators
             {
                 if (ex is ObjectDisposedException || ex is System.IO.IOException)
                     Logger.Debug("Router response handler stream closed/disposed.");
-                else if (ex is OperationCanceledException || ex is TaskCanceledException)
+                else if (ex is OperationCanceledException)
                     Logger.Debug("Router response handler cancelled");
                 else
                     Logger.Error(ex, "Unexpected exception in Blackmagic response handler");
@@ -289,25 +286,25 @@ namespace TAS.Server.RouterCommunicators
                 }
             }
         }
-       
+
         private async void ConnectionWatcher()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.SignalPresence, out var semaphore))
                 return;
 
-            AddToRequestQueue($"PING:");
+            AddToRequestQueue("PING:");
 
             while (true)
-            {     
+            {
                 try
                 {
-                    await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);                    
+                    await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
                     await Task.Delay(3000, _cancellationTokenSource.Token).ConfigureAwait(false);
-                    AddToRequestQueue($"PING:");
+                    AddToRequestQueue("PING:");
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    if (ex is OperationCanceledException || ex is TaskCanceledException)
+                    if (ex is OperationCanceledException)
                         Logger.Debug("Router Ping cancelled");
 
                     return;
@@ -335,7 +332,7 @@ namespace TAS.Server.RouterCommunicators
 
                     var crosspoints = response.Select(line =>
                     {
-                        var lineParams = line.Split(new[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                        var lineParams = line.Split(new[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
                         if (lineParams.Length >= 2 &&
                             short.TryParse(lineParams[0], out var outPort) &&
                             outPort == _device.OutputPorts[0] &&
@@ -350,9 +347,9 @@ namespace TAS.Server.RouterCommunicators
 
                     OnInputPortChangeReceived?.Invoke(this, new EventArgs<CrosspointInfo>(crosspoints));
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    if (ex is OperationCanceledException || ex is TaskCanceledException)
+                    if (ex is OperationCanceledException)
                         Logger.Debug("Input Port Watcher cancelled");
 
                     return;
@@ -391,7 +388,7 @@ namespace TAS.Server.RouterCommunicators
 
             var trimmedLines = lines.Skip(1).Where(param => !string.IsNullOrEmpty(param)).ToArray();
 
-            if (lines[0].Contains($"INPUT LABELS"))
+            if (lines[0].Contains("INPUT LABELS"))
             {
                 if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
                     return;
@@ -400,22 +397,20 @@ namespace TAS.Server.RouterCommunicators
                     AddToResponseQueue(ListTypeEnum.Input, trimmedLines);
                 else
                     semaphore.Release();
-
             }
-            
+
             else if (lines[0].Contains("OUTPUT ROUTING"))
             {
-                if (_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphoreStatus) && 
-                    semaphoreStatus.CurrentCount == 0 && 
+                if (_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphoreStatus) &&
+                    semaphoreStatus.CurrentCount == 0 &&
                     !_responseDictionary.TryGetValue(ListTypeEnum.CrosspointStatus, out _))
                 {
                     _responseDictionary.TryAdd(ListTypeEnum.CrosspointStatus, trimmedLines);
-                    
+
                     semaphoreStatus.Release();
                     return;
                 }
 
-                
 
                 if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointChange, out var semaphoreChange))
                     return;
@@ -423,8 +418,8 @@ namespace TAS.Server.RouterCommunicators
                 if (!_responseDictionary.TryAdd(ListTypeEnum.CrosspointChange, trimmedLines))
                     AddToResponseQueue(ListTypeEnum.CrosspointChange, trimmedLines);
                 else
-                    semaphoreChange.Release();                                              
-            }           
+                    semaphoreChange.Release();
+            }
         }
 
         private void ParseMessage(string response)

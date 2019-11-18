@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Server.Model;
 
 namespace TAS.Server.RouterCommunicators
@@ -42,7 +40,6 @@ namespace TAS.Server.RouterCommunicators
 
         public async Task<bool> Connect()
         {
-            _disposed = default(int);
             _cancellationTokenSource = new CancellationTokenSource();
 
             while (true)
@@ -85,7 +82,7 @@ namespace TAS.Server.RouterCommunicators
                 {
                     if (ex is ObjectDisposedException || ex is System.IO.IOException)
                         Logger.Debug("Network stream closed");
-                    else if (ex is OperationCanceledException || ex is TaskCanceledException)
+                    else if (ex is OperationCanceledException)
                         Logger.Debug("Router connecting canceled");
                     else
                         Logger.Error(ex);
@@ -145,7 +142,7 @@ namespace TAS.Server.RouterCommunicators
                 }
                 catch(Exception ex)
                 {
-                    if (ex is OperationCanceledException || ex is TaskCanceledException)
+                    if (ex is OperationCanceledException)
                         Logger.Debug("Input ports request cancelled");
 
                     return null;
@@ -183,7 +180,7 @@ namespace TAS.Server.RouterCommunicators
                 }
                 catch (Exception ex)
                 {
-                    if (ex is OperationCanceledException || ex is TaskCanceledException)
+                    if (ex is OperationCanceledException)
                         Logger.Debug("Current Input Port request cancelled");
 
                     return null;
@@ -212,7 +209,7 @@ namespace TAS.Server.RouterCommunicators
             {
                 if (ex is ObjectDisposedException || ex is System.IO.IOException)
                     Logger.Debug("Router request handler stream closed/disposed.");
-                else if (ex is OperationCanceledException || ex is TaskCanceledException)
+                else if (ex is OperationCanceledException)
                     Logger.Debug("Router request handler cancelled");
                 else
                     Logger.Error(ex, "Unexpected exception in Nevion request handler");
@@ -248,7 +245,7 @@ namespace TAS.Server.RouterCommunicators
             {
                 if (ex is ObjectDisposedException || ex is System.IO.IOException)
                     Logger.Debug("Router response handler stream closed/disposed.");
-                else if (ex is OperationCanceledException || ex is TaskCanceledException)
+                else if (ex is OperationCanceledException)
                     Logger.Debug("Router response handler cancelled");
                 else
                     Logger.Error(ex, "Unexpected exception in Blackmagic response handler");
@@ -317,7 +314,7 @@ namespace TAS.Server.RouterCommunicators
                 }
                 catch (Exception ex)
                 {
-                    if (ex is OperationCanceledException || ex is TaskCanceledException)
+                    if (ex is OperationCanceledException)
                         Logger.Debug("Router Signal Presence Watcher cancelled");
                     
                     return;
@@ -363,7 +360,7 @@ namespace TAS.Server.RouterCommunicators
                 }
                 catch(Exception ex)
                 {
-                    if (ex is OperationCanceledException || ex is TaskCanceledException)
+                    if (ex is OperationCanceledException)
                         Logger.Debug("Input Port Watcher cancelled");
 
                     return;
@@ -452,7 +449,6 @@ namespace TAS.Server.RouterCommunicators
             {
                 var command = _response.Substring(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
                 _response = _response.Remove(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
-                //Logger.Debug(command);                
                 ProcessCommand(command);
             }
         }        

@@ -1,7 +1,6 @@
 ﻿using NLog;
 using System;
 using System.ComponentModel.Composition;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using TAS.Common;
@@ -21,7 +20,6 @@ namespace TAS.Server
         {
             _routerDevices = DataStore.Load<RouterDevice[]>(Path.Combine(FileUtils.ConfigurationPath, "RouterDevices"), new System.Xml.Serialization.XmlRootAttribute("RouterDevices"));
             if (_routerDevices != null) return;
-            Debug.WriteLine("Router configuration readError");
             Logger.Error("Router config read error");
         }
 

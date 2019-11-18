@@ -38,9 +38,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ComponentModelRPC">
-      <HintPath>..\TVPlay\bin\Release\ComponentModelRPC.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -105,6 +102,10 @@
     <Compile Include="Model\Media\XDCAMMedia.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\dependencies\ComponentModelRPC\ComponentModelRPC\ComponentModelRPC.csproj">
+      <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
+      <Name>ComponentModelRPC</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TAS.Common\TAS.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
       <Name>TAS.Common</Name>

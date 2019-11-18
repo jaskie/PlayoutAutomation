@@ -4,7 +4,7 @@ using TAS.Common;
 
 namespace TAS.Server.Model
 {
-    interface IRouterCommunicator : IDisposable
+    internal interface IRouterCommunicator : IDisposable
     {
         Task<bool> Connect();       
         void SelectInput(int inPort);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using System.Linq;
@@ -8,7 +7,6 @@ using Newtonsoft.Json;
 using TAS.Server.Model;
 using TAS.Server.RouterCommunicators;
 using ComponentModelRPC.Server;
-using System.Threading;
 
 namespace TAS.Server
 {
@@ -19,8 +17,6 @@ namespace TAS.Server
         private readonly RouterDevice _device;
         private IRouterPort _selectedInputPort;
         private bool _isConnected;
-
-        private int _disposed;
 
         public RouterController(RouterDevice device)
         {
@@ -89,9 +85,7 @@ namespace TAS.Server
 
             foreach (var port in ports)
             {
-                if (InputPorts.FirstOrDefault(inPort => inPort.PortId == port.Id && inPort.PortName == port.Name) != null)
-                    continue;
-                else if (InputPorts.FirstOrDefault(inPort => inPort.PortId == port.Id && inPort.PortName != port.Name) is RouterPort foundPort)
+                if (InputPorts.FirstOrDefault(inPort => inPort.PortId == port.Id && inPort.PortName != port.Name) is RouterPort foundPort)
                     foundPort.PortName = port.Name;
                 else if (InputPorts.All(inPort => inPort.PortId != port.Id))
                     InputPorts.Add(new RouterPort(port.Id, port.Name));
@@ -130,15 +124,10 @@ namespace TAS.Server
 
         protected override void DoDispose()
         {
-            if (Interlocked.Exchange(ref _disposed, 1) != default(int))
-                return;
-
-            base.DoDispose();            
             _routerCommunicator.OnInputPortChangeReceived -= Communicator_OnInputPortChangeReceived;
             _routerCommunicator.OnRouterPortsStatesReceived -= Communicator_OnRouterPortStateReceived;
             _routerCommunicator.OnRouterConnectionStateChanged -= Communicator_OnRouterConnectionStateChanged;
             _routerCommunicator.Dispose();
-            Debug.WriteLine("Router Plugin Disposed");
         }
     }
 }

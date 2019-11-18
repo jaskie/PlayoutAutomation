@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace TAS.Server.Model
+﻿namespace TAS.Server.Model
 {
     internal class PortInfo
     {
