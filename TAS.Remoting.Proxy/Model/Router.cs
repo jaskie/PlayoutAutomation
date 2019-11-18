@@ -8,7 +8,7 @@ namespace TAS.Remoting.Model
 {
     public class Router : ProxyBase, IRouter
     {
-        #pragma warning disable CS0649 
+#pragma warning disable CS0649 
 
         [JsonProperty(nameof(IRouter.InputPorts))]
         private IList<IRouterPort> _inputPorts;
@@ -17,21 +17,13 @@ namespace TAS.Remoting.Model
         private IRouterPort _selectedInputPort;
 
         [JsonProperty(nameof(IRouter.IsConnected))]
-        private readonly bool _isConnected;
+        private bool _isConnected;
 
 #pragma warning restore
 
-        public IList<IRouterPort> InputPorts
-        {
-            get => _inputPorts;
-            set => Set(value);
-        }
-       
-        public IRouterPort SelectedInputPort 
-        {
-            get => _selectedInputPort;
-            set => Set(value);
-        }
+        public IList<IRouterPort> InputPorts => _inputPorts;
+
+        public IRouterPort SelectedInputPort => _selectedInputPort;
 
         public bool IsConnected => _isConnected;
 

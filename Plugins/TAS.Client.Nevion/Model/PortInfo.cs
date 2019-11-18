@@ -9,5 +9,5 @@
         }
         public short Id { get; }
         public string Name { get; }
-    }
+    }   
 }

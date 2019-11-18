@@ -35,7 +35,7 @@
       <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\NLog.4.5.9\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -64,6 +64,7 @@
     <Compile Include="Model\RouterDevice.cs" />
     <Compile Include="Model\ListTypeEnum.cs" />
     <Compile Include="Model\IRouterCommunicator.cs" />
+    <Compile Include="RouterCommunicators\BlackmagicSmartVideoHubCommunicator.cs" />
     <Compile Include="RouterPort.cs" />
     <Compile Include="Model\RouterTypeEnum.cs" />
     <Compile Include="RouterCommunicators\NevionCommunicator.cs" />
@@ -72,6 +73,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\dependencies\ComponentModelRPC\ComponentModelRPC\ComponentModelRPC.csproj">
+      <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
+      <Name>ComponentModelRPC</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj">
       <Project>{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}</Project>
       <Name>TAS.Client.Common</Name>
@@ -79,10 +84,6 @@
     <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj">
       <Project>{9ACA6AE7-49ED-4599-91AC-927680CF9623}</Project>
       <Name>TAS.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\dependencies\ComponentModelRPC\ComponentModelRPC\ComponentModelRPC.csproj">
-      <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
-      <Name>TAS.Remoting</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

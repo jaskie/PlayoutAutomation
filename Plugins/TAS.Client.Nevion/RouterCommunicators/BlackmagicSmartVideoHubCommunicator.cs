@@ -7,385 +7,431 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Server.Model;
 
 namespace TAS.Server.RouterCommunicators
 {
-    public class BlackmagicSmartVideoHubCommunicator : IRouterCommunicator
+    internal class BlackmagicSmartVideoHubCommunicator : IRouterCommunicator
     {
+        /// <summary>
+        /// In Blackmagic CrosspointStatus and CrosspointChange responses have the same syntax. CrosspointStatus semaphore initial value is set to 1 to help notify ProcessCommand method
+        /// about pending request from GetCurrentInputPort method
+        /// </summary>
+        /// 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private TcpClient _tcpClient;           
+        private TcpClient _tcpClient;
 
         private NetworkStream _stream;
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly RouterDevice _device;
 
-        private Task _requestHandlerTask;
-        private Task _listenerTask;
-        private Task<bool> _sendTask;        
+        private ConcurrentQueue<string> _requestsQueue;
+        private ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>> _responsesQueue;
 
-        private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
-        private readonly SemaphoreSlim _requestHandlerSemaphore = new SemaphoreSlim(0);
-        private bool _inputPortsListRequested;
-        private bool _currentInputPortRequested;
-        private bool _routerStateRequested;
-        private bool _outputPortsListRequested;        
+        private readonly ConcurrentDictionary<ListTypeEnum, string[]> _responseDictionary = new ConcurrentDictionary<ListTypeEnum, string[]>();
+
+        private readonly Dictionary<ListTypeEnum, SemaphoreSlim> _semaphores = Enum.GetValues(typeof(ListTypeEnum)).Cast<ListTypeEnum>().ToDictionary(t => t, t => new SemaphoreSlim(t == ListTypeEnum.CrosspointStatus ? 1 : 0));
+
+        private readonly SemaphoreSlim _requestQueueSemaphore = new SemaphoreSlim(0);
+        private readonly SemaphoreSlim _responsesQueueSemaphore = new SemaphoreSlim(0);
+
+        private CancellationTokenSource _cancellationTokenSource;
 
         private string _response;
-
-        public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnRouterStateReceived;
-        public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnInputPortsListReceived;
-        public event EventHandler<EventArgs<IEnumerable<IRouterPort>>> OnOutputPortsListReceived;
-        public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
-        public event EventHandler<EventArgs<IEnumerable<CrosspointInfo>>> OnInputPortChangeReceived;
-        private event EventHandler<EventArgs<string>> OnResponseReceived;        
+        private int _disposed;
 
         public BlackmagicSmartVideoHubCommunicator(RouterDevice device)
         {
             _device = device;
-            OnResponseReceived += BlackmagicCommunicator_OnResponseReceived;
-        }              
+        }
 
         public async Task<bool> Connect()
         {
+            _disposed = default(int);
             _cancellationTokenSource = new CancellationTokenSource();
+
             while (true)
             {
+                _tcpClient = new TcpClient();
+
+                Debug.WriteLine("Connecting to Blackmagic...");
                 try
                 {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
-                    Debug.WriteLine("Connecting to Blackmagic...");
-                    _tcpClient = new TcpClient();                    
-
                     var connectTask = _tcpClient.ConnectAsync(_device.IpAddress, _device.Port);
                     await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
 
                     if (!_tcpClient.Connected)
+                    {
+                        _tcpClient.Close();
                         continue;
-                    
+                    }
+
                     Debug.WriteLine("Blackmagic connected!");
-                    _requestHandlerTask = RequestsHandler();
 
+                    _requestsQueue = new ConcurrentQueue<string>();
+                    _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
+                    StartRequestQueueHandler();
+                    StartResponseQueueHandler();
+
+                    _requestsQueue = new ConcurrentQueue<string>();
                     _stream = _tcpClient.GetStream();
-                    _listenerTask = Listen();
-                    Logger.Info("Blackmagic router connected and ready!");
-                    break;
-                }
-                catch (OperationCanceledException)
-                {
-                    Debug.WriteLine("Connecting canceled");
-                    break;
-                }
-                catch
-                {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        break;
+                    StartListener();
 
-                    Debug.WriteLine("Exception, attempting to reconnect to Blackmagic Router in 1s");
-                    await Task.Delay(1000);
+                    ConnectionWatcher();
+                    InputPortWatcher();
+
+                    Logger.Info("Blackmagic router connected and ready!");
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    if (ex is ObjectDisposedException || ex is System.IO.IOException)
+                        Logger.Debug("Network stream closed");
+                    else if (ex is OperationCanceledException)
+                        Logger.Debug("Router connecting canceled");
+                    else
+                        Logger.Error(ex);
+
+                    break;
                 }
             }
-            return true;
-        }       
-
-        public void RequestRouterState()
-        {
-            if (_routerStateRequested)
-                return;
-            _routerStateRequested = true;
-            AddToRequestQueue("PING:");
-        }
-
-        public void RequestCurrentInputPort()
-        {
-            if (_currentInputPortRequested)
-                return;
-
-            _currentInputPortRequested = true;
-            AddToRequestQueue("VIDEO OUTPUT ROUTING:");
-        }
-
-        public void RequestInputPorts()
-        {
-            if (_inputPortsListRequested)
-                return;
-
-            _inputPortsListRequested = true;
-            AddToRequestQueue("INPUT LABELS");
-        }
-
-        public void RequestOutputPorts()
-        {
-            if (_outputPortsListRequested)
-                return;
-            _outputPortsListRequested = true;
-            AddToRequestQueue("OUTPUT LABELS");
+            return false;
         }
 
         public void SelectInput(int inPort)
         {
-            var request = _device.OutputPorts.Aggregate("VIDEO OUTPUT ROUTING:\n", (current, outPort) => current + string.Concat(outPort, " ", inPort, "\n"));
-            AddToRequestQueue(request);
+            AddToRequestQueue(_device.OutputPorts.Aggregate("VIDEO OUTPUT ROUTING:\n", (current, outPort) => current + string.Concat(outPort, " ", inPort, "\n")));
         }
-
-        private void BlackmagicCommunicator_OnResponseReceived(object sender, EventArgs<string> e)
-        {
-            _response += e.Value;
-
-            while (_response.Contains("\n\n"))
-            {
-                var command = _response.Substring(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
-                _response = _response.Remove(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
-
-                ProcessCommand(command);
-            }
-        }
-
-        private async Task RequestsHandler()
-        {
-            try
-            {
-                while (true)
-                {
-                    if (_requestsQueue.Count < 1)
-                        await _requestHandlerSemaphore.WaitAsync(_cancellationTokenSource.Token);
-
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException();
-
-                    while (!_requestsQueue.IsEmpty)
-                    {
-                        if (!_tcpClient.Connected)
-                            break;
-
-                        if (!_requestsQueue.TryDequeue(out var request))
-                            continue;
-
-                        _sendTask = Send(request);
-                        await _sendTask.ConfigureAwait(false);
-
-                    }
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                Logger.Info("Blackmagic request handler canceled");
-                Debug.WriteLine("Blackmagic request handler canceled");
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Unexpected exception in Blackmagic request handler {ex}");
-                Debug.WriteLine($"Unexpected exception in Blackmagic request handler {ex}");
-            }
-        }
-
-        private async Task<bool> Send(string message)
-        {
-            try
-            {
-                var data = System.Text.Encoding.ASCII.GetBytes(message.Last() != '\n' ? string.Concat(message, "\n\n") : string.Concat(message, "\n"));
-                await _stream.WriteAsync(data, 0, data.Length, _cancellationTokenSource.Token).ConfigureAwait(false);
-                Debug.WriteLine($"Blackmagic message sent: {message}");
-                return true;
-            }
-            catch(TimeoutException)
-            {
-                Debug.WriteLine("Router send timeout.");
-                Disconnect();
-                return false;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private async Task Listen()
-        {
-            var bytesReceived = new byte[256];
-
-            Debug.WriteLine("Blackmagic listener started!");
-            while (true)
-            {
-                try
-                {                    
-                    var readTask = _stream.ReadAsync(bytesReceived, 0, bytesReceived.Length, _cancellationTokenSource.Token);
-                    await Task.WhenAny(readTask, Task.Delay(-1, _cancellationTokenSource.Token)).ConfigureAwait(false);
-                    
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
-
-                    if (!readTask.IsCompleted)
-                        continue;
-
-                    int bytes;
-                    if ((bytes = readTask.Result) == 0)
-                        continue;
-                    var response = System.Text.Encoding.ASCII.GetString(bytesReceived, 0, bytes);
-                    OnResponseReceived?.Invoke(this, new EventArgs<string>(response));
-                }
-                catch (OperationCanceledException)
-                {
-                    Debug.WriteLine("Listener canceled");
-                    break;
-                }
-                catch (System.IO.IOException ioException)
-                {
-                    if (_tcpClient.Connected)
-                    {
-                        Debug.WriteLine($"Blackmagic listener encountered error: {ioException}");
-                        continue;
-                    }
-                    Logger.Error(ioException, "Blackmagic listener was closed forcibly, attempting to reconnect to Blackmagic.");
-                    Debug.WriteLine($"Blackmagic listener was closed forcibly: {ioException}\n Attempting to reconnect to Blackmagic...");
-
-                    Disconnect();
-                    break;
-                }                
-                catch (Exception ex)
-                {
-                    Logger.Error(ex, "Unknown Blackmagic listener error");
-                    Debug.WriteLine($"Blackmagic listener error. {ex.Message}");
-                }
-            }
-        }
-
-        private void ProcessCommand(string localResponse)
-        {
-            IList<string> lines = localResponse.Split('\n').ToList();
-            if (lines[0].StartsWith("NAK"))
-                return;
-
-            if (lines[0].StartsWith("ACK"))
-            {
-                lines.RemoveAt(1);
-                lines.RemoveAt(0);
-                if (lines[0] == "")
-                {
-                    OnRouterStateReceived?.Invoke(this, new EventArgs<IEnumerable<IRouterPort>>(null));
-                    _routerStateRequested = false;
-                    return;
-                }
-
-            }
-
-            Debug.WriteLine($"Processing command: {lines[0]}");
-
-            if (lines[0].Contains("INPUT LABELS"))
-                IoListProcess(lines
-                    .Skip(1)
-                    .Where(param => !string.IsNullOrEmpty(param))
-                    .ToList(),
-                    ListTypeEnum.Input);
-            else if (lines[0].Contains("OUTPUT LABELS"))
-                IoListProcess(lines
-                    .Skip(1)
-                    .Where(param => !string.IsNullOrEmpty(param))
-                    .ToList(),
-                    ListTypeEnum.Output);
-            else if (lines[0].Contains("OUTPUT ROUTING"))
-                IoListProcess(lines
-                    .Skip(1)
-                    .Where(param => !string.IsNullOrEmpty(param))
-                    .ToList(),
-                    ListTypeEnum.CrosspointChange);
-
-            Debug.WriteLine("Command processed");
-        }
-
-        private void IoListProcess(IList<string> listResponse, ListTypeEnum listType)
-        {
-            var ports = new List<IRouterPort>();
-            var crosspoints = new List<CrosspointInfo>();
-
-            foreach (var line in listResponse)
-            {
-                var lineParams = line.Split(' ');
-                try
-                {
-                    switch (listType)
-                    {
-                        case ListTypeEnum.Input:
-                        case ListTypeEnum.Output:
-                        {
-                            var split = line.Split(new []{' '}, 2, StringSplitOptions.RemoveEmptyEntries);
-                                if (split.Length < 1 || !short.TryParse(split[0], out var numer))
-                                    throw  new ArgumentException("Too few parameters");
-                                ports.Add(new RouterPort(numer, split.ElementAtOrDefault(1) ?? string.Empty));
-                                break;
-                            }
-                        case ListTypeEnum.CrosspointChange:
-                        case ListTypeEnum.CrosspointStatus:
-                            {
-                                crosspoints.Add(new CrosspointInfo(short.Parse(lineParams[1]), short.Parse(lineParams[0])));
-                                break;
-                            }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error($"Failed to generate port from response. [Line: {line} message: {ex.Message}]");
-                    Debug.WriteLine($"Failed to generate port from response. [\n{line}\n{ex.Message}]");
-                }
-            }
-
-            switch (listType)
-            {
-                case ListTypeEnum.Input:
-                    {
-                        OnInputPortsListReceived?.Invoke(this, new EventArgs<IEnumerable<IRouterPort>>(ports));
-                        _inputPortsListRequested = false;
-                        break;
-                    }
-
-                case ListTypeEnum.Output:
-                    {
-                        OnOutputPortsListReceived?.Invoke(this, new EventArgs<IEnumerable<IRouterPort>>(ports));
-                        _outputPortsListRequested = false;
-                        break;
-                    }
-
-                case ListTypeEnum.CrosspointStatus:
-                    {
-                        OnInputPortChangeReceived?.Invoke(this, new EventArgs<IEnumerable<CrosspointInfo>>(crosspoints));
-                        _currentInputPortRequested = false;
-                        break;
-                    }
-                case ListTypeEnum.CrosspointChange:
-                    {
-                        OnInputPortChangeReceived?.Invoke(this, new EventArgs<IEnumerable<CrosspointInfo>>(crosspoints));
-                        break;
-                    }
-            }
-        }
-
-        private void AddToRequestQueue(string request)
-        {
-            _requestsQueue.Enqueue(request);
-            _requestHandlerSemaphore.Release();
-        }        
 
         public void Disconnect()
         {
-            _cancellationTokenSource.Cancel();
-            _requestsQueue = new ConcurrentQueue<string>();
-          
-            _sendTask?.Wait();
-            _listenerTask?.Wait();
-            _requestHandlerTask?.Wait();
+            _cancellationTokenSource?.Cancel();
+            _tcpClient?.Close();
             OnRouterConnectionStateChanged?.Invoke(this, new EventArgs<bool>(false));
         }
 
         public void Dispose()
         {
-            OnResponseReceived -= BlackmagicCommunicator_OnResponseReceived;
+            if (Interlocked.Exchange(ref _disposed, 1) != default(int))
+                return;
             Disconnect();
-            _tcpClient?.Close();
-            
             Debug.WriteLine("Blackmagic communicator disposed");
+        }
+
+        public event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;
+        public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
+        public event EventHandler<EventArgs<CrosspointInfo>> OnInputPortChangeReceived;
+
+        public async Task<PortInfo[]> GetInputPorts()
+        {
+            if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
+                return null;
+
+            AddToRequestQueue("INPUT LABELS:");
+            while (true)
+            {
+                try
+                {
+                    if (!_responseDictionary.TryRemove(ListTypeEnum.Input, out var response))
+                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+
+                    if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.Input, out response))
+                        continue;
+
+                    semaphore.Release(); // reset semaphore to 1
+
+                    return response.Select(line =>
+                    {
+                        var lineParams = line.Split(new[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
+                        return lineParams.Length >= 2
+                            ? new PortInfo(short.Parse(lineParams[0]), lineParams.ElementAtOrDefault(1) ?? string.Empty)
+                            : null;
+                    }).Where(c => c != null).ToArray();
+                }
+                catch (Exception ex)
+                {
+                    if (ex is OperationCanceledException)
+                        Logger.Debug("Input ports request cancelled");
+
+                    return null;
+                }
+            }
+        }
+
+        public async Task<CrosspointInfo> GetCurrentInputPort()
+        {
+            if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
+                return null;
+
+            AddToRequestQueue("VIDEO OUTPUT ROUTING:");
+            while (true)
+            {
+                try
+                {
+                    if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
+                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+
+                    if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out response))
+                        continue;
+
+                    semaphore.Release(); // reset semaphore to 1
+                    return response.Select(line =>
+                    {
+                        var lineParams = line.Split(new[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
+                        if (lineParams.Length >= 2 &&
+                            short.TryParse(lineParams[0], out var outPort) &&
+                            outPort == _device.OutputPorts[0] &&
+                            short.TryParse(lineParams[1], out var inPort))
+                            return new CrosspointInfo(inPort, outPort);
+
+                        return null;
+                    }).FirstOrDefault(c => c != null);
+                }
+                catch (Exception ex)
+                {
+                    if (ex is OperationCanceledException)
+                        Logger.Debug("Current Input Port request cancelled");
+
+                    return null;
+                }
+            }
+        }
+
+        private async void StartRequestQueueHandler()
+        {
+            try
+            {
+                while (true)
+                {
+                    await _requestQueueSemaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                    while (!_requestsQueue.IsEmpty)
+                    {
+                        if (!_requestsQueue.TryDequeue(out var request))
+                            continue;
+                        var data = System.Text.Encoding.ASCII.GetBytes(string.Concat(request, "\n\n"));
+                        await _stream.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
+                        Debug.WriteLine($"Blackmagic message sent: {request}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex is ObjectDisposedException || ex is System.IO.IOException)
+                    Debug.WriteLine("Router request handler stream closed/disposed.");
+                else if (ex is OperationCanceledException)
+                    Logger.Debug("Router request handler cancelled");
+                else
+                    Logger.Error(ex, "Unexpected exception in Blackmagic request handler");
+            }
+        }
+
+        private async void StartResponseQueueHandler()
+        {
+            try
+            {
+                while (true)
+                {
+                    await _responsesQueueSemaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                    while (!_responsesQueue.IsEmpty)
+                    {
+                        if (!_responsesQueue.TryDequeue(out var response))
+                            continue;
+
+                        if (_responseDictionary.TryAdd(response.Key, response.Value))
+                        {
+                            if (!_semaphores.TryGetValue(response.Key, out var semaphore))
+                                continue;
+                            semaphore.Release();
+                        }
+                        else
+                            _responsesQueue.Enqueue(response);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex is ObjectDisposedException || ex is System.IO.IOException)
+                    Logger.Debug("Router response handler stream closed/disposed.");
+                else if (ex is OperationCanceledException)
+                    Logger.Debug("Router response handler cancelled");
+                else
+                    Logger.Error(ex, "Unexpected exception in Blackmagic response handler");
+            }
+        }
+
+        private async void StartListener()
+        {
+            var bytesReceived = new byte[256];
+            Debug.WriteLine("Blackmagic listener started!");
+            while (true)
+            {
+                try
+                {
+                    var bytes = await _stream.ReadAsync(bytesReceived, 0, bytesReceived.Length).ConfigureAwait(false);
+                    if (bytes == 0) continue;
+                    var response = System.Text.Encoding.ASCII.GetString(bytesReceived, 0, bytes);
+                    ParseMessage(response);
+                }
+                catch (Exception ex)
+                {
+                    if (ex is ObjectDisposedException || ex is System.IO.IOException)
+                    {
+                        Debug.WriteLine("Router listener network stream closed/disposed.");
+                        Disconnect();
+                    }
+                    else
+                        Logger.Error(ex);
+                    return;
+                }
+            }
+        }
+
+        private async void ConnectionWatcher()
+        {
+            if (!_semaphores.TryGetValue(ListTypeEnum.SignalPresence, out var semaphore))
+                return;
+
+            AddToRequestQueue("PING:");
+
+            while (true)
+            {
+                try
+                {
+                    await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                    await Task.Delay(3000, _cancellationTokenSource.Token).ConfigureAwait(false);
+                    AddToRequestQueue("PING:");
+                }
+                catch (Exception ex)
+                {
+                    if (ex is OperationCanceledException)
+                        Logger.Debug("Router Ping cancelled");
+
+                    return;
+                }
+            }
+        }
+
+        private async void InputPortWatcher()
+        {
+            if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointChange, out var semaphore))
+                return;
+
+            while (true)
+            {
+                try
+                {
+                    if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out var response))
+                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+
+                    if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out response))
+                        continue;
+
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
+                    var crosspoints = response.Select(line =>
+                    {
+                        var lineParams = line.Split(new[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
+                        if (lineParams.Length >= 2 &&
+                            short.TryParse(lineParams[0], out var outPort) &&
+                            outPort == _device.OutputPorts[0] &&
+                            short.TryParse(lineParams[1], out var inPort))
+                            return new CrosspointInfo(inPort, outPort);
+
+                        return null;
+                    }).FirstOrDefault(c => c != null);
+
+                    if (crosspoints == null)
+                        continue;
+
+                    OnInputPortChangeReceived?.Invoke(this, new EventArgs<CrosspointInfo>(crosspoints));
+                }
+                catch (Exception ex)
+                {
+                    if (ex is OperationCanceledException)
+                        Logger.Debug("Input Port Watcher cancelled");
+
+                    return;
+                }
+            }
+        }
+
+        private void AddToRequestQueue(string request)
+        {
+            if (_requestsQueue.Contains(request))
+                return;
+
+            _requestsQueue.Enqueue(request);
+            _requestQueueSemaphore.Release();
+        }
+
+        private void AddToResponseQueue(ListTypeEnum type, string[] response)
+        {
+            _responsesQueue.Enqueue(new KeyValuePair<ListTypeEnum, string[]>(type, response));
+            _responsesQueueSemaphore.Release();
+        }
+
+        private void ProcessCommand(string response)
+        {
+            var lines = response.Split('\n');
+            if (lines.Length < 1 || lines[0].StartsWith("NAK"))
+                return;
+
+            if (lines.Length > 2 && lines[0].StartsWith("ACK") && lines[2] == "")
+            {
+                if (!_semaphores.TryGetValue(ListTypeEnum.SignalPresence, out var semaphore))
+                    return;
+
+                semaphore.Release();
+            }
+
+            var trimmedLines = lines.Skip(1).Where(param => !string.IsNullOrEmpty(param)).ToArray();
+
+            if (lines[0].Contains("INPUT LABELS"))
+            {
+                if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
+                    return;
+
+                if (!_responseDictionary.TryAdd(ListTypeEnum.Input, trimmedLines))
+                    AddToResponseQueue(ListTypeEnum.Input, trimmedLines);
+                else
+                    semaphore.Release();
+            }
+
+            else if (lines[0].Contains("OUTPUT ROUTING"))
+            {
+                if (_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphoreStatus) &&
+                    semaphoreStatus.CurrentCount == 0 &&
+                    !_responseDictionary.TryGetValue(ListTypeEnum.CrosspointStatus, out _))
+                {
+                    _responseDictionary.TryAdd(ListTypeEnum.CrosspointStatus, trimmedLines);
+
+                    semaphoreStatus.Release();
+                    return;
+                }
+
+
+                if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointChange, out var semaphoreChange))
+                    return;
+
+                if (!_responseDictionary.TryAdd(ListTypeEnum.CrosspointChange, trimmedLines))
+                    AddToResponseQueue(ListTypeEnum.CrosspointChange, trimmedLines);
+                else
+                    semaphoreChange.Release();
+            }
+        }
+
+        private void ParseMessage(string response)
+        {
+            _response += response;
+            while (_response.Contains("\n\n"))
+            {
+                var command = _response.Substring(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
+                _response = _response.Remove(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
+                //Debug.WriteLine(command);                
+                ProcessCommand(command);
+            }
         }
     }
 }

@@ -14,14 +14,28 @@ namespace TAS.Client.ViewModels
 
         public IList<IRouterPort> InputPorts => Router.InputPorts;
 
-        public IRouterPort SelectedInputPort { get => Router.SelectedInputPort; 
-            set 
+        private IRouterPort _selectedInputPort
+        {
+            get => Router.SelectedInputPort;
+            set
             {
-                if (SelectedInputPort == value)
+                if (Router.InputPorts == value)
                     return;
 
-                if (value != null)
-                    Router.SelectInput(value.PortId); 
+                if (value == null)
+                    return;
+
+                Router.SelectInput(value.PortId);
+            }
+        }
+
+        public IRouterPort SelectedInputPort 
+        { 
+            get => _selectedInputPort; 
+            set 
+            {
+                _selectedInputPort = value;                    
+                NotifyPropertyChanged();                                    
             } 
         }
 
