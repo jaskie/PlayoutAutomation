@@ -48,7 +48,10 @@ namespace TAS.Server.RouterCommunicators
 
                 Logger.Debug("Connecting to Nevion...");
                 try
-                {                    
+                {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     var connectTask = _tcpClient.ConnectAsync(_device.IpAddress, _device.Port);
                     await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
 
@@ -128,6 +131,9 @@ namespace TAS.Server.RouterCommunicators
             {
                 try
                 {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     if (!_responseDictionary.TryRemove(ListTypeEnum.Input, out var response))
                         await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);                    
 
@@ -160,6 +166,9 @@ namespace TAS.Server.RouterCommunicators
             {
                 try
                 {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
                         await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 
@@ -193,7 +202,10 @@ namespace TAS.Server.RouterCommunicators
             try
             {
                 while (true)
-                {                    
+                {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     await _requestQueueSemaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
                     while (!_requestsQueue.IsEmpty)
                     {                        
@@ -221,10 +233,16 @@ namespace TAS.Server.RouterCommunicators
             try
             {
                 while (true)
-                {                    
+                {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     await _responsesQueueSemaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
                     while (!_responsesQueue.IsEmpty)
                     {
+                        if (_cancellationTokenSource.IsCancellationRequested)
+                            throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                         if (!_responsesQueue.TryDequeue(out var response))
                             continue;
 
@@ -293,14 +311,14 @@ namespace TAS.Server.RouterCommunicators
             {
                 try
                 {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     if (!_responseDictionary.TryRemove(ListTypeEnum.SignalPresence, out var response))
                         await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
                     
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.SignalPresence, out response))
-                        continue;
-                    
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+                        continue;                                        
 
                     var portsSignal = response.Select(line =>
                     {
@@ -332,14 +350,14 @@ namespace TAS.Server.RouterCommunicators
             {
                 try
                 {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out var response))
                         await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out response))
-                        continue;
-
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+                        continue;                    
 
                     var crosspoints = response.Select(line =>
                     {
