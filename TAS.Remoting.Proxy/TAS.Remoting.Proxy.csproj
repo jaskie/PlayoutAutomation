@@ -85,6 +85,7 @@
     <Compile Include="Model\Media\PersistentMedia.cs" />
     <Compile Include="Model\PlayoutServer.cs" />
     <Compile Include="Model\PlayoutServerChannel.cs" />
+    <Compile Include="Model\Preview.cs" />
     <Compile Include="Model\Recorder.cs" />
     <Compile Include="Model\Router.cs" />
     <Compile Include="Model\RouterPort.cs" />

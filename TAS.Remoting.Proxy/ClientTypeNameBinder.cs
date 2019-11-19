@@ -50,6 +50,8 @@ namespace TAS.Remoting
                     return typeof(Model.MediaOperation.LoudnessOperation);
                 case "TAS.Server.Engine":
                     return typeof(Model.Engine);
+                case "TAS.Server.Preview":
+                    return typeof(Model.Preview);
                 case "TAS.Server.Event":
                     return typeof(Model.Event);
                 case "TAS.Server.CommandScriptEvent":

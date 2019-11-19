@@ -92,10 +92,10 @@ namespace TAS.Server
             ArchiveDirectory = archiveDirectory;
             MediaDirectoryPRI = ((CasparServerChannel)_engine.PlayoutChannelPRI)?.Owner.MediaDirectory;
             MediaDirectorySEC = ((CasparServerChannel)_engine.PlayoutChannelSEC)?.Owner.MediaDirectory;
-            MediaDirectoryPRV = ((CasparServerChannel)_engine.PlayoutChannelPRV)?.Owner.MediaDirectory;
+            MediaDirectoryPRV = ((CasparServerChannel)_engine.Preview.Channel)?.Owner.MediaDirectory;
             AnimationDirectoryPRI = ((CasparServerChannel)_engine.PlayoutChannelPRI)?.Owner.AnimationDirectory;
             AnimationDirectorySEC = ((CasparServerChannel)_engine.PlayoutChannelSEC)?.Owner.AnimationDirectory;
-            AnimationDirectoryPRV = ((CasparServerChannel)_engine.PlayoutChannelPRV)?.Owner.AnimationDirectory;
+            AnimationDirectoryPRV = ((CasparServerChannel)_engine.Preview.Channel)?.Owner.AnimationDirectory;
             IWatcherDirectory[] initializationList = { MediaDirectoryPRI, MediaDirectorySEC, MediaDirectoryPRV, AnimationDirectoryPRI, AnimationDirectorySEC, AnimationDirectoryPRV };
             foreach (var mediaDirectory in initializationList.Distinct())
                 (mediaDirectory as WatcherDirectory)?.Initialize(this);

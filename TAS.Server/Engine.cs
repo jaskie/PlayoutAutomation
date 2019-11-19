@@ -24,8 +24,6 @@ namespace TAS.Server
     public class Engine : DtoBase, IEngine, IEnginePersistent
     {
 
-        private const int PerviewPositionSetDelay = 100;
-
         private string _engineName;
         private bool _pst2Prv;
 
@@ -35,11 +33,11 @@ namespace TAS.Server
         [JsonProperty(nameof(PlayoutChannelSEC))]
         private CasparServerChannel _playoutChannelSEC;
 
-        [JsonProperty(nameof(PlayoutChannelPRV))]
-        private CasparServerChannel _playoutChannelPRV;
-
         [JsonProperty(nameof(MediaManager))]
         private readonly MediaManager _mediaManager;
+
+        [JsonProperty(nameof(Preview))]
+        private readonly Preview _preview;
 
         [JsonProperty(nameof(AuthenticationService))]
         private AuthenticationService _authenticationService;
@@ -67,17 +65,6 @@ namespace TAS.Server
         private double _programAudioVolume = 1;
         private bool _fieldOrderInverted;
 
-        [JsonProperty(nameof(PreviewMedia))]
-        private IMedia _previewMedia;
-        private long _previewDuration;
-        private long _previewPosition;
-        private double _previewAudioVolume;
-        private bool _previewLoaded;
-        private bool _previewIsPlaying;
-        private CancellationTokenSource _previewPositionCancellationTokenSource;
-        private long _previewLastPositionSetTick;
-
-
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
         private bool _enableCGElementsForNewEvents;
@@ -88,6 +75,7 @@ namespace TAS.Server
         {
             _engineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
+            _preview = new Preview(this);
             _databaseConnectionState = EngineController.Database.ConnectionState;
             EngineController.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
             _rights = new Lazy<List<IAclRight>>(() =>
@@ -160,6 +148,9 @@ namespace TAS.Server
         public TArchivePolicyType ArchivePolicy { get; set; } = TArchivePolicyType.NoArchive;
 
         [XmlIgnore]
+        public IPreview Preview => _preview;
+        
+        [XmlIgnore]
         public IMediaManager MediaManager => _mediaManager;
 
         [XmlIgnore]
@@ -199,9 +190,6 @@ namespace TAS.Server
 
         [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelSEC => _playoutChannelSEC;
-
-        [XmlIgnore]
-        public IPlayoutServerChannel PlayoutChannelPRV => _playoutChannelPRV;
 
         [XmlIgnore]
         [JsonProperty]
@@ -260,7 +248,7 @@ namespace TAS.Server
                 if (!SetField(ref _fieldOrderInverted, value))
                     return;
                 _playoutChannelPRI?.SetFieldOrderInverted(VideoLayer.Program, value);
-                if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
+                if (_playoutChannelSEC != null && !(_playoutChannelSEC == Preview.Channel && _preview.IsLoaded))
                     _playoutChannelSEC.SetFieldOrderInverted(VideoLayer.Program, value);
             }
         }
@@ -277,7 +265,7 @@ namespace TAS.Server
                 var playing = Playing;
                 int transitioDuration = playing == null ? 0 : (int)playing.TransitionTime.ToSmpteFrames(FrameRate);
                 _playoutChannelPRI?.SetVolume(VideoLayer.Program, value, transitioDuration);
-                if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
+                if (_playoutChannelSEC != null && !(_playoutChannelSEC == Preview.Channel && _preview.IsLoaded))
                     _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
             }
         }
@@ -301,7 +289,7 @@ namespace TAS.Server
             var sPRV = servers.FirstOrDefault(s => s.Id == IdServerPRV);
             if (sPRV != null && sPRV != sPRI && sPRV != sSEC)
                 recorders.AddRange(sPRV.Recorders.Select(r => r as CasparRecorder));
-            _playoutChannelPRV = (CasparServerChannel)sPRV?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV);
+            _preview.Initialize((CasparServerChannel)sPRV?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV));
             _mediaManager.SetRecorders(recorders);
 
             _localGpis = this.ComposeParts<IGpi>();
@@ -482,83 +470,11 @@ namespace TAS.Server
                 if (value)
                     _loadPST();
                 else
-                    _playoutChannelPRV?.Clear(VideoLayer.Preset);
+                    ((CasparServerChannel)Preview.Channel)?.Clear(VideoLayer.Preset);
             }
         }
 
-        [XmlIgnore]
-        public IMedia PreviewMedia => _previewMedia;
 
-        [XmlIgnore, JsonProperty]
-        public long PreviewLoadedSeek { get; private set; }
-
-        [XmlIgnore]
-        [JsonProperty]
-        public long PreviewPosition // from 0 to duration
-        {
-            get => _previewPosition;
-            set
-            {
-                if (_playoutChannelPRV == null || _previewMedia == null)
-                    return;
-                if (_previewIsPlaying)
-                    PreviewPause();
-                long newSeek = value < 0 ? 0 : value;
-                long maxSeek = _previewDuration - 1;
-                if (newSeek > maxSeek)
-                    newSeek = maxSeek;
-                if (SetField(ref _previewPosition, newSeek))
-                {
-                    _previewPositionCancellationTokenSource?.Cancel();
-                    var cancellationTokenSource = new CancellationTokenSource();
-                    Task.Run(() =>
-                    {
-                        Thread.Sleep(PerviewPositionSetDelay);
-                        if (!cancellationTokenSource.IsCancellationRequested ||
-                            _currentTicks > _previewLastPositionSetTick + TimeSpan.TicksPerMillisecond * PerviewPositionSetDelay * 3)
-                        {
-                            _previewLastPositionSetTick = _currentTicks;
-                            _playoutChannelPRV.Seek(VideoLayer.Preview, PreviewLoadedSeek + newSeek);
-                        }
-                    }, cancellationTokenSource.Token);
-                    _previewPositionCancellationTokenSource = cancellationTokenSource;
-                }
-            }
-        }
-
-        [XmlIgnore, JsonProperty]
-        public double PreviewAudioVolume
-        {
-            get => _previewAudioVolume;
-            set
-            {
-                if (SetField(ref _previewAudioVolume, value))
-                    _playoutChannelPRV.SetVolume(VideoLayer.Preview, Math.Pow(10, value / 20), 0);
-            }
-        }
-
-        [XmlIgnore]
-        [JsonProperty]
-        public bool PreviewLoaded
-        {
-            get => _previewLoaded;
-            private set
-            {
-                if (SetField(ref _previewLoaded, value))
-                {
-                    var vol = _previewLoaded ? 0 : _programAudioVolume;
-                    _playoutChannelPRV?.SetVolume(VideoLayer.Program, vol, 0);
-                }
-            }
-        }
-
-        [XmlIgnore]
-        [JsonProperty]
-        public bool PreviewIsPlaying
-        {
-            get => _previewIsPlaying;
-            private set => SetField(ref _previewIsPlaying, value);
-        }
 
         public void Load(IEvent aEvent)
         {
@@ -672,7 +588,7 @@ namespace TAS.Server
                     }
             }
             NotifyEngineOperation(null, TEngineOperation.Clear);
-            _previewUnload();
+            _preview.Unload();
         }
 
         public void ClearMixer()
@@ -829,54 +745,6 @@ namespace TAS.Server
             _playoutChannelSEC?.Execute(command);
         }
 
-        public void PreviewLoad(IMedia media, long seek, long duration, long position, double previewAudioVolume)
-        {
-            if (!HaveRight(EngineRight.Preview))
-                return;
-            MediaBase mediaToLoad = _findPreviewMedia(media as MediaBase);
-            Debug.WriteLine(mediaToLoad, "Loading");
-            if (mediaToLoad != null)
-            {
-                _previewDuration = duration;
-                PreviewLoadedSeek = seek;
-                _previewPosition = position;
-                _previewMedia = media;
-                _previewLastPositionSetTick = _currentTicks;
-                _playoutChannelPRV.SetAspect(VideoLayer.Preview, media.VideoFormat == TVideoFormat.NTSC
-                                                                 || media.VideoFormat == TVideoFormat.PAL
-                                                                 || media.VideoFormat == TVideoFormat.PAL_P);
-                PreviewLoaded = true;
-                PreviewAudioVolume = previewAudioVolume;
-                _playoutChannelPRV.Load(mediaToLoad, VideoLayer.Preview, seek + position, duration - position);
-                PreviewIsPlaying = false;
-                NotifyPropertyChanged(nameof(PreviewMedia));
-                NotifyPropertyChanged(nameof(PreviewPosition));
-                NotifyPropertyChanged(nameof(PreviewLoadedSeek));
-            }
-        }
-
-        public void PreviewUnload()
-        {
-            if (!HaveRight(EngineRight.Preview))
-                return;
-            _previewUnload();
-        }
-
-        public void PreviewPlay()
-        {
-            if (!HaveRight(EngineRight.Preview))
-                return;
-            if (_previewMedia != null && _playoutChannelPRV?.Play(VideoLayer.Preview) == true)
-                PreviewIsPlaying = true;
-        }
-
-        public void PreviewPause()
-        {
-            if (!HaveRight(EngineRight.Preview))
-                return;
-            _playoutChannelPRV?.Pause(VideoLayer.Preview);
-            PreviewIsPlaying = false;
-        }
 
         public void SearchMissingEvents()
         {
@@ -1356,40 +1224,21 @@ namespace TAS.Server
 
         private void _loadPST()
         {
-            if (NextToPlay is Event ev && PlayoutChannelPRV != null)
+            if (!(Preview.Channel is CasparServerChannel channel))
+                return;
+            if (NextToPlay is Event ev)
             {
                 MediaBase media = ev.ServerMediaPRV;
                 if (media != null)
                 {
-                    _playoutChannelPRV.Load(media, VideoLayer.Preset, 0, -1);
+                    channel.Load(media, VideoLayer.Preset, 0, -1);
                     return;
                 }
             }
-            _playoutChannelPRV.Load(System.Drawing.Color.Black, VideoLayer.Preset);
+            channel.Load(System.Drawing.Color.Black, VideoLayer.Preset);
         }
 
-        private void _previewUnload()
-        {
-            var channel = _playoutChannelPRV;
-            var media = _previewMedia;
-            if (channel == null || media == null)
-                return;
-            _previewPositionCancellationTokenSource?.Cancel();
-            channel.Clear(VideoLayer.Preview);
-            lock (_tickLock)
-            {
-                _previewDuration = 0;
-                _previewPosition = 0;
-                PreviewLoadedSeek = 0;
-                _previewMedia = null;
-            }
-            PreviewLoaded = false;
-            PreviewIsPlaying = false;
-            NotifyPropertyChanged(nameof(PreviewMedia));
-            NotifyPropertyChanged(nameof(PreviewPosition));
-            NotifyPropertyChanged(nameof(PreviewLoadedSeek));
-        }
-
+        
         private void _restartEvent(Event ev)
         {
             if (ev == null)
@@ -1511,14 +1360,7 @@ namespace TAS.Server
                 _executeAutoStartEvents();
 
                 // preview controls
-                if (PreviewIsPlaying)
-                {
-                    if (_previewPosition < _previewDuration - 1)
-                    {
-                        _previewPosition += nFrames;
-                        NotifyPropertyChanged(nameof(PreviewPosition));
-                    }
-                }
+                _preview?.Tick(_currentTicks, nFrames);
             }
         }
 
@@ -1757,18 +1599,6 @@ namespace TAS.Server
         internal void NotifyEventLocated(Event aEvent)
         {
             EventLocated?.Invoke(this, new EventEventArgs(aEvent));
-        }
-
-        private MediaBase _findPreviewMedia(MediaBase media)
-        {
-            var playoutChannel = _playoutChannelPRV;
-            if (!(media is ServerMedia))
-                return media;
-            if (playoutChannel == null)
-                return null;
-            return media.Directory == playoutChannel.Owner.MediaDirectory
-                ? media
-                : ((ServerDirectory)playoutChannel.Owner.MediaDirectory).FindMediaByMediaGuid(media.MediaGuid);
         }
 
         private void SetVisibleEvent(Event aEvent)

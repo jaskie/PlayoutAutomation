@@ -40,7 +40,7 @@ namespace TAS.Client.ViewModels
             {
                 _videoFormatDescription = engine.FormatDescription;
                 if (preview != null)
-                    PreviewViewmodel = new PreviewViewmodel(engine, preview) { IsSegmentsVisible = true };
+                    PreviewViewmodel = new PreviewViewmodel(preview, false) { IsSegmentsVisible = true };
             }
             else
                 _videoFormatDescription = videoFormatDescription;

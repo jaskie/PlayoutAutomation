@@ -347,7 +347,7 @@ namespace TAS.Remoting.Model
 
         public void DeleteRight(IAclRight item) { Invoke(parameters: new object[] { item }); }
 
-        public ulong CurrentUserRights { get => _currentUserRights; }
+        public ulong CurrentUserRights => _currentUserRights;
 
         public bool HaveRight(EventRight right)
         {

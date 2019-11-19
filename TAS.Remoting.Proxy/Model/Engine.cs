@@ -6,9 +6,7 @@ using ComponentModelRPC;
 using ComponentModelRPC.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
-using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.Security;
-using TAS.Remoting.Model.Media;
 using TAS.Remoting.Model.Security;
 
 namespace TAS.Remoting.Model
@@ -59,6 +57,9 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEngine.FieldOrderInverted))]
         private bool _fieldOrderInverted;
 
+        [JsonProperty(nameof(IEngine.Preview))]
+        private Preview _preview;
+
         [JsonProperty(nameof(IEngine.MediaManager))]
         private MediaManager _mediaManager;
 
@@ -68,29 +69,8 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEngine.PlayoutChannelSEC))]
         private PlayoutServerChannel _playoutChannelSEC;
 
-        [JsonProperty(nameof(IEngine.PlayoutChannelPRV))]
-        private PlayoutServerChannel _playoutChannelPrv;
-
         [JsonProperty(nameof(IEngine.IsWideScreen))]
         private bool _isWideScreen;
-
-        [JsonProperty(nameof(IEngine.PreviewAudioVolume))]
-        private double _previewAudioVolume;
-
-        [JsonProperty(nameof(IEngine.PreviewIsPlaying))]
-        private bool _previewIsPlaying;
-
-        [JsonProperty(nameof(IEngine.PreviewLoaded))]
-        private bool _previewLoaded;
-
-        [JsonProperty(nameof(IEngine.PreviewMedia))]
-        private MediaBase _previewMedia;
-
-        [JsonProperty(nameof(IEngine.PreviewPosition))]
-        private long _previewPosition;
-
-        [JsonProperty(nameof(IEngine.PreviewLoadedSeek))]
-        private long _previewSeek;
 
         [JsonProperty(nameof(IEngine.ProgramAudioVolume))]
         private double _programAudioVolume;
@@ -167,6 +147,8 @@ namespace TAS.Remoting.Model
 
         public IMediaManager MediaManager => _mediaManager;
 
+        public IPreview Preview => _preview;
+
         public IPlayoutServerChannel PlayoutChannelPRI => _playoutChannelPRI;
 
         public IPlayoutServerChannel PlayoutChannelSEC => _playoutChannelSEC;
@@ -177,38 +159,7 @@ namespace TAS.Remoting.Model
 
         public IEvent GetNextWithRequestedStartTime() { return Query<Event>(); }
 
-        #region IPreview
 
-        public IPlayoutServerChannel PlayoutChannelPRV => _playoutChannelPrv;
-
-        public double PreviewAudioVolume
-        {
-            get => _previewAudioVolume;
-            set => Set(value);
-        }
-
-        public bool PreviewIsPlaying => _previewIsPlaying;
-
-        public bool PreviewLoaded => _previewLoaded;
-
-        public IMedia PreviewMedia => _previewMedia;
-
-        public long PreviewPosition { get => _previewPosition; set => Set(value); }
-
-        public long PreviewLoadedSeek => _previewSeek;
-
-        public void PreviewLoad(IMedia media, long seek, long duration, long position, double audioLevel)
-        {
-            Invoke(parameters: new object[] { media, seek, duration, position, audioLevel });
-        }
-
-        public void PreviewPause() { Invoke(); }
-
-        public void PreviewPlay() { Invoke(); }
-
-        public void PreviewUnload() { Invoke(); }
-
-        #endregion IPreview
 
         public double ProgramAudioVolume { get => _programAudioVolume; set => Set(value); }
 

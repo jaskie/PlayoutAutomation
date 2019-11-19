@@ -59,7 +59,7 @@ namespace TAS.Client.ViewModels
             
 
             if (preview != null && engine.HaveRight(EngineRight.Preview))
-                PreviewViewmodel = new PreviewViewmodel(engine, preview) { IsSegmentsVisible = true };
+                PreviewViewmodel = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit)) { IsSegmentsVisible = true };
 
 
             _multiSelectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
@@ -69,8 +69,8 @@ namespace TAS.Client.ViewModels
                 engine.PlayoutChannelPRI.PropertyChanged += OnServerChannelPropertyChanged;
             if (engine.PlayoutChannelSEC != null)
                 engine.PlayoutChannelSEC.PropertyChanged += OnServerChannelPropertyChanged;
-            if (engine.PlayoutChannelPRV != null)
-                engine.PlayoutChannelPRV.PropertyChanged += OnServerChannelPropertyChanged;
+            if (engine.Preview.Channel != engine.PlayoutChannelSEC && engine.Preview.Channel != null)
+                engine.Preview.Channel.PropertyChanged += OnServerChannelPropertyChanged;
             if (engine.CGElementsController != null)
             {
                 engine.CGElementsController.PropertyChanged += _cGElementsController_PropertyChanged;
@@ -299,8 +299,8 @@ namespace TAS.Client.ViewModels
                 Engine.PlayoutChannelPRI.PropertyChanged -= OnServerChannelPropertyChanged;
             if (Engine.PlayoutChannelSEC != null)
                 Engine.PlayoutChannelSEC.PropertyChanged -= OnServerChannelPropertyChanged;
-            if (Engine.PlayoutChannelPRV != null)
-                Engine.PlayoutChannelPRV.PropertyChanged -= OnServerChannelPropertyChanged;
+            if (Engine.Preview.Channel != Engine.PlayoutChannelSEC && Engine.Preview.Channel != null)
+                Engine.Preview.Channel.PropertyChanged -= OnServerChannelPropertyChanged;
             VideoPreview?.Dispose();
             if (Engine.CGElementsController != null)
                 Engine.CGElementsController.PropertyChanged -= _cGElementsController_PropertyChanged;
@@ -680,7 +680,7 @@ namespace TAS.Client.ViewModels
             if (_mediaSearchViewModel == null)
             {
                 var mediaSearchViewModel = new MediaSearchViewmodel(
-                    Engine.HaveRight(EngineRight.Preview) ? Engine : null,
+                    Engine.HaveRight(EngineRight.Preview) ? Engine.Preview : null,
                     Engine, mediaType, layer, closeAfterAdd, baseEvent.Media?.FormatDescription())
                 {
                     BaseEvent = baseEvent,
@@ -972,9 +972,9 @@ namespace TAS.Client.ViewModels
 
         public bool ServerConnectedSEC => Engine?.PlayoutChannelSEC?.IsServerConnected == true;
 
-        public bool ServerPRVExists => Engine?.PlayoutChannelPRV != null;
+        public bool ServerPRVExists => Engine?.Preview.Channel != null;
 
-        public bool ServerConnectedPRV => Engine?.PlayoutChannelPRV?.IsServerConnected == true;
+        public bool ServerConnectedPRV => Engine?.Preview.Channel?.IsServerConnected == true;
 
         public bool DatabaseOK
         {
@@ -1137,7 +1137,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(nameof(ServerConnectedPRI));
                 if (sender == Engine.PlayoutChannelSEC)
                     NotifyPropertyChanged(nameof(ServerConnectedSEC));
-                if (sender == Engine.PlayoutChannelPRV)
+                if (sender == Engine.Preview.Channel)
                     NotifyPropertyChanged(nameof(ServerConnectedPRV));
                 NotifyPropertyChanged(nameof(NoAlarms));
             }

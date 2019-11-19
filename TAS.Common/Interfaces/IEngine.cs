@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using TAS.Common.Interfaces.Security;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IEngine : IPreview, IEngineProperties, IAclObject
+    public interface IEngine : INotifyPropertyChanged, IEngineProperties, IAclObject
     {
+        VideoFormatDescription FormatDescription { get; }
         long FrameTicks { get; }
         IPlayoutServerChannel PlayoutChannelPRI { get; }
         IPlayoutServerChannel PlayoutChannelSEC { get; }
         IMediaManager MediaManager { get; }
+        IPreview Preview { get; }
         ConnectionStateRedundant DatabaseConnectionState { get; }
         bool Pst2Prv { get; set; }
         double ProgramAudioVolume { get; set; }

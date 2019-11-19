@@ -116,50 +116,57 @@ namespace TAS.Server
         public bool Load(MediaBase media, VideoLayer videolayer, long seek, long duration)
         {
             var channel = _casparChannel;
-            if (CheckConnected(channel)
-                && media != null)
-            {
-                CasparItem item = _getItem(media, videolayer, seek);
-                if (item != null)
-                {
-                    item.Length = (int)duration;
-                    channel.Load(item);
-                    _visible.TryRemove(videolayer, out _);
-                    _loadedNext.TryRemove(videolayer, out _);
-                    Debug.WriteLine("CasparLoad media {0} Layer {1} Seek {2}", media, videolayer, seek);
-                    return true;
-                }
-            }
-            return false;
+            if (!CheckConnected(channel) || media == null)
+                return false;
+            var item = _getItem(media, videolayer, seek);
+            if (item == null)
+                return false;
+            item.Length = (int)duration;
+            channel.Load(item);
+            _visible.TryRemove(videolayer, out _);
+            _loadedNext.TryRemove(videolayer, out _);
+            Debug.WriteLine("CasparLoad media {0} Layer {1} Seek {2}", media, videolayer, seek);
+            return true;
+        }
+
+        public bool Load(MediaBase media, VideoLayer videolayer)
+        {
+            var channel = _casparChannel;
+            if (!CheckConnected(channel) || media == null)
+                return false;
+            var item = _getItem(media, videolayer);
+            if (item == null)
+                return false;
+            channel.Load(item);
+            _visible.TryRemove(videolayer, out _);
+            _loadedNext.TryRemove(videolayer, out _);
+            Debug.WriteLine("CasparLoad media {0} Layer {1}", media, videolayer);
+            return true;
         }
 
         public bool Load(System.Drawing.Color color, VideoLayer videolayer)
         {
             var channel = _casparChannel;
-            if (CheckConnected(channel))
-            {
-                var scolor = '#' + color.ToArgb().ToString("X8");
-                CasparItem item = new CasparItem((int)videolayer, scolor);
-                channel.Load(item);
-                _visible.TryRemove(videolayer, out _);
-                _loadedNext.TryRemove(videolayer, out _);
-                Debug.WriteLine("CasparLoad color {0} Layer {1}", scolor, videolayer);
-                return true;
-            }
-            return false;
+            if (!CheckConnected(channel))
+                return false;
+            var scolor = '#' + color.ToArgb().ToString("X8");
+            var item = new CasparItem((int)videolayer, scolor);
+            channel.Load(item);
+            _visible.TryRemove(videolayer, out _);
+            _loadedNext.TryRemove(videolayer, out _);
+            Debug.WriteLine("CasparLoad color {0} Layer {1}", scolor, videolayer);
+            return true;
         }
 
 
         public bool Seek(VideoLayer videolayer, long position)
         {
             var channel = _casparChannel;
-            if (CheckConnected(channel))
-            {
-                channel.Seek((int)videolayer, (uint)position);
-                Debug.WriteLine("CasparSeek Channel {0} Layer {1} Position {2}", Id, (int)videolayer, position);
-                return true;
-            }
-            return false;
+            if (!CheckConnected(channel))
+                return false;
+            channel.Seek((int)videolayer, (uint)position);
+            Debug.WriteLine("CasparSeek Channel {0} Layer {1} Position {2}", Id, (int)videolayer, position);
+            return true;
         }
 
         public bool Play(Event aEvent)
@@ -601,6 +608,20 @@ namespace TAS.Server
                     VideoLayer = (int) videolayer,
                     Seek = (int) seek,
                     FieldOrderInverted = media.FieldOrderInverted
+                };
+            }
+            return null;
+        }
+
+        private CasparItem _getItem(MediaBase media, VideoLayer videolayer)
+        {
+            if (media != null && media.MediaType == TMediaType.Movie)
+            {
+                return new CasparItem(string.Empty)
+                {
+                    Clipname = $"\"{(media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath)}\"",
+                    ChannelLayout = ChannelLayout.Stereo,
+                    VideoLayer = (int)videolayer
                 };
             }
             return null;

@@ -963,7 +963,7 @@ namespace TAS.Client.ViewModels
             VideoFormatDescription videoFormatDescription = null)
         {
             using (var vm = new MediaSearchViewmodel(
-                _engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine : null,
+                _engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine.Preview : null,
                 Model.Engine,
                 mediaType, VideoLayer.Program, true, videoFormatDescription)
             {

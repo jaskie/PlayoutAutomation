@@ -42,6 +42,30 @@
                     <Button Command="{Binding CommandUnload}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png"  />
                     </Button>
+                    <Grid Visibility="{Binding IsStillButtonsVisible, Converter={StaticResource BoolToVis}}">
+                        <Grid.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Width" Value="22" />
+                                <Setter Property="Height" Value="22"/>
+                                <Setter Property="Margin" Value="1" />
+                                <Setter Property="Padding" Value="0" />
+                            </Style>
+                        </Grid.Resources>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" ToolTip="{Resx _secondBack.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="0" >
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer1.png" />
+                        </Button>
+                        <Button Grid.Column="1" ToolTip="{Resx _frameBack.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="1">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer2.png" />
+                        </Button>
+                        <Button Grid.Column="2" ToolTip="{Resx _buttonCopyTCIn.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="2">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer3.png" />
+                        </Button>
+                    </Grid>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Command="{Binding CommandTrimSource}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonTrimSource.ToolTip}">

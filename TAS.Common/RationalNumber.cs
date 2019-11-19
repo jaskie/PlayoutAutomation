@@ -54,7 +54,7 @@ namespace TAS.Common
 
         public override string ToString()
         {
-            return string.Format("{0}/{1}", _num, _den);
+            return $"{_num}/{_den}";
         }
 
         #region Operators
