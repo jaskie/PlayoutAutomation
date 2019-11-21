@@ -54,9 +54,12 @@ namespace TAS.Server.RouterCommunicators
             {
                 _tcpClient = new TcpClient();
 
-                Debug.WriteLine("Connecting to Blackmagic...");
+                Logger.Debug("Connecting to Blackmagic...");
                 try
                 {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     var connectTask = _tcpClient.ConnectAsync(_device.IpAddress, _device.Port);
                     await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
 
@@ -66,7 +69,7 @@ namespace TAS.Server.RouterCommunicators
                         continue;
                     }
 
-                    Debug.WriteLine("Blackmagic connected!");
+                    Logger.Debug("Blackmagic connected!");
 
                     _requestsQueue = new ConcurrentQueue<string>();
                     _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
@@ -116,7 +119,7 @@ namespace TAS.Server.RouterCommunicators
             if (Interlocked.Exchange(ref _disposed, 1) != default(int))
                 return;
             Disconnect();
-            Debug.WriteLine("Blackmagic communicator disposed");
+            Logger.Debug("Blackmagic communicator disposed");
         }
 
         public event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;
@@ -133,6 +136,9 @@ namespace TAS.Server.RouterCommunicators
             {
                 try
                 {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     if (!_responseDictionary.TryRemove(ListTypeEnum.Input, out var response))
                         await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 
@@ -169,6 +175,9 @@ namespace TAS.Server.RouterCommunicators
             {
                 try
                 {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
                         await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 
@@ -204,6 +213,9 @@ namespace TAS.Server.RouterCommunicators
             {
                 while (true)
                 {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     await _requestQueueSemaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
                     while (!_requestsQueue.IsEmpty)
                     {
@@ -211,14 +223,14 @@ namespace TAS.Server.RouterCommunicators
                             continue;
                         var data = System.Text.Encoding.ASCII.GetBytes(string.Concat(request, "\n\n"));
                         await _stream.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
-                        Debug.WriteLine($"Blackmagic message sent: {request}");
+                        Logger.Debug($"Blackmagic message sent: {request}");
                     }
                 }
             }
             catch (Exception ex)
             {
                 if (ex is ObjectDisposedException || ex is System.IO.IOException)
-                    Debug.WriteLine("Router request handler stream closed/disposed.");
+                    Logger.Debug("Router request handler stream closed/disposed.");
                 else if (ex is OperationCanceledException)
                     Logger.Debug("Router request handler cancelled");
                 else
@@ -232,9 +244,15 @@ namespace TAS.Server.RouterCommunicators
             {
                 while (true)
                 {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     await _responsesQueueSemaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
                     while (!_responsesQueue.IsEmpty)
                     {
+                        if (_cancellationTokenSource.IsCancellationRequested)
+                            throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                         if (!_responsesQueue.TryDequeue(out var response))
                             continue;
 
@@ -263,7 +281,7 @@ namespace TAS.Server.RouterCommunicators
         private async void StartListener()
         {
             var bytesReceived = new byte[256];
-            Debug.WriteLine("Blackmagic listener started!");
+            Logger.Debug("Blackmagic listener started!");
             while (true)
             {
                 try
@@ -277,7 +295,7 @@ namespace TAS.Server.RouterCommunicators
                 {
                     if (ex is ObjectDisposedException || ex is System.IO.IOException)
                     {
-                        Debug.WriteLine("Router listener network stream closed/disposed.");
+                        Logger.Debug("Router listener network stream closed/disposed.");
                         Disconnect();
                     }
                     else
@@ -298,6 +316,9 @@ namespace TAS.Server.RouterCommunicators
             {
                 try
                 {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
                     await Task.Delay(3000, _cancellationTokenSource.Token).ConfigureAwait(false);
                     AddToRequestQueue("PING:");
@@ -321,15 +342,15 @@ namespace TAS.Server.RouterCommunicators
             {
                 try
                 {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
                     if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out var response))
                         await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out response))
                         continue;
-
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
-
+                   
                     var crosspoints = response.Select(line =>
                     {
                         var lineParams = line.Split(new[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
@@ -428,8 +449,7 @@ namespace TAS.Server.RouterCommunicators
             while (_response.Contains("\n\n"))
             {
                 var command = _response.Substring(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
-                _response = _response.Remove(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
-                //Debug.WriteLine(command);                
+                _response = _response.Remove(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);                              
                 ProcessCommand(command);
             }
         }
