@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
@@ -17,7 +18,6 @@ namespace TAS.Client.ViewModels
         private IEvent _selectedEvent;
         private readonly IPreview _preview;
         private readonly bool _canTrimMedia;
-        private readonly IPlayoutServerChannel _channel;
         private IMediaSegment _lastAddedSegment;
         private bool _playWholeClip;
         private IMedia _loadedMedia;
@@ -29,19 +29,21 @@ namespace TAS.Client.ViewModels
         private bool _isSegmentsVisible;
         private TimeSpan _duration;
         private TimeSpan _startTc;
+        private readonly bool _showStillButtons;
         private IIngestOperation _selectedIngestOperation;
-        private bool _isStillButtonsVisible;
+        private readonly Dictionary<VideoLayer, IMedia> _loadedStillImages = new Dictionary<VideoLayer, IMedia>();
         private static readonly TimeSpan EndDuration = TimeSpan.FromSeconds(3);
 
-        public PreviewViewmodel(IPreview preview, bool canTrimMedia)
+        public PreviewViewmodel(IPreview preview, bool canTrimMedia, bool showStillButtons)
         {
+            _showStillButtons = showStillButtons;
             preview.PropertyChanged += PreviewPropertyChanged;
-            _channel = preview.Channel;
-            if (_channel != null)
-                _channel.PropertyChanged += OnChannelPropertyChanged;
+            preview.StillImageLoaded += Preview_StillImageLoaded;
+            preview.StillImageUnLoaded += Preview_StillImageUnLoaded;
+            _loadedStillImages = new Dictionary<VideoLayer, IMedia>(preview.LoadedStillImages);
             _preview = preview;
+            FormatDescription = VideoFormatDescription.Descriptions[preview.VideoFormat];
             _canTrimMedia = canTrimMedia;
-            FormatDescription = _preview.FormatDescription;
             CreateCommands();
         }
 
@@ -135,7 +137,7 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _isSegmentsVisible, value);
         }
 
-        public bool IsSegmentsEnabled => _preview.Media is IServerMedia;
+        public bool IsSegmentsEnabled => _preview.LoadedMovie is IServerMedia;
 
         public TimeSpan TcIn
         {
@@ -159,12 +161,12 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan Position
         {
-            get => _loadedMedia == null || _preview.Media == null ? TimeSpan.Zero : (_preview.Position + _preview.LoadedSeek).SmpteFramesToTimeSpan(FormatDescription.FrameRate) + _loadedMedia.TcStart;
+            get => _loadedMedia == null || _preview.LoadedMovie == null ? TimeSpan.Zero : (_preview.MoviePosition + _preview.MovieSeekOnLoad).SmpteFramesToTimeSpan(FormatDescription.FrameRate) + _loadedMedia.TcStart;
             set
             {
                 if (_loadedMedia == null)
                     return;
-                _preview.Position = (value - _loadedMedia.TcStart).ToSmpteFrames(FormatDescription.FrameRate);
+                _preview.MoviePosition = (value - _loadedMedia.TcStart).ToSmpteFrames(FormatDescription.FrameRate);
             }
         }
 
@@ -184,12 +186,12 @@ namespace TAS.Client.ViewModels
 
         public long SliderPosition
         {
-            get => _loadedMedia == null || _preview.Media == null ? 0 : _preview.Position;
+            get => _loadedMedia == null || _preview.LoadedMovie == null ? 0 : _preview.MoviePosition;
             set
             {
                 if (_loadedMedia == null)
                     return;
-                _preview.Position = value;
+                _preview.MoviePosition = value;
             }
         }
 
@@ -232,7 +234,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsEnabled => _channel?.IsServerConnected == true;
+        public bool IsEnabled => _preview.IsConnected;
 
         public bool IsSegmentNameFocused { get; set; }
 
@@ -246,7 +248,17 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsStillButtonsVisible { get => _isStillButtonsVisible; private set => SetField(ref _isStillButtonsVisible, value); }
+        public bool IsStillButton1Visible => _showStillButtons || _loadedStillImages.ContainsKey(VideoLayer.PreviewCG1);
+
+        public bool IsStillButton2Visible => _showStillButtons || _loadedStillImages.ContainsKey(VideoLayer.PreviewCG2);
+
+        public bool IsStillButton3Visible => _showStillButtons || _loadedStillImages.ContainsKey(VideoLayer.PreviewCG3);
+
+        public bool IsStill1Loaded => _loadedStillImages.ContainsKey(VideoLayer.PreviewCG1);
+                            
+        public bool IsStill2Loaded => _loadedStillImages.ContainsKey(VideoLayer.PreviewCG2);
+                            
+        public bool IsStill3Loaded => _loadedStillImages.ContainsKey(VideoLayer.PreviewCG3);
 
         #region Commands
 
@@ -285,7 +297,7 @@ namespace TAS.Client.ViewModels
                             _preview.Pause();
                         else
                         {
-                            _preview.Position = 0;
+                            _preview.MoviePosition = 0;
                             NotifyPropertyChanged(nameof(Position));
                         }
                     },
@@ -352,7 +364,7 @@ namespace TAS.Client.ViewModels
                                 seekFrames = 0;
                                 break;
                         }
-                        _preview.Position = _preview.Position + seekFrames;
+                        _preview.MoviePosition = _preview.MoviePosition + seekFrames;
                         NotifyPropertyChanged(nameof(Position));
                     },
                 _canUnload
@@ -484,15 +496,21 @@ namespace TAS.Client.ViewModels
 
         private bool _canStillToggle(object obj)
         {
-            if (!(obj is string s && int.TryParse(s, out var layer)))
+            if (!(obj is string s && Enum.TryParse(s, out VideoLayer layer)))
                 return false;
-            var videoLayer = (VideoLayer)((int)VideoLayer.PreviewCG1 + layer);
-            return true;
+            return _selectedMedia?.MediaType == TMediaType.Still || _loadedStillImages.ContainsKey(layer);
         }
 
         private void _stillToggle(object obj)
         {
-
+            if (!(obj is string s && Enum.TryParse(s, out VideoLayer layer)))
+                return;
+            if (_loadedStillImages.ContainsKey(layer))
+                _preview.UnLoadStillImage(layer);
+            else
+            {
+                _preview.LoadStillImage(_selectedMedia, layer);   
+            }
         }
 
         private bool _canUnload(object o)
@@ -502,7 +520,7 @@ namespace TAS.Client.ViewModels
             if (media == null)
                 return false;
             TimeSpan duration = PlayWholeClip ? media.Duration : (segment?.Duration ?? media.Duration);
-            return duration.Ticks >= _preview.FormatDescription.FrameTicks;
+            return duration.Ticks >= FormatDescription.FrameTicks;
         }
 
         private bool _canLoad(IMedia media)
@@ -511,18 +529,18 @@ namespace TAS.Client.ViewModels
                 && media.MediaType == TMediaType.Movie
                 && (media.Directory is IServerDirectory || media.Directory is IArchiveDirectory || (media.Directory is IIngestDirectory && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct))
                 && media.MediaStatus == TMediaStatus.Available
-                && media.FrameRate().Equals(_preview.FormatDescription.FrameRate);
+                && media.FrameRate().Equals(FormatDescription.FrameRate);
         }
 
         #endregion // Commands
 
         protected override void OnDispose()
         {
-            if (LoadedMedia == _preview.Media)
-                _preview.Unload();
+            if (LoadedMedia == _preview.LoadedMovie)
+                _preview.UnloadMovie();
             _preview.PropertyChanged -= PreviewPropertyChanged;
-            if (_channel != null)
-                _channel.PropertyChanged -= OnChannelPropertyChanged;
+            _preview.StillImageLoaded -= Preview_StillImageLoaded;
+            _preview.StillImageUnLoaded -= Preview_StillImageUnLoaded;
             LoadedMedia = null;
             SelectedSegment = null;
         }
@@ -553,7 +571,7 @@ namespace TAS.Client.ViewModels
                         MediaSegments.Add(new MediaSegmentViewmodel((IPersistentMedia)media, ms));
                 }
                 var seek = (tcIn.Ticks - media.TcStart.Ticks) / FormatDescription.FrameTicks;
-                long newPosition = _preview.IsLoaded && _loadedMedia != null ? _preview.LoadedSeek + _preview.Position - seek : 0;
+                long newPosition = _preview.IsMovieLoaded && _loadedMedia != null ? _preview.MovieSeekOnLoad + _preview.MoviePosition - seek : 0;
                 if (newPosition < 0)
                     newPosition = 0;
                 LoadedDuration = duration.Ticks / FormatDescription.FrameTicks;
@@ -563,7 +581,7 @@ namespace TAS.Client.ViewModels
 
         private void _mediaUnload()
         {
-            _preview.Unload();
+            _preview.UnloadMovie();
             LoadedMedia = null;
             TcIn = TimeSpan.Zero;
             TcOut = TimeSpan.Zero;
@@ -608,20 +626,14 @@ namespace TAS.Client.ViewModels
 
         private void PreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (LoadedMedia != null && e.PropertyName == nameof(IPreview.Position))
+            if (LoadedMedia != null && e.PropertyName == nameof(IPreview.MoviePosition))
             {
                 NotifyPropertyChanged(nameof(Position));
                 NotifyPropertyChanged(nameof(SliderPosition));
             }
-            if (e.PropertyName == nameof(IPreview.Media))
-                if (_preview.Media != LoadedMedia)
+            if (e.PropertyName == nameof(IPreview.LoadedMovie))
+                if (_preview.LoadedMovie != LoadedMedia)
                     LoadedMedia = null;
-        }
-
-        private void OnChannelPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(IPlayoutServerChannel.IsServerConnected))
-                NotifyPropertyChanged(nameof(IsEnabled));
         }
 
         private void _mediaSegments_SegmentRemoved(object sender, MediaSegmentEventArgs e)
@@ -654,7 +666,7 @@ namespace TAS.Client.ViewModels
 
         private void Media_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IMedia.AudioVolume) && _preview.IsLoaded && _selectedMedia != null)
+            if (e.PropertyName == nameof(IMedia.AudioVolume) && _preview.IsMovieLoaded && _selectedMedia != null)
                 _preview.AudioVolume = _selectedMedia.AudioVolume;
             if (e.PropertyName == nameof(IMedia.MediaStatus) && _selectedMedia != null)
                 InvalidateRequerySuggested();
@@ -664,11 +676,50 @@ namespace TAS.Client.ViewModels
         {
             var ev = _selectedEvent;
             var media = ev?.Media;
-            if (e.PropertyName == nameof(IEvent.AudioVolume) && _preview.IsLoaded && ev != null && media != null)
+            if (e.PropertyName == nameof(IEvent.AudioVolume) && _preview.IsMovieLoaded && ev != null && media != null)
                 _preview.AudioVolume = ev.AudioVolume ?? media.AudioVolume;
         }
 
         private IMedia MediaToLoad => SelectedMedia ?? SelectedEvent?.Media ?? SelectedIngestOperation?.Source;
+
+        private void Preview_StillImageUnLoaded(object sender, MediaOnLayerEventArgs e)
+        {
+            OnUiThread(() =>
+            {
+                _loadedStillImages.Remove(e.Layer);
+                NotifyLayerButtonVisible(e.Layer);
+            });
+        }
+
+        private void Preview_StillImageLoaded(object sender, MediaOnLayerEventArgs e)
+        {
+            OnUiThread(() =>
+            {
+                _loadedStillImages[e.Layer] = e.Media;
+                NotifyLayerButtonVisible(e.Layer);
+            });
+        }
+
+        private void NotifyLayerButtonVisible(VideoLayer layer)
+        {
+            switch (layer)
+            {
+                case VideoLayer.PreviewCG1:
+                    NotifyPropertyChanged(nameof(IsStillButton1Visible));
+                    NotifyPropertyChanged(nameof(IsStill1Loaded));
+                    break;
+                case VideoLayer.PreviewCG2:
+                    NotifyPropertyChanged(nameof(IsStillButton2Visible));
+                    NotifyPropertyChanged(nameof(IsStill2Loaded));
+                    break;
+                case VideoLayer.PreviewCG3:
+                    NotifyPropertyChanged(nameof(IsStillButton3Visible));
+                    NotifyPropertyChanged(nameof(IsStill3Loaded));
+                    break;
+            }
+            CommandManager.InvalidateRequerySuggested();
+        }
+
 
     }
 }

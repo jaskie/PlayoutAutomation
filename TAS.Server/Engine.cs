@@ -248,7 +248,7 @@ namespace TAS.Server
                 if (!SetField(ref _fieldOrderInverted, value))
                     return;
                 _playoutChannelPRI?.SetFieldOrderInverted(VideoLayer.Program, value);
-                if (_playoutChannelSEC != null && !(_playoutChannelSEC == Preview.Channel && _preview.IsLoaded))
+                if (_playoutChannelSEC != null && !(_playoutChannelSEC == Preview.Channel && _preview.IsMovieLoaded))
                     _playoutChannelSEC.SetFieldOrderInverted(VideoLayer.Program, value);
             }
         }
@@ -265,7 +265,7 @@ namespace TAS.Server
                 var playing = Playing;
                 int transitioDuration = playing == null ? 0 : (int)playing.TransitionTime.ToSmpteFrames(FrameRate);
                 _playoutChannelPRI?.SetVolume(VideoLayer.Program, value, transitioDuration);
-                if (_playoutChannelSEC != null && !(_playoutChannelSEC == Preview.Channel && _preview.IsLoaded))
+                if (_playoutChannelSEC != null && !(_playoutChannelSEC == Preview.Channel && _preview.IsMovieLoaded))
                     _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
             }
         }
@@ -588,7 +588,7 @@ namespace TAS.Server
                     }
             }
             NotifyEngineOperation(null, TEngineOperation.Clear);
-            _preview.Unload();
+            _preview.UnloadMovie();
         }
 
         public void ClearMixer()

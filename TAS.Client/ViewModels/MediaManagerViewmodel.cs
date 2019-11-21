@@ -47,7 +47,7 @@ namespace TAS.Client.ViewModels
             Engine = engine;
             _preview = preview;
             if (preview != null)
-                PreviewViewmodel = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit));
+                PreviewViewmodel = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit), true);
 
             MediaDirectories = new List<MediaDirectoryViewmodel>();
             MediaDirectories.AddRange(_mediaManager.IngestDirectories.Where(d => d.ContainsImport()).Select(d => new MediaDirectoryViewmodel(d, d.DirectoryName, true)));

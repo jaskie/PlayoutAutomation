@@ -42,7 +42,7 @@
                     <Button Command="{Binding CommandUnload}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png"  />
                     </Button>
-                    <Grid Visibility="{Binding IsStillButtonsVisible, Converter={StaticResource BoolToVis}}">
+                    <Grid>
                         <Grid.Resources>
                             <Style TargetType="Button">
                                 <Setter Property="Width" Value="22" />
@@ -56,13 +56,13 @@
                             <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" ToolTip="{Resx _secondBack.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="0" >
+                        <Button Grid.Column="0" ToolTip="{Resx _buttonStillImage1.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG1" Visibility="{Binding IsStillButton1Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsStill1Loaded, Converter={StaticResource BoolToBrushButton}}">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer1.png" />
                         </Button>
-                        <Button Grid.Column="1" ToolTip="{Resx _frameBack.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="1">
+                        <Button Grid.Column="1" ToolTip="{Resx _buttonStillImage2.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG2" Visibility="{Binding IsStillButton2Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsStill2Loaded, Converter={StaticResource BoolToBrushButton}}">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer2.png" />
                         </Button>
-                        <Button Grid.Column="2" ToolTip="{Resx _buttonCopyTCIn.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="2">
+                        <Button Grid.Column="2" ToolTip="{Resx _buttonStillImage3.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG3" Visibility="{Binding IsStillButton3Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsStill3Loaded, Converter={StaticResource BoolToBrushButton}}">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer3.png" />
                         </Button>
                     </Grid>

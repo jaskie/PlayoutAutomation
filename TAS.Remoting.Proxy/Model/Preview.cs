@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ComponentModelRPC;
 using ComponentModelRPC.Client;
 using Newtonsoft.Json;
@@ -24,20 +25,23 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IPreview.IsPlaying))]
         private bool _isPlaying;
 
-        [JsonProperty(nameof(IPreview.IsLoaded))]
-        private bool _loaded;
+        [JsonProperty(nameof(IPreview.IsMovieLoaded))]
+        private bool _isMovieLoaded;
 
-        [JsonProperty(nameof(IPreview.Media))]
-        private MediaBase _media;
+        [JsonProperty(nameof(IPreview.LoadedMovie))]
+        private MediaBase _loadedMovie;
 
-        [JsonProperty(nameof(IPreview.Position))]
+        [JsonProperty(nameof(IPreview.MoviePosition))]
         private long _position;
 
-        [JsonProperty(nameof(IPreview.LoadedSeek))]
-        private long _seek;
+        [JsonProperty(nameof(IPreview.MovieSeekOnLoad))]
+        private long _movieSeekOnLoad;
 
-        [JsonProperty(nameof(IPreview.FormatDescription))]
-        private VideoFormatDescription _formatDescription;
+        [JsonProperty(nameof(IPreview.VideoFormat))]
+        private TVideoFormat _videoFormat;
+
+        [JsonProperty(nameof(IPreview.LoadedStillImages))]
+        private Dictionary<VideoLayer, IMedia> _loadedStillImages;
 
 #pragma warning restore
 
@@ -53,53 +57,81 @@ namespace TAS.Remoting.Model
 
         public bool IsPlaying => _isPlaying;
 
-        public bool IsLoaded => _loaded;
+        public bool IsMovieLoaded => _isMovieLoaded;
 
-        public void LoadStill(IMedia media, VideoLayer layer)
+        public void LoadStillImage(IMedia media, VideoLayer layer)
         {
             Invoke(parameters: new object[] {media, layer});
         }
 
-        public IMedia Media => _media;
+        public bool UnLoadStillImage(VideoLayer layer)
+        {
+            return Query<bool>(parameters: new object[] {layer});
+        }
 
-        public long Position { get => _position; set => Set(value); }
+        public Dictionary<VideoLayer, IMedia> LoadedStillImages => _loadedStillImages;
 
-        public long LoadedSeek => _seek;
+        public IMedia LoadedMovie => _loadedMovie;
 
-        public VideoFormatDescription FormatDescription => _formatDescription;
+        public long MoviePosition { get => _position; set => Set(value); }
+
+        public long MovieSeekOnLoad => _movieSeekOnLoad;
+
+        public TVideoFormat VideoFormat => _videoFormat;
 
         public void LoadMovie(IMedia media, long seek, long duration, long position, double audioLevel)
         {
             Invoke(parameters: new object[] { media, seek, duration, position, audioLevel });
         }
 
+
         public void Pause() { Invoke(); }
 
         public void Play() { Invoke(); }
 
-        public void Unload() { Invoke(); }
+        public void UnloadMovie() { Invoke(); }
 
-        private event EventHandler<MediaOnLayerEventArgs> _previewStillLoaded;
-        public event EventHandler<MediaOnLayerEventArgs> StillLoaded
+        private event EventHandler<MediaOnLayerEventArgs> _stillImageLoaded;
+
+        public event EventHandler<MediaOnLayerEventArgs> StillImageLoaded
         {
             add
             {
-                EventAdd(_previewStillLoaded);
-                _previewStillLoaded += value;
+                EventAdd(_stillImageLoaded);
+                _stillImageLoaded += value;
             }
             remove
             {
-                _previewStillLoaded -= value;
-                EventRemove(_loaded);
+                _stillImageLoaded -= value;
+                EventRemove(_stillImageLoaded);
             }
         }
+
+        private event EventHandler<MediaOnLayerEventArgs> _stillImageUnLoaded;
+        public event EventHandler<MediaOnLayerEventArgs> StillImageUnLoaded
+        {
+            add
+            {
+                EventAdd(_stillImageUnLoaded);
+                _stillImageUnLoaded += value;
+            }
+            remove
+            {
+                _stillImageUnLoaded -= value;
+                EventRemove(_stillImageUnLoaded);
+            }
+        }
+
 
         protected override void OnEventNotification(SocketMessage message)
         {
             switch (message.MemberName)
             {
-                case nameof(IPreview.StillLoaded):
-                    _previewStillLoaded?.Invoke(this, Deserialize<MediaOnLayerEventArgs>(message));
+                case nameof(IPreview.StillImageLoaded):
+                    _stillImageLoaded?.Invoke(this, Deserialize<MediaOnLayerEventArgs>(message));
+                    break;
+                case nameof(IPreview.StillImageUnLoaded):
+                    _stillImageUnLoaded?.Invoke(this, Deserialize<MediaOnLayerEventArgs>(message));
                     break;
             }
         }

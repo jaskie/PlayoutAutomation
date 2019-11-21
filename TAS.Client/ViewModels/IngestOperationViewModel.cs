@@ -55,7 +55,7 @@ namespace TAS.Client.ViewModels
             AspectConversionsEnforce = new TAspectConversion[3];
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             if (preview != null)
-                PreviewViewmodel = new PreviewViewmodel(preview, true) { SelectedIngestOperation = operation };
+                PreviewViewmodel = new PreviewViewmodel(preview, true, false) { SelectedIngestOperation = operation };
             CommandRemove = new UiCommand(o => Removed?.Invoke(this, EventArgs.Empty));
         }
 

@@ -59,7 +59,7 @@ namespace TAS.Client.ViewModels
             
 
             if (preview != null && engine.HaveRight(EngineRight.Preview))
-                PreviewViewmodel = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit)) { IsSegmentsVisible = true };
+                PreviewViewmodel = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit), false) { IsSegmentsVisible = true };
 
 
             _multiSelectedEvents = new ObservableCollection<EventPanelViewmodelBase>();

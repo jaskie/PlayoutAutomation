@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -19,8 +21,8 @@ namespace TAS.Server
 
         private readonly Engine _engine;
 
-        [JsonProperty(nameof(Media))]
-        private IMedia _media;
+        [JsonProperty(nameof(LoadedMovie))]
+        private IMedia _loadedMovie;
         private long _duration;
         private long _position;
         private double _audioVolume;
@@ -45,7 +47,7 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        public IMedia Media => _media;
+        public IMedia LoadedMovie => _loadedMovie;
 
         [JsonProperty]
         public IPlayoutServerChannel Channel => _channel;
@@ -54,19 +56,19 @@ namespace TAS.Server
         public bool IsConnected => _channel.IsServerConnected;
 
         [JsonProperty]
-        public VideoFormatDescription FormatDescription => _engine.FormatDescription; 
+        public TVideoFormat VideoFormat => _engine.VideoFormat; 
 
         [XmlIgnore, JsonProperty]
-        public long LoadedSeek { get; private set; }
+        public long MovieSeekOnLoad { get; private set; }
 
         [XmlIgnore]
         [JsonProperty]
-        public long Position // from 0 to duration
+        public long MoviePosition // from 0 to duration
         {
             get => _position;
             set
             {
-                if (_channel == null || _media == null)
+                if (_channel == null || _loadedMovie == null)
                     return;
                 if (_isPlaying)
                     Pause();
@@ -85,7 +87,7 @@ namespace TAS.Server
                             _currentTicks > _previewLastPositionSetTick + TimeSpan.TicksPerMillisecond * PerviewPositionSetDelay * 3)
                         {
                             _previewLastPositionSetTick = _currentTicks;
-                            _channel.Seek(VideoLayer.Preview, LoadedSeek + newSeek);
+                            _channel.Seek(VideoLayer.Preview, MovieSeekOnLoad + newSeek);
                         }
                     }, cancellationTokenSource.Token);
                     _previewPositionCancellationTokenSource = cancellationTokenSource;
@@ -105,7 +107,7 @@ namespace TAS.Server
         }
 
         [XmlIgnore, JsonProperty]
-        public bool IsLoaded
+        public bool IsMovieLoaded
         {
             get => _isLoaded;
             private set
@@ -133,23 +135,23 @@ namespace TAS.Server
             if (mediaToLoad == null)
                 return;
             _duration = duration;
-            LoadedSeek = seek;
+            MovieSeekOnLoad = seek;
             _position = position;
-            _media = media;
+            _loadedMovie = media;
             _previewLastPositionSetTick = _currentTicks;
             _channel?.SetAspect(VideoLayer.Preview, media.VideoFormat == TVideoFormat.NTSC
                                                              || media.VideoFormat == TVideoFormat.PAL
                                                              || media.VideoFormat == TVideoFormat.PAL_P);
-            IsLoaded = true;
+            IsMovieLoaded = true;
             AudioVolume = previewAudioVolume;
             _channel?.Load(mediaToLoad, VideoLayer.Preview, seek + position, duration - position);
             IsPlaying = false;
-            NotifyPropertyChanged(nameof(Media));
-            NotifyPropertyChanged(nameof(Position));
-            NotifyPropertyChanged(nameof(LoadedSeek));
+            NotifyPropertyChanged(nameof(LoadedMovie));
+            NotifyPropertyChanged(nameof(MoviePosition));
+            NotifyPropertyChanged(nameof(MovieSeekOnLoad));
         }
 
-        public void LoadStill(IMedia media, VideoLayer layer)
+        public void LoadStillImage(IMedia media, VideoLayer layer)
         {
             if (!_engine.HaveRight(EngineRight.Preview))
                 return;
@@ -158,22 +160,33 @@ namespace TAS.Server
             if (_channel?.Load(mediaToLoad, layer) != true)
                 return;
             _previewLoadedStills.TryAdd(layer, mediaToLoad);
-            IsLoaded = true;
-            StillLoaded?.Invoke(this, new MediaOnLayerEventArgs(media, layer));
+            StillImageLoaded?.Invoke(this, new MediaOnLayerEventArgs(media, layer));
         }
 
-        public void Unload()
+        public bool UnLoadStillImage(VideoLayer layer)
+        {
+            if (!_previewLoadedStills.TryRemove(layer, out var media))
+                return false;
+            _channel?.Clear(layer);
+            StillImageUnLoaded?.Invoke(this, new MediaOnLayerEventArgs(media, layer));
+            return true;
+        }
+
+        [JsonProperty]
+        public Dictionary<VideoLayer, IMedia> LoadedStillImages => new Dictionary<VideoLayer, IMedia>(_previewLoadedStills);
+        
+        public void UnloadMovie()
         {
             if (!_engine.HaveRight(EngineRight.Preview))
                 return;
-            _previewUnload();
+            _movieUnload();
         }
 
         public void Play()
         {
             if (!_engine.HaveRight(EngineRight.Preview))
                 return;
-            if (_media != null && _channel?.Play(VideoLayer.Preview) == true)
+            if (_loadedMovie != null && _channel?.Play(VideoLayer.Preview) == true)
                 IsPlaying = true;
         }
 
@@ -185,27 +198,28 @@ namespace TAS.Server
             IsPlaying = false;
         }
 
-        public event EventHandler<MediaOnLayerEventArgs> StillLoaded;
+        public event EventHandler<MediaOnLayerEventArgs> StillImageLoaded;
 
-        private void _previewUnload()
+        public event EventHandler<MediaOnLayerEventArgs> StillImageUnLoaded;
+
+        private void _movieUnload()
         {
             var channel = _channel;
-            var media = _media;
+            var media = _loadedMovie;
             if (channel == null || media == null)
                 return;
             _previewPositionCancellationTokenSource?.Cancel();
             channel.Clear(VideoLayer.Preview);
             _duration = 0;
             _position = 0;
-            LoadedSeek = 0;
-            _media = null;
-            IsLoaded = false;
+            MovieSeekOnLoad = 0;
+            _loadedMovie = null;
+            IsMovieLoaded = false;
             IsPlaying = false;
-            NotifyPropertyChanged(nameof(Media));
-            NotifyPropertyChanged(nameof(Position));
-            NotifyPropertyChanged(nameof(LoadedSeek));
+            NotifyPropertyChanged(nameof(LoadedMovie));
+            NotifyPropertyChanged(nameof(MoviePosition));
+            NotifyPropertyChanged(nameof(MovieSeekOnLoad));
         }
-
 
         internal void Tick(long currentTicks, long nFrames)
         {
@@ -215,7 +229,7 @@ namespace TAS.Server
             if (_position < _duration - 1)
             {
                 _position += nFrames;
-                NotifyPropertyChanged(nameof(Position));
+                NotifyPropertyChanged(nameof(MoviePosition));
             }
         }
 

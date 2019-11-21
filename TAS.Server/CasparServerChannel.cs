@@ -615,15 +615,13 @@ namespace TAS.Server
 
         private CasparItem _getItem(MediaBase media, VideoLayer videolayer)
         {
-            if (media != null && media.MediaType == TMediaType.Movie)
-            {
+            if (media != null && (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still))
                 return new CasparItem(string.Empty)
                 {
-                    Clipname = $"\"{(media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath)}\"",
+                    Clipname =$"\"{(media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath)}\"",
                     ChannelLayout = ChannelLayout.Stereo,
-                    VideoLayer = (int)videolayer
+                    VideoLayer = (int) videolayer
                 };
-            }
             return null;
         }
 
