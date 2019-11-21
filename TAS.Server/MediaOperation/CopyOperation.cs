@@ -92,7 +92,10 @@ namespace TAS.Server.MediaOperation
                 Dest.MediaStatus = TMediaStatus.Copying;
                 IsIndeterminate = true;
                 if (!await source.CopyMediaTo(Dest, CancellationTokenSource.Token))
+                {
+                    Dest.Delete();
                     return false;
+                }
             }
             Dest.MediaStatus = TMediaStatus.Copied;
             await Task.Run(() => Dest.Verify(false));

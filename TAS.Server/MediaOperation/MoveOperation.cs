@@ -2,12 +2,12 @@
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NLog;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
-using LogLevel = NLog.LogLevel;
 
 namespace TAS.Server.MediaOperation
 {
@@ -52,8 +52,16 @@ namespace TAS.Server.MediaOperation
             StartTime = DateTime.UtcNow;
             if (!(Source is MediaBase source))
                 return false;
-            if (!File.Exists(source.FullPath) || !Directory.Exists(DestDirectory.Folder))
+            if (!source.FileExists())
+            {
+                AddOutputMessage(LogLevel.Error, $"Operation failed - source file {source.FullPath} does not exists");
                 return false;
+            }
+            if (!Directory.Exists(DestDirectory.Folder))
+            {
+                AddOutputMessage(LogLevel.Error, $"Operation failed - destination folder {DestDirectory.Folder} does not exists");
+                return false;
+            }
             CreateDestMediaIfNotExists();
             if (Dest.FileExists())
                 if (File.GetLastWriteTimeUtc(source.FullPath).Equals(File.GetLastWriteTimeUtc(Dest.FullPath))
@@ -70,16 +78,26 @@ namespace TAS.Server.MediaOperation
                     return false;
                 }
             IsIndeterminate = true;
-            Dest.MediaStatus = TMediaStatus.Copying;
-            FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(Dest.FullPath));
-            File.Move(source.FullPath, Dest.FullPath);
-            File.SetCreationTimeUtc(Dest.FullPath, File.GetCreationTimeUtc(source.FullPath));
-            File.SetLastWriteTimeUtc(Dest.FullPath, File.GetLastWriteTimeUtc(source.FullPath));
-            Dest.MediaStatus = TMediaStatus.Copied;
-            await Task.Run(() => Dest.Verify(false));
-            ((MediaDirectoryBase)Source.Directory).RefreshVolumeInfo();
-            ((MediaDirectoryBase)DestDirectory).RefreshVolumeInfo();
-            return true;
+            try
+            {
+                Dest.MediaStatus = TMediaStatus.Copying;
+                FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(Dest.FullPath));
+                File.Move(source.FullPath, Dest.FullPath);
+                File.SetCreationTimeUtc(Dest.FullPath, File.GetCreationTimeUtc(source.FullPath));
+                File.SetLastWriteTimeUtc(Dest.FullPath, File.GetLastWriteTimeUtc(source.FullPath));
+                Dest.MediaStatus = TMediaStatus.Copied;
+                await Task.Run(() => Dest.Verify(false));
+                ((MediaDirectoryBase) Source.Directory).RefreshVolumeInfo();
+                ((MediaDirectoryBase) DestDirectory).RefreshVolumeInfo();
+                AddOutputMessage(LogLevel.Info, "Move operation completed");
+                return true;
+            }
+            catch (Exception exception)
+            {
+                Dest.Delete();
+                AddOutputMessage(LogLevel.Error, exception.Message);
+                return false;
+            }
         }
 
         public override string ToString()

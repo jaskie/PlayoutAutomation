@@ -30,7 +30,6 @@ namespace TAS.Server.MediaOperation
 
         private ulong _progressFileSize;
         private readonly List<MediaExportDescription> _sources = new List<MediaExportDescription>();
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private IMediaProperties _destMediaProperties;
 
         internal ExportOperation(FileManager fileManager) : base(fileManager)

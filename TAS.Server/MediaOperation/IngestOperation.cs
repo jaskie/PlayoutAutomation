@@ -205,7 +205,10 @@ namespace TAS.Server.MediaOperation
                 graphics.DrawImage(new Bitmap(localSourceMedia.FullPath), 0, 0, destSize.Width, destSize.Height);
             var imageCodecInfo = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FilenameExtension.Split(';').Select(se => se.Trim('*')).Contains(FileUtils.DefaultFileExtension(TMediaType.Still).ToUpperInvariant()));
             if (imageCodecInfo == null)
+            {
+                Dest.Delete();
                 return false;
+            }
             System.Drawing.Imaging.Encoder encoder = System.Drawing.Imaging.Encoder.Quality;
             var encoderParameter = new EncoderParameter(encoder, 90L);
             var encoderParameters = new EncoderParameters(1) { Param = { [0] = encoderParameter } };
@@ -412,6 +415,7 @@ namespace TAS.Server.MediaOperation
                 }
                 return true;
             }
+            destMedia.Delete();
             return false;
         }
         #endregion //Movie conversion

@@ -275,11 +275,16 @@ namespace TAS.Server
                         {
                             if (priAnimation.MediaStatus != TMediaStatus.Available)
                                 continue;
-                            if (sec.FindMediaByMediaGuid(priAnimation.MediaGuid) is AnimatedMedia)
-                                continue;
-                            var sEcAnimation = (AnimatedMedia) sec.FindMediaFirst(m =>
-                                m.Folder == priAnimation.Folder && m.FileName == priAnimation.FileName &&
-                                priAnimations.All(a => a.MediaGuid != m.MediaGuid));
+                            AnimatedMedia sEcAnimation = null;
+                            if (sec.FindMediaByMediaGuid(priAnimation.MediaGuid) is AnimatedMedia animatedMedia)
+                                if (animatedMedia.FileExists())
+                                    continue;
+                                else
+                                    sEcAnimation = animatedMedia;
+                            if (sEcAnimation == null)
+                                sEcAnimation = (AnimatedMedia) sec.FindMediaFirst(m =>
+                                    m.Folder == priAnimation.Folder && m.FileName == priAnimation.FileName &&
+                                    priAnimations.All(a => a.MediaGuid != m.MediaGuid));
                             if (sEcAnimation != null)
                             {
                                 sEcAnimation.CloneMediaProperties(priAnimation);
@@ -566,14 +571,15 @@ namespace TAS.Server
                 if (pRImedia.MediaStatus != TMediaStatus.Available || !pRImedia.FileExists())
                     continue;
                 var secMedia = sec.FindMediaByMediaGuid(pRImedia.MediaGuid);
-                if (secMedia != null)
+                if (secMedia != null && secMedia.FileExists())
                     continue;
-                secMedia = (ServerMedia) sec.FindMediaFirst(m =>
-                    m.FileExists() 
-                    && m.FileSize == pRImedia.FileSize 
-                    && m.FileName == pRImedia.FileName 
-                    && m.LastUpdated.DateTimeEqualToDays(pRImedia.LastUpdated)
-                    && (!pri.IsRecursive || !sec.IsRecursive || string.Equals(pRImedia.Folder, m.Folder, StringComparison.OrdinalIgnoreCase))
+                if (secMedia == null)
+                    secMedia = (ServerMedia) sec.FindMediaFirst(m =>
+                        m.FileExists()
+                        && m.FileSize == pRImedia.FileSize
+                        && m.FileName == pRImedia.FileName
+                        && m.LastUpdated.DateTimeEqualToDays(pRImedia.LastUpdated)
+                        && (!pri.IsRecursive || !sec.IsRecursive || string.Equals(pRImedia.Folder, m.Folder, StringComparison.OrdinalIgnoreCase))
                     );
                 if (secMedia != null)
                 {
