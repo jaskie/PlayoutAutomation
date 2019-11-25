@@ -22,6 +22,9 @@ namespace TAS.Common
 
         public static readonly string PlayCommand = $@"\s*PLAY\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+(?<file>([\w\s\\:]*))";
 
+        public static readonly string CallCommand =
+                $@"\s*CALL\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+(?<function>(.+))";
+
         public static readonly string CgCommand =
             $@"CG\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+(?<method>{string.Join("|", Enum.GetNames(typeof(TemplateMethod)))})";
         

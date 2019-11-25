@@ -109,6 +109,16 @@ namespace Svt.Caspar
                 Connection.SendString("PAUSE " + Id + "-" + videoLayer);
         }
 
+        public void Call(string function)
+        {
+            Connection.SendString("CALL " + Id + " " + function);
+        }
+
+        public void Call(int videoLayer, string function)
+        {
+            Connection.SendString("CALL " + Id + "-" + videoLayer + " " + function);
+        }
+
         public void Play()
         {
             Connection.SendString("PLAY " + Id);
