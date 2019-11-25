@@ -38,7 +38,13 @@
                 <DataGridTextColumn Header="Address" Binding="{Binding ServerAddress}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <ContentControl Grid.Column="1" Grid.RowSpan="2" Content="{Binding SelectedServer.Editor}"/>
+        <ContentControl Grid.Column="1" Grid.RowSpan="2" Content="{Binding SelectedServer}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type vm:PlayoutServerViewmodel}">
+                    <vm:PlayoutServerView/>
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
     </Grid>
 </UserControl>
 

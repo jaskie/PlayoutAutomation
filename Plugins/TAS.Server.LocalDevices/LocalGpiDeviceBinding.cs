@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
-    public class LocalGpiDeviceBinding : Remoting.Server.DtoBase, IGpi
+    public class LocalGpiDeviceBinding : Remoting.Server.DtoBase, IGpi, IEnginePlugin
     {
 
         public class GPIPin
@@ -25,8 +22,10 @@ namespace TAS.Server
 
         internal LocalDevices Owner;
 
+        internal IEngine Engine;
+
         [XmlAttribute]
-        public UInt64 IdEngine;
+        public string EngineName { get; set; }
 
         public event EventHandler Started;
 
@@ -36,54 +35,37 @@ namespace TAS.Server
         public GPIPin[] Parentals;
         public GPIPin WideScreen;
 
-        void _actionCheckAndExecute(EventHandler handler, GPIPin pin, byte deviceId, byte port, byte bit)
+        private void _actionCheckAndExecute(EventHandler handler, GPIPin pin, byte deviceId, byte port, byte bit)
         {
-            if (pin != null && deviceId == pin.DeviceId && port == pin.PortNumber && bit == pin.PinNumber)
-            {
-                Debug.WriteLine("Advantech device {0} notification port {1} bit {2}", deviceId, port, bit);
-                handler?.Invoke(this, EventArgs.Empty);
-            }
+            if (pin == null || deviceId != pin.DeviceId || port != pin.PortNumber || bit != pin.PinNumber)
+                return;
+            Debug.WriteLine("Advantech device {0} notification port {1} bit {2}", deviceId, port, bit);
+            handler?.Invoke(this, EventArgs.Empty);
         }
 
         internal void NotifyChange(byte deviceId, byte port, byte bit, bool newValue)
         {
-            var pin = Start;
             if (newValue)
                 _actionCheckAndExecute(Started, Start, deviceId, port, bit);
         }
                 
-        bool _isWideScreen = false;
+        bool _isWideScreen;
         public bool IsWideScreen
         {
-            get
-            {
-                return _isWideScreen;
-            }
+            get => _isWideScreen;
 
             set
             {
-                if (SetField(ref _isWideScreen, value))
-                {
-                    _isWideScreen = value;
-                    var pin = WideScreen;
-                    if (pin != null)
-                        Owner.SetPortState(pin.DeviceId, pin.PortNumber, pin.PinNumber, value);
-                }
+                if (!SetField(ref _isWideScreen, value))
+                    return;
+                _isWideScreen = value;
+                var pin = WideScreen;
+                if (pin != null)
+                    Owner.SetPortState(pin.DeviceId, pin.PortNumber, pin.PinNumber, value);
             }
         }
 
         public void ShowAux(int auxNr) { }
         public void HideAux(int auxNr) { }
-                
-        void _setSinglePin(GPIPin[] pins, int value)
-        {
-            var owner = Owner;
-            if (pins != null && owner != null)
-            {
-                pins.Where(p => p.Param != value).ToList().ForEach(p => owner.SetPortState(p.DeviceId, p.PortNumber, p.PinNumber, false));
-                pins.Where(p => p.Param == value).ToList().ForEach(p => owner.SetPortState(p.DeviceId, p.PortNumber, p.PinNumber, true));
-            }
-        }
-
     }
 }

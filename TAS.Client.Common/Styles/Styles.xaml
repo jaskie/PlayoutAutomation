@@ -1,0 +1,89 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style TargetType="Border" x:Key="EventPanelBaseStyle" >
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#30E0E0E0" Offset="0.0"/>
+                    <GradientStop Color="#20404040" Offset="0.5"/>
+                    <GradientStop Color="#30E0E0E0" Offset="1.0"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BorderThickness" Value="0, 0, 0, 1"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="BorderBrush" Value="Gray"/>
+    </Style>
+
+    <Style TargetType="Border" x:Key="EventPanelStyle" BasedOn="{StaticResource EventPanelBaseStyle}" >
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                <Setter Property="Background" Value="#30000000"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="Border" x:Key="EventPanelIsHoldBorder" >
+        <Setter Property="Height" Value="6"/>
+        <Setter Property="Visibility" Value="{Binding IsHold, Converter={StaticResource BoolToVis}}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="True">
+                <Setter Property="Background" Value="OrangeRed"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                <Setter Property="Background" Value="DimGray"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="Border" x:Key="EventPanelIsStartBorder" >
+        <Setter Property="Background" Value="#FFEBBDA0"/>
+        <Setter Property="Height" Value="15"/>
+        <Setter Property="Visibility" Value="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}"/>
+        <Setter Property="Padding" Value="50, 0"/>
+    </Style>
+    <Style TargetType="TextBlock" x:Key="EventPanelTextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                <Setter Property="Opacity" Value="0.5"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="TextBlock" x:Key="MediaFileNameTextBlock" BasedOn="{StaticResource EventPanelTextBlock}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
+                <Setter Property="Background" Value="#FFF05050"/>
+            </DataTrigger>
+        </Style.Triggers>
+        <Setter Property="FontSize" Value="9" />
+        <Setter Property="Text" Value="{Binding MediaFileName}"/>
+    </Style>
+    <Style TargetType="Label" x:Key="HeaderLabel" BasedOn="{StaticResource {x:Type Label}}">
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="DimGray"/>
+        <Setter Property="Background" Value="Gray"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontStretch" Value="Expanded"/>
+    </Style>
+    <Style TargetType="{x:Type DataGridCell}" x:Key="InactiveDataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+        <Style.Triggers>
+            <Trigger  Property="IsSelected" Value="false">
+                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.InactiveBorderBrushKey}}" />
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.InactiveCaptionBrushKey}}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{x:Static SystemColors.HighlightColor}"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{x:Static SystemColors.HighlightTextColor}"/>
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="../Converters.xaml"/>
+        <ResourceDictionary Source="../Controls/Resources.xaml"/>
+        <ResourceDictionary Source="Images.xaml"/>
+        <ResourceDictionary Source="Buttons.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

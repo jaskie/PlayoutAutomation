@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Server.Interfaces;
+﻿using System.Linq;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.Common
 {

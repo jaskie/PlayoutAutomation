@@ -1,73 +1,76 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
 using System.Windows.Input;
 using TAS.Client.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using TAS.Common;
-using TAS.Server.Interfaces;
-using System.Diagnostics;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class FileOperationViewmodel: ViewmodelBase
+    public class FileOperationViewmodel: ViewModelBase
     {
-        private readonly IFileOperation _fileOperation;
+        private bool _isWarning;
 
         public FileOperationViewmodel(IFileOperation fileOperation)
         {
-            _fileOperation = fileOperation;
-            _fileOperation.PropertyChanged += OnFileOperationPropertyChanged;
-            CommandAbort = new UICommand() { ExecuteDelegate = o => _fileOperation.Abort(), CanExecuteDelegate = o => _fileOperation.OperationStatus == FileOperationStatus.Waiting || _fileOperation.OperationStatus == FileOperationStatus.InProgress };
-            CommandShowOutput = new UICommand()
-            {
-                ExecuteDelegate = o =>
+            FileOperation = fileOperation;
+            FileOperation.PropertyChanged += OnFileOperationPropertyChanged;
+            CommandAbort = new UiCommand(o => FileOperation.Abort(), o => FileOperation.OperationStatus == FileOperationStatus.Waiting || FileOperation.OperationStatus == FileOperationStatus.InProgress);
+            CommandShowOutput = new UiCommand(
+                o =>
                 {
-                    Views.OperationOutputView view = new Views.OperationOutputView 
-                    { 
-                        DataContext = this, 
-                        Owner = System.Windows.Application.Current.MainWindow, 
+                    var view = new Views.OperationOutputView
+                    {
+                        DataContext = this,
+                        Owner = System.Windows.Application.Current.MainWindow,
                         WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner,
                         ShowInTaskbar = false,
                     };
                     view.ShowDialog();
                 }
-            };
-            CommandShowWarning = new UICommand()
-            {
-                ExecuteDelegate = o =>
-                    System.Windows.MessageBox.Show(OperationWarning, resources._caption_Warning, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation)
-            };
+            );
+            CommandShowWarning = new UiCommand(o =>
+                System.Windows.MessageBox.Show(OperationWarning, resources._caption_Warning,
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation)
+            );
         }
 
-        public IFileOperation FileOperation { get { return _fileOperation; } }
+        public ICommand CommandAbort { get; }
 
-        protected override void OnDispose()
+        public ICommand CommandShowOutput { get; }
+
+        public ICommand CommandShowWarning { get; }
+
+        public IFileOperation FileOperation { get; }
+
+        public int Progress => FileOperation.Progress;
+
+        public DateTime ScheduledTime => FileOperation.ScheduledTime;
+
+        public DateTime StartTime => FileOperation.StartTime;
+
+        public DateTime FinishedTime => FileOperation.FinishedTime;
+
+        public int TryCount => FileOperation.TryCount;
+
+        public bool IsIndeterminate => FileOperation.IsIndeterminate;
+
+        public bool Finished => FileOperation.OperationStatus == FileOperationStatus.Failed || FileOperation.OperationStatus == FileOperationStatus.Aborted || FileOperation.OperationStatus == FileOperationStatus.Finished;
+
+        public FileOperationStatus OperationStatus => FileOperation.OperationStatus;
+
+        public string OperationOutput => string.Join(Environment.NewLine, FileOperation.OperationOutput);
+
+        public string OperationWarning => FileOperation.OperationWarning.AsString(Environment.NewLine);
+
+        public bool IsWarning
         {
-            _fileOperation.PropertyChanged -= OnFileOperationPropertyChanged;
+            get => _isWarning;
+            private set => SetField(ref _isWarning, value);
         }
 
-        public int Progress { get { return _fileOperation.Progress; } }
-        public DateTime ScheduledTime { get { return _fileOperation.ScheduledTime; } }
-        public DateTime StartTime { get { return _fileOperation.StartTime; } }
-        public DateTime FinishedTime { get { return _fileOperation.FinishedTime; } }
-        public int TryCount { get { return _fileOperation.TryCount; } }
-        public bool IsIndeterminate { get { return _fileOperation.IsIndeterminate; } }
-
-        public bool Finished { get { return _fileOperation.OperationStatus == FileOperationStatus.Failed || _fileOperation.OperationStatus == FileOperationStatus.Aborted || _fileOperation.OperationStatus == FileOperationStatus.Finished; } }
-
-        public FileOperationStatus OperationStatus { get { return _fileOperation.OperationStatus; } }
-        public string OperationOutput { get { return string.Join(Environment.NewLine, _fileOperation.OperationOutput); } }
-        public string OperationWarning { get { return _fileOperation.OperationWarning.AsString(Environment.NewLine); } }
-        private bool _isWarning;
-        public bool IsWarning { get { return _isWarning; } private set { SetField(ref _isWarning, value); } }
-        public string Title { get { return _fileOperation.Title; } }
-
-        public ICommand CommandAbort { get; private set; }
-        public ICommand CommandShowOutput { get; private set; }
-        public ICommand CommandShowWarning { get; private set; }
+        public string Title => FileOperation.Title;
 
         protected virtual void OnFileOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -87,10 +90,12 @@ namespace TAS.Client.ViewModels
             if (e.PropertyName == nameof(IFileOperation.OperationWarning))
                 IsWarning = true;
         }
-        public override string ToString()
+
+        protected override void OnDispose()
         {
-            return _fileOperation.Title;
+            FileOperation.PropertyChanged -= OnFileOperationPropertyChanged;
         }
+
 
     }
 }

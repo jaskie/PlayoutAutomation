@@ -1,26 +1,36 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
 using TAS.Remoting.Client;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
     public class CGElement : ProxyBase, ICGElement
     {
-        public byte Id { get { return Get<byte>(); } set { SetLocalValue(value); } }
+        #pragma warning disable CS0649
 
-        [JsonConverter(typeof(Remoting.BitmapConverter))]
-        public Bitmap Image { get { return Get<Bitmap>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(ICGElement.Id))]
+        private byte _id;
 
-        public string ImageFile { get { return Get<string>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(ICGElement.Image)), JsonConverter(typeof(BitmapJsonConverter))]
+        private Bitmap _image;
 
-        public string Name { get { return Get<string>(); }  set { SetLocalValue(value); } }
+        [JsonProperty(nameof(ICGElement.ImageFile))]
+        private string _imageFile;
 
-        protected override void OnEventNotification(WebSocketMessage e) { }
+        [JsonProperty(nameof(ICGElement.Name))]
+        private string _name;
+
+        #pragma warning restore
+
+        public byte Id => _id;
+        
+        public Bitmap Image => _image;
+
+        public string ImageFile => _imageFile;
+
+        public string Name => _name;
+
+        protected override void OnEventNotification(SocketMessage message) { }
     }
 }

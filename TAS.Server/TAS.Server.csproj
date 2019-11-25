@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TAS.Server</RootNamespace>
     <AssemblyName>TAS.Server</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -37,37 +37,34 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.4.4\lib\net45\NLog.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\NLog.4.5.9\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="websocket-sharp, Version=1.0.2.59611, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSocketSharp.1.0.3-rc11\lib\websocket-sharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CasparRecorder.cs" />
     <Compile Include="CasparServer.cs" />
     <Compile Include="CasparServerChannel.cs" />
     <Compile Include="CommandScriptEvent.cs" />
-    <Compile Include="ConvertOperation.cs" />
+    <Compile Include="FileOperationQueue.cs" />
+    <Compile Include="IngestOperation.cs" />
     <Compile Include="Dependencies\TargaImage.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="EngineController.cs" />
@@ -84,10 +81,10 @@
     <Compile Include="Media\FtpMediaStream.cs" />
     <Compile Include="Media\IngestDirectory.cs" />
     <Compile Include="Media\IngestMedia.cs" />
-    <Compile Include="Media\IServerIngestStatusMedia.cs" />
-    <Compile Include="Media\Media.cs" />
+    <Compile Include="Media\MediaBase.cs" />
     <Compile Include="Media\MediaChecker.cs" />
-    <Compile Include="Media\MediaDirectory.cs" />
+    <Compile Include="Media\MediaDirectoryBase.cs" />
+    <Compile Include="Media\WatcherDirectory.cs" />
     <Compile Include="Media\MediaSegment.cs" />
     <Compile Include="Media\MediaSegments.cs" />
     <Compile Include="Media\PersistentMedia.cs" />
@@ -97,32 +94,43 @@
     <Compile Include="Media\TempDirectory.cs" />
     <Compile Include="Media\AnimatedMedia.cs" />
     <Compile Include="Media\TempMedia.cs" />
+    <Compile Include="Security\AclRightBase.cs" />
+    <Compile Include="Security\EngineAclRight.cs" />
+    <Compile Include="Security\EventAclRight.cs" />
+    <Compile Include="Security\SecurityObjectBase.cs" />
+    <Compile Include="Security\AcoHive.cs" />
+    <Compile Include="Security\AuthenticationService.cs" />
+    <Compile Include="Security\Group.cs" />
+    <Compile Include="Security\User.cs" />
+    <Compile Include="XDCAM\EditList.cs" />
+    <Compile Include="XDCAM\MediaProfile.cs" />
+    <Compile Include="XDCAM\Meta.cs" />
     <Compile Include="XDCAM\XDCAMMedia.cs" />
     <Compile Include="PluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerSerializationBinder.cs" />
-    <Compile Include="RemoteClientHost.cs" />
     <Compile Include="ExportOperation.cs" />
     <Compile Include="AnimatedEvent.cs" />
-    <Compile Include="XDCAM\Alias.cs" />
-    <Compile Include="XDCAM\Index.cs" />
     <Compile Include="XDCAM\NonRealTimeMeta.cs" />
     <Compile Include="XDCAM\SerializationHelper.cs" />
     <Compile Include="XDCAM\Smil.cs" />
     <Compile Include="XDCAM\XdcamStream.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Svt\Svt.Caspar\Svt.Caspar.csproj">
+    <ProjectReference Include="..\dependencies\Svt\Svt.Caspar\Svt.Caspar.csproj">
       <Project>{9b56a150-ece3-4099-aea1-0f8e115dc374}</Project>
       <Name>Svt.Caspar</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Svt\Svt.Network\Svt.Network.csproj">
+    <ProjectReference Include="..\dependencies\Svt\Svt.Network\Svt.Network.csproj">
       <Project>{941ed6a5-c8df-459d-bfce-5c6ed9ac0492}</Project>
       <Name>Svt.Network</Name>
     </ProjectReference>
-    <ProjectReference Include="..\System.Net.FtpClient\source\System.Net.FtpClient.csproj">
+    <ProjectReference Include="..\dependencies\System.Net.FtpClient\source\System.Net.FtpClient.csproj">
       <Project>{e963b766-56bf-4966-8917-88c1ee69d61a}</Project>
       <Name>System.Net.FtpClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TAS.Common.Database\TAS.Common.Database.csproj">
+      <Project>{f73445a5-2375-49ea-bd4f-8c6778d8736d}</Project>
+      <Name>TAS.Common.Database</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.FFMpegUtils\FFMpegUtils.vcxproj">
       <Project>{aaa90fdf-4e13-490e-a4a4-9b83f522f6c4}</Project>
@@ -132,9 +140,9 @@
       <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
       <Name>TAS.Remoting</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">
+    <ProjectReference Include="..\TAS.Common\TAS.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
-      <Name>TAS.Server.Common</Name>
+      <Name>TAS.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

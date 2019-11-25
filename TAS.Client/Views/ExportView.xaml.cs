@@ -28,5 +28,10 @@ namespace TAS.Client.Views
         {
             folderCombo.IsOpen = false;
         }
+
+        private void Export_OnClick(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
     }
 }

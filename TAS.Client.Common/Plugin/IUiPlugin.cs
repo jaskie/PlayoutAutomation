@@ -1,17 +1,12 @@
 ﻿using System;
-using TAS.Server.Interfaces;
 
 namespace TAS.Client.Common.Plugin
 {
-    public interface IUiPlugin : IUiMenuItem
+    public interface IUiPlugin
     {
-        Func<PluginExecuteContext> ExecutionContext { get; set; }
-        void NotifyExecuteChanged();
-    }
+        IUiMenuItem Menu { get; }
 
-    public struct PluginExecuteContext
-    {
-        public IEngine Engine;
-        public IEvent Event;
+        IUiPluginContext Context { get; }
+
     }
 }

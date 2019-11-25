@@ -117,10 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="_media" xml:space="preserve">
+    <value>Media</value>
+  </data>
   <data name="_media.ToolTip" xml:space="preserve">
     <value>F12 - zmiana zakładki</value>
   </data>
-  <data name="_playlist.ToolTip" xml:space="preserve">
+  <data name="_rundown" xml:space="preserve">
+    <value>Playlista</value>
+  </data>
+  <data name="_rundown.ToolTip" xml:space="preserve">
     <value>F12 - zmiana zakładki</value>
   </data>
   <data name="_state" xml:space="preserve">

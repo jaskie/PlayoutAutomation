@@ -2,19 +2,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TAS.Common;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
     public class AnimatedEvent : Event, ITemplated
     {
+        private int _templateLayer;
+        private TemplateMethod _method;
+        private Dictionary<string, string> _fields;
+        
         internal AnimatedEvent(
                     Engine engine,
-                    UInt64 idRundownEvent,
-                    UInt64 idEventBinding,
+                    ulong idRundownEvent,
+                    ulong idEventBinding,
                     VideoLayer videoLayer,
                     TStartType startType,
                     TPlayState playState,
@@ -59,42 +61,29 @@ namespace TAS.Server
                         false, 0, 0, 0
                         )
         {
-            _fields = new SimpleDictionary<string, string>(fields);
-            _fields.DictionaryOperation += _fields_DictionaryOperation;
+            _fields = fields == null ? new Dictionary<string, string>() : new Dictionary<string, string>(fields);
             _method = method;
             _templateLayer = templateLayer;
         }
 
-        protected override void DoDispose()
-        {
-            base.DoDispose();
-            _fields.DictionaryOperation -= _fields_DictionaryOperation;
-        }
-        private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
-        {
-            IsModified = true;
-        }
-        
-        private readonly SimpleDictionary<string, string> _fields;
         [JsonProperty]
-        public IDictionary<string, string> Fields
+        public Dictionary<string, string> Fields
         {
-            get { return _fields; }
-            set
-            {
-                _fields.Clear();
-                foreach (var kvp in value)
-                    _fields.Add(kvp);
-            }
+            get => _fields;
+            set => SetField(ref _fields, value == null ? new Dictionary<string, string>() : new Dictionary<string, string>(value));
         }
 
-        private TemplateMethod _method;
         [JsonProperty]
-        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value); } }
+        public TemplateMethod Method {
+            get => _method;
+            set => SetField(ref _method, value);
+        }
 
-        private int _templateLayer;
         [JsonProperty]
-        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
+        public int TemplateLayer {
+            get => _templateLayer;
+            set => SetField(ref _templateLayer, value);
+        }
 
 
     }

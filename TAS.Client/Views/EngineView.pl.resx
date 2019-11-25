@@ -171,18 +171,6 @@
   <data name="_menu.Rundown.Restart" xml:space="preserve">
     <value>_Uruchom ponownie zaznaczoną pozycję</value>
   </data>
-  <data name="_statusbar.Gpi.Active" xml:space="preserve">
-    <value>Aktywne</value>
-  </data>
-  <data name="_statusbar.Gpi.Crawl" xml:space="preserve">
-    <value>Pasek:</value>
-  </data>
-  <data name="_statusbar.Gpi.Logo" xml:space="preserve">
-    <value>Logo:</value>
-  </data>
-  <data name="_statusbar.Gpi.Parental" xml:space="preserve">
-    <value>Kategoria wiekowa:</value>
-  </data>
   <data name="_statusbar.Selected" xml:space="preserve">
     <value>Wybrane {0}, </value>
   </data>
@@ -342,5 +330,23 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
   </data>
   <data name="_menu.Edit.Undo" xml:space="preserve">
     <value>Przywróć usunięte</value>
+  </data>
+  <data name="_userManager" xml:space="preserve">
+    <value>Zarządzanie użytkownikami</value>
+  </data>
+  <data name="_engineRights" xml:space="preserve">
+    <value>Uprawnienia użytkowników</value>
+  </data>
+  <data name="_hide" xml:space="preserve">
+    <value>Ukryj</value>
+  </data>
+  <data name="_show" xml:space="preserve">
+    <value>Pokaż</value>
+  </data>
+  <data name="_toolbar.AddSecond" xml:space="preserve">
+    <value>Dodaj sekundę</value>
+  </data>
+  <data name="_toolbar.DecreaseSecond" xml:space="preserve">
+    <value>Odejmij sekundę</value>
   </data>
 </root>

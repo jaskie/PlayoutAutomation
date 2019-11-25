@@ -1,52 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Remoting.Messaging;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
-using System.Xml.Serialization;
-using TAS.Server.Interfaces;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
-using System.Reflection;
+using System.Linq;
+using System.Net.FtpClient;
+using TAS.Common;
+using TAS.Common.Database;
+using TAS.Common.Database.Interfaces;
+using TAS.Server.Security;
 
 namespace TAS.Server
 {
     public static class EngineController
     {
-        public static List<Engine> Engines;
 
-        static List<CasparServer> _servers;
-        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(EngineController));
+        private static List<CasparServer> _servers;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public static List<Engine> Engines { get; private set; }
+
+        public static IDatabase Database { get; private set; }
 
         public static void Initialize()
         {
+            FtpTrace.AddListener(new NLog.NLogTraceListener());
             Logger.Info("Engines initializing");
-            Logger.Debug("Connecting to database");
             ConnectionStringSettings connectionStringPrimary = ConfigurationManager.ConnectionStrings["tasConnectionString"];
             ConnectionStringSettings connectionStringSecondary = ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
-            Database.Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
-            _servers = Database.Database.DbLoadServers<CasparServer>();
+            Database = DatabaseProviderLoader.LoadDatabaseProvider();
+            Logger.Debug("Connecting to database");
+            Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
+            _servers = Database.LoadServers<CasparServer>();
             _servers.ForEach(s =>
             {
-                s._channels.ForEach(c => c.Owner = s);
-                s._recorders.ForEach(r => r.SetOwner(s));
+                s.ChannelsSer.ForEach(c => c.Owner = s);
+                s.RecordersSer.ForEach(r => r.SetOwner(s));
             });
-            
-            Engines = Database.Database.DbLoadEngines<Engine>(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]));
-            foreach (Engine e in Engines)
-                e.Initialize(_servers);
+
+            var authenticationService = new AuthenticationService(Database.Load<User>(), Database.Load<Group>());
+            Engines = Database.LoadEngines<Engine>(ulong.Parse(ConfigurationManager.AppSettings["Instance"]));
+            foreach (var e in Engines)
+                e.Initialize(_servers, authenticationService);
             Logger.Debug("Engines initialized");
         }
 
         public static void ShutDown()
         {
             if (Engines != null)
-                foreach (Engine e in Engines)
+                foreach (var e in Engines)
                     e.Dispose();
-            Logger.Info("Engines shutdown");
+            Logger.Info("Engines shutdown completed");
+            Database?.Close();
+            Logger.Info("Database closed");
+            _servers.ForEach(s => s.Dispose());
         }
+
+        public static int GetConnectedClientCount() => Engines.Sum(e => e.Remote?.ClientCount ?? 0);
     }
 }

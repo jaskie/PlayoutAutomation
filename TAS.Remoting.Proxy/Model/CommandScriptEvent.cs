@@ -1,19 +1,21 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
     public class CommandScriptEvent : Event, ICommandScript
     {
+        #pragma warning disable CS0649
+
+        [JsonProperty(nameof(ICommandScript.Command))]
+        private string _command;
+
+        #pragma warning restore
+
         public string Command
         {
-            get { return Get<string>(); }
-            set { Set(value); }
+            get => _command;
+            set => Set(value);
         }
     }
 }

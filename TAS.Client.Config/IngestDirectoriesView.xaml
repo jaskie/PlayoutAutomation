@@ -3,10 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
-             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.Config"
              d:DataContext="{x:Type vm:IngestDirectoriesViewmodel}"
              mc:Ignorable="d" 
@@ -44,13 +43,22 @@
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/direction-down.png"/>
             </Button>
         </StackPanel>
-        <controls:TreeViewEx Grid.Row="1" ItemsSource="{Binding Directories}" MinWidth="200" SelectedItem="{Binding SelectedDirectory}">
+        <TreeView Grid.Row="1" ItemsSource="{Binding Directories}" MinWidth="200">
+            <i:Interaction.Behaviors>
+                <behaviors:TreeViewTwoWaySelectedItemBehavior SelectedItem="{Binding SelectedDirectory}"/>
+            </i:Interaction.Behaviors>
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type vm:IngestDirectoryViewmodel}" ItemsSource="{Binding SubDirectoriesVM}">
                     <TextBlock Text="{Binding DirectoryName}"/>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
-        </controls:TreeViewEx>
-        <ContentControl Grid.Column="1" Grid.RowSpan="2" Margin="5" Content="{Binding SelectedDirectory.Editor}"/>
+        </TreeView>
+        <ContentControl Grid.Column="1" Grid.RowSpan="2" Margin="5" Content="{Binding SelectedDirectory}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type vm:IngestDirectoryViewmodel}">
+                    <vm:IngestDirectoryView/>
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
     </Grid>
 </UserControl>

@@ -1,117 +1,104 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Xml.Serialization;
+using TAS.Client.Common;
 using TAS.Client.ViewModels;
 using TAS.Remoting;
 using TAS.Remoting.Client;
 using TAS.Remoting.Model;
-using TAS.Server.Interfaces;
 
 namespace TVPlayClient
 {
-    [XmlType("Channel")]
-    public class ChannelWrapperViewmodel : ViewmodelBase
+    public class ChannelWrapperViewmodel : ViewModelBase
     {
-        #region Serialization properties
-        [XmlAttribute]
-        public string Address { get; set; }
-        [XmlAttribute]
-        public bool AllowControl { get; set; } = true;
-        [XmlAttribute]
-        public bool ShowEngine { get; set; } = true;
-        [XmlAttribute]
-        public bool ShowMedia { get; set; } = true;
-        #endregion
+
+        private readonly ConfigurationChannel _configurationChannel;
+        private RemoteClient _client;
+        private ChannelViewmodel _channel;
+        private bool _isLoading = true;
+        private string _tabName;
+
+        public ChannelWrapperViewmodel(ConfigurationChannel channel)
+        {
+            _configurationChannel = channel;
+        }
 
         public void Initialize()
         {
+#if DEBUG
+         Thread.Sleep(5000);   
+#endif
             _createView();
         }
 
-        private RemoteClient _client;
+        public string TabName { get => _tabName; private set => SetField(ref _tabName, value); }
 
-        private void Dispatcher_ShutdownStarted(object sender, EventArgs e)
+        public bool IsLoading { get => _isLoading; set => SetField(ref _isLoading, value); }
+
+        public ChannelViewmodel Channel { get => _channel; private set => SetField(ref _channel, value); }
+
+        protected override void OnDispose()
         {
-            var client = _client;
-            if (client != null)
-                client.Dispose();
+            _client?.Dispose();
+            _channel?.Dispose();
+            Debug.WriteLine(this, "Disposed");
         }
 
-        private void _clientDisconected(object sender, EventArgs e)
+        private void ClientDisconnected(object sender, EventArgs e)
         {
-            var client = sender as RemoteClient;
-            if (client != null)
+            if (!(sender is RemoteClient client))
+                return;
+            client.Disconnected -= ClientDisconnected;
+            client.Dispose();
+            var channel = Channel;
+            OnUiThread(() =>
             {
-                client.Disconnected -= _clientDisconected;
-                var vm = _channel;
-                Application.Current?.Dispatcher.BeginInvoke((Action)delegate ()
-                {
-                    vm.Dispose();
-                });
-            }
-            _createView();
+                Channel = null;
+                IsLoading = true;
+                channel?.Dispose();
+                _createView();
+            });
         }
 
         private void _createView()
         {
-            IsLoading = true;
-            ThreadPool.QueueUserWorkItem((o) =>
+            Task.Run(() =>
             {
                 while (true)
                 {
-                    _client = new RemoteClient(Address);
-                    if (_client.IsConnected)
+                    try
                     {
-                        _client.Binder = new ClientTypeNameBinder();
-                        Engine engine = _client.GetInitalObject<Engine>();
-                        if (engine != null)
+                        _client = new RemoteClient(_configurationChannel.Address)
                         {
-                            _client.Disconnected += _clientDisconected;
-                            Application.Current?.Dispatcher.BeginInvoke((Action)delegate ()
-                            {
-                                Channel = new ChannelViewmodel(engine, ShowEngine, ShowMedia, AllowControl);
-                                TabName = Channel.ChannelName;
-                                IsLoading = false;
-                            });
-                            return;
+                            Binder = new ClientTypeNameBinder()
+                        };
+                        _client.Disconnected += ClientDisconnected;
+                        var engine = _client.GetInitalObject<Engine>();
+                        if (engine == null)
+                        {
+                            Thread.Sleep(1000);
+                            continue;
                         }
+                        OnUiThread(() =>
+                        {
+                            Channel = new ChannelViewmodel(engine, _configurationChannel.ShowEngine,
+                                _configurationChannel.ShowMedia);
+                            TabName = Channel.DisplayName;
+                            IsLoading = false;
+                        });
+                        return;
                     }
-                    Thread.Sleep(1000);
+                    catch (SocketException)
+                    {
+                        Thread.Sleep(1000);
+                    }
                 }
             });
         }
 
-        private ChannelViewmodel _channel;
-        [XmlIgnore]
-        public ChannelViewmodel Channel { get { return _channel; } private set { SetField(ref _channel, value); } }
-
-        private bool _isLoading = true;
-
-        [XmlIgnore]
-        public bool IsLoading { get { return _isLoading; } set { SetField(ref _isLoading, value); } }
-
-        private string _tabName;
-        [XmlIgnore]
-        public string TabName { get { return _tabName; }  private set { SetField(ref _tabName, value); } }
-
-        protected override void OnDispose()
-        {
-            var client = _client;
-            if (client != null)
-                client.Dispose();
-            var vm = _channel;
-            if (vm != null)
-                vm.Dispose();
-            Debug.WriteLine(this, "Disposed");
-        }
-
     }
+
 }

@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Server.Interfaces;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
-    public class ServerDirectory : MediaDirectory, IServerDirectory
+    public class ServerDirectory : WatcherDirectory, IServerDirectory
     {
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        public override IReadOnlyCollection<IMedia> GetFiles()
         {
-            throw new NotImplementedException();
+            return Query<ReadOnlyCollection<IMedia>>();
         }
     }
 }

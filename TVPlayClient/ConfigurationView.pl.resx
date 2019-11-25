@@ -123,9 +123,6 @@
   <data name="_address" xml:space="preserve">
     <value>Adres serwera (z numerem portu)</value>
   </data>
-  <data name="_allowControl" xml:space="preserve">
-    <value>Pozwól na sterowanie play-outem</value>
-  </data>
   <data name="_cancel" xml:space="preserve">
     <value>Anuluj</value>
   </data>

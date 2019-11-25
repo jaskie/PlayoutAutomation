@@ -186,7 +186,7 @@ Konieczny kontakt z autorem aplikacji, tel. 601600516</value>
     <value>Zaplanowany na</value>
   </data>
   <data name="_toggleLayer.ToolTip" xml:space="preserve">
-    <value>Włącz/wyłącz grafikę na tej warstwie</value>
+    <value>Włącz/wyłącz grafikę na tej warstwie | Ctrl + Numer warstwy</value>
   </data>
   <data name="_scheduledDelay.ToolTip" xml:space="preserve">
     <value>Opóźnienie</value>
@@ -210,7 +210,7 @@ Konieczny kontakt z autorem aplikacji, tel. 601600516</value>
     <value>Zaplanowany automatyczny start</value>
   </data>
   <data name="_addAnimation.ToolTip" xml:space="preserve">
-    <value>Dodaj animację</value>
+    <value>Dodaj animację | Ctrl + 0</value>
   </data>
   <data name="_addCommandScript.ToolTip" xml:space="preserve">
     <value>Dodaj skrypt poleceń</value>

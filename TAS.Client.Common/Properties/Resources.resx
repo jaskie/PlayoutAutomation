@@ -154,16 +154,16 @@ Use TVPlay.config program to configure the system.</value>
     <value>Unable to refresh directory. Following error occurred:
 {0}</value>
   </data>
-  <data name="_message_MediaDeleteDenyReason_Protected" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_Protected" xml:space="preserve">
     <value>Media is delete-protected</value>
   </data>
-  <data name="_message_MediaDeleteDenyReason_Scheduled" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_Scheduled" xml:space="preserve">
     <value>Item is scheduled in {0} at {1}</value>
   </data>
-  <data name="_message_MediaDeleteDenyReason_Unknown" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_Unknown" xml:space="preserve">
     <value>Unknown reason</value>
   </data>
-  <data name="_message_MediaDeleteNotAllowed" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_NotAllowed" xml:space="preserve">
     <value>Delete not allowed due to following reason(s):</value>
   </data>
   <data name="_moreItems" xml:space="preserve">
@@ -206,8 +206,7 @@ Really delete?</value>
     <value>Really play this item now?</value>
   </data>
   <data name="_query_SaveChangedData" xml:space="preserve">
-    <value>Save modified data regarding
-{0}?</value>
+    <value>Save modified data about {0}?</value>
   </data>
   <data name="_query_StartAnotherInstance" xml:space="preserve">
     <value>Application should execute in one instance only, but was running already.
@@ -326,10 +325,32 @@ Do you really want to run this BACKUP play-out?</value>
   <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
     <value>Transition time exceeds clip duration.</value>
   </data>
-  <data name="_window_CommandScriptItemEditWindowTitle" xml:space="preserve">
-    <value>Edit server command</value>
+  <data name="_message_MediaDeleteResult_InsufficientRights" xml:space="preserve">
+    <value>Insufficient user rights to delete media</value>
   </data>
-  <data name="_window_IngestAs" xml:space="preserve">
-    <value>Ingest as...</value>
+  <data name="_query_ClientsConnectedOnExit" xml:space="preserve">
+    <value>There are {0} clients. This will abort their work.
+Really exit?</value>
+  </data>
+  <data name="_validate_TextTooLong" xml:space="preserve">
+    <value>Entered text is too long.</value>
+  </data>
+  <data name="_query_AbadonChanges" xml:space="preserve">
+    <value>Abadon changes in {0}?</value>
+  </data>
+  <data name="_animations_Primary" xml:space="preserve">
+    <value>Animations (main)</value>
+  </data>
+  <data name="_animations_Secondary" xml:space="preserve">
+    <value>Animations (backup)</value>
+  </data>
+  <data name="_archive" xml:space="preserve">
+    <value>Archive</value>
+  </data>
+  <data name="_primary" xml:space="preserve">
+    <value>Main</value>
+  </data>
+  <data name="_secondary" xml:space="preserve">
+    <value>Backup</value>
   </data>
 </root>

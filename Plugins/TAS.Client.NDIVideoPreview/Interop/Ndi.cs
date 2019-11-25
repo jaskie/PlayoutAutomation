@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TAS.Client.NDIVideoPreview.Interop
 {
+    [SuppressUnmanagedCodeSecurity]
     public static class Ndi
     {
 
@@ -34,7 +33,7 @@ namespace TAS.Client.NDIVideoPreview.Interop
                 return NDIlib32_is_supported_CPU();
         }
 
-        static bool Is64Bit = IntPtr.Size == 8;
+        static readonly bool Is64Bit = IntPtr.Size == 8;
 
         #region Utilities
 
@@ -393,6 +392,42 @@ namespace TAS.Client.NDIVideoPreview.Interop
         }
         #endregion
 
+        #region Utilities
+
+        public static void NDIlib_util_audio_to_interleaved_16s(ref NDIlib_audio_frame_t p_src, ref NDIlib_audio_frame_interleaved_16s_t p_dst)
+        {
+            if (Is64Bit)
+                NDIlib64_util_audio_to_interleaved_16s(ref p_src, ref p_dst);
+            else
+                NDIlib32_util_audio_to_interleaved_16s(ref p_src, ref p_dst);
+        }
+
+        public static void NDIlib_util_audio_to_interleaved_32f(ref NDIlib_audio_frame_t p_src, ref NDIlib_audio_frame_interleaved_32f_t p_dst)
+        {
+            if (Is64Bit)
+                NDIlib64_util_audio_to_interleaved_32f(ref p_src, ref p_dst);
+            else
+                NDIlib32_util_audio_to_interleaved_32f(ref p_src, ref p_dst);
+        }
+
+        public static void NDIlib_util_audio_from_interleaved_16s(ref NDIlib_audio_frame_interleaved_16s_t p_src, ref NDIlib_audio_frame_t p_dst)
+        {
+            if (Is64Bit)
+                NDIlib64_util_audio_from_interleaved_16s(ref p_src, ref p_dst);
+            else
+                NDIlib32_util_audio_from_interleaved_16s(ref p_src, ref p_dst);
+        }
+
+        public static void NDIlib_util_audio_from_interleaved_32f(ref NDIlib_audio_frame_interleaved_32f_t p_src, ref NDIlib_audio_frame_t p_dst)
+        {
+            if (Is64Bit)
+                NDIlib64_util_audio_from_interleaved_32f(ref p_src, ref p_dst);
+            else
+                NDIlib32_util_audio_from_interleaved_32f(ref p_src, ref p_dst);
+        }
+
+        #endregion
+
         #region PInvoke
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -558,6 +593,37 @@ namespace TAS.Client.NDIVideoPreview.Interop
         [DllImport(NDILib64Name, EntryPoint = "NDIlib_recv_add_connection_metadata", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
         private static extern void NDIlib64_recv_add_connection_metadata(IntPtr p_instance, ref NDIlib_metadata_frame_t p_metadata);
         #endregion Recv
+
+        #region Utilities
+        // util_audio_to_interleaved_16s 
+        [DllImport(NDILib64Name, EntryPoint = "NDIlib_util_audio_to_interleaved_16s", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void NDIlib64_util_audio_to_interleaved_16s(ref NDIlib_audio_frame_t p_src, ref NDIlib_audio_frame_interleaved_16s_t p_dst);
+        [DllImport(NDILib32Name, EntryPoint = "NDIlib_util_audio_to_interleaved_16s", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void NDIlib32_util_audio_to_interleaved_16s(ref NDIlib_audio_frame_t p_src, ref NDIlib_audio_frame_interleaved_16s_t p_dst);
+
+        // util_audio_from_interleaved_16s 
+        [DllImport(NDILib64Name, EntryPoint = "NDIlib_util_audio_from_interleaved_16s", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void NDIlib64_util_audio_from_interleaved_16s(ref NDIlib_audio_frame_interleaved_16s_t p_src, ref NDIlib_audio_frame_t p_dst);
+        [DllImport(NDILib32Name, EntryPoint = "NDIlib_util_audio_from_interleaved_16s", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void NDIlib32_util_audio_from_interleaved_16s(ref NDIlib_audio_frame_interleaved_16s_t p_src, ref NDIlib_audio_frame_t p_dst);
+
+
+        // util_audio_to_interleaved_32f 
+        [DllImport(NDILib64Name, EntryPoint = "NDIlib_util_audio_to_interleaved_32f", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void NDIlib64_util_audio_to_interleaved_32f(ref NDIlib_audio_frame_t p_src, ref NDIlib_audio_frame_interleaved_32f_t p_dst);
+        [DllImport(NDILib32Name, EntryPoint = "NDIlib_util_audio_to_interleaved_32f", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void NDIlib32_util_audio_to_interleaved_32f(ref NDIlib_audio_frame_t p_src, ref NDIlib_audio_frame_interleaved_32f_t p_dst);
+
+        // util_audio_from_interleaved_32f 
+        [DllImport(NDILib64Name, EntryPoint = "NDIlib_util_audio_from_interleaved_32f", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void NDIlib64_util_audio_from_interleaved_32f(ref NDIlib_audio_frame_interleaved_32f_t p_src, ref NDIlib_audio_frame_t p_dst);
+        [DllImport(NDILib32Name, EntryPoint = "NDIlib_util_audio_from_interleaved_32f", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void NDIlib32_util_audio_from_interleaved_32f(ref NDIlib_audio_frame_interleaved_32f_t p_src, ref NDIlib_audio_frame_t p_dst);
+        
+
+
+        #endregion
+
 
         #endregion PInvoke
     }

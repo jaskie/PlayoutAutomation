@@ -1,64 +1,92 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Common;
 using TAS.Remoting.Client;
-using TAS.Server.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
     public class Recorder : ProxyBase, IRecorder
     {
         #region IRecorder
+
+        #pragma warning disable CS0649
+
         [JsonProperty(nameof(IRecorder.Channels))]
-        private List<PlayoutServerChannel> _channels { get { return Get<List<PlayoutServerChannel>>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
-        public IEnumerable<IPlayoutServerChannel> Channels { get { return _channels; } }
+        private List<PlayoutServerChannel> _channels;
 
-        public TimeSpan CurrentTc { get { return Get<TimeSpan>(); }  set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IRecorder.RecordingDirectory))]
+        private ServerDirectory _recordingDirectory;
 
-        public TDeckControl DeckControl { get { return Get<TDeckControl>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IRecorder.CurrentTc))]
+        private TimeSpan _currentTc;
 
-        public TDeckState DeckState { get { return Get<TDeckState>(); } set { SetLocalValue(value); } }
-        
-        public int Id { get { return Get<int>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IRecorder.DeckControl))]
+        private TDeckControl _deckControl;
 
-        public bool IsDeckConnected { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IRecorder.DeckState))]
+        private TDeckState _deckState;
 
-        public bool IsServerConnected { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IRecorder.Id))]
+        private int _id;
 
-        public string RecorderName { get { return Get<string>(); } set { SetLocalValue(value); } }
-        
-        public IMediaDirectory RecordingDirectory { get { return Get<MediaDirectory>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IRecorder.IsDeckConnected))]
+        private bool _isDeckConnected;
 
-        public IMedia RecordingMedia { get { return Get<IMedia>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IRecorder.IsServerConnected))]
+        private bool _isServerConnected;
 
-        public TimeSpan TimeLimit { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IRecorder.RecorderName))]
+        private string _recorderName;
 
-        public TimeSpan CaptureTimeLimit { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IRecorder.RecordingMedia))]
+        private IMedia _recordingMedia;
 
-        public TimeSpan CaptureTcIn { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IRecorder.TimeLimit))]
+        private TimeSpan _timeLimit;
 
-        public TimeSpan CaptureTcOut { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IRecorder.DefaultChannel))]
+        private readonly int _defaultChannel;
 
-        public bool CaptureNarrowMode { get { return Get<bool>(); } set { SetLocalValue(value); } }
+#pragma warning restore
 
-        public IPlayoutServerChannel CaptureChannel { get { return Get<PlayoutServerChannel>(); } set { SetLocalValue(value); } }
+        public IEnumerable<IPlayoutServerChannel> Channels => _channels;
 
-        public string CaptureFileName { get { return Get<string>(); } set { SetLocalValue(value); } }
+        public TimeSpan CurrentTc => _currentTc;
+
+        public TDeckControl DeckControl => _deckControl;
+
+        public TDeckState DeckState => _deckState;
+
+        public int Id => _id;
+
+        public bool IsDeckConnected => _isDeckConnected;
+
+        public bool IsServerConnected => _isServerConnected;
+
+        public string RecorderName => _recorderName;
+
+        public int DefaultChannel => _defaultChannel;
+
+        public IWatcherDirectory RecordingDirectory => _recordingDirectory;
+
+        public IMedia RecordingMedia => _recordingMedia;
+
+        public TimeSpan TimeLimit => _timeLimit;
 
         public void Abort() { Invoke(); }
 
-        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string fileName)
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName, int[] channelMap)
         {
-            return Query<IMedia>(parameters: new object[] { channel, tcIn, tcOut, narrowMode, fileName });
+            return Query<IMedia>(parameters: new object[] { channel, tcIn, tcOut, narrowMode, mediaName, fileName, channelMap });
         }
 
-        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string fileName)
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string mediaName, string fileName, int[] channelMap)
         {
-            return Query<IMedia>(parameters: new object[] { channel, timeLimit, narrowMode, fileName });
+            return Query<IMedia>(parameters: new object[] { channel, timeLimit, narrowMode, mediaName, fileName, channelMap });
         }
 
         public void DeckFastForward() { Invoke(); }
@@ -71,6 +99,11 @@ namespace TAS.Remoting.Model
 
         public void DeckPlay() { Invoke(); }
 
+        public void SetTimeLimit(TimeSpan value)
+        {
+            Invoke(parameters: new object[] {value});
+        }
+
         public void Finish() { Invoke(); }
 
         public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, string fileName)
@@ -78,10 +111,9 @@ namespace TAS.Remoting.Model
             return Query<IMedia>(parameters: new object[] { channel, timeLimit, fileName });
         }
 
-        public void SetTimeLimit(TimeSpan limit) { Invoke(parameters: new object[] { limit }); }
         #endregion IRecorder
 
-        protected override void OnEventNotification(WebSocketMessage e) { }
+        protected override void OnEventNotification(SocketMessage message) { }
 
     }
 }

@@ -6,11 +6,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DesignHeight="30" d:DesignWidth="300">
     <StackPanel Orientation="Horizontal" Visibility="{Binding Exists, Converter={StaticResource BoolToVis}}">
         <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-        <common:StatusIndicator Height="14" IsGreen="{Binding IsConnected}"/>
+        <controls:StatusIndicator Height="14" IsGreen="{Binding IsConnected}"/>
         <Label Content="CG" VerticalContentAlignment="Center" Padding="5, 0, 0, 0"/>
         <StackPanel Orientation="Horizontal" Visibility="{Binding IsConnected, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding IsMaster}">
             <CheckBox VerticalAlignment="Center" Margin="10, 0" Content="{Resx _active}" IsChecked="{Binding IsCGEnabled}"/>

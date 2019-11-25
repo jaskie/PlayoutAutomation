@@ -30,7 +30,7 @@ namespace TAS.Client.NDIVideoPreview.Interop
         public IntPtr p_ip_address;
     }
 
-    [StructLayoutAttribute(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct NDIlib_video_frame_t
     {
         /// <summary>
@@ -85,23 +85,23 @@ namespace TAS.Client.NDIVideoPreview.Interop
     }
 
 
-    [StructLayoutAttribute(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct NDIlib_audio_frame_t
     {
         /// <summary>
         /// Sample-rate of this buffer
         /// </summary>
-        public uint sample_rate;
+        public int sample_rate;
 
         /// <summary>
         /// Number of audio channels
         /// </summary>
-        public uint no_channels;
+        public int no_channels;
 
         /// <summary>
         /// Number of audio samples per channel
         /// </summary>
-        public uint no_samples;
+        public int no_samples;
 
         /// <summary>
         /// Timecode of this frame in 100ns intervals
@@ -114,10 +114,84 @@ namespace TAS.Client.NDIVideoPreview.Interop
         public IntPtr p_data;
 
         // The inter channel stride of the audio channels, in bytes
-        public uint channel_stride_in_bytes;
+        public int channel_stride_in_bytes;
     }
 
+    /// <summary>
+    /// Describes an audio frame
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NDIlib_audio_frame_interleaved_16s_t
+    {
+        /// <summary>
+        /// Sample-rate of this buffer
+        /// </summary>
+        public int sample_rate;
+
+        /// <summary>
+        /// Number of audio channels
+        /// </summary>
+        public int no_channels;
+
+        /// <summary>
+        /// Number of audio samples per channel
+        /// </summary>
+        public int no_samples;
+
+         /// <summary>
+        /// Timecode of this frame in 100ns intervals
+        /// </summary>
+        public Int64 timecode;
+
+        /// <summary>
+        /// Audio reference level in dB. This specifies how many dB above the reference level (+4dBU) is the full range of 16 bit audio.
+        /// If you do not understand this and want to just use numbers :
+        /// 	-	If you are sending audio, specify +0dB. Most common applications produce audio at reference level.
+        /// 	-	If receiving audio, specify +20dB. This means that the full 16 bit range corresponds to professional level audio with 20dB of headroom. Note that
+        /// 		if you are writing it into a file it might sound soft because you have 20dB of headroom before clipping.
+        ///  
+        /// </summary>
+        public int reference_level;
+
+        /// <summary>
+        /// Audio data, interleaved 16bpp
+        /// </summary>
+        public IntPtr p_data;
+    }
+
+    /// <summary>
+    /// Describes an audio frame
+    /// </summary>
     [StructLayoutAttribute(LayoutKind.Sequential)]
+    public struct NDIlib_audio_frame_interleaved_32f_t
+    {
+        /// <summary>
+        /// ample-rate of this buffer
+        /// </summary>
+        public int sample_rate;
+
+        /// <summary>
+        /// Number of audio channels
+        /// </summary>
+        public int no_channels;
+
+        /// <summary>
+        /// Number of audio samples per channel
+        /// </summary>
+        public int no_samples;
+
+        /// <summary>
+        /// Timecode of this frame in 100ns intervals
+        /// </summary>
+        public Int64 timecode;
+
+        /// <summary>
+        /// Audio data, interleaved 32bpp
+        /// </summary>
+        public IntPtr p_data;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     public struct NDIlib_metadata_frame_t
     {
         /// <summary>
@@ -136,19 +210,19 @@ namespace TAS.Client.NDIVideoPreview.Interop
         public IntPtr p_data;
     }
 
-    [StructLayoutAttribute(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct NDIlib_tally_t
     {
         /// <summary>
         /// Is this currently on program output
         /// </summary>
-        [MarshalAsAttribute(UnmanagedType.U1)]
+        [MarshalAs(UnmanagedType.U1)]
         public bool on_program;
 
         /// <summary>
         /// Is this currently on preview output
         /// </summary>
-        [MarshalAsAttribute(UnmanagedType.U1)]
+        [MarshalAs(UnmanagedType.U1)]
         public bool on_preview;
     }
 
@@ -156,17 +230,17 @@ namespace TAS.Client.NDIVideoPreview.Interop
     /// <summary>
     /// Structure that is used to create a finder
     /// </summary>
-    [StructLayoutAttribute(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct NDIlib_find_create_t
     {
         /// <summary>
         /// Determines visibility of NDI sources running on local machine
         /// </summary>
-        [MarshalAsAttribute(UnmanagedType.U1)]
+        [MarshalAs(UnmanagedType.U1)]
         public bool show_local_sources;
 
         /// <summary>
-        /// Groups to search for sources. UTF-8 string
+        /// Roles to search for sources. UTF-8 string
         /// </summary>
         public IntPtr p_groups;
 
@@ -183,7 +257,7 @@ namespace TAS.Client.NDIVideoPreview.Interop
     /// <summary>
     /// Receiver creation structure
     /// </summary>
-    [StructLayoutAttribute(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct NDIlib_recv_create_t
     {
         /// <summary>
@@ -216,7 +290,7 @@ namespace TAS.Client.NDIVideoPreview.Interop
     /// <summary>
     /// This allows you determine the current performance levels of the receiving to be able to detect whether frames have been dropped
     /// </summary>
-    [StructLayoutAttribute(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct NDIlib_recv_performance_t
     {
         /// <summary>
@@ -239,7 +313,7 @@ namespace TAS.Client.NDIVideoPreview.Interop
     /// <summary>
     /// Current queue depths
     /// </summary>
-    [StructLayoutAttribute(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct NDIlib_recv_queue_t
     {
         /// <summary>

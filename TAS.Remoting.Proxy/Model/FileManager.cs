@@ -1,18 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Remoting;
 using TAS.Remoting.Client;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Remoting.Model
 {
     public class FileManager : ProxyBase, IFileManager
     {
+        private event EventHandler<FileOperationEventArgs> _operationAdded;
+
+        private event EventHandler<FileOperationEventArgs> _operationCompleted;
+
         public IEnumerable<IFileOperation> GetOperationQueue() { return Query<List<IFileOperation>>(); }
-        event EventHandler<FileOperationEventArgs> _operationAdded;
+
+        public IIngestOperation CreateIngestOperation(IIngestMedia sourceMedia, IMediaManager destMediaManager)
+        {
+            return Query<IngestOperation>(parameters: new object[] {sourceMedia, destMediaManager});
+        }
+
+        public IFileOperation CreateSimpleOperation()
+        {
+            return Query<FileOperation>();
+        }
+
+        public ILoudnessOperation CreateLoudnessOperation(IMedia media, TimeSpan startTc, TimeSpan duration)
+        {
+            return Query<LoudnessOperation>(parameters: new object[]{media, startTc, duration});
+        }
+
+        public void Queue(IFileOperation operation)
+        {
+            Invoke(parameters: operation);
+        }
+      
+        public void QueueList(IEnumerable<IFileOperation> operationList)
+        {
+            Invoke(parameters: operationList);
+        }
+
+        public void CancelPending()
+        {
+            Invoke();
+        }
+
         public event EventHandler<FileOperationEventArgs> OperationAdded
         {
             add
@@ -27,7 +59,6 @@ namespace TAS.Remoting.Model
             }
         }
 
-        event EventHandler<FileOperationEventArgs> _operationCompleted;
         public event EventHandler<FileOperationEventArgs> OperationCompleted
         {
             add
@@ -42,47 +73,17 @@ namespace TAS.Remoting.Model
             }
         }
 
-        public IConvertOperation CreateConvertOperation()
+        protected override void OnEventNotification(SocketMessage message)
         {
-            return Query<ConvertOperation>();
-        }
-
-        public IFileOperation CreateSimpleOperation()
-        {
-            return Query<FileOperation>();
-        }
-
-        public ILoudnessOperation CreateLoudnessOperation()
-        {
-            return Query<LoudnessOperation>();
-        }
-
-        protected override void OnEventNotification(WebSocketMessage e)
-        {
-            if (e.MemberName == nameof(OperationAdded))
+            if (message.MemberName == nameof(OperationAdded))
             {
-                _operationAdded?.Invoke(this, ConvertEventArgs<FileOperationEventArgs>(e));
+                _operationAdded?.Invoke(this, Deserialize<FileOperationEventArgs>(message));
             }
-            if (e.MemberName == nameof(OperationCompleted))
+            if (message.MemberName == nameof(OperationCompleted))
             {
-                _operationCompleted?.Invoke(this, ConvertEventArgs<FileOperationEventArgs>(e));
+                _operationCompleted?.Invoke(this, Deserialize<FileOperationEventArgs>(message));
             }
         }
 
-        public void Queue(IFileOperation operation, bool toTop)
-        {
-            Invoke(parameters: new object[] { operation, toTop });
-        }
-      
-
-        public void QueueList(IEnumerable<IFileOperation> operationList, bool toTop)
-        {
-            Invoke(parameters: new object[] { operationList, toTop });
-        }
-
-        public void CancelPending()
-        {
-            Invoke();
-        }
     }
 }

@@ -4,7 +4,7 @@
     <AdvantechDevice DeviceId="0"/>
   </Devices>
   <EngineBindings>
-    <EngineBinding IdEngine="1">
+    <EngineBinding EngineName="TVP Szczecin">
       <!--<Start DeviceId="0" PortNumber="0" PinNumber="7"/>-->
     </EngineBinding>
   </EngineBindings>

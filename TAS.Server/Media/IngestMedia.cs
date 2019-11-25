@@ -1,57 +1,45 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 using System.Diagnostics;
-using TAS.Common;
-using TAS.Server.Interfaces;
-using Newtonsoft.Json;
+using System.IO;
 using TAS.FFMpegUtils;
+using TAS.Common;
+using TAS.Common.Interfaces.Media;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
-    public class IngestMedia : Media, IIngestMedia, IServerIngestStatusMedia
+    public class IngestMedia : MediaBase, IIngestMedia
     {
-        internal IngestMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
+        private TIngestStatus _ingestStatus;
+        internal string BmdXmlFile; // Blackmagic's Media Express Xml file containing this media information
+        internal StreamInfo[] StreamInfo;
 
         public override bool FileExists()
         {
-            var dir = _directory as IngestDirectory;
+            var dir = Directory as IngestDirectory;
             if (dir?.AccessType == TDirectoryAccessType.FTP)
-                return dir.FileExists(_fileName, _folder);
-            else
-                return base.FileExists();
+                return dir.FileExists(FileName, Folder);
+            return base.FileExists();
         }
 
-        internal string XmlFile;
-        internal StreamInfo[] StreamInfo;
-
-        private TIngestStatus _ingestStatus;
-
+        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public TIngestStatus IngestStatus
         {
             get
             {
-                if (_ingestStatus == TIngestStatus.Unknown)
-                {
-                    var sdir = _directory.MediaManager.MediaDirectoryPRI as ServerDirectory;
-                    if (sdir != null)
-                    {
-                        var media = sdir.FindMediaByMediaGuid(_mediaGuid);
-                        if (media != null && media.MediaStatus == TMediaStatus.Available)
-                            _ingestStatus = TIngestStatus.Ready;
-                    }
-                }
+                if (_ingestStatus != TIngestStatus.Unknown) return _ingestStatus;
+                if (!(((IngestDirectory) Directory).MediaManager.MediaDirectoryPRI is ServerDirectory sdir))
+                    return _ingestStatus;
+                var media = sdir.FindMediaByMediaGuid(MediaGuid);
+                if (media != null && media.MediaStatus == TMediaStatus.Available)
+                    _ingestStatus = TIngestStatus.Ready;
                 return _ingestStatus;
             }
-            set { SetField(ref _ingestStatus, value); }                
+            set => SetField(ref _ingestStatus, value);
         }
 
         public override Stream GetFileStream(bool forWrite)
         {
-            var dir = _directory as IngestDirectory;
-            if (dir != null)
+            if (Directory is IngestDirectory dir)
             {
                 if (dir.AccessType == TDirectoryAccessType.Direct)
                     return base.GetFileStream(forWrite);

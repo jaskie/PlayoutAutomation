@@ -1,274 +1,108 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.ComponentModel;
-using System.Reflection;
-using System.Windows;
 using System.IO;
 using System.Windows.Input;
-using TAS.Common;
 using TAS.Client.Common;
 using System.Threading;
-using TAS.Server.Interfaces;
-using TAS.Server.Common;
+using System.Threading.Tasks;
+using TAS.Common;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 using resources = TAS.Client.Common.Properties.Resources;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditViewmodel: EditViewmodelBase<IMedia>, ITemplatedEdit, IDataErrorInfo
+    public class MediaEditViewmodel: EditViewmodelBase<IMedia>, IDataErrorInfo
     {
-        private readonly PreviewViewmodel _previewVm;
-        private readonly bool _showButtons;
         private readonly IMediaManager _mediaManager;
-        public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, PreviewViewmodel previewVm, bool showButtons) : base(media, new MediaEditView())
+
+        private bool _isVolumeChecking;
+        private string _folder;
+        private string _fileName;
+        private DateTime _lastUpdated;
+        private DateTime _lastAccess;
+        private TMediaType _mediaType;
+        private TimeSpan _duration;
+        private TimeSpan _durationPlay;
+        private TimeSpan _tcStart;
+        private TimeSpan _tcPlay;
+        private TVideoFormat _videoFormat;
+        private bool _fieldOrderInverted;
+        private TAudioChannelMapping _audioChannelMapping;
+        private double _audioVolume;
+        private string _mediaName;
+        private TMediaEmphasis _mediaEmphasis;
+        private DateTime? _killDate;
+        private bool _protected;
+        private bool _doNotArchive;
+        private byte _parental;
+        private TMediaCategory _mediaCategory;
+        private string _idAux;
+
+        public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, bool showButtons) : base(media)
         {
-            CommandSaveEdit = new UICommand() { ExecuteDelegate = ModelUpdate, CanExecuteDelegate = o => CanSave() };
-            CommandCancelEdit = new UICommand() { ExecuteDelegate = ModelLoad, CanExecuteDelegate = o => IsModified };
-            CommandRefreshStatus = new UICommand() { ExecuteDelegate = _refreshStatus };
-            CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = (o) => !_isVolumeChecking };
-            _previewVm = previewVm;
+            CommandSaveEdit = new UiCommand(o => Save(), o => CanSave());
+            CommandCancelEdit = new UiCommand(_undoEdit, o => IsModified);
+            CommandRefreshStatus = new UiCommand(_refreshStatus);
+            CommandCheckVolume = new UiCommand
+            (
+                _checkVolume,
+                o => !_isVolumeChecking
+            );
             _mediaManager = mediaManager;
-            _showButtons = showButtons;
-            if (previewVm != null)
-                previewVm.PropertyChanged += _onPreviewPropertyChanged;
+            ShowButtons = showButtons;
             Model.PropertyChanged += OnMediaPropertyChanged;
-            if (Model is IAnimatedMedia)
+            if (Model is ITemplated templated)
             {
-                _fields.CollectionChanged += _fields_CollectionChanged;
-                CommandAddField = new UICommand { ExecuteDelegate = _addField, CanExecuteDelegate = _canAddField };
-                CommandDeleteField = new UICommand { ExecuteDelegate = _deleteField, CanExecuteDelegate = _canDeleteField };
-                CommandEditField = new UICommand { ExecuteDelegate = _editField, CanExecuteDelegate = _canDeleteField };
+                TemplatedEditViewmodel = new TemplatedEditViewmodel(templated, false, false, media.VideoFormat);
+                TemplatedEditViewmodel.ModifiedChanged += TemplatedEditViewmodel_ModifiedChanged;
             }
         }
-        
-        private void _fields_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            IsModified = true;
-        }
 
-        protected override void OnDispose()
-        {
-            Model.PropertyChanged -= OnMediaPropertyChanged;
-            if (_previewVm != null)
-                _previewVm.PropertyChanged -= _onPreviewPropertyChanged;
-            if (Model is IAnimatedMedia)
-                _fields.CollectionChanged -= _fields_CollectionChanged;
-        }
 
-        public ICommand CommandSaveEdit { get; private set; }
-        public ICommand CommandCancelEdit { get; private set; }
-        public ICommand CommandRefreshStatus { get; private set; }
-        public ICommand CommandCheckVolume { get; private set; }
+        public ICommand CommandSaveEdit { get; }
+        public ICommand CommandCancelEdit { get; }
+        public ICommand CommandRefreshStatus { get; }
+        public ICommand CommandCheckVolume { get; }
 
-        public override void ModelUpdate(object destObject = null)
+        public void Save()
         {
-            if (IsModified)
-            {
-                PropertyInfo[] copiedProperties = this.GetType().GetProperties();
-                foreach (PropertyInfo copyPi in copiedProperties)
-                {
-                    PropertyInfo destPi = (destObject ?? Model).GetType().GetProperty(copyPi.Name);
-                    if (destPi != null)
-                    {
-                        if (destPi.GetValue(destObject ?? Model, null) != copyPi.GetValue(this, null)
-                            && destPi.CanWrite)
-                            destPi.SetValue(destObject ?? Model, copyPi.GetValue(this, null), null);
-                    }
-                }
-                IsModified = false;
-            }
-            if (Model is IPersistentMedia)
-                ((IPersistentMedia)Model).Save();
+            TemplatedEditViewmodel?.Save();
+            Update(Model);
         }
 
         public bool CanSave()
         {
             return IsModified && IsValid && Model.MediaStatus == TMediaStatus.Available;
         }
-
-        protected override void ModelLoad(object source = null)
-        {
-            base.ModelLoad(source);
-        }
-
-        public void Revert()
-        {
-            ModelLoad(null);
-        }
-
-        #region Command methods
-
-        private bool _canDeleteField(object obj)
-        {
-            return SelectedField != null;
-        }
-
-        private void _deleteField(object obj)
-        {
-            if (SelectedField != null)
-            {
-                var selected = (KeyValuePair<string, string>)SelectedField;
-                _fields.Remove(selected.Key);
-                SelectedField = null;
-            }
-        }
-
-        private bool _canAddField(object obj)
-        {
-            return IsAnimatedMedia;
-        }
-
-        private void _addField(object obj)
-        {
-            using (var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false))
-            {
-                kve.OnOk += (o) =>
-                {
-                    var co = (KeyValueEditViewmodel)o;
-                    return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
-                };
-                if (kve.ShowDialog() == true)
-                    _fields.Add(kve.Key, kve.Value);
-            }
-        }
-
-        private void _editField(object obj)
-        {
-            if (SelectedField != null)
-            {
-                var selected = (KeyValuePair<string, string>)SelectedField;
-                var kve = new KeyValueEditViewmodel(selected, false);
-                if (kve.ShowDialog() == true)
-                    _fields[kve.Key] = kve.Value;
-            }
-        }
-
-        void _refreshStatus(object o)
-        {
-            Model.ReVerify();
-        }
-
-        AutoResetEvent _checkVolumeSignal;
-        void _checkVolume(object o)
-        {
-            if (_isVolumeChecking)
-                return;
-            IsVolumeChecking = true;
-            IFileManager fileManager = _mediaManager.FileManager;
-            ILoudnessOperation operation = fileManager.CreateLoudnessOperation();
-            operation.SourceMedia = this.Model;
-            operation.MeasureStart = this.TcPlay - this.TcStart;
-            operation.MeasureDuration = this.DurationPlay;
-            operation.AudioVolumeMeasured += _audioVolumeMeasured;
-            operation.Finished += _audioVolumeFinished;
-            _checkVolumeSignal = new AutoResetEvent(false);
-            fileManager.Queue(operation, true);
-        }
-
-        private void _audioVolumeFinished(object sender, EventArgs e)
-        {
-            ThreadPool.QueueUserWorkItem((o) =>
-            {
-                _checkVolumeSignal.WaitOne(5000);
-                IsVolumeChecking = false; // finishCallback
-                ((ILoudnessOperation)sender).Finished -= _audioVolumeFinished;
-                ((ILoudnessOperation)sender).AudioVolumeMeasured -= _audioVolumeMeasured;
-                _checkVolumeSignal.Dispose();
-                _checkVolumeSignal = null;
-            });
-        }
-
-        private void _audioVolumeMeasured(object sender, AudioVolumeEventArgs e)
-        {
-            this.AudioVolume = e.AudioVolume;
-            AutoResetEvent signal = _checkVolumeSignal;
-            if (signal != null)
-                signal.Set();
-        }
-
-        #endregion //Command methods
-
-        private void OnMediaPropertyChanged(object media, PropertyChangedEventArgs e)
-        {
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    if (!string.IsNullOrEmpty(e.PropertyName))
-                    {
-                        PropertyInfo sourcePi = Model.GetType().GetProperty(e.PropertyName);
-                        PropertyInfo destPi = this.GetType().GetProperty(e.PropertyName);
-                        if (sourcePi != null
-                            && destPi != null
-                            && sourcePi.CanRead
-                            && destPi.CanWrite)
-                        {
-                            bool oldModified = IsModified;
-                            destPi.SetValue(this, sourcePi.GetValue(Model, null), null);
-                            IsModified = oldModified;
-                            NotifyPropertyChanged(e.PropertyName);
-                        }
-                    }
-                }),
-            null);
-
-            if (e.PropertyName == nameof(IMedia.MediaStatus))
-            {
-                NotifyPropertyChanged(e.PropertyName);
-                NotifyPropertyChanged(nameof(IsIngestDataShown));
-            }
-            if (e.PropertyName == nameof(IMedia.MediaGuid))
-            {
-                NotifyPropertyChanged(e.PropertyName);
-            }
-        }
-
-        private void _onPreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (_previewVm.LoadedMedia == Model
-                && _previewVm.SelectedSegment == null)
-            {
-                if (e.PropertyName == nameof(PreviewViewmodel.TcIn))
-                {
-                    TcPlay = _previewVm.TcIn;
-                    DurationPlay = _previewVm.DurationSelection;
-                }
-                if (e.PropertyName == nameof(PreviewViewmodel.TcOut))
-                    DurationPlay = _previewVm.DurationSelection;
-            }
-        }
-
-        private bool _isVolumeChecking;
+        
         public bool IsVolumeChecking
         {
-            get { return _isVolumeChecking; }
+            get => _isVolumeChecking;
             set
             {
-                if (_isVolumeChecking != value)
-                {
-                    _isVolumeChecking = value;
-                    NotifyPropertyChanged(nameof(IsVolumeChecking));
-                    InvalidateRequerySuggested();
-                }
+                if (_isVolumeChecking == value)
+                    return;
+                _isVolumeChecking = value;
+                NotifyPropertyChanged(nameof(IsVolumeChecking));
+                InvalidateRequerySuggested();
             }
         }
 
-        public void Delete()
+
+        public bool ShowButtons { get; }
+
+        public string Folder
         {
-            if (Model != null)
-                Model.Delete();
+            get => _folder;
+            set => SetField(ref _folder, value);
         }
 
-        public bool ShowButtons { get { return _showButtons; } }
-
-        private string _folder;
-        public string Folder { get { return _folder; } private set { SetField(ref _folder, value); } }
-        
-        private string _fileName;
         public string FileName 
         {
-            get { return _fileName; }
+            get => _fileName;
             set
             {
                 if (SetField(ref _fileName, value))
@@ -276,61 +110,53 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private DateTime _lastUpdated;
         public DateTime LastUpdated
         {
-            get { return _lastUpdated; }
-            set { SetField(ref _lastUpdated, value); }
+            get => _lastUpdated;
+            set => SetField(ref _lastUpdated, value);
         }
 
-        private DateTime _lastAccess;
         public DateTime LastAccess
         {
-            get { return _lastAccess; }
-            set { SetField(ref _lastAccess, value); }
+            get => _lastAccess;
+            set => SetField(ref _lastAccess, value);
         }
 
-        private TMediaType _mediaType;
         public TMediaType MediaType
         {
-            get { return _mediaType; }
-            set { SetField(ref _mediaType, value); }
+            get => _mediaType;
+            set => SetField(ref _mediaType, value);
         }
 
-        private TimeSpan _duration;
         public TimeSpan Duration
         {
-            get { return _duration; }
-            set { SetField(ref _duration, value); }
+            get => _duration;
+            set => SetField(ref _duration, value);
         }
 
-        private TimeSpan _durationPlay;
         public TimeSpan DurationPlay
         {
-            get { return _durationPlay; }
-            set { SetField(ref _durationPlay, value); }
+            get => _durationPlay;
+            set => SetField(ref _durationPlay, value);
         }
 
-        private TimeSpan _tcStart;
         public TimeSpan TcStart
         {
-            get { return _tcStart; }
-            set { SetField(ref _tcStart, value); }
+            get => _tcStart;
+            set => SetField(ref _tcStart, value);
         }
 
-        private TimeSpan _tcPlay;
         public TimeSpan TcPlay
         {
-            get { return _tcPlay; }
-            set { SetField(ref _tcPlay, value); }
+            get => _tcPlay;
+            set => SetField(ref _tcPlay, value);
         }
+        
+        public Array VideoFormats { get; } = Enum.GetValues(typeof(TVideoFormat));
 
-        static readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
-        public Array VideoFormats { get { return _videoFormats; } }
-        private TVideoFormat _videoFormat;
         public TVideoFormat VideoFormat
         {
-            get { return _videoFormat; }
+            get => _videoFormat;
             set
             {
                 if (SetField(ref _videoFormat, value))
@@ -338,212 +164,133 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private bool _fieldOrderInverted;
         public bool FieldOrderInverted
         {
-            get { return _fieldOrderInverted; }
-            set { SetField(ref _fieldOrderInverted, value); }
+            get => _fieldOrderInverted;
+            set => SetField(ref _fieldOrderInverted, value);
         }
 
-        static readonly Array _audioChannelMappings = Enum.GetValues(typeof(TAudioChannelMapping)); 
-        public Array AudioChannelMappings { get { return _audioChannelMappings;} }
-        private TAudioChannelMapping _audioChannelMapping;
+        public Array AudioChannelMappings { get; } = Enum.GetValues(typeof(TAudioChannelMapping));
+
         public TAudioChannelMapping AudioChannelMapping
         {
-            get { return _audioChannelMapping; }
-            set { SetField(ref _audioChannelMapping, value); }
+            get => _audioChannelMapping;
+            set => SetField(ref _audioChannelMapping, value);
         }
 
-        private decimal _audioVolume;
-        public decimal AudioVolume
+        public double AudioVolume
         {
-            get { return _audioVolume; }
-            set { SetField(ref _audioVolume, value); }
+            get => _audioVolume;
+            set => SetField(ref _audioVolume, value);
         }
 
-        private string _mediaName;
         public string MediaName
         {
-            get { return _mediaName; }
-            set {
-                if (SetField(ref _mediaName, value))
-                {
-                    if (MediaStatus == TMediaStatus.Required)
-                        FileName = FileUtils.SanitizeFileName(value) + FileUtils.DefaultFileExtension(MediaType);
-                };
-            }
+            get => _mediaName;
+            set => SetField(ref _mediaName, value);
         }
 
-        static readonly Array _mediaEmphasises = Enum.GetValues(typeof(TMediaEmphasis)); 
-        public Array MediaEmphasises { get { return _mediaEmphasises;} }
-        private TMediaEmphasis _mediaEmphasis;
+        public Array MediaEmphasises { get; } = Enum.GetValues(typeof(TMediaEmphasis));
         public TMediaEmphasis MediaEmphasis
         {
-            get { return _mediaEmphasis; }
-            set { SetField(ref _mediaEmphasis, value); }
+            get => _mediaEmphasis;
+            set => SetField(ref _mediaEmphasis, value);
         }
         
-        private DateTime? _killDate;
         public DateTime? KillDate
         {
-            get { return _killDate; }
+            get => _killDate;
             set
             {
-                if (_killDate != value)
-                {
-                    if (value == default(DateTime))
-                        _killDate = null;
-                    else
-                        _killDate = value;
-                    IsModified = true;
-                    NotifyPropertyChanged(nameof(IsKillDate));
-                    NotifyPropertyChanged(nameof(KillDate));
-                }
+                if (_killDate == value)
+                    return;
+                _killDate = value == default(DateTime) ? null : value;
+                IsModified = true;
+                NotifyPropertyChanged(nameof(IsKillDate));
+                NotifyPropertyChanged();
             }
         }
 
         public bool IsKillDate
         {
-            get { return _killDate != null; }
+            get => _killDate != null;
             set
             {
-                if (value != IsKillDate)
-                {
-                    if (value)
-                        _killDate = DateTime.UtcNow + TimeSpan.FromDays(30);
-                    else
-                        _killDate = null;
-                    IsModified = true;
-                    NotifyPropertyChanged(nameof(KillDate));
-                    NotifyPropertyChanged(nameof(IsKillDate));
-                }
+                if (value == IsKillDate)
+                    return;
+                if (value)
+                    _killDate = DateTime.UtcNow.Date + TimeSpan.FromDays(30);
+                else
+                    _killDate = null;
+                IsModified = true;
+                NotifyPropertyChanged(nameof(KillDate));
+                NotifyPropertyChanged();
             }
         }
 
-        private bool _protected;
         public bool Protected
         {
-            get { return _protected; }
-            set { SetField(ref _protected, value); }
+            get => _protected;
+            set => SetField(ref _protected, value);
         }
 
-        public TMediaStatus MediaStatus { get { return Model.MediaStatus; }}
-        public Guid MediaGuid { get { return Model.MediaGuid; }}
+        public TMediaStatus MediaStatus => Model.MediaStatus;
 
-
-        private bool _doNotArchive;
+        public Guid MediaGuid => Model.MediaGuid;
+        
         public bool DoNotArchive
         {
-            get { return _doNotArchive; }
-            set { SetField(ref _doNotArchive, value); }
+            get => _doNotArchive;
+            set => SetField(ref _doNotArchive, value);
         }
 
-        public bool ShowParentalCombo { get { return _mediaManager?.CGElementsController?.Parentals!= null; } }
+        public bool ShowParentalCombo => _mediaManager?.CGElementsController?.Parentals!= null;
 
-        public IEnumerable<ICGElement> Parentals { get { return _mediaManager?.CGElementsController?.Parentals; } }
-        private byte _parental;
+        public IEnumerable<ICGElement> Parentals => _mediaManager?.CGElementsController?.Parentals;
+
         public byte Parental
         {
-            get { return _parental; }
-            set { SetField(ref _parental, value); }
+            get => _parental;
+            set => SetField(ref _parental, value);
         }
 
-        static readonly Array _mediaCategories = Enum.GetValues(typeof(TMediaCategory)); 
-        public Array MediaCategories { get { return _mediaCategories; } }
-        private TMediaCategory _mediaCategory;
+        public Array MediaCategories { get; } = Enum.GetValues(typeof(TMediaCategory));
+
         public TMediaCategory MediaCategory
         {
-            get { return _mediaCategory; }
-            set { SetField(ref _mediaCategory, value); }
+            get => _mediaCategory;
+            set => SetField(ref _mediaCategory, value);
         }
 
-        private string _idAux;
         public string IdAux
         {
-            get { return _idAux; }
-            set { SetField(ref _idAux, value); }
+            get => _idAux;
+            set => SetField(ref _idAux, value);
         }
 
-        #region ITemplatedEdit
+        public TemplatedEditViewmodel TemplatedEditViewmodel { get; }
 
-        private ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
-        public IDictionary<string, string> Fields
-        {
-            get { return _fields; }
-            set
-            {
-                if (_fields != null)
-                {
-                    _fields.Clear();
-                    if (value != null)
-                        _fields.AddRange(value);
-                }
+        public bool IsPersistentMedia => Model is IPersistentMedia;
 
-            }
-        }
-        public object SelectedField { get; set; }
+        public bool IsServerMedia => Model is IServerMedia;
 
-        static readonly Array _methods = Enum.GetValues(typeof(TemplateMethod));
-        public Array Methods { get { return _methods; } }
-        private TemplateMethod _method;
-        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value); } }
+        public bool IsAnimatedMedia => Model is IAnimatedMedia;
 
-        private int _templateLayer;
-        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
-        public ICommand CommandEditField { get; private set; }
-        public ICommand CommandAddField { get; private set; }
-        public ICommand CommandDeleteField { get; private set; }
+        public bool IsIngestDataShown => Model is IPersistentMedia && Model.MediaStatus != TMediaStatus.Required;
 
-
-        public bool KeyIsReadOnly { get { return false; } }
-
-        #endregion // ITemplatedEdit
-
-        public bool IsPersistentMedia
-        {
-            get { return Model is IPersistentMedia; }
-        }
-
-        public bool IsServerMedia
-        {
-            get { return Model is IServerMedia; }
-        }
-
-        public bool IsAnimatedMedia
-        {
-            get { return Model is IAnimatedMedia; }
-        }
-
-        public bool IsIngestDataShown
-        {
-            get
-            {
-                return (Model is IPersistentMedia && Model.MediaStatus != TMediaStatus.Required);
-            }
-        }
-
-        public bool IsMovie
-        {
-            get { return Model.MediaType == TMediaType.Movie; }
-        }
+        public bool IsMovie => Model.MediaType == TMediaType.Movie;
 
         public bool IsInterlaced
         {
             get
             {
-                var format = VideoFormat;
-                if (VideoFormatDescription.Descriptions.ContainsKey(format))
-                    return VideoFormatDescription.Descriptions[format].Interlaced;
-                else
-                    return false;
+                var format = _videoFormat;
+                return VideoFormatDescription.Descriptions.ContainsKey(format) && VideoFormatDescription.Descriptions[format].Interlaced;
             }
         }
 
-        public string Error
-        {
-            get { throw new NotImplementedException(); }
-        }
-
+        public string Error => string.Empty;
+        
         public string this[string propertyName]
         {
             get
@@ -551,6 +298,9 @@ namespace TAS.Client.ViewModels
                 string validationResult = null;
                 switch (propertyName)
                 {
+                    case nameof(MediaName):
+                        validationResult = _validateMediaName();
+                        break;
                     case nameof(FileName):
                         validationResult = _validateFileName();
                         break;
@@ -565,73 +315,164 @@ namespace TAS.Client.ViewModels
             }
         }
 
+
+        public bool IsValid => (from pi in GetType().GetProperties() select this[pi.Name]).All(string.IsNullOrEmpty);
+
+        public override string ToString()
+        {
+            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(MediaType)} - {MediaName}";
+        }
+
+        protected override void Update(object destObject = null)
+        {
+            base.Update(Model);
+            (Model as IPersistentMedia)?.Save();
+        }
+
+        protected override void OnDispose()
+        {
+            Model.PropertyChanged -= OnMediaPropertyChanged;
+            if (TemplatedEditViewmodel != null)
+            {
+                TemplatedEditViewmodel.ModifiedChanged -= TemplatedEditViewmodel_ModifiedChanged;
+                TemplatedEditViewmodel.Dispose();
+            }
+        }
+
+        private string _validateMediaName()
+        {
+            if (Model is IPersistentMedia pm 
+                && MediaName != null
+                && pm.FieldLengths.TryGetValue(nameof(IMedia.MediaName), out var mnLength) 
+                && MediaName.Length > mnLength)
+                return resources._validate_TextTooLong;
+            return null;
+        }
+
         private string _validateFileName()
         {
-            string validationResult = string.Empty;
-                var dir = Model.Directory;
-                string newName = _fileName;
-                if (dir != null && _fileName != null)
-                {
-                if (newName.StartsWith(" ") || newName.EndsWith(" "))
-                    validationResult = resources._validate_FileNameCanNotStartOrEndWithSpace;
-                else
-                if (newName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
-                        validationResult = resources._validate_FileNameCanNotContainSpecialCharacters;
-                    else
-                    {
-                        newName = newName.ToLowerInvariant();
-                        if ((Model.MediaStatus == TMediaStatus.Required || newName != Model.FileName.ToLowerInvariant())
-                            && dir.FileExists(newName, Model.Folder))
-                            validationResult = resources._validate_FileAlreadyExists;
-                        else
-                            if (Model is IPersistentMedia)
-                            {
-                                if (Model.MediaType == TMediaType.Movie
-                                    && !FileUtils.VideoFileTypes.Contains(Path.GetExtension(newName).ToLower()))
-                                    validationResult = string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.VideoFileTypes));
-                                if (Model.MediaType == TMediaType.Still
-                                    && !FileUtils.StillFileTypes.Contains(Path.GetExtension(newName).ToLower()))
-                                    validationResult = string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.StillFileTypes));
-                            }
-                    }
-                    //if (dir is ArchiveDirectory)
-                    //{
-                    //    if (DatabaseConnector.ArchiveFileExists(dir, _fileName))
-                    //        validationResult = "Plik o takiej nazwie archiwizowano już w tym miesiącu";
-                    //}
-                    //else
-                    //    if (dir.Files.Where(m => m != media && m.FileName == _fileName).Count() > 0)
-                    //        validationResult = "Plik o takiej nazwie już istnieje";
-                }
-            return validationResult;
+            var dir = Model.Directory;
+            if (dir == null || _fileName == null)
+                return null;
+            if (FileName.StartsWith(" ") || FileName.EndsWith(" "))
+                return resources._validate_FileNameCanNotStartOrEndWithSpace;
+            if (FileName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
+                return resources._validate_FileNameCanNotContainSpecialCharacters;
+            var fileName = FileName.ToLowerInvariant();
+            if ((Model.MediaStatus == TMediaStatus.Required || fileName != Model.FileName.ToLowerInvariant())
+                && dir.FileExists(FileName, Model.Folder))
+                return resources._validate_FileAlreadyExists;
+            if (!(Model is IPersistentMedia pm))
+                return null;
+            if (pm.FieldLengths.TryGetValue(nameof(IMedia.FileName), out var length) && fileName.Length > length)
+                return resources._validate_TextTooLong;
+            if (pm.MediaType == TMediaType.Movie
+                && !FileUtils.VideoFileTypes.Contains(Path.GetExtension(fileName).ToLower()))
+                return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.VideoFileTypes));
+            if (pm.MediaType == TMediaType.Still
+                && !FileUtils.StillFileTypes.Contains(Path.GetExtension(fileName).ToLower()))
+                return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.StillFileTypes));
+            return null;
         }
 
         private string _validateTcPlay()
         {
-            string validationResult = string.Empty;
-            if (TcPlay < TcStart
-                || TcPlay > TcStart + Duration)
-                validationResult = resources._validateStartPlayMustBeInsideFile;
-            return validationResult;
+            return TcPlay < TcStart
+                   || TcPlay > TcStart + Duration
+                ? resources._validateStartPlayMustBeInsideFile
+                : null;
         }
 
         private string _validateDurationPlay()
         {
-            string validationResult = string.Empty;
-            if (DurationPlay + TcPlay > Duration + TcStart)
-                validationResult = resources._validate_DurationInvalid;
-            return validationResult;
+            return DurationPlay + TcPlay > Duration + TcStart ? resources._validate_DurationInvalid : null;
+        }
+        
+        #region Command methods
+
+
+        private async void _refreshStatus(object o)
+        {
+            Model.MediaStatus = TMediaStatus.Unknown;
+            await Task.Run(() => Model.Verify(true));
         }
 
-        public bool IsValid
+        private AutoResetEvent _checkVolumeSignal;
+        private void _checkVolume(object o)
         {
-            get { return (from pi in this.GetType().GetProperties() select this[pi.Name]).Where(s => !string.IsNullOrEmpty(s)).Count() == 0; }
+            if (_isVolumeChecking)
+                return;
+            IsVolumeChecking = true;
+            var fileManager = _mediaManager.FileManager;
+            var operation = fileManager.CreateLoudnessOperation(Model, TcPlay-TcStart, DurationPlay);
+            operation.AudioVolumeMeasured += _audioVolumeMeasured;
+            operation.Finished += _audioVolumeFinished;
+            _checkVolumeSignal = new AutoResetEvent(false);
+            fileManager.Queue(operation);
         }
 
-        public override string ToString()
+        private void _audioVolumeFinished(object sender, EventArgs e)
         {
-            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(MediaType)} - {_mediaName}";
+            Task.Run(() =>
+            {
+                _checkVolumeSignal.WaitOne(5000);
+                IsVolumeChecking = false; // finishCallback
+                ((ILoudnessOperation)sender).Finished -= _audioVolumeFinished;
+                ((ILoudnessOperation)sender).AudioVolumeMeasured -= _audioVolumeMeasured;
+                _checkVolumeSignal.Dispose();
+                _checkVolumeSignal = null;
+            });
         }
+
+        private void _audioVolumeMeasured(object sender, AudioVolumeEventArgs e)
+        {
+            AudioVolume = e.AudioVolume;
+            AutoResetEvent signal = _checkVolumeSignal;
+            signal?.Set();
+        }
+
+        #endregion //Command methods
+
+        private void OnMediaPropertyChanged(object media, PropertyChangedEventArgs e)
+        {
+            OnUiThread(() =>
+            {
+                if (string.IsNullOrEmpty(e.PropertyName))
+                    return;
+                var sourcePi = Model.GetType().GetProperty(e.PropertyName);
+                var destPi = GetType().GetProperty(e.PropertyName);
+                if (sourcePi == null || destPi == null || !sourcePi.CanRead || !destPi.CanWrite)
+                    return;
+                var oldModified = IsModified;
+                destPi.SetValue(this, sourcePi.GetValue(Model, null), null);
+                IsModified = oldModified;
+                NotifyPropertyChanged(e.PropertyName);
+            });
+
+            if (e.PropertyName == nameof(IMedia.MediaStatus))
+            {
+                NotifyPropertyChanged(e.PropertyName);
+                NotifyPropertyChanged(nameof(IsIngestDataShown));
+            }
+            if (e.PropertyName == nameof(IMedia.MediaGuid))
+            {
+                NotifyPropertyChanged(e.PropertyName);
+            }
+        }
+
+        private void _undoEdit(object o)
+        {
+            TemplatedEditViewmodel?.UndoEdit();
+            Load();
+        }
+        private void TemplatedEditViewmodel_ModifiedChanged(object sender, EventArgs e)
+        {
+            if (!(sender is TemplatedEditViewmodel templatedEditViewmodel))
+                return;
+            if (templatedEditViewmodel.IsModified)
+                IsModified = true;
+        }
+
 
     }
 

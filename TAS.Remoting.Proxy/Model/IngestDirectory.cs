@@ -1,55 +1,181 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
-    public class IngestDirectory : MediaDirectory, IIngestDirectory
+    public class IngestDirectory : WatcherDirectory, IIngestDirectory
     {
-        public bool DoNotEncode { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        public TAspectConversion AspectConversion { get { return Get<TAspectConversion>(); } set { SetLocalValue(value); } }
-        public decimal AudioVolume { get { return Get<decimal>(); } set { SetLocalValue(value); } }
-        public bool DeleteSource { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        public string EncodeParams { get { return Get<string>(); } set { SetLocalValue(value); } }
-        public string ExportParams { get { return Get<string>(); } set { SetLocalValue(value); } }
-        public string Filter { get { return Get<string>(); } set { Set(value); } }
-        public bool IsWAN { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        public bool IsXDCAM { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        public bool IsRecursive { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        public bool IsExport { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        public bool IsImport { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        public TMediaCategory MediaCategory { get { return Get<TMediaCategory>(); } set { SetLocalValue(value); } }
-        public bool MediaDoNotArchive { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        public int MediaRetnentionDays { get { return Get<int>(); } set { SetLocalValue(value); } }
-        public bool MediaLoudnessCheckAfterIngest { get { return Get<bool>(); }  set { Set(value); } }
-        public TFieldOrder SourceFieldOrder { get { return Get<TFieldOrder>(); } set { SetLocalValue(value); } }
-        public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
-        public TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
-        public TMovieContainerFormat ExportContainerFormat { get; set; }
-        public TVideoFormat ExportVideoFormat { get; set; }
-        public TVideoCodec VideoCodec { get; set; }
-        public TAudioCodec AudioCodec { get; set; }
-        public decimal VideoBitrateRatio { get; set; }
-        public decimal AudioBitrateRatio { get; set; }
-        public string[] Extensions { get; set; }
-        public NetworkCredential NetworkCredential { get { return null; } }
-        public string Password { get; set; }
-        public string Username { get; set; }
-        public int XdcamClipCount { get; set; }
+        #pragma warning disable CS0649
+
+        [JsonProperty(nameof(IIngestDirectory.AccessType))]
+        private TDirectoryAccessType _accessType;
+
+        [JsonProperty(nameof(IIngestDirectory.AspectConversion))]
+        private TAspectConversion _aspectConversion;
+
+        [JsonProperty(nameof(IIngestDirectory.AudioVolume))]
+        private double _audioVolume;
+
+        [JsonProperty(nameof(IIngestDirectory.DeleteSource))]
+        private bool _deleteSource;
+
+        [JsonProperty(nameof(IIngestDirectory.EncodeParams))]
+        private string _encodeParams;
+
+        [JsonProperty(nameof(IIngestDirectory.ExportParams))]
+        private string _exportParams;
+
+        [JsonProperty(nameof(IIngestDirectory.Filter))]
+        private string _filter;
+
+        [JsonProperty(nameof(IIngestDirectory.IsWAN))]
+        private bool _isWan;
+
+        [JsonProperty(nameof(IIngestDirectory.Kind))]
+        private TIngestDirectoryKind _kind;
+
+        [JsonProperty(nameof(IIngestDirectory.IsRecursive))]
+        private bool _isRecursive;
+
+        [JsonProperty(nameof(IIngestDirectory.IsExport))]
+        private bool _isExport;
+
+        [JsonProperty(nameof(IIngestDirectory.IsImport))]
+        private bool _isImport;
+
+        [JsonProperty(nameof(IIngestDirectory.MediaCategory))]
+        private TMediaCategory _mediaCategory;
+
+        [JsonProperty(nameof(IIngestDirectory.MediaDoNotArchive))]
+        private bool _mediaDoNotArchive;
+
+        [JsonProperty(nameof(IIngestDirectory.MediaRetnentionDays))]
+        private int _mediaRetnentionDays;
+
+        [JsonProperty(nameof(IIngestDirectory.MediaLoudnessCheckAfterIngest))]
+        private bool _mediaLoudnessCheckAfterIngest;
+
+        [JsonProperty(nameof(IIngestDirectory.SourceFieldOrder))]
+        private TFieldOrder _sourceFieldOrder;
+
+        [JsonProperty(nameof(IIngestDirectory.MXFAudioExportFormat))]
+        private TmXFAudioExportFormat _mxfAudioExportFormat;
+
+        [JsonProperty(nameof(IIngestDirectory.MXFVideoExportFormat))]
+        private TmXFVideoExportFormat _mxfVideoExportFormat;
+
+        [JsonProperty(nameof(IIngestDirectory.ExportContainerFormat))]
+        private TMovieContainerFormat _exportContainerFormat;
+
+        [JsonProperty(nameof(IIngestDirectory.ExportVideoFormat))]
+        private TVideoFormat _exportVideoFormat;
+
+        [JsonProperty(nameof(IIngestDirectory.VideoCodec))]
+        private TVideoCodec _videoCodec;
+
+        [JsonProperty(nameof(IIngestDirectory.AudioCodec))]
+        private TAudioCodec _audioCodec;
+
+        [JsonProperty(nameof(IIngestDirectory.VideoBitrateRatio))]
+        private double _videoBitrateRatio;
+
+        [JsonProperty(nameof(IIngestDirectory.AudioBitrateRatio))]
+        private double _audioBitrateRatio;
+
+        [JsonProperty(nameof(IIngestDirectory.Extensions))]
+        private string[] _extensions;
+
+        [JsonProperty(nameof(IIngestDirectory.Password))]
+        private string _password;
+
+        [JsonProperty(nameof(IIngestDirectory.Username))]
+        private string _username;
+
+        [JsonProperty(nameof(IIngestDirectory.XdcamClipCount))]
+        private int _xdcamClipCount;
 
         [JsonProperty(nameof(SubDirectories))]
-        public List<IngestDirectory> _subDirectories;
-        [JsonIgnore]
-        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return _subDirectories; } }
+        private List<IngestDirectory> _subDirectories;
 
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        #pragma warning restore
+
+        public TDirectoryAccessType AccessType => _accessType;
+
+        public TAspectConversion AspectConversion => _aspectConversion;
+
+        public double AudioVolume => _audioVolume;
+
+        public bool DeleteSource => _deleteSource;
+
+        public string EncodeParams => _encodeParams;
+
+        public string ExportParams => _exportParams;
+
+        public string Filter
         {
-            throw new NotImplementedException();
+            get => _filter;
+            set => Set(value);
+        }
+
+        public bool IsWAN => _isWan;
+
+        public TIngestDirectoryKind Kind => _kind;
+
+        public bool IsRecursive => _isRecursive;
+
+        public bool IsExport => _isExport;
+
+        public bool IsImport => _isImport;
+
+        public TMediaCategory MediaCategory => _mediaCategory;
+
+        public bool MediaDoNotArchive => _mediaDoNotArchive;
+
+        public int MediaRetnentionDays => _mediaRetnentionDays;
+
+        public bool MediaLoudnessCheckAfterIngest => _mediaLoudnessCheckAfterIngest;
+
+        public TFieldOrder SourceFieldOrder => _sourceFieldOrder;
+
+        public TmXFAudioExportFormat MXFAudioExportFormat => _mxfAudioExportFormat;
+
+        public TmXFVideoExportFormat MXFVideoExportFormat => _mxfVideoExportFormat;
+
+        public TMovieContainerFormat ExportContainerFormat => _exportContainerFormat;
+
+        public TVideoFormat ExportVideoFormat => _exportVideoFormat;
+
+        public TVideoCodec VideoCodec => _videoCodec;
+
+        public TAudioCodec AudioCodec => _audioCodec;
+
+        public double VideoBitrateRatio => _videoBitrateRatio;
+
+        public double AudioBitrateRatio => _audioBitrateRatio;
+
+        public string[] Extensions => _extensions;
+
+        public string Password => _password;
+
+        public string Username => _username;
+
+        public int XdcamClipCount => _xdcamClipCount;
+
+        public IEnumerable<IIngestDirectoryProperties> SubDirectories => _subDirectories;
+
+        public override IReadOnlyCollection<IMedia> GetFiles()
+        {
+            return Query<ReadOnlyCollection<IngestMedia>>();
+        }
+
+        public List<IMedia> Search(TMediaCategory? category, string searchString)
+        {
+            return Query<List<IMedia>>(parameters: new object[] {category, searchString});
         }
     }
 }

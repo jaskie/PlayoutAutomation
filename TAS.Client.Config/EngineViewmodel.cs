@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using TAS.Client.Common;
+using TAS.Client.Config.Model;
 using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config
 {
-    public class EngineViewmodel : EditViewmodelBase<Model.Engine>
+    public class EngineViewmodel : Common.EditViewmodelBase<Engine>, IEngineProperties
     {
         private TAspectRatioControl _aspectRatioControl;
         private string _engineName;
@@ -18,45 +18,43 @@ namespace TAS.Client.Config
         private TCrawlEnableBehavior _crawlEnableBehavior;
         private int _cgStartDelay;
         private ulong _instance;
-        public EngineViewmodel(Model.Engine engine)
-            : base(engine, new EngineView())
+        public EngineViewmodel(Engine engine)
+            : base(engine)
         {
-            _channels = new List<object>() { TAS.Client.Common.Properties.Resources._none_ };
-            Model.Servers.ForEach(s => s.Channels.ForEach(c => _channels.Add(c)));
-            _channelPRI = _channels.FirstOrDefault(c => c is Model.CasparServerChannel 
-                                                        && ((Model.CasparServerChannel)c).Id == Model.ServerChannelPRI 
-                                                        && ((Model.CasparServerChannel)c).Owner is Model.CasparServer
-                                                        && ((Model.CasparServer)(((Model.CasparServerChannel)c).Owner)).Id == Model.IdServerPRI);
-            if (_channelPRI == null) _channelPRI = _channels.First();
-            _channelSEC = _channels.FirstOrDefault(c => c is Model.CasparServerChannel
-                                                        && ((Model.CasparServerChannel)c).Id == Model.ServerChannelSEC
-                                                        && ((Model.CasparServerChannel)c).Owner is Model.CasparServer
-                                                        && ((Model.CasparServer)(((Model.CasparServerChannel)c).Owner)).Id == Model.IdServerSEC);
-            if (_channelSEC == null) _channelSEC = _channels.First();
-            _channelPRV = _channels.FirstOrDefault(c => c is Model.CasparServerChannel
-                                                        && ((Model.CasparServerChannel)c).Id == Model.ServerChannelPRV
-                                                        && ((Model.CasparServerChannel)c).Owner is Model.CasparServer
-                                                        && ((Model.CasparServer)(((Model.CasparServerChannel)c).Owner)).Id == Model.IdServerPRV);
+            Channels = new List<object>() { Common.Properties.Resources._none_ };
+            Model.Servers.ForEach(s => s.Channels.ForEach(c => Channels.Add(c)));
+            _channelPRI = Channels.FirstOrDefault(c => c is CasparServerChannel
+                                                        && ((CasparServerChannel)c).Id == Model.ServerChannelPRI
+                                                        && ((CasparServer)((CasparServerChannel)c).Owner).Id == Model.IdServerPRI);
+            if (_channelPRI == null) _channelPRI = Channels.First();
+            _channelSEC = Channels.FirstOrDefault(c => c is CasparServerChannel
+                                                        && ((CasparServerChannel)c).Id == Model.ServerChannelSEC
+                                                        && ((CasparServer)((CasparServerChannel)c).Owner).Id == Model.IdServerSEC);
+            if (_channelSEC == null) _channelSEC = Channels.First();
+            _channelPRV = Channels.FirstOrDefault(c => c is CasparServerChannel
+                                                        && ((CasparServerChannel)c).Id == Model.ServerChannelPRV
+                                                        && ((CasparServer)((CasparServerChannel)c).Owner).Id == Model.IdServerPRV);
 
-            _archiveDirectories = new List<object>() { TAS.Client.Common.Properties.Resources._none_ };
-            _archiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
-            _archiveDirectory = engine.IdArchive == 0 ? _archiveDirectories.First() : _archiveDirectories.FirstOrDefault(d => (d is Model.ArchiveDirectory) && ((Model.ArchiveDirectory)d).idArchive == engine.IdArchive);
-            if (_channelPRV == null) _channelPRV = _channels.First();
+            ArchiveDirectories = new List<object> { Common.Properties.Resources._none_ };
+            ArchiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
+            _archiveDirectory = engine.IdArchive == 0 ? ArchiveDirectories.First() : ArchiveDirectories.FirstOrDefault(d => (d as ArchiveDirectory)?.IdArchive == engine.IdArchive);
+            if (_channelPRV == null) _channelPRV = Channels.First();
             if (Model.Remote != null)
             {
                 _remoteHostEnabled = true;
                 _remoteHostListenPort = Model.Remote.ListenPort;
             }
-            CommandManageArchiveDirectories = new UICommand() { ExecuteDelegate = _manageArchiveDirectories };
+            CommandManageArchiveDirectories = new Common.UiCommand(_manageArchiveDirectories);
         }
 
         private void _manageArchiveDirectories(object obj)
         {
-            var dialog = new ArchiveDirectoriesViewmodel(Model.ArchiveDirectories);
-            if (dialog.ShowDialog() == true)
+            using (var dialog = new ArchiveDirectoriesViewmodel(Model.ArchiveDirectories))
             {
-                _archiveDirectories = new List<object>() { TAS.Client.Common.Properties.Resources._none_ };
-                _archiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
+                if (dialog.ShowDialog() != true)
+                    return;
+                ArchiveDirectories = new List<object> { Common.Properties.Resources._none_ };
+                ArchiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
                 NotifyPropertyChanged(nameof(ArchiveDirectories));
                 ArchiveDirectory = dialog.SelectedDirectory;
             }
@@ -64,64 +62,137 @@ namespace TAS.Client.Config
 
         protected override void OnDispose() { }
 
-        static readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
-        public Array VideoFormats { get { return _videoFormats; } }
+        public Array VideoFormats { get; } = Enum.GetValues(typeof(TVideoFormat));
 
-        static readonly Array _aspectRatioControls = Enum.GetValues(typeof(TAspectRatioControl));
-        public Array AspectRatioControls { get { return _aspectRatioControls; } }
+        public Array AspectRatioControls { get; } = Enum.GetValues(typeof(TAspectRatioControl));
 
-        static readonly Array _crawlEnableBehaviors = Enum.GetValues(typeof(TCrawlEnableBehavior));
-        public Array CrawlEnableBehaviors { get { return _crawlEnableBehaviors; } }
+        public Array CrawlEnableBehaviors { get; } = Enum.GetValues(typeof(TCrawlEnableBehavior));
 
-        public string EngineName { get { return _engineName; } set { SetField(ref _engineName, value); } }
-        public TAspectRatioControl AspectRatioControl { get { return _aspectRatioControl; } set { SetField(ref _aspectRatioControl, value); } }
-        public int TimeCorrection { get { return _timeCorrection; } set { SetField(ref _timeCorrection, value); } }
-        public TVideoFormat VideoFormat { get { return _videoFormat; } set { SetField(ref _videoFormat, value); } }
-        public ulong Instance { get { return _instance; } set { SetField(ref _instance, value); } }
-        public double VolumeReferenceLoudness { get { return _volumeReferenceLoudness; } set { SetField(ref _volumeReferenceLoudness, value); } }
-        public bool EnableCGElementsForNewEvents { get { return _enableCGElementsForNewEvents; } set { SetField(ref _enableCGElementsForNewEvents, value); } }
-        public TCrawlEnableBehavior CrawlEnableBehavior { get { return _crawlEnableBehavior; } set { SetField(ref _crawlEnableBehavior, value); } }
-        public int CGStartDelay { get { return _cgStartDelay; } set { SetField(ref _cgStartDelay, value); } }
+        public string EngineName
+        {
+            get => _engineName;
+            set => SetField(ref _engineName, value);
+        }
+        public TAspectRatioControl AspectRatioControl
+        {
+            get => _aspectRatioControl;
+            set => SetField(ref _aspectRatioControl, value);
+        }
+        public int TimeCorrection
+        {
+            get => _timeCorrection;
+            set => SetField(ref _timeCorrection, value);
+        }
 
-        readonly List<object> _channels;
-        public List<object> Channels { get { return _channels; } }
+        public TVideoFormat VideoFormat
+        {
+            get => _videoFormat;
+            set => SetField(ref _videoFormat, value);
+        }
+        public ulong Instance
+        {
+            get => _instance;
+            set => SetField(ref _instance, value);
+        }
+
+        public double VolumeReferenceLoudness
+        {
+            get => _volumeReferenceLoudness;
+            set => SetField(ref _volumeReferenceLoudness, value);
+        }
+
+        public bool EnableCGElementsForNewEvents
+        {
+            get => _enableCGElementsForNewEvents;
+            set => SetField(ref _enableCGElementsForNewEvents, value);
+        }
+
+        public bool StudioMode { get => _studioMode; set => SetField(ref _studioMode, value); }
+
+        public TCrawlEnableBehavior CrawlEnableBehavior
+        {
+            get => _crawlEnableBehavior;
+            set => SetField(ref _crawlEnableBehavior, value);
+        }
+
+        public int CGStartDelay
+        {
+            get => _cgStartDelay;
+            set => SetField(ref _cgStartDelay, value);
+        }
+        public List<object> Channels { get; }
+
         private object _channelPRI;
-        public object ChannelPRI { get { return _channelPRI; } set { SetField(ref _channelPRI, value); } }
+        public object ChannelPRI
+        {
+            get => _channelPRI;
+            set => SetField(ref _channelPRI, value);
+        }
+
         private object _channelSEC;
-        public object ChannelSEC { get { return _channelSEC; } set { SetField(ref _channelSEC, value); } }
+        public object ChannelSEC
+        {
+            get => _channelSEC;
+            set => SetField(ref _channelSEC, value);
+        }
+
         private object _channelPRV;
-        public object ChannelPRV { get { return _channelPRV; } set { SetField(ref _channelPRV, value); } }
 
-        private List<object> _archiveDirectories;
-        public List<object> ArchiveDirectories { get { return _archiveDirectories; } }
+        public object ChannelPRV
+        {
+            get => _channelPRV;
+            set => SetField(ref _channelPRV, value);
+        }
+        public List<object> ArchiveDirectories { get; private set; }
+
         private object _archiveDirectory;
-        public object ArchiveDirectory { get { return _archiveDirectory; } set { SetField(ref _archiveDirectory, value); } }
+        public object ArchiveDirectory
+        {
+            get => _archiveDirectory;
+            set => SetField(ref _archiveDirectory, value);
+        }
+
         private bool _remoteHostEnabled;
-        public bool RemoteHostEnabled { get { return _remoteHostEnabled; } set { SetField(ref _remoteHostEnabled, value); } }
+        public bool RemoteHostEnabled
+        {
+            get => _remoteHostEnabled;
+            set => SetField(ref _remoteHostEnabled, value);
+        }
+
         private ushort _remoteHostListenPort;
-        public ushort RemoteHostListenPort { get { return _remoteHostListenPort; } set { SetField(ref _remoteHostListenPort, value); } }
+        private bool _studioMode;
 
-        public UICommand CommandManageArchiveDirectories { get; private set; }
+        public ushort RemoteHostListenPort
+        {
+            get => _remoteHostListenPort;
+            set => SetField(ref _remoteHostListenPort, value);
+        }
 
+        public Common.UiCommand CommandManageArchiveDirectories { get; }
 
-        public override void ModelUpdate(object destObject = null)
+        protected override void Update(object destObject = null)
         {
             if (IsModified)
             {
-                var playoutServerChannelPRI = _channelPRI as Model.CasparServerChannel;
-                Model.IdServerPRI = playoutServerChannelPRI == null ? 0 : ((Model.CasparServer)playoutServerChannelPRI.Owner).Id;
-                Model.ServerChannelPRI = playoutServerChannelPRI == null ? 0 : playoutServerChannelPRI.Id;
-                var playoutServerChannelSEC = _channelSEC as Model.CasparServerChannel;
-                Model.IdServerSEC = playoutServerChannelSEC == null ? 0 : ((Model.CasparServer)playoutServerChannelSEC.Owner).Id;
-                Model.ServerChannelSEC = playoutServerChannelSEC == null ? 0 : playoutServerChannelSEC.Id;
-                var playoutServerChannelPRV = _channelPRV as Model.CasparServerChannel;
-                Model.IdServerPRV = playoutServerChannelPRV == null ? 0 : ((Model.CasparServer)playoutServerChannelPRV.Owner).Id;
-                Model.ServerChannelPRV = playoutServerChannelPRV == null ? 0 : playoutServerChannelPRV.Id;
-                Model.Remote = _remoteHostEnabled ? new Model.RemoteHost() { ListenPort = RemoteHostListenPort } : null;
-                Model.IdArchive = _archiveDirectory is Model.ArchiveDirectory ? ((Model.ArchiveDirectory)_archiveDirectory).idArchive : 0;
+                var playoutServerChannelPRI = _channelPRI as CasparServerChannel;
+                Model.IdServerPRI = ((CasparServer)playoutServerChannelPRI?.Owner)?.Id ?? 0;
+                Model.ServerChannelPRI = playoutServerChannelPRI?.Id ?? 0;
+                var playoutServerChannelSEC = _channelSEC as CasparServerChannel;
+                Model.IdServerSEC = ((CasparServer)playoutServerChannelSEC?.Owner)?.Id ?? 0;
+                Model.ServerChannelSEC = playoutServerChannelSEC?.Id ?? 0;
+                var playoutServerChannelPRV = _channelPRV as CasparServerChannel;
+                Model.IdServerPRV = ((CasparServer)playoutServerChannelPRV?.Owner)?.Id ?? 0;
+                Model.ServerChannelPRV = playoutServerChannelPRV?.Id ?? 0;
+                Model.Remote = _remoteHostEnabled ? new RemoteHost { ListenPort = RemoteHostListenPort } : null;
+                Model.IdArchive = (_archiveDirectory as ArchiveDirectory)?.IdArchive ?? 0;
                 Model.IsModified = true;
             }
-            base.ModelUpdate(destObject);
+            base.Update(destObject);
+        }
+
+        public void Save()
+        {
+            Update(Model);
         }
     }
 }

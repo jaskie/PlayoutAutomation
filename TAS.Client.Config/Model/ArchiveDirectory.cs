@@ -1,20 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Server.Interfaces;
+﻿using System.Collections.Generic;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.Config.Model
 {
     public class ArchiveDirectory: IArchiveDirectoryProperties
     {
         ulong _idArchive;
-        public ulong idArchive { get { return _idArchive; }  set { SetField(ref _idArchive, value); } }
         string _folder;
-        public string Folder { get { return _folder; } set { SetField(ref _folder, value); } }
-        protected bool _isModified;
-        public bool IsModified { get { return _isModified; } internal set { _isModified = value; } }
         private bool _deleted;
+
+        public ulong IdArchive {
+            get => _idArchive;
+            set => SetField(ref _idArchive, value);
+        }
+
+        public string Folder
+        {
+            get => _folder;
+            set => SetField(ref _folder, value);
+        }
+        public bool IsModified { get; internal set; }
 
         public string DirectoryName { get; set; }
         
@@ -24,9 +29,9 @@ namespace TAS.Client.Config.Model
             _deleted = true;
         }
 
-        public bool IsDeleted { get { return _deleted; } }
+        public bool IsDeleted => _deleted;
 
-        public bool IsNew { get { return _idArchive == 0; } }
+        public bool IsNew => _idArchive == 0;
 
         protected virtual bool SetField<T>(ref T field, T value)
         {

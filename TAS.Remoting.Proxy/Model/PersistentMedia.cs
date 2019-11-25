@@ -1,31 +1,54 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Remoting.Model
 {
-    public class PersistentMedia : Media, IPersistentMedia
+    public abstract class PersistentMedia : MediaBase, IPersistentMedia
     {
-        public TMediaEmphasis MediaEmphasis { get { return Get<TMediaEmphasis>(); } set { Set(value); } }
+#pragma warning disable CS0649
 
-        public string IdAux { get { return Get<string>(); } set { Set(value); } }
+        [JsonProperty(nameof(IPersistentMedia.MediaEmphasis))]
+        private TMediaEmphasis _mediaEmphasis;
 
-        public DateTime KillDate { get { return Get<DateTime>(); } set { Set(value); } }
+        [JsonProperty(nameof(IPersistentMedia.IdAux))]
+        private string _idAux;
 
-        public UInt64 IdProgramme { get { return Get<UInt64>(); } set { Set(value); } }
+        [JsonProperty(nameof(IPersistentMedia.KillDate))]
+        private DateTime _killDate;
 
-        public UInt64 IdPersistentMedia { get; set; }
+        [JsonProperty(nameof(IPersistentMedia.IdProgramme))]
+        private ulong _idProgramme;
 
-        public bool IsModified { get; set; }
+        [JsonProperty(nameof(IPersistentMedia.IsModified))]
+        private bool _isModified;
 
-        public bool Protected { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IPersistentMedia.Protected))]
+        private bool _protected;
 
-        public IMediaSegments MediaSegments { get { return Get<MediaSegments>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(FieldLengths))]
+        private Dictionary<string, int> _fieldsLengths;
+
+#pragma warning restore
+
+        public TMediaEmphasis MediaEmphasis { get => _mediaEmphasis; set => Set(value); }
+
+        public string IdAux { get => _idAux; set => Set(value); }
+
+        public DateTime KillDate { get => _killDate; set => Set(value); }
+
+        public ulong IdProgramme { get => _idProgramme; set => Set(value); }
+
+        public bool IsModified { get => _isModified; set => Set(value); }
+
+        public bool Protected { get => _protected; set => Set(value); }
+
+        public IDictionary<string, int> FieldLengths { get => _fieldsLengths; set => Set(value); }
+
+        public IMediaSegments GetMediaSegments() { return Query<MediaSegments>(); }
 
         public bool Save()
         {

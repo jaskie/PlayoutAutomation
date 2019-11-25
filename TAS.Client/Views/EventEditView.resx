@@ -138,12 +138,6 @@
   <data name="_buttonCancel.ToolTip" xml:space="preserve">
     <value>Rollback changes  | Ctrl+U</value>
   </data>
-  <data name="_buttonRevert.Caption" xml:space="preserve">
-    <value>Revert</value>
-  </data>
-  <data name="_buttonSave.Caption" xml:space="preserve">
-    <value>Save</value>
-  </data>
   <data name="_buttonSave.ToolTip" xml:space="preserve">
     <value>Save changes | Ctrl+S</value>
   </data>
@@ -163,7 +157,7 @@
     <value>Custom command to execute on server</value>
   </data>
   <data name="_delete.ToolTip" xml:space="preserve">
-    <value>Delete | Ctrl + Del</value>
+    <value>Delete</value>
   </data>
   <data name="_duration" xml:space="preserve">
     <value>Duration</value>

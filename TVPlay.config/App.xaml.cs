@@ -12,9 +12,5 @@ namespace TAS.Client.Setup
     /// </summary>
     public partial class App : Application
     {
-        public App()
-        {
-            Application.Current.Dispatcher.Thread.CurrentUICulture = new System.Globalization.CultureInfo("en");
-        }
     }
 }

@@ -12,10 +12,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Runtime.InteropServices;
-using TAS.Server;
-using System.Globalization;
-using TAS.Common;
-using TAS.Client.Common;
 
 namespace TAS.Client.Views
 {

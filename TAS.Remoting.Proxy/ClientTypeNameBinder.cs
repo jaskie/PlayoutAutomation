@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using TAS.Common;
-using TAS.Remoting;
 
 namespace TAS.Remoting
 {
@@ -14,38 +8,42 @@ namespace TAS.Remoting
         {
             switch (typeName)
             {
-                case "TAS.Server.ServerMedia":
+                case "TAS.Server.Media.ServerMedia":
                     return typeof(Model.ServerMedia);
-                case "TAS.Server.IngestMedia":
+                case "TAS.Server.Media.IngestMedia":
                     return typeof(Model.IngestMedia);
-                case "TAS.Server.ArchiveMedia":
+                case "TAS.Server.XDCAM.XdcamMedia":
+                    return typeof(Model.XDCAMMedia);
+                case "TAS.Server.Media.ArchiveMedia":
                     return typeof(Model.ArchiveMedia);
-                case "TAS.Server.AnimatedMedia":
+                case "TAS.Server.Media.AnimatedMedia":
                     return typeof(Model.AnimatedMedia);
-                case "TAS.Server.ServerDirectory":
+                case "TAS.Server.Media.ServerDirectory":
                     return typeof(Model.ServerDirectory);
-                case "TAS.Server.IngestDirectory":
+                case "TAS.Server.Media.IngestDirectory":
                     return typeof(Model.IngestDirectory);
-                case "TAS.Server.ArchiveDirectory":
+                case "TAS.Server.Media.ArchiveDirectory":
                     return typeof(Model.ArchiveDirectory);
-                case "TAS.Server.AnimationDirectory":
+                case "TAS.Server.Media.AnimationDirectory":
                     return typeof(Model.AnimationDirectory);
+                case "TAS.Server.Media.MediaSegment":
+                    return typeof(Model.MediaSegment);
+                case "TAS.Server.Media.MediaSegments":
+                    return typeof(Model.MediaSegments);
                 case "TAS.Server.FileManager":
                     return typeof(Model.FileManager);
                 case "TAS.Server.CasparRecorder":
                     return typeof(Model.Recorder);
-                case "TAS.Server.MediaSegment":
-                    return typeof(Model.MediaSegment);
-                case "TAS.Server.MediaSegments":
-                    return typeof(Model.MediaSegments);
                 case "TAS.Server.ConvertOperation":
-                    return typeof(Model.ConvertOperation);
+                    return typeof(Model.IngestOperation);
                 case "TAS.Server.FileOperation":
                     return typeof(Model.FileOperation);
                 case "TAS.Server.LoudnessOperation":
                     return typeof(Model.LoudnessOperation);
                 case "TAS.Server.ExportOperation":
                     return typeof(Model.FileOperation);
+                case "TAS.Server.IngestOperation":
+                    return typeof(Model.IngestOperation);
                 case "TAS.Server.Engine":
                     return typeof(Model.Engine);
                 case "TAS.Server.Event":
@@ -60,29 +58,30 @@ namespace TAS.Remoting
                     return typeof(Model.PlayoutServerChannel);
                 case "TAS.Server.CasparServer":
                     return typeof(Model.PlayoutServer);
-                case "TAS.Server.CGElementsController":
+                case "TAS.Server.CgElementsController":
                     return typeof(Model.CGElementsController);
                 case "TAS.Server.CGElement":
                     return typeof(Model.CGElement);
+                case "TAS.Server.Security.AuthenticationService":
+                    return typeof(Model.Security.AuthenticationService);
+                case "TAS.Server.Security.User":
+                    return typeof(Model.Security.User);
+                case "TAS.Server.Security.Group":
+                    return typeof(Model.Security.Group);
+                case "TAS.Server.Security.EventAclRight":
+                    return typeof(Model.Security.EventAclRight);
+                case "TAS.Server.Security.EngineAclRight":
+                    return typeof(Model.Security.EngineAclRight);
                 default:
-                        return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName), true);
+                        return Type.GetType($"{typeName}, {assemblyName}", true);
             }
         }
 
         public void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
-            var attribute = serializedType.GetCustomAttributes(typeof(TypeNameOverrideAttribute), true).FirstOrDefault() as TypeNameOverrideAttribute;
-            if (attribute != null)
-            {
-                typeName = attribute.TypeName;
-                assemblyName = attribute.AssemblyName;
-            }
-            else
-            {
-                typeName = serializedType.FullName;
-                assemblyName = serializedType.Assembly.FullName;
-            }
+            typeName = serializedType.FullName;
+            assemblyName = serializedType.Assembly.FullName;
         }
-        
+
     }
 }

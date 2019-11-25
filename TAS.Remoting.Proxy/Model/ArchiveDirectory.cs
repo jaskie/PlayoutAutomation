@@ -1,34 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using TAS.Common;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
-    public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
+    public class ArchiveDirectory : MediaDirectoryBase, IArchiveDirectory
     {
-        public ulong idArchive { get { return Get<UInt64>(); } set { Set(value); } }
-
-        public TMediaCategory? SearchMediaCategory { get { return Get<TMediaCategory?>(); } set { Set(value); } }
-        
-        public string SearchString { get { return Get<string>(); } set { Set(value); } }
-
-        public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory, bool toTop)
-        {
-            Invoke(parameters: new object[] { srcMedia, destDirectory, toTop });
-        }
-        
-        public void ArchiveSave(IServerMedia media, bool deleteAfterSuccess)
-        {
-            Invoke(parameters: new object[] { media, deleteAfterSuccess});
-        }
-
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
-        {
-            return Query<IMedia>(parameters: new [] { mediaProperties });
-        }
 
         public IArchiveMedia Find(IMediaProperties media)
         {
@@ -36,9 +15,12 @@ namespace TAS.Remoting.Model
             return ret;
         }
 
-        public void Search()
+        public IMediaManager MediaManager { get; set; }
+
+        public List<IMedia> Search(TMediaCategory? category, string searchString)
         {
-            Invoke();
+            return Query<List<IMedia>>(parameters: new object[] {category, searchString});
         }
+        
     }
 }

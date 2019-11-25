@@ -1,24 +1,31 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TAS.Remoting.Client;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
     public class MediaSegments : ProxyBase, IMediaSegments
     {
-        public int Count { get { return Get<int>(); } set { SetLocalValue(value); } }
-
-        public Guid MediaGuid { get { return Get<Guid>(); } set { SetLocalValue(value); } }
+        #pragma warning disable CS0649
 
         [JsonProperty(nameof(IMediaSegments.Segments))]
-        private List<MediaSegment> _segments { get { return Get<List<MediaSegment>>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
-        public IEnumerable<IMediaSegment> Segments { get { return _segments; } }
+        private List<MediaSegment> _segments;
+
+        [JsonProperty(nameof(IMediaSegments.Count))]
+        private int _count;
+
+        [JsonProperty(nameof(IMediaSegments.MediaGuid))]
+        private Guid _mediaGuid;
+
+        public IEnumerable<IMediaSegment> Segments => _segments;
+
+        #pragma warning restore
+
+        public int Count => _count;
+
+        public Guid MediaGuid => _mediaGuid;
 
         #region Event handling 
         private event EventHandler<MediaSegmentEventArgs> _segmentAdded;
@@ -53,19 +60,19 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(WebSocketMessage e)
+        protected override void OnEventNotification(SocketMessage message)
         {
-            switch (e.MemberName)
+            switch (message.MemberName)
             {
                 case nameof(IMediaSegments.SegmentAdded):
-                    var eAdded = ConvertEventArgs<MediaSegmentEventArgs>(e);
+                    var eAdded = Deserialize<MediaSegmentEventArgs>(message);
                     _segments.Add(eAdded.Segment as MediaSegment);
                     _segmentAdded?.Invoke(this, eAdded);
                     break;
                 case nameof(IMediaSegments.SegmentRemoved):
-                    var eRemoved = ConvertEventArgs<MediaSegmentEventArgs>(e);
+                    var eRemoved = Deserialize<MediaSegmentEventArgs>(message);
                     _segments.Remove(eRemoved.Segment as MediaSegment);
-                    _segmentRemoved?.Invoke(this, ConvertEventArgs<MediaSegmentEventArgs>(e));
+                    _segmentRemoved?.Invoke(this, eRemoved);
                     break;
             }
         }

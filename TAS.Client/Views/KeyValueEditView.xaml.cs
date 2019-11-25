@@ -17,11 +17,16 @@ namespace TAS.Client.Views
     /// <summary>
     /// Interaction logic for KeyValueEdit.xaml
     /// </summary>
-    public partial class KeyValueEditView : UserControl
+    public partial class KeyValueEditView : Window
     {
         public KeyValueEditView()
         {
             InitializeComponent();
+        }
+
+        private void Ok_OnClick(object sender, RoutedEventArgs e)
+        {
+            DialogResult = true;
         }
     }
 }

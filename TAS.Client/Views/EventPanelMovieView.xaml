@@ -84,6 +84,9 @@
                                 <DataTrigger Binding="{Binding VideoFormat}" Value="PAL_FHA">
                                     <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/FHA.png" />
                                 </DataTrigger>
+                                <DataTrigger Binding="{Binding VideoFormat}" Value="NTSC_FHA">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/FHA.png" />
+                                </DataTrigger>
                                 <DataTrigger Binding="{Binding VideoFormat}" Value="Other">
                                     <Setter Property="Source" Value="{x:Null}" />
                                 </DataTrigger>
@@ -93,7 +96,16 @@
                                 <DataTrigger Binding="{Binding VideoFormat}" Value="HD1080p2500">
                                     <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/HD.png" />
                                 </DataTrigger>
+                                <DataTrigger Binding="{Binding VideoFormat}" Value="HD1080i5994">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/HD.png" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding VideoFormat}" Value="HD1080p2997">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/HD.png" />
+                                </DataTrigger>
                                 <DataTrigger Binding="{Binding VideoFormat}" Value="PAL">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/4-3.png" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding VideoFormat}" Value="NTSC">
                                     <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/4-3.png" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -144,7 +156,7 @@
                         </TextBlock>
                         <TextBlock Style="{StaticResource MediaFileNameTextBlock}"/>
                     </StackPanel>
-                    <TextBlock Grid.Column="1" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
+                    <TextBlock Grid.Column="1" Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToString}}" FontSize="22" VerticalAlignment="Center" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
                 </Grid>
                 <StackPanel Grid.Column="3" Grid.Row="2" Orientation="Horizontal" Visibility="{Binding IsSelected,Converter={StaticResource BoolToVis}}">
                     <Button Command="{Binding CommandAddNextMovie}" ToolTip="{Resx _addNextMovie.ToolTip}" >

@@ -1,14 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Remoting.Model
 {
     public class ArchiveMedia: PersistentMedia, IArchiveMedia
     {
-        public TIngestStatus IngestStatus { get { return Get<TIngestStatus>(); } set { SetLocalValue(value); } }
+        #pragma warning disable CS0649 
+     
+        [JsonProperty(nameof(IArchiveMedia.IngestStatus))]
+        private TIngestStatus _ingestStatus;
+
+        #pragma warning restore
+
+        public TIngestStatus IngestStatus => _ingestStatus;
     }
 }

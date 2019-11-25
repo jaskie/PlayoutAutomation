@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows.Data;
 using System.Globalization;
 using System.Windows.Controls;
-using TAS.Common;
-using TAS.Server;
-using System.ComponentModel;
 using System.Windows.Media;
+using TAS.Common;
 
 namespace TAS.Client.Common
 {
@@ -17,14 +13,13 @@ namespace TAS.Client.Common
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if ((bool)value == true)
+            if (value != null && (bool)value)
                 return Brushes.LawnGreen;
-            else
-                return new Button { }.Background;
+            return new Button().Background;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return null;
+            return Binding.DoNothing;
         }
     }
 
@@ -33,11 +28,9 @@ namespace TAS.Client.Common
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if ((bool)value == true
-                && !string.IsNullOrEmpty((string)parameter))
+            if (value != null && (bool)value && !string.IsNullOrEmpty((string)parameter))
                 return new SolidColorBrush((Color)ColorConverter.ConvertFromString((string)parameter));
-            else
-                return null;
+            return null;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -57,7 +50,28 @@ namespace TAS.Client.Common
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-                return null;
+            return Binding.DoNothing;
+        }
+    }
+
+    [ValueConversion(typeof(TimeSpan), typeof(string))]
+    public class TimeSpanToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (!(value is TimeSpan ts) || ts == TimeSpan.Zero) return 
+                    string.Empty;
+            if (ts.Days > 0)
+                return ts < TimeSpan.Zero
+                    ? ts.ToString("'-'d\\.hh\\:mm\\:ss")
+                    : ts.ToString("d\\.hh\\:mm\\:ss");
+            return ts < TimeSpan.Zero
+                ? ts.ToString("'-'hh\\:mm\\:ss")
+                : ts.ToString("hh\\:mm\\:ss");
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Binding.DoNothing;
         }
     }
 
@@ -66,37 +80,29 @@ namespace TAS.Client.Common
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is TimeSpan? && ((TimeSpan?)value).HasValue)
-            {
-                TimeSpan result = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now) + ((TimeSpan?)value).Value;
-                if (result > TimeSpan.FromDays(1))
-                    result -= TimeSpan.FromDays(1);
-                if (result < TimeSpan.Zero)
-                    result += TimeSpan.FromDays(1);
-                return result.ToString();
-            }
-            return string.Empty;
+            if (!(value is TimeSpan timeSpan)) return string.Empty;
+            var result = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now) + timeSpan;
+            if (result > TimeSpan.FromDays(1))
+                result -= TimeSpan.FromDays(1);
+            if (result < TimeSpan.Zero)
+                result += TimeSpan.FromDays(1);
+            return result.ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is string)
-            {
-                TimeSpan result;
-                string replaced = ((string)value).Replace('_', '0');
-                if (TimeSpan.TryParse(replaced, out result))
-                {
-                    if (result.Days > 0)
-                        return null;
-                    result -= TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
-                    if (result > TimeSpan.FromDays(1))
-                        result -= TimeSpan.FromDays(1);
-                    if (result < TimeSpan.Zero)
-                        result += TimeSpan.FromDays(1);
-                    return result;
-                }
-            }
-            return null;
+            if (!(value is string stringValue)) return null;
+            var replaced = stringValue.Replace('_', '0');
+            if (!TimeSpan.TryParse(replaced, out var result))
+                return null;
+            if (result.Days > 0)
+                return null;
+            result -= TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+            if (result > TimeSpan.FromDays(1))
+                result -= TimeSpan.FromDays(1);
+            if (result < TimeSpan.Zero)
+                result += TimeSpan.FromDays(1);
+            return result;
         }
     }
 
@@ -105,7 +111,7 @@ namespace TAS.Client.Common
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is TimeSpan && (TimeSpan)value >= TimeSpan.Zero)
+            if (value is TimeSpan span && span >= TimeSpan.Zero)
                 return Brushes.Red;
             else
                 return Brushes.Green;
@@ -120,35 +126,33 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(DateTime), typeof(string))]
     public class DateTimeToSMPTEConverter : IValueConverter
     {
-        private RationalNumber _frameRate = new RationalNumber(25, 1);
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if ((DateTime)value == default(DateTime))
+            if (!(value is DateTime dateTime))
+                return string.Empty;
+            if (dateTime == default(DateTime))
                 return string.Empty;
             if ((string)parameter == "TC")
-                return ((DateTime)value).ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_frameRate);
-            return ((DateTime)value).ToLocalTime().Date.ToString("d") + " " + ((DateTime)value).ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_frameRate);
+                return dateTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(FrameRate);
+            return dateTime.ToLocalTime().Date.ToString("d") + " " + ((DateTime)value).ToLocalTime().TimeOfDay.ToSMPTETimecodeString(FrameRate);
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string[] v = (value as string).Split(' ');
+            if (!(value is string strValue))
+                return Binding.DoNothing;
+            var v = strValue.Split(' ');
             {
-                if (v.Length == 2 && v[1].IsValidSMPTETimecode(_frameRate))
-                {
-                    try
-                    {
-                        return (DateTime.Parse(v[0]) + v[1].SMPTETimecodeToTimeSpan(_frameRate)).ToUniversalTime();
-                    }
-                    catch (FormatException)
-                    {
-                        return null;
-                    }
-                }
-                else
+                if (v.Length != 2 || !v[1].IsValidSMPTETimecode(FrameRate))
                     return null;
+                try
+                {
+                    return (DateTime.Parse(v[0]) + v[1].SMPTETimecodeToTimeSpan(FrameRate)).ToUniversalTime();
+                }
+                catch (FormatException) {}
+                return Binding.DoNothing;
             }
         }
-        public RationalNumber FrameRate { get { return _frameRate; } set { _frameRate = value; } }
+        public RationalNumber FrameRate { get; set; } = new RationalNumber(25, 1);
     }
 
     [ValueConversion(typeof(DateTime), typeof(string))]
@@ -156,11 +160,11 @@ namespace TAS.Client.Common
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if ((DateTime)value == default(DateTime))
+            if (!(value is DateTime dateTimeValue) || dateTimeValue == default(DateTime))
                 return string.Empty;
-            if (parameter is string)
-                return ((DateTime)value).ToLocalTime().ToString(parameter as string);
-            return ((DateTime)value).ToLocalTime().ToString();
+            if (parameter is string s)
+                return dateTimeValue.ToLocalTime().ToString(s);
+            return dateTimeValue.ToLocalTime().ToString();
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -173,10 +177,9 @@ namespace TAS.Client.Common
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if ((bool)value)
+            if (!(value is bool boolValue) || boolValue)
                 return 1.0;
-            else
-                return 0.5;
+            return 0.5;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -189,31 +192,28 @@ namespace TAS.Client.Common
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if ((int)value == 0)
+            if (!(value is int intValue) || intValue == 0)
                 return string.Empty;
-            return ((int)value).ToString();
+            return intValue.ToString();
 
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            int val;
-            if (int.TryParse((string)value, out val))
-                return val;
-            return 0;
+            return int.TryParse((string)value, out var val) ? val : 0;
         }
     }
 
     [ValueConversion(typeof(Color), typeof(Brush))]
     public class ColorToBrushConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (targetType != typeof(Brush)) return null;
             if (!(value is Color)) return null;
             return new SolidColorBrush((Color)value);
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;
         }
@@ -222,17 +222,17 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(TMediaEmphasis), typeof(Brush))]
     public class MediaEmphasisToBrushConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (targetType != typeof(Brush)) return null;
             if (!(value is TMediaEmphasis)) 
                 return Brushes.Transparent;
-            var nAttributes = value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(ColorAttribute), false);
-            if (!nAttributes.Any())
-                return Brushes.Transparent;
-            return new SolidColorBrush((nAttributes.First() as ColorAttribute).Color);
+            if (value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(ColorAttribute), false).FirstOrDefault() is ColorAttribute attribute)
+                return new SolidColorBrush(attribute.Color);
+            return Brushes.Transparent;
         }
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;
         }
@@ -244,29 +244,28 @@ namespace TAS.Client.Common
         public string FalseValue { get; set; }
         public string TrueValue { get; set; }
 
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
                 return FalseValue;
-            else
-                return (bool)value ? TrueValue : FalseValue;
+            return (bool)value ? TrueValue : FalseValue;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value != null ? value.Equals(TrueValue) : false;
+            return value != null && value.Equals(TrueValue);
         }
     }
 
     [ValueConversion(typeof(bool), typeof(System.Windows.Visibility))]
     public class InvertedBooleanToVisibilityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (bool)value ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+            return value != null && (bool)value ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;
         }
@@ -275,12 +274,12 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(object), typeof(System.Windows.Visibility))]
     public class NullToVisibilityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value == null ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;
         }
@@ -289,12 +288,12 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(long), typeof(System.Windows.Visibility))]
     public class ZeroToVisibilityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return System.Convert.ToInt64(value) == 0 ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;
         }
@@ -304,17 +303,16 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(string[]), typeof(string))]
     public class StringArrayToDelimitedStringConverter: IValueConverter
     {
-        private static string[] separators = new string[] { ";" };
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        private static readonly string[] Separators = { ";" };
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is string[])
-                return string.Join(separators[0], (string[])value);
-            else
-                return null;
+                return string.Join(Separators[0], (string[])value);
+            return null;
         }
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value.ToString().Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            return value?.ToString().Split(Separators, StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
         }
     }
 

@@ -148,22 +148,22 @@ Skonfiguruj system przy użyciu programu TVPlay.config.</value>
 {0}</value>
   </data>
   <data name="_message_DeleteAnyway" xml:space="preserve">
-    <value>Usunąć mimo tego?</value>
+    <value>Usunąć mimo to?</value>
   </data>
   <data name="_message_DirectoryRefreshFailed" xml:space="preserve">
     <value>Odświeżenie katalogu nie powiodło się. Błąd, który wystąpił:
 {0}</value>
   </data>
-  <data name="_message_MediaDeleteDenyReason_Protected" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_Protected" xml:space="preserve">
     <value>Klip jest zabezpieczony przed usunięciem</value>
   </data>
-  <data name="_message_MediaDeleteDenyReason_Scheduled" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_Scheduled" xml:space="preserve">
     <value>Zaplanowany w {0} o {1}</value>
   </data>
-  <data name="_message_MediaDeleteDenyReason_Unknown" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_Unknown" xml:space="preserve">
     <value>Przyczyna nieznana</value>
   </data>
-  <data name="_message_MediaDeleteNotAllowed" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_NotAllowed" xml:space="preserve">
     <value>Nie można usunąć klipów, ponieważ:</value>
   </data>
   <data name="_moreItems" xml:space="preserve">
@@ -206,8 +206,7 @@ Naprawdę usunąć?</value>
     <value>Odtworzyć ten element teraz?</value>
   </data>
   <data name="_query_SaveChangedData" xml:space="preserve">
-    <value>Zapisać zmienione dane dotyczące
-{0}?</value>
+    <value>Zapisać zmienione dane dotyczące {0}?</value>
   </data>
   <data name="_query_StartAnotherInstance" xml:space="preserve">
     <value>Program może byc uruchomiony tylko raz.
@@ -326,10 +325,32 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
     <value>Czas przejścia jest dłuższy, niż czas trwania.</value>
   </data>
-  <data name="_window_CommandScriptItemEditWindowTitle" xml:space="preserve">
-    <value>Edycja komendy serwera</value>
+  <data name="_message_MediaDeleteResult_InsufficientRights" xml:space="preserve">
+    <value>Brak uprawnień do usunięcia klipu</value>
   </data>
-  <data name="_window_IngestAs" xml:space="preserve">
-    <value>Zaingestuj jako...</value>
+  <data name="_query_ClientsConnectedOnExit" xml:space="preserve">
+    <value>Istnieje {0} podłączonynych klientów. Zamknięcie spowoduje przerwanie ich pracy.
+Zamknąć aplikację?</value>
+  </data>
+  <data name="_validate_TextTooLong" xml:space="preserve">
+    <value>Wprowadzony tekst jest za długi.</value>
+  </data>
+  <data name="_query_AbadonChanges" xml:space="preserve">
+    <value>Porzucić zmiany w {0}?</value>
+  </data>
+  <data name="_animations_Primary" xml:space="preserve">
+    <value>Animacje (główny)</value>
+  </data>
+  <data name="_animations_Secondary" xml:space="preserve">
+    <value>Animacje (zapasowy)</value>
+  </data>
+  <data name="_archive" xml:space="preserve">
+    <value>Archiwum</value>
+  </data>
+  <data name="_primary" xml:space="preserve">
+    <value>Główny</value>
+  </data>
+  <data name="_secondary" xml:space="preserve">
+    <value>Zapasowy</value>
   </data>
 </root>

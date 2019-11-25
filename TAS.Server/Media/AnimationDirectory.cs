@@ -1,94 +1,101 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
-using TAS.Common;
-using TAS.Server.Database;
-using TAS.Server.Interfaces;
 using System.IO;
-using Newtonsoft.Json;
-using TAS.Server.Common;
-using System.ComponentModel;
+using System.Linq;
+using TAS.Common;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
-    public class AnimationDirectory : MediaDirectory, IAnimationDirectory
+    public class AnimationDirectory : WatcherDirectory, IAnimationDirectory
     {
         public readonly CasparServer Server;
-        public AnimationDirectory(CasparServer server, MediaManager manager) : base(manager)
+
+        internal AnimationDirectory(CasparServer server, MediaManager manager) : base(manager)
         {
             Server = server;
         }
 
         public override void Initialize()
         {
-            if (!IsInitialized)
-            {
-                DirectoryName = "Animacje";
-                this.Load<AnimatedMedia>(Server.Id);
-                base.Initialize();
-                Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
-            }
+            if (IsInitialized)
+                return;
+            EngineController.Database.LoadAnimationDirectory<AnimatedMedia>(this, Server.Id);
+            base.Initialize();
+            Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
         }
 
-        public override void Refresh()
-        {
-
-        }
-
-        protected override bool AcceptFile(string fullPath)
-        {
-            return FileUtils.AnimationFileTypes.Contains(Path.GetExtension(fullPath).ToLowerInvariant());
-        }
-
-        protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
-        {
-            AnimatedMedia newMedia = _files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase)) as AnimatedMedia;
-            if (newMedia == null && AcceptFile(fullPath))
-            {
-                newMedia = (AnimatedMedia)CreateMedia(fullPath, guid);
-                newMedia.MediaName = FileUtils.GetFileNameWithoutExtension(fullPath, TMediaType.Animation).ToUpper();
-                newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
-                newMedia.MediaStatus = TMediaStatus.Available;
-                newMedia.Save();
-            }
-            return newMedia;
-        }
-
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        internal override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
             throw new NotImplementedException();
         }
 
-        protected override IMedia CreateMedia(string fullPath, Guid guid)
+        public void CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
         {
-            return new AnimatedMedia(this, guid, 0) { FullPath = fullPath, IsVerified = true };
-        }
-
-        public IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
-        {
-            var result = new AnimatedMedia(this, newMediaGuid, 0);
-            result.Folder = source.Folder;
-            result.FileName = source.FileName;
+            var result = new AnimatedMedia
+            {
+                LastUpdated = source.LastUpdated,
+                MediaGuid = newMediaGuid == Guid.Empty ? source.MediaGuid : newMediaGuid,
+                Folder = source.Folder,
+                FileName = source.FileName,
+                Directory = this
+            };
             result.CloneMediaProperties(source);
             result.MediaStatus = source.MediaStatus;
             result.LastUpdated = DateTime.UtcNow;
+            AddMedia(result);
             result.Save();
-            return result;
         }
 
-        public override bool DeleteMedia(IMedia media)
+        public override void RemoveMedia(IMedia media)
         {
-            if (base.DeleteMedia(media))
-            {
-                MediaRemove(media);
-                return true;
-            }
-            return false;
+            if (!(media is AnimatedMedia am))
+                throw new ArgumentException(nameof(media));
+            am.MediaStatus = TMediaStatus.Deleted;
+            am.IsVerified = false;
+            am.Save();
+            base.RemoveMedia(am);
         }
 
         public override void SweepStaleMedia() { }
 
+
+        public event EventHandler<MediaEventArgs> MediaSaved;
+
+        protected override bool AcceptFile(string fullPath)
+        {
+            return !string.IsNullOrWhiteSpace(fullPath) 
+                && FileUtils.AnimationFileTypes.Contains(Path.GetExtension(fullPath).ToLowerInvariant());
+        }
+
+        protected override IMedia AddMediaFromPath(string fullPath, DateTime lastUpdated)
+        {
+            if (!AcceptFile(fullPath))
+                return null;
+            if (FindMediaFirstByFullPath(fullPath) is AnimatedMedia newMedia)
+                return newMedia;
+            var relativeName = fullPath.Substring(Folder.Length);
+            var fileName = Path.GetFileName(relativeName);
+            newMedia = new AnimatedMedia
+            {
+                MediaName = FileUtils.GetFileNameWithoutExtension(fullPath, TMediaType.Animation).ToUpper(),
+                LastUpdated = lastUpdated,
+                MediaType = TMediaType.Animation,
+                MediaGuid = Guid.NewGuid(),
+                FileName = Path.GetFileName(relativeName),
+                Folder = relativeName.Substring(0, relativeName.Length - fileName.Length).Trim(PathSeparator),
+                MediaStatus = TMediaStatus.Available,
+                IsVerified = true
+            };
+            AddMedia(newMedia);
+            newMedia.Save();
+            return newMedia;
+        }
+
+        internal void OnMediaSaved(AnimatedMedia animatedMedia)
+        {
+            MediaSaved?.Invoke(this, new MediaEventArgs(animatedMedia));
+        }
     }
 }

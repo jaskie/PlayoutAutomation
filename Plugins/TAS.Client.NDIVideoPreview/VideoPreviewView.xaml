@@ -12,10 +12,49 @@
              mc:Ignorable="d" 
              d:DesignHeight="200"
              d:DesignWidth="300"
-             d:DataContext="{x:Type local:VideoPreviewViewmodel}"
+             d:DataContext="{d:DesignInstance local:VideoPreviewViewmodel}"
              >
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <Style x:Key="ProgressBarVolumeMeterStyle" TargetType="{x:Type ProgressBar}">
+            <Setter Property="Background" Value="#ABABAB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Minimum" Value="-60"/>
+            <Setter Property="Maximum" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ProgressBar}">
+                        <Grid x:Name="TemplateRoot" SnapsToDevicePixels="true">
+                            <Rectangle Fill="{TemplateBinding Background}" RadiusY="2" RadiusX="2"/>
+                            <Border x:Name="PART_Track" Margin="1">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Offset="0" Color="#FF00FF00"/>
+                                        <GradientStop Offset="0.61" Color="#FF00FF00"/>
+                                        <GradientStop Offset="0.62" Color="#FFFFFF00"/>
+                                        <GradientStop Offset="0.8" Color="#FFFFFF00"/>
+                                        <GradientStop Offset="0.81" Color="#FFFF0000"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+                            <DockPanel Margin="1">
+                                <Rectangle x:Name="PART_Indicator"/>
+                                <Rectangle Name="Mask" MinWidth="{TemplateBinding Width}" Fill="{TemplateBinding Background}"/>
+                            </DockPanel>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Orientation" Value="Vertical">
+                                <Setter Property="LayoutTransform" TargetName="TemplateRoot">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="-90"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -51,6 +90,48 @@
             </Button>
             <ComboBox ItemsSource="{Binding VideoSources}" SelectedItem="{Binding VideoSource}" VerticalAlignment="Center" x:Name="Selector" />
         </DockPanel>
-        <Image Visibility="{Binding DisplaySource, Converter={StaticResource BoolToVis}}" Name="VideoSurface" Source="{Binding VideoBitmap}" Grid.Row="1" />
+        <!--<ProgressBar Height="56" Value="70" Style="{DynamicResource ProgressBarVolumeMeterStyle}"></ProgressBar>-->
+
+        <Grid Grid.Row="1">
+            <Grid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem IsChecked="{Binding IsDisplayAudioBars, Mode=TwoWay}" IsCheckable="True" Header="{Resx _isDisplayAudioBars, ResxName=TAS.Client.NDIVideoPreview.VideoPreviewView}"/>
+                    <MenuItem IsChecked="{Binding IsPlayAudio, Mode=TwoWay}" IsCheckable="True">
+                        <MenuItem.Header>
+                            <DockPanel>
+                                <TextBlock Text="{Resx _isPlayAudio, ResxName=TAS.Client.NDIVideoPreview.VideoPreviewView}" VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding AudioDevices}" SelectedItem="{Binding SelectedAudioDevice}" DisplayMemberPath="DeviceName" Width="150" Margin="5, 0, 0, 0"/>
+                            </DockPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                </ContextMenu>
+            </Grid.ContextMenu>
+            <Rectangle>
+                <Rectangle.Fill>
+                    <DrawingBrush TileMode="Tile" Viewport="0,0,16,16" ViewportUnits="Absolute">
+                        <DrawingBrush.Drawing>
+                            <GeometryDrawing Geometry="M0,0 H8 V8 H16 V16 H8 V8 H0Z" Brush="LightGray"/>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+            <Image Visibility="{Binding IsDisplaySource, Converter={StaticResource BoolToVis}}" Source="{Binding VideoBitmap}" />
+            <ItemsControl ItemsSource="{Binding AudioLevels}" Visibility="{Binding IsDisplayAudioBars, Converter={StaticResource BoolToVis}}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel VerticalAlignment="Bottom" IsItemsHost="True"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ProgressBar Value="{Binding AudioLevel, Mode=OneWay}" 
+                                     Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}" 
+                                     Style="{StaticResource ProgressBarVolumeMeterStyle}" 
+                                     Height="5" Margin="3, 1"  />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
     </Grid>
 </UserControl>
+

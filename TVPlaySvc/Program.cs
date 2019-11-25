@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration.Install;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.ServiceProcess;
-using System.Text;
 using TAS.Server;
 
 namespace TVPlaySvc
 {
-    class TVPlayService : ServiceBase
+	[System.ComponentModel.DesignerCategory("Code")]
+    internal class TvPlayService : ServiceBase
     {
 
-        public TVPlayService()
+        public TvPlayService()
         {
             ServiceName = "TVPlay Service";
             CanStop = true;
@@ -33,20 +31,21 @@ namespace TVPlaySvc
             base.OnStop();
         }
 
-        protected static void executeApp(bool userInteractive)
+        protected static void ExecuteApp(bool userInteractive)
         {
             EngineController.Initialize();
             if (userInteractive)
             {
-                string line;
                 try
                 {
                     while (true)
                     {
                         Console.Write('>');
-                        line = Console.ReadLine();
-                        var lineParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                        if (lineParts.Count() > 0)
+                        var line = Console.ReadLine();
+                        if (string.IsNullOrEmpty(line))
+                            continue;
+                        var lineParts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (lineParts.Length > 0)
                             switch (lineParts[0].ToLower())
                             {
                                 // console commands here
@@ -86,26 +85,26 @@ namespace TVPlaySvc
 
         static void Main(string[] args)
         {
-            if (System.Environment.UserInteractive)
+            if (Environment.UserInteractive)
             {
                 string parameter = string.Concat(args);
                 switch (parameter)
                 {
                     case "--install":
-                        ManagedInstallerClass.InstallHelper(new string[] { Assembly.GetExecutingAssembly().Location });
+                        ManagedInstallerClass.InstallHelper(new[] { Assembly.GetExecutingAssembly().Location });
                         break;
                     case "--uninstall":
-                        ManagedInstallerClass.InstallHelper(new string[] { "/u", Assembly.GetExecutingAssembly().Location });
+                        ManagedInstallerClass.InstallHelper(new[] { "/u", Assembly.GetExecutingAssembly().Location });
                         break;
                     default:
-                        executeApp(true);
+                        ExecuteApp(true);
                         Environment.Exit(0);
                         break;
                 }
             }
             else
             {
-                Run(new TVPlayService());
+                Run(new TvPlayService());
             }
         }
     }

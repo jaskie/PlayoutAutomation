@@ -19,7 +19,7 @@ namespace TAS.Client.Common.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -75,6 +75,33 @@ namespace TAS.Client.Common.Properties {
         public static string _allFiles {
             get {
                 return ResourceManager.GetString("_allFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Animations (main).
+        /// </summary>
+        public static string _animations_Primary {
+            get {
+                return ResourceManager.GetString("_animations_Primary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Animations (backup).
+        /// </summary>
+        public static string _animations_Secondary {
+            get {
+                return ResourceManager.GetString("_animations_Secondary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Archive.
+        /// </summary>
+        public static string _archive {
+            get {
+                return ResourceManager.GetString("_archive", resourceCulture);
             }
         }
         
@@ -164,38 +191,47 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Media is delete-protected.
+        ///   Looks up a localized string similar to Insufficient user rights to delete media.
         /// </summary>
-        public static string _message_MediaDeleteDenyReason_Protected {
+        public static string _message_MediaDeleteResult_InsufficientRights {
             get {
-                return ResourceManager.GetString("_message_MediaDeleteDenyReason_Protected", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Item is scheduled in {0} at {1}.
-        /// </summary>
-        public static string _message_MediaDeleteDenyReason_Scheduled {
-            get {
-                return ResourceManager.GetString("_message_MediaDeleteDenyReason_Scheduled", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unknown reason.
-        /// </summary>
-        public static string _message_MediaDeleteDenyReason_Unknown {
-            get {
-                return ResourceManager.GetString("_message_MediaDeleteDenyReason_Unknown", resourceCulture);
+                return ResourceManager.GetString("_message_MediaDeleteResult_InsufficientRights", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Delete not allowed due to following reason(s):.
         /// </summary>
-        public static string _message_MediaDeleteNotAllowed {
+        public static string _message_MediaDeleteResult_NotAllowed {
             get {
-                return ResourceManager.GetString("_message_MediaDeleteNotAllowed", resourceCulture);
+                return ResourceManager.GetString("_message_MediaDeleteResult_NotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Media is delete-protected.
+        /// </summary>
+        public static string _message_MediaDeleteResult_Protected {
+            get {
+                return ResourceManager.GetString("_message_MediaDeleteResult_Protected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Item is scheduled in {0} at {1}.
+        /// </summary>
+        public static string _message_MediaDeleteResult_Scheduled {
+            get {
+                return ResourceManager.GetString("_message_MediaDeleteResult_Scheduled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown reason.
+        /// </summary>
+        public static string _message_MediaDeleteResult_Unknown {
+            get {
+                return ResourceManager.GetString("_message_MediaDeleteResult_Unknown", resourceCulture);
             }
         }
         
@@ -223,6 +259,34 @@ namespace TAS.Client.Common.Properties {
         public static string _or_ {
             get {
                 return ResourceManager.GetString("_or_", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Main.
+        /// </summary>
+        public static string _primary {
+            get {
+                return ResourceManager.GetString("_primary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abadon changes in {0}?.
+        /// </summary>
+        public static string _query_AbadonChanges {
+            get {
+                return ResourceManager.GetString("_query_AbadonChanges", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are {0} clients. This will abort their work.
+        ///Really exit?.
+        /// </summary>
+        public static string _query_ClientsConnectedOnExit {
+            get {
+                return ResourceManager.GetString("_query_ClientsConnectedOnExit", resourceCulture);
             }
         }
         
@@ -305,8 +369,7 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Save modified data regarding
-        ///{0}?.
+        ///   Looks up a localized string similar to Save modified data about {0}?.
         /// </summary>
         public static string _query_SaveChangedData {
             get {
@@ -359,6 +422,15 @@ namespace TAS.Client.Common.Properties {
         public static string _rundowns {
             get {
                 return ResourceManager.GetString("_rundowns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Backup.
+        /// </summary>
+        public static string _secondary {
+            get {
+                return ResourceManager.GetString("_secondary", resourceCulture);
             }
         }
         
@@ -633,6 +705,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entered text is too long..
+        /// </summary>
+        public static string _validate_TextTooLong {
+            get {
+                return ResourceManager.GetString("_validate_TextTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Transition pause cannot be longer than transition itself..
         /// </summary>
         public static string _validate_TransitionPauseTimeInvalid {
@@ -656,24 +737,6 @@ namespace TAS.Client.Common.Properties {
         public static string _validateStartPlayMustBeInsideFile {
             get {
                 return ResourceManager.GetString("_validateStartPlayMustBeInsideFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Edit server command.
-        /// </summary>
-        public static string _window_CommandScriptItemEditWindowTitle {
-            get {
-                return ResourceManager.GetString("_window_CommandScriptItemEditWindowTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Ingest as....
-        /// </summary>
-        public static string _window_IngestAs {
-            get {
-                return ResourceManager.GetString("_window_IngestAs", resourceCulture);
             }
         }
     }

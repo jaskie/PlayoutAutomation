@@ -7,6 +7,7 @@
     <common:ColorToBrushConverter x:Key="ColorToBrush" />
     <common:EnabledBoolToOpacityConverter x:Key="EnabledToOpacity" />
     <common:TimeSpanToSignedStringConverter x:Key="TimeSpanToSignedString" />
+    <common:TimeSpanToStringConverter x:Key="TimeSpanToString" />
     <common:MediaEmphasisToBrushConverter x:Key="MediaEmphasisToBrush" />
     <common:InvertedBooleanToVisibilityConverter x:Key="InvertedBoolToVis" />
     <common:NullToVisibilityConverter x:Key="NullToVis"/>

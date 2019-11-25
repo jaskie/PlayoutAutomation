@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 using TAS.Common;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.Config.Model
 {
@@ -15,17 +15,17 @@ namespace TAS.Client.Config.Model
         public IngestDirectory()
         {
             IsImport = true;
-            VideoBitrateRatio = 1.0M;
-            AudioBitrateRatio = 1.0M;
+            VideoBitrateRatio = 1;
+            AudioBitrateRatio = 1;
         }
         [DefaultValue(default(TAspectConversion))]
         public TAspectConversion AspectConversion { get; set; }
-        [DefaultValue(typeof(Decimal), "0")]
-        public decimal AudioVolume { get; set; }
+        [DefaultValue(0.0)]
+        public double AudioVolume { get; set; }
         [DefaultValue(false)]
         public bool DeleteSource { get; set; }
-        [DefaultValue(false)]
-        public bool IsXDCAM { get; set; }
+        [DefaultValue(TIngestDirectoryKind.WatchFolder)]
+        public TIngestDirectoryKind Kind { get; set; } = TIngestDirectoryKind.WatchFolder;
         [DefaultValue(false)]
         public bool IsWAN { get; set; }
         [DefaultValue(false)]
@@ -69,13 +69,13 @@ namespace TAS.Client.Config.Model
         public string[] Extensions { get; set; }
         public TVideoCodec VideoCodec { get; set; }
         public TAudioCodec AudioCodec { get; set; }
-        [DefaultValue(typeof(Decimal), "1")]
-        public decimal VideoBitrateRatio { get; set; }
-        [DefaultValue(typeof(Decimal), "1")]
-        public decimal AudioBitrateRatio { get; set; }
+        [DefaultValue(1.0)]
+        public double VideoBitrateRatio { get; set; }
+        [DefaultValue(1.0)]
+        public double AudioBitrateRatio { get; set; }
         [XmlArray(nameof(SubDirectories))]
-        public IngestDirectory[] _subDirectories = new IngestDirectory[0];
+        public IngestDirectory[] SubDirectoriesSerialized = new IngestDirectory[0];
         [XmlIgnore]
-        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return _subDirectories; }  set { _subDirectories = value.Cast<IngestDirectory>().ToArray(); } }
+        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get => SubDirectoriesSerialized; set => SubDirectoriesSerialized = value.Cast<IngestDirectory>().ToArray(); }
     }
 }

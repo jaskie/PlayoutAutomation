@@ -1,234 +1,129 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using TAS.Server;
 using System.Windows;
-using System.Reflection;
 using System.ComponentModel;
-using System.Runtime.Remoting.Messaging;
 using System.Windows.Input;
-using TAS.Common;
 using TAS.Client.Common;
-using TAS.Server.Interfaces;
-using TAS.Server.Common;
+using TAS.Common;
+using System.Text.RegularExpressions;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 using resources = TAS.Client.Common.Properties.Resources;
-using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventEditViewmodel : ViewmodelBase, ITemplatedEdit, IDataErrorInfo
+    public class EventEditViewmodel : EditViewmodelBase<IEvent>, IDataErrorInfo
     {
-        private readonly IEngine _engine;
         private readonly EngineViewmodel _engineViewModel;
-        private readonly PreviewViewmodel _previewViewModel;
-        public EventEditViewmodel(EngineViewmodel engineViewModel, PreviewViewmodel previewViewModel)
+        private IMedia _media;
+        private bool _isVolumeChecking;
+        private TEventType _eventType;
+        private string _eventName;
+        private string _command;
+        private bool _isEnabled;
+        private bool _isHold;
+        private bool _isLoop;
+        private TStartType _startType;
+        private AutoStartFlags _autoStartFlags;
+        private bool _bindToEnd;
+        private TimeSpan _scheduledTc;
+        private TTransitionType _transitionType;
+        private TEasing _transitionEasing;
+        private TimeSpan _transitionTime;
+        private TimeSpan _transitionPauseTime;
+        private double? _audioVolume;
+        private DateTime _scheduledTime;
+        private TimeSpan? _requestedStartTime;
+        private TimeSpan _duration;
+        private TimeSpan _scheduledDelay;
+        private sbyte _layer;
+
+        public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerClip = new Regex(TAS.Common.EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerClear = new Regex(TAS.Common.EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexPlay = new Regex(TAS.Common.EventExtensions.PlayCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexCg = new Regex(TAS.Common.EventExtensions.CgCommand, RegexOptions.IgnoreCase);
+
+        public EventEditViewmodel(IEvent @event, EngineViewmodel engineViewModel): base(@event)
         {
             _engineViewModel = engineViewModel;
-            _previewViewModel = previewViewModel; 
-            if (previewViewModel != null)
-                previewViewModel.PropertyChanged += PreviewViewModel_PropertyChanged;
-            _engine = engineViewModel.Engine;
-            _fields.CollectionChanged += _fields_or_commands_CollectionChanged;
-            CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
-            CommandUndoEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => IsModified };
-            CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _canChangeMovie };
-            CommandEditMovie = new UICommand() { ExecuteDelegate = _editMovie, CanExecuteDelegate = _canEditMovie };
-            CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume };
-            CommandEditField = new UICommand { ExecuteDelegate = _editField };
-            CommandTriggerStartType = new UICommand { ExecuteDelegate = _triggerStartType, CanExecuteDelegate = _canTriggerStartType };
-            CommandMoveUp = new UICommand() { ExecuteDelegate = o => _event?.MoveUp(), CanExecuteDelegate = _canMoveUp };
-            CommandMoveDown = new UICommand() { ExecuteDelegate = o => _event?.MoveDown(), CanExecuteDelegate = _canMoveDown };
-            CommandDelete = new UICommand
+            Model.PropertyChanged += ModelPropertyChanged;
+            if (@event.EventType == TEventType.Container)
             {
-                ExecuteDelegate = o =>
-                {
-                    if (_event != null && MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-                    {
-                        EventClipboard.SaveUndo(new IEvent[] { _event }, _event.StartType == TStartType.After ? _event.Prior : _event.Parent );
-                        _event.Delete();
-                    }
-                },
-                CanExecuteDelegate = o => _event?.AllowDelete() == true
-            };
-        }
-
-        private void _fields_or_commands_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            IsModified = true;
-        }
-
-        protected override void OnDispose()
-        {
-            if (_event != null)
-                Event = null;
-            if (_previewViewModel != null)
-                _previewViewModel.PropertyChanged -= PreviewViewModel_PropertyChanged;
-            _fields.CollectionChanged -= _fields_or_commands_CollectionChanged;
-        }
-
-        private void PreviewViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (_previewViewModel.LoadedMedia == this.Media
-                && IsEditEnabled
-                && (e.PropertyName == nameof(PreviewViewmodel.TcIn) || e.PropertyName == nameof(PreviewViewmodel.TcOut))
-                && _previewViewModel.SelectedSegment == null)
-            {
-                ScheduledTc = _previewViewModel.TcIn;
-                Duration = _previewViewModel.DurationSelection;
+                EventRightsEditViewmodel = new EventRightsEditViewmodel(@event, engineViewModel.Engine.AuthenticationService);
+                EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
+            CommandSaveEdit = new UiCommand(o => Save(), _canSave);
+            CommandUndoEdit = new UiCommand(o => UndoEdit(), o => IsModified);
+            CommandChangeMovie = new UiCommand(_changeMovie, _canChangeMovie);
+            CommandEditMovie = new UiCommand(_editMovie, _canEditMovie);
+            CommandCheckVolume = new UiCommand(_checkVolume, _canCheckVolume);
+            CommandTriggerStartType = new UiCommand
+            (
+                _triggerStartType,
+                _canTriggerStartType
+            );
+            CommandMoveUp = new UiCommand
+            (
+                o => Model.MoveUp(),
+                o => Model.CanMoveUp()
+            );
+            CommandMoveDown = new UiCommand
+            (
+                o => Model.MoveDown(),
+                o => Model.CanMoveDown()
+            );
+            CommandDelete = new UiCommand
+            (
+                async o =>
+                {
+                    if (MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
+                        return;
+                    await EventClipboard.SaveUndo(new List<IEvent> {Model},
+                        Model.StartType == TStartType.After ? Model.Prior : Model.Parent);
+                    Model.Delete();
+                },
+                o => Model.AllowDelete()
+            );
+            if (@event is ITemplated templated)
+            {
+                TemplatedEditViewmodel = new TemplatedEditViewmodel(templated, true, true, engineViewModel.VideoFormat);
+                TemplatedEditViewmodel.ModifiedChanged += TemplatedEditViewmodel_ModifiedChanged;
+            }
+        }
+
+        public void Save()
+        {
+            Update();
+        }
+
+        public void UndoEdit()
+        {
+            TemplatedEditViewmodel?.UndoEdit();
+            EventRightsEditViewmodel?.UndoEdit();
+            Load();
         }
         
-        public ICommand CommandUndoEdit { get; private set; }
-        public ICommand CommandSaveEdit { get; private set; }
-        public ICommand CommandMoveUp { get; private set; }
-        public ICommand CommandMoveDown { get; private set; }
-        public ICommand CommandChangeMovie { get; private set; }
-        public ICommand CommandEditMovie { get; private set; }
-        public ICommand CommandCheckVolume { get; private set; }
-        public ICommand CommandToggleEnabled { get; private set; }
-        public ICommand CommandToggleHold { get; private set; }
-        public ICommand CommandTriggerStartType { get; private set; }
-        public ICommand CommandDelete { get; private set; }
-
-
-        private IEvent _event;
-        public IEvent Event
+        protected override void Update(object destObject = null)
         {
-            get { return _event; }
-            set
-            {
-                IEvent ev = _event;
-                if (ev != null && ev.Engine != _engine)
-                    throw new InvalidOperationException("Edit event engine invalid");
-                if (value != ev)
-                {
-                    if (this.IsModified
-                    && MessageBox.Show(String.Format(resources._query_SaveChangedData, this), resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                        _save(null);
-                    if (ev != null)
-                    {
-                        ev.PropertyChanged -= _eventPropertyChanged;
-                        ev.SubEventChanged -= _onSubeventChanged;
-                        ev.Relocated -= _onRelocated;
-                    }
-                    _event = value;
-                    if (value != null)
-                    {
-                        value.PropertyChanged += _eventPropertyChanged;
-                        value.SubEventChanged += _onSubeventChanged;
-                        value.Relocated += _onRelocated;
-                    }
-                    _load(null);
-                }
-            }
+            base.Update(Model);
+            EventRightsEditViewmodel?.Save();
+            TemplatedEditViewmodel?.Save();
+            Model.Save();
         }
 
-        void _save(object o)
-        {
-            IEvent e2Save = Event;
-            if (IsModified && e2Save != null)
-            {
-                PropertyInfo[] copiedProperties = this.GetType().GetProperties();
-                foreach (PropertyInfo copyPi in copiedProperties)
-                {
-                    PropertyInfo destPi = e2Save.GetType().GetProperty(copyPi.Name);
-                    if (destPi != null)
-                    {
-                        if (destPi.GetValue(e2Save, null) != copyPi.GetValue(this, null)
-                            && destPi.CanWrite
-                            && destPi.PropertyType.Equals(copyPi.PropertyType))
-                            destPi.SetValue(e2Save, copyPi.GetValue(this, null), null);
-                    }
-                }
-                IsModified = false;
-            }
-            if (e2Save != null && e2Save.IsModified)
-            {
-                e2Save.Save();
-                _load(null);
-            }
-        }
+        public ICommand CommandUndoEdit { get; }
+        public ICommand CommandSaveEdit { get; }
+        public ICommand CommandMoveUp { get; }
+        public ICommand CommandMoveDown { get; }
+        public ICommand CommandChangeMovie { get; }
+        public ICommand CommandEditMovie { get; }
+        public ICommand CommandCheckVolume { get; }
+        public ICommand CommandTriggerStartType { get; }
+        public ICommand CommandDelete { get; }
 
-        void _load(object o)
-        {
-            _isLoading = true;
-            try
-            {
-                IEvent e2Load = _event;
-                if (e2Load != null)
-                {
-                    PropertyInfo[] copiedProperties = this.GetType().GetProperties();
-                    foreach (PropertyInfo copyPi in copiedProperties)
-                    {
-                        PropertyInfo sourcePi = e2Load.GetType().GetProperty(copyPi.Name);
-                        if (sourcePi != null
-                            && copyPi.Name != nameof(IsModified)
-                            && sourcePi.PropertyType.Equals(copyPi.PropertyType)
-                            && copyPi.CanWrite
-                            && sourcePi.CanRead)
-                            copyPi.SetValue(this, sourcePi.GetValue(e2Load, null), null);
-                    }
-                }
-                else // _event is null
-                {
-                    PropertyInfo[] zeroedProperties = this.GetType().GetProperties();
-                    foreach (PropertyInfo zeroPi in zeroedProperties)
-                    {
-                        PropertyInfo sourcePi = typeof(IEvent).GetProperty(zeroPi.Name);
-                        if (sourcePi != null)
-                            zeroPi.SetValue(this, null, null);
-                    }
-                }
-            }
-            finally
-            {
-                _isLoading = false;
-                IsModified = false;
-            }
-            NotifyPropertyChanged(null);
-        }
-
-        private void CommandScriptEdit_Modified(object sender, EventArgs e)
-        {
-            IsModified = true;
-        }
-
-        private void _readProperty(string propertyName)
-        {
-            IEvent e2Read = _event;
-            PropertyInfo writingProperty = this.GetType().GetProperty(propertyName);
-            if (e2Read != null)
-            {
-                PropertyInfo sourcePi = e2Read.GetType().GetProperty(propertyName);
-                if (sourcePi != null
-                    && writingProperty.Name != nameof(IsModified)
-                    && sourcePi.PropertyType.Equals(writingProperty.PropertyType))
-                    writingProperty.SetValue(this, sourcePi.GetValue(e2Read, null), null);
-            }
-            else
-                writingProperty.SetValue(this, null, null);
-        }
-
-        bool _isLoading;
-        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (base.SetField(ref field, value, propertyName))
-            {
-                if (!_isLoading &&
-                    (propertyName != nameof(ScheduledTime) || IsStartEvent))
-                    IsModified = true;
-                return true;
-            }
-            return false;
-        }
-
-        public string Error
-        {
-            get { return String.Empty;}
-        }
+        public string Error => null;
 
         public string this[string propertyName]
         {
@@ -257,481 +152,186 @@ namespace TAS.Client.ViewModels
                     case nameof(ScheduledDelay):
                         validationResult = _validateScheduledDelay();
                         break;
+                    case nameof(EventName):
+                        validationResult = _validateEventName();
+                        break;
                     case nameof(Command):
-                        validationResult = EventExtensions.IsValidCommand(_command) ? string.Empty : resources._validate_CommandSyntax;
+                        validationResult = IsValidCommand(_command)
+                            ? string.Empty
+                            : resources._validate_CommandSyntax;
                         break;
                 }
                 return validationResult;
             }
         }
 
-        private string _validateScheduledDelay()
-        {
-            var ev = _event;
-            if (ev != null && (ev.EventType == TEventType.StillImage || ev.EventType == TEventType.CommandScript))
-            {
-                IEvent parent = ev.Parent;
-                if (parent != null && _duration + _scheduledDelay > parent.Duration)
-                    return resources._validate_ScheduledDelayInvalid;
-            }
-            return null;
-        }
-
-        private string _validateScheduledTime()
-        {
-            IEvent ev = _event;
-            if (ev != null
-                && (((_startType == TStartType.OnFixedTime && ((_autoStartFlags & AutoStartFlags.Daily) == AutoStartFlags.None))
-                    || _startType == TStartType.Manual)
-                    && ev.PlayState == TPlayState.Scheduled && _scheduledTime < ev.Engine.CurrentTime))
-                return resources._validate_StartTimePassed;
-            return string.Empty;
-        }
-
-        private string _validateScheduledTc()
-        {
-            IEvent ev = _event;
-            if (ev != null)
-            {
-                IMedia media = _event.Media;
-                if (ev.EventType == TEventType.Movie && media != null)
-                {
-                    if (_scheduledTc > media.Duration + media.TcStart)
-                        return string.Format(resources._validate_StartTCAfterFile, (media.Duration + media.TcStart).ToSMPTETimecodeString(_engine.VideoFormat));
-                    if (_scheduledTc < media.TcStart)
-                        return string.Format(resources._validate_StartTCBeforeFile, media.TcStart.ToSMPTETimecodeString(_engine.VideoFormat));
-                }
-            }
-            return null;
-        }
-
-        private string _validateDuration()
-        {
-            IEvent ev = _event;
-            if (ev != null)
-            {
-                IMedia media = _event.Media;
-                if (ev.EventType == TEventType.Movie && media != null
-                    && _duration + _scheduledTc > media.Duration + media.TcStart)
-                    return resources._validate_DurationInvalid;
-                if (ev.EventType == TEventType.StillImage || ev.EventType == TEventType.CommandScript)
-                {
-                    IEvent parent = ev.Parent;
-                    if (parent != null && _duration + _scheduledDelay > parent.Duration)
-                        return resources._validate_ScheduledDelayInvalid;
-                }
-            }
-            return null;
-        }
-
-        private string _validateTransitionPauseTime()
-        {
-            string validationResult = string.Empty;
-            if (_transitionPauseTime > _transitionTime)
-                validationResult = resources._validate_TransitionPauseTimeInvalid;
-            return validationResult;
-        }
-
-        private string _validateTransitionTime()
-        {
-            string validationResult = string.Empty;
-            if (_transitionTime > _duration)
-                    validationResult = resources._validate_TransitionTimeInvalid;
-            return validationResult;
-        }
-
-        MediaSearchViewmodel _mediaSearchViewModel;
-        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType, VideoFormatDescription videoFormatDescription = null)
-        {
-            if (_mediaSearchViewModel == null)
-            {
-                _mediaSearchViewModel = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, mediaType, VideoLayer.Program, true, videoFormatDescription);
-                _mediaSearchViewModel.BaseEvent = baseEvent;
-                _mediaSearchViewModel.NewEventStartType = startType;
-                _mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
-                _mediaSearchViewModel.SearchWindowClosed += _searchWindowClosed;
-            }
-        }
-        
-        private void _searchWindowClosed(object sender, EventArgs e)
-        {
-            MediaSearchViewmodel mvs = (MediaSearchViewmodel)sender;
-            mvs.SearchWindowClosed -= _searchWindowClosed;
-            mvs.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
-            _mediaSearchViewModel.Dispose();
-            _mediaSearchViewModel = null;
-        }        
-
-        private void _mediaSearchViewModelMediaChoosen(object o, MediaSearchEventArgs e)
-        {
-            if (e.Media != null)
-            {
-                if (e.Media.MediaType == TMediaType.Movie)
-                {
-                    Media = e.Media;
-                    Duration = e.Duration;
-                    ScheduledTc = e.TCIn;
-                    AudioVolume = null;
-                    EventName = e.MediaName;
-                    _setCGElements(e.Media);
-                }
-            }
-        }
-
-        private IMedia _media;
         public IMedia Media
         {
-            get { return _media; }
-            set
-            {
-                SetField(ref _media, value);
-            }
+            get => _media;
+            set => SetField(ref _media, value);
         }
 
-        #region Command methods
-
-
-        private void _triggerStartType(object obj)
-        {
-            if (StartType == TStartType.Manual)
-                StartType = TStartType.OnFixedTime;
-            else
-            if (StartType == TStartType.OnFixedTime)
-                StartType = TStartType.Manual;
-        }
-
-        private bool _canTriggerStartType(object obj)
-        {
-            return StartType == TStartType.Manual || StartType == TStartType.OnFixedTime;
-        }
-
-        private void _editField(object obj)
-        {
-            var editObject = obj ?? SelectedField;
-            if (editObject != null)
-            {
-                var kv = (KeyValuePair<string, string>)editObject;
-                var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>)editObject, true);
-                if (kve.ShowDialog() == true)
-                    _fields[kve.Key] = kve.Value;
-            }
-        }
-
-
-        void _changeMovie(object o)
-        {
-            IEvent ev = _event;
-            if (ev != null
-                && ev.EventType == TEventType.Movie)
-            {
-                _chooseMedia(TMediaType.Movie, ev, ev.StartType);
-            }
-        }
-
-        private void _editMovie(object obj)
-        {
-            using (var evm = new MediaEditWindowViewmodel(_event.Media, _engine.MediaManager))
-                evm.ShowDialog();
-        }
-
-        private void _checkVolume(object obj)
-        {
-            if (_media == null)
-                return;
-            IsVolumeChecking = true;
-            var fileManager = _engine.MediaManager.FileManager;
-            var operation = fileManager.CreateLoudnessOperation();
-            operation.SourceMedia = _event.Media;
-            operation.MeasureStart = _event.StartTc - _media.TcStart;
-            operation.MeasureDuration = _event.Duration;
-            operation.AudioVolumeMeasured += _audioVolumeMeasured;
-            operation.Finished += _audioVolumeFinished;
-            fileManager.Queue(operation, true);
-        }
-
-        private void _audioVolumeFinished(object sender, EventArgs e)
-        {
-            IsVolumeChecking = false;
-            ((ILoudnessOperation)sender).Finished -= _audioVolumeFinished;
-            ((ILoudnessOperation)sender).AudioVolumeMeasured -= _audioVolumeFinished;
-        }
-
-        private void _audioVolumeMeasured(object sender, AudioVolumeEventArgs e)
-        {
-            AudioVolume = e.AudioVolume;
-        }
-
-        bool _canReschedule(object o)
-        {
-            IEvent ev = _event;
-            return ev != null
-                && (ev.PlayState == TPlayState.Played || ev.PlayState == TPlayState.Aborted);
-        }
-        bool _canChangeMovie(object o)
-        {
-            IEvent ev = _event;
-            return ev != null
-                && ev.PlayState == TPlayState.Scheduled
-                && ev.EventType == TEventType.Movie;
-        }
-        bool _canEditMovie(object o)
-        {
-            IEvent ev = _event;
-            return ev != null
-                && ev.Media != null
-                && ev.PlayState == TPlayState.Scheduled
-                && ev.EventType == TEventType.Movie;
-        }
-        bool _canCheckVolume(object o)
-        {
-            return !_isVolumeChecking && _canChangeMovie(o);
-        }
-        bool _canSave(object o)
-        {
-            IEvent ev = _event;
-            return ev != null
-                && (IsModified || ev.IsModified);
-        }
-        
-        void _setCGElements(IMedia media)
-        {
-            IsCGEnabled = _engine.EnableCGElementsForNewEvents;
-            if (media != null)
-            {
-                var category = media.MediaCategory;
-                Logo = (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? 1 : 0);
-                Parental = media.Parental;
-            }
-        }
-
-
-        bool _canMoveUp(object o)
-        {
-            IEvent prior = _event?.Prior;
-            return prior != null && prior.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled && !IsLoop
-                && (prior.StartType == TStartType.After || !IsHold);
-        }
-
-        bool _canMoveDown(object o)
-        {
-            IEvent next = _event?.Next;
-            return next != null && next.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled && !next.IsLoop
-                && (_event.StartType == TStartType.After || !next.IsHold);
-        }
-        #endregion // command methods
-
-        private bool _isVolumeChecking;
         public bool IsVolumeChecking
         {
-            get { return _isVolumeChecking; }
+            get => _isVolumeChecking;
             set
             {
-                if (base.SetField(ref _isVolumeChecking, value)) //not set Modified
-                    InvalidateRequerySuggested();
-            }
-        }
-        
-        private bool _isModified;
-        public bool IsModified
-        {
-            get { return _isModified; }
-            private set
-            {
-                if (_isModified != value)
-                    _isModified = value;
-                if (value)
-                    InvalidateRequerySuggested();
+                if (_isVolumeChecking != value)
+                    return;
+                _isVolumeChecking = value;
+                NotifyPropertyChanged();
+                InvalidateRequerySuggested();
             }
         }
 
-        private TEventType _eventType;
         public TEventType EventType
         {
-            get { return _eventType; }
-            set { SetField(ref _eventType, value); }
+            get => _eventType;
+            set => SetField(ref _eventType, value);
         }
 
-        private string _eventName;
         public string EventName
         {
-            get { return _eventName; }
-            set { SetField(ref _eventName, value); }
+            get => _eventName;
+            set => SetField(ref _eventName, value);
         }
 
-        public bool IsEditEnabled
-        {
-            get
-            {
-                var ev = _event;
-                return ev != null && ev.PlayState == TPlayState.Scheduled;
-            }
-        }
+        public bool IsEditEnabled => Model.PlayState == TPlayState.Scheduled && Model.HaveRight(EventRight.Modify);
 
-        public bool IsAutoStartEvent { get { return _startType == TStartType.OnFixedTime; } }
+        public bool IsAutoStartEvent => _startType == TStartType.OnFixedTime;
 
-        public bool IsMovieOrLive
-        {
-            get
-            {
-                var et = _event?.EventType;
-                return et == TEventType.Movie || et == TEventType.Live;
-            }
-        }
+        public bool IsMovieOrLive => Model.EventType == TEventType.Movie || Model.EventType == TEventType.Live;
 
         public bool IsMovieOrLiveOrRundown
         {
             get
             {
-                var et = _event?.EventType;
-                var st = _event?.StartType;
-                return (et == TEventType.Movie || et == TEventType.Live || et == TEventType.Rundown) 
-                    && (st == TStartType.After || st == TStartType.WithParent || st == TStartType.WithParentFromEnd);
+                var et = Model.EventType;
+                return et == TEventType.Movie || et == TEventType.Live || et == TEventType.Rundown;
             }
         }
 
-        public bool IsAnimation
-        {
-            get { return _eventType == TEventType.Animation; }
-        }
-
-        public bool IsCommandScript { get { return _event is ICommandScript; } }
-
+        public bool IsCommandScript => Model is ICommandScript;
 
         #region ICGElementsState
+
         bool _isCGEnabled;
         byte _crawl;
         byte _logo;
-        byte _parental;           
-        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value); } }
-        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value); } }
-        public byte Logo { get { return _logo; } set { SetField(ref _logo, value); } }
-        public byte Parental { get { return _parental; } set { SetField(ref _parental, value); } }
-        #endregion ICGElementsState
+        byte _parental;
 
-        #region ITemplatedEdit
-
-        private int _templateLayer;
-        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
-
-        public object SelectedField { get; set; }
-
-        private readonly ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
-        public IDictionary<string, string> Fields
+        public bool IsCGEnabled
         {
-            get { return _fields; }
-            set
-            {
-                _fields.Clear();
-                if (value != null)
-                    _fields.AddRange(value);
-            }
+            get => _isCGEnabled;
+            set => SetField(ref _isCGEnabled, value);
         }
 
-        static readonly Array _methods = Enum.GetValues(typeof(TemplateMethod));
-        public Array Methods { get { return _methods; } }
+        public byte Crawl
+        {
+            get => _crawl;
+            set => SetField(ref _crawl, value);
+        }
 
-        private TemplateMethod _method;
-        public TemplateMethod Method { get { return _method; }  set { SetField(ref _method, value); } }
+        public byte Logo
+        {
+            get => _logo;
+            set => SetField(ref _logo, value);
+        }
 
-        public bool KeyIsReadOnly { get { return true; } }
+        public byte Parental
+        {
+            get => _parental;
+            set => SetField(ref _parental, value);
+        }
 
-        public ICommand CommandEditField { get; private set; }
-        public ICommand CommandAddField { get; private set; }
-        public ICommand CommandDeleteField { get; private set; }
+        #endregion ICGElementsState
 
-        #endregion //ITemplatedEdit
+        
+        public string Command
+        {
+            get => _command;
+            set => SetField(ref _command, value);
+        }
 
-        private string _command;
-        public string Command { get { return _command; } set { SetField(ref _command, value); } }
+        public bool IsMovie => Model.EventType == TEventType.Movie;
 
-        public bool IsMovie { get { return _event?.EventType == TEventType.Movie; } }
-
-        public bool IsStillImage { get { return _event?.EventType == TEventType.StillImage; } }
+        public bool IsStillImage => Model.EventType == TEventType.StillImage;
 
         public bool IsTransitionPanelEnabled
         {
-            get { 
-                var et = _event?.EventType;
+            get
+            {
+                var et = Model.EventType;
                 return !_isHold && (et == TEventType.Live || et == TEventType.Movie);
-                }
+            }
         }
 
-        public bool IsTransitionPropertiesVisible { get { return _transitionType != TTransitionType.Cut; } }
+        public bool IsTransitionPropertiesVisible => _transitionType != TTransitionType.Cut;
 
-        public bool IsNotContainer
-        {
-            get { 
-                var ev = _event;
-                return ev != null && ev.EventType != TEventType.Container;
-                }
-        }
+        public bool IsContainer => Model.EventType == TEventType.Container;
 
-        public bool CanHold { get { return _event != null && _event.Prior != null; } }
-        public bool CanLoop { get { return _event != null && _event.GetSuccessor() == null; } }
+        public bool CanHold => Model.Prior != null;
 
-        private bool _isEnabled;
+        public bool CanLoop => Model.GetSuccessor() == null;
+
         public bool IsEnabled
         {
-            get { return _isEnabled; }
-            set { SetField(ref _isEnabled, value); }
+            get => _isEnabled;
+            set => SetField(ref _isEnabled, value);
         }
 
-        private bool _isHold;
         public bool IsHold
         {
-            get { return _isHold; }
+            get => _isHold;
             set
             {
-                if (SetField(ref _isHold, value))
-                {
-                    if (value)
-                        TransitionTime = TimeSpan.Zero;
-                    NotifyPropertyChanged(nameof(IsTransitionPanelEnabled));
-                }
+                if (!SetField(ref _isHold, value))
+                    return;
+                if (value)
+                    TransitionTime = TimeSpan.Zero;
+                NotifyPropertyChanged(nameof(IsTransitionPanelEnabled));
             }
         }
 
-        private bool _isLoop;
         public bool IsLoop
         {
-            get { return _isLoop; }
-            set { SetField(ref _isLoop, value); }
+            get => _isLoop;
+            set => SetField(ref _isLoop, value);
         }
 
-        private TStartType _startType;
         public TStartType StartType
         {
-            get { return _startType; }
+            get => _startType;
             set
             {
-                if (SetField(ref _startType, value))
-                {
-                    BindToEnd = value == TStartType.WithParentFromEnd;
-                    NotifyPropertyChanged(nameof(IsAutoStartEvent));
-                }
+                if (!SetField(ref _startType, value))
+                    return;
+                _bindToEnd = value == TStartType.WithParentFromEnd;
+                NotifyPropertyChanged(nameof(BindToEnd));
+                NotifyPropertyChanged(nameof(IsAutoStartEvent));
             }
         }
 
-        private AutoStartFlags _autoStartFlags;
         public AutoStartFlags AutoStartFlags
         {
-            get { return _autoStartFlags; }
+            get => _autoStartFlags;
             set
             {
-                if (SetField(ref _autoStartFlags, value))
-                {
-                    NotifyPropertyChanged(nameof(AutoStartForced));
-                    NotifyPropertyChanged(nameof(AutoStartDaily));
-                    NotifyPropertyChanged(nameof(IsScheduledDateVisible));
-                }
+                if (!SetField(ref _autoStartFlags, value))
+                    return;
+                NotifyPropertyChanged(nameof(AutoStartForced));
+                NotifyPropertyChanged(nameof(AutoStartDaily));
+                NotifyPropertyChanged(nameof(IsScheduledDateVisible));
             }
         }
 
         public bool AutoStartForced
         {
-            get { return (_autoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None; }
+            get => (_autoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None;
             set
             {
+                if (value == AutoStartForced)
+                    return;
                 if (value)
                     AutoStartFlags = AutoStartFlags | AutoStartFlags.Force;
                 else
@@ -741,16 +341,15 @@ namespace TAS.Client.ViewModels
 
         public bool AutoStartDaily
         {
-            get { return (_autoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None; }
+            get => (_autoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None;
             set
             {
-                if (value != AutoStartDaily)
-                {
-                    if (value)
-                        AutoStartFlags = AutoStartFlags | AutoStartFlags.Daily;
-                    else
-                        AutoStartFlags = AutoStartFlags & ~AutoStartFlags.Daily;
-                }
+                if (value == AutoStartDaily)
+                    return;
+                if (value)
+                    AutoStartFlags = AutoStartFlags | AutoStartFlags.Daily;
+                else
+                    AutoStartFlags = AutoStartFlags & ~AutoStartFlags.Daily;
             }
         }
 
@@ -758,67 +357,47 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                IEvent ev = Event;
-                if (ev == null)
-                    return string.Empty;
-                TStartType st = ev.StartType;
-                IEvent boundEvent = ev == null ? null : (st == TStartType.WithParent || st == TStartType.WithParentFromEnd) ? ev.Parent : (st == TStartType.After) ? ev.Prior : null;
+                var st = Model.StartType;
+                var boundEvent = st == TStartType.WithParent || st == TStartType.WithParentFromEnd
+                    ? Model.Parent
+                    : (st == TStartType.After)
+                        ? Model.Prior
+                        : null;
                 return boundEvent == null ? string.Empty : boundEvent.EventName;
             }
         }
 
-        private bool _bindToEnd;
         public bool BindToEnd
         {
-            get { return _bindToEnd; }
+            get => _bindToEnd;
             set
             {
-                if (SetField(ref _bindToEnd, value))
-                {
-                    if (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd)
-                    {
-                        if (value)
-                        {
-                            StartType = TStartType.WithParentFromEnd;
-                        }
-                        else
-                        {
-                            StartType = TStartType.WithParent;
-                        }
-                    }
-                }
+                if (!SetField(ref _bindToEnd, value)) return;
+                if (_startType != TStartType.WithParent && _startType != TStartType.WithParentFromEnd) return;
+                StartType = value ? TStartType.WithParentFromEnd : TStartType.WithParent;
             }
         }
 
-        public bool IsDisplayBindToEnd
-        {
-            get
-            {
-                return (_eventType == TEventType.Animation || _eventType == TEventType.CommandScript || _eventType == TEventType.StillImage) 
-                    && (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd);
-            }
-        }
+        public bool IsDisplayBindToEnd => (_eventType == TEventType.CommandScript || _eventType == TEventType.StillImage)
+                                          && (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd);
 
-        private TimeSpan _scheduledTc;
         public TimeSpan ScheduledTc
         {
-            get { return _scheduledTc; }
-            set { 
+            get => _scheduledTc;
+            set
+            {
                 SetField(ref _scheduledTc, value);
                 NotifyPropertyChanged(nameof(Duration));
             }
         }
 
-        static readonly Array _transitionTypes = Enum.GetValues(typeof(TTransitionType));
-        public Array TransitionTypes { get { return _transitionTypes; } }
+        public Array TransitionTypes { get; } = Enum.GetValues(typeof(TTransitionType));
 
-        static readonly Array _transitionEasings = Enum.GetValues(typeof(TEasing));
-        public Array TransitionEasings { get { return _transitionEasings; } }
+        public Array TransitionEasings { get; } = Enum.GetValues(typeof(TEasing));
 
-        private TTransitionType _transitionType;
         public TTransitionType TransitionType
         {
-            get { return _transitionType; }
+            get => _transitionType;
             set
             {
                 if (SetField(ref _transitionType, value))
@@ -833,85 +412,75 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private TEasing _transitionEasing;
         public TEasing TransitionEasing
         {
-            get { return _transitionEasing; }
-            set { SetField(ref _transitionEasing, value); }
+            get => _transitionEasing;
+            set => SetField(ref _transitionEasing, value);
         }
 
-        private TimeSpan _transitionTime;
         public TimeSpan TransitionTime
         {
-            get { return _transitionTime; }
-            set { SetField(ref _transitionTime, value); }
+            get => _transitionTime;
+            set => SetField(ref _transitionTime, value);
         }
 
-        private TimeSpan _transitionPauseTime;
         public TimeSpan TransitionPauseTime
         {
-            get { return _transitionPauseTime; }
-            set { SetField(ref _transitionPauseTime, value); }
+            get => _transitionPauseTime;
+            set => SetField(ref _transitionPauseTime, value);
         }
 
-
-        private decimal? _audioVolume;
-        public decimal? AudioVolume
+        public double? AudioVolume
         {
-            get { return _audioVolume; }
+            get => _audioVolume;
             set
             {
-                if (SetField(ref _audioVolume, value))
-                {
-                    NotifyPropertyChanged(nameof(HasAudioVolume));
-                    NotifyPropertyChanged(nameof(AudioVolumeLevel));
-                }
+                if (!SetField(ref _audioVolume, value))
+                    return;
+                NotifyPropertyChanged(nameof(HasAudioVolume));
+                NotifyPropertyChanged(nameof(AudioVolumeLevel));
             }
         }
-        
-        public decimal AudioVolumeLevel
+
+        public double AudioVolumeLevel
         {
-            get { return _audioVolume != null ? (decimal)_audioVolume : _media != null ? _media.AudioVolume : 0m; }
+            get => _audioVolume ?? (_media?.AudioVolume ?? 0);
             set
             {
-                if (SetField(ref _audioVolume, value))
-                {
-                    NotifyPropertyChanged(nameof(HasAudioVolume));
-                    NotifyPropertyChanged(nameof(AudioVolume));
-                }
+                if (!SetField(ref _audioVolume, value))
+                    return;
+                NotifyPropertyChanged(nameof(HasAudioVolume));
+                NotifyPropertyChanged(nameof(AudioVolume));
             }
         }
 
         public bool HasAudioVolume
         {
-            get { return _audioVolume != null; }
+            get => _audioVolume != null;
             set
             {
-                if (SetField(ref _audioVolume, value? (_media != null ? (decimal?)_media.AudioVolume : 0m) : null))
-                {
-                    NotifyPropertyChanged(nameof(AudioVolume));
-                    NotifyPropertyChanged(nameof(AudioVolumeLevel));
-                }
+                if (!SetField(ref _audioVolume,
+                    value ? (_media != null ? (double?) _media.AudioVolume : 0) : null)) return;
+                NotifyPropertyChanged(nameof(AudioVolume));
+                NotifyPropertyChanged(nameof(AudioVolumeLevel));
             }
         }
 
-        private DateTime _scheduledTime;
         public DateTime ScheduledTime
         {
-            get { return _scheduledTime; }
+            get => _scheduledTime;
             set
             {
-                if (SetField(ref _scheduledTime, value))
-                {
-                    NotifyPropertyChanged(nameof(ScheduledDate));
-                    NotifyPropertyChanged(nameof(ScheduledTimeOfDay));
-                }
+                if (!SetField(ref _scheduledTime, value))
+                    return;
+                NotifyPropertyChanged(nameof(ScheduledDate));
+                NotifyPropertyChanged(nameof(ScheduledTimeOfDay));
             }
         }
 
         public DateTime ScheduledDate
         {
-            get { return _scheduledTime.ToLocalTime().Date; }
+            get => _scheduledTime.ToLocalTime().Date;
             set
             {
                 if (!value.Equals(ScheduledDate))
@@ -921,7 +490,7 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan ScheduledTimeOfDay
         {
-            get { return _scheduledTime.ToLocalTime().TimeOfDay; }
+            get => _scheduledTime.ToLocalTime().TimeOfDay;
             set
             {
                 if (!value.Equals(ScheduledTimeOfDay))
@@ -929,20 +498,17 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsScheduledDateVisible { get { return _startType != TStartType.OnFixedTime || !AutoStartDaily; } }
+        public bool IsScheduledDateVisible => _startType != TStartType.OnFixedTime || !AutoStartDaily;
 
-        private TimeSpan? _requestedStartTime;
         public TimeSpan? RequestedStartTime
         {
-            get { return _requestedStartTime; }
-            set { SetField(ref _requestedStartTime, value); }
+            get => _requestedStartTime;
+            set => SetField(ref _requestedStartTime, value);
         }
 
-
-        private TimeSpan _duration;
         public TimeSpan Duration
         {
-            get { return _duration; }
+            get => _duration;
             set
             {
                 SetField(ref _duration, value);
@@ -950,103 +516,48 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public TVideoFormat VideoFormat { get { return _engineViewModel.VideoFormat; } }
+        public TVideoFormat VideoFormat => _engineViewModel.VideoFormat;
 
-        private TimeSpan _scheduledDelay;
         public TimeSpan ScheduledDelay
         {
-            get { return _scheduledDelay; }
-            set { SetField(ref _scheduledDelay, value); }
+            get => _scheduledDelay;
+            set => SetField(ref _scheduledDelay, value);
         }
 
-        private sbyte _layer;
         public sbyte Layer
         {
-            get { return _layer; }
-            set { SetField(ref _layer, value); }
-        }
-
-        public bool HasSubItemOnLayer1
-        {
-            get
-            {
-                IEvent ev = Event;
-                return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG1 : ev.SubEvents.Any(e => e.Layer == VideoLayer.CG1 && e.EventType == TEventType.StillImage);
-            }
-        }
-        public bool HasSubItemOnLayer2
-        {
-            get
-            {
-                IEvent ev = Event;
-                return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG2 : ev.SubEvents.Any(e => e.Layer == VideoLayer.CG2 && e.EventType == TEventType.StillImage);
-            }
-        }
-        public bool HasSubItemOnLayer3
-        {
-            get
-            {
-                IEvent ev = Event;
-                return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG3 : ev.SubEvents.Any(e => e.Layer == VideoLayer.CG3 && e.EventType == TEventType.StillImage);
-            }
-        }
-
-        public bool HasSubItems
-        {
-            get
-            {
-                IEvent ev = Event;
-                return (ev == null || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie) ? false : ev.SubEvents.Any(e => e.EventType == TEventType.StillImage);
-            }
+            get => _layer;
+            set => SetField(ref _layer, value);
         }
 
         public bool IsStartEvent
         {
             get
             {
-                var st = Event?.StartType;
+                var st = Model.StartType;
                 return (st == TStartType.OnFixedTime || st == TStartType.Manual);
             }
         }
 
-        public bool IsDurationEnabled
+        public bool IsDurationEnabled => Model.EventType != TEventType.Rundown;
+
+        public bool IsCGElementsEnabled => Model.EventType == TEventType.Live || Model.EventType == TEventType.Movie;
+
+        public bool IsDisplayCGElements => Model.Engine.CGElementsController != null;
+
+        public IEnumerable<ICGElement> Logos => Model.Engine.CGElementsController?.Logos;
+
+        public IEnumerable<ICGElement> Crawls => Model.Engine.CGElementsController?.Crawls;
+
+        public IEnumerable<ICGElement> Parentals => Model.Engine.CGElementsController?.Parentals;
+
+        public EventRightsEditViewmodel EventRightsEditViewmodel { get; }
+
+        public TemplatedEditViewmodel TemplatedEditViewmodel { get; }
+
+        public override string ToString()
         {
-            get
-            {
-                IEvent ev = Event;
-                return (ev != null) && ev.EventType != TEventType.Rundown;
-            }
-        }
-
-        public bool IsCGElementsEnabled
-        {
-            get
-            {
-                IEvent ev = Event;
-                if (ev != null)
-                {
-                    IEngine engine = ev.Engine;
-                    return (engine != null
-                        && (ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
-                        && (engine.CGElementsController != null));
-                }
-                return false;
-            }
-        }
-
-        public bool IsDisplayCGElements
-        {
-            get { return _engine.CGElementsController != null; }
-        }
-
-        public IEnumerable<ICGElement> Logos { get { return _engine.CGElementsController?.Logos; } }
-        public IEnumerable<ICGElement> Crawls { get { return _engine.CGElementsController?.Crawls; } }
-        public IEnumerable<ICGElement> Parentals { get { return _engine.CGElementsController?.Parentals; } }
-
-
-        private void _cGElementsViewmodel_Modified(object sender, EventArgs e)
-        {
-            IsModified = true;
+            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {EventName}";
         }
 
         internal void _previewPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -1055,66 +566,355 @@ namespace TAS.Client.ViewModels
                 InvalidateRequerySuggested();
         }
 
-        private void _eventPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected override void OnDispose()
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+            Model.PropertyChanged -= ModelPropertyChanged;
+            if (TemplatedEditViewmodel != null)
             {
-                bool oldModified = _isModified;
-                PropertyInfo sourcePi = sender.GetType().GetProperty(e.PropertyName);
-                PropertyInfo destPi = this.GetType().GetProperty(e.PropertyName);
-                if (sourcePi != null && destPi != null
-                    && sourcePi.PropertyType.Equals(destPi.PropertyType))
-                    destPi.SetValue(this, sourcePi.GetValue(sender, null), null);
-                _isModified = oldModified;
+                TemplatedEditViewmodel.ModifiedChanged -= TemplatedEditViewmodel_ModifiedChanged;
+                TemplatedEditViewmodel?.Dispose();
+            }
+            if (EventRightsEditViewmodel != null)
+            {
+                EventRightsEditViewmodel.ModifiedChanged -= RightsModifiedChanged;
+                EventRightsEditViewmodel.Dispose();
+            }
+        }
+
+        #region Command methods
+
+        private void _triggerStartType(object obj)
+        {
+            if (StartType == TStartType.Manual)
+                StartType = TStartType.OnFixedTime;
+            else if (StartType == TStartType.OnFixedTime)
+                StartType = TStartType.Manual;
+        }
+
+        private bool _canTriggerStartType(object obj)
+        {
+            return (StartType == TStartType.Manual || StartType == TStartType.OnFixedTime)
+                   && Model.HaveRight(EventRight.Modify);
+        }
+
+        private void _changeMovie(object o)
+        {
+            if (Model.EventType == TEventType.Movie)
+            {
+                _chooseMedia(TMediaType.Movie, Model, Model.StartType);
+            }
+        }
+
+        private void _editMovie(object obj)
+        {
+            using (var evm = new MediaEditWindowViewmodel(Model.Media, Model.Engine.MediaManager) )
+            {
+                if (UiServices.ShowDialog<Views.MediaEditWindowView>(evm) == true)
+                    evm.Editor.Save();
+            }
+        }
+
+        private void _checkVolume(object obj)
+        {
+            if (_media == null)
+                return;
+            IsVolumeChecking = true;
+            var fileManager = Model.Engine.MediaManager.FileManager;
+            var operation = fileManager.CreateLoudnessOperation(Model.Media, Model.ScheduledTc - _media.TcStart, Model.Duration);
+            operation.AudioVolumeMeasured += _audioVolumeMeasured;
+            operation.Finished += _audioVolumeFinished;
+            fileManager.Queue(operation);
+        }
+
+        private void _audioVolumeFinished(object sender, EventArgs e)
+        {
+            IsVolumeChecking = false;
+            ((ILoudnessOperation) sender).Finished -= _audioVolumeFinished;
+            ((ILoudnessOperation) sender).AudioVolumeMeasured -= _audioVolumeFinished;
+        }
+
+        private void _audioVolumeMeasured(object sender, AudioVolumeEventArgs e)
+        {
+            AudioVolume = e.AudioVolume;
+        }
+
+        private bool _canChangeMovie(object o)
+        {
+            return Model.PlayState == TPlayState.Scheduled
+                   && Model.EventType == TEventType.Movie
+                   && Model.HaveRight(EventRight.Modify);
+        }
+
+        private bool _canEditMovie(object o)
+        {
+            return Model.Media != null
+                   && Model.PlayState == TPlayState.Scheduled
+                   && Model.EventType == TEventType.Movie
+                   && Model.Engine.HaveRight(EngineRight.MediaEdit);
+        }
+
+        private bool _canCheckVolume(object o)
+        {
+            return !_isVolumeChecking && _canChangeMovie(o);
+        }
+
+        private bool _canSave(object o)
+        {
+            return IsModified
+                   && IsValid
+                   && Model.HaveRight(EventRight.Modify);
+        }
+
+        private void _setCGElements(IMedia media)
+        {
+            IsCGEnabled = Model.Engine.EnableCGElementsForNewEvents;
+            if (media != null)
+            {
+                var category = media.MediaCategory;
+                Logo = (byte) (category == TMediaCategory.Fill || category == TMediaCategory.Show ||
+                               category == TMediaCategory.Promo || category == TMediaCategory.Insert ||
+                               category == TMediaCategory.Jingle
+                    ? 1
+                    : 0);
+                Parental = media.Parental;
+            }
+        }
+
+        #endregion // command methods
+
+
+        private void ModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (!(sender is IEvent s))
+                return;
+            OnUiThread(() =>
+            {
+                switch (e.PropertyName)
+                {
+                    case nameof(IEvent.AudioVolume):
+                        _audioVolume = s.AudioVolume;
+                        NotifyPropertyChanged(nameof(AudioVolume));
+                        NotifyPropertyChanged(nameof(AudioVolumeLevel));
+                        NotifyPropertyChanged(nameof(HasAudioVolume));
+                        break;
+                    case nameof(IEvent.AutoStartFlags):
+                        _autoStartFlags = s.AutoStartFlags;
+                        NotifyPropertyChanged(nameof(AutoStartForced));
+                        NotifyPropertyChanged(nameof(AutoStartDaily));
+                        break;
+                    case nameof(IEvent.Crawl):
+                        _crawl = s.Crawl;
+                        NotifyPropertyChanged(nameof(Crawl));
+                        break;
+                    case nameof(IEvent.Logo):
+                        _logo = s.Logo;
+                        NotifyPropertyChanged(nameof(Logo));
+                        break;
+                    case nameof(IEvent.Parental):
+                        _parental = s.Parental;
+                        NotifyPropertyChanged(nameof(Parental));
+                        break;
+                    case nameof(IEvent.Duration):
+                        _duration = s.Duration;
+                        NotifyPropertyChanged(nameof(Duration));
+                        break;
+                    case nameof(IEvent.EventName):
+                        _eventName = s.EventName;
+                        NotifyPropertyChanged(nameof(EventName));
+                        break;
+                    case nameof(IEvent.IdAux):
+                    case nameof(IEvent.IdProgramme):
+                        break;
+                    case nameof(IEvent.IsCGEnabled):
+                        _isCGEnabled = s.IsCGEnabled;
+                        NotifyPropertyChanged(nameof(IsCGEnabled));
+                        break;
+                    case nameof(IEvent.IsEnabled):
+                        _isEnabled = s.IsEnabled;
+                        NotifyPropertyChanged(nameof(IsEnabled));
+                        break;
+                    case nameof(IEvent.IsHold):
+                        _isHold = s.IsHold;
+                        NotifyPropertyChanged(nameof(IsHold));
+                        break;
+                    case nameof(IEvent.Media):
+                        _media = s.Media;
+                        NotifyPropertyChanged(nameof(Media));
+                        break;
+                    case nameof(IEvent.IsLoop):
+                        _isLoop = s.IsLoop;
+                        NotifyPropertyChanged(nameof(IsLoop));
+                        InvalidateRequerySuggested();
+                        break;
+                    case nameof(IEvent.RequestedStartTime):
+                        _requestedStartTime = s.RequestedStartTime;
+                        NotifyPropertyChanged(nameof(RequestedStartTime));
+                        break;
+                    case nameof(IEvent.Offset):
+                        break;
+                    case nameof(IEvent.ScheduledTime):
+                        _scheduledTime = s.ScheduledTime;
+                        NotifyPropertyChanged(nameof(ScheduledTime));
+                        break;
+                    case nameof(IEvent.ScheduledTc):
+                        _scheduledTc = s.ScheduledTc;
+                        NotifyPropertyChanged(nameof(ScheduledTc));
+                        break;
+                    case nameof(IEvent.ScheduledDelay):
+                        _scheduledDelay = s.ScheduledDelay;
+                        NotifyPropertyChanged(nameof(ScheduledDelay));
+                        break;
+                    case nameof(IEvent.PlayState):
+                        NotifyPropertyChanged(nameof(IsEditEnabled));
+                        break;
+                    case nameof(IEvent.StartType):
+                        _startType = s.StartType;
+                        NotifyPropertyChanged(nameof(StartType));
+                        NotifyPropertyChanged(nameof(IsAutoStartEvent));
+                        break;
+                    case nameof(IEvent.TransitionEasing):
+                        _transitionEasing = s.TransitionEasing;
+                        NotifyPropertyChanged(nameof(TransitionEasing));
+                        break;
+                    case nameof(IEvent.TransitionType):
+                        _transitionType = s.TransitionType;
+                        NotifyPropertyChanged(nameof(TransitionType));
+                        break;
+                    case nameof(IEvent.TransitionTime):
+                        _transitionTime = s.TransitionTime;
+                        NotifyPropertyChanged(nameof(TransitionTime));
+                        break;
+                    case nameof(IEvent.TransitionPauseTime):
+                        _transitionPauseTime = s.TransitionPauseTime;
+                        NotifyPropertyChanged(nameof(TransitionPauseTime));
+                        break;
+                    case nameof(IEvent.Prior):
+                    case nameof(IEvent.Parent):
+                        NotifyPropertyChanged(nameof(BoundEventName));
+                        break;
+                }
             });
-            if (e.PropertyName == nameof(IEvent.PlayState))
-            {
-                NotifyPropertyChanged(nameof(IsEditEnabled));
-                NotifyPropertyChanged(nameof(IsMovieOrLive));
-                InvalidateRequerySuggested();
-            }
-            if (e.PropertyName == nameof(IEvent.AudioVolume))
-            {
-                NotifyPropertyChanged(nameof(AudioVolumeLevel));
-                NotifyPropertyChanged(nameof(HasAudioVolume));
-                NotifyPropertyChanged(nameof(AudioVolume));
-            }
-            if (e.PropertyName == nameof(IEvent.IsLoop))
-            {
-                InvalidateRequerySuggested();
-            }
-            if (e.PropertyName == nameof(IEvent.Next))
-            {
-                IsLoop = false;
-                NotifyPropertyChanged(nameof(CanLoop));
-            }
-            if (e.PropertyName == nameof(IEvent.StartType))
-                NotifyPropertyChanged(nameof(IsAutoStartEvent));
-            if (e.PropertyName == nameof(IEvent.AutoStartFlags))
-            {
-                NotifyPropertyChanged(nameof(AutoStartForced));
-                NotifyPropertyChanged(nameof(AutoStartDaily));
-            }
         }
 
-        private void _onSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
+        private void TemplatedEditViewmodel_ModifiedChanged(object sender, EventArgs e)
         {
+            if (sender is TemplatedEditViewmodel templatedEditViewmodel && templatedEditViewmodel.IsModified)
+                IsModified = true;
         }
 
-        private void _onRelocated(object o, EventArgs e)
+
+        private string _validateEventName()
         {
-            NotifyPropertyChanged(nameof(StartType));
-            NotifyPropertyChanged(nameof(BoundEventName));
-            NotifyPropertyChanged(nameof(ScheduledTime));
-            NotifyPropertyChanged(nameof(ScheduledTimeOfDay));
-            NotifyPropertyChanged(nameof(ScheduledDate));
-            NotifyPropertyChanged(nameof(IsStartEvent));
+            if (Model.FieldLengths.TryGetValue(nameof(IEvent.EventName), out var length) && EventName.Length > length)
+                return resources._validate_TextTooLong;
+            return null;
         }
 
-        public override string ToString()
+        private string _validateScheduledDelay()
         {
-            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {_event}";
+            if (Model.EventType != TEventType.StillImage && Model.EventType != TEventType.CommandScript)
+                return null;
+            var parent = Model.Parent;
+            if (parent != null && _duration + _scheduledDelay > parent.Duration)
+                return resources._validate_ScheduledDelayInvalid;
+            return null;
         }
+
+        private string _validateScheduledTime()
+        {
+            if (((_startType == TStartType.OnFixedTime && (_autoStartFlags & AutoStartFlags.Daily) == AutoStartFlags.None)
+                || _startType == TStartType.Manual) && Model.PlayState == TPlayState.Scheduled && _scheduledTime < Model.Engine.CurrentTime)
+                return resources._validate_StartTimePassed;
+            return null;
+        }
+
+        private string _validateScheduledTc()
+        {
+            var media = Media;
+            if (Model.EventType != TEventType.Movie || media == null)
+                return null;
+            if (_scheduledTc > media.Duration + media.TcStart)
+                return string.Format(resources._validate_StartTCAfterFile,
+                    (media.Duration + media.TcStart).ToSMPTETimecodeString(Model.Engine.VideoFormat));
+            if (_scheduledTc < media.TcStart)
+                return string.Format(resources._validate_StartTCBeforeFile,
+                    media.TcStart.ToSMPTETimecodeString(Model.Engine.VideoFormat));
+            return null;
+        }
+
+        private string _validateDuration()
+        {
+            var media = Media;
+            if (Model.EventType == TEventType.Movie && media != null
+                && _duration + _scheduledTc > media.Duration + media.TcStart)
+                return resources._validate_DurationInvalid;
+            if (Model.EventType != TEventType.StillImage && Model.EventType != TEventType.CommandScript)
+                return null;
+            var parent = Model.Parent;
+            if (parent != null && _duration + _scheduledDelay > parent.Duration)
+                return resources._validate_ScheduledDelayInvalid;
+            return null;
+        }
+
+        private string _validateTransitionPauseTime()
+        {
+            if (_transitionPauseTime > _transitionTime)
+                return resources._validate_TransitionPauseTimeInvalid;
+            return null;
+        }
+
+        private string _validateTransitionTime()
+        {
+            if (_transitionTime > _duration)
+                return resources._validate_TransitionTimeInvalid;
+            return null;
+        }
+
+        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType,
+            VideoFormatDescription videoFormatDescription = null)
+        {
+            using (var vm = new MediaSearchViewmodel(
+                _engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine : null,
+                Model.Engine,
+                mediaType, VideoLayer.Program, true, videoFormatDescription)
+            {
+                BaseEvent = baseEvent,
+                NewEventStartType = startType
+            })
+            {
+                if (UiServices.ShowDialog<Views.MediaSearchView>(vm) == true)
+                {
+                    if (!(vm.SelectedMedia is IServerMedia media))
+                        return;
+                    Media = media;
+                    Duration = media.DurationPlay;
+                    ScheduledTc = media.TcPlay;
+                    AudioVolume = null;
+                    EventName = media.MediaName;
+                    _setCGElements(media);
+                }
+            }
+
+        }
+
+        public bool IsValid => (from pi in GetType().GetProperties() select this[pi.Name]).All(string.IsNullOrEmpty);
+
+        private bool IsValidCommand(string commandText)
+        {
+            return string.IsNullOrWhiteSpace(commandText)
+                   || RegexPlay.IsMatch(commandText)
+                   || RegexMixerFill.IsMatch(commandText)
+                   || RegexMixerClip.IsMatch(commandText)
+                   || RegexMixerClear.IsMatch(commandText)
+                   || RegexCg.IsMatch(commandText)
+                ;
+        }
+
+        private void RightsModifiedChanged(object sender, EventArgs e)
+        {
+            IsModified = true;
+        }
+
 
     }
 

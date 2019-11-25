@@ -1,30 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using TAS.Client.Common;
-using TAS.Client.ViewModels;
-using TAS.Server.Common;
+using TAS.Common;
 
 namespace TVPlayClient
 {
-    public class MainWindowViewmodel : ViewmodelBase
+    public class MainWindowViewmodel : ViewModelBase
     {
         private const string ConfigurationFileName = "Channels.xml";
-        private const string AppDataFilePath = "TVPlayClient";
         private readonly string _configurationFile;
+        private ViewModelBase _content;
+        private bool _showConfigButton = true;
+
         public MainWindowViewmodel()
         {
+            if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+                return;
             Application.Current.Dispatcher.ShutdownStarted += _dispatcher_ShutdownStarted;
-            _configurationFile = Path.Combine(FileUtils.LOCAL_APPLICATION_DATA_PATH, ConfigurationFileName);
-            if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
+            _configurationFile = Path.Combine(FileUtils.LocalApplicationDataPath, ConfigurationFileName);
+            if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
                 _loadTabs();
-            CommandConfigure = new UICommand { ExecuteDelegate = _configure };
+            CommandConfigure = new UiCommand(_configure);
+        }
+
+        public ICommand CommandConfigure { get; }
+
+        public ViewModelBase Content { get => _content; private set => SetField(ref _content, value); }
+
+        public bool ShowConfigButton { get => _showConfigButton; private set => SetField(ref _showConfigButton, value); }
+
+        protected override void OnDispose()
+        {
+            (_content as ChannelsViewmodel)?.Dispose();
         }
 
         private void _configure(object obj)
@@ -38,7 +49,11 @@ namespace TVPlayClient
 
         private void _configClosed(object sender, EventArgs e)
         {
-            (sender as ConfigurationViewmodel).Dispose();
+            if (sender is ConfigurationViewmodel vm)
+            {
+                vm.Closed -= _configClosed;
+                vm.Dispose();
+            }
             ShowConfigButton = true;
             _loadTabs();
         }
@@ -48,27 +63,14 @@ namespace TVPlayClient
             Dispose();
         }
 
-        protected override void OnDispose()
-        {
-            (_content as ChannelsViewmodel)?.Dispose();
-        }
-
         private void _loadTabs()
         {
-            if (File.Exists(_configurationFile))
-            {
-                XmlSerializer reader = new XmlSerializer(typeof(List<ChannelWrapperViewmodel>), new XmlRootAttribute("Channels"));
-                using (StreamReader file = new StreamReader(_configurationFile))
-                    Content = new ChannelsViewmodel((List<ChannelWrapperViewmodel>)reader.Deserialize(file));
-            }
+            if (!File.Exists(_configurationFile))
+                return;
+            var reader = new XmlSerializer(typeof(List<ConfigurationChannel>), new XmlRootAttribute("Channels"));
+            using (var file = new StreamReader(_configurationFile))
+                Content = new ChannelsViewmodel((List<ConfigurationChannel>)reader.Deserialize(file));
         }
-
-        private ViewmodelBase _content;
-        public ViewmodelBase Content { get { return _content; } private set { SetField(ref _content, value); } }
-
-        public ICommand CommandConfigure { get; private set; }
-        private bool _showConfigButton = true;
-        public bool ShowConfigButton { get { return _showConfigButton; }  private set { SetField(ref _showConfigButton, value); } }
         
     }
 }

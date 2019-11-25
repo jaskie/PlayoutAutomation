@@ -1,38 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Client.ViewModels;
 
 namespace TAS.Client.Config
 {
-    public class MainWindowViewmodel: ViewmodelBase
+    public class MainWindowViewmodel: ViewModelBase
     {
+        private Model.ConfigFile _configFile;
+
         public MainWindowViewmodel()
         {
-            _commandIngestFoldersSetup = new UICommand() { ExecuteDelegate = _ingestFoldersSetup };
-            _commandConfigFileEdit = new UICommand() { ExecuteDelegate = _configFileEdit };
-            _commandConfigFileSelect = new UICommand() { ExecuteDelegate = _configFileSelect };
-            _commandPlayoutServersSetup = new UICommand() { ExecuteDelegate = _serversSetup };
-            _commandEnginesSetup = new UICommand() { ExecuteDelegate = _enginesSetup };
+            CommandIngestFoldersSetup = new UiCommand(_ingestFoldersSetup);
+            CommandConfigFileEdit = new UiCommand(_configFileEdit);
+            CommandConfigFileSelect = new UiCommand(_configFileSelect);
+            CommandPlayoutServersSetup = new UiCommand(_serversSetup);
+            CommandEnginesSetup = new UiCommand(_enginesSetup);
             if (File.Exists("TVPlay.exe"))
                 ConfigFile = new Model.ConfigFile("TVPlay.exe");
         }
+
+        public ICommand CommandIngestFoldersSetup { get; }
+        public ICommand CommandConfigFileEdit { get; }
+        public ICommand CommandConfigFileSelect { get; }
+        public ICommand CommandPlayoutServersSetup { get; }
+        public ICommand CommandEnginesSetup { get; }
+
+        public Model.ConfigFile ConfigFile
+        {
+            get => _configFile;
+            set => SetField(ref _configFile, value);
+        }
+
         protected override void OnDispose() { }
         
         private void _enginesSetup(object obj)
         {
-            EnginesViewmodel vm = new EnginesViewmodel(_configFile.connectionStrings.tasConnectionString, _configFile.connectionStrings.tasConnectionStringSecondary);
-            vm.ShowDialog();
+            using (var vm = new EnginesViewmodel(_configFile.ConnectionStrings.tasConnectionString,
+                _configFile.ConnectionStrings.tasConnectionStringSecondary))
+            {
+                vm.ShowDialog();
+            }
         }
         
         private void _serversSetup(object obj)
         {
-            PlayoutServersViewmodel vm = new PlayoutServersViewmodel( _configFile.connectionStrings.tasConnectionString, _configFile.connectionStrings.tasConnectionStringSecondary);
-            vm.ShowDialog();
+            using (var vm = new PlayoutServersViewmodel(_configFile.ConnectionStrings.tasConnectionString,
+                _configFile.ConnectionStrings.tasConnectionStringSecondary))
+            {
+                vm.ShowDialog();
+            }
         }
                 
         private void _configFileSelect(object obj)
@@ -50,26 +66,9 @@ namespace TAS.Client.Config
 
         private void _ingestFoldersSetup(object obj)
         {
-            IngestDirectoriesViewmodel vm = new IngestDirectoriesViewmodel(_configFile.appSettings.IngestFolders);
+            IngestDirectoriesViewmodel vm = new IngestDirectoriesViewmodel(_configFile.AppSettings.IngestFolders);
             vm.ShowDialog();
         }
 
-        readonly UICommand _commandIngestFoldersSetup;
-        readonly UICommand _commandConfigFileEdit;
-        readonly UICommand _commandConfigFileSelect;
-        readonly UICommand _commandPlayoutServersSetup;
-        readonly UICommand _commandEnginesSetup;
-        public ICommand CommandIngestFoldersSetup { get { return _commandIngestFoldersSetup; } }
-        public ICommand CommandConfigFileEdit { get { return _commandConfigFileEdit; } }
-        public ICommand CommandConfigFileSelect { get { return _commandConfigFileSelect; } }
-        public ICommand CommandPlayoutServersSetup { get { return _commandPlayoutServersSetup; } }
-        public ICommand CommandEnginesSetup { get { return _commandEnginesSetup; } }
-
-        Model.ConfigFile _configFile;
-        public Model.ConfigFile ConfigFile
-        {
-            get { return _configFile; }
-            set { SetField(ref _configFile, value); }
-        }
     }
 }

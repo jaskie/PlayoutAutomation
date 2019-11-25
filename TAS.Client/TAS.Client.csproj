@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TAS.Client</RootNamespace>
     <AssemblyName>TAS.Client</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -39,12 +39,15 @@
       <HintPath>..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="MvvmDialogs, Version=5.1.0.0, Culture=neutral, PublicKeyToken=3d3b9708589bc73e, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmDialogs.5.1.0\lib\net45\MvvmDialogs.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -62,37 +65,33 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
-    <Reference Include="Xceed.Wpf.AvalonDock, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Xceed.Wpf.AvalonDock, Version=3.4.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.4.0\lib\net40\Xceed.Wpf.AvalonDock.dll</HintPath>
     </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Aero, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.Aero.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Aero, Version=3.4.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.4.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.Aero.dll</HintPath>
     </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Metro, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.Metro.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Metro, Version=3.4.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.4.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.Metro.dll</HintPath>
     </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock.Themes.VS2010, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.VS2010.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.VS2010, Version=3.4.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.4.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.VS2010.dll</HintPath>
     </Reference>
-    <Reference Include="Xceed.Wpf.DataGrid, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.DataGrid.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Xceed.Wpf.DataGrid, Version=3.4.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.4.0\lib\net40\Xceed.Wpf.DataGrid.dll</HintPath>
     </Reference>
-    <Reference Include="Xceed.Wpf.Toolkit, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.Toolkit.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Xceed.Wpf.Toolkit, Version=3.4.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.3.4.0\lib\net40\Xceed.Wpf.Toolkit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventExtensions.cs" />
     <Compile Include="HiddenEventsStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\AclRightViewmodel.cs" />
     <Compile Include="ViewModels\CGElementViewmodel.cs" />
     <Compile Include="ViewModels\ChannelViewmodel.cs" />
-    <Compile Include="ViewModels\ConvertOperationViewModel.cs" />
+    <Compile Include="ViewModels\IngestOperationViewModel.cs" />
     <Compile Include="ViewModels\EngineCGElementsControllerViewmodel.cs" />
     <Compile Include="ViewModels\EngineStateViewmodel.cs" />
     <Compile Include="ViewModels\EngineViewmodel.cs" />
@@ -110,12 +109,15 @@
     <Compile Include="ViewModels\EventPanelRundownViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelStillViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelViewmodelBase.cs" />
+    <Compile Include="ViewModels\EngineRightsEditViewmodel.cs" />
+    <Compile Include="ViewModels\EventRightsEditViewmodel.cs" />
+    <Compile Include="ViewModels\EngineRightViewmodel.cs" />
+    <Compile Include="ViewModels\EventRightViewmodel.cs" />
     <Compile Include="ViewModels\ExportMediaLogoViewmodel.cs" />
     <Compile Include="ViewModels\ExportViewmodel.cs" />
     <Compile Include="ViewModels\FileManagerViewmodel.cs" />
     <Compile Include="ViewModels\FileOperationViewmodel.cs" />
-    <Compile Include="ViewModels\IngestEditViewmodel.cs" />
-    <Compile Include="ViewModels\ITemplatedEdit.cs" />
+    <Compile Include="ViewModels\IngestEditorViewmodel.cs" />
     <Compile Include="ViewModels\KeyValueEditViewmodel.cs" />
     <Compile Include="ViewModels\MediaDirectoryViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditViewmodel.cs" />
@@ -127,11 +129,16 @@
     <Compile Include="ViewModels\MediaViewViewmodel.cs" />
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
     <Compile Include="ViewModels\RecordersViewmodel.cs" />
+    <Compile Include="ViewModels\SecurityObjectSelectorViewmodel.cs" />
+    <Compile Include="ViewModels\TemplatedEditViewmodel.cs" />
+    <Compile Include="ViewModels\UserManagerViewmodel.cs" />
+    <Compile Include="ViewModels\GroupViewmodel.cs" />
+    <Compile Include="ViewModels\UserViewmodel.cs" />
     <Compile Include="Views\ChannelView.xaml.cs">
       <DependentUpon>ChannelView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ConvertOperationView.xaml.cs">
-      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    <Compile Include="Views\IngestOperationView.xaml.cs">
+      <DependentUpon>IngestOperationView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EngineCGElementsControllerView.xaml.cs">
       <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
@@ -175,6 +182,12 @@
     <Compile Include="Views\EventPanelStillView.xaml.cs">
       <DependentUpon>EventPanelStillView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\EngineRightsEditView.xaml.cs">
+      <DependentUpon>EngineRightsEditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventRightsEditView.xaml.cs">
+      <DependentUpon>EventRightsEditView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ExportView.xaml.cs">
       <DependentUpon>ExportView.xaml</DependentUpon>
     </Compile>
@@ -191,6 +204,9 @@
     <Compile Include="Views\MediaEditView.xaml.cs">
       <DependentUpon>MediaEditView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\MediaEditWindowView.xaml.cs">
+      <DependentUpon>MediaEditWindowView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MediaManagerView.xaml.cs">
       <DependentUpon>MediaManagerView.xaml</DependentUpon>
     </Compile>
@@ -206,12 +222,27 @@
     <Compile Include="Views\RecordersView.xaml.cs">
       <DependentUpon>RecordersView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SecurityObjectSelectorView.xaml.cs">
+      <DependentUpon>SecurityObjectSelectorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SplashScreenView.xaml.cs">
+      <DependentUpon>SplashScreenView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\TemplatedEditView.xaml.cs">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\UserManagerView.xaml.cs">
+      <DependentUpon>UserManagerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GroupView.xaml.cs">
+      <DependentUpon>GroupView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserView.xaml.cs">
+      <DependentUpon>UserView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
+    <ProjectReference Include="..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
       <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
       <Name>Infralution.Localization.Wpf</Name>
     </ProjectReference>
@@ -219,13 +250,9 @@
       <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
       <Name>TAS.Client.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
-      <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
-      <Name>TAS.Remoting</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">
+    <ProjectReference Include="..\TAS.Common\TAS.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
-      <Name>TAS.Server.Common</Name>
+      <Name>TAS.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -233,7 +260,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ConvertOperationView.xaml">
+    <Page Include="Views\IngestOperationView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -293,6 +320,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\EngineRightsEditView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventRightsEditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ExportView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -312,6 +347,10 @@
     <Page Include="Views\MediaEditView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\MediaEditWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MediaManagerView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -333,7 +372,27 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SecurityObjectSelectorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SplashScreenView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\TemplatedEditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserManagerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\GroupView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UserView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -345,17 +404,23 @@
     <EmbeddedResource Include="Views\ChannelView.resx">
       <DependentUpon>ChannelView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\ConvertOperationView.pl.resx">
-      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    <EmbeddedResource Include="Views\IngestOperationView.pl.resx">
+      <DependentUpon>IngestOperationView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\ConvertOperationView.resx">
-      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    <EmbeddedResource Include="Views\IngestOperationView.resx">
+      <DependentUpon>IngestOperationView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\EngineCGElementsControllerView.resx">
       <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\EngineCGElementsControllerView.pl.resx">
       <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineRightsEditView.pl.resx">
+      <DependentUpon>EngineRightsEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineRightsEditView.resx">
+      <DependentUpon>EngineRightsEditView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\EngineStateView.pl.resx">
       <DependentUpon>EngineStateView.xaml</DependentUpon>
@@ -380,6 +445,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\EventPanelView.resx">
       <DependentUpon>EventPanelView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventRightsEditView.pl.resx">
+      <DependentUpon>EventRightsEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventRightsEditView.resx">
+      <DependentUpon>EventRightsEditView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ExportView.pl.resx">
       <DependentUpon>ExportView.xaml</DependentUpon>
@@ -435,11 +506,37 @@
     <EmbeddedResource Include="Views\RecordersView.pl.resx">
       <DependentUpon>RecordersView.xaml</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\SecurityObjectSelectorView.pl.resx">
+      <DependentUpon>SecurityObjectSelectorView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\SecurityObjectSelectorView.resx">
+      <DependentUpon>SecurityObjectSelectorView.xaml</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\TemplatedEditView.pl.resx">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TemplatedEditView.resx">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UserManagerView.pl.resx">
+      <DependentUpon>UserManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UserManagerView.resx">
+      <DependentUpon>UserManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\GroupView.resx">
+      <DependentUpon>GroupView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\GroupView.pl.resx">
+      <DependentUpon>GroupView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UserView.pl.resx">
+      <DependentUpon>UserView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UserView.resx">
+      <DependentUpon>UserView.xaml</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

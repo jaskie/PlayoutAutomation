@@ -1,28 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using TAS.Client.ViewModels;
+using TAS.Client.Common;
 
 namespace TVPlayClient
 {
-    public class ChannelsViewmodel : ViewmodelBase
+    public class ChannelsViewmodel : ViewModelBase
     {
-        private readonly List<ChannelWrapperViewmodel> _channels;
-
-        public ChannelsViewmodel(List<ChannelWrapperViewmodel> channels)
+        public ChannelsViewmodel(IEnumerable<ConfigurationChannel> channels)
         {
-            _channels = channels;
-            channels.ForEach(c => c.Initialize());
+            Channels = channels.Select(c => new ChannelWrapperViewmodel(c)).ToList();
+            Channels.ForEach(c => c.Initialize());
         }
+
+        public List<ChannelWrapperViewmodel> Channels { get; }
 
         protected override void OnDispose()
         {
-            _channels?.ForEach(c => c.Dispose());
+            Channels?.ForEach(c => c.Dispose());
         }
-
-        public List<ChannelWrapperViewmodel> Channels { get { return _channels; }  }
-
 
     }
 }

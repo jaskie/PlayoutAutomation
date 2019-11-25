@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Server.Database;
+﻿using System.Linq;
+using TAS.Common;
+using TAS.Common.Database;
 
 namespace TAS.Client.Config.Model
 {
@@ -46,7 +44,7 @@ namespace TAS.Client.Config.Model
 
         public bool CreateEmptyDatabase()
         {
-            return Database.CreateEmptyDatabase(ConnectionString, Collation);
+            return DatabaseProviderLoader.LoadDatabaseProvider().CreateEmptyDatabase(ConnectionString, Collation);
         }
     }
 }

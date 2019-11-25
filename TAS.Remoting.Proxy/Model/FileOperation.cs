@@ -1,50 +1,97 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using TAS.Common;
-using TAS.Remoting;
 using TAS.Remoting.Client;
-using TAS.Server.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
     public class FileOperation : ProxyBase, IFileOperation
     {
-        public bool Aborted { get { return Get<bool>(); } set { Set(value); } }
+        #pragma warning disable CS0649 
 
-        [JsonProperty(IsReference = false, TypeNameHandling = TypeNameHandling.Auto)]
-        public IMediaProperties DestMediaProperties { get { return Get<IMediaProperties>(); } set { Set(value); } }
+        [JsonProperty(nameof(IFileOperation.IsAborted))]
+        private bool _isAborted;
 
-        public IMediaDirectory DestDirectory { get { return Get<IMediaDirectory>(); } set { Set(value); } }
+        [JsonProperty(nameof(IFileOperation.DestProperties))]
+        private IMediaProperties _destProperties;
 
-        public DateTime FinishedTime { get { return Get<DateTime>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IFileOperation.DestDirectory))]
+        private MediaDirectoryBase _destDirectory;
 
-        public bool IsIndeterminate { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IFileOperation.FinishedTime))]
+        private DateTime _finishedTime;
 
-        public TFileOperationKind Kind { get { return Get<TFileOperationKind>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IFileOperation.IsIndeterminate))]
+        private bool _isIndeterminate;
 
-        public List<string> OperationOutput { get { return Get<List<string>>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IFileOperation.Kind))]
+        private TFileOperationKind _kind;
 
-        public FileOperationStatus OperationStatus { get { return Get<FileOperationStatus>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IFileOperation.OperationOutput))]
+        private List<string> _operationOutput;
 
-        public List<string> OperationWarning { get { return Get<List<string>>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IFileOperation.OperationStatus))]
+        private FileOperationStatus _operationStatus;
 
-        public int Progress { get { return Get<int>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IFileOperation.OperationWarning))]
+        private List<string> _operationWarning;
 
-        public DateTime ScheduledTime { get { return Get<DateTime>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IFileOperation.Progress))]
+        private int _progress;
 
-        public IMedia SourceMedia { get { return Get<Media>(); } set { Set(value); } }
+        [JsonProperty(nameof(IFileOperation.ScheduledTime))]
+        private DateTime _scheduledTime;
 
-        public DateTime StartTime { get { return Get<DateTime>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IFileOperation.Source))]
+        private MediaBase _source;
 
-        public int TryCount { get { return Get<int>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IFileOperation.StartTime))]
+        private DateTime _startTime;
 
-        public string Title { get { return Get<string>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IFileOperation.TryCount))]
+        private int _tryCount;
+
+        [JsonProperty(nameof(IFileOperation.Title))]
+        private string _title;
+
+#pragma warning restore
 
         private event EventHandler _finished;
+
+        public bool IsAborted => _isAborted;
+
+        public IMediaProperties DestProperties { get => _destProperties; set => Set(value); }
+
+        public IMediaDirectory DestDirectory { get => _destDirectory; set => Set(value); }
+
+        public DateTime FinishedTime => _finishedTime;
+
+        public bool IsIndeterminate => _isIndeterminate;
+
+        public TFileOperationKind Kind { get => _kind; set => Set(value); }
+
+        public List<string> OperationOutput => _operationOutput;
+
+        public FileOperationStatus OperationStatus => _operationStatus;
+
+        public List<string> OperationWarning => _operationWarning;
+
+        public int Progress => _progress;
+
+        public DateTime ScheduledTime => _scheduledTime;
+
+        public IMedia Source { get => _source; set => Set(value); }
+
+        public DateTime StartTime => _startTime;
+
+        public int TryCount => _tryCount;
+
+        public string Title => _title;
+
         public event EventHandler Finished
         {
             add
@@ -59,18 +106,17 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(WebSocketMessage e)
-        {
-            if (e.MemberName == nameof(Finished))
-            {
-                _finished?.Invoke(this, ConvertEventArgs<EventArgs>(e));
-            }
-        }
-
         public void Abort()
         {
             Invoke();
         }
 
+        protected override void OnEventNotification(SocketMessage message)
+        {
+            if (message.MemberName == nameof(Finished))
+            {
+                _finished?.Invoke(this, Deserialize<EventArgs>(message));
+            }
+        }
     }
 }

@@ -1,101 +1,93 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.ComponentModel;
-using System.Runtime.Remoting.Messaging;
-using System.Diagnostics;
-using TAS.Common;
-using TAS.Server.Interfaces;
-using TAS.Server.Common;
-using TAS.Server.Database;
 using Newtonsoft.Json;
+using TAS.Common;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
-    public abstract class PersistentMedia: Media, IPersistentMedia
+    public abstract class PersistentMedia: MediaBase, Common.Database.Interfaces.Media.IPersistentMedia
     {
-        internal PersistentMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid)
+
+        private DateTime _killDate;
+        private string _idAux;
+        private TMediaEmphasis _mediaEmphasis;
+        private bool _protected;
+        private readonly Lazy<MediaSegments> _mediaSegments;
+
+        protected PersistentMedia() 
         {
-            IdPersistentMedia = idPersistentMedia;
-            _mediaSegments = new Lazy<MediaSegments>(() => this.DbMediaSegmentsRead<MediaSegments>());
+            _mediaSegments = new Lazy<MediaSegments>(() => EngineController.Database.MediaSegmentsRead<MediaSegments>(this));
         }
-        public UInt64 IdPersistentMedia { get; set; }
+        public ulong IdPersistentMedia { get; set; }
 
         // media properties
 
-        internal DateTime _killDate;
         [JsonProperty]
         public DateTime KillDate
         {
-            get { return _killDate; }
-            set { SetField(ref _killDate, value); }
+            get => _killDate;
+            set => SetField(ref _killDate, value);
         }
 
         // content properties
         [JsonProperty]
-        public UInt64 IdProgramme { get; set; }
-        internal string _idAux;
+        public ulong IdProgramme { get; set; }
+
         [JsonProperty]
         public string IdAux
         {
-            get { return _idAux; }
-            set { SetField(ref _idAux, value); }
+            get => _idAux;
+            set => SetField(ref _idAux, value);
         } // auxiliary Id from external system
 
-        internal TMediaEmphasis _mediaEmphasis;
         [JsonProperty]
         public TMediaEmphasis MediaEmphasis
         {
-            get { return _mediaEmphasis; }
-            set { SetField(ref _mediaEmphasis, value); }
+            get => _mediaEmphasis;
+            set => SetField(ref _mediaEmphasis, value);
         }
 
-        protected bool _protected;
         [JsonProperty]
         public bool Protected
         {
-            get { return _protected; }
-            set { SetField(ref _protected, value); }
-        }
-        private readonly Lazy<MediaSegments> _mediaSegments;
-        public IMediaSegments MediaSegments
-        {
-            get
-            {
-                return _mediaSegments.Value;
-            }
+            get => _protected;
+            set => SetField(ref _protected, value);
         }
 
-        public override void CloneMediaProperties(IMediaProperties fromMedia)
+        public IMediaSegments GetMediaSegments() => _mediaSegments.Value;
+
+        public abstract IDictionary<string, int> FieldLengths { get; } 
+
+
+        internal override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
-            if (fromMedia is IPersistentMediaProperties)
-            {
-                IdAux = (fromMedia as IPersistentMediaProperties).IdAux;
-                IdProgramme = (fromMedia as IPersistentMediaProperties).IdProgramme;
-                MediaEmphasis = (fromMedia as IPersistentMediaProperties).MediaEmphasis;
-            }
+            if (!(fromMedia is IPersistentMediaProperties properties))
+                return;
+            IdAux = properties.IdAux;
+            IdProgramme = properties.IdProgramme;
+            MediaEmphasis = properties.MediaEmphasis;
         }
 
         public abstract bool Save();
 
         public bool IsModified { get; set; }
 
-        protected override bool SetField<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
+        public override void Verify(bool updateFormatAndDurations)
         {
-            bool modified = base.SetField(ref field, value, propertyName);
-            if (modified && propertyName != nameof(IsVerified)) 
-                IsModified = true; 
-            return modified;
-        }
-
-        public override void Verify()
-        {
-            base.Verify();
+            base.Verify(updateFormatAndDurations);
             if (IsModified)
                 Save();
+        }
+
+        protected override bool SetField<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
+        {
+            var modified = base.SetField(ref field, value, propertyName);
+            if (modified && propertyName != nameof(IsVerified))
+                IsModified = true;
+            return modified;
         }
     }
 }

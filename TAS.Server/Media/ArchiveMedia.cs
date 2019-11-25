@@ -1,37 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
+using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Server.Interfaces;
-using TAS.Server.Database;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
-    public class ArchiveMedia : PersistentMedia, IArchiveMedia, IServerIngestStatusMedia
+    public class ArchiveMedia : PersistentMedia, Common.Database.Interfaces.Media.IArchiveMedia
     {
-        private NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ArchiveMedia));
-
-        public ArchiveMedia(IArchiveDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
-
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private TIngestStatus _ingestStatus;
+
+        ~ArchiveMedia()
+        {
+            Debug.WriteLine("ArchiveMedia finalized");    
+        }
+
+        [JsonProperty]
+        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ArchiveMediaFieldLengths;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public TIngestStatus IngestStatus
         {
             get
             {
-                if (_ingestStatus == TIngestStatus.Unknown)
-                {
-                    var sdir = _directory.MediaManager.MediaDirectoryPRI as ServerDirectory;
-                    if (sdir != null)
-                    {
-                        var media = sdir.FindMediaByMediaGuid(_mediaGuid);
-                        if (media != null && media.MediaStatus == TMediaStatus.Available)
-                            _ingestStatus = TIngestStatus.Ready;
-                    }
-                }
+                if (_ingestStatus != TIngestStatus.Unknown) return _ingestStatus;
+                var sdir = (Directory as MediaDirectoryBase)?.MediaManager.MediaDirectoryPRI as ServerDirectory;
+                var media = sdir?.FindMediaByMediaGuid(MediaGuid);
+                if (media != null && media.MediaStatus == TMediaStatus.Available)
+                    _ingestStatus = TIngestStatus.Ready;
                 return _ingestStatus;
             }
-            set { SetField(ref _ingestStatus, value); }
+            set => SetField(ref _ingestStatus, value);
         }
 
         public override bool Save()
@@ -44,15 +44,17 @@ namespace TAS.Server
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = this.DbDelete();
+                            result = EngineController.Database.DeleteMedia(this);
                     }
                     else
                     {
                         if (IdPersistentMedia == 0)
-                            result = this.DbInsert(((ArchiveDirectory)_directory).idArchive);
-                        else
-                        if (IsModified)
-                            result = this.DbUpdate(((ArchiveDirectory)_directory).idArchive);
+                            result = EngineController.Database.InsertMedia(this, ((ArchiveDirectory)Directory).IdArchive);
+                        else if (IsModified)
+                        {
+                            EngineController.Database.UpdateMedia(this, ((ArchiveDirectory) Directory).IdArchive);
+                            result = true;
+                        }
                         IsModified = false;
                     }
                 }

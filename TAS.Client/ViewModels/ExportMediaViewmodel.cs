@@ -1,81 +1,61 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using TAS.Client.Common;
 using TAS.Common;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class ExportMediaViewmodel: ViewmodelBase
+    public class ExportMediaViewmodel : ViewModelBase
     {
-        public readonly ExportMedia MediaExport;
-        public readonly IMediaManager MediaManager;
-        private readonly ObservableCollection<ExportMediaLogoViewmodel> _logos;
-        public ExportMediaViewmodel(IMediaManager manager, ExportMedia mediaExport)
+        private readonly IEngine _engine;
+
+        public ExportMediaViewmodel(IEngine engine, MediaExportDescription mediaExport)
         {
-            this.MediaExport = mediaExport;
-            MediaManager = manager;
-            _logos = new ObservableCollection<ExportMediaLogoViewmodel>(mediaExport.Logos.Select(l => new ExportMediaLogoViewmodel(this, l)));
-            CommandAddLogo = new UICommand() { ExecuteDelegate = _addLogo };
+            _engine = engine;
+            MediaExport = mediaExport;
+            Logos = new ObservableCollection<ExportMediaLogoViewmodel>(mediaExport.Logos.Select(l => new ExportMediaLogoViewmodel(this, l)));
+            CommandAddLogo = new UiCommand(_addLogo);
         }
 
+        public string MediaName => MediaExport.Media.MediaName;
+
+        public TimeSpan StartTC { get => MediaExport.StartTC; set => SetField(ref MediaExport.StartTC, value); }
+
+        public TimeSpan Duration { get => MediaExport.Duration; set => SetField(ref MediaExport.Duration, value); }
+
+        public double AudioVolume { get => MediaExport.AudioVolume; set => SetField(ref MediaExport.AudioVolume, value); }
+
+        public ObservableCollection<ExportMediaLogoViewmodel> Logos { get; }
+
+        public UiCommand CommandAddLogo { get; }
+
+        public MediaExportDescription MediaExport { get; }
+
+        public TVideoFormat VideoFormat => _engine.VideoFormat;
+        
         internal void Remove(ExportMediaLogoViewmodel exportMediaLogoViewModel)
         {
-            _logos.Remove(exportMediaLogoViewModel);
+            Logos.Remove(exportMediaLogoViewModel);
             MediaExport.RemoveLogo(exportMediaLogoViewModel.Logo);
         }
 
-        public string MediaName { get { return this.MediaExport.Media.MediaName; } }
-        public TimeSpan StartTC { get { return this.MediaExport.StartTC; } set { SetField(ref this.MediaExport.StartTC, value); } }
-        public TimeSpan Duration { get { return this.MediaExport.Duration; } set { SetField(ref this.MediaExport.Duration, value); } }
-        public decimal AudioVolume { get { return this.MediaExport.AudioVolume; } set { SetField(ref this.MediaExport.AudioVolume, value); } }
-        public ObservableCollection<ExportMediaLogoViewmodel> Logos { get { return _logos; } }
-        public UICommand CommandAddLogo { get; private set; }
-
-        private MediaSearchViewmodel _searchViewmodel;
-
         private void _addLogo(object o)
         {
-            var svm = _searchViewmodel;
-            if (svm == null)
-            {
-                svm = new MediaSearchViewmodel(
-                    null, // preview
-                    MediaManager,
-                    TMediaType.Still, 
-                    VideoLayer.CG1,
-                    true, // close ater add
-                    MediaExport.Media.FormatDescription());
-                svm.MediaChoosen += _searchMediaChoosen;
-                svm.SearchWindowClosed += _searchWindowClosed;
-                svm.ExecuteAction = (e) =>
+            using (var vm = new MediaSearchViewmodel(
+                null, // preview
+                _engine,
+                TMediaType.Still,
+                VideoLayer.CG1,
+                true, // close ater add
+                MediaExport.Media.FormatDescription()))
+                if (UiServices.ShowDialog<Views.MediaSearchView>(vm) == true)
                 {
-                    _logos.Add(new ExportMediaLogoViewmodel(this, e.Media));
-                    MediaExport.AddLogo(e.Media);
-                };
-                _searchViewmodel = svm;
-            }
+                    Logos.Add(new ExportMediaLogoViewmodel(this, vm.SelectedMedia));
+                    MediaExport.AddLogo(vm.SelectedMedia);
+                }
         }
-
-        private void _searchMediaChoosen(object sender, MediaSearchEventArgs e)
-        {
-            if (((MediaSearchViewmodel)sender).ExecuteAction != null)
-                ((MediaSearchViewmodel)sender).ExecuteAction(e);
-        }
-
-        private void _searchWindowClosed(object sender, EventArgs e)
-        {
-            MediaSearchViewmodel mvs = (MediaSearchViewmodel)sender;
-            mvs.MediaChoosen -= _searchMediaChoosen;
-            mvs.SearchWindowClosed -= _searchWindowClosed;
-            _searchViewmodel.Dispose();
-            _searchViewmodel = null;
-        }
-
 
         protected override void OnDispose() { }
     }

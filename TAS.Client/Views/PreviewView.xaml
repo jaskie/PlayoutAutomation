@@ -4,19 +4,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" 
-             xmlns:client="clr-namespace:TAS.Client"
-             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             mc:Ignorable="d"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
-             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
-             d:DataContext="{x:Type vm:PreviewViewmodel}"
              FontSize="12" 
              MinHeight="55"
+             d:DesignHeight="300"
              >
     <UserControl.Resources>
-        <Style x:Key="controlButtonProperties" TargetType="Button" >
-            <Setter Property="Width" Value="40" />
-            <Setter Property="Margin" Value="8" />
+        <Style x:Key="ControlButtonProperties" TargetType="Button" >
+            <Setter Property="Width" Value="35" />
+            <Setter Property="Height" Value="35" />
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="Focusable" Value="False"/>
         </Style>
     </UserControl.Resources>
     <UserControl.InputBindings>
@@ -28,22 +27,28 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" MinWidth="300" >
         <DockPanel IsEnabled="{Binding IsEnabled}">
-            <DockPanel DockPanel.Dock="Top">
-                <Button Command="{Binding CommandPause}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonPause.ToolTip}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Paused.png" Stretch="None" />
-                </Button>
-                <Button Command="{Binding CommandPlay}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonPlay.ToolTip}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Playing.png" Stretch="None" />
-                </Button>
-                <Button Command="{Binding CommandStop}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Aborted.png" Stretch="None" />
-                </Button>
-                <StackPanel>
-                    <TextBox Text="{Binding MediaName, Mode=OneWay}" Margin="3" IsEnabled="{Binding IsLoaded}" IsReadOnly="True"/>
-                    <TextBox Text="{Binding FileName, Mode=OneWay}" Margin="3" IsEnabled="{Binding IsLoaded}" IsReadOnly="True"/>
+            <Grid DockPanel.Dock="Top" >
+                <StackPanel Orientation="Horizontal">
+                    <Button Command="{Binding CommandPause}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPause.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-pause.png"  />
+                    </Button>
+                    <Button Command="{Binding CommandPlay}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlay.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-start.png" />
+                    </Button>
+                    <Button Command="{Binding CommandPlayTheEnd}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlayTheEnd.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-end.png" />
+                    </Button>
+                    <Button Command="{Binding CommandUnload}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png"  />
+                    </Button>
                 </StackPanel>
-            </DockPanel>
-            <DockPanel Grid.Row="1" IsEnabled="{Binding IsPlayable}">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Command="{Binding CommandTrimSource}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonTrimSource.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/time-update.png"  />
+                    </Button>
+                </StackPanel>
+            </Grid>
+            <DockPanel IsEnabled="{Binding IsLoaded}">
                 <DockPanel.Resources>
                     <Style TargetType="Button">
                         <Setter Property="Width" Value="22" />
@@ -52,13 +57,16 @@
                         <Setter Property="Padding" Value="0" />
                     </Style>
                 </DockPanel.Resources>
-                <controls:MediaSeekSlider DockPanel.Dock="Top" Margin="10" 
+                <Grid DockPanel.Dock="Top" >
+                    <controls:MediaSeekSlider Margin="10" 
                                         Position="{Binding SliderPosition}" 
-                                        Maximum="{Binding SliderMaximum}" 
+                                        Maximum="{Binding LoadedDuration}" 
                                         SmallChange="1" LargeChange="{Binding FramesPerSecond}" 
                                         Interval="500" Delay="1000" TickPlacement="TopLeft" 
                                         TickFrequency="{Binding SliderTickFrequency}" 
                                         ToolTip="{Resx _slider.ToolTip}"/>
+                    <TextBlock Text="{Binding LoadedMedia.MediaName}" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                </Grid>
                 <Grid DockPanel.Dock="Top">
                     <Grid.Resources>                        
                         <Style TargetType="controls:TimecodeEdit">
@@ -78,7 +86,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <Label Content="Start TC" />
-                        <controls:TimecodeEdit Timecode="{Binding StartTc, Mode=OneWay}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit Timecode="{Binding StartTc}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
                         <controls:TimecodeEdit Timecode="{Binding TcIn}" VideoFormat="{Binding VideoFormat}" />
                     </StackPanel>
                     <StackPanel Grid.Column="1">
@@ -114,7 +122,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="4">
                         <Label Content="{Resx _duration}" />
-                        <controls:TimecodeEdit Timecode="{Binding Duration, Mode=OneWay}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit VideoFormat="{Binding VideoFormat}" Timecode="{Binding Duration}" IsReadOnly="True"/>
                         <controls:TimecodeEdit Timecode="{Binding TcOut}" VideoFormat="{Binding VideoFormat}" />
                     </StackPanel>
                 </Grid>
@@ -122,22 +130,28 @@
                 <DockPanel IsEnabled="{Binding IsSegmentsEnabled, Converter={StaticResource BoolToVis}}" Visibility="{Binding IsSegmentsVisible, Converter={StaticResource BoolToVis}}">
                     <DockPanel DockPanel.Dock="Top">
                         <Label DockPanel.Dock="Left" Content="{Resx _name}" Padding="2" VerticalContentAlignment="Center" Margin="4,0"/>
-                        <Button DockPanel.Dock="Right" ToolTip="{Resx _delete.ToolTip}" Command="{Binding CommandDeleteSegment}" Margin="5,0" >
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png" />
-                        </Button>
-                        <Button DockPanel.Dock="Right" ToolTip="{Resx _save.ToolTip}" Command="{Binding CommandSaveSegment}" Margin="0" >
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/save-small.png" />
-                        </Button>
-                        <Button DockPanel.Dock="Right" ToolTip="{Resx _addSegment.ToolTip}" Command="{Binding CommandNewSegment}" Margin="5,0" >
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png" />
-                        </Button>
-                        <TextBox DockPanel.Dock="Left" Text="{Binding SelectedSegmentName, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Resx _name.ToolTip}"/>
+                        <Button DockPanel.Dock="Right" ToolTip="{Resx _delete.ToolTip}" Command="{Binding CommandDeleteSegment}" Style="{StaticResource DeleteButtonStyle}" Margin="5, 0" />
+                        <Button DockPanel.Dock="Right" ToolTip="{Resx _save.ToolTip}" Command="{Binding CommandSaveSegment}" Style="{StaticResource SaveButtonStyle}"  Margin="0" />
+                        <Button DockPanel.Dock="Right" ToolTip="{Resx _addSegment.ToolTip}" Command="{Binding CommandNewSegment}" Style="{StaticResource AddButtonStyle}" Margin="5,0" />
+                        <TextBox DockPanel.Dock="Left" Text="{Binding SegmentName, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Resx _name.ToolTip}" />
                     </DockPanel>
                     <DataGrid MinHeight="80" ItemsSource="{Binding MediaSegments}" SelectedItem="{Binding SelectedSegment}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding SegmentName}" Header="{Resx ResxName=TAS.Client.Views.PreviewView, Key=_name}" Width="*"/>
-                            <DataGridTextColumn Binding="{Binding sTcIn}" Header="TC In" Width="100"/>
-                            <DataGridTextColumn Binding="{Binding sTcOut}" Header="TC Out" Width="100"/>
+                            <DataGridTemplateColumn Header="TC In" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <controls:TimecodeTextBlock Timecode="{Binding TcIn}" VideoFormat="{Binding VideoFormat}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="TC Out" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <controls:TimecodeTextBlock Timecode="{Binding TcOut}" VideoFormat="{Binding VideoFormat}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>

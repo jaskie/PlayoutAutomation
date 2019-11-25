@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
-    public class AnimationDirectory : MediaDirectory, IAnimationDirectory
+    public class AnimationDirectory : WatcherDirectory, IAnimationDirectory
     {
-
-        public IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
+        public void CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
         {
-            return Query<IAnimatedMedia>(parameters: new[] { source });
+            Invoke(parameters: new object[] { source });
         }
 
-        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        public override IReadOnlyCollection<IMedia> GetFiles()
         {
-            return Query<IAnimatedMedia>(parameters: new[] { mediaProperties });
+            return Query<List<AnimatedMedia>>();
         }
+
     }
 }

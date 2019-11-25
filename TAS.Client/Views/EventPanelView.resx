@@ -185,7 +185,7 @@
     <value>Scheduled at</value>
   </data>
   <data name="_toggleLayer.ToolTip" xml:space="preserve">
-    <value>Add/remove graphics on this layer</value>
+    <value>Add/remove graphics on this layer | Ctrl+Layer number</value>
   </data>
   <data name="_scheduledDelay.ToolTip" xml:space="preserve">
     <value>Delay</value>
@@ -209,7 +209,7 @@
     <value>Scheduled to start automatically</value>
   </data>
   <data name="_addAnimation.ToolTip" xml:space="preserve">
-    <value>Add animation</value>
+    <value>Add animation | Ctrl+0</value>
   </data>
   <data name="_addCommandScript.ToolTip" xml:space="preserve">
     <value>Add command script</value>

@@ -1,66 +1,64 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
-using resources = TAS.Client.Common.Properties.Resources;
+using TAS.Common.Interfaces;
 
 
 namespace TAS.Client.ViewModels
 {
     public class EventPanelContainerViewmodel: EventPanelViewmodelBase
     {
+
+        private bool _isVisible;
+
         public EventPanelContainerViewmodel(IEvent ev, EventPanelViewmodelBase parent): base(ev, parent) {
             if (ev.EventType != TEventType.Container)
                 throw new ApplicationException($"Invalid panel type:{GetType()} for event type:{ev.EventType}");
             _isVisible = !HiddenEventsStorage.Contains(ev);
 
-            CommandHide = new UICommand {ExecuteDelegate = o => IsVisible = false,CanExecuteDelegate = o => _isVisible };
-            CommandShow = new UICommand {ExecuteDelegate = o => IsVisible = true, CanExecuteDelegate = o => !_isVisible };
-            CommandAddSubRundown = new UICommand {ExecuteDelegate = _addSubRundown};
+            CommandHide = new UiCommand(o => IsVisible = false, o => _isVisible);
+            CommandShow = new UiCommand(o => IsVisible = true, o => !_isVisible);
+            CommandAddSubRundown = new UiCommand(_addSubRundown, o => Engine.HaveRight(EngineRight.Rundown));
+            ev.SubEventChanged += SubEventChanged;
         }
 
         public ICommand CommandHide { get; }
         public ICommand CommandShow { get; }
-        public ICommand CommandPaste => _engineViewmodel.CommandPasteSelected;
+        public ICommand CommandPaste => EngineViewmodel.CommandPasteSelected;
         public ICommand CommandAddSubRundown { get; }
 
-        bool _isVisible;
         public override bool IsVisible
         {
-            get { return _isVisible; }
+            get => _isVisible;
             protected set
             {
                 if (SetField(ref _isVisible, value))
                 {
                     if (value)
-                        HiddenEventsStorage.Remove(_event);
+                        HiddenEventsStorage.Remove(Event);
                     else
-                        HiddenEventsStorage.Add(_event);
+                        HiddenEventsStorage.Add(Event);
                     if (!value)
                         IsSelected = false;
-                    _root.NotifyContainerVisibility();
+                    Root.NotifyContainerVisibility();
                 }
             }
         }
 
-        void _addSubRundown(object o)
+        private void _addSubRundown(object o)
         {
-            _engineViewmodel.AddSimpleEvent(_event, TEventType.Rundown, true);
+            EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, true);
+        }
+        protected override void OnDispose()
+        {
+            Event.SubEventChanged -= SubEventChanged;
+            base.OnDispose();
         }
 
-        protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
+        private void SubEventChanged(object sender, CollectionOperationEventArgs<IEvent> e)
         {
-            base.OnSubeventChanged(o, e);
-            NotifyPropertyChanged(nameof(ChildrenCount));
+            
         }
-
-        public int ChildrenCount => _event.SubEventsCount;
     }
 }

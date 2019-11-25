@@ -2,71 +2,195 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using TAS.Common;
 using TAS.Remoting.Client;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.Security;
+using TAS.Remoting.Model.Security;
 
 namespace TAS.Remoting.Model
 {
     public class Engine : ProxyBase, IEngine
     {
+#pragma warning disable CS0649
+
+        [JsonProperty(nameof(IEngine.CurrentTime))]
+        private DateTime _currentTime;
+
+        [JsonProperty(nameof(IEngine.TimeCorrection))]
+        private int _timeCorrection;
+
+        [JsonProperty(nameof(IEngine.EngineName))]
+        private string _engineName;
+
+        [JsonProperty(nameof(IEngine.EngineState))]
+        private TEngineState _engineState;
+
+        [JsonProperty(nameof(IEngine.ForcedNext))]
+        private IEvent _forcedNext;
+
+        [JsonProperty(nameof(IEngine.FormatDescription))]
+        private VideoFormatDescription _formatDescription;
+
+        [JsonProperty(nameof(IEngine.FrameRate))]
+        private RationalNumber _frameRate;
+
+        [JsonProperty(nameof(IEngine.FrameTicks))]
+        private long _frameTicks;
+
+        [JsonProperty(nameof(IEngine.CGElementsController))]
+        private CGElementsController _cGElementsController;
+
+        [JsonProperty(nameof(IEngine.EnableCGElementsForNewEvents))]
+        private bool _enableCGElementsForNewEvents;
+
+        [JsonProperty(nameof(IEngine.StudioMode))]
+        private bool _studioMode;
+
+        [JsonProperty(nameof(IEngine.CrawlEnableBehavior))]
+        private TCrawlEnableBehavior _crawlEnableBehavior;
+
+        [JsonProperty(nameof(IEngine.FieldOrderInverted))]
+        private bool _fieldOrderInverted;
+
+        [JsonProperty(nameof(IEngine.MediaManager))]
+        private MediaManager _mediaManager;
+
+        [JsonProperty(nameof(IEngine.PlayoutChannelPRI))]
+        private PlayoutServerChannel _playoutChannelPRI;
+
+        [JsonProperty(nameof(IEngine.PlayoutChannelSEC))]
+        private PlayoutServerChannel _playoutChannelSEC;
+
+        [JsonProperty(nameof(IEngine.PlayoutChannelPRV))]
+        private PlayoutServerChannel _playoutChannelPrv;
+
+        [JsonProperty(nameof(IEngine.IsWideScreen))]
+        private bool _isWideScreen;
+
+        [JsonProperty(nameof(IEngine.PreviewAudioVolume))]
+        private double _previewAudioVolume;
+
+        [JsonProperty(nameof(IEngine.PreviewIsPlaying))]
+        private bool _previewIsPlaying;
+
+        [JsonProperty(nameof(IEngine.PreviewLoaded))]
+        private bool _previewLoaded;
+
+        [JsonProperty(nameof(IEngine.PreviewMedia))]
+        private MediaBase _previewMedia;
+
+        [JsonProperty(nameof(IEngine.PreviewPosition))]
+        private long _previewPosition;
+
+        [JsonProperty(nameof(IEngine.PreviewLoadedSeek))]
+        private long _previewSeek;
+
+        [JsonProperty(nameof(IEngine.ProgramAudioVolume))]
+        private double _programAudioVolume;
+
+        [JsonProperty(nameof(IEngine.Pst2Prv))]
+        private bool _pst2Prv;
+
+        [JsonProperty(nameof(IEngine.AuthenticationService))]
+        private AuthenticationService _authenticationService;
+
+        [JsonProperty(nameof(IEngine.VideoFormat))]
+        private TVideoFormat _videoFormat;
+
+        [JsonProperty(nameof(IEngine.DatabaseConnectionState))]
+        private ConnectionStateRedundant _databaseConnectionState;
+
+        [JsonProperty(nameof(IEngine.Playing))]
+        private Event _playing;
+
+        [JsonProperty(nameof(IEngine.ServerMediaFieldLengths))]
+        private IDictionary<string, int> _serverMediaFieldLengths;
+
+        [JsonProperty(nameof(IEngine.ArchiveMediaFieldLengths))]
+        private IDictionary<string, int> _archiveMediaFieldLengths;
+
+        [JsonProperty(nameof(IEngine.EventFieldLengths))]
+        private IDictionary<string, int> _eventFieldLengths;
+
+        [JsonProperty(nameof(IEngine.NextToPlay))]
+        private Event _nextToPlay;
+
+#pragma warning restore
+
         public Engine()
         {
             Debug.WriteLine("Engine created.");
         }
 
-        public DateTime CurrentTime { get { return Get<DateTime>(); } }
+        public DateTime CurrentTime => _currentTime;
 
-        public string EngineName { get { return Get<string>(); } set { SetLocalValue(value); } }
+        public int TimeCorrection { get => _timeCorrection; set => Set(value); }
 
-        public TEngineState EngineState { get { return Get<TEngineState>(); } set { SetLocalValue(value); } }
+        public string EngineName => _engineName;
 
-        public IEvent ForcedNext { get { return Get<Event>(); } set { Set(value); } }
+        public TEngineState EngineState => _engineState;
 
-        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetLocalValue(value); } }
+        public IEvent ForcedNext => _forcedNext;
 
-        public RationalNumber FrameRate { get { return Get<RationalNumber>(); } set { SetLocalValue(value); } }
+        public VideoFormatDescription FormatDescription => _formatDescription;
 
-        public long FrameTicks { get { return Get<long>(); } set { SetLocalValue(value); } }
+        public RationalNumber FrameRate => _frameRate;
 
-        [JsonProperty(nameof(IEngine.CGElementsController))]
-        private CGElementsController _cGElementsController { get { return Get<CGElementsController>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
-        public ICGElementsController CGElementsController { get { return _cGElementsController; } }
+        public long FrameTicks => _frameTicks;
 
-        public bool EnableCGElementsForNewEvents { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        public ICGElementsController CGElementsController => _cGElementsController;
 
-        public TCrawlEnableBehavior CrawlEnableBehavior { get { return Get<TCrawlEnableBehavior>(); } set { SetLocalValue(value); } }
+        public bool EnableCGElementsForNewEvents
+        {
+            get => _enableCGElementsForNewEvents;
+            set => Set(value);
+        }
 
-        public bool FieldOrderInverted { get { return Get<bool>(); } set { Set(value); } }
+        public bool StudioMode { get => _studioMode; set => Set(value); }
 
-        public IMediaManager MediaManager { get { return Get<MediaManager>(); } set { SetLocalValue(value); } }
+        public TCrawlEnableBehavior CrawlEnableBehavior
+        {
+            get => _crawlEnableBehavior;
+            set => Set(value);
+        }
 
-        public IEvent NextToPlay { get { return Get<Event>(); } set { SetLocalValue(value); } }
+        public bool FieldOrderInverted { get => _fieldOrderInverted; set => Set(value); }
 
-        public IEvent NextWithRequestedStartTime { get { return Get<Event>(); } set { SetLocalValue(value); } }
+        public IMediaManager MediaManager => _mediaManager;
 
-        public IPlayoutServerChannel PlayoutChannelPRI { get { return Get<PlayoutServerChannel>(); } set { SetLocalValue(value); } }
+        public IPlayoutServerChannel PlayoutChannelPRI => _playoutChannelPRI;
 
-        public IPlayoutServerChannel PlayoutChannelSEC { get { return Get<PlayoutServerChannel>(); } set { SetLocalValue(value); } }
+        public IPlayoutServerChannel PlayoutChannelSEC => _playoutChannelSEC;
 
-        public bool IsWideScreen { get { return Get<bool>(); }  set { Set(value); } }
+        public bool IsWideScreen => _isWideScreen;
+
+        public IEvent NextToPlay { get => _nextToPlay; set => Set(value); }
+
+        public IEvent GetNextWithRequestedStartTime() { return Query<Event>(); }
 
         #region IPreview
-        public IPlayoutServerChannel PlayoutChannelPRV { get { return Get<IPlayoutServerChannel>(); } set { SetLocalValue(value); } }
-        public decimal PreviewAudioVolume { get { return Get<decimal>(); } set { Set(value); } }
-        public bool PreviewIsPlaying { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        public bool PreviewLoaded { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        [JsonProperty(nameof(IEngine.PreviewMedia))]
-        private Media _previewMedia { get { return Get<Media>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
-        public IMedia PreviewMedia { get { return _previewMedia; } }
-        public long PreviewPosition { get { return Get<long>(); } set { Set(value); } }
-        public long PreviewSeek { get { return Get<long>(); } set { SetLocalValue(value); } }
-        public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal audioLevel)
+
+        public IPlayoutServerChannel PlayoutChannelPRV => _playoutChannelPrv;
+
+        public double PreviewAudioVolume
+        {
+            get => _previewAudioVolume;
+            set => Set(value);
+        }
+
+        public bool PreviewIsPlaying => _previewIsPlaying;
+
+        public bool PreviewLoaded => _previewLoaded;
+
+        public IMedia PreviewMedia => _previewMedia;
+
+        public long PreviewPosition { get => _previewPosition; set => Set(value); }
+
+        public long PreviewLoadedSeek => _previewSeek;
+
+        public void PreviewLoad(IMedia media, long seek, long duration, long position, double audioLevel)
         {
             Invoke(parameters: new object[] { media, seek, duration, position, audioLevel });
         }
@@ -79,36 +203,29 @@ namespace TAS.Remoting.Model
 
         #endregion IPreview
 
-        public decimal ProgramAudioVolume { get { return Get<decimal>(); } set { Set(value); } }
+        public double ProgramAudioVolume { get => _programAudioVolume; set => Set(value); }
 
-        public bool Pst2Prv { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        public bool Pst2Prv { get => _pst2Prv; set => Set(value); }
+
+        public IAuthenticationService AuthenticationService => _authenticationService;
 
         public IEnumerable<IEvent> GetRootEvents() { return Query<List<IEvent>>(); }
 
-        public int ServerChannelPRI { get; set; }
-        public int ServerChannelPRV { get; set; }
-        public int ServerChannelSEC { get; set; }
+        public TVideoFormat VideoFormat { get => _videoFormat; set => Set(value); }
 
-        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetLocalValue(value); } }
+        public ConnectionStateRedundant DatabaseConnectionState => _databaseConnectionState;
 
+        public IEvent Playing => _playing;
 
-        public ConnectionStateRedundant DatabaseConnectionState { get { return Get<ConnectionStateRedundant>(); } set { SetLocalValue(value); } }
-        [JsonProperty(nameof(IEngine.Playing))]
-        private Event _playing { get { return Get<Event>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
-        public IEvent Playing { get { return _playing; } }
+        public List<IEvent> FixedTimeEvents => throw new NotImplementedException();
 
-        public List<IEvent> FixedTimeEvents
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IDictionary<string, int> ServerMediaFieldLengths { get => _serverMediaFieldLengths; set => Set(value); }
+        public IDictionary<string, int> ArchiveMediaFieldLengths { get => _archiveMediaFieldLengths; set => Set(value); }
+        public IDictionary<string, int> EventFieldLengths { get => _eventFieldLengths; set => Set(value); }
 
-        public IEvent AddNewEvent(
-                    UInt64 idRundownEvent = 0,
-                    UInt64 idEventBinding = 0,
+        public IEvent CreateNewEvent(
+                    ulong idRundownEvent = 0,
+                    ulong idEventBinding = 0,
                     VideoLayer videoLayer = VideoLayer.None,
                     TEventType eventType = TEventType.Rundown,
                     TStartType startType = TStartType.None,
@@ -126,8 +243,8 @@ namespace TAS.Remoting.Model
                     TimeSpan transitionPauseTime = default(TimeSpan),
                     TTransitionType transitionType = TTransitionType.Cut,
                     TEasing transitionEasing = TEasing.Linear,
-                    decimal? audioVolume = null,
-                    UInt64 idProgramme = 0,
+                    double? audioVolume = null,
+                    ulong idProgramme = 0,
                     string idAux = "",
                     bool isEnabled = true,
                     bool isHold = false,
@@ -150,39 +267,50 @@ namespace TAS.Remoting.Model
 
         public void AddRootEvent(IEvent ev)
         {
-            Invoke(parameters: new[] { ev });
+            Invoke(parameters: new object[] { ev });
         }
 
         public void Clear() { Invoke(); }
 
-        public void Clear(VideoLayer aVideoLayer) { Invoke(parameters: new[] { aVideoLayer }); } 
+        public void Clear(VideoLayer aVideoLayer) { Invoke(parameters: new object[] { aVideoLayer }); }
 
         public void ClearMixer() { Invoke(); }
 
-        public void Load(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
+        public void Load(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
-        public void RemoveEvent(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
-
-        public void ReSchedule(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
+        public void ReSchedule(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
         public void Restart() { Invoke(); }
 
-        public void RestartRundown(IEvent aRundown) { Invoke(parameters: new[] { aRundown }); }
+        public void RestartRundown(IEvent aRundown) { Invoke(parameters: new object[] { aRundown }); }
 
-        public void Schedule(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
+        public void Schedule(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
         public void SearchMissingEvents()
         {
-            throw new NotImplementedException();
+            Invoke();
         }
 
-        public void Start(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
-        
+        public void Start(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
+
         public void StartLoaded() { Invoke(); }
+
+        public void ForceNext(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
         public void Execute(string command)
         {
             throw new NotImplementedException(); // method used by server plugin only
+        }
+
+        public IEnumerable<IAclRight> GetRights() => Query<List<EngineAclRight>>();
+
+        public IAclRight AddRightFor(ISecurityObject securityObject) { return Query<IAclRight>(parameters: new object[] { securityObject }); }
+
+        public bool DeleteRight(IAclRight item) { return Query<bool>(parameters: new object[] { item }); }
+
+        public bool HaveRight(EngineRight right)
+        {
+            return Query<bool>(parameters: new object[] { right });
         }
 
         #region Event handling
@@ -218,22 +346,22 @@ namespace TAS.Remoting.Model
 #endif
             }
         }
-        event EventHandler<IEventEventArgs> _eventSaved;
-        public event EventHandler<IEventEventArgs> EventSaved
+        event EventHandler<EventEventArgs> _eventLocated;
+        public event EventHandler<EventEventArgs> EventLocated
         {
             add
             {
-                EventAdd(_eventSaved);
-                _eventSaved += value;
+                EventAdd(_eventLocated);
+                _eventLocated += value;
             }
             remove
             {
-                _eventSaved -= value;
-                EventRemove(_eventSaved);
+                _eventLocated -= value;
+                EventRemove(_eventLocated);
             }
         }
-        event EventHandler<IEventEventArgs> _eventDeleted;
-        public event EventHandler<IEventEventArgs> EventDeleted
+        event EventHandler<EventEventArgs> _eventDeleted;
+        public event EventHandler<EventEventArgs> EventDeleted
         {
             add
             {
@@ -247,32 +375,36 @@ namespace TAS.Remoting.Model
             }
         }
         // do not implement this in remote client as is used only for debugging puproses
+#pragma warning disable CS0067
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         // do not implement this in remote client as is used only for debugging puproses
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
+        public event EventHandler<EventEventArgs> VisibleEventAdded;
+        // do not implement this in remote client as is used only for debugging puproses
+        public event EventHandler<EventEventArgs> VisibleEventRemoved;
         // do not implement this in remote client as is used only for debugging puproses
         public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
+#pragma warning restore
 
-        protected override void OnEventNotification(WebSocketMessage e)
+        protected override void OnEventNotification(SocketMessage message)
         {
-            switch (e.MemberName)
+            switch (message.MemberName)
             {
                 case nameof(IEngine.EngineTick):
-                    _engineTick?.Invoke(this, ConvertEventArgs<EngineTickEventArgs>(e));
+                    _engineTick?.Invoke(this, Deserialize<EngineTickEventArgs>(message));
                     break;
                 case nameof(IEngine.EngineOperation):
-                    _engineOperation?.Invoke(this, ConvertEventArgs<EngineOperationEventArgs>(e));
+                    _engineOperation?.Invoke(this, Deserialize<EngineOperationEventArgs>(message));
                     break;
-                case nameof(IEngine.EventSaved):
-                    _eventSaved?.Invoke(this, ConvertEventArgs<IEventEventArgs>(e));
+                case nameof(IEngine.EventLocated):
+                    _eventLocated?.Invoke(this, Deserialize<EventEventArgs>(message));
                     break;
                 case nameof(IEngine.EventDeleted):
-                    _eventDeleted?.Invoke(this, ConvertEventArgs<IEventEventArgs>(e));
+                    _eventDeleted?.Invoke(this, Deserialize<EventEventArgs>(message));
                     break;
             }
         }
 
-#endregion // Event handling
+        #endregion // Event handling
 
         public override string ToString()
         {

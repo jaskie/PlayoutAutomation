@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TAS.Client.ViewModels;
 using System.Collections;
+using System.Windows.Controls.Primitives;
 
 namespace TAS.Client.Views
 {
@@ -26,47 +27,30 @@ namespace TAS.Client.Views
             InitializeComponent();
         }
 
-        private MediaManagerViewmodel _mediaManagerViewModel;
-        public MediaManagerViewmodel MediaManagerViewmodel
-        {
-            get { return _mediaManagerViewModel; }
-            set
-            {
-                if (_mediaManagerViewModel != value)
-                {
-                    _mediaManagerViewModel = value;
-                    DataContext = _mediaManagerViewModel;
-                }
-            }
-        }
-
-        private PreviewViewmodel _previewViewModel;
-        public PreviewViewmodel PreviewViewmodel
-        {
-            get { return _previewViewModel; }
-            set
-            {
-                if (_previewViewModel != value)
-                {
-                    _previewViewModel = value;
-                }
-            }
-        }
 
         private void UserControl_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.SystemKey == Key.LeftAlt)
-            {
-                if (mainMenu.Visibility == Visibility.Collapsed)
-                    mainMenu.Visibility = Visibility.Visible;
-                else
-                    mainMenu.Visibility = Visibility.Collapsed;
-            }
+            if (e.SystemKey != Key.LeftAlt)
+                return;
+            mainMenu.Visibility = mainMenu.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void TreeViewEx_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            folderCombo.IsOpen = false;
+            DirectoryCombo.IsOpen = false;
+        }
+
+        private void SidePanelResizer_OnDragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var xadjust = SidePanel.Width - e.HorizontalChange;
+            if (xadjust >= 0)
+                SidePanel.Width = xadjust;
+            e.Handled = true;
+        }
+
+        private void Expander_OnCollapsed(object sender, RoutedEventArgs e)
+        {
+            MediaListGrid.Focus();
         }
     }
 }

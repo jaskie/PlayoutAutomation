@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TAS.Client.NDIVideoPreview.Interop
 {
@@ -70,6 +67,5 @@ namespace TAS.Client.NDIVideoPreview.Interop
 
         // C# doesn't allow #define as in C/C++, so we do this instead
         public static long NDIlib_send_timecode_synthesize = Int64.MaxValue;
-
     }
 }

@@ -135,8 +135,26 @@
   <data name="_grid.Header.Folder" xml:space="preserve">
     <value>Folder</value>
   </data>
+  <data name="_grid.Header.HasSegments.ToolTip" xml:space="preserve">
+    <value>Has segments</value>
+  </data>
   <data name="_grid.Header.IngestDate" xml:space="preserve">
     <value>Ingest date</value>
+  </data>
+  <data name="_grid.Header.IsArchived.ToolTip" xml:space="preserve">
+    <value>Archive status</value>
+  </data>
+  <data name="_grid.Header.IsIngested.ToolTip" xml:space="preserve">
+    <value>Ingest status</value>
+  </data>
+  <data name="_grid.Header.IsTrimmed.ToolTip" xml:space="preserve">
+    <value>Trimmed</value>
+  </data>
+  <data name="_grid.Header.MediaCategory.ToolTip" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="_grid.Header.MediaStatus.ToolTip" xml:space="preserve">
+    <value>Status</value>
   </data>
   <data name="_grid.Header.TcPlay" xml:space="preserve">
     <value>TC play</value>
@@ -146,6 +164,9 @@
   </data>
   <data name="_grid.IsTrimmed" xml:space="preserve">
     <value>Trimmed</value>
+  </data>
+  <data name="_hide" xml:space="preserve">
+    <value>Hide</value>
   </data>
   <data name="_media" xml:space="preserve">
     <value>Media files</value>
@@ -162,6 +183,12 @@
   <data name="_menu.Tools.SynchronizeSecToPri" xml:space="preserve">
     <value>Synchronize content between servers</value>
   </data>
+  <data name="_menu.Tools.VerifyAllMedia" xml:space="preserve">
+    <value>Verify all media</value>
+  </data>
+  <data name="_propertiesPanelExpander.ToolTip" xml:space="preserve">
+    <value>F11</value>
+  </data>
   <data name="_recorders" xml:space="preserve">
     <value>Recording</value>
   </data>
@@ -173,6 +200,9 @@
   </data>
   <data name="_searchFor" xml:space="preserve">
     <value>Enter search phrase</value>
+  </data>
+  <data name="_show" xml:space="preserve">
+    <value>Show</value>
   </data>
   <data name="_statusbar.TotalItems" xml:space="preserve">
     <value>Files:</value>

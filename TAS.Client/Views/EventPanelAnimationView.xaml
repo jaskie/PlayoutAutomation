@@ -10,7 +10,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type vm:EventPanelStillViewmodel}"
+             d:DataContext="{x:Type vm:EventPanelAnimationViewmodel}"
              d:DesignWidth="700"
              >
     <Border x:Name="border" Style="{StaticResource EventPanelStyle}">

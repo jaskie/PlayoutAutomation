@@ -1,36 +1,64 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Newtonsoft.Json;
 using TAS.Remoting.Server;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     public class MediaSegments : DtoBase, IMediaSegments
     {
-        private readonly Guid _mediaGuid;
-        private readonly ConcurrentDictionary<Guid, IMediaSegment> _segments;
+        private readonly Dictionary<Guid, IMediaSegment> _segments = new Dictionary<Guid, IMediaSegment>();
+
         public MediaSegments(Guid mediaGuid)
         {
-            _mediaGuid = mediaGuid;
-            _segments = new ConcurrentDictionary<Guid, IMediaSegment>();
+            MediaGuid = mediaGuid;
         }
 
         [JsonProperty]
-        public Guid MediaGuid { get { return _mediaGuid; } }
+        public Guid MediaGuid { get; }
 
         [JsonProperty]
-        public IEnumerable<IMediaSegment> Segments { get { return _segments.Values.ToList(); } }
+        public IEnumerable<IMediaSegment> Segments
+        {
+            get
+            {
+                lock (((IDictionary) _segments).SyncRoot)
+                    return _segments.Values.ToList();
+            }
+        }
+
+        [JsonProperty]
+        public int Count
+        {
+            get
+            {
+                lock (((IDictionary) _segments).SyncRoot)
+                    return _segments.Count;
+            }
+        }
+
 
         public IMediaSegment Add(TimeSpan tcIn, TimeSpan tcOut, string segmentName)
         {
-            var result = new MediaSegment(this) { TcIn = tcIn, TcOut = tcOut, SegmentName = segmentName };
-            if (_segments.TryAdd(result.DtoGuid, result))
+            var result = new MediaSegment(this) {TcIn = tcIn, TcOut = tcOut, SegmentName = segmentName};
+            lock (((IDictionary) _segments).SyncRoot)
+                _segments[result.DtoGuid] = result;
+            SegmentAdded?.Invoke(this, new MediaSegmentEventArgs(result));
+            NotifyPropertyChanged(nameof(Count));
+            return result;
+        }
+
+        public bool Remove(IMediaSegment segment)
+        {
+            bool result;
+            lock (((IDictionary) _segments).SyncRoot)
+                result = _segments.Remove(((MediaSegment) segment).DtoGuid);
+            if (result)
             {
-                SegmentAdded?.Invoke(this, new MediaSegmentEventArgs(result));
+                SegmentRemoved?.Invoke(this, new MediaSegmentEventArgs(segment));
                 NotifyPropertyChanged(nameof(Count));
             }
             return result;
@@ -38,22 +66,5 @@ namespace TAS.Server
 
         public event EventHandler<MediaSegmentEventArgs> SegmentAdded;
         public event EventHandler<MediaSegmentEventArgs> SegmentRemoved;
-
-        public bool Remove(IMediaSegment segment)
-        {
-            bool result = false;
-            IMediaSegment removed;
-            if (_segments.TryRemove(((MediaSegment)segment).DtoGuid, out removed))
-            {
-                result = true;
-                SegmentRemoved?.Invoke(this, new MediaSegmentEventArgs(removed));
-                NotifyPropertyChanged(nameof(Count));
-            }
-            return result;
-        }
-
-        [JsonProperty]
-        public int Count { get { return _segments.Count; } }
-
     }
 }

@@ -10,6 +10,7 @@ namespace TAS.Server.XDCAM
     public class Smil
     {
         public const string FileExtension = ".smi";
+
         public Body body;
 
         public class Body

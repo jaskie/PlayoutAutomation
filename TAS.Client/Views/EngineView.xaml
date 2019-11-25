@@ -5,18 +5,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             xmlns:vievmodels="clr-namespace:TAS.Client.ViewModels" 
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:vievmodels="clr-namespace:TAS.Client.ViewModels"
              xmlns:views="clr-namespace:TAS.Client.Views" 
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type vievmodels:EngineViewmodel}"
+             d:DataContext="{d:DesignInstance vievmodels:EngineViewmodel}"
              d:DesignHeight="850" d:DesignWidth="1150" Focusable="True" 
              FontSize="13"
              >
     <UserControl.Resources>
-        <Style x:Key="controlPanelButtons" TargetType="Button" >
+        <Style x:Key="ControlPanelButtons" TargetType="Button" >
             <Setter Property="Padding" Value="4" />
             <Setter Property="Width" Value="40" />
             <Setter Property="Height" Value="40" />
@@ -52,10 +51,22 @@
         <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="17" Gesture="Ctrl+NumPad1"/>
         <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="18" Gesture="Ctrl+NumPad2"/>
         <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="19" Gesture="Ctrl+NumPad3"/>
+        <KeyBinding Command="{Binding CommandAddAnimation}" Gesture="Ctrl+0"/>
+        <KeyBinding Command="{Binding CommandAddAnimation}" Gesture="Ctrl+NumPad0"/>
         <KeyBinding Command="{Binding CommandEventHide}" Gesture="F9"/>
         <KeyBinding Command="{Binding CommandMoveUp}" Gesture="Alt+Up"/>
         <KeyBinding Command="{Binding CommandMoveDown}" Gesture="Alt+Down"/>
         <KeyBinding Command="{Binding CommandSearchShowPanel}" Gesture="Ctrl+F"/>
+        <KeyBinding Command="{Binding CommandTogglePropertiesPanel}" Gesture="F11"/>
+        
+        <KeyBinding Command="{Binding CommandPreviewPlay}" Gesture="Ctrl+Space"/>
+        <KeyBinding Command="{Binding CommandPreviewUnload}" Gesture="Ctrl+Shift+Space"/>
+        <KeyBinding Command="{Binding CommandPreviewFastForward}" Gesture="Ctrl+OemPeriod"/>
+        <KeyBinding Command="{Binding CommandPreviewBackward}" Gesture="Ctrl+OemComma"/>
+        <KeyBinding Command="{Binding CommandPreviewFastForwardOneFrame}" Gesture="Ctrl+Shift+OemPeriod"/>
+        <KeyBinding Command="{Binding CommandPreviewBackwardOneFrame}" Gesture="Ctrl+Shift+OemComma"/>
+        <KeyBinding Command="{Binding CommandPreviewTrimSource}" Gesture="Ctrl+T"/>
+
     </UserControl.InputBindings>
     <UserControl.Style>
         <Style TargetType="UserControl">
@@ -67,12 +78,11 @@
     </UserControl.Style>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="23" />
-            <RowDefinition Height="63"  />
+            <RowDefinition Height="Auto"  />
             <RowDefinition Height="*"  />
             <RowDefinition Height="28" />
         </Grid.RowDefinitions>
-        <Menu IsMainMenu="True" Height="23" HorizontalAlignment="Left" FontSize="12" Background="Transparent">
+        <Menu IsMainMenu="True" Height="23" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="12" Background="Transparent">
             <MenuItem Header="{Resx _menu.Container}">
                 <MenuItem Header="{Resx _menu.Container.AddContainer}" Command="{Binding CommandNewContainer}"/>
                 <MenuItem Header="{Resx _menu.Container.Show}" DataContext="{Binding RootEventViewModel}" Visibility="{Binding IsAnyContainerHidden, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding HiddenContainers}">
@@ -128,15 +138,19 @@
                 </MenuItem>
                 <Separator/>
                 <MenuItem Header="{Resx _menu.Tools.FindUnlinkedEvents}" Command="{Binding CommandSearchMissingEvents}" />
-                <MenuItem Header="{Resx _menu.Tools.DebugWindow}" Command="{Binding CommandDebugToggle}" />
-                <MenuItem Header="{Resx _menu.Tools.Plugins}" Visibility="{Binding IsAnyPluginActive, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding Plugins}">
+                <MenuItem Header="{Resx _menu.Tools.DebugWindow}" Command="{Binding CommandDebugToggle}" Visibility="{Binding IsDebugBuild, Converter={StaticResource BoolToVis}}" />
+                <MenuItem Header="{Resx _menu.Tools.Plugins}" Visibility="{Binding IsAnyPluginVisible, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding Plugins}">
                     <MenuItem.ItemContainerStyle>
                         <Style TargetType="MenuItem">
-                            <Setter Property="Command" Value="{Binding}"/>
-                            <Setter Property="Header" Value="{Binding Header}"/>
+                            <Setter Property="Visibility" Value="{Binding Menu, Converter={StaticResource NullToVis}}"></Setter>
+                            <Setter Property="Command" Value="{Binding Menu}"/>
+                            <Setter Property="Header" Value="{Binding Menu.Header}"/>
                         </Style>
                     </MenuItem.ItemContainerStyle>
                 </MenuItem>
+                <Separator/>
+                <MenuItem Header="{Resx _engineRights}" Command="{Binding CommandEngineRights}"/>
+                <MenuItem Header="{Resx _userManager}" Command="{Binding CommandUserManager}"/>
 
                 <!--<MenuItem Header="Playout">
                     <MenuItem Header="Wznów" Command="{Binding CommandResume}" />
@@ -144,149 +158,161 @@
                 </MenuItem>-->
             </MenuItem>
         </Menu>
-        <Grid Grid.RowSpan="2">
-            <Grid.Resources>
-                <Style TargetType="Label">
-                    <Setter Property="Padding" Value="0"/>
-                    <Setter Property="Margin" Value="5, 0"/>
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                </Style>
-                <Style TargetType="TextBlock">
-                    <Setter Property="Padding" Value="0"/>
-                    <Setter Property="Margin" Value="5, 0"/>
-                    <Setter Property="FontSize" Value="22" />
-                    <Setter Property="HorizontalAlignment" Value="Left"/>
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                </Style>
-                <Style TargetType="Button">
-                    <Setter Property="Width" Value="40"/>
-                    <Setter Property="Height" Value="40"/>
-                    <Setter Property="Margin" Value="8"/>
-                </Style>
-            </Grid.Resources>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="19"/>
-                <RowDefinition Height="25"/>
-                <RowDefinition Height="19"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{Resx Key=_toolbar.clockWidth, DefaultValue='160'}"/>
-                <ColumnDefinition Width="430"/>
-                <ColumnDefinition Width="140"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="120"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Row="1" Grid.Column="1" Grid.RowSpan="3" Orientation="Horizontal" FocusManager.IsFocusScope="True">
-                <Button Command="{Binding CommandStartSelected}" ToolTip="{Resx _toolbar.StartSelected}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/play.png" Stretch="None" />
-                </Button>
-                <Button Command="{Binding CommandLoadSelected}" ToolTip="{Resx _toolbar.Load}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/pause.png" Stretch="None" />
-                </Button>
-                <Button Command="{Binding CommandStartLoaded}" ToolTip="{Resx _toolbar.StartLoaded}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/play-pause.png" Stretch="None" />
-                </Button>
-                <ToggleButton Command="{Binding CommandForceNextSelected}" IsChecked="{Binding IsForcedNext, Mode=OneWay}" ToolTip="{Resx _toolbar.ForceNext}" Background="{Binding IsForcedNext, Converter={StaticResource BoolToBrush}, ConverterParameter=LightCoral}" Width="40" Height="40" Margin="8">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/force-next.png" />
-                </ToggleButton>
-                <Button Command="{Binding CommandRescheduleSelected}" ToolTip="{Resx _toolbar.Reschedule}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png" Stretch="None" />
-                </Button>
-                <ComboBox Margin="2" SelectedIndex="0" Grid.Column="0" Padding="5" >
-                    <ComboBoxItem ToolTip="{Resx _toolbar.ClearAll}" >
-                        <Button Command="{Binding CommandClearAll}" Style="{StaticResource controlPanelButtons}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/stop.png" />
-                        </Button>
-                    </ComboBoxItem>
-                    <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG1}" >
-                        <Button Command="{Binding CommandClearLayer}" CommandParameter="17" Style="{StaticResource controlPanelButtons}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer1.png" />
-                        </Button>
-                    </ComboBoxItem>
-                    <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG2}" >
-                        <Button Command="{Binding CommandClearLayer}" CommandParameter="18" Style="{StaticResource controlPanelButtons}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer2.png" />
-                        </Button>
-                    </ComboBoxItem>
-                    <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG3}" >
-                        <Button Command="{Binding CommandClearLayer}" CommandParameter="19" Style="{StaticResource controlPanelButtons}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer3.png" />
-                        </Button>
-                    </ComboBoxItem>
-                    <ComboBoxItem ToolTip="{Resx _toolbar.ClearAnimations}" >
-                        <Button Command="{Binding CommandClearLayer}" CommandParameter="26" Style="{StaticResource controlPanelButtons}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/LayerA.png" />
-                        </Button>
-                    </ComboBoxItem>
-                    <ComboBoxItem ToolTip="{Resx _toolbar.ClearMixer}" >
-                        <Button Command="{Binding CommandClearMixer}" Style="{StaticResource controlPanelButtons}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/LayerS.png" />
-                        </Button>
-                    </ComboBoxItem>
-                </ComboBox>
-                <StackPanel>
-                    <ToggleButton Margin="2" Height="22" IsChecked="{Binding TrackPlayingEvent}" Background="{Binding TrackPlayingEvent, Converter={StaticResource BoolToBrush}, ConverterParameter=LightCoral}" HorizontalContentAlignment="Left" >
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/TAS.Client.Common;component/Images/Actions/go-down.png" />
-                            <Label Content="{Resx _toolbar.Track}" />
+        <Border Grid.Row="0" BorderThickness="0, 0, 0, 1" BorderBrush="DarkGray" >
+            <DockPanel >
+                <DockPanel DockPanel.Dock="Right" Height="100" VerticalAlignment="Top" >
+                    <ProgressBar Value="{Binding AudioLevelPRI, Mode=OneWay}" DockPanel.Dock="Left" Orientation="Vertical" Minimum="-60" Maximum="0" Width="15" Margin="0, 0, 5, 0" UseLayoutRounding="True" Style="{DynamicResource VerticalVolumeGaugeStyle}" />
+                    <CheckBox DockPanel.Dock="Top" Visibility="{Binding IsInterlacedFormat, Converter={StaticResource BoolToVis}}" Content="{Resx _toolbar.FieldOrderInverted}" ToolTip="{Resx _toolbar.FieldOrderInverted.ToolTip}" IsChecked="{Binding FieldOrderInverted}" IsEnabled="{Binding IsPlayingMovie}"/>
+                    <Label DockPanel.Dock="Top" Content="Audio"/>
+                    <Grid DockPanel.Dock="Top">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Slider Orientation="Vertical" Value="{Binding ProgramAudioVolume}" Minimum="-15" Maximum="15"/>
+                        <StackPanel Grid.Column="1" Width="35">
+                            <Label Content="dB" HorizontalAlignment="Center"/>
+                            <TextBox Text="{Binding ProgramAudioVolume, StringFormat={}{0:0.0}}" HorizontalAlignment="Center"/>
                         </StackPanel>
-                    </ToggleButton>
-                </StackPanel>
-            </StackPanel>
-
-            <TextBlock Grid.Row="1" FontSize="13" Text="{Binding CurrentTime, StringFormat=d}" />
-            <TextBlock Grid.Row="1" FontSize="13" HorizontalAlignment="Right" Text="{Binding CurrentTime, StringFormat=(ddd)}" />
-            <TextBlock Grid.Row="2" Text="{Binding CurrentTime, StringFormat=T}" />
-            <Label Grid.Column="2" Content="{Resx _toolbar.TimeToAttention}" />
-            <controls:TimecodeTextBlock Grid.Row="1" Grid.Column="2" Timecode="{Binding TimeToAttention}" VideoFormat="{Binding VideoFormat}" HideZero="True" VerticalAlignment="Center" FontSize="22" Margin="5, 0">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding EngineState}" Value="Running">
-                                <Setter Property="Background" Value="LightPink"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding EngineState}" Value="Hold">
-                                <Setter Property="Background" Value="PaleGreen"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </controls:TimecodeTextBlock>
-            <Label Grid.Column="3" Content="{Resx _toolbar.NowPlaying}"  />
-            <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding PlayingEventName}">
-                <TextBlock.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="{Resx _toolbar.playingEventName.Menu.Restart, ResxName=TAS.Client.Views.EngineView}" Command="{Binding CommandRestartLayer}" CommandParameter="16"/>
-                    </ContextMenu>
-                </TextBlock.ContextMenu>
-            </TextBlock>
-            <Label Grid.Row="2" Grid.Column="3" Content="{Resx _toolbar.Next}"  />
-            <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding NextToPlay}"/>
-            <Label Grid.Row="2" Grid.Column="2" Content="{Resx _toolbar.NextWithRequestedStartTime}"/>
-            <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding NextWithRequestedStartTime.Offset, Converter={StaticResource TimeSpanToSignedString}}">
-                <TextBlock.ToolTip>
-                    <Run Text="{Binding NextWithRequestedStartTime.EventName}"/>
-                </TextBlock.ToolTip>
-            </TextBlock>
-            <DockPanel Grid.Column="4" Grid.RowSpan="4">
-                <ProgressBar Value="{Binding AudioLevelPRI}" DockPanel.Dock="Left" Orientation="Vertical" Minimum="-60" Maximum="0" Width="15" Margin="0, 0, 5, 0" Style="{DynamicResource VerticalVolumeGaugeStyle}" />
-                <CheckBox DockPanel.Dock="Top" Visibility="{Binding IsInterlacedFormat, Converter={StaticResource BoolToVis}}" Content="{Resx _toolbar.FieldOrderInverted}" ToolTip="{Resx _toolbar.FieldOrderInverted.ToolTip}" IsChecked="{Binding FieldOrderInverted}" IsEnabled="{Binding IsPlayingMovie}"/>
-                <Label DockPanel.Dock="Top" Content="Audio"/>
-                <Grid DockPanel.Dock="Top">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Slider Orientation="Vertical" Value="{Binding ProgramAudioVolume}" Minimum="-15" Maximum="15"/>
-                    <StackPanel Grid.Column="1">
-                        <Label Content="dB" HorizontalAlignment="Center"/>
-                        <TextBox Text="{Binding ProgramAudioVolume, StringFormat={}{0:0.0}}" Margin="4, 8"/>
+                    </Grid>
+                </DockPanel>
+                <controls:WrapPanelFill>
+                    <controls:WrapPanelFill.Resources>
+                        <Style TargetType="Label">
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="5, 0"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="5, 0"/>
+                            <Setter Property="FontSize" Value="22" />
+                            <Setter Property="HorizontalAlignment" Value="Left"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                    </controls:WrapPanelFill.Resources>
+                    <StackPanel VerticalAlignment="Center" Margin="0, 23, 0, 0" >
+                        <Grid>
+                            <TextBlock FontSize="13" Text="{Binding CurrentTime, StringFormat=d}" />
+                            <TextBlock FontSize="13" HorizontalAlignment="Right" Text="{Binding CurrentTime, StringFormat=(ddd)}" />
+                        </Grid>
+                        <DockPanel>
+                            <UniformGrid Rows="2" DockPanel.Dock="Right">
+                                <Button Command="{Binding CommandSetTimeCorrection}" CommandParameter="1000" ToolTip="{Resx _toolbar.AddSecond}">
+                                    <Image Width="8" Source="/TAS.Client.Common;component/Images/Actions/list-add-3.png"/>
+                                </Button>
+                                <Button Command="{Binding CommandSetTimeCorrection}" CommandParameter="-1000" ToolTip="{Resx _toolbar.DecreaseSecond}">
+                                    <Image Width="8" Source="/TAS.Client.Common;component/Images/Actions/list-remove-3.png"/>
+                                </Button>
+                            </UniformGrid>
+                            <TextBlock Text="{Binding CurrentTime, StringFormat=T}" />
+                        </DockPanel>
                     </StackPanel>
-                </Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0, 23, 0, 0" >
+                        <StackPanel.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Width" Value="40"/>
+                                <Setter Property="Height" Value="40"/>
+                                <Setter Property="Margin" Value="8"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <Button Command="{Binding CommandStartSelected}" ToolTip="{Resx _toolbar.StartSelected}">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/play.png" Stretch="None" />
+                        </Button>
+                        <Button Command="{Binding CommandLoadSelected}" ToolTip="{Resx _toolbar.Load}">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/pause.png" Stretch="None" />
+                        </Button>
+                        <Button Command="{Binding CommandStartLoaded}" ToolTip="{Resx _toolbar.StartLoaded}">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/play-pause.png" Stretch="None" />
+                        </Button>
+                        <ToggleButton Command="{Binding CommandForceNextSelected}" IsChecked="{Binding IsForcedNext, Mode=OneWay}" ToolTip="{Resx _toolbar.ForceNext}" Background="{Binding IsForcedNext, Converter={StaticResource BoolToBrush}, ConverterParameter=LightCoral}" Width="40" Height="40" Margin="8">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/force-next.png" />
+                        </ToggleButton>
+                        <Button Command="{Binding CommandRescheduleSelected}" ToolTip="{Resx _toolbar.Reschedule}">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png" Stretch="None" />
+                        </Button>
+                        <ComboBox x:Name="ClearCombo" Margin="2" SelectedIndex="0" Padding="5" VerticalAlignment="Center" >
+                            <ComboBoxItem ToolTip="{Resx _toolbar.ClearAll}" >
+                                <Button Command="{Binding CommandClearAll}" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/stop.png" />
+                                </Button>
+                            </ComboBoxItem>
+                            <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG1}" >
+                                <Button Command="{Binding CommandClearLayer}" CommandParameter="17" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer1.png" />
+                                </Button>
+                            </ComboBoxItem>
+                            <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG2}" >
+                                <Button Command="{Binding CommandClearLayer}" CommandParameter="18" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer2.png" />
+                                </Button>
+                            </ComboBoxItem>
+                            <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG3}" >
+                                <Button Command="{Binding CommandClearLayer}" CommandParameter="19" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer3.png" />
+                                </Button>
+                            </ComboBoxItem>
+                            <ComboBoxItem ToolTip="{Resx _toolbar.ClearAnimations}" >
+                                <Button Command="{Binding CommandClearLayer}" CommandParameter="26" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/LayerA.png" />
+                                </Button>
+                            </ComboBoxItem>
+                            <ComboBoxItem ToolTip="{Resx _toolbar.ClearMixer}" >
+                                <Button Command="{Binding CommandClearMixer}" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/LayerS.png" />
+                                </Button>
+                            </ComboBoxItem>
+                        </ComboBox>
+                        <StackPanel>
+                            <ToggleButton Margin="2" Height="22" IsChecked="{Binding TrackPlayingEvent}" Background="{Binding TrackPlayingEvent, Converter={StaticResource BoolToBrush}, ConverterParameter=LightCoral}" HorizontalContentAlignment="Left" >
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/TAS.Client.Common;component/Images/Actions/go-down.png" />
+                                    <Label Content="{Resx _toolbar.Track}" />
+                                </StackPanel>
+                            </ToggleButton>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Width="125">
+                        <Label Content="{Resx _toolbar.TimeToAttention}" />
+                        <TextBlock Text="{Binding TimeToAttention, Converter={StaticResource TimeSpanToString}}" TextAlignment="Center" VerticalAlignment="Center" FontSize="26" Margin="5, 0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding EngineState}" Value="Running">
+                                            <Setter Property="Background" Value="LightPink"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding EngineState}" Value="Hold">
+                                            <Setter Property="Background" Value="PaleGreen"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <Label Content="{Resx _toolbar.NextWithRequestedStartTime}"/>
+                        <TextBlock FontSize="12" Text="{Binding NextWithRequestedStartTime.Offset, Converter={StaticResource TimeSpanToSignedString}}">
+                            <TextBlock.ToolTip>
+                                <Run Text="{Binding NextWithRequestedStartTime.EventName}"/>
+                            </TextBlock.ToolTip>
+                        </TextBlock>
+                    </StackPanel>
+                    <ScrollViewer controls:WrapPanelFill.UseToFill="True" MinWidth="350" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+                        <StackPanel MaxWidth="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}, Path=ActualWidth}">
+                            <Label Content="{Resx _toolbar.NowPlaying}"  />
+                            <TextBlock Text="{Binding PlayingEventName}" >
+                                <TextBlock.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="{Resx _toolbar.playingEventName.Menu.Restart, ResxName=TAS.Client.Views.EngineView}" Command="{Binding CommandRestartLayer}" CommandParameter="16"/>
+                                    </ContextMenu>
+                                </TextBlock.ContextMenu>
+                            </TextBlock>
+                            <Label Content="{Resx _toolbar.Next}"  />
+                            <TextBlock Text="{Binding NextToPlay}" HorizontalAlignment="Stretch" Width="Auto"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </controls:WrapPanelFill>
             </DockPanel>
-        </Grid>
-        <StatusBar Name="sbChannelStatus" VerticalAlignment="Bottom" Grid.Row="3">
+        </Border>
+        <StatusBar Name="sbChannelStatus" VerticalAlignment="Bottom" Grid.Row="2">
             <StatusBar.Resources>
                 <Style TargetType="CheckBox">
                     <Setter Property="VerticalAlignment" Value="Center"/>
@@ -294,7 +320,7 @@
                 <Style TargetType="Label">
                     <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>
-                <Style TargetType="common:StatusIndicator">
+                <Style TargetType="controls:StatusIndicator">
                     <Setter Property="VerticalAlignment" Value="Center"/>
                     <Setter Property="Height" Value="14"/>
                 </Style>
@@ -310,7 +336,7 @@
                         <MenuItem Margin="0" Padding="0" Height="{Binding ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Menu}}}" >
                             <MenuItem.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <common:StatusIndicator IsGreen="{Binding NoAlarms}" Height="15"/>
+                                    <controls:StatusIndicator IsGreen="{Binding NoAlarms}" Height="15"/>
                                     <TextBlock>
                                         <TextBlock.Text>
                                             <Binding Path="NoAlarms">
@@ -324,7 +350,7 @@
                             </MenuItem.Header>
                             <StackPanel>
                                 <StackPanel Margin="2" Orientation="Horizontal" Visibility="{Binding ServerPRIExists, Converter={StaticResource BoolToVis}}">
-                                    <common:StatusIndicator IsGreen="{Binding ServerConnectedPRI}"/>
+                                    <controls:StatusIndicator IsGreen="{Binding ServerConnectedPRI}"/>
                                     <TextBlock>
                                         <TextBlock.Text>
                                             <Binding Path="ServerConnectedPRI">
@@ -336,7 +362,7 @@
                                     </TextBlock>
                                 </StackPanel>
                                 <StackPanel Margin="2" Orientation="Horizontal" Visibility="{Binding ServerSECExists, Converter={StaticResource BoolToVis}}">
-                                    <common:StatusIndicator IsGreen="{Binding ServerConnectedSEC}"/>
+                                    <controls:StatusIndicator IsGreen="{Binding ServerConnectedSEC}"/>
                                     <TextBlock>
                                         <TextBlock.Text>
                                             <Binding Path="ServerConnectedSEC">
@@ -348,7 +374,7 @@
                                     </TextBlock>
                                 </StackPanel>
                                 <StackPanel Margin="2" Orientation="Horizontal" Visibility="{Binding ServerPRVExists, Converter={StaticResource BoolToVis}}">
-                                    <common:StatusIndicator IsGreen="{Binding ServerConnectedPRV}"/>
+                                    <controls:StatusIndicator IsGreen="{Binding ServerConnectedPRV}"/>
                                     <TextBlock>
                                         <TextBlock.Text>
                                             <Binding Path="ServerConnectedPRV">
@@ -360,7 +386,7 @@
                                     </TextBlock>
                                 </StackPanel>
                                 <StackPanel Margin="2" Orientation="Horizontal">
-                                    <common:StatusIndicator IsGreen="{Binding DatabaseOK}"/>
+                                    <controls:StatusIndicator IsGreen="{Binding DatabaseOK}"/>
                                     <TextBlock>
                                         <TextBlock.Text>
                                             <Binding Path="DatabaseOK">
@@ -391,11 +417,7 @@
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="350" />
-            </Grid.ColumnDefinitions>
+        <DockPanel Grid.Row="1" >
             <!--<TabControl TabStripPlacement="Left" BorderThickness="0" >
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabItem}">
@@ -413,6 +435,61 @@
                     </Style>
                 </TabControl.Resources>
                 <TabItem Padding="0, 20" Header="{Resx _tabs.Rundowns}">-->
+            <Expander DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" Collapsed="Expander_Collapsed"  >
+                <Expander.Resources>
+                    <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
+                        <Style.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter Property="Header" >
+                                    <Setter.Value>
+                                        <TextBlock Text="{Resx _hide, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
+                                            <TextBlock.LayoutTransform>
+                                                <RotateTransform Angle="90"/>
+                                            </TextBlock.LayoutTransform>
+                                        </TextBlock>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsExpanded" Value="False">
+                                <Setter Property="Header" >
+                                    <Setter.Value>
+                                        <TextBlock Text="{Resx _show, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
+                                            <TextBlock.LayoutTransform>
+                                                <RotateTransform Angle="90"/>
+                                            </TextBlock.LayoutTransform>
+                                        </TextBlock>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Expander.Resources>
+                <Grid Width="350" Name="SidePanel">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" MinHeight="50"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Thumb Name="SidePanelResizer" HorizontalAlignment="Left" Width="3"  BorderThickness="0" Background="DarkGray" Grid.Column="0" Grid.RowSpan="3" Cursor="SizeWE" DragDelta="SidePanelResizer_DragDelta"/>
+                    <ContentControl Content="{Binding SelectedEventEditViewmodel}" Margin="3, 0, 0, 0">
+                        <ContentControl.Resources>
+                            <DataTemplate DataType="{x:Type vievmodels:EventEditViewmodel}">
+                                <views:EventEditView/>
+                            </DataTemplate>
+                        </ContentControl.Resources>
+                    </ContentControl>
+                    <GridSplitter Grid.Row="0" Visibility="{Binding PreviewViewmodel, Converter={StaticResource NullToVis}}"  HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
+                    <ContentControl Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding PreviewViewmodel}">
+                        <ContentControl.Resources>
+                            <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
+                                <views:PreviewView/>
+                            </DataTemplate>
+                        </ContentControl.Resources>
+                    </ContentControl>
+                    <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="2" Margin="3, 3, 0, 0" Content="{Binding VideoPreview.View}"/>
+                </Grid>
+            </Expander>
             <DockPanel>
                 <Grid Height="28" DockPanel.Dock="Bottom" Visibility="{Binding IsSearchPanelVisible, Converter={StaticResource BoolToVis}}">
                     <StackPanel Orientation="Horizontal" >
@@ -429,10 +506,12 @@
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
                     </Button>
                 </Grid>
-                <TreeView common:TreeViewExtensions.EnableMultiSelect="True" 
+                <TreeView x:Name="RundownTreeView"
+                      common:TreeViewExtensions.EnableMultiSelect="True" 
                       common:TreeViewExtensions.MultiSelectedItems="{Binding MultiSelectedEvents}" 
                       ItemsSource="{Binding RootEventViewModel.Childrens}" 
                       Background="{x:Null}" 
+                      BorderThickness="0"
                       >
                     <TreeView.ItemContainerStyle>
                         <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
@@ -488,11 +567,11 @@
                                                 </ToggleButton.Style>
                                             </ToggleButton>
                                             <Border x:Name="Bd" BorderThickness="{TemplateBinding Border.BorderThickness}" 
-                                        BorderBrush="{TemplateBinding Border.BorderBrush}" 
-                                        Padding="{TemplateBinding Control.Padding}" 
-                                        Background="{TemplateBinding Panel.Background}" 
-                                        SnapsToDevicePixels="True" 
-                                        Grid.Column="1">
+                                                                BorderBrush="{TemplateBinding Border.BorderBrush}" 
+                                                                Padding="{TemplateBinding Control.Padding}" 
+                                                                Background="{TemplateBinding Panel.Background}" 
+                                                                SnapsToDevicePixels="True"
+                                                                Grid.Row="0" Grid.Column="1">
                                                 <ContentPresenter x:Name="PART_Header" 
                                                       Content="{TemplateBinding HeaderedContentControl.Header}" 
                                                       ContentTemplate="{TemplateBinding HeaderedContentControl.HeaderTemplate}" 
@@ -523,16 +602,13 @@
                             </Setter>
                             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                            <Setter Property="Visibility" Value="{Binding IsVisible, Mode=TwoWay, Converter={StaticResource BoolToVis}}"/>
+                            <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVis}}"/>
                             <Setter Property="common:TreeViewExtensions.IsMultiSelected" Value="{Binding IsMultiSelected, Mode=OneWayToSource}"/>
                             <Setter Property="Margin" Value="0"/>
                             <Style.Triggers>
                                 <Trigger Property="common:TreeViewExtensions.IsMultiSelected"  Value="True" >
                                     <Setter Property="Background" Value="LightSkyBlue"></Setter>
                                 </Trigger>
-                                <!--<Trigger Property="Visibility" Value="Collapsed">
-                                <Setter Property="common:TreeViewExtensions.IsSelected" Value="False"/>
-                            </Trigger>-->
                             </Style.Triggers>
                         </Style>
                     </TreeView.ItemContainerStyle>
@@ -567,31 +643,6 @@
                     </Border>
                 </TabItem>
             </TabControl>-->
-            <GridSplitter Grid.Column="0" ResizeDirection="Columns" HorizontalAlignment="Right" Background="DarkGray" Width="3" Cursor="SizeWE"/>
-            <Grid Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" MinHeight="50"/>
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <views:EventEditView DataContext="{Binding EventEditViewmodel}"/>
-                <GridSplitter Visibility="{Binding IsPreviewPanelVisible, Converter={StaticResource BoolToVis}}" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                <Grid Grid.Row="1" Margin="0, 3, 0, 0" Visibility="{Binding IsPreviewPanelVisible, Converter={StaticResource BoolToVis}}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="55"/>
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <ContentControl Content="{Binding PreviewViewmodel}">
-                        <ContentControl.ContentTemplate>
-                            <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
-                                <views:PreviewView/>
-                            </DataTemplate>
-                        </ContentControl.ContentTemplate>
-                    </ContentControl>
-                    <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                    <ContentControl Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" Margin="0, 3, 0, 0"  Content="{Binding VideoPreview.View}"/>
-                </Grid>
-            </Grid>
-        </Grid>
+        </DockPanel>
     </Grid>
-
 </UserControl>

@@ -4,99 +4,107 @@ using System.Linq;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Client.ViewModels
 {
     public abstract class EventPanelRundownElementViewmodelBase : EventPanelViewmodelBase
     {
-        public EventPanelRundownElementViewmodelBase(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
+        private TimeSpan _timeLeft;
+        private IMedia _media;
+
+        protected EventPanelRundownElementViewmodelBase(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
         {
             Media = ev.Media;
-            ev.PositionChanged += _eventPositionChanged;
+            ev.PositionChanged += EventPositionChanged;
+            ev.SubEventChanged += OnSubeventChanged;
 
-            CommandToggleHold = new UICommand()
-            {
-                ExecuteDelegate = (o) =>
+            CommandToggleHold = new UiCommand
+            (
+                o =>
                 {
-                    _event.IsHold = !_event.IsHold;
-                    _event.Save();
+                    Event.IsHold = !Event.IsHold;
+                    Event.Save();
                 },
-                CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled &&
-                                            _event.StartType == TStartType.After
-            };
-            CommandToggleEnabled = new UICommand()
-            {
-                ExecuteDelegate = (o) =>
+                _canToggleHold
+            );
+            CommandToggleEnabled = new UiCommand
+            (
+                o =>
                 {
-                    _event.IsEnabled = !_event.IsEnabled;
-                    _event.Save();
+                    Event.IsEnabled = !Event.IsEnabled;
+                    Event.Save();
                 },
-                CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled
-            };
-            CommandToggleLayer = new UICommand()
-            {
-                ExecuteDelegate = (l) =>
+                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+            );
+            CommandToggleLayer = new UiCommand
+            (
+                l =>
                 {
-                    VideoLayer layer = (VideoLayer) sbyte.Parse((string) l);
+                    if (!(l is string layerName) || !Enum.TryParse(layerName, true, out VideoLayer layer))
+                        return;
                     if (_hasSubItemsOnLayer(layer))
                     {
-                        var layerEvent = _event.SubEvents.FirstOrDefault(e => e.Layer == layer);
+                        var layerEvent = Event.SubEvents.FirstOrDefault(e => e.Layer == layer);
                         layerEvent?.Delete();
                     }
                     else
-                        _engineViewmodel.AddMediaEvent(_event, TStartType.WithParent, TMediaType.Still, layer, true);
+                        EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, TMediaType.Still, layer, true);
                 },
-                CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled ||
-                                            _event.PlayState == TPlayState.Playing ||
-                                            _event.PlayState == TPlayState.Paused
-            };
-            CommandAddNextRundown = new UICommand()
-            {
-                ExecuteDelegate = o => _engineViewmodel.AddSimpleEvent(_event, TEventType.Rundown, false),
-                CanExecuteDelegate = _canAddNextItem
-            };
-            CommandAddNextEmptyMovie = new UICommand()
-            {
-                ExecuteDelegate = o => _engineViewmodel.AddSimpleEvent(_event, TEventType.Movie, false),
-                CanExecuteDelegate = CanAddNextMovie
-            };
-            CommandAddNextLive = new UICommand()
-            {
-                ExecuteDelegate = o => _engineViewmodel.AddSimpleEvent(_event, TEventType.Live, false),
-                CanExecuteDelegate = CanAddNewLive
-            };
-            CommandAddNextMovie = new UICommand()
-            {
-                ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.After, TMediaType.Movie,
+                _canToggleLayer
+            );
+            CommandAddNextRundown = new UiCommand
+            (
+                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, false),
+                _canAddNextItem
+            );
+            CommandAddNextEmptyMovie = new UiCommand
+            (
+                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Movie, false),
+                CanAddNextMovie
+            );
+            CommandAddNextLive = new UiCommand
+            (
+                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, false),
+                CanAddNewLive
+            );
+            CommandAddNextMovie = new UiCommand
+            (
+                o => EngineViewmodel.AddMediaEvent(Event, TStartType.After, TMediaType.Movie,
                     VideoLayer.Program, false),
-                CanExecuteDelegate = CanAddNextMovie
-            };
-            CommandAddAnimation = new UICommand()
-            {
-                ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.WithParent,
+                CanAddNextMovie
+            );
+            CommandAddAnimation = new UiCommand
+            (
+                o => EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent,
                     TMediaType.Animation, VideoLayer.Animation, true),
-                CanExecuteDelegate = o => _event.PlayState == TPlayState.Scheduled
-            };
-            CommandAddCommandScript = new UICommand
-            {
-                ExecuteDelegate = o => _engineViewmodel.AddCommandScriptEvent(_event),
-                CanExecuteDelegate = o => _event.PlayState == TPlayState.Scheduled
-            };
+                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+            );
+            CommandAddCommandScript = new UiCommand
+            (
+                o => EngineViewmodel.AddCommandScriptEvent(Event),
+                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+            );
         }
 
-        protected override void OnDispose()
+        private bool _canToggleLayer(object obj)
         {
-            base.OnDispose();
-            Media = null;
-            _event.PositionChanged -= _eventPositionChanged;
+            return (Event.PlayState == TPlayState.Scheduled || Event.PlayState == TPlayState.Playing || Event.PlayState == TPlayState.Paused)
+                   && Event.HaveRight(EventRight.Modify);
+        }
+
+        private bool _canToggleHold(object o)
+        {
+            return Event.PlayState == TPlayState.Scheduled
+                   && Event.StartType == TStartType.After
+                   && Event.HaveRight(EventRight.Modify);
         }
 
         #region Commands
-        public ICommand CommandCut => _engineViewmodel.CommandCutSelected;
-        public ICommand CommandCopy => _engineViewmodel.CommandCopySelected;
-        public ICommand CommandPaste => _engineViewmodel.CommandPasteSelected;
+        public ICommand CommandCut => EngineViewmodel.CommandCutSelected;
+        public ICommand CommandCopy => EngineViewmodel.CommandCopySelected;
+        public ICommand CommandPaste => EngineViewmodel.CommandPasteSelected;
         public ICommand CommandToggleHold { get; }
         public ICommand CommandToggleEnabled { get; }
 
@@ -122,113 +130,74 @@ namespace TAS.Client.ViewModels
 
         bool _canAddNextItem(object o)
         {
-            return _event.PlayState != TPlayState.Played && !_event.IsLoop;
+            return Event.PlayState != TPlayState.Played 
+                   && !Event.IsLoop
+                   && Event.HaveRight(EventRight.Create);
         }
 
         #endregion // Commands
 
-        private string _timeLeft = string.Empty;
-        public string TimeLeft
+        public TimeSpan TimeLeft 
         {
-            get { return _timeLeft; }
-            set { SetField(ref _timeLeft, value); }
+            get => _timeLeft;
+            set => SetField(ref _timeLeft, value);
         }
 
-        public string EndTime => (_event == null || _event.GetSuccessor() != null) ? string.Empty : _event.EndTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(VideoFormat);
+        public string EndTime => Event == null || Event.GetSuccessor() != null ? string.Empty : Event.EndTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(VideoFormat);
 
-        public bool IsLastEvent
-        {
-            get { return (_event != null && _event.GetSuccessor() == null); }
-        }
+        public bool IsLastEvent => Event != null && Event.GetSuccessor() == null;
 
-        public bool IsStartEvent
-        {
-            get
-            {
-                return _event != null && (_event.StartType == TStartType.Manual || _event.StartType == TStartType.OnFixedTime);
-            }
-        }
+        public bool IsStartEvent => Event != null && (Event.StartType == TStartType.Manual || Event.StartType == TStartType.OnFixedTime);
 
-        public bool IsAnimationEnabled { get { return _engineViewmodel.IsAnimationDirAvailable; } }
+        public bool IsAnimationEnabled => EngineViewmodel.IsAnimationDirAvailable;
 
-        public bool IsPlaying
-        {
-            get { return _event != null && _event.PlayState == TPlayState.Playing; }
-        }
+        public bool IsPlaying => Event != null && Event.PlayState == TPlayState.Playing;
 
-        public bool IsForcedNext
-        {
-            get { return _event != null && _event.IsForcedNext; }
-        }
+        public bool IsForcedNext => Event != null && Event.IsForcedNext;
 
-        private bool _hasSubItemsOnLayer(VideoLayer layer)
-        {
-            return _event.SubEvents.Any(e => e.Layer == layer && e.EventType == TEventType.StillImage);
-        }
+        public bool HasSubItemOnLayer1 => _hasSubItemsOnLayer(VideoLayer.CG1);
 
-        public bool HasSubItemOnLayer1
-        {
-            get { return _hasSubItemsOnLayer(VideoLayer.CG1); }
-        }
-        public bool HasSubItemOnLayer2
-        {
-            get { return _hasSubItemsOnLayer(VideoLayer.CG2); }
-        }
-        public bool HasSubItemOnLayer3
-        {
-            get { return _hasSubItemsOnLayer(VideoLayer.CG3); }
-        }
+        public bool HasSubItemOnLayer2 => _hasSubItemsOnLayer(VideoLayer.CG2);
 
-        private string _subItemMediaName(VideoLayer layer)
-        {
-            if (_event != null)
-            {
-                IEvent se = _event.SubEvents.FirstOrDefault(e => e.Layer == layer && e.EventType == TEventType.StillImage);
-                if (se != null)
-                {
-                    IMedia m = se.Media;
-                    if (m != null)
-                        return m.MediaName;
-                }
-            }
-            return string.Empty;
-        }
+        public bool HasSubItemOnLayer3 => _hasSubItemsOnLayer(VideoLayer.CG3);
 
-        public string Layer1SubItemMediaName { get { return _subItemMediaName(VideoLayer.CG1); } }
-        public string Layer2SubItemMediaName { get { return _subItemMediaName(VideoLayer.CG2); } }
-        public string Layer3SubItemMediaName { get { return _subItemMediaName(VideoLayer.CG3); } }
-        
-        public TimeSpan? Offset { get { return _event.Offset; } }
+
+        public string Layer1SubItemMediaName => _subItemMediaName(VideoLayer.CG1);
+        public string Layer2SubItemMediaName => _subItemMediaName(VideoLayer.CG2);
+        public string Layer3SubItemMediaName => _subItemMediaName(VideoLayer.CG3);
+
+        public TimeSpan? Offset => Event.Offset;
 
         public bool IsInvalidInSchedule
         {
             get
             {
-                if (_event == null)
+                if (Event == null)
                     return false;
-                IEvent ne = _event.Next;
-                IEvent pe = _event.Prior;
+                IEvent ne = Event.Next;
+                IEvent pe = Event.Prior;
                 return !(
-                    (ne == null || ne.Prior == _event)
-                    && (pe == null || pe.Next == _event)
+                    (ne == null || ne.Prior == Event)
+                    && (pe == null || pe.Next == Event)
                     )
-                    || _event.EventType == TEventType.Rundown && _event.SubEventsCount > 1;
+                    || Event.EventType == TEventType.Rundown && Event.SubEventsCount > 1;
             }
         }
 
-        public bool IsCGEnabled { get { return _event?.IsCGEnabled == true && _engine?.CGElementsController != null; } }
-        public CGElementViewmodel Logo { get { return  _engineViewmodel.CGElementsControllerViewmodel?.Logos?.FirstOrDefault(l => l.Id == _event.Logo); } }
-        public CGElementViewmodel Parental { get { return _engineViewmodel.CGElementsControllerViewmodel?.Parentals?.FirstOrDefault(l => l.Id == _event.Parental); } }
-        public CGElementViewmodel Crawl { get { return _engineViewmodel.CGElementsControllerViewmodel?.Crawls?.FirstOrDefault(l => l.Id == _event.Crawl); } }
+        public bool IsCGEnabled => Event?.IsCGEnabled == true && Engine?.CGElementsController != null;
+
+        public CGElementViewmodel Logo { get { return  EngineViewmodel.CGElementsControllerViewmodel?.Logos?.FirstOrDefault(l => l.Id == Event.Logo); } }
+
+        public CGElementViewmodel Parental { get { return EngineViewmodel.CGElementsControllerViewmodel?.Parentals?.FirstOrDefault(l => l.Id == Event.Parental); } }
+
+        public CGElementViewmodel Crawl { get { return EngineViewmodel.CGElementsControllerViewmodel?.Crawls?.FirstOrDefault(l => l.Id == Event.Crawl); } }
 
         public string MediaFileName
         {
             get
             {
-                if (_event == null)
-                    return string.Empty;
-                IMedia media = _event.Media;
-                return (media == null) ? ((_event.EventType == TEventType.Movie || _event.EventType == TEventType.StillImage) ? _event.MediaGuid.ToString() : string.Empty) : media.FileName;
+                var media = Media;
+                return media == null ? ((Event.EventType == TEventType.Movie || Event.EventType == TEventType.StillImage) ? Event.MediaGuid.ToString() : string.Empty) : media.FileName;
             }
         }
 
@@ -236,94 +205,61 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                if (_event == null || _event.EventType == TEventType.Live || _event.EventType == TEventType.Rundown || _event.EventType == TEventType.Container)
+                if (Event == null || Event.EventType == TEventType.Live || Event.EventType == TEventType.Rundown ||
+                    Event.EventType == TEventType.Container)
                     return TMediaErrorInfo.NoError;
-                else
-                {
-                    IMedia media = _event.Media;
-                    if (media == null || media.MediaStatus == TMediaStatus.Deleted || !media.FileExists())
-                        return TMediaErrorInfo.Missing;
-                    else
-                        if (media.MediaStatus == TMediaStatus.Available)
-                        if (media.MediaType == TMediaType.Still
-                            || media.MediaType == TMediaType.Animation
-                            || _event.ScheduledTc + _event.Duration <= media.TcStart + media.Duration
-                            )
-                            return TMediaErrorInfo.NoError;
-                    return TMediaErrorInfo.TooShort;
-                }
+                var media = Media;
+                if (media == null || media.MediaStatus == TMediaStatus.Deleted || !media.FileExists())
+                    return TMediaErrorInfo.Missing;
+                if (media.MediaStatus == TMediaStatus.Available)
+                    if (media.MediaType == TMediaType.Still
+                        || media.MediaType == TMediaType.Animation
+                        || Event.ScheduledTc + Event.Duration <= media.TcStart + media.Duration
+                    )
+                        return TMediaErrorInfo.NoError;
+                return TMediaErrorInfo.TooShort;
             }
         }
+        
+        public TPlayState PlayState => Event.PlayState;
 
+        public TMediaEmphasis MediaEmphasis => (Media as IPersistentMedia)?.MediaEmphasis ?? TMediaEmphasis.None;
 
-        public TPlayState PlayState { get { return _event.PlayState; } }
+        public string Layer => Event.Layer.ToString();
 
-        public TMediaEmphasis MediaEmphasis
-        {
-            get
-            {
-                IMedia media = _event.Media;
-                if (media == null || !(media is IPersistentMedia))
-                    return TMediaEmphasis.None;
-                else
-                    return (media as IPersistentMedia).MediaEmphasis;
-            }
-        }
+        public double AudioVolume => Event == null ? 0 : Event.AudioVolume.GetValueOrDefault();
 
-        public string Layer
-        {
-            get { return _event.Layer.ToString(); }
-        }
+        public TMediaCategory MediaCategory => Media?.MediaCategory ?? TMediaCategory.Uncategorized;
 
-        public decimal AudioVolume { get { return (_event == null || _event.AudioVolume == null) ? 0m : (decimal)_event.AudioVolume; } }
+        public bool IsHold => Event.IsHold;
 
-        public TMediaCategory MediaCategory
-        {
-            get
-            {
-                IMedia media = _media;
-                if (media == null)
-                    return TMediaCategory.Uncategorized;
-                else
-                    return media.MediaCategory;
-            }
-        }
+        public bool IsLoop => Event.IsLoop;
 
-        public bool IsHold
-        {
-            get { return _event.IsHold; }
-        }
+        public string ScheduledTime => Event.ScheduledTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(VideoFormat);
 
-        public bool IsLoop
-        {
-            get { return _event.IsLoop; }
-        }
+        public string ScheduledDelay => Event.ScheduledDelay.ToSMPTETimecodeString(VideoFormat);
 
-        public string ScheduledTime => _event.ScheduledTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(VideoFormat);
-
-        public string ScheduledDelay => _event.ScheduledDelay.ToSMPTETimecodeString(VideoFormat);
-
-        public string Duration => _event.Duration.ToSMPTETimecodeString(VideoFormat);
+        public string Duration => Event.Duration.ToSMPTETimecodeString(VideoFormat);
 
         public virtual bool IsEnabled
         {
             get
             {
                 var et = Event.EventType;
-                return _event.IsEnabled && (Event.Duration > TimeSpan.Zero || et == TEventType.Animation || et == TEventType.CommandScript);
+                return Event.IsEnabled && (Event.Duration > TimeSpan.Zero || et == TEventType.Animation || et == TEventType.CommandScript);
             }
         }
 
-        public bool IsFixedTimeStart { get { return _event.StartType == TStartType.OnFixedTime; } }
+        public bool IsFixedTimeStart => Event.StartType == TStartType.OnFixedTime;
 
         public EventPanelViewmodelBase Prior
         {
             get
             {
-                int index = _parent.Childrens.IndexOf(this) - 1;
-                if (index >= 0 && _parent.Childrens.Count > index)
-                    return _parent.Childrens[index];
-                else return null;
+                int index = Parent.Childrens.IndexOf(this) - 1;
+                if (index >= 0 && Parent.Childrens.Count > index)
+                    return Parent.Childrens[index];
+                return null;
             }
         }
 
@@ -331,50 +267,42 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                int index = _parent.Childrens.IndexOf(this) +1;
-                if (index > 0 && _parent.Childrens.Count > index)
-                    return _parent.Childrens[index];
-                else return null;
+                int index = Parent.Childrens.IndexOf(this) +1;
+                if (index > 0 && Parent.Childrens.Count > index)
+                    return Parent.Childrens[index];
+                return null;
             }
         }
 
-        private IMedia _media;
         public IMedia Media
         {
-            get { return _media; }
+            get => _media;
             private set
             {
-                IMedia oldMedia = _media;
-                if (oldMedia != value)
+                var oldMedia = _media;
+                if (!SetField(ref _media, value))
+                    return;
+                if (oldMedia != null)
+                    oldMedia.PropertyChanged -= _onMediaPropertyChanged;
+                _media = value;
+                if (value != null)
                 {
-                    if (oldMedia != null)
-                        oldMedia.PropertyChanged -= _onMediaPropertyChanged;
-                    _media = value;
-                    if (value != null)
-                    {
-                        value.PropertyChanged += _onMediaPropertyChanged;
-                        VideoFormat = value.VideoFormat;
-                    }
+                    value.PropertyChanged += _onMediaPropertyChanged;
+                    VideoFormat = value.VideoFormat;
                 }
+                NotifyPropertyChanged(nameof(MediaFileName));
+                NotifyPropertyChanged(nameof(MediaCategory));
+                NotifyPropertyChanged(nameof(MediaEmphasis));
+                NotifyPropertyChanged(nameof(MediaErrorInfo));
             }
         }
 
-        private void _onMediaPropertyChanged(object sender, PropertyChangedEventArgs e)
+
+        internal void VerifyIsInvalidInSchedule()
         {
-            if (_event == null || !(sender is IMedia))
-                return;
-            if (e.PropertyName == nameof(IMedia.MediaStatus))
-                NotifyPropertyChanged(nameof(MediaErrorInfo));
-            if (e.PropertyName == nameof(IMedia.FileName))
-                NotifyPropertyChanged(nameof(MediaFileName));
-            if (e.PropertyName == nameof(IMedia.MediaCategory)
-                || e.PropertyName == nameof(IPersistentMedia.MediaEmphasis))
-                NotifyPropertyChanged(e.PropertyName);
-            if (e.PropertyName == nameof(IMedia.VideoFormat))
-                VideoFormat = ((IMedia) sender).VideoFormat;
+            NotifyPropertyChanged(nameof(IsInvalidInSchedule));
         }
-
-
+        
         internal override void SetOnTop()
         {
             var p = Parent;
@@ -387,80 +315,109 @@ namespace TAS.Client.ViewModels
                     p.SetOnTop();
 
         }
-
-        protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
+        protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            base.OnSubeventChanged(o, e);
-            switch (e.Item.Layer)
+            if (e.Item.EventType == TEventType.StillImage)
+                switch (e.Item.Layer)
+                {
+                    case VideoLayer.CG1:
+                        NotifyPropertyChanged(nameof(HasSubItemOnLayer1));
+                        NotifyPropertyChanged(nameof(Layer1SubItemMediaName));
+                        break;
+                    case VideoLayer.CG2:
+                        NotifyPropertyChanged(nameof(HasSubItemOnLayer2));
+                        NotifyPropertyChanged(nameof(Layer2SubItemMediaName));
+                        break;
+                    case VideoLayer.CG3:
+                        NotifyPropertyChanged(nameof(HasSubItemOnLayer3));
+                        NotifyPropertyChanged(nameof(Layer3SubItemMediaName));
+                        break;
+                }
+        }
+
+        protected void EventPositionChanged(object sender, EventPositionEventArgs e)
+        {
+            OnUiThread(() =>
             {
-                case VideoLayer.CG1:
-                    NotifyPropertyChanged(nameof(HasSubItemOnLayer1));
-                    NotifyPropertyChanged(nameof(Layer1SubItemMediaName));
-                    break;                
-                case VideoLayer.CG2:      
-                    NotifyPropertyChanged(nameof(HasSubItemOnLayer2));
-                    NotifyPropertyChanged(nameof(Layer2SubItemMediaName));
-                    break;               
-                case VideoLayer.CG3:     
-                    NotifyPropertyChanged(nameof(HasSubItemOnLayer3));
-                    NotifyPropertyChanged(nameof(Layer3SubItemMediaName));
-                    break;
-            }
-        }
-
-        protected void _eventPositionChanged(object sender, EventPositionEventArgs e)
-        {
-            TimeLeft = (e.TimeToFinish == TimeSpan.Zero || _event.PlayState == TPlayState.Scheduled) ? string.Empty : e.TimeToFinish.ToSMPTETimecodeString(VideoFormat);
-        }
-
-        internal void VerifyIsInvalidInSchedule()
-        {
-            NotifyPropertyChanged(nameof(IsInvalidInSchedule));
+                TimeLeft = e.TimeToFinish;
+            });
         }
 
         protected override void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             base.OnEventPropertyChanged(sender, e);
-            if (e.PropertyName == nameof(IEvent.Duration)
-                || e.PropertyName == nameof(IEvent.IsEnabled)
-                || e.PropertyName == nameof(IEvent.IsHold)
-                || e.PropertyName == nameof(IEvent.EventName)
-                || e.PropertyName == nameof(IEvent.IsLoop)
-                || e.PropertyName == nameof(IEvent.Offset)
-                || e.PropertyName == nameof(IEvent.ScheduledDelay)
-                || e.PropertyName == nameof(IEvent.IsForcedNext)
-                || e.PropertyName == nameof(IEvent.ScheduledTime)
-                || e.PropertyName == nameof(IEvent.IsCGEnabled)
-                || e.PropertyName == nameof(IEvent.Crawl)
-                || e.PropertyName == nameof(IEvent.Logo)
-                || e.PropertyName == nameof(IEvent.Parental)
-                || e.PropertyName == nameof(IEvent.EndTime)
-                )
-                NotifyPropertyChanged(e.PropertyName);
-            if (e.PropertyName == nameof(IEvent.ScheduledTc) || e.PropertyName == nameof(IEvent.Duration))
+            switch (e.PropertyName)
             {
-                NotifyPropertyChanged(nameof(IsEnabled));
-                NotifyPropertyChanged(nameof(MediaErrorInfo));
-            }
-            if (e.PropertyName == nameof(IEvent.PlayState))
-            {
-                NotifyPropertyChanged(e.PropertyName);
-                NotifyPropertyChanged(nameof(IsPlaying));
-            }
-            if (e.PropertyName == nameof(IEvent.StartType))
-            {
-                NotifyPropertyChanged(nameof(IsStartEvent));
-                NotifyPropertyChanged(nameof(IsFixedTimeStart));
-            }
-            if (e.PropertyName == nameof(IEvent.Media))
-            {
-                Media = _event.Media;
-                NotifyPropertyChanged(nameof(MediaFileName));
-                NotifyPropertyChanged(nameof(MediaCategory));
-                NotifyPropertyChanged(nameof(MediaEmphasis));
-                NotifyPropertyChanged(nameof(VideoFormat));
-                NotifyPropertyChanged(nameof(MediaErrorInfo));
+                case nameof(IEvent.IsEnabled):
+                case nameof(IEvent.IsHold):
+                case nameof(IEvent.EventName):
+                case nameof(IEvent.IsLoop):
+                case nameof(IEvent.Offset):
+                case nameof(IEvent.ScheduledDelay):
+                case nameof(IEvent.IsForcedNext):
+                case nameof(IEvent.ScheduledTime):
+                case nameof(IEvent.IsCGEnabled):
+                case nameof(IEvent.Crawl):
+                case nameof(IEvent.Logo):
+                case nameof(IEvent.Parental):
+                case nameof(IEvent.EndTime):
+                    NotifyPropertyChanged(e.PropertyName);
+                    break;
+                case nameof(IEvent.ScheduledTc):
+                    NotifyPropertyChanged(nameof(MediaErrorInfo));
+                    break;
+                case nameof(IEvent.Duration):
+                    NotifyPropertyChanged(nameof(Duration));
+                    NotifyPropertyChanged(nameof(IsEnabled));
+                    NotifyPropertyChanged(nameof(MediaErrorInfo));
+                    break;
+                case nameof(IEvent.PlayState):
+                    NotifyPropertyChanged(nameof(PlayState));
+                    NotifyPropertyChanged(nameof(IsPlaying));
+                    break;
+                case nameof(IEvent.StartType):
+                    NotifyPropertyChanged(nameof(IsStartEvent));
+                    NotifyPropertyChanged(nameof(IsFixedTimeStart));
+                    break;
+                case nameof(IEvent.Media):
+                    Media = Event.Media;
+                    break;
             }
         }
+        protected override void OnDispose()
+        {
+            base.OnDispose();
+            Media = null;
+            Event.PositionChanged -= EventPositionChanged;
+            Event.SubEventChanged -= OnSubeventChanged;
+        }
+
+        private void _onMediaPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (Event == null || !(sender is IMedia))
+                return;
+            if (e.PropertyName == nameof(IMedia.MediaStatus))
+                NotifyPropertyChanged(nameof(MediaErrorInfo));
+            if (e.PropertyName == nameof(IMedia.FileName))
+                NotifyPropertyChanged(nameof(MediaFileName));
+            if (e.PropertyName == nameof(IMedia.MediaCategory)
+                || e.PropertyName == nameof(IPersistentMedia.MediaEmphasis))
+                NotifyPropertyChanged(e.PropertyName);
+            if (e.PropertyName == nameof(IMedia.VideoFormat))
+                VideoFormat = ((IMedia)sender).VideoFormat;
+        }
+
+        private string _subItemMediaName(VideoLayer layer)
+        {
+            var se = Event?.SubEvents.FirstOrDefault(e => e.Layer == layer && e.EventType == TEventType.StillImage);
+            var m = se?.Media;
+            return m?.MediaName ?? string.Empty;
+        }
+
+        private bool _hasSubItemsOnLayer(VideoLayer layer)
+        {
+            return Event.SubEvents.Any(e => e.Layer == layer && e.EventType == TEventType.StillImage);
+        }
+
     }
 }

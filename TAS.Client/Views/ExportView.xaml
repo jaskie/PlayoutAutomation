@@ -5,12 +5,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:vm="clr-namespace:TAS.Client.ViewModels"
-        xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
         xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
-        xmlns:client="clr-namespace:TAS.Client"
+        xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
         mc:Ignorable="d" 
-        d:DataContext="{x:Type vm:ExportViewmodel}"
+        d:DataContext="{d:DesignInstance vm:ExportViewmodel}"
         d:DesignHeight="400" d:DesignWidth="360" 
         Title="{Resx Window.Title}" 
         FontSize="13"
@@ -18,23 +18,29 @@
     <DockPanel>
         <DockPanel DockPanel.Dock="Top" Height="35">
             <Label Content="{Resx _destination}" VerticalAlignment="Center"/>
-            <Button DockPanel.Dock="Right" Command="{Binding CommandExport}" Margin="5">
+            <Button DockPanel.Dock="Right" Command="{Binding CommandExport}" Margin="5" Click="Export_OnClick">
                 <StackPanel Orientation="Horizontal" >
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-export.png"/>
                     <Label Content="{Resx _export}" Padding="0" VerticalContentAlignment="Center" Margin="5, 0"/>
                 </StackPanel>
             </Button>
-            <toolkit:DropDownButton Name="folderCombo" BorderThickness="2" Margin="4" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory}"
-                                    ToolTip="{Binding SelectedDirectory.Folder}"
-                                    Template="{StaticResource ComboBoxTreeTemplate}">
+            <toolkit:DropDownButton Name="folderCombo" Margin="4" HorizontalContentAlignment="Stretch" ToolTip="{Binding SelectedDirectory.Folder}" BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}">
+                <toolkit:DropDownButton.Content>
+                    <TextBlock Margin="2" Text="{Binding SelectedDirectory.DirectoryName}"/>
+                </toolkit:DropDownButton.Content>
                 <toolkit:DropDownButton.DropDownContent>
-                    <controls:TreeViewEx ItemsSource="{Binding Directories}" SelectedItem="{Binding SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged" Width="220">
+                    <TreeView ItemsSource="{Binding Directories}" 
+                              SelectedItemChanged="TreeViewEx_SelectedItemChanged" 
+                              Width="220">
+                        <i:Interaction.Behaviors>
+                            <behaviors:TreeViewTwoWaySelectedItemBehavior SelectedItem="{Binding SelectedDirectory}"></behaviors:TreeViewTwoWaySelectedItemBehavior>
+                        </i:Interaction.Behaviors>
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate DataType="{x:Type vm:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
                                 <TextBlock Text="{Binding DirectoryName}" ToolTip="{Binding Folder}"/>
                             </HierarchicalDataTemplate>
                         </TreeView.ItemTemplate>
-                    </controls:TreeViewEx>
+                    </TreeView>
                 </toolkit:DropDownButton.DropDownContent>
             </toolkit:DropDownButton>
         </DockPanel>
@@ -71,7 +77,7 @@
                 </StatusBarItem.Content>
             </StatusBarItem>
         </StatusBar>
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Items}" AutoGenerateColumns="False" CanUserAddRows="False">
+        <DataGrid ItemsSource="{Binding Items}" AutoGenerateColumns="False" CanUserAddRows="False">
             <DataGrid.Resources>
                 <Style TargetType="DataGridCell">
                     <Setter Property="Template">
@@ -109,16 +115,16 @@
                                 <Button ToolTip="{Resx _grid.Logo.Add, ResxName=TAS.Client.Views.ExportView}" Command="{Binding CommandAddLogo}" Height="15" Padding="0" BorderThickness="1" Margin="1">
                                     <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png"/>
                                 </Button>
-                                <ItemsControl ItemsSource="{Binding Logos}">
+                                <ItemsControl ItemsSource="{Binding Logos}" >
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <StackPanel Orientation="Horizontal"/>
+                                            <StackPanel Orientation="Horizontal" IsItemsHost="True"/>
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding Logo.MediaName}" VerticalAlignment="Center"/>
                                                 <Button ToolTip="{Resx _grid.Logo.Remove, ResxName=TAS.Client.Views.ExportView}" Command="{Binding CommandRemove}" Height="15" Padding="0" BorderThickness="1" Margin="1">
                                                     <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"/>
                                                 </Button>

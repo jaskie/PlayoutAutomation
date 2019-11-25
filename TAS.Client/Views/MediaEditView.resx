@@ -123,18 +123,6 @@
   <data name="_audioVolume" xml:space="preserve">
     <value>Play volume</value>
   </data>
-  <data name="_buttonCancel.ToolTip" xml:space="preserve">
-    <value>Abadon changes</value>
-  </data>
-  <data name="_buttonRevert.Caption" xml:space="preserve">
-    <value>Revert</value>
-  </data>
-  <data name="_buttonSave.Caption" xml:space="preserve">
-    <value>Save</value>
-  </data>
-  <data name="_buttonSave.ToolTip" xml:space="preserve">
-    <value>Save changes (Ctrl+S)</value>
-  </data>
   <data name="_category" xml:space="preserve">
     <value>Category</value>
   </data>
@@ -176,6 +164,9 @@
   </data>
   <data name="_ingestTime" xml:space="preserve">
     <value>Ingest date/time</value>
+  </data>
+  <data name="_killDate" xml:space="preserve">
+    <value>Valid until</value>
   </data>
   <data name="_mediaGuid" xml:space="preserve">
     <value>File ID</value>

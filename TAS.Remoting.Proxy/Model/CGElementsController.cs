@@ -1,68 +1,91 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TAS.Remoting.Client;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
     public class CGElementsController : ProxyBase, ICGElementsController
 
     {
+        #pragma warning disable CS0649 
+
         [JsonProperty(nameof(ICGElementsController.Crawls))]
-        private List<CGElement> _crawls { get { return Get<List<CGElement>>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
-        public IEnumerable<ICGElement> Crawls { get { return _crawls; } }
+        private List<CGElement> _crawls;
         [JsonProperty(nameof(ICGElementsController.Logos))]
-        private List<CGElement> _logos { get { return Get<List<CGElement>>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
-        public IEnumerable<ICGElement> Logos { get { return _logos; } }
+        private List<CGElement> _logos;
+
         [JsonProperty(nameof(ICGElementsController.Parentals))]
-        private List<CGElement> _parentals { get { return Get<List<CGElement>>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
-        public IEnumerable<ICGElement> Parentals { get { return _parentals; } }
-        [JsonProperty(nameof(ICGElementsController.Auxes))]
-        private List<CGElement> _auxes { get { return Get<List<CGElement>>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
-        public IEnumerable<ICGElement> Auxes { get { return _auxes; } }
+        private List<CGElement> _parentals;
 
-        public byte Crawl { get { return Get<byte>(); } set { Set(value); } }
-        
-        public byte DefaultCrawl { get { return Get<byte>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(ICGElementsController.Crawl))]
+        private byte _crawl;
 
-        public bool IsCGEnabled { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(ICGElementsController.DefaultCrawl))]
+        private byte _defaultCrawl;
 
-        public bool IsConnected { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(ICGElementsController.DefaultLogo))]
+        private byte _defaultLogo;
 
-        public bool IsMaster { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(ICGElementsController.IsCGEnabled))]
+        private bool _isCgEnabled;
 
-        public bool IsWideScreen { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(ICGElementsController.IsConnected))]
+        private bool _isConnected;
 
-        public byte Logo { get { return Get<byte>(); } set { Set(value); } }
-        public byte Parental { get { return Get<byte>(); } set { Set(value); }  }
+        [JsonProperty(nameof(ICGElementsController.IsMaster))]
+        private bool _isMaster;
 
-        public byte[] VisibleAuxes { get { return Get<byte[]>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(ICGElementsController.IsWideScreen))]
+        private bool _isWideScreen;
+
+        [JsonProperty(nameof(ICGElementsController.Logo))]
+        private byte _logo;
+
+        [JsonProperty(nameof(ICGElementsController.Parental))]
+        private byte _parental;
+
+
+#pragma warning restore
+
+        public IEnumerable<ICGElement> Crawls => _crawls;
+
+        public IEnumerable<ICGElement> Logos => _logos;
+
+        public IEnumerable<ICGElement> Parentals => _parentals;
+
+        public byte Crawl { get { return _crawl; } set { Set(value); } }
+
+        public byte DefaultCrawl => _defaultCrawl;
+
+        public byte DefaultLogo => _defaultLogo;
+
+        public bool IsCGEnabled { get { return _isCgEnabled; } set { Set(value); } }
+
+        public bool IsConnected => _isConnected;
+
+        public bool IsMaster => _isMaster;
+
+        public bool IsWideScreen { get { return _isWideScreen; } set { Set(value); } }
+
+        public byte Logo { get { return _logo; } set { Set(value); } }
+
+        public byte Parental { get { return _parental; } set { Set(value); }  }
 
         public event EventHandler Started;
 
-        public void HideAux(int auxNr)
-        {
-            Invoke(parameters: new[] { auxNr });
-        }
-
         public void SetState(ICGElementsState state)
         {
-            Invoke(parameters: new[] { state });
+            Invoke(parameters: new object[] { state });
         }
 
-        public void ShowAux(int auxNr)
+        public void Clear()
         {
-            Invoke(parameters: new[] { auxNr });
+            Invoke();
         }
 
-        protected override void OnEventNotification(WebSocketMessage e) { }
+        protected override void OnEventNotification(SocketMessage message) { }
 
     }
 }

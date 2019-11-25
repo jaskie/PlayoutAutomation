@@ -1,4 +1,3 @@
-bin
 obj
 Service References
 packages
@@ -19,6 +18,11 @@ Release
 /*.opendb
 /*.db
 *.user
-/TVPlay/bin
+/.vs
 /*.log
 /TAS.FFMpegUtils/x64
+/TAS.Client.Common/*.DotSettings
+/dependencies/bin
+/ffmpeg/x86/bin
+/TVPlay/bin
+/TVPlayClient/bin

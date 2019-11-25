@@ -1,20 +1,21 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TAS.Remoting
 {
     public static class MethodParametersAlignment
     {
-        public static T AlignType<T>(object input)
+        public static T AlignType<T>(this JsonSerializer serializer, object input)
         {
             if (input == null)
                 return default(T);
-            Type resultType = typeof(T);
+            if (input is JArray)
+                using (var reader = new StringReader(input.ToString()))
+                {
+                    return (T)serializer.Deserialize(reader, typeof(T));
+                }
             AlignType(ref input, typeof(T));
             return (T)input;
         }
@@ -27,10 +28,13 @@ namespace TAS.Remoting
             if (input is string && type == typeof(TimeSpan))
                 input = TimeSpan.Parse((string)input, System.Globalization.CultureInfo.InvariantCulture);
             else
+            if (input is string && type == typeof(TimeSpan?))
+                input = TimeSpan.Parse((string)input, System.Globalization.CultureInfo.InvariantCulture);
+            else
             if (input is string && type == typeof(Guid))
                 input = Guid.Parse((string)input);
             else
-            if (type.IsValueType && input != null)
+            if (type.IsValueType && input != null && !type.IsGenericType)
                 input = Convert.ChangeType(input, type);
         }
     }

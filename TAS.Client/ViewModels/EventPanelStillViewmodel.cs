@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Common;
-using TAS.Server.Interfaces;
+﻿using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
     public class EventPanelStillViewmodel: EventPanelRundownElementViewmodelBase
     {
-        public EventPanelStillViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent) { }
+        public EventPanelStillViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent) {}
 
     }
 }

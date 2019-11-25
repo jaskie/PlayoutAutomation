@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
+﻿using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows.Media.Imaging;
-using TAS.Server.Interfaces;
+using TAS.Client.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class CGElementViewmodel : ViewmodelBase
+    public class CGElementViewmodel : ViewModelBase
     {
         private readonly ICGElement _element;
-        private readonly BitmapImage _image;
+
         public CGElementViewmodel(ICGElement element)
         {
             _element = element;
@@ -21,18 +18,18 @@ namespace TAS.Client.ViewModels
                 {
                     element.Image.Save(memory, ImageFormat.Png);
                     memory.Position = 0;
-                    _image = new BitmapImage();
-                    _image.BeginInit();
-                    _image.StreamSource = memory;
-                    _image.CacheOption = BitmapCacheOption.OnLoad;
-                    _image.EndInit();
-                    _image.Freeze();
+                    Image = new BitmapImage();
+                    Image.BeginInit();
+                    Image.StreamSource = memory;
+                    Image.CacheOption = BitmapCacheOption.OnLoad;
+                    Image.EndInit();
+                    Image.Freeze();
                 }
         }
 
-        public byte Id { get { return _element.Id; } }
-        public string Name { get { return _element.Name; } }
-        public BitmapImage Image { get { return _image; } }
+        public byte Id => _element.Id;
+        public string Name => _element.Name;
+        public BitmapImage Image { get; }
 
         protected override void OnDispose()
         {

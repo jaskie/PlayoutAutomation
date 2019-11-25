@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
-using TAS.Server.Interfaces;
-using TAS.Server.Common;
+using TAS.Common;
 using Newtonsoft.Json;
 using System.Drawing;
 using TAS.Remoting;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
     [DebuggerDisplay("{Id}:{Name}")]
     public class CGElement : Remoting.Server.DtoBase, ICGElement
     {
+        private readonly object _imageLock = new object();
+        
         [XmlAttribute]
         [JsonProperty]
         public byte Id { get; set; }
@@ -26,27 +24,26 @@ namespace TAS.Server
         [XmlAttribute]
         public string ImageFile
         {
-            get { return _imageFile; }
+            get => _imageFile;
             set
             {
-                _imageFile = Path.Combine(FileUtils.CONFIGURATION_PATH, value);
-                if (File.Exists(_imageFile))
-                    lock(_imageLock)
-                        _image = new Bitmap(_imageFile);
+                _imageFile = Path.Combine(FileUtils.ConfigurationPath, value);
+                if (!File.Exists(_imageFile)) return;
+                lock(_imageLock)
+                    _image = new Bitmap(_imageFile);
             }
         }
 
-        private object _imageLock = new object();
         private Bitmap _image;
 
         [JsonProperty]
-        [JsonConverter(typeof(BitmapConverter))]
+        [JsonConverter(typeof(BitmapJsonConverter))]
         public Bitmap Image
         {
             get
             {
                 lock(_imageLock)
-                    return _image == null ? null : (Bitmap)_image.Clone();
+                    return _image?.Clone() as Bitmap;
             }
         }
 

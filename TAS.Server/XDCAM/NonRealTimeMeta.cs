@@ -11,16 +11,16 @@ namespace TAS.Server.XDCAM
         [XmlAttribute]
         public DateTime lastUpdate;
         public IntegerValue Duration;
-        public TargetMaterial_class TargetMaterial;
+        public TargetMaterialType TargetMaterial;
         public DateTimeValue CreationDate;
-        public LtcChangeTable_class LtcChangeTable;
-        public Title_class Title;
+        public LtcChangeTableType LtcChangeTable;
+        public TitleType Title;
 
-        public class LtcChangeTable_class
+        public class LtcChangeTableType
         {
             [XmlAttribute]
             public uint tcFps;
-            [XmlElement("LtcChange")]
+            [XmlElement(nameof(LtcChange))]
             public List<LtcChange> LtcChangeTable;
         }
 
@@ -45,13 +45,13 @@ namespace TAS.Server.XDCAM
             public DateTime Value;
         }
 
-        public class TargetMaterial_class
+        public class TargetMaterialType
         {
             [XmlAttribute]
             public string umidRef;
         }
 
-        public class Title_class
+        public class TitleType
         {
             [XmlAttribute]
             public string usAscii;

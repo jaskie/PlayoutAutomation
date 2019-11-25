@@ -1,0 +1,121 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:TAS.Client.Common.Controls"
+                    >
+    <Style TargetType="Button" x:Key="EventPanelCommandButton" BasedOn="{StaticResource {x:Type Button}}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}}" Value="True">
+                <Setter Property="Background" Value="{Binding Path=Background, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}}"/>
+            </DataTrigger>
+        </Style.Triggers>
+        <Setter Property="Margin" Value="1"/>
+        <Setter Property="Width" Value="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"/>
+        <Setter Property="Focusable" Value="False"/>
+    </Style>
+    <Style TargetType="Button" x:Key="ClearButton" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style TargetType="Button" x:Key="UndoButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="Width" Value="90" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="IsCancel" Value="True"/>
+        <Setter Property="ToolTip" Value="{Resx _buttonUndo.ToolTip, ResxName=TAS.Client.Common.Styles.Styles}"/>
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <DockPanel>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png" Margin="5 0"/>
+                        <TextBlock Text="{Resx _buttonUndo.Caption, ResxName=TAS.Client.Common.Styles.Styles}" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </DockPanel>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="OkButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="Width" Value="90" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="IsDefault" Value="True"/>
+        <Setter Property="ToolTip" Value="{Resx _buttonOk.ToolTip, ResxName=TAS.Client.Common.Styles.Styles}"/>
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <DockPanel>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png" Margin="5 0"/>
+                        <TextBlock Text="{Resx _buttonOk.Caption, ResxName=TAS.Client.Common.Styles.Styles}" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </DockPanel>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="CancelButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="Width" Value="90" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="IsCancel" Value="True"/>
+        <Setter Property="ToolTip" Value="{Resx _buttonCancel.ToolTip, ResxName=TAS.Client.Common.Styles.Styles}"/>
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <DockPanel>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png" Margin="5 0"/>
+                        <TextBlock Text="{Resx _buttonCancel.Caption, ResxName=TAS.Client.Common.Styles.Styles}" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </DockPanel>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="SmallToolButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Width" Value="22"/>
+        <Setter Property="Height" Value="22"/>
+        <Setter Property="Margin" Value="1"/>
+    </Style>
+
+    <Style TargetType="Button" x:Key="AddButtonStyle" BasedOn="{StaticResource SmallToolButtonStyle}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>        
+    </Style>
+
+    <Style TargetType="Button" x:Key="EditButtonStyle" BasedOn="{StaticResource SmallToolButtonStyle}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="DeleteButtonStyle" BasedOn="{StaticResource SmallToolButtonStyle}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="SaveButtonStyle" BasedOn="{StaticResource SmallToolButtonStyle}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/save-small.png" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

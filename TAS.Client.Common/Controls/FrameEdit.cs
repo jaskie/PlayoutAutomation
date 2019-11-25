@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using TAS.Common;
-using Xceed.Wpf.Toolkit;
 
 namespace TAS.Client.Common.Controls
 {

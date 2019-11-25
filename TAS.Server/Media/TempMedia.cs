@@ -1,60 +1,110 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using TAS.Common;
 using TAS.FFMpegUtils;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces.Media;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
-    public class TempMedia: Media, ITempMedia
+    public class TempMedia: MediaBase, ITempMedia
     {
-        public TempMedia(TempDirectory directory, IMediaProperties originalMedia): base(directory, originalMedia == null? Guid.NewGuid(): originalMedia.MediaGuid)
+       
+        public TempMedia(TempDirectory directory, IMediaProperties originalMedia)
         {
             OriginalMedia = originalMedia;
-            FileName = string.Format("{0}{1}", _mediaGuid, originalMedia == null ? FileUtils.TempFileExtension : Path.GetExtension(originalMedia.FileName));
+            Directory = directory;
+            MediaGuid = originalMedia?.MediaGuid ?? Guid.NewGuid();
+            FileName = originalMedia == null 
+                ? $"{MediaGuid}.tmp"
+                : $"{originalMedia.MediaGuid}{Path.GetExtension(originalMedia.FileName)}";
         }
 
         internal IMediaProperties OriginalMedia;
         internal StreamInfo[] StreamInfo;
 
+        public override TAudioChannelMapping AudioChannelMapping
+        {
+            get => OriginalMedia?.AudioChannelMapping ?? TAudioChannelMapping.Stereo;
+            set { }
+        }
+
         public override string MediaName
         {
-            get { return OriginalMedia == null ? _mediaName : OriginalMedia.MediaName; }
+            get => OriginalMedia?.MediaName ?? FileName;
+            set { }
         }
-        public override TMediaType MediaType 
-        { 
-            get { return OriginalMedia == null ? _mediaType : OriginalMedia.MediaType; }
+
+
+        public override double AudioLevelIntegrated
+        {
+            get => OriginalMedia?.AudioLevelIntegrated ?? -23d;
+            set {  }
         }
+
+        public override double AudioLevelPeak
+        {
+            get => OriginalMedia?.AudioLevelPeak ?? 0d;
+            set { }
+        }
+
+        public override double AudioVolume
+        {
+            get => OriginalMedia?.AudioVolume ?? 1d;
+            set { }
+        }
+
         public override TimeSpan Duration
         {
-            get { return OriginalMedia == null || OriginalMedia.Duration == TimeSpan.Zero ? _duration : OriginalMedia.Duration; }
+            get => OriginalMedia?.Duration ?? TimeSpan.Zero;
+            set { }
         }
+
         public override TimeSpan DurationPlay
         {
-            get { return OriginalMedia == null || OriginalMedia.DurationPlay == TimeSpan.Zero ? _durationPlay : OriginalMedia.DurationPlay; }
+            get => OriginalMedia?.DurationPlay ?? TimeSpan.Zero;
+            set { }
         }
-        public override TimeSpan TcStart
+
+        public override TMediaCategory MediaCategory
         {
-            get { return OriginalMedia == null || OriginalMedia.TcStart == TimeSpan.Zero ? _tcStart : OriginalMedia.TcStart; }
+            get => OriginalMedia?.MediaCategory ?? TMediaCategory.Uncategorized;
+            set {  }
         }
+
+        public override byte Parental
+        {
+            get => OriginalMedia?.Parental ?? 0;
+            set {  }
+        }
+
         public override TimeSpan TcPlay
         {
-            get { return OriginalMedia == null || OriginalMedia.TcPlay == TimeSpan.Zero ? _tcPlay : OriginalMedia.TcPlay; }
-        }
-        public override decimal AudioVolume
-        {
-            get { return OriginalMedia == null ? _audioVolume : OriginalMedia.AudioVolume; }
+            get => OriginalMedia?.TcPlay ?? TimeSpan.Zero;
+            set { }
         }
 
+        public override TimeSpan TcStart
+        {
+            get => OriginalMedia?.TcStart ?? TimeSpan.Zero;
+            set { }
+        }
+
+        public override TVideoFormat VideoFormat
+        {
+            get => OriginalMedia?.VideoFormat ?? TVideoFormat.Other;
+            set { }
+        }
+
+        public override bool FieldOrderInverted
+        {
+            get => OriginalMedia?.FieldOrderInverted ?? false;
+            set { }
+        }
+        
         protected override void DoDispose()
         {
+            Delete();
             base.DoDispose();
-            _directory.DeleteMedia(this);
         }
-
     }
 }

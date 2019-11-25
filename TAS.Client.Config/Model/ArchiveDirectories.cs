@@ -1,54 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using TAS.Server.Database;
+using TAS.Common.Database.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
     public class ArchiveDirectories
     {
         public readonly List<ArchiveDirectory> Directories;
+        private readonly IDatabase _db;
 
-        public ArchiveDirectories(string connectionStringPrimary = null, string connectionStringSecondary = null)
+        public ArchiveDirectories(IDatabase db)
         {
-            try
-            {
-                Database.Open(connectionStringPrimary, connectionStringSecondary);
-                Directories = Database.DbLoadArchiveDirectories<ArchiveDirectory>();
-                Directories.ForEach(d => d.IsModified = false);
-            }
-            finally
-            {
-                Database.Close();
-            }
+            _db = db;
+            Directories = db.LoadArchiveDirectories<ArchiveDirectory>();
+            Directories.ForEach(d => d.IsModified = false);
         }
 
         public void Save()
         {
-            Database.Open();
-            try
+            foreach (var dir in Directories.ToList())
             {
-                foreach (var dir in Directories.ToList())
+                if (dir.IsDeleted)
                 {
-                    if (dir.IsDeleted)
-                    {
-                        dir.DbDeleteArchiveDirectory();
-                        Directories.Remove(dir);
-                    }
-                    else
-                    if (dir.IsNew)
-                        dir.DbInsertArchiveDirectory();
-                    else
-                    if (dir.IsModified)
-                        dir.DbUpdateArchiveDirectory();
+                    _db.DeleteArchiveDirectory(dir);
+                    Directories.Remove(dir);
                 }
-            }
-            finally
-            {
-                Database.Close();
+                else
+                if (dir.IsNew)
+                    _db.InsertArchiveDirectory(dir);
+                else
+                if (dir.IsModified)
+                    _db.UpdateArchiveDirectory(dir);
             }
         }
-
     }
 }

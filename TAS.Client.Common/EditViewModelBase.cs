@@ -1,103 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Xml.Serialization;
+﻿using System.Linq;
 
 namespace TAS.Client.Common
 {
-    public abstract class EditViewmodelBase<M> : ViewModels.ViewmodelBase 
+    public abstract class EditViewmodelBase<TM> : ModifyableViewModelBase 
     {
-        public readonly M Model;
-        public readonly UserControl _editor;
-        public EditViewmodelBase(M model, UserControl editor)
+        protected EditViewmodelBase(TM model)
         {
             Model = model;
-            _editor = editor;
-            ModelLoad();
-            if (editor != null)
-                editor.DataContext = this;
+            Load(model);
         }
 
-        protected bool _isModified;
-        protected virtual void OnModified()
-        {
-            Modified?.Invoke(this, EventArgs.Empty);
-            InvalidateRequerySuggested();
-            NotifyPropertyChanged(nameof(IsModified));
-        }
+        public TM Model { get; }
 
-        [XmlIgnore]
-        public virtual bool IsModified
+        protected void Load(object source = null)
         {
-            get { return _isModified; }
-            protected set
+            IsLoading = true;
+            try
             {
-                if (base.SetField(ref _isModified, value)
-                    && value)
-                    OnModified();
+                var copiedProperties = GetType().GetProperties().Where(p => p.CanWrite);
+                foreach (var copyPi in copiedProperties)
+                {
+                    var sourcePi = (source ?? Model).GetType().GetProperty(copyPi.Name);
+                    if (sourcePi != null)
+                        copyPi.SetValue(this, sourcePi.GetValue((source ?? Model), null), null);
+                }
             }
-        }
-
-        public event EventHandler Modified;
-
-        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            bool isModified = base.SetField(ref field, value, propertyName);
-            if (isModified)
-                IsModified = true;
-            return isModified;
-        }
-
-        protected virtual void ModelLoad(object source = null)
-        {
-            IEnumerable<PropertyInfo> copiedProperties = this.GetType().GetProperties().Where(p => p.CanWrite);
-            foreach (PropertyInfo copyPi in copiedProperties)
+            finally
             {
-                PropertyInfo sourcePi = (source ?? Model).GetType().GetProperty(copyPi.Name);
-                if (sourcePi != null)
-                    copyPi.SetValue(this, sourcePi.GetValue((source ?? Model), null), null);
+                IsLoading = false;
             }
             IsModified = false;
         }
 
-        public virtual void ModelUpdate(object destObject = null)
+        protected virtual void Update(object destObject = null)
         {
-            if (IsModified && Model != null
-                || destObject != null)
+            if ((!IsModified || Model == null) && destObject == null)
+                return;
+            var copiedProperties = GetType().GetProperties();
+            foreach (var copyPi in copiedProperties)
             {
-                PropertyInfo[] copiedProperties = this.GetType().GetProperties();
-                foreach (PropertyInfo copyPi in copiedProperties)
-                {
-                    PropertyInfo destPi = (destObject ?? Model).GetType().GetProperty(copyPi.Name);
-                    if (destPi != null)
-                    {
-                        if (destPi.GetValue(destObject ?? Model, null) != copyPi.GetValue(this, null)
-                            && destPi.CanWrite)
-                            destPi.SetValue(destObject ?? Model, copyPi.GetValue(this, null), null);
-                    }
-                }
-                IsModified = false;
+                var destPi = (destObject ?? Model).GetType().GetProperty(copyPi.Name);
+                if (destPi == null)
+                    continue;
+                if (destPi.GetValue(destObject ?? Model, null) != copyPi.GetValue(this, null)
+                    && destPi.CanWrite)
+                    destPi.SetValue(destObject ?? Model, copyPi.GetValue(this, null), null);
             }
+            IsModified = false;
         }
-
-        [XmlIgnore]
-        public UserControl Editor { get { return _editor; } }
 
         public override string ToString()
         {
             return Model.ToString();
-        }
-
-        protected override void OnDispose()
-        {
-            if (_editor != null)
-                _editor.DataContext = null;
         }
 
     }

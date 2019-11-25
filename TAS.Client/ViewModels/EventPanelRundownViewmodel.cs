@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
-using resources = TAS.Client.Common.Properties.Resources;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -15,15 +9,15 @@ namespace TAS.Client.ViewModels
     {
         public EventPanelRundownViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
         {
-            CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = o => _event.SubEventsCount == 0 };
-            CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = o => _event.SubEventsCount == 0 };
-            CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive, CanExecuteDelegate = o => _event.SubEventsCount == 0 };
+            CommandAddSubMovie = new UiCommand(_addSubMovie, _canAddSubEvent);
+            CommandAddSubRundown = new UiCommand(_addSubRundown, _canAddSubEvent);
+            CommandAddSubLive = new UiCommand(_addSubLive, _canAddSubEvent);
         }
 
-        private void _addSubLive(object obj)
-        {
-            _engineViewmodel.AddSimpleEvent(_event, TEventType.Live, true);
-        }
+        public ICommand CommandAddSubRundown { get; }
+        public ICommand CommandAddSubMovie { get; }
+        public ICommand CommandAddSubLive { get; }
+
 
         protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
@@ -33,22 +27,14 @@ namespace TAS.Client.ViewModels
 
         protected override bool CanAddNextMovie(object o)
         {
-            return _parent is EventPanelRundownViewmodel && base.CanAddNextMovie(o);
+            return Parent is EventPanelRundownViewmodel && base.CanAddNextMovie(o);
         }
+
         protected override bool CanAddNewLive(object o)
         {
-            return _parent is EventPanelRundownViewmodel && base.CanAddNewLive(o);
+            return Parent is EventPanelRundownViewmodel && base.CanAddNewLive(o);
         }
 
-        private void _addSubRundown(object obj)
-        {
-            _engineViewmodel.AddSimpleEvent(_event, TEventType.Rundown, true);
-        }
-
-        private void _addSubMovie(object obj)
-        {
-            _engineViewmodel.AddMediaEvent(_event, TStartType.WithParent, TMediaType.Movie, VideoLayer.Program, false);
-        }
         protected override void OnDispose()
         {
             if (IsSelected)
@@ -60,8 +46,25 @@ namespace TAS.Client.ViewModels
             base.OnDispose();
         }
 
-        public ICommand CommandAddSubRundown { get; }
-        public ICommand CommandAddSubMovie { get; }
-        public ICommand CommandAddSubLive { get; }
+        private void _addSubLive(object obj)
+        {
+            EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, true);
+        }
+
+        private void _addSubRundown(object obj)
+        {
+            EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, true);
+        }
+
+        private void _addSubMovie(object obj)
+        {
+            EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, TMediaType.Movie, VideoLayer.Program, false);
+        }
+
+        private bool _canAddSubEvent(object o)
+        {
+            return Event.SubEventsCount == 0 && Engine.HaveRight(EngineRight.Rundown);
+        }
+
     }
 }

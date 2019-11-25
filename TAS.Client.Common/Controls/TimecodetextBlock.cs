@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using TAS.Common;
-using Xceed.Wpf.Toolkit;
 
 namespace TAS.Client.Common.Controls
 {
@@ -36,7 +30,7 @@ namespace TAS.Client.Common.Controls
 
         private static void OnTimecodeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as TimecodeTextBlock)._updateText();
+            ((TimecodeTextBlock)d)._updateText();
         }
 
         private void _updateText()
@@ -52,11 +46,10 @@ namespace TAS.Client.Common.Controls
             get { return (TimeSpan)GetValue(TimecodeProperty); }
             set
             {
-                if (value != Timecode)
-                {
-                    SetValue(TimecodeProperty, value);
-                    _updateText();
-                }
+                if (value == Timecode)
+                    return;
+                SetValue(TimecodeProperty, value);
+                _updateText();
             }
         }
 
@@ -68,11 +61,10 @@ namespace TAS.Client.Common.Controls
             }
             set
             {
-                if (value != VideoFormat)
-                {
-                    SetValue(VideoFormatProperty, value);
-                    _updateText();
-                }
+                if (value == VideoFormat)
+                    return;
+                SetValue(VideoFormatProperty, value);
+                _updateText();
             }
         }
 
@@ -81,11 +73,10 @@ namespace TAS.Client.Common.Controls
             get { return (bool)GetValue(HideZeroProperty); }
             set
             {
-                if (value != HideZero)
-                {
-                    SetValue(HideZeroProperty, value);
-                    _updateText();
-                }
+                if (value == HideZero)
+                    return;
+                SetValue(HideZeroProperty, value);
+                _updateText();
             }
         }
 

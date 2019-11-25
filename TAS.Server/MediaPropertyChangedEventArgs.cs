@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
+﻿using TAS.Common;
+using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server
 {
@@ -13,6 +9,6 @@ namespace TAS.Server
         {
             PropertyName = propertyName;
         }
-        public string PropertyName { get; private set; }
+        public string PropertyName { get; }
     }
 }

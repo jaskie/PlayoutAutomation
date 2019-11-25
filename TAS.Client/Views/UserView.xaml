@@ -1,0 +1,55 @@
+﻿<UserControl x:Class="TAS.Client.Views.UserView"
+             Language="{UICulture}" Resx.DefaultResxName="TAS.Client.Views.UserView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TAS.Client.Views"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance {x:Type vm:UserViewmodel}}"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="35">
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Margin" Value="5" />
+                        <Setter Property="Width" Value="80" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                    <Style TargetType="{x:Type Label}">
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                        <Setter Property="Padding" Value="0"/>
+                    </Style>
+                </StackPanel.Resources>
+                <Button Command="{Binding CommandUndo}" Style="{StaticResource UndoButtonStyle}" />
+                <Button Command="{Binding CommandSave}" Style="{StaticResource OkButtonStyle}"/>
+
+            </StackPanel>
+            <Label Content="{Resx _name}"/>
+            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+            <CheckBox IsChecked="{Binding IsAdmin}" Content="{Resx _isAdmin}" Margin="5" />
+            <DockPanel>
+                <Label Content="{Resx _authenticationSource}"/>
+                <ComboBox ItemsSource="{Binding AuthenticationSources}" SelectedItem="{Binding AuthenticationSource}" VerticalAlignment="Center"/>
+            </DockPanel>
+            <Label Content="{Resx _authenticationObject}"/>
+            <TextBox Text="{Binding AuthenticationObject, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        <Separator DockPanel.Dock="Top" Margin="5" />
+        <Label DockPanel.Dock="Top" Content="{Resx _groupMembership}"/>
+        <xctk:CheckListBox ItemsSource="{Binding AllGroups}" SelectedItemsOverride="{Binding GroupMember}">
+            <xctk:CheckListBox.Resources>
+                <DataTemplate DataType="{x:Type vm:GroupViewmodel}">
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </xctk:CheckListBox.Resources>
+        </xctk:CheckListBox>
+
+    </DockPanel>
+</UserControl>

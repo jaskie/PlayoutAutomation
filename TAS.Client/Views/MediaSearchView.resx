@@ -117,14 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Window.Title" xml:space="preserve">
-    <value>Media search</value>
-  </data>
-  <data name="_cancel" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
   <data name="_enableCGForNewEvents" xml:space="preserve">
-    <value>Enable CG for this item</value>
+    <value>Enable CG for new items</value>
   </data>
   <data name="_grid.Header.ClipName" xml:space="preserve">
     <value>Clip name</value>
@@ -137,5 +131,11 @@
   </data>
   <data name="_search" xml:space="preserve">
     <value>Search</value>
+  </data>
+  <data name="_studioMode" xml:space="preserve">
+    <value>Hold new items (studio mode)</value>
+  </data>
+  <data name="_windowTitle" xml:space="preserve">
+    <value>Search for media...</value>
   </data>
 </root>

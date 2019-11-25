@@ -1,49 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
+﻿using NLog;
+using System;
 using System.Configuration;
-using System.Diagnostics;
-using TAS.Server.Interfaces;
+using System.IO;
+using TAS.Common.Interfaces.Media;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
-    public class TempDirectory: MediaDirectory
+    public class TempDirectory: MediaDirectoryBase
     {
-        public TempDirectory(MediaManager manager): base(manager)
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+        public TempDirectory()
         {
-            _folder = ConfigurationManager.AppSettings["TempDirectory"];
+            Folder = ConfigurationManager.AppSettings["TempDirectory"];
+            DirectoryName = "TEMP";
+            SweepStaleMedia();
         }
 
-        protected override IMedia CreateMedia(string fileNameOnly, Guid guid)
+        public override void RemoveMedia(IMedia media)
         {
-            throw new NotImplementedException();
         }
 
-        public override void MediaAdd(Media media)
+        internal override IMedia CreateMedia(IMediaProperties media)
         {
-            // do not add to _files
-        }
-
-        public override void Refresh()
-        {
-            
-        }
-        
-        public override IMedia CreateMedia(IMediaProperties media)
-        {
+            if (!DirectoryExists())
+                throw new DirectoryNotFoundException(Folder);
             return new TempMedia(this, media);
         }
-
-        public override void SweepStaleMedia()
+        
+        private void SweepStaleMedia()
         {
-            foreach (string fileName in Directory.GetFiles(_folder))
+            if (!DirectoryExists())
+                return;
+            foreach (string fileName in Directory.GetFiles(Folder))
                 try
                 {
                     File.Delete(fileName);
                 }
-                catch { }
+                catch (Exception e)
+                {
+                    Logger.Warn(e);
+                }
         }
+
+
     }
 }

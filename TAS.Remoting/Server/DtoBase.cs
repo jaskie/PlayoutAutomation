@@ -1,26 +1,27 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
+using System.Threading;
 using System.Xml.Serialization;
 
 namespace TAS.Remoting.Server
 {
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.Objects, IsReference = true, MemberSerialization = MemberSerialization.OptIn)]
-    public abstract class DtoBase: IDto, INotifyPropertyChanged
+    public abstract class DtoBase: IDto
     {
         [XmlIgnore]
-        public Guid DtoGuid { get; private set; } = Guid.NewGuid();
+        public virtual Guid DtoGuid { get; } = Guid.NewGuid();
+
+        private int _disposed;
 
 #if DEBUG
         ~DtoBase()
         {
-            Debug.WriteLine(this, string.Format("{0} Finalized", GetType().FullName));
+            Debug.WriteLine(this, $"{GetType().FullName} Finalized");
         }
 #endif // DEBUG
 
@@ -33,32 +34,29 @@ namespace TAS.Remoting.Server
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
+        public event EventHandler Disposed;
+
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref _disposed, 1) != default(int))
+                return;
+            DoDispose();
+            Disposed?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected bool IsDisposed => _disposed != default(int);
+
+        protected virtual void DoDispose()
+        {
+            
+        }
+
         protected virtual void NotifyPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public event EventHandler Disposed;
-
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public void Dispose()
-        {
-            if (!_disposed)
-            {
-                _disposed = true;
-                DoDispose();
-            }
-        }
-
-        private bool _disposed = false;
-
-        protected bool IsDisposed { get { return _disposed; } }
-
-        protected virtual void DoDispose()
-        {
-            Disposed?.Invoke(this, EventArgs.Empty);
-        }
 
     }
 

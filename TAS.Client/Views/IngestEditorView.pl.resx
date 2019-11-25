@@ -123,4 +123,7 @@
   <data name="_grid.Header.Clip" xml:space="preserve">
     <value>Klip</value>
   </data>
+  <data name="_windowTitle" xml:space="preserve">
+    <value>Pobierz jako...</value>
+  </data>
 </root>

@@ -1,44 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using TAS.Common;
+using Newtonsoft.Json;
 using TAS.Remoting.Client;
-using TAS.Server.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model
 {
     public class PlayoutServer : ProxyBase, IPlayoutServer
     {
-        public IAnimationDirectory AnimationDirectory { get { return Get<AnimationDirectory>(); } protected set { SetLocalValue(value); } }
+        #pragma warning disable CS0649
+        [JsonProperty(nameof(IPlayoutServer.AnimationDirectory))]
+        private IAnimationDirectory _animationDirectory;
 
-        public IEnumerable<IPlayoutServerChannel> Channels { get { return Get<List<PlayoutServerChannel>>(); } protected set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IPlayoutServer.Channels))]
+        private List<PlayoutServerChannel> _channels;
 
-        public IEnumerable<IRecorder> Recorders{ get { return Get<List<Recorder>>(); } protected set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IPlayoutServer.Recorders))]
+        private List<Recorder> _recorders;
 
-        public ulong Id { get { return Get<ulong>(); }  set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IPlayoutServer.IsConnected))]
+        private bool _isConnected;
 
-        public bool IsConnected { get { return Get<bool>(); } protected set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IPlayoutServer.MediaDirectory))]
+        private ServerDirectory _mediaDirectory;
 
-        public IServerDirectory MediaDirectory { get { return Get<ServerDirectory>(); } protected set { SetLocalValue(value); } }
+        #pragma warning restore
 
-        public string MediaFolder { get { return Get<string>(); } set { SetLocalValue(value); } }
+        public IAnimationDirectory AnimationDirectory => _animationDirectory;
 
-        public string AnimationFolder { get { return Get<string>(); } set { SetLocalValue(value); } }
+        public IEnumerable<IPlayoutServerChannel> Channels => _channels;
 
-        public string ServerAddress { get { return Get<string>(); } set { SetLocalValue(value); } }
+        public IEnumerable<IRecorder> Recorders => _recorders;
 
-        public int OscPort { get { return Get<int>(); } set { SetLocalValue(value); } }
+        public bool IsConnected => _isConnected;
 
-        public TServerType ServerType { get { return Get<TServerType>(); } set { SetLocalValue(value); } }
+        public IServerDirectory MediaDirectory => _mediaDirectory;
 
         public void Initialize()
         {
             throw new NotImplementedException();
         }
 
-        protected override void OnEventNotification(WebSocketMessage e) { }
+        public void Save()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnEventNotification(SocketMessage message) { }
 
     }
 }

@@ -208,7 +208,7 @@
     <value>Start selected | Ctrl+F3</value>
   </data>
   <data name="_toolbar.TimeToAttention" xml:space="preserve">
-    <value>Attention at</value>
+    <value>Attention in</value>
   </data>
   <data name="_toolbar.Track" xml:space="preserve">
     <value>Track</value>
@@ -330,5 +330,26 @@ Effective until current clip ends.</value>
   </data>
   <data name="_menu.Edit.Undo" xml:space="preserve">
     <value>Restore deleted</value>
+  </data>
+  <data name="_userManager" xml:space="preserve">
+    <value>User manager</value>
+  </data>
+  <data name="_engineRights" xml:space="preserve">
+    <value>User rights</value>
+  </data>
+  <data name="_hide" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="_show" xml:space="preserve">
+    <value>Show</value>
+  </data>
+  <data name="_propertiesPanelExpander.ToolTip" xml:space="preserve">
+    <value>F11</value>
+  </data>
+  <data name="_toolbar.AddSecond" xml:space="preserve">
+    <value>Increase by one second</value>
+  </data>
+  <data name="_toolbar.DecreaseSecond" xml:space="preserve">
+    <value>Decrease by one second</value>
   </data>
 </root>

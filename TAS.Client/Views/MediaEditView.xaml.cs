@@ -12,9 +12,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TAS.Client.Common;
-using TAS.Common;
 
-namespace TAS.Client
+namespace TAS.Client.Views
 {
     /// <summary>
     /// Interaction logic for MediaEditUC.xaml
@@ -25,13 +24,6 @@ namespace TAS.Client
         {
             InitializeComponent();
         }
-
-#if DEBUG
-        ~MediaEditView()
-        {
-            if (Application.Current != null)
-                Application.Current.Dispatcher.BeginInvoke((Action)(() => System.Diagnostics.Debug.WriteLine(this.DataContext, "View finalized")));
-        }
-#endif // DEBUG
+        
     }
 }

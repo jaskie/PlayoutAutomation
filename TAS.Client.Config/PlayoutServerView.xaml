@@ -6,7 +6,7 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.Config"
-             d:DataContext="{x:Type vm:PlayoutServerViewmodel}"
+             d:DataContext="{d:DesignInstance vm:PlayoutServerViewmodel}"
              mc:Ignorable="d" 
             >
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
@@ -38,6 +38,8 @@
                     <TextBox Text="{Binding AnimationFolder, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label Content="Server type"/>
                     <ComboBox SelectedItem="{Binding ServerType}" ItemsSource="{Binding ServerTypes}"/>
+                    <Label Content="Ingest format"/>
+                    <ComboBox SelectedItem="{Binding MovieContainerFormat}" ItemsSource="{Binding MovieContainerFormats}"/>
                 </StackPanel>
                 <DockPanel DockPanel.Dock="Bottom" Visibility="{Binding IsRecordersVisible, Converter={StaticResource BoolToVis}}">
                     <Separator DockPanel.Dock="Top" Margin="5"/>
@@ -60,6 +62,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Recorder Id" Binding="{Binding Id}"/>
                             <DataGridTextColumn Header="Recorder name" Binding="{Binding RecorderName}"/>
+                            <DataGridTextColumn Header="Default channel" Binding="{Binding DefaultChannel}"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>
@@ -88,7 +91,13 @@
                     </DataGrid>
                 </DockPanel>
             </DockPanel>
-            <ContentControl Margin="5, 0, 0, 0" Grid.Column="1" Content="{Binding SelectedPlayoutServerChannel.Editor}"/>
+            <ContentControl Margin="5, 0, 0, 0" Grid.Column="1" Content="{Binding SelectedPlayoutServerChannel}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type vm:PlayoutServerChannelViewmodel}">
+                        <vm:PlayoutServerChannelView/>
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
         </Grid>
     </ScrollViewer>
 </UserControl>

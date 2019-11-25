@@ -20,7 +20,7 @@
                 <ColumnDefinition Width="20"/>
                 <ColumnDefinition Width="20"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="80"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Image Grid.Column="0" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/StillImage.png"/>
@@ -44,7 +44,7 @@
                     <TextBlock Text="{Binding Parent.EventName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
                 </TextBlock.ToolTip>
             </TextBlock>
-            <TextBlock Grid.Column="3" Text="{Binding TimeLeft}" FontSize="15" VerticalAlignment="Center" Margin="5, 0" />
+            <TextBlock Grid.Column="3" Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToString}}" FontSize="15" VerticalAlignment="Center" Margin="5, 0" />
         </Grid>
     </Border>
 </local:EventPanelView>

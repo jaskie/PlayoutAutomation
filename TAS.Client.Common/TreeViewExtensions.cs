@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.ComponentModel;
 using System.Collections;
 using System.Windows.Media;
-using System.Windows.Controls.Primitives;
-using System.Windows.Threading;
 
 namespace TAS.Client.Common
 {
@@ -35,7 +31,7 @@ namespace TAS.Client.Common
 
 		public static IList GetMultiSelectedItems(DependencyObject obj)
 		{
-            return obj == null ? null : (IList)obj.GetValue(MultiSelectedItemsProperty);
+            return (IList) obj?.GetValue(MultiSelectedItemsProperty);
 		}
 
 		public static void SetMultiSelectedItems(DependencyObject obj, IList value)
@@ -71,14 +67,14 @@ namespace TAS.Client.Common
 			var isEnabled = (bool)args.NewValue;
 			if(wasEnable)
 			{
-				tree.RemoveHandler(TreeViewItem.MouseDownEvent, new MouseButtonEventHandler(ItemClicked));
-				tree.RemoveHandler(TreeView.KeyDownEvent, new KeyEventHandler(KeyDown));
+				tree.RemoveHandler(UIElement.MouseDownEvent, new MouseButtonEventHandler(ItemClicked));
+				tree.RemoveHandler(UIElement.KeyDownEvent, new KeyEventHandler(KeyDown));
                 tree.RemoveHandler(TreeViewItem.CollapsedEvent, new RoutedEventHandler(ItemColapsed));
             }
 			if(isEnabled)
 			{
-				tree.AddHandler(TreeViewItem.MouseDownEvent, new MouseButtonEventHandler(ItemClicked), true);
-				tree.AddHandler(TreeView.KeyDownEvent, new KeyEventHandler(KeyDown));
+				tree.AddHandler(UIElement.MouseDownEvent, new MouseButtonEventHandler(ItemClicked), true);
+				tree.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler(KeyDown));
                 tree.AddHandler(TreeViewItem.CollapsedEvent, new RoutedEventHandler(ItemColapsed), true);
 			}
 		}
@@ -117,7 +113,6 @@ namespace TAS.Client.Common
 
 		static void KeyDown(object sender, KeyEventArgs e)
 		{
-			TreeView tree = (TreeView)sender;
 			if(e.Key == Key.Enter)
 			{
                 ItemSelected((TreeView)sender, FindTreeViewItem(e.OriginalSource), MouseButton.Left);
@@ -127,8 +122,7 @@ namespace TAS.Client.Common
 
         static void ItemColapsed(object sender, RoutedEventArgs e)
         {
-            var tree = sender as TreeView;
-            if (tree == null)
+            if (!(sender is TreeView tree))
                 return;
             var selectedItems = GetMultiSelectedItems(tree);
             if (e.OriginalSource is TreeViewItem)
@@ -144,17 +138,15 @@ namespace TAS.Client.Common
         
         static IEnumerable<TreeViewItem> GetSubItems(TreeViewItem item)
         {
-            if (item != null)
+            if (item == null)
+                yield break;
+            for (int i = 0; i < item.Items.Count; i++)
             {
-                for (int i = 0; i < item.Items.Count; i++)
+                if (item.ItemContainerGenerator.ContainerFromIndex(i) is TreeViewItem si)
                 {
-                    TreeViewItem si = item.ItemContainerGenerator.ContainerFromIndex(i) as TreeViewItem;
-                    if (si != null)
-                    {
-                        yield return si;
-                        foreach (TreeViewItem ssi in GetSubItems(si))
-                            yield return ssi;
-                    }
+                    yield return si;
+                    foreach (TreeViewItem ssi in GetSubItems(si))
+                        yield return ssi;
                 }
             }
         }
@@ -208,22 +200,16 @@ namespace TAS.Client.Common
 					return;
 				}
 				MakeSingleSelection(tree, item);
-				return;
 			}
-			//MakeAnchorSelection(item, false);
-
-
-			//SetIsSelected(tree.SelectedItem
 		}
 
 		private static TreeViewItem FindTreeViewItem(object obj)
 		{
-            DependencyObject dpObj = obj as Visual;
-			if(dpObj == null)
+			if (!(obj is Visual visual))
 				return null;
-			if(dpObj is TreeViewItem)
-				return (TreeViewItem)dpObj;
-			return FindTreeViewItem(VisualTreeHelper.GetParent(dpObj));
+			if(obj is TreeViewItem tvi)
+				return tvi;
+			return FindTreeViewItem(VisualTreeHelper.GetParent(visual));
 		}
 
 
@@ -267,7 +253,7 @@ namespace TAS.Client.Common
 			bool betweenBoundary = false;
 			foreach(var item in items)
 			{
-				bool isBoundary = item == anchor || item == actionItem;
+				bool isBoundary = Equals(item, anchor) || Equals(item, actionItem);
 				if(isBoundary)
 				{
 					betweenBoundary = !betweenBoundary;
@@ -292,14 +278,9 @@ namespace TAS.Client.Common
 		{
 			foreach(TreeViewItem selectedItem in GetExpandedTreeViewItems(tree))
 			{
-				if(selectedItem == null)
+			    if(selectedItem == null)
 					continue;
-				if(selectedItem != item)
-					SetIsMultiSelected(selectedItem, false);
-				else
-				{
-					SetIsMultiSelected(selectedItem, true);
-				}
+			    SetIsMultiSelected(selectedItem, Equals(selectedItem, item));
 			}
 			UpdateAnchorAndActionItem(tree, item);
 		}

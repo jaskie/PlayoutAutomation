@@ -1,17 +1,15 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client
 {
-    struct eventSignature
+    internal struct EventSignature
     {
-        public eventSignature(IEvent aEvent)
+        public EventSignature(IEvent aEvent)
         {
             Engine = aEvent.Engine.EngineName;
             EventId = aEvent.Id;
@@ -22,28 +20,28 @@ namespace TAS.Client
 
     public static class HiddenEventsStorage
     {
-        private static readonly string _fileName = Path.Combine(FileUtils.LOCAL_APPLICATION_DATA_PATH, "HiddenEvents.json");
-        static HashSet<eventSignature> _disabledEvents = new HashSet<eventSignature>();
+        private static readonly string FileName = Path.Combine(FileUtils.LocalApplicationDataPath, "HiddenEvents.json");
+        static HashSet<EventSignature> _disabledEvents = new HashSet<EventSignature>();
         static HiddenEventsStorage()
         {
             Load();
         }
 
-        static void Load()
+        private static void Load()
         {
-            if (File.Exists(_fileName))
-                using (StreamReader file = File.OpenText(_fileName))
+            if (File.Exists(FileName))
+                using (StreamReader file = File.OpenText(FileName))
                 {
                     JsonSerializer serializer = new JsonSerializer();
-                    eventSignature[] events = (eventSignature[])serializer.Deserialize(file, typeof(eventSignature[]));
-                    _disabledEvents = new HashSet<eventSignature>(events);
+                    EventSignature[] events = (EventSignature[])serializer.Deserialize(file, typeof(EventSignature[]));
+                    _disabledEvents = new HashSet<EventSignature>(events);
                 }
         }
 
-        static void Save()
+        private static void Save()
         {
-            FileUtils.CreateDirectoryIfNotExists(FileUtils.LOCAL_APPLICATION_DATA_PATH);
-            using (StreamWriter file = File.CreateText(_fileName))
+            FileUtils.CreateDirectoryIfNotExists(FileUtils.LocalApplicationDataPath);
+            using (StreamWriter file = File.CreateText(FileName))
                 {
                     JsonSerializer serializer = new JsonSerializer();
                     serializer.Serialize(file, _disabledEvents.ToArray());
@@ -52,20 +50,20 @@ namespace TAS.Client
 
         public static void Add(IEvent aEvent)
         {
-            _disabledEvents.Add(new eventSignature(aEvent));
+            _disabledEvents.Add(new EventSignature(aEvent));
             Save();
         }
 
         public static void Remove(IEvent aEvent)
         {
-            _disabledEvents.Remove(new eventSignature(aEvent));
+            _disabledEvents.Remove(new EventSignature(aEvent));
             Save();
         }
 
 
         public static bool Contains(IEvent aEvent)
         {
-            return _disabledEvents.Contains(new eventSignature(aEvent));
+            return _disabledEvents.Contains(new EventSignature(aEvent));
         }
     }
 }

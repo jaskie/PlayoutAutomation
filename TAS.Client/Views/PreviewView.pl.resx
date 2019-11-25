@@ -118,22 +118,28 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="_addSegment.ToolTip" xml:space="preserve">
-    <value>Dodaj segment (Ctrl+N)</value>
+    <value>Dodaj segment | Ctrl+N</value>
   </data>
   <data name="_buttonCopyTCIn.ToolTip" xml:space="preserve">
-    <value>Kopiuj bieżący TC do In (Ctrl+I)</value>
+    <value>Kopiuj bieżący TC do In | Ctrl+I</value>
   </data>
   <data name="_buttonCopyTCOut.ToolTip" xml:space="preserve">
-    <value>Kopiuj bieżący TC do Out (Ctrl+O)</value>
+    <value>Kopiuj bieżący TC do Out | Ctrl+O</value>
   </data>
   <data name="_buttonPause.ToolTip" xml:space="preserve">
     <value>Podgląd pierwszej ramki</value>
   </data>
   <data name="_buttonPlay.ToolTip" xml:space="preserve">
-    <value>Odtwarzaj</value>
+    <value>Odtwarzaj | Ctrl+Spacja</value>
+  </data>
+  <data name="_buttonPlayTheEnd.ToolTip" xml:space="preserve">
+    <value>Odtwórz zakończenie</value>
   </data>
   <data name="_buttonStop.ToolTip" xml:space="preserve">
-    <value>Wyłącz podgląd</value>
+    <value>Wyłącz podgląd | Ctrl+Shift+Spacja</value>
+  </data>
+  <data name="_buttonTrimSource.ToolTip" xml:space="preserve">
+    <value>Przytnij źródło na czasy In i Out podglądu | Ctrl+T</value>
   </data>
   <data name="_currentTC" xml:space="preserve">
     <value>Bieżący TC</value>
@@ -157,7 +163,7 @@
     <value>F2, aby ustawić się na tym polu</value>
   </data>
   <data name="_save.ToolTip" xml:space="preserve">
-    <value>Zapisz segment (Ctrl+S)</value>
+    <value>Zapisz segment | Ctrl+S</value>
   </data>
   <data name="_secondBack.ToolTip" xml:space="preserve">
     <value>Sekundę do tyłu</value>
@@ -166,7 +172,8 @@
     <value>Sekundę do przodu</value>
   </data>
   <data name="_slider.ToolTip" xml:space="preserve">
-    <value>Obrót kółkiem myszy przewija o sekundę, a z Shift - o ramkę</value>
+    <value>Obrót kółkiem myszy przewija o sekundę,
+z Shift - o ramkę, z Ctrl o 1/50 długości klipu</value>
   </data>
   <data name="_wholeFile.ToolTip" xml:space="preserve">
     <value>Odtwarzanie całego klipu</value>

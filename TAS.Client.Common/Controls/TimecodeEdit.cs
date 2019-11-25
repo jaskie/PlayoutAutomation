@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using TAS.Common;
 using Xceed.Wpf.Toolkit;
 
@@ -13,10 +8,10 @@ namespace TAS.Client.Common.Controls
 {
     public class TimecodeEdit: MaskedTextBox
     {
-        const string mask = "00:00:00:00";
-        public TimecodeEdit(): base()
+        const string TimecodeMask = "00:00:00:00";
+        public TimecodeEdit()
         {
-            Mask = mask;
+            Mask = TimecodeMask;
         }
 
         public static readonly DependencyProperty TimecodeProperty =
@@ -24,7 +19,7 @@ namespace TAS.Client.Common.Controls
             "Timecode",
             typeof(TimeSpan),
             typeof(TimecodeEdit),
-            new FrameworkPropertyMetadata(TimeSpan.Zero, OnTimecodeChanged) { BindsTwoWayByDefault = true });
+            new FrameworkPropertyMetadata(TimeSpan.Zero, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTimecodeChanged));
 
         public static readonly DependencyProperty VideoFormatProperty =
             DependencyProperty.Register(
@@ -35,7 +30,7 @@ namespace TAS.Client.Common.Controls
 
         private static void OnTimecodeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as TimecodeEdit)._updateText();
+            ((TimecodeEdit)d)._updateText();
         }
 
         protected override void OnTextChanged(TextChangedEventArgs e)
@@ -48,35 +43,30 @@ namespace TAS.Client.Common.Controls
 
         private void _updateText()
         {
-            Text = Timecode.ToSMPTETimecodeString(VideoFormat);
+            SetValue(TextProperty, Timecode.ToSMPTETimecodeString(VideoFormat));
         }
 
         public TimeSpan Timecode
         {
-           get { return (TimeSpan)GetValue(TimecodeProperty); }
+           get => (TimeSpan)GetValue(TimecodeProperty);
             set
             {
-                if (value != Timecode)
-                {
-                    SetValue(TimecodeProperty, value);
-                    _updateText();
-                }
+                if (value == Timecode)
+                    return;
+                SetValue(TimecodeProperty, value);
+                _updateText();
             }
         }
 
         public TVideoFormat VideoFormat
         {
-            private get
-            {
-                return (TVideoFormat)GetValue(VideoFormatProperty);
-            }
+            get => (TVideoFormat)GetValue(VideoFormatProperty);
             set
             {
-                if (value != VideoFormat)
-                {
-                    SetValue(VideoFormatProperty, value);
-                    _updateText();
-                }
+                if (value == VideoFormat)
+                    return;
+                SetValue(VideoFormatProperty, value);
+                _updateText();
             }
         }
     }

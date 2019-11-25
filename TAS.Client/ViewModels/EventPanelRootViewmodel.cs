@@ -1,13 +1,11 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using TAS.Common;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -15,48 +13,72 @@ namespace TAS.Client.ViewModels
     {
         public EventPanelRootViewmodel(EngineViewmodel engineViewmodel) : base(engineViewmodel)
         {
-            _engine.EventSaved += _onEngineEventSaved;
-            _engine.EventDeleted += _engine_EventDeleted;
-            foreach (var se in _engine.GetRootEvents())
-                _addRootEvent(se);
+            Engine.EventLocated += _onEngineEventLocated;
+            Engine.EventDeleted += _engine_EventDeleted;
+            foreach (var se in Engine.GetRootEvents())
+                AddRootEvent(se);
+        }
+
+        public IEnumerable<EventPanelViewmodelBase> HiddenContainers
+        {
+            get { return Childrens.Where(c => (c as EventPanelContainerViewmodel)?.IsVisible == false); }
+        }
+
+        public bool IsAnyContainerHidden => HiddenContainers.Any();
+
+        internal void NotifyContainerVisibility()
+        {
+            NotifyPropertyChanged(nameof(IsAnyContainerHidden));
+            NotifyPropertyChanged(nameof(HiddenContainers));
         }
 
         protected override void OnDispose()
         {
             base.OnDispose();
-            _engine.EventSaved -= _onEngineEventSaved;
+            Engine.EventLocated -= _onEngineEventLocated;
+            Engine.EventDeleted -= _engine_EventDeleted;
         }
 
-        private void _engine_EventDeleted(object sender, IEventEventArgs e)
+        private void _engine_EventDeleted(object sender, EventEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+            OnUiThread(() =>
             {
-                EventPanelViewmodelBase evm = Find(e.Event);
+                var evm = Find(e.Event);
+                evm?.Dispose();
+            });
+        }
+
+        private void _onEngineEventLocated(object o, EventEventArgs e) // when new event was created
+        {
+            Debug.WriteLine(e.Event?.EventName, "EventLocated notified");
+            if (e.Event == null)
+                return;
+            OnUiThread(() =>
+            {
+                var evm = Find(e.Event);
                 if (evm != null)
-                    evm.Dispose();
-            });
-        }
-
-        private void _onEngineEventSaved(object o, IEventEventArgs e) // when new event was created
-        {
-            Debug.WriteLine(e.Event, "EventSaved notified");
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
-            {
-                EventPanelViewmodelBase vm = _placeEventInRundown(e.Event, false);
-                if (vm != null
-                    && e.Event.EventType != TEventType.StillImage
-                    && e.Event == _engineViewmodel.LastAddedEvent)
                 {
-                    vm.IsSelected = true;
-                    _engineViewmodel.ClearSelection();
-                    if (e.Event.EventType == TEventType.Rundown)
-                        vm.IsExpanded = true;
+                    evm.UpdateLocation();
                 }
-                (vm as EventPanelRundownElementViewmodelBase)?.VerifyIsInvalidInSchedule();
+                else
+                {
+                    EventPanelViewmodelBase vm = PlaceEventInRundown(e.Event, false);
+                    if (vm != null
+                        && e.Event.EventType != TEventType.StillImage
+                        && e.Event == EngineViewmodel.LastAddedEvent)
+                    {
+                        vm.IsSelected = true;
+                        EngineViewmodel.ClearSelection();
+                        if (e.Event.EventType == TEventType.Rundown)
+                            vm.IsExpanded = true;
+                    }
+                    (vm as EventPanelRundownElementViewmodelBase)?.VerifyIsInvalidInSchedule();
+                }
             });
         }
 
-        private EventPanelViewmodelBase _placeEventInRundown(IEvent e, bool show)
+
+        private EventPanelViewmodelBase PlaceEventInRundown(IEvent e, bool show)
         {
             EventPanelViewmodelBase newVm = null;
             EventPanelViewmodelBase evm = Find(e);
@@ -65,36 +87,36 @@ namespace TAS.Client.ViewModels
                 var vp = e.GetVisualParent();
                 if (vp != null)
                 {
-                    var evm_vp = Find(vp);
-                    if (evm_vp != null)
+                    var evmVp = Find(vp);
+                    if (evmVp != null)
                     {
                         var eventType = e.EventType;
                         if (eventType == TEventType.Movie || eventType == TEventType.Rundown || eventType == TEventType.Live
-                            || evm_vp.IsExpanded)
+                            || evmVp.IsExpanded)
                         {
-                            if (evm_vp.IsExpanded || show || e == _engineViewmodel.LastAddedEvent)
+                            if (evmVp.IsExpanded || show || e == EngineViewmodel.LastAddedEvent)
                             {
-                                evm_vp.IsExpanded = true;
-                                if (evm_vp.Find(e) == null) // find again after expand
+                                evmVp.IsExpanded = true;
+                                if (evmVp.Find(e) == null) // find again after expand
                                 {
                                     if (e.Parent == vp) // StartType = With
                                     {
-                                        newVm = evm_vp.CreateChildEventPanelViewmodelForEvent(e);
-                                        evm_vp.Childrens.Insert(0, newVm);
+                                        newVm = evmVp.CreateChildEventPanelViewmodelForEvent(e);
+                                        evmVp.Childrens.Insert(0, newVm);
                                     }
                                     else // StartType == After
                                     {
                                         var prior = e.Prior;
                                         if (prior != null)
                                         {
-                                            var evm_prior = evm_vp.Find(prior);
-                                            if (evm_prior == null)
-                                                evm_prior = _placeEventInRundown(prior, true); // recursion here
-                                            if (evm_prior != null)
+                                            var evmPrior = evmVp.Find(prior);
+                                            if (evmPrior == null)
+                                                evmPrior = PlaceEventInRundown(prior, true); // recurrence here
+                                            if (evmPrior != null)
                                             {
-                                                var pos = evm_vp.Childrens.IndexOf(evm_prior);
-                                                newVm = evm_vp.CreateChildEventPanelViewmodelForEvent(e);
-                                                evm_vp.Childrens.Insert(pos + 1, newVm);
+                                                var pos = evmVp.Childrens.IndexOf(evmPrior);
+                                                newVm = evmVp.CreateChildEventPanelViewmodelForEvent(e);
+                                                evmVp.Childrens.Insert(pos + 1, newVm);
                                             }
                                         }
                                     }
@@ -103,8 +125,8 @@ namespace TAS.Client.ViewModels
                         }
                         else
                         {
-                            if (!evm_vp.HasDummyChild)
-                                evm_vp.Childrens.Add(DummyChild);
+                            if (!evmVp.HasDummyChild)
+                                evmVp.Childrens.Add(DummyChild);
                         }
                     }
                 }
@@ -113,33 +135,33 @@ namespace TAS.Client.ViewModels
                     var prior = e.Prior;
                     if (prior != null)
                     {
-                        var evm_prior = Find(prior);
-                        if (evm_prior != null)
+                        var evmPrior = Find(prior);
+                        if (evmPrior != null)
                         {
-                            var pos = _childrens.IndexOf(evm_prior);
+                            var pos = Childrens.IndexOf(evmPrior);
                             newVm = CreateChildEventPanelViewmodelForEvent(e);
-                            _childrens.Insert(pos + 1, newVm);
+                            Childrens.Insert(pos + 1, newVm);
                         }
                     }
                     else
                         if (e.StartType == TStartType.Manual || e.EventType == TEventType.Container)
-                        newVm = _addRootEvent(e);
+                        newVm = AddRootEvent(e);
                 }
             }
             return newVm;
         }
+        
 
-        private EventPanelViewmodelBase _addRootEvent(IEvent e)
+        private EventPanelViewmodelBase AddRootEvent(IEvent e)
         {
             if (!e.IsDeleted)
             {
-                EngineViewmodel evm = _engineViewmodel;
                 var newEvm = CreateChildEventPanelViewmodelForEvent(e);
-                _childrens.Add(newEvm);
+                Childrens.Add(newEvm);
                 IEvent ne = e.Next;
                 while (ne != null)
                 {
-                    _childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
+                    Childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
                     Debug.WriteLine(ne, "Reading next for");
                     ne = ne.Next;
                 }
@@ -147,19 +169,7 @@ namespace TAS.Client.ViewModels
             }
             return null;
         }
-
-        public IEnumerable<EventPanelViewmodelBase> HiddenContainers
-        {
-            get { return _childrens.Where(c => (c as EventPanelContainerViewmodel)?.IsVisible == false); }
-        }
-
-        public bool IsAnyContainerHidden { get { return HiddenContainers.Any(); } }
-
-        internal void NotifyContainerVisibility()
-        {
-            NotifyPropertyChanged(nameof(IsAnyContainerHidden));
-            NotifyPropertyChanged(nameof(HiddenContainers));
-        }
-
+        
+        
     }
 }

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:TAS.Client.Config"
              xmlns:common="clr-namespace:TAS.Client;assembly=TAS.Client.Common"
-             d:DataContext="{x:Type vm:ConnectionStringViewmodel}"
+             d:DataContext="{d:DesignInstance vm:ConnectionStringViewmodel}"
              mc:Ignorable="d" 
              >
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
@@ -53,6 +53,8 @@
             </Grid>
             <Label Content="Charset"/>
             <ComboBox ItemsSource="{Binding CharacterSets}" SelectedItem="{Binding CharacterSet}"/>
+            <Label Content="SSL mode"/>
+            <ComboBox ItemsSource="{Binding SslModes}" SelectedItem="{Binding SslMode}"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

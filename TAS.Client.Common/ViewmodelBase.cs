@@ -1,35 +1,36 @@
-﻿//#undef DEBUG
+﻿#undef DEBUG
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
-using System.Runtime.CompilerServices;
+using System.Windows.Threading;
 
-namespace TAS.Client.ViewModels
+namespace TAS.Client.Common
 {
     /// <summary>
     /// Base class for all ViewModel classes in the application.
     /// It provides support for property change notifications 
     /// and has a DisplayName property.  This class is abstract.
     /// </summary>
-    public abstract class ViewmodelBase : INotifyPropertyChanged, IDisposable
+    public abstract class ViewModelBase : INotifyPropertyChanged, IDisposable
     {
-        #region Constructor / Destructor
 
-        protected ViewmodelBase()
-        {
-        }
+        private bool _disposed;
+        
+
+        #region Constructor / Destructor
 
 #if DEBUG
         /// <summary>
         /// Useful for ensuring that ViewModel objects are properly garbage collected.
         /// </summary>
-        ~ViewmodelBase()
+        ~ViewModelBase()
         {
-            Debug.WriteLine(string.Format("{0} ({1}) ({2}) Finalized", this.GetType().Name, this, this.GetHashCode()));
+            Debug.WriteLine($"{GetType().Name} ({this}) ({GetHashCode()}) Finalized");
         }
 #endif
 
@@ -52,10 +53,9 @@ namespace TAS.Client.ViewModels
             {
                 string msg = "Invalid property name: " + propertyName;
 
-                if (this.ThrowOnInvalidPropertyName)
+                if (ThrowOnInvalidPropertyName)
                     throw new Exception(msg);
-                else
-                    Debug.Fail(msg);
+                Debug.Fail(msg);
             }
         }
 
@@ -65,7 +65,7 @@ namespace TAS.Client.ViewModels
         /// The default value is false, but subclasses used by unit tests might 
         /// override this property's getter to return true.
         /// </summary>
-        protected virtual bool ThrowOnInvalidPropertyName { get; private set; }
+        protected virtual bool ThrowOnInvalidPropertyName { get; set; }
 
         #endregion // Debugging Aides
 
@@ -80,11 +80,10 @@ namespace TAS.Client.ViewModels
         /// Raises this object's PropertyChanged event.
         /// </summary>
         /// <param name="propertyName">The property that has a new value.</param>
-        protected virtual void NotifyPropertyChanged(string propertyName)
+        protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
         {
             if (!string.IsNullOrEmpty(propertyName))
-                this.VerifyPropertyName(propertyName);
-
+                VerifyPropertyName(propertyName);
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
@@ -96,13 +95,12 @@ namespace TAS.Client.ViewModels
         /// Invoked when this object is being removed from the application
         /// and will be subject to garbage collection.
         /// </summary>
-        private bool _disposed = false; 
         public void Dispose()
         {
             if (!_disposed)
             {
                 _disposed = true;
-                this.OnDispose();
+                OnDispose();
             }
         }
 
@@ -116,15 +114,33 @@ namespace TAS.Client.ViewModels
 
         protected virtual bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
+            VerifyPropertyName(propertyName);
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
             field = value;
             NotifyPropertyChanged(propertyName);
             return true;
         }
-
         protected virtual void InvalidateRequerySuggested()
         {
-            Application.Current?.Dispatcher.BeginInvoke((Action)(() => CommandManager.InvalidateRequerySuggested()));
+            Application.Current?.Dispatcher.BeginInvoke((Action)CommandManager.InvalidateRequerySuggested);
         }
+
+        public void OnUiThread(Action action)
+        {
+            Application.Current?.Dispatcher.BeginInvoke(action);
+        }
+
+        public void OnIdle(Action action)
+        {
+            void Callback(object o, EventArgs e) 
+            {
+                var dispatcherTimer = (DispatcherTimer)o ;
+                dispatcherTimer.Stop();
+                dispatcherTimer.Tick -= Callback;
+                action();
+            }
+            new DispatcherTimer(TimeSpan.Zero, DispatcherPriority.ContextIdle, Callback, Application.Current.Dispatcher);
+        }
+
     }
 }

@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using TAS.Common;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
@@ -21,11 +17,24 @@ namespace TAS.Client.Config.Model
         [XmlIgnore]
         public ulong Id { get; set; }
         public TServerType ServerType { get; set; }
+        public TMovieContainerFormat MovieContainerFormat { get; set; }
         public List<CasparServerChannel> Channels { get; set; } = new List<CasparServerChannel>();
         public List<CasparRecorder> Recorders { get; set; } = new List<CasparRecorder>();
         public override string ToString()
         {
             return ServerAddress;
+        }
+
+        public IDictionary<string, int> FieldLengths { get; }
+
+        public void Save()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete()
+        {
+            throw new NotImplementedException();
         }
     }
 

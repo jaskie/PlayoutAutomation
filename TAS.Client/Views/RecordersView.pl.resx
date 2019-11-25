@@ -180,4 +180,13 @@
   <data name="_recordTimeLeft" xml:space="preserve">
     <value>Pozostały czas</value>
   </data>
+  <data name="_externalId" xml:space="preserve">
+    <value>Id ZDP</value>
+  </data>
+  <data name="_mediaName" xml:space="preserve">
+    <value>Nazwa klipu</value>
+  </data>
+  <data name="_aduioChannelMapping" xml:space="preserve">
+    <value>Mapowanie ścieżek audio</value>
+  </data>
 </root>

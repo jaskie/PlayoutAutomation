@@ -123,18 +123,6 @@
   <data name="_audioVolume" xml:space="preserve">
     <value>Kokrekta dźwięku</value>
   </data>
-  <data name="_buttonCancel.ToolTip" xml:space="preserve">
-    <value>Porzuć zmiany</value>
-  </data>
-  <data name="_buttonRevert.Caption" xml:space="preserve">
-    <value>Cofnij</value>
-  </data>
-  <data name="_buttonSave.Caption" xml:space="preserve">
-    <value>Zapisz</value>
-  </data>
-  <data name="_buttonSave.ToolTip" xml:space="preserve">
-    <value>Zapisz zmiany (Ctrl+S)</value>
-  </data>
   <data name="_category" xml:space="preserve">
     <value>Kategoria</value>
   </data>
@@ -176,6 +164,9 @@
   </data>
   <data name="_ingestTime" xml:space="preserve">
     <value>Data i czas ingestu</value>
+  </data>
+  <data name="_killDate" xml:space="preserve">
+    <value>Ważny do</value>
   </data>
   <data name="_mediaGuid" xml:space="preserve">
     <value>Id pliku</value>

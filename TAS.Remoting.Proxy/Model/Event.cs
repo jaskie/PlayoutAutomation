@@ -1,132 +1,262 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using TAS.Common;
 using TAS.Remoting.Client;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.Security;
+using TAS.Remoting.Model.Security;
 
 namespace TAS.Remoting.Model
 {
-    [DebuggerDisplay("{EventName}")]
+    [DebuggerDisplay("{" + nameof(EventName) + "}")]
     public class Event : ProxyBase, IEvent
     {
-        public ulong Id { get { return Get<ulong>(); } set { SetLocalValue(value); } }
+#pragma warning disable CS0649
 
-        public decimal? AudioVolume { get { return Get<decimal?>(); }  set { Set(value); } }
+        [JsonProperty(nameof(IEvent.Id))]
+        private ulong _id;
 
-        public AutoStartFlags AutoStartFlags { get { return Get<AutoStartFlags>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.AudioVolume))]
+        private double? _audioVolume;
 
-        public byte Crawl { get { return Get<byte>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.AutoStartFlags))]
+        private AutoStartFlags _autoStartFlags;
 
-        public TimeSpan Duration { get { return Get<TimeSpan>(); } set { Set(value); } }
-        
-        public DateTime EndTime { get { return Get<DateTime>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.Crawl))]
+        private byte _crawl;
 
-        public IEngine Engine { get { return Get<Engine>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.Duration))]
+        private TimeSpan _duration;
 
-        public string EventName { get { return Get<string>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.EndTime))]
+        private DateTime _endTime;
 
-        public TEventType EventType { get { return Get<TEventType>(); } set { SetLocalValue(value); } }
-        
-        public string IdAux { get { return Get<string>(); } set { Set(value); } }
-        
-        public ulong IdProgramme { get { return Get<ulong>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.Engine))]
+        private IEngine _engine;
 
-        public bool IsCGEnabled { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.EventName))]
+        private string _eventName;
 
-        public bool IsDeleted { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.EventType))]
+        private TEventType _eventType;
 
-        public bool IsEnabled { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IdAux))]
+        private string _idAux;
 
-        public bool IsForcedNext { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IdProgramme))]
+        private ulong _idProgramme;
 
-        public bool IsHold { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IsCGEnabled))]
+        private bool _isCGEnabled;
 
-        public bool IsLoop { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IsDeleted))]
+        private bool _isDeleted;
 
-        public bool IsModified { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IEvent.IsEnabled))]
+        private bool _isEnabled;
 
-        public VideoLayer Layer { get { return Get<VideoLayer>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IsForcedNext))]
+        private bool _isForcedNext;
 
-        public TimeSpan Length { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IEvent.IsHold))]
+        private bool _isHold;
 
-        public byte Logo { get { return Get<byte>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IsLoop))]
+        private bool _isLoop;
+
+        [JsonProperty(nameof(IEvent.Layer))]
+        private VideoLayer _layer;
+
+        [JsonProperty(nameof(IEvent.Logo))]
+        private byte _logo;
 
         [JsonProperty(nameof(IEvent.Media))]
-        private Media _media { get { return Get<Media>(); } set { Set(value); } }
-        [JsonIgnore]
-        public IMedia Media { get { return _media; } set { _media = value as Media; } }
+        private MediaBase _media;
 
-        public Guid MediaGuid { get { return Get<Guid>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.MediaGuid))]
+        private Guid _mediaGuid;
 
-        public IEvent Next { get { return Get<Event>(); } set { Set(value); } }
-        
-        public TimeSpan? Offset { get { return Get<TimeSpan?>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.Offset))]
+        private TimeSpan? _offset;
 
-        public IEvent Parent { get { return Get<Event>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.Parental))]
+        private byte _parental;
 
-        public byte Parental { get { return Get<byte>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.PlayState))]
+        private TPlayState _playState;
 
-        public TPlayState PlayState { get { return Get<TPlayState>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.RequestedStartTime))]
+        private TimeSpan? _requestedStartTime;
 
-        public IEvent Prior { get { return Get<Event>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.ScheduledDelay))]
+        private TimeSpan _scheduledDelay;
 
-        public TimeSpan? RequestedStartTime { get { return Get<TimeSpan?>(); }  set { Set(value); } }
+        [JsonProperty(nameof(IEvent.ScheduledTc))]
+        private TimeSpan _scheduledTc;
 
-        public TimeSpan ScheduledDelay { get { return Get<TimeSpan>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.ScheduledTime))]
+        private DateTime _scheduledTime;
 
-        public TimeSpan ScheduledTc { get { return Get<TimeSpan>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.StartTc))]
+        private TimeSpan _startTc;
 
-        public DateTime ScheduledTime { get { return Get<DateTime>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.StartTime))]
+        private DateTime _startTime;
 
-        public TimeSpan StartTc { get { return Get<TimeSpan>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.StartType))]
+        private TStartType _startType;
 
-        public DateTime StartTime { get { return Get<DateTime>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.SubEventsCount))]
+        private int _subEventsCount;
 
-        public TStartType StartType { get { return Get<TStartType>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.TransitionEasing))]
+        private TEasing _transitionEasing;
 
-        public IList<IEvent> SubEvents
+        [JsonProperty(nameof(IEvent.TransitionPauseTime))]
+        private TimeSpan _transitionPauseTime;
+
+        [JsonProperty(nameof(IEvent.TransitionTime))]
+        private TimeSpan _transitionTime;
+
+        [JsonProperty(nameof(IEvent.TransitionType))]
+        private TTransitionType _transitionType;
+
+        private Lazy<IEvent> _parent;
+
+        private Lazy<IEvent> _next;
+
+        private Lazy<IEvent> _prior;
+
+        private Lazy<List<IEvent>> _subEvents;
+
+#pragma warning restore
+
+        public Event()
         {
-            get
-            {
-                var result = Get<List<IEvent>>();
-                if (result == null)
-                    result = new List<IEvent>();
-                return result;
-            }
-            set { SetLocalValue(value); }
+            ResetSubEvents();
+            ResetSlibbings();
         }
 
-        public int SubEventsCount { get { return Get<int>(); } set { SetLocalValue(value); } }
+        public ulong Id { get => _id; set => _id = value; }
 
-        public TEasing TransitionEasing { get { return Get<TEasing>(); } set { Set(value); } }
+        public double? AudioVolume { get => _audioVolume; set => Set(value); }
 
-        public TimeSpan TransitionPauseTime { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public AutoStartFlags AutoStartFlags { get => _autoStartFlags; set => Set(value); }
 
-        public TimeSpan TransitionTime { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public byte Crawl { get => _crawl; set => Set(value); }
 
-        public TTransitionType TransitionType { get { return Get<TTransitionType>(); } set { Set(value); } }
+        public TimeSpan Duration { get => _duration; set => Set(value); }
+
+        public DateTime EndTime => _endTime;
+
+        public IEngine Engine => _engine;
+
+        public string EventName { get => _eventName; set => Set(value); }
+
+        public TEventType EventType => _eventType;
+
+        public string IdAux { get => _idAux; set => Set(value); }
+
+        public ulong IdProgramme { get => _idProgramme; set => Set(value); }
+
+        public bool IsCGEnabled { get => _isCGEnabled; set => Set(value); }
+
+        public bool IsDeleted => _isDeleted;
+
+        public bool IsEnabled { get => _isEnabled; set => Set(value); }
+
+        public bool IsForcedNext => _isForcedNext;
+
+        public bool IsHold { get => _isHold; set => Set(value); }
+
+        public bool IsLoop { get => _isLoop; set => Set(value); }
+
+        public VideoLayer Layer { get => _layer; set => Set(value); }
+
+        public byte Logo { get => _logo; set => Set(value); }
+
+        public IMedia Media { get => _media; set => Set(value); }
+
+        public Guid MediaGuid { get => _mediaGuid; set => Set(value); }
+
+        [JsonProperty]
+        public IEvent Next
+        {
+            get => _next.Value;
+            set
+            {
+                _next = new Lazy<IEvent>(() => value);
+                Debug.Write($"New Next for: {this} is {value}");
+            }
+        }
+
+        [JsonProperty]
+        public IEvent Parent
+        {
+            get => _parent.Value;
+            set
+            {
+                _parent = new Lazy<IEvent>(() => value);
+                Debug.Write($"New Parent for: {this} is {value}");
+            }
+        }
+
+        [JsonProperty]
+        public IEvent Prior
+        {
+            get => _prior.Value;
+            set
+            {
+                _prior = new Lazy<IEvent>(() => value);
+                Debug.Write($"New Prior for: {this} is {value}");
+            }
+
+        }
+
+        public TimeSpan? Offset => _offset;
+
+        public byte Parental { get => _parental; set => Set(value); }
+
+        public TPlayState PlayState => _playState;
+
+
+        public TimeSpan? RequestedStartTime { get => _requestedStartTime; set => Set(value); }
+
+        public TimeSpan ScheduledDelay { get => _scheduledDelay; set => Set(value); }
+
+        public TimeSpan ScheduledTc { get => _scheduledTc; set => Set(value); }
+
+        public DateTime ScheduledTime { get => _scheduledTime; set => Set(value); }
+
+        public TimeSpan StartTc { get => _startTc; set => Set(value); }
+
+        public DateTime StartTime => _startTime;
+
+        public TStartType StartType { get => _startType; set => Set(value); }
+
+        public IEnumerable<IEvent> SubEvents => _subEvents.Value;
+
+        public int SubEventsCount => _subEventsCount;
+
+        public TEasing TransitionEasing { get => _transitionEasing; set => Set(value); }
+
+        public TimeSpan TransitionPauseTime { get => _transitionPauseTime; set => Set(value); }
+
+        public TimeSpan TransitionTime { get => _transitionTime; set => Set(value); }
+
+        public TTransitionType TransitionType { get => _transitionType; set => Set(value); }
+
+        public IEvent GetSuccessor()
+        {
+            return Query<Event>();
+        }
 
         #region Event handlers
-        event EventHandler _deleted;
-        public event EventHandler Deleted
-        {
-            add
-            {
-                EventAdd(_deleted);
-                _deleted += value;
-            }
-            remove
-            {
-                _deleted -= value;
-                EventRemove(_deleted);
-            }
-        }
-        event EventHandler<EventPositionEventArgs> _positionChanged;
+        private event EventHandler<EventPositionEventArgs> _positionChanged;
         public event EventHandler<EventPositionEventArgs> PositionChanged
         {
             add
@@ -140,35 +270,8 @@ namespace TAS.Remoting.Model
                 EventRemove(_positionChanged);
             }
         }
-        event EventHandler _relocated;
-        public event EventHandler Relocated
-        {
-            add
-            {
-                EventAdd(_relocated);
-                _relocated += value;
-            }
-            remove
-            {
-                _relocated -= value;
-                EventRemove(_relocated);
-            }
-        }
-        event EventHandler _saved;
-        public event EventHandler Saved
-        {
-            add
-            {
-                EventAdd(_saved);
-                _saved += value;
-            }
-            remove
-            {
-                _saved -= value;
-                EventRemove(_saved);
-            }
-        }
-        event EventHandler<CollectionOperationEventArgs<IEvent>> _subEventChanged;
+        private event EventHandler<CollectionOperationEventArgs<IEvent>> _subEventChanged;
+
         public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged
         {
             add
@@ -183,45 +286,23 @@ namespace TAS.Remoting.Model
             }
         }
 
-        private void _subeventChanged(CollectionOperationEventArgs<IEvent> e)
+        protected override void OnEventNotification(SocketMessage message)
         {
-            object subEvents;
-            if (Properties.TryGetValue(nameof(SubEvents), out subEvents))
+            switch (message.MemberName)
             {
-                var list = subEvents as IList<IEvent>;
-                if (list != null)
-                {
-                    if (e.Operation == TCollectionOperation.Insert)
-                        list.Add(e.Item);
-                    else
-                        list.Remove(e.Item);
-                    SubEventsCount = list.Count;
-                    NotifyPropertyChanged(nameof(SubEventsCount));
-                }
-            }
-        }
-
-        protected override void OnEventNotification(WebSocketMessage e)
-        {
-            switch (e.MemberName)
-            {
-                case nameof(IEvent.Deleted):
-                    _deleted.Invoke(this, ConvertEventArgs<EventArgs>(e));
-                    break;
                 case nameof(IEvent.PositionChanged):
-                    _positionChanged.Invoke(this, ConvertEventArgs<EventPositionEventArgs>(e));
+                    _positionChanged?.Invoke(this, Deserialize<EventPositionEventArgs>(message));
                     break;
-                case nameof(IEvent.Relocated):
-                    _relocated.Invoke(this, ConvertEventArgs<EventArgs>(e));
-                    return;
-                case nameof(IEvent.Saved):
-                    _saved.Invoke(this, ConvertEventArgs<EventArgs>(e));
-                    return;
                 case nameof(IEvent.SubEventChanged):
-                    var ea = ConvertEventArgs<CollectionOperationEventArgs<IEvent>>(e);
-                    _subeventChanged(ea);
-                    _subEventChanged.Invoke(this, ea);
-                    return;
+                    var ea = Deserialize<CollectionOperationEventArgs<IEvent>>(message);
+                    if (!_subEvents.IsValueCreated)
+                        return;
+                    if (ea.Operation == CollectionOperation.Add)
+                        _subEvents.Value.Add(ea.Item);
+                    else
+                        _subEvents.Value.Remove(ea.Item);
+                    _subEventChanged?.Invoke(this, ea);
+                    break;
             }
         }
 
@@ -230,15 +311,52 @@ namespace TAS.Remoting.Model
         public bool AllowDelete() { return Query<bool>(); }
 
         public void Delete() { Invoke(); }
-        public void InsertAfter(IEvent e) { Invoke(parameters: new[] { e }); }
-        public void InsertBefore(IEvent e) { Invoke(parameters: new[] { e }); }
-        public void InsertUnder(IEvent se, bool fromEnd) { Invoke(parameters: new object[] { se, fromEnd }); }
-        public void MoveDown() { Invoke(); }
-        public void MoveUp() { Invoke(); }
+
+        public bool InsertAfter(IEvent e) { return Query<bool>(parameters: new object[] { e }); }
+
+        public bool InsertBefore(IEvent e) { return Query<bool>(parameters: new object[] { e }); }
+
+        public bool InsertUnder(IEvent se, bool fromEnd) { return Query<bool>(parameters: new object[] { se, fromEnd }); }
+
+        public bool MoveDown() { return Query<bool>(); }
+
+        public bool MoveUp() { return Query<bool>(); }
+
         public void Remove() { Invoke(); }
+
+        public IDictionary<string, int> FieldLengths => _engine.EventFieldLengths;
+
         public void Save()
         {
             Invoke();
+        }
+
+        public IEnumerable<IAclRight> GetRights() => Query<ReadOnlyCollection<EventAclRight>>();
+
+        public IAclRight AddRightFor(ISecurityObject securityObject) { return Query<IAclRight>(parameters: new object[] { securityObject }); }
+
+        public bool DeleteRight(IAclRight item) { return Query<bool>(parameters: new object[] { item }); }
+
+        public bool HaveRight(EventRight right)
+        {
+            return Query<bool>(parameters: new object[] { right });
+        }
+
+        private void ResetSlibbings()
+        {
+            _parent = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Parent)));
+            _next = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Next)));
+            _prior = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Prior)));
+        }
+
+        private void ResetSubEvents()
+        {
+            _subEvents = new Lazy<List<IEvent>>(() => Get<List<IEvent>>(nameof(IEvent.SubEvents)));
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(Event)}: {EventName}";
         }
     }
 }

@@ -1,31 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
+﻿using System.ComponentModel;
 using TAS.Common;
-using TAS.Server.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
     public class CasparServerChannel: IPlayoutServerChannelProperties
     {
-        public CasparServerChannel()
-        {
-            MasterVolume = 1m;
-        }
         public int Id { get; set; }
+
         public string ChannelName { get; set; }
-        public decimal MasterVolume { get; set; } 
+
+        [DefaultValue(1.0)]
+        public double MasterVolume { get; set; } = 1;
+
         public string LiveDevice { get; set; }
+
         public string PreviewUrl { get; set; }
+
+        [DefaultValue(2)]
+        public int AudioChannelCount { get; set; } = 2;
 
         public TVideoFormat VideoFormat { get; set; }
         
         internal object Owner;
+
         public override string ToString()
         {
-            return string.Format("{0} - {1}", Owner, ChannelName);
+            return $"{Owner} - {ChannelName}";
         }
     }
 }

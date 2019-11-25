@@ -1,24 +1,46 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections;
+using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 
 namespace TAS.Remoting
 {
     [JsonObject(IsReference = false)]
-    public class PropertyChangedWithValueEventArgs : PropertyChangedEventArgs
+    public class PropertyChangedWithDataEventArgs : PropertyChangedEventArgs
     {
-        public PropertyChangedWithValueEventArgs(string propertyName, object value) : base(propertyName)
+        protected PropertyChangedWithDataEventArgs(string propertyName): base(propertyName) { }
+
+        public static PropertyChangedEventArgs Create(string propertyName, object value)
         {
-            Value = value;
+            if (value is IEnumerable)
+                return new PropertyChangedWithArrayEventArgs(propertyName) {Value = value};
+            return new PropertyChangedWithValueEventArgs(propertyName) {Value = value};
         }
-        public object Value { get; private set; }
-        public override string ToString()
+
+        public virtual object Value
         {
-            return $"{PropertyName} = {Value}";
+            get => (this as PropertyChangedWithValueEventArgs)?.Value ??
+                   (this as PropertyChangedWithArrayEventArgs)?.Value;
+            internal set => throw new System.NotImplementedException();
         }
+    }
+
+    [DebuggerDisplay("{PropertyName} = {Value}")]
+    public class PropertyChangedWithValueEventArgs : PropertyChangedWithDataEventArgs
+    {
+        public PropertyChangedWithValueEventArgs(string propertyName) : base(propertyName) { }
+
+
+        [JsonProperty]
+        public override object Value { get; internal set; }
+    }
+
+    [DebuggerDisplay("{PropertyName} = {Value}")]
+    public class PropertyChangedWithArrayEventArgs : PropertyChangedWithDataEventArgs
+    {
+        public PropertyChangedWithArrayEventArgs(string propertyName) : base(propertyName) { }
+
+        [JsonProperty(ItemIsReference = true, TypeNameHandling = TypeNameHandling.All, ItemTypeNameHandling = TypeNameHandling.All)]
+        public override object Value { get; internal set; }
     }
 }

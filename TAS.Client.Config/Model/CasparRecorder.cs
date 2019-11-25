@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Server.Interfaces;
+﻿using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
@@ -11,6 +7,8 @@ namespace TAS.Client.Config.Model
         internal object Owner;
         public int Id { get; set; }
         public string RecorderName { get; set; }
+        public int DefaultChannel { get; set; }
+
         public override string ToString()
         {
             return $"{RecorderName} ({Id})";
