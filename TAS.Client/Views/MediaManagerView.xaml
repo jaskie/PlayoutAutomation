@@ -107,13 +107,13 @@
                 <controls:StatusIndicator IsGreen="{Binding IsMediaDirectoryOk}" Margin="10,0,0,0"/>
                 <TextBlock Text="{Resx _statusbar.TotalItems}" Margin="5, 0"/>
                 <TextBlock Text="{Binding ItemsCount}" />
-                <StackPanel Orientation="Horizontal" Visibility="{Binding DirectoryTotalSpace, Converter={StaticResource ZeroToVis}}">
+                <StackPanel Orientation="Horizontal" Visibility="{Binding DirectoryTotalSpace, Converter={StaticResource NonZeroToVisibilityConverter}}">
                     <TextBlock Text="{Resx _statusbar.VolumeSize}" Margin="5, 0"/>
                     <TextBlock Text="{Binding DirectoryTotalSpace, StringFormat=' \{0:F2\} GB'}" />
                 </StackPanel>
                 <TextBlock Text="{Resx _statusbar.VolumeFreeSpace}" Margin="5, 0"/>
                 <TextBlock Text="{Binding DirectoryFreeSpace, StringFormat=' \{0:F2\} GB'}" />
-                <TextBlock Text="{Binding DirectoryFreePercentage, StringFormat='(\{0:F1\} %)'}" Visibility="{Binding DirectoryTotalSpace, Converter={StaticResource ZeroToVis}}"/>
+                <TextBlock Text="{Binding DirectoryFreePercentage, StringFormat='(\{0:F1\} %)'}" Visibility="{Binding DirectoryTotalSpace, Converter={StaticResource NonZeroToVisibilityConverter}}"/>
             </StackPanel>
         </StatusBar>
 

@@ -57,15 +57,15 @@
                         </TextBlock>
                     </CheckBox.Content>
                 </CheckBox>
-                <StackPanel Visibility="{Binding Crawls.Length, Converter={StaticResource ZeroToVis}}" Orientation="Horizontal">
+                <StackPanel Visibility="{Binding Crawls.Length, Converter={StaticResource NonZeroToVisibilityConverter}}" Orientation="Horizontal">
                     <Label Padding="5, 0" Content="{Resx _crawl}"/>
                     <ComboBox ItemsSource="{Binding Crawls}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Crawl}" />
                 </StackPanel>
-                <StackPanel Visibility="{Binding Logos.Length, Converter={StaticResource ZeroToVis}}" Orientation="Horizontal">
+                <StackPanel Visibility="{Binding Logos.Length, Converter={StaticResource NonZeroToVisibilityConverter}}" Orientation="Horizontal">
                     <Label Padding="5, 0" Content="{Resx _logo}"/>
                     <ComboBox ItemsSource="{Binding Logos}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Logo}" />
                 </StackPanel>
-                <StackPanel Visibility="{Binding Parentals.Length, Converter={StaticResource ZeroToVis}}" Orientation="Horizontal">
+                <StackPanel Visibility="{Binding Parentals.Length, Converter={StaticResource NonZeroToVisibilityConverter}}" Orientation="Horizontal">
                     <Label Padding="5, 0" Content="{Resx _parental}"/>
                     <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Parental}" />
                 </StackPanel>

@@ -12,9 +12,10 @@
     <common:InvertedBooleanToVisibilityConverter x:Key="InvertedBoolToVis" />
     <common:NullToVisibilityConverter x:Key="NullToVis"/>
     <common:InvertedNullToVisibilityConverter x:Key="InvertedNullToVisibilityConverter"/>
-    <common:ZeroToVisibilityConverter x:Key="ZeroToVis"/>
+    <common:NonZeroToVisibilityConverter x:Key="NonZeroToVisibilityConverter"/>
     <common:StringArrayToDelimitedStringConverter x:Key="StringArrayToDelimitedString"/>
     <common:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
     <common:TimeOfDayToStringConverter x:Key="TimeOfDayToStringConverter"/>
     <common:TimeSpanToRedGreenBrushConverter x:Key="TimeSpanToRedGreenBrushConverter"/>
+    <common:MultiBooleanOrNotNullToVisibilityConverter x:Key="MultiBooleanOrNotNullToVisibilityConverter"/>
 </ResourceDictionary>

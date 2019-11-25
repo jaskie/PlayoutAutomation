@@ -300,7 +300,7 @@ namespace TAS.Client.Common
     }
 
     [ValueConversion(typeof(long), typeof(System.Windows.Visibility))]
-    public class ZeroToVisibilityConverter : IValueConverter
+    public class NonZeroToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -327,6 +327,31 @@ namespace TAS.Client.Common
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value?.ToString().Split(Separators, StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+        }
+    }
+
+    [ValueConversion(typeof(object[]), typeof(System.Windows.Visibility))]
+    public class MultiBooleanOrNotNullToVisibilityConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool visible = true;
+            foreach (object value in values)
+            {
+                if (value == null)
+                    visible = false;
+                if (value is bool b)
+                    visible = visible && b;
+            }
+            return visible ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        }
+
+        public object[] ConvertBack(object value,
+            Type[] targetTypes,
+            object parameter,
+            CultureInfo culture)
+        {
+            throw new InvalidOperationException();
         }
     }
 
