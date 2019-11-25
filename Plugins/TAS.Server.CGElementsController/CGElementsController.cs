@@ -10,14 +10,23 @@ namespace TAS.Server
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        internal IEngine Engine;
+        private IEngine _engine;
+        internal IEngine Engine
+        {
+            get => _engine;
+            set
+            {
+                _engine = value;
+                _engine.EngineOperation += Engine_EngineOperation;
+            }
+        }
 
         private bool _isCgEnabled = true;
         private bool _isWideScreen = true;
         private byte _logo;
         private byte _crawl;
         private byte _parental;
-
+        private bool _isStartupExecuted = false;
 
         [XmlAttribute]
         public string EngineName { get; set; }
@@ -104,7 +113,18 @@ namespace TAS.Server
 
         public IEnumerable<ICGElement> Parentals => _parentals;
 
+        [JsonProperty("Startup", ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [XmlArray("Startup"), XmlArrayItem("Item")]
+        public CGElement[] _startup { get; set; } = new CGElement[0];
+
+        public IEnumerable<ICGElement> Startup => _startup;
+
         public event EventHandler Started;
+
+        public CgElementsController()
+        {
+
+        }
 
         public void SetState(ICGElementsState state)
         {
@@ -131,6 +151,42 @@ namespace TAS.Server
                 Logo = 0;
                 Crawl = 0;
                 Parental = 0;
+                _isStartupExecuted = false;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
+        }
+
+
+        private void Engine_EngineOperation(object sender, Common.EngineOperationEventArgs e)
+        {
+            if (
+                (e.Operation == Common.TEngineOperation.Load || e.Operation == Common.TEngineOperation.Play)
+                && !_isStartupExecuted
+            )
+            {
+                ExecuteStartupItems();
+            }
+        }
+
+        private void ExecuteStartupItems()
+        {
+            try
+            {
+                if (!_isCgEnabled)
+                    return;
+
+
+                Logger.Info("Executing startup items");
+                foreach (CGElement el in this._startup)
+                {
+                    Logger.Info(el.Command);
+                    Engine.Execute(el.Command);
+                }
+
+                _isStartupExecuted = true;
             }
             catch (Exception e)
             {
