@@ -57,8 +57,8 @@ namespace TAS.Server
         }
 
         public void SelectInput(int inPort)
-        {
-            _routerCommunicator.SelectInput(inPort);
+        {            
+             _routerCommunicator.SelectInput(inPort);
         }
 
         private async void Init()
@@ -69,7 +69,7 @@ namespace TAS.Server
             try
             {
                 IsConnected = await _routerCommunicator.Connect();
-                if (IsConnected)
+                if (IsConnected)                    
                     ParseInputMeta(await _routerCommunicator.GetInputPorts());
             }
             catch (Exception e)
@@ -91,6 +91,10 @@ namespace TAS.Server
                     InputPorts.Add(new RouterPort(port.Id, port.Name));
             }
             var selectedInput = await _routerCommunicator.GetCurrentInputPort();
+
+            if (selectedInput == null)
+                ParseInputMeta(ports);
+                return;
 
             if (SelectedInputPort == null || SelectedInputPort.PortId != selectedInput.InPort)            
                 SelectedInputPort = InputPorts.FirstOrDefault(port => port.PortId == selectedInput.InPort);

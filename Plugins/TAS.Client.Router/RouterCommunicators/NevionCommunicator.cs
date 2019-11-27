@@ -19,8 +19,8 @@ namespace TAS.Server.RouterCommunicators
         private NetworkStream _stream;
         private readonly RouterDevice _device;
 
-        private ConcurrentQueue<string> _requestsQueue;
-        private ConcurrentQueue<KeyValuePair<ListTypeEnum,string[]>> _responsesQueue;
+        private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
+        private ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>> _responsesQueue =new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
         private readonly ConcurrentDictionary<ListTypeEnum, string[]> _responseDictionary = new ConcurrentDictionary<ListTypeEnum, string[]>();
 
         private readonly Dictionary<ListTypeEnum, SemaphoreSlim> _semaphores = Enum.GetValues(typeof(ListTypeEnum)).Cast<ListTypeEnum>().ToDictionary(t => t, t => new SemaphoreSlim(0));
@@ -67,8 +67,7 @@ namespace TAS.Server.RouterCommunicators
                     _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
                     StartRequestQueueHandler();
                     StartResponseQueueHandler();
-
-                    _requestsQueue = new ConcurrentQueue<string>();
+                   
                     _stream = _tcpClient.GetStream();
                     StartListener();
 
