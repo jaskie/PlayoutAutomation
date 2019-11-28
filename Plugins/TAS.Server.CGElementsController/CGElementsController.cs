@@ -12,14 +12,23 @@ namespace TAS.Server
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        internal IEngine Engine;
+        private IEngine _engine;
+        internal IEngine Engine
+        {
+            get => _engine;
+            set
+            {
+                _engine = value;
+                _engine.EngineOperation += Engine_EngineOperation;
+            }
+        }
 
         private bool _isCgEnabled = true;
         private bool _isWideScreen = true;
         private byte _logo;
         private byte _crawl;
         private byte _parental;
-
+        private bool _isStartupExecuted = false;
 
         [XmlAttribute]
         public string EngineName { get; set; }
@@ -109,6 +118,9 @@ namespace TAS.Server
 
         public IEnumerable<ICGElement> Parentals => _parentals;
 
+        [XmlArray("Startup"), XmlArrayItem("Command")]
+        public string[] _startup { get; set; } = new string[0];
+
         public event EventHandler Started;
 
         public void SetState(ICGElementsState state)
@@ -136,6 +148,39 @@ namespace TAS.Server
                 Logo = 0;
                 Crawl = 0;
                 Parental = 0;
+                _isStartupExecuted = false;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
+        }
+
+
+        private void Engine_EngineOperation(object sender, Common.EngineOperationEventArgs e)
+        {
+            if ((e.Operation == Common.TEngineOperation.Load || e.Operation == Common.TEngineOperation.Play)
+                && !_isStartupExecuted)
+            {
+                ExecuteStartupItems();
+            }
+        }
+
+        private void ExecuteStartupItems()
+        {
+            try
+            {
+                if (!_isCgEnabled)
+                    return;
+
+
+                Logger.Debug("Executing startup items");
+                foreach (var command in _startup)
+                {
+                    Logger.Trace("Executing startup command: {0}", command);
+                    Engine.Execute(command);
+                }
+                _isStartupExecuted = true;
             }
             catch (Exception e)
             {

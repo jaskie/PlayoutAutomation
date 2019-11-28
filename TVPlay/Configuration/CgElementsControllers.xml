@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <CgElementsControllers>
   <CgElementsController EngineName="TVP Szczecin">
+    <Startup>
+      <Command>PLAY CG3 [HTML] http://localhost:9090/view/graphics-bundle/</Command>
+    </Startup>
     <Crawls>
       <Crawl Id="0" Name="Off"      Command="PLAY CG3 EMPTY MIX 25"/>
       <Crawl Id="1" Name="Normal"   Command="CG CG3 ADD 1 CRAWL_NORMAL 1"/>
