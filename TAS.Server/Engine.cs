@@ -37,7 +37,7 @@ namespace TAS.Server
         private readonly MediaManager _mediaManager;
 
         [JsonProperty(nameof(Preview))]
-        private readonly Preview _preview;
+        private Preview _preview;
 
         [JsonProperty(nameof(AuthenticationService))]
         private AuthenticationService _authenticationService;
@@ -75,7 +75,6 @@ namespace TAS.Server
         {
             _engineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
-            _preview = new Preview(this);
             _databaseConnectionState = EngineController.Database.ConnectionState;
             EngineController.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
             _rights = new Lazy<List<IAclRight>>(() =>
@@ -248,7 +247,7 @@ namespace TAS.Server
                 if (!SetField(ref _fieldOrderInverted, value))
                     return;
                 _playoutChannelPRI?.SetFieldOrderInverted(VideoLayer.Program, value);
-                if (_playoutChannelSEC != null && !(_playoutChannelSEC == Preview.Channel && _preview.IsMovieLoaded))
+                if (_playoutChannelSEC != null && !(_playoutChannelSEC == Preview.Channel && _preview?.IsMovieLoaded == true))
                     _playoutChannelSEC.SetFieldOrderInverted(VideoLayer.Program, value);
             }
         }
@@ -265,7 +264,7 @@ namespace TAS.Server
                 var playing = Playing;
                 int transitioDuration = playing == null ? 0 : (int)playing.TransitionTime.ToSmpteFrames(FrameRate);
                 _playoutChannelPRI?.SetVolume(VideoLayer.Program, value, transitioDuration);
-                if (_playoutChannelSEC != null && !(_playoutChannelSEC == Preview.Channel && _preview.IsMovieLoaded))
+                if (_playoutChannelSEC != null && !(_playoutChannelSEC == Preview.Channel && _preview?.IsMovieLoaded == true))
                     _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
             }
         }
@@ -289,7 +288,9 @@ namespace TAS.Server
             var sPRV = servers.FirstOrDefault(s => s.Id == IdServerPRV);
             if (sPRV != null && sPRV != sPRI && sPRV != sSEC)
                 recorders.AddRange(sPRV.Recorders.Select(r => r as CasparRecorder));
-            _preview.Initialize((CasparServerChannel)sPRV?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV));
+            var previewChannel = sPRV?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV) as CasparServerChannel;
+            if (previewChannel != null) 
+                _preview = new Preview(this, previewChannel);
             _mediaManager.SetRecorders(recorders);
 
             _localGpis = this.ComposeParts<IGpi>();
@@ -588,7 +589,6 @@ namespace TAS.Server
                     }
             }
             NotifyEngineOperation(null, TEngineOperation.Clear);
-            _preview.UnloadMovie();
         }
 
         public void ClearMixer()
@@ -1461,6 +1461,7 @@ namespace TAS.Server
             CGElementsController?.Dispose();
             Router?.Dispose();
             Remote?.Dispose();
+            _preview?.Dispose();
             _mediaManager.Dispose();
             if (_plugins != null)
                 foreach (var plugin in _plugins)

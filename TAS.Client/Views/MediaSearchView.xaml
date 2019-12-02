@@ -52,7 +52,11 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <ContentControl Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
-                <views:PreviewView DataContext="{Binding PreviewViewmodel}" Width="330" />
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type vm:PreviewViewmodel}" >
+                        <views:PreviewView Width="330"/>
+                    </DataTemplate>
+                </ContentControl.Resources>
             </ContentControl>
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>

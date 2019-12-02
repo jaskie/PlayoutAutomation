@@ -69,7 +69,7 @@ namespace TAS.Client.ViewModels
                 engine.PlayoutChannelPRI.PropertyChanged += OnServerChannelPropertyChanged;
             if (engine.PlayoutChannelSEC != null)
                 engine.PlayoutChannelSEC.PropertyChanged += OnServerChannelPropertyChanged;
-            if (engine.Preview.Channel != engine.PlayoutChannelSEC && engine.Preview.Channel != null)
+            if (engine.Preview != null && engine.Preview.Channel != engine.PlayoutChannelSEC && engine.Preview.Channel != null)
                 engine.Preview.Channel.PropertyChanged += OnServerChannelPropertyChanged;
             if (engine.CGElementsController != null)
             {
@@ -299,7 +299,7 @@ namespace TAS.Client.ViewModels
                 Engine.PlayoutChannelPRI.PropertyChanged -= OnServerChannelPropertyChanged;
             if (Engine.PlayoutChannelSEC != null)
                 Engine.PlayoutChannelSEC.PropertyChanged -= OnServerChannelPropertyChanged;
-            if (Engine.Preview.Channel != Engine.PlayoutChannelSEC && Engine.Preview.Channel != null)
+            if (Engine.Preview != null && Engine.Preview.Channel != Engine.PlayoutChannelSEC && Engine.Preview.Channel != null)
                 Engine.Preview.Channel.PropertyChanged -= OnServerChannelPropertyChanged;
             VideoPreview?.Dispose();
             if (Engine.CGElementsController != null)
@@ -964,17 +964,17 @@ namespace TAS.Client.ViewModels
                                 && (ServerConnectedPRV || !ServerPRVExists)
                                 && DatabaseOK;
 
-        public bool ServerPRIExists => Engine?.PlayoutChannelPRI != null;
+        public bool ServerPRIExists => Engine.PlayoutChannelPRI != null;
 
-        public bool ServerConnectedPRI => Engine?.PlayoutChannelPRI?.IsServerConnected == true;
+        public bool ServerConnectedPRI => Engine.PlayoutChannelPRI?.IsServerConnected == true;
 
-        public bool ServerSECExists => Engine?.PlayoutChannelSEC != null;
+        public bool ServerSECExists => Engine.PlayoutChannelSEC != null;
 
-        public bool ServerConnectedSEC => Engine?.PlayoutChannelSEC?.IsServerConnected == true;
+        public bool ServerConnectedSEC => Engine.PlayoutChannelSEC?.IsServerConnected == true;
 
-        public bool ServerPRVExists => Engine?.Preview.Channel != null;
+        public bool ServerPRVExists => Engine.Preview != null;
 
-        public bool ServerConnectedPRV => Engine?.Preview.Channel?.IsServerConnected == true;
+        public bool ServerConnectedPRV => Engine.Preview?.Channel.IsServerConnected == true;
 
         public bool DatabaseOK
         {

@@ -32,18 +32,13 @@ namespace TAS.Server
         private CancellationTokenSource _previewPositionCancellationTokenSource;
         private long _previewLastPositionSetTick;
         private readonly ConcurrentDictionary<VideoLayer, IMedia> _previewLoadedStills = new ConcurrentDictionary<VideoLayer, IMedia>();
-        private CasparServerChannel _channel;
+        private readonly CasparServerChannel _channel;
 
-        public Preview(Engine engine)
+        public Preview(Engine engine, CasparServerChannel previewChannel)
         {
             _engine = engine;
-        }
-
-        public void Initialize(CasparServerChannel previewChannel)
-        {
-            Debug.Assert(_channel == null);
             _channel = previewChannel;
-            _channel.PropertyChanged += ChannelPropertyChanged;
+            previewChannel.PropertyChanged += ChannelPropertyChanged;
         }
 
         [XmlIgnore]
@@ -236,9 +231,7 @@ namespace TAS.Server
         protected override void DoDispose()
         {
             base.DoDispose();
-            if (_channel == null)
-                return;
-            _channel.PropertyChanged -= ChannelPropertyChanged;
+           _channel.PropertyChanged -= ChannelPropertyChanged;
         }
 
         private MediaBase _findPreviewMedia(MediaBase media)
