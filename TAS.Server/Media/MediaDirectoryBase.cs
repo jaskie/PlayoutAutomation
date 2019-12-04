@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
-using ComponentModelRPC.Server;
+using jNet.RPC.Server;
 using Newtonsoft.Json;
 using NLog;
 using TAS.Common;

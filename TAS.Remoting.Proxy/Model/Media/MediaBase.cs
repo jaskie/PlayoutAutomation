@@ -1,6 +1,6 @@
 ﻿using System;
-using ComponentModelRPC;
-using ComponentModelRPC.Client;
+using jNet.RPC;
+using jNet.RPC.Client;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;

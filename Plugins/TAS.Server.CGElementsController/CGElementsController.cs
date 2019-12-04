@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
-using ComponentModelRPC.Server;
+using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server

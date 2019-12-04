@@ -69,9 +69,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dependencies\ComponentModelRPC\ComponentModelRPC\ComponentModelRPC.csproj">
+    <ProjectReference Include="..\..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj">
       <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
-      <Name>ComponentModelRPC</Name>
+      <Name>jNet.RPC</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>

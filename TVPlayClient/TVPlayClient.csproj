@@ -151,9 +151,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\dependencies\ComponentModelRPC\ComponentModelRPC\ComponentModelRPC.csproj">
+    <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj">
       <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
-      <Name>ComponentModelRPC</Name>
+      <Name>jNet.RPC</Name>
     </ProjectReference>
     <ProjectReference Include="..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
       <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>

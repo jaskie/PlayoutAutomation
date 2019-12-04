@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using jNet.RPC.Server;
 using Newtonsoft.Json;
-using ComponentModelRPC.Server;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;

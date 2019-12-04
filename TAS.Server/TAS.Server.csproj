@@ -122,9 +122,9 @@
     <Compile Include="XDCAM\XdcamStream.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\dependencies\ComponentModelRPC\ComponentModelRPC\ComponentModelRPC.csproj">
+    <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj">
       <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
-      <Name>ComponentModelRPC</Name>
+      <Name>jNet.RPC</Name>
     </ProjectReference>
     <ProjectReference Include="..\dependencies\Svt\Svt.Caspar\Svt.Caspar.csproj">
       <Project>{9b56a150-ece3-4099-aea1-0f8e115dc374}</Project>

@@ -327,9 +327,9 @@
     <Folder Include="Properties\DataSources\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\dependencies\ComponentModelRPC\ComponentModelRPC\ComponentModelRPC.csproj">
+    <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj">
       <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
-      <Name>ComponentModelRPC</Name>
+      <Name>jNet.RPC</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Client\TAS.Client.csproj">
       <Project>{f6e01e47-5075-42a7-b2a2-bc35bc074f9f}</Project>

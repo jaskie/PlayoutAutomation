@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using ComponentModelRPC.Server;
+using jNet.RPC.Server;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;

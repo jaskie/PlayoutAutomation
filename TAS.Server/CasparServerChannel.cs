@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using TAS.Common;
 using System.Text.RegularExpressions;
-using ComponentModelRPC.Server;
+using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using TAS.Server.Media;
 

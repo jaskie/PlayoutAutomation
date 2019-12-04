@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using System.Linq;
+using jNet.RPC.Server;
 using Newtonsoft.Json;
 using TAS.Server.Model;
 using TAS.Server.RouterCommunicators;
-using ComponentModelRPC.Server;
 
 namespace TAS.Server
 {

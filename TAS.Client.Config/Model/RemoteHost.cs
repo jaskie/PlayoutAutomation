@@ -1,5 +1,5 @@
 ﻿using System.Xml.Serialization;
-using ComponentModelRPC;
+using jNet.RPC;
 
 
 namespace TAS.Client.Config.Model

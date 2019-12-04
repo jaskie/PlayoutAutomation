@@ -208,9 +208,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\dependencies\ComponentModelRPC\ComponentModelRPC\ComponentModelRPC.csproj">
+    <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj">
       <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
-      <Name>ComponentModelRPC</Name>
+      <Name>jNet.RPC</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Client.Common\TAS.Client.Common.csproj">
       <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>

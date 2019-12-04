@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
-using ComponentModelRPC.Server;
+using jNet.RPC.Server;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Security;

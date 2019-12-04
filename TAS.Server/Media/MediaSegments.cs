@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using ComponentModelRPC.Server;
+using jNet.RPC.Server;
 using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 

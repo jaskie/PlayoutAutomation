@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ComponentModelRPC.Server;
+using jNet.RPC.Server;
 using TAS.Common;
 using TAS.Common.Interfaces;
 

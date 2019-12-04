@@ -1,4 +1,4 @@
-﻿using ComponentModelRPC.Server;
+﻿using jNet.RPC.Server;
 using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 

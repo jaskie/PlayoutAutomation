@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using ComponentModelRPC.Client;
+using jNet.RPC.Client;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
 using TAS.Remoting;

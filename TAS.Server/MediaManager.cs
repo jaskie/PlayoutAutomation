@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using ComponentModelRPC.Server;
+using jNet.RPC.Server;
 using TAS.Common;
 using Newtonsoft.Json;
 using TAS.Common.Interfaces;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using ComponentModelRPC;
-using ComponentModelRPC.Client;
+using jNet.RPC;
+using jNet.RPC.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
 

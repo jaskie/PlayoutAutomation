@@ -4,8 +4,8 @@ using System.Xml.Serialization;
 using TAS.Common;
 using Newtonsoft.Json;
 using System.Drawing;
-using ComponentModelRPC;
-using ComponentModelRPC.Server;
+using jNet.RPC;
+using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server

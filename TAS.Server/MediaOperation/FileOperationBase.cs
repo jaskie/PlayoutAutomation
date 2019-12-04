@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ComponentModelRPC.Server;
+using jNet.RPC.Server;
 using Newtonsoft.Json;
 using NLog;
 using TAS.Common;

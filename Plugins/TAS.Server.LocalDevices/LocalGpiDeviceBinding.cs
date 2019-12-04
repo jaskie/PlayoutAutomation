@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Xml.Serialization;
-using ComponentModelRPC.Server;
+using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server

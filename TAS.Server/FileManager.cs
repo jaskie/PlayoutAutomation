@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using ComponentModelRPC.Server;
+using jNet.RPC.Server;
 using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Server.Media;
