@@ -103,6 +103,7 @@
     <Compile Include="Security\AclRightBase.cs" />
     <Compile Include="Security\EngineAclRight.cs" />
     <Compile Include="Security\EventAclRight.cs" />
+    <Compile Include="Security\PrincipalProvider.cs" />
     <Compile Include="Security\SecurityObjectBase.cs" />
     <Compile Include="Security\AcoHive.cs" />
     <Compile Include="Security\AuthenticationService.cs" />

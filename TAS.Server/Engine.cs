@@ -329,7 +329,7 @@ namespace TAS.Server
             if (Remote != null)
             {
                 Debug.WriteLine(this, "Initializing Remote interface");
-                Remote.Initialize(this, address => new GenericPrincipal(_authenticationService.FindUser(AuthenticationSource.IpAddress, address.ToString()), new string[0]));
+                Remote.Initialize(this, new Security.PrincipalProvider(_authenticationService));
             }
 
             if (_localGpis != null)
