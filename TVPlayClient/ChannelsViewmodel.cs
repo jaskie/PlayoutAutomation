@@ -6,7 +6,7 @@ namespace TVPlayClient
 {
     public class ChannelsViewmodel : ViewModelBase
     {
-        public ChannelsViewmodel(IEnumerable<ConfigurationChannel> channels)
+        public ChannelsViewmodel(IEnumerable<ChannelConfiguration> channels)
         {
             Channels = channels.Select(c => new ChannelWrapperViewmodel(c)).ToList();
             Channels.ForEach(c => c.Initialize());

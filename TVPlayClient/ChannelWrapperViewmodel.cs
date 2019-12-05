@@ -14,15 +14,16 @@ namespace TVPlayClient
     public class ChannelWrapperViewmodel : ViewModelBase
     {
 
-        private readonly ConfigurationChannel _configurationChannel;
+        private readonly ChannelConfiguration _channelConfiguration;
         private RemoteClient _client;
         private ChannelViewmodel _channel;
         private bool _isLoading = true;
+        private bool _disposed;
         private string _tabName;
 
-        public ChannelWrapperViewmodel(ConfigurationChannel channel)
+        public ChannelWrapperViewmodel(ChannelConfiguration channel)
         {
-            _configurationChannel = channel;
+            _channelConfiguration = channel;
         }
 
         public void Initialize()
@@ -43,6 +44,7 @@ namespace TVPlayClient
         {
             _channel?.Dispose();
             _client?.Dispose();
+            _disposed = true;
             Debug.WriteLine(this, "Disposed");
         }
 
@@ -66,13 +68,13 @@ namespace TVPlayClient
         {
             Task.Run(() =>
             {
-                while (true)
+                while (!_disposed)
                 {
                     try
                     {
-                        _client = new RemoteClient(_configurationChannel.Address)
+                        _client = new RemoteClient(_channelConfiguration.Address)
                         {
-                            Binder = new ClientTypeNameBinder()
+                            Binder = ClientTypeNameBinder.Current
                         };
                         _client.Disconnected += ClientDisconnected;
                         var engine = _client.GetRootObject<Engine>();
@@ -83,8 +85,8 @@ namespace TVPlayClient
                         }
                         OnUiThread(() =>
                         {
-                            Channel = new ChannelViewmodel(engine, _configurationChannel.ShowEngine,
-                                _configurationChannel.ShowMedia);
+                            Channel = new ChannelViewmodel(engine, _channelConfiguration.ShowEngine,
+                                _channelConfiguration.ShowMedia);
                             TabName = Channel.DisplayName;
                             IsLoading = false;
                         });

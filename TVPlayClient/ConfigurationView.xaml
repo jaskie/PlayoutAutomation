@@ -62,7 +62,7 @@
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
-                <DataTemplate DataType="{x:Type local:ConfigurationChannel}">
+                <DataTemplate DataType="{x:Type local:ChannelConfiguration}">
                     <Border BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="2">
                         <StackPanel Margin="10">
                             <DockPanel Margin="5">

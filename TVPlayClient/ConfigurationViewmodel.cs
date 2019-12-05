@@ -10,19 +10,19 @@ namespace TVPlayClient
 {
     public class ConfigurationViewmodel: ViewModelBase
     {
-        private readonly ObservableCollection<ConfigurationChannel> _channels;
+        private readonly ObservableCollection<ChannelConfiguration> _channels;
         private readonly string _configurationFile;
         public ConfigurationViewmodel(string configurationFile)
         {
             _configurationFile = configurationFile;
             if (File.Exists(configurationFile))
             {
-                XmlSerializer reader = new XmlSerializer(typeof(ObservableCollection<ConfigurationChannel>), new XmlRootAttribute("Channels"));
+                XmlSerializer reader = new XmlSerializer(typeof(ObservableCollection<ChannelConfiguration>), new XmlRootAttribute("Channels"));
                 using (StreamReader file = new StreamReader(configurationFile))
-                    _channels = (ObservableCollection<ConfigurationChannel>)reader.Deserialize(file);
+                    _channels = (ObservableCollection<ChannelConfiguration>)reader.Deserialize(file);
             }
             else
-                _channels = new ObservableCollection<ConfigurationChannel>();
+                _channels = new ObservableCollection<ChannelConfiguration>();
             CommandAdd = new UiCommand(_add);
             CommandDelete = new UiCommand(_delete, _canDelete);
             CommandSave = new UiCommand(_save);
@@ -41,7 +41,7 @@ namespace TVPlayClient
                 return;
             if (!Directory.Exists(directoryName))
                 Directory.CreateDirectory(directoryName);
-            XmlSerializer writer = new XmlSerializer(typeof(ObservableCollection<ConfigurationChannel>), new XmlRootAttribute("Channels"));
+            XmlSerializer writer = new XmlSerializer(typeof(ObservableCollection<ChannelConfiguration>), new XmlRootAttribute("Channels"));
             using (StreamWriter file = new StreamWriter(_configurationFile))
                 writer.Serialize(file, Channels);
             Closed?.Invoke(this, EventArgs.Empty);
@@ -59,13 +59,17 @@ namespace TVPlayClient
 
         private void _add(object obj)
         {
-            _channels.Add(new ConfigurationChannel { Address = "127.0.0.1:1061" });
+            _channels.Add(new ChannelConfiguration { Address = "127.0.0.1:1061" });
         }
 
-        public IEnumerable<ConfigurationChannel> Channels => _channels;
+        public IEnumerable<ChannelConfiguration> Channels => _channels;
 
-        private ConfigurationChannel _selectedChannel;
-        public ConfigurationChannel SelectedChannel { get { return _selectedChannel; } set { SetField(ref _selectedChannel, value); } }
+        private ChannelConfiguration _selectedChannel;
+        public ChannelConfiguration SelectedChannel
+        {
+            get => _selectedChannel;
+            set => SetField(ref _selectedChannel, value);
+        }
         
         public ICommand CommandSave { get; }
         public ICommand CommandAdd { get; }
@@ -81,7 +85,7 @@ namespace TVPlayClient
     }
 
     [XmlType("Channel")]
-    public class ConfigurationChannel
+    public class ChannelConfiguration
     {
         [XmlAttribute]
         public string Address { get; set; }

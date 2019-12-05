@@ -66,9 +66,9 @@ namespace TVPlayClient
         {
             if (!File.Exists(_configurationFile))
                 return;
-            var reader = new XmlSerializer(typeof(List<ConfigurationChannel>), new XmlRootAttribute("Channels"));
+            var reader = new XmlSerializer(typeof(List<ChannelConfiguration>), new XmlRootAttribute("Channels"));
             using (var file = new StreamReader(_configurationFile))
-                Content = new ChannelsViewmodel((List<ConfigurationChannel>)reader.Deserialize(file));
+                Content = new ChannelsViewmodel((List<ChannelConfiguration>)reader.Deserialize(file));
         }
         
     }
