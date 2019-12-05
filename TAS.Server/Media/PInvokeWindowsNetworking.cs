@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace TAS.Server.Media
 {
     public class PinvokeWindowsNetworking
     {
         #region Consts
+
+        private const string Mpr = "Mpr.dll";
         const int RESOURCE_CONNECTED = 0x00000001;
         const int RESOURCE_GLOBALNET = 0x00000002;
         const int RESOURCE_REMEMBERED = 0x00000003;
@@ -106,7 +109,7 @@ namespace TAS.Server.Media
         }
         #endregion
 
-        [DllImport("Mpr.dll", CharSet = CharSet.Unicode)]
+        [DllImport(Mpr, CharSet = CharSet.Unicode)]
         private static extern int WNetUseConnection(
             IntPtr hwndOwner,
             NETRESOURCE lpNetResource,
@@ -118,11 +121,18 @@ namespace TAS.Server.Media
             string lpResult
             );
 
-        [DllImport("Mpr.dll", CharSet = CharSet.Unicode)]
+        [DllImport(Mpr, CharSet = CharSet.Unicode)]
         private static extern int WNetCancelConnection2(
             string lpName,
             int dwFlags,
             bool fForce
+            );
+
+        [DllImport(Mpr, CharSet = CharSet.Unicode)]
+        private static extern int WNetGetUser(
+            string lpName,
+            StringBuilder lpUserName, 
+            ref uint lpnLength
             );
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -144,17 +154,22 @@ namespace TAS.Server.Media
             NETRESOURCE nr = new NETRESOURCE();
             nr.dwType = RESOURCETYPE_DISK;
             nr.lpRemoteName = remoteUnc;
-            
             int ret = WNetUseConnection(IntPtr.Zero, nr, password, username, 0, null, null, null);
-
             return ret == NO_ERROR ? null : getErrorForNumber(ret);
         }
-
+        
         public static string DisconnectRemote(string remoteUnc)
         {
             int ret = WNetCancelConnection2(remoteUnc, CONNECT_UPDATE_PROFILE, false);
-            if (ret == NO_ERROR) return null;
+            if (ret == NO_ERROR || ret == ERROR_NOT_CONNECTED) return null;
             return getErrorForNumber(ret);
+        }
+
+        public static string GetConnectionUserName(string remoteUnc)
+        {
+            var userName = new StringBuilder(256);
+            uint size = (uint) userName.Capacity;
+            return WNetGetUser(remoteUnc, userName, ref size) == NO_ERROR ? userName.ToString() : null;
         }
     }
 }

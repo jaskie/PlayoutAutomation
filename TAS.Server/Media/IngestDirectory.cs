@@ -262,8 +262,14 @@ namespace TAS.Server.Media
         protected override void DoDispose()
         {
             base.DoDispose();
-            if (AccessType == TDirectoryAccessType.Direct &&  Kind != TIngestDirectoryKind.XDCAM && !string.IsNullOrWhiteSpace(Username))
-                PinvokeWindowsNetworking.DisconnectRemote(Path.GetPathRoot(Folder));
+            if (AccessType == TDirectoryAccessType.Direct && Kind != TIngestDirectoryKind.XDCAM &&
+                !string.IsNullOrWhiteSpace(Username))
+            {
+                var folder = Path.GetPathRoot(Folder);
+                var user = PinvokeWindowsNetworking.GetConnectionUserName(folder);
+                if (!string.IsNullOrWhiteSpace(user))
+                    PinvokeWindowsNetworking.DisconnectRemote(folder);
+            }
             _ftpClient?.Dispose();
         }
 
@@ -544,16 +550,22 @@ namespace TAS.Server.Media
             if (string.IsNullOrWhiteSpace(Username))
                 return true;
             var dir = Path.GetPathRoot(Folder);
-            var ret = PinvokeWindowsNetworking.DisconnectRemote(dir);
-            if (ret != null)
-                Logger.Warn("Cannot disconnect remote {0}. Error was: {1}", dir, ret);
+            var userName = PinvokeWindowsNetworking.GetConnectionUserName(dir);
+            if (userName == Username)
+                return true;
+            string ret;
+            if (!string.IsNullOrWhiteSpace(userName))
+            {
+                ret = PinvokeWindowsNetworking.DisconnectRemote(dir);
+                if (ret != null)
+                    Logger.Warn("Cannot disconnect remote {0}. Error was: {1}", dir, ret);
+            }
             ret = PinvokeWindowsNetworking.ConnectToRemote(dir, Username, Password);
             if (ret == null)
                 return true;
             Logger.Warn("Cannot connect to remote {0}. Error was: {1}", dir, ret);
             return false;
         }
-
 
 
         private IEnumerable<IMedia> _ftpAddFileFromPath(FtpClient client, string rootPath, string localPath, FtpListItem item, string filter)
