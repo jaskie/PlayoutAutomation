@@ -42,7 +42,7 @@ namespace TAS.Server.RouterCommunicators
         {
             _cancellationTokenSource = new CancellationTokenSource();
 
-            while (true)
+            while (_disposed == default(int))
             {                
                 _tcpClient = new TcpClient();
 
@@ -55,7 +55,7 @@ namespace TAS.Server.RouterCommunicators
                     var connectTask = _tcpClient.ConnectAsync(_device.IpAddress, _device.Port);
                     await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
 
-                    if (!_tcpClient.Connected)
+                    if (_tcpClient.Client?.Connected != true)
                     {
                         _tcpClient.Close();
                         continue;
@@ -126,7 +126,7 @@ namespace TAS.Server.RouterCommunicators
                 return null;
 
             AddToRequestQueue($"inlist l{_device.Level}");
-            while (true)
+            while (_disposed == default(int))
             {
                 try
                 {
@@ -152,7 +152,8 @@ namespace TAS.Server.RouterCommunicators
 
                     return null;
                 }
-            }           
+            }
+            return null;
         }       
 
         public async Task<CrosspointInfo> GetCurrentInputPort()
@@ -161,7 +162,7 @@ namespace TAS.Server.RouterCommunicators
                 return null;
 
             AddToRequestQueue($"si l{_device.Level} {string.Join(",", _device.OutputPorts)}");
-            while (true)
+            while (_disposed == default(int))
             {
                 try
                 {
@@ -193,14 +194,15 @@ namespace TAS.Server.RouterCommunicators
 
                     return null;
                 }
-            }           
+            }
+            return null;
         }       
 
         private async void StartRequestQueueHandler()
         {
             try
             {
-                while (true)
+                while (_disposed == default(int))
                 {
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
@@ -231,7 +233,7 @@ namespace TAS.Server.RouterCommunicators
         {
             try
             {
-                while (true)
+                while (_disposed == default(int))
                 {
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
@@ -273,7 +275,7 @@ namespace TAS.Server.RouterCommunicators
         {
             var bytesReceived = new byte[256];
             Logger.Debug("Nevion listener started!");
-            while (true)
+            while (_disposed == default(int))
             {
                 try
                 {
@@ -306,7 +308,7 @@ namespace TAS.Server.RouterCommunicators
 
             AddToRequestQueue($"sspi l{_device.Level}");
             
-            while (true)
+            while (_disposed == default(int))
             {
                 try
                 {
@@ -345,7 +347,7 @@ namespace TAS.Server.RouterCommunicators
             if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointChange, out var semaphore))
                 return;
             
-            while (true)
+            while (_disposed == default(int))
             {
                 try
                 {
