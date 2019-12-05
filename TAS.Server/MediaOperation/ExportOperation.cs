@@ -196,12 +196,19 @@ namespace TAS.Server.MediaOperation
                         var localSourceMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(null);
                         tempMediae.Add(localSourceMedia);
                         AddOutputMessage(LogLevel.Trace, $"Copying to local file {localSourceMedia.FullPath}");
+                        localSourceMedia.PropertyChanged += (source, ea) =>
+                        {
+                            if (ea.PropertyName != nameof(IMedia.FileSize))
+                                return;
+                            var fs = s.Media.FileSize;
+                            if (fs > 0 && source is MediaBase media)
+                                Progress = (int)(media.FileSize * 100ul / fs);
+                        };
                         if (!await ((MediaBase) s.Media).CopyMediaTo(localSourceMedia, CancellationTokenSource.Token))
                             throw new ApplicationException("File not copied");
                         AddOutputMessage(LogLevel.Trace, "Verifing local file");
                         localSourceMedia.Verify(true);
-                        localExportDescriptions[i] = new MediaExportDescription(localSourceMedia, s.Logos, s.StartTC,
-                            s.Duration, s.AudioVolume);
+                        localExportDescriptions[i] = new MediaExportDescription(localSourceMedia, s.Logos, TimeSpan.Zero, s.Duration, s.AudioVolume);
                     }
                 }
                 return await EncodeFromLocalFiles(helper, directory, outFile, localExportDescriptions);

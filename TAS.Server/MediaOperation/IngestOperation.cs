@@ -178,12 +178,11 @@ namespace TAS.Server.MediaOperation
 
         private void LocalSourceMedia_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IMedia.FileSize))
-            {
-                ulong fs = Source.FileSize;
-                if (fs > 0 && sender is MediaBase)
-                    Progress = (int)(((sender as MediaBase).FileSize * 100ul) / fs);
-            }
+            if (e.PropertyName != nameof(IMedia.FileSize))
+                return;
+            var fs = Source.FileSize;
+            if (fs > 0 && sender is MediaBase media)
+                Progress = (int)(media.FileSize * 100ul / fs);
         }
 
         private bool ConvertStill(MediaBase localSourceMedia)
