@@ -36,7 +36,7 @@ namespace TAS.Server.Media
         public TStartType StartType { get => _startType; set => SetField(ref _startType, value); }
 
         [JsonProperty]
-        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ServerMediaFieldLengths;
+        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ServerMediaFieldLengths;
 
         public override bool Save()
         {
@@ -48,13 +48,13 @@ namespace TAS.Server.Media
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = EngineController.Database.DeleteMedia(this);
+                            result = EngineController.Current.Database.DeleteMedia(this);
                     }
                     else if (IdPersistentMedia == 0)
-                        result = EngineController.Database.InsertMedia(this, directory.Server.Id);
+                        result = EngineController.Current.Database.InsertMedia(this, directory.Server.Id);
                     else if (IsModified)
                     {
-                        EngineController.Database.UpdateMedia(this, directory.Server.Id);
+                        EngineController.Current.Database.UpdateMedia(this, directory.Server.Id);
                         result = true;
                     }
                     if (result)

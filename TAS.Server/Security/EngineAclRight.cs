@@ -5,15 +5,15 @@
         public override void Save()
         {
             if (Id == default(ulong))
-                EngineController.Database.InsertEngineAcl(this);
+                EngineController.Current.Database.InsertEngineAcl(this);
             else
-                EngineController.Database.UpdateEngineAcl(this);
+                EngineController.Current.Database.UpdateEngineAcl(this);
             base.Save();
         }
 
         public override void Delete()
         {
-            EngineController.Database.DeleteEngineAcl(this);
+            EngineController.Current.Database.DeleteEngineAcl(this);
             Dispose();
         }
     }

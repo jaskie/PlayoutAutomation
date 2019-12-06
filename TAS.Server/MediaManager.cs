@@ -19,7 +19,7 @@ using TAS.Server.MediaOperation;
 
 namespace TAS.Server
 {
-    public class MediaManager : DtoBase, IMediaManager
+    public class MediaManager : DtoBase, IMediaManager, IInitializable
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -73,7 +73,7 @@ namespace TAS.Server
         public TVideoFormat VideoFormat => _engine.VideoFormat;
 
         [JsonProperty]
-        public IEnumerable<IIngestDirectory> IngestDirectories => _ingestDirectories;
+        public IEnumerable<IIngestDirectory> IngestDirectories => EngineController.Current.IngestDirectories;
 
         [JsonProperty]
         public IEnumerable<IRecorder> Recorders => _recorders;
@@ -83,7 +83,7 @@ namespace TAS.Server
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Begin initializing");
             _fileManager.ReferenceLoudness = _engine.VolumeReferenceLoudness;
-            var archiveDirectory = EngineController.Database.LoadArchiveDirectory<ArchiveDirectory>(_engine.IdArchive);
+            var archiveDirectory = EngineController.Current.Database.LoadArchiveDirectory<ArchiveDirectory>(_engine.IdArchive);
             if (archiveDirectory != null)
             {
                 archiveDirectory.Initialize(this);
@@ -129,8 +129,6 @@ namespace TAS.Server
             adir = AnimationDirectorySEC as AnimationDirectory;
             if (adir != null)
                 adir.PropertyChanged += _animationDirectoryPropertyChanged;
-
-            LoadIngestDirs();
             Debug.WriteLine(this, "End initializing");
             Logger.Debug("End initializing");
         }
@@ -217,12 +215,6 @@ namespace TAS.Server
             else
                 foreach (MediaExportDescription e in exportList)
                     _export(e, directory, mXFAudioExportFormat, mXFVideoExportFormat);
-        }
-
-        public void LoadIngestDirs()
-        {
-            _loadIngestDirs(Path.Combine(Directory.GetCurrentDirectory(), ConfigurationManager.AppSettings["IngestFolders"]));
-            Debug.WriteLine(this, "IngestDirectories loaded");
         }
 
         public void UnloadIngestDirs()
@@ -331,27 +323,6 @@ namespace TAS.Server
                 recorder.ArchiveDirectory = ArchiveDirectory;
                 _recorders.Add(recorder);
                 recorder.CaptureSuccess += _recorder_CaptureSuccess;
-            }
-        }
-
-
-        // private methods
-
-        private void _loadIngestDirs(string fileName)
-        {
-            if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
-            {
-                if (_ingestDirectories != null)
-                    return;
-                var reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute(nameof(IngestDirectories)));
-                using (var file = new StreamReader(fileName))
-                    _ingestDirectories = ((List<IngestDirectory>)reader.Deserialize(file)).ToList();
-            }
-            else _ingestDirectories = new List<IngestDirectory>();
-            foreach (var d in _ingestDirectories)
-            {
-                d.MediaManager = this;
-                d.Initialize(this);
             }
         }
 
@@ -634,15 +605,16 @@ namespace TAS.Server
                 if (mediaToDelete != null && mediaToDelete.FileExists())
                 {
                     var operation = new DeleteOperation(_fileManager) {Source = mediaToDelete};
-                    operation.Success += (sender, args) =>
-                    {
-                        foreach (var ingestDirectory in IngestDirectories)
+                    if (mediaToDelete.Directory is ServerDirectory serverDirectory)
+                        operation.Success += (sender, args) =>
                         {
-                            if (((IngestDirectory) ingestDirectory).FindMediaByMediaGuid(operation.Source.MediaGuid) is
-                                IngestMedia media)
-                                media.IngestStatus = TIngestStatus.Unknown;
-                        }
-                    };
+                            foreach (var ingestDirectory in IngestDirectories)
+                            {
+                                if (((IngestDirectory) ingestDirectory).FindMediaByMediaGuid(operation.Source.MediaGuid)
+                                    is IngestMedia media)
+                                    media.NotifyIngestStatus(serverDirectory, TIngestStatus.Unknown);
+                            }
+                        };
                     FileManager.Queue(operation);
                 }
             }

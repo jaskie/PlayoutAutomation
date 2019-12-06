@@ -32,9 +32,9 @@ namespace TAS.Server.Media
 
         public bool DeleteSource { get; set; }
 
-        public override void Initialize(MediaManager mediaManager)
+        public void Initialize()
         {
-            base.Initialize(mediaManager);
+            base.Initialize();
             if (!string.IsNullOrWhiteSpace(Folder))
             {
                 if (Folder.StartsWith("ftp://"))
@@ -57,7 +57,7 @@ namespace TAS.Server.Media
                         BeginWatch(IsRecursive);
                 }
             }
-            _subDirectories?.ToList().ForEach(d => d.Initialize(mediaManager));
+            _subDirectories?.ToList().ForEach(d => d.Initialize());
         }
 
         public string EncodeParams { get; set; }

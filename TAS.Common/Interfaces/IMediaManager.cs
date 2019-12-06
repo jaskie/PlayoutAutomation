@@ -4,7 +4,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IMediaManager: IInitializable
+    public interface IMediaManager
     {
         IAnimationDirectory AnimationDirectoryPRI { get; }
         IAnimationDirectory AnimationDirectorySEC { get; }
@@ -24,7 +24,6 @@ namespace TAS.Common.Interfaces
         List<MediaDeleteResult> MediaArchive(IEnumerable<IMedia> mediaList, bool deleteAfter, bool forceDelete);
         List<MediaDeleteResult> MediaDelete(IEnumerable<IMedia> mediaList, bool forceDelete);
         void Export(IEnumerable<MediaExportDescription> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat);
-        void LoadIngestDirs();
         void SynchronizeMediaSecToPri();
         void SynchronizeAnimationsSecToPri();
         IServerDirectory DetermineValidServerDirectory();

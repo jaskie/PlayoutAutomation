@@ -25,6 +25,8 @@ namespace TAS.Server.Media
             HaveFileWatcher = true;
         }
 
+        internal bool RequiresInitialization { get; set; }
+
         [JsonProperty]
         public bool IsRecursive { get; }
 
@@ -41,7 +43,7 @@ namespace TAS.Server.Media
             if (IsInitialized)
                 return;
             MediaManager = mediaManager;
-            EngineController.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
+            EngineController.Current.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
             BeginWatch(IsRecursive);
             Debug.WriteLine(this, "Directory initialized");
         }

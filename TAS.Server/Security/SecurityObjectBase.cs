@@ -17,7 +17,7 @@ namespace TAS.Server.Security
         protected SecurityObjectBase(IAuthenticationService authenticationService)
         {
             AuthenticationService = authenticationService;
-            FieldLengths = EngineController.Database.SecurityObjectFieldLengths;
+            FieldLengths = EngineController.Current.Database.SecurityObjectFieldLengths;
         }
 
         public abstract SecurityObjectType SecurityObjectTypeType { get; }

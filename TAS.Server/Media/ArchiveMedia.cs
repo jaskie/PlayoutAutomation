@@ -17,7 +17,7 @@ namespace TAS.Server.Media
         }
 
         [JsonProperty]
-        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ArchiveMediaFieldLengths;
+        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ArchiveMediaFieldLengths;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
         public TIngestStatus IngestStatus
@@ -44,15 +44,15 @@ namespace TAS.Server.Media
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = EngineController.Database.DeleteMedia(this);
+                            result = EngineController.Current.Database.DeleteMedia(this);
                     }
                     else
                     {
                         if (IdPersistentMedia == 0)
-                            result = EngineController.Database.InsertMedia(this, ((ArchiveDirectory)Directory).IdArchive);
+                            result = EngineController.Current.Database.InsertMedia(this, ((ArchiveDirectory)Directory).IdArchive);
                         else if (IsModified)
                         {
-                            EngineController.Database.UpdateMedia(this, ((ArchiveDirectory) Directory).IdArchive);
+                            EngineController.Current.Database.UpdateMedia(this, ((ArchiveDirectory) Directory).IdArchive);
                             result = true;
                         }
                         IsModified = false;

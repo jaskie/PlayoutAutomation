@@ -15,7 +15,7 @@ namespace TAS.Server.Media
         public MediaSegment(IMediaSegments owner)
         {
             Owner = owner;
-            FieldLengths = EngineController.Database.MediaSegmentFieldLengths;
+            FieldLengths = EngineController.Current.Database.MediaSegmentFieldLengths;
         }
 
         public IMediaSegments Owner { get; }
@@ -48,13 +48,13 @@ namespace TAS.Server.Media
 
         public void Save()
         {
-            Id = EngineController.Database.SaveMediaSegment(this);
+            Id = EngineController.Current.Database.SaveMediaSegment(this);
         }
 
         public void Delete()
         {
             if (Owner.Remove(this))
-                EngineController.Database.DeleteMediaSegment(this);
+                EngineController.Current.Database.DeleteMediaSegment(this);
 
         }
 

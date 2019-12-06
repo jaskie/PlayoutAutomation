@@ -58,8 +58,8 @@ namespace TAS.Server.MediaOperation
                     newIngestStatus = TIngestStatus.Unknown;
                     break;
             }
-            if (_sourceMedia is IngestMedia im)
-                im.IngestStatus = newIngestStatus;
+            if (_sourceMedia is IngestMedia im && _sourceMedia.Directory is ServerDirectory serverDirectory)
+                im.NotifyIngestStatus(serverDirectory, newIngestStatus);
             if (_sourceMedia is ArchiveMedia am)
                 am.IngestStatus = newIngestStatus;
         }

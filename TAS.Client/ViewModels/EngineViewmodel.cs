@@ -1010,7 +1010,7 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan SelectedTime
         {
-            get { return TimeSpan.FromTicks(_multiSelectedEvents.Sum(e => e.Event.Duration.Ticks)); }
+            get { return TimeSpan.FromTicks(_multiSelectedEvents.Where(e => e != null).Sum(e => e.Event.Duration.Ticks)); }
         }
 
         public bool IsForcedNext => Engine.ForcedNext != null;

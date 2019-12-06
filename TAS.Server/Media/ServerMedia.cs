@@ -17,11 +17,11 @@ namespace TAS.Server.Media
 
         public ServerMedia() 
         {
-            _isArchivedLazy = new Lazy<bool>(() => Directory is ServerDirectory dir && EngineController.Database.ArchiveContainsMedia(dir.MediaManager.ArchiveDirectory as IArchiveDirectoryProperties, this));
+            _isArchivedLazy = new Lazy<bool>(() => Directory is ServerDirectory dir && EngineController.Current.Database.ArchiveContainsMedia(dir.MediaManager.ArchiveDirectory as IArchiveDirectoryProperties, this));
         }
 
         [JsonProperty]
-        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Database.ServerMediaFieldLengths;
+        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ServerMediaFieldLengths;
 
         [JsonProperty]
         public bool DoNotArchive
@@ -55,17 +55,17 @@ namespace TAS.Server.Media
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = EngineController.Database.DeleteMedia(this);
+                            result = EngineController.Current.Database.DeleteMedia(this);
                     }
                     else
                     {
                         if (directory != null)
                         {
                             if (IdPersistentMedia == 0)
-                                result = EngineController.Database.InsertMedia(this, directory.Server.Id);
+                                result = EngineController.Current.Database.InsertMedia(this, directory.Server.Id);
                             else if (IsModified)
                             {
-                                EngineController.Database.UpdateMedia(this, directory.Server.Id);
+                                EngineController.Current.Database.UpdateMedia(this, directory.Server.Id);
                                 result = true;
                             }
                         }

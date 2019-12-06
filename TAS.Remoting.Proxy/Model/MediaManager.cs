@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
@@ -96,16 +95,6 @@ namespace TAS.Remoting.Model
         }
        
         public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList) { Invoke(parameters: mediaList); }
-
-        public void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LoadIngestDirs()
-        {
-            Invoke();
-        }
 
         public void SynchronizeMediaSecToPri()
         {

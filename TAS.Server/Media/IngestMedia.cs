@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using TAS.FFMpegUtils;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
@@ -11,21 +11,6 @@ namespace TAS.Server.Media
     {
         internal string BmdXmlFile; // Blackmagic's Media Express Xml file containing this media information
         internal StreamInfo[] StreamInfo;
-        private Lazy<TIngestStatus> _ingestStatusLazy;
-        private TIngestStatus? _ingestStatus;
-        public IngestMedia()
-        {
-            _ingestStatusLazy =  new Lazy<TIngestStatus>(() =>
-            {
-                if (!(((IngestDirectory)Directory).MediaManager.MediaDirectoryPRI is ServerDirectory sdir))
-                    return TIngestStatus.Unknown;
-                var media = sdir.FindMediaByMediaGuid(MediaGuid);
-                if (media != null && media.MediaStatus == TMediaStatus.Available)
-                    return TIngestStatus.Ready;
-                return TIngestStatus.Unknown;
-            });
-
-        }
 
         public override bool FileExists()
         {
@@ -35,12 +20,21 @@ namespace TAS.Server.Media
             return base.FileExists();
         }
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
-        public TIngestStatus IngestStatus
+        public TIngestStatus IngestStatus(IServerDirectory directory)
         {
-            get => _ingestStatus ?? _ingestStatusLazy.Value;
-            set => SetField(ref _ingestStatus, value);
+            if (!(directory is ServerDirectory sdir))
+                return TIngestStatus.Unknown;
+            var media = sdir.FindMediaByMediaGuid(MediaGuid);
+            if (media != null && media.MediaStatus == TMediaStatus.Available)
+                return TIngestStatus.Ready;
+            return TIngestStatus.Unknown;
         }
+
+        public void NotifyIngestStatus(IServerDirectory directory, TIngestStatus newStatus)
+        {
+            
+        }
+
 
         public override Stream GetFileStream(bool forWrite)
         {

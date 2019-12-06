@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -118,7 +119,7 @@ namespace TAS.Server.MediaOperation
             {
                 if (!(Source is IngestMedia sourceMedia))
                     throw new ArgumentException("IngestOperation: Source is not of type IngestMedia");
-                sourceMedia.IngestStatus = TIngestStatus.InProgress;
+                sourceMedia.NotifyIngestStatus(DestDirectory as IServerDirectory, TIngestStatus.InProgress);
                 if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
                     using (var localSourceMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(sourceMedia))
                     {
@@ -133,7 +134,7 @@ namespace TAS.Server.MediaOperation
                             var result = DestProperties.MediaType == TMediaType.Still
                                 ? ConvertStill(localSourceMedia)
                                 : await ConvertMovie(localSourceMedia, localSourceMedia.StreamInfo);
-                            sourceMedia.IngestStatus = result ? TIngestStatus.Ready : TIngestStatus.NotReady;
+                            sourceMedia.NotifyIngestStatus(DestDirectory as IServerDirectory, result ? TIngestStatus.Ready : TIngestStatus.NotReady);
                             return result;
                         }
                         finally
@@ -148,12 +149,12 @@ namespace TAS.Server.MediaOperation
                         var result = DestProperties.MediaType == TMediaType.Still
                             ? ConvertStill(sourceMedia)
                             : await ConvertMovie(sourceMedia, sourceMedia.StreamInfo);
-                        sourceMedia.IngestStatus = result ? TIngestStatus.Ready : TIngestStatus.NotReady;
+                        sourceMedia.NotifyIngestStatus(DestDirectory as IServerDirectory, result ? TIngestStatus.Ready : TIngestStatus.NotReady);
                         return result;
                     }
                     else
                         AddOutputMessage(LogLevel.Trace, "Waiting for media to verify");
-                    sourceMedia.IngestStatus = TIngestStatus.Unknown;
+                    sourceMedia.NotifyIngestStatus(DestDirectory as IServerDirectory, TIngestStatus.Unknown);
                     return false;
                 }
             }

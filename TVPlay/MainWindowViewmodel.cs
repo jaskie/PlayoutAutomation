@@ -19,9 +19,11 @@ namespace TAS.Client
             try
             {
                 SplashScreenView.Current?.Notify("Initializing engines...");
-                EngineController.Initialize();
+                EngineController.Current.InitializeEngines();
+                SplashScreenView.Current?.Notify("Loading ingest directories...");
+                EngineController.Current.LoadIngestDirectories();
                 Tabs = new List<ViewModelBase>(
-                    EngineController.Engines.Select(engine =>
+                    EngineController.Current.Engines.Select(engine =>
                     {
                         SplashScreenView.Current?.Notify($"Creating {engine.EngineName}...");
                         return new ChannelViewmodel(engine, true, true);
@@ -55,7 +57,7 @@ namespace TAS.Client
         protected override void OnDispose()
         {
             Tabs.ToList().ForEach(c => c.Dispose());
-            EngineController.ShutDown();
+            EngineController.Current.ShutDown();
         }
     }
 }

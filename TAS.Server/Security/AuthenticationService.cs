@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using jNet.RPC.Server;
 using Newtonsoft.Json;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
 
 namespace TAS.Server.Security
@@ -13,8 +12,10 @@ namespace TAS.Server.Security
         private readonly AcoHive<User> _users;
         private readonly AcoHive<IGroup> _groups;
 
-        public AuthenticationService(List<User> users, List<Group> groups)
+        private AuthenticationService()
         {
+            var users = EngineController.Current.Database.Load<User>();
+            var groups = EngineController.Current.Database.Load<Group>();
             users.ForEach(u =>
             {
                 u.AuthenticationService = this;
@@ -28,6 +29,8 @@ namespace TAS.Server.Security
             _groups = new AcoHive<IGroup>(groups);
             _groups.AcoOperartion += Groups_AcoOperation;
         }
+
+        public static IAuthenticationService Current { get; } = new AuthenticationService();
 
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
         public IEnumerable<IUser> Users => _users.Items;

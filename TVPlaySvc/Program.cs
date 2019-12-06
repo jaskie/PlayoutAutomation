@@ -22,18 +22,19 @@ namespace TVPlaySvc
         protected override void OnStart(string[] args)
         {
             base.OnStart(args);
-            EngineController.Initialize();
+            EngineController.Current.LoadIngestDirectories();
+            EngineController.Current.InitializeEngines();
         }
 
         protected override void OnStop()
         {
-            EngineController.ShutDown();
+            EngineController.Current.ShutDown();
             base.OnStop();
         }
 
         protected static void ExecuteApp(bool userInteractive)
         {
-            EngineController.Initialize();
+            EngineController.Current.InitializeEngines();
             if (userInteractive)
             {
                 try
@@ -69,7 +70,7 @@ namespace TVPlaySvc
                 }
                 finally
                 {
-                    EngineController.ShutDown();
+                    EngineController.Current.ShutDown();
                 }
             }
         }

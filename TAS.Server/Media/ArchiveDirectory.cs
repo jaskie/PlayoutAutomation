@@ -15,12 +15,12 @@ namespace TAS.Server.Media
 
         public IArchiveMedia Find(Guid mediaGuid)
         {
-            return EngineController.Database.ArchiveMediaFind<ArchiveMedia>(this, mediaGuid);
+            return EngineController.Current.Database.ArchiveMediaFind<ArchiveMedia>(this, mediaGuid);
         }
 
         internal void ArchiveSave(ServerMedia media, bool deleteAfterSuccess)
         {
-            var archived = EngineController.Database.ArchiveMediaFind<ArchiveMedia>(this, media.MediaGuid);
+            var archived = EngineController.Current.Database.ArchiveMediaFind<ArchiveMedia>(this, media.MediaGuid);
             if (archived != null)
                 archived.Directory = this;
 
@@ -49,12 +49,12 @@ namespace TAS.Server.Media
 
         public override IMediaSearchProvider Search(TMediaCategory? category, string searchString)
         {
-            return new MediaSearchProvider(EngineController.Database.ArchiveMediaSearch<ArchiveMedia>(this, category, searchString));
+            return new MediaSearchProvider(EngineController.Current.Database.ArchiveMediaSearch<ArchiveMedia>(this, category, searchString));
         }
 
         public void SweepStaleMedia()
         {
-            IEnumerable<IMedia> staleMediaList = EngineController.Database.FindArchivedStaleMedia<ArchiveMedia>(this);
+            IEnumerable<IMedia> staleMediaList = EngineController.Current.Database.FindArchivedStaleMedia<ArchiveMedia>(this);
             foreach (var m in staleMediaList)
                 m.Delete();
         }

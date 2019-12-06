@@ -10,7 +10,6 @@ using TAS.Common;
 using System.Collections.Concurrent;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
@@ -40,7 +39,7 @@ namespace TAS.Server
         private Preview _preview;
 
         [JsonProperty(nameof(AuthenticationService))]
-        private AuthenticationService _authenticationService;
+        private IAuthenticationService _authenticationService;
 
         Thread _engineThread;
         private long _currentTicks;
@@ -75,19 +74,19 @@ namespace TAS.Server
         {
             _engineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
-            _databaseConnectionState = EngineController.Database.ConnectionState;
-            EngineController.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
+            _databaseConnectionState = EngineController.Current.Database.ConnectionState;
+            EngineController.Current.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
             _rights = new Lazy<List<IAclRight>>(() =>
             {
-                var rights = EngineController.Database.ReadEngineAclList<EngineAclRight>(this,
+                var rights = EngineController.Current.Database.ReadEngineAclList<EngineAclRight>(this,
                         AuthenticationService as IAuthenticationServicePersitency);
                 rights.ForEach(r => ((EngineAclRight)r).Saved += AclRight_Saved);
                 return rights;
             });
-            FieldLengths = EngineController.Database.EngineFieldLengths;
-            ServerMediaFieldLengths = EngineController.Database.ServerMediaFieldLengths;
-            ArchiveMediaFieldLengths = EngineController.Database.ArchiveMediaFieldLengths;
-            EventFieldLengths = EngineController.Database.EventFieldLengths;
+            FieldLengths = EngineController.Current.Database.EngineFieldLengths;
+            ServerMediaFieldLengths = EngineController.Current.Database.ServerMediaFieldLengths;
+            ArchiveMediaFieldLengths = EngineController.Current.Database.ArchiveMediaFieldLengths;
+            EventFieldLengths = EngineController.Current.Database.EventFieldLengths;
         }
 
         public event EventHandler<EngineTickEventArgs> EngineTick;
@@ -269,11 +268,11 @@ namespace TAS.Server
             }
         }
 
-        public void Initialize(IList<CasparServer> servers, AuthenticationService authenticationService)
+        public void Initialize(IList<CasparServer> servers)
         {
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Initializing engine {0}", this);
-            _authenticationService = authenticationService;
+            _authenticationService = Security.AuthenticationService.Current;
 
             var recorders = new List<CasparRecorder>();
 
@@ -318,7 +317,7 @@ namespace TAS.Server
             _mediaManager.Initialize();
 
             Debug.WriteLine(this, "Reading Root Events");
-            EngineController.Database.ReadRootEvents(this);
+            EngineController.Current.Database.ReadRootEvents(this);
 
             EngineState = TEngineState.Idle;
             if (CGElementsController != null)
@@ -644,7 +643,7 @@ namespace TAS.Server
                 if (reason.Result != MediaDeleteResult.MediaDeleteResultEnum.Success)
                     return reason;
             }
-            return EngineController.Database.MediaInUse(this, serverMedia);
+            return EngineController.Current.Database.MediaInUse(this, serverMedia);
         }
 
         public IEnumerable<IEvent> GetRootEvents() { lock (_rootEvents.SyncRoot) return _rootEvents.Cast<IEvent>().ToList(); }
@@ -750,7 +749,7 @@ namespace TAS.Server
         {
             if (!CurrentUser.IsAdmin)
                 return;
-            EngineController.Database.SearchMissing(this);
+            EngineController.Current.Database.SearchMissing(this);
         }
 
         #region  IPersistent properties
@@ -1121,7 +1120,7 @@ namespace TAS.Server
             NotifyEngineOperation(aEvent, TEngineOperation.Play);
             if (aEvent.Layer == VideoLayer.Program
                 && (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live))
-                Task.Run(() => EngineController.Database.AsRunLogWrite(Id, aEvent));
+                Task.Run(() => EngineController.Current.Database.AsRunLogWrite(Id, aEvent));
         }
 
         private void _startLoaded()
@@ -1457,7 +1456,7 @@ namespace TAS.Server
                 if (_rights.IsValueCreated)
                     _rights.Value.ForEach(r => ((EngineAclRight) r).Saved -= AclRight_Saved);
             }
-            EngineController.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
+            EngineController.Current.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
             CGElementsController?.Dispose();
             Router?.Dispose();
             Remote?.Dispose();
@@ -1482,7 +1481,7 @@ namespace TAS.Server
             CurrentTime = AlignDateTime(DateTime.UtcNow + TimeSpan.FromMilliseconds(_timeCorrection));
             _currentTicks = CurrentTime.Ticks;
 
-            var playingEvents = EngineController.Database.SearchPlaying(this).Cast<Event>().ToArray();
+            var playingEvents = EngineController.Current.Database.SearchPlaying(this).Cast<Event>().ToArray();
             var playing = playingEvents.FirstOrDefault(e => e.Layer == VideoLayer.Program && (e.EventType == TEventType.Live || e.EventType == TEventType.Movie));
             if (playing != null)
             {

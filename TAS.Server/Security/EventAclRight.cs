@@ -5,15 +5,15 @@
         public override void Save()
         {
             if (Id == default(ulong))
-                EngineController.Database.InsertEventAcl(this);
+                EngineController.Current.Database.InsertEventAcl(this);
             else
-                EngineController.Database.UpdateEventAcl(this);
+                EngineController.Current.Database.UpdateEventAcl(this);
             base.Save();
         }
 
         public override void Delete()
         {
-            EngineController.Database.DeleteEventAcl(this);
+            EngineController.Current.Database.DeleteEventAcl(this);
             Dispose();
         }
     }
