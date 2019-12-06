@@ -81,6 +81,7 @@ namespace TAS.Server
 
         public IEnumerable<ICGElement> Crawls => _crawls;
 
+        [JsonProperty]
         [XmlIgnore]
         public byte Logo
         {
