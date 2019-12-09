@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -32,7 +31,7 @@ namespace TAS.Server.MediaOperation
         private readonly List<MediaExportDescription> _sources = new List<MediaExportDescription>();
         private IMediaProperties _destMediaProperties;
 
-        internal ExportOperation(FileManager fileManager) : base(fileManager)
+        internal ExportOperation()
         {
             TryCount = 1;
         }
@@ -94,7 +93,7 @@ namespace TAS.Server.MediaOperation
                 throw new InvalidOperationException("Can only export to IngestDirectory");
             if (destDirectory.AccessType == TDirectoryAccessType.FTP)
             {
-                using (var localDestMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(Sources.First().Media))
+                using (var localDestMedia = (TempMedia) TempDirectory.Current.CreateMedia(Sources.First().Media))
                 {
                     result = await EncodeToLocalFile(helper, destDirectory, localDestMedia.FullPath);
                     if (result)
@@ -190,10 +189,10 @@ namespace TAS.Server.MediaOperation
                 for (var i = 0; i < localExportDescriptions.Length; i++)
                 {
                     var s = localExportDescriptions[i];
-                    if (s.Media.Directory is IIngestDirectory ingestDirectory &&
+                    if (((MediaBase)s.Media).Directory is IIngestDirectory ingestDirectory &&
                         ingestDirectory.AccessType == TDirectoryAccessType.FTP)
                     {
-                        var localSourceMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(null);
+                        var localSourceMedia = (TempMedia) TempDirectory.Current.CreateMedia(null);
                         tempMediae.Add(localSourceMedia);
                         AddOutputMessage(LogLevel.Trace, $"Copying to local file {localSourceMedia.FullPath}");
                         localSourceMedia.PropertyChanged += (source, ea) =>

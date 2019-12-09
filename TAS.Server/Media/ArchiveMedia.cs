@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using TAS.Common;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
     public class ArchiveMedia : PersistentMedia, Common.Database.Interfaces.Media.IArchiveMedia
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        private TIngestStatus _ingestStatus;
 
         ~ArchiveMedia()
         {
@@ -19,19 +19,20 @@ namespace TAS.Server.Media
         [JsonProperty]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ArchiveMediaFieldLengths;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
-        public TIngestStatus IngestStatus
+
+        public TIngestStatus GetIngestStatus(IServerDirectory directory)
         {
-            get
-            {
-                if (_ingestStatus != TIngestStatus.Unknown) return _ingestStatus;
-                var sdir = (Directory as MediaDirectoryBase)?.MediaManager.MediaDirectoryPRI as ServerDirectory;
-                var media = sdir?.FindMediaByMediaGuid(MediaGuid);
-                if (media != null && media.MediaStatus == TMediaStatus.Available)
-                    _ingestStatus = TIngestStatus.Ready;
-                return _ingestStatus;
-            }
-            set => SetField(ref _ingestStatus, value);
+            if (!(Directory is ServerDirectory sdir))
+                return TIngestStatus.Unknown;
+            var media = sdir.FindMediaByMediaGuid(MediaGuid);
+            if (media != null && media.MediaStatus == TMediaStatus.Available)
+                return TIngestStatus.Ready;
+            return TIngestStatus.Unknown;
+        }
+
+        public void NotifyIngestStatus(IServerDirectory directory, TIngestStatus newStatus)
+        {
+
         }
 
         public override bool Save()

@@ -21,11 +21,10 @@ namespace TAS.Server.Media
 
         public bool IsPrimary { get; }
 
-        public override void Initialize(MediaManager mediaManager)
+        public override void Initialize()
         {
             if (IsInitialized)
                 return;
-            base.Initialize(mediaManager);
             EngineController.Current.Database.LoadAnimationDirectory<AnimatedMedia>(this, Server.Id);
             BeginWatch(false);
             Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");

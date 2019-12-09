@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using jNet.RPC.Server;
 using Newtonsoft.Json;
 using TAS.Common.Interfaces;
-using TAS.Server.Media;
 using TAS.Common;
-using TAS.Common.Interfaces.Media;
-using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.MediaOperation;
 
 namespace TAS.Server
@@ -21,12 +18,11 @@ namespace TAS.Server
         private readonly FileOperationQueue _queueSimpleOperation = new FileOperationQueue();
         private readonly FileOperationQueue _queueConvertOperation = new FileOperationQueue();
         private readonly FileOperationQueue _queueExportOperation = new FileOperationQueue();
-        internal readonly TempDirectory TempDirectory;
-        internal double ReferenceLoudness;
 
-        internal FileManager(TempDirectory tempDirectory)
+        public static FileManager Current { get; } = new FileManager();
+
+        private FileManager()
         {
-            TempDirectory = tempDirectory;
             _queueSimpleOperation.OperationCompleted += _queue_OperationCompleted;
             _queueConvertOperation.OperationCompleted += _queue_OperationCompleted;
             _queueExportOperation.OperationCompleted += _queue_OperationCompleted;
@@ -54,17 +50,17 @@ namespace TAS.Server
             switch (kind)
             {
                 case TFileOperationKind.Copy:
-                    return new CopyOperation(this);
+                    return new CopyOperation();
                 case TFileOperationKind.Delete:
-                    return new DeleteOperation(this);
+                    return new DeleteOperation();
                 case TFileOperationKind.Export:
-                    return new ExportOperation(this);
+                    return new ExportOperation();
                 case TFileOperationKind.Ingest:
-                    return new IngestOperation(this);
+                    return new IngestOperation();
                 case TFileOperationKind.Loudness:
-                    return new LoudnessOperation(this);
+                    return new LoudnessOperation();
                 case TFileOperationKind.Move:
-                    return new MoveOperation(this);
+                    return new MoveOperation();
                 default:
                     throw new ArgumentException(nameof(kind));
             }

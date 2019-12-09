@@ -8,13 +8,11 @@ using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Server.Media;
-using LogLevel = NLog.LogLevel;
 
 namespace TAS.Server.MediaOperation
 {
     public class LoudnessOperation : FileOperationBase, ILoudnessOperation
     {
-
         private static readonly string lLufsPattern = @"    I:\s*-?\d*\.?\d* LUFS";
         private static readonly string lPeakPattern = @"    Peak:\s*-?\d*\.?\d* dBFS";
         private static readonly string LufsPattern = @"-?\d+\.\d";
@@ -31,7 +29,7 @@ namespace TAS.Server.MediaOperation
         private bool _samplePeakMeasured;
         private IMedia _source;
 
-        public LoudnessOperation(FileManager ownerFileManager) : base(ownerFileManager)
+        public LoudnessOperation()
         {
             TryCount = 1;
         }
@@ -59,7 +57,7 @@ namespace TAS.Server.MediaOperation
                 throw new ArgumentException("LoudnessOperation: Source is not of type MediaBase");
             if (source.Directory is IngestDirectory directory &&
                 directory.AccessType != TDirectoryAccessType.Direct)
-                using (var localSourceMedia = (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(source))
+                using (var localSourceMedia = (TempMedia) TempDirectory.Current.CreateMedia(source))
                 {
                     if (!await source.CopyMediaTo(localSourceMedia, CancellationTokenSource.Token))
                         return false;
@@ -118,7 +116,7 @@ namespace TAS.Server.MediaOperation
                 }
                 if (_samplePeakMeasured && _loudnessMeasured)
                 {
-                    var volume = -Math.Max(_loudness - OwnerFileManager.ReferenceLoudness, _samplePeak); // prevents automatic amplification over 0dBFS
+                    var volume = -Math.Max(_loudness - EngineController.Current.ReferenceLoudnessLevel, _samplePeak); // prevents automatic amplification over 0dBFS
                     var h = AudioVolumeMeasured;
                     if (h == null)
                     {
@@ -130,7 +128,7 @@ namespace TAS.Server.MediaOperation
                     else
                         h(this, new AudioVolumeEventArgs(volume));
                 }
-                AddOutputMessage(LogLevel.Trace, outLine);
+                AddOutputMessage(NLog.LogLevel.Trace, outLine);
             }
         }
 

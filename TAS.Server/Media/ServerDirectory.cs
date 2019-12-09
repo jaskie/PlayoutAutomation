@@ -38,11 +38,10 @@ namespace TAS.Server.Media
 
         public TMovieContainerFormat MovieContainerFormat { get; }
 
-        public override void Initialize(MediaManager mediaManager = null)
+        public override void Initialize()
         {
             if (IsInitialized)
                 return;
-            MediaManager = mediaManager;
             EngineController.Current.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
             BeginWatch(IsRecursive);
             Debug.WriteLine(this, "Directory initialized");

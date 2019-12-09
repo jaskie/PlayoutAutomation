@@ -18,10 +18,6 @@ namespace TAS.Server.MediaOperation
 
         private IMedia _sourceMedia;
 
-        internal MoveOperation(FileManager ownerFileManager): base(ownerFileManager)
-        {
-        }
-       
         [JsonProperty]
         public IMediaDirectory DestDirectory { get; set; }
 
@@ -69,7 +65,7 @@ namespace TAS.Server.MediaOperation
                     && source.FileSize.Equals(Dest.FileSize))
                 {
                     source.Delete();
-                    ((MediaDirectoryBase)Source.Directory).RefreshVolumeInfo();
+                    ((MediaDirectoryBase)source.Directory).RefreshVolumeInfo();
                     return true;
                 }
                 else if (!Dest.Delete())
@@ -87,8 +83,8 @@ namespace TAS.Server.MediaOperation
                 File.SetLastWriteTimeUtc(Dest.FullPath, File.GetLastWriteTimeUtc(source.FullPath));
                 Dest.MediaStatus = TMediaStatus.Copied;
                 await Task.Run(() => Dest.Verify(false));
-                ((MediaDirectoryBase) Source.Directory).RefreshVolumeInfo();
-                ((MediaDirectoryBase) DestDirectory).RefreshVolumeInfo();
+                ((MediaDirectoryBase)source.Directory).RefreshVolumeInfo();
+                ((MediaDirectoryBase)DestDirectory).RefreshVolumeInfo();
                 AddOutputMessage(LogLevel.Info, "Move operation completed");
                 return true;
             }

@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
-using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.FtpClient;
 using System.Xml.Serialization;
 using TAS.Common.Database;
 using TAS.Common.Database.Interfaces;
+using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 
 namespace TAS.Server
@@ -14,8 +15,13 @@ namespace TAS.Server
     public class EngineController
     {
 
+        private readonly double _referenceLoudnessLevel;
+
         private EngineController()
-        { }
+        {
+            if (!double.TryParse(ConfigurationManager.AppSettings["ReferenceLoudnessLevel"], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out _referenceLoudnessLevel))
+                _referenceLoudnessLevel = -23;
+        }
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -27,14 +33,20 @@ namespace TAS.Server
 
         public List<Engine> Engines { get; private set; }
 
+        public ArchiveDirectory[] ArchiveDirectories { get; private set; }
+
         public IDatabase Database { get; private set; }
+
+        public double ReferenceLoudnessLevel => _referenceLoudnessLevel;
 
         public void InitializeEngines()
         {
             FtpTrace.AddListener(new NLog.NLogTraceListener());
             Logger.Info("Engines initializing");
-            ConnectionStringSettings connectionStringPrimary = ConfigurationManager.ConnectionStrings["tasConnectionString"];
-            ConnectionStringSettings connectionStringSecondary = ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
+            ConnectionStringSettings connectionStringPrimary =
+                ConfigurationManager.ConnectionStrings["tasConnectionString"];
+            ConnectionStringSettings connectionStringSecondary =
+                ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
             Database = DatabaseProviderLoader.LoadDatabaseProvider();
             Logger.Debug("Connecting to database");
             Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
@@ -48,7 +60,39 @@ namespace TAS.Server
             Engines = Database.LoadEngines<Engine>(ulong.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (var e in Engines)
                 e.Initialize(Servers);
+            InitializeMediaDirectories();
+            LoadArchiveDirectories();
+            foreach (var e in Engines)
+                ((MediaManager) e.MediaManager).Initialize(
+                    ArchiveDirectories.FirstOrDefault(a => a.IdArchive == e.IdArchive));
             Logger.Debug("Engines initialized");
+        }
+
+        private void InitializeMediaDirectories()
+        {
+            var initalizationList = new List<IMediaDirectory>();
+            foreach (var mediaManager in Engines.Select(e => e.MediaManager))
+            {
+                if (mediaManager.MediaDirectoryPRI != null && !initalizationList.Contains(mediaManager.MediaDirectoryPRI))
+                    initalizationList.Add(mediaManager.MediaDirectoryPRI);
+                if (mediaManager.MediaDirectorySEC != null && !initalizationList.Contains(mediaManager.MediaDirectorySEC))
+                    initalizationList.Add(mediaManager.MediaDirectorySEC);
+                if (mediaManager.MediaDirectoryPRV != null && !initalizationList.Contains(mediaManager.MediaDirectoryPRV))
+                    initalizationList.Add(mediaManager.MediaDirectoryPRV);
+            }
+            foreach (var mediaDirectory in initalizationList)
+            {
+                if (mediaDirectory is ServerDirectory serverDirectory)
+                    serverDirectory.Initialize();
+            }
+        }
+
+        private void LoadArchiveDirectories()
+        {
+            ArchiveDirectories = Engines.Where(e => e.IdArchive > 0)
+                .Select(e => Database.LoadArchiveDirectory<ArchiveDirectory>(e.IdArchive)).ToArray();
+            foreach (var archiveDirectory in ArchiveDirectories)
+                archiveDirectory?.RefreshVolumeInfo();
         }
 
         public void LoadIngestDirectories()

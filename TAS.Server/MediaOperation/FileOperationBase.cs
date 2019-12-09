@@ -26,14 +26,8 @@ namespace TAS.Server.MediaOperation
         private bool _isIndeterminate;
         private readonly List<string> _operationOutput = new List<string>();
         private readonly List<string> _operationWarning = new List<string>();
-        protected FileManager OwnerFileManager;
         protected readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
         private bool _isAborted;
-
-        internal FileOperationBase(FileManager ownerFileManager)
-        {
-            OwnerFileManager = ownerFileManager;
-        }
 
         [JsonProperty]
         public int TryCount

@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -37,7 +36,7 @@ namespace TAS.Server.MediaOperation
         private IMediaProperties _destProperties;
         private IMediaDirectory _destDirectory;
 
-        internal IngestOperation(FileManager ownerFileManager) : base(ownerFileManager)
+        internal IngestOperation()
         {
             _aspectConversion = TAspectConversion.NoConversion;
             _sourceFieldOrderEnforceConversion = TFieldOrder.Unknown;
@@ -121,7 +120,7 @@ namespace TAS.Server.MediaOperation
                     throw new ArgumentException("IngestOperation: Source is not of type IngestMedia");
                 sourceMedia.NotifyIngestStatus(DestDirectory as IServerDirectory, TIngestStatus.InProgress);
                 if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
-                    using (var localSourceMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(sourceMedia))
+                    using (var localSourceMedia = (TempMedia)TempDirectory.Current.CreateMedia(sourceMedia))
                     {
                         try
                         {
@@ -225,12 +224,10 @@ namespace TAS.Server.MediaOperation
                 filters.Add(conversion.FFMpegFilter);
         }
 
-        private string GetEncodeParameters(MediaBase inputMedia, StreamInfo[] inputStreams)
+        private string GetEncodeParameters(IngestDirectory sourceDir, MediaBase inputMedia, StreamInfo[] inputStreams)
         {
             var videoFilters = new List<string>();
             var ep = new StringBuilder();
-            if (!(Source.Directory is IngestDirectory sourceDir))
-                return string.Empty;
             #region Video
             ep.AppendFormat(" -c:v {0}", sourceDir.VideoCodec);
             if (sourceDir.VideoCodec == TVideoCodec.copy)
@@ -266,7 +263,7 @@ namespace TAS.Server.MediaOperation
                     else
                         videoFilters.Add("w3fdif");
                 }
-                var additionalEncodeParams = ((IngestDirectory)Source.Directory).EncodeParams;
+                var additionalEncodeParams = sourceDir.EncodeParams;
                 if (!string.IsNullOrWhiteSpace(additionalEncodeParams))
                     ep.Append(" ").Append(additionalEncodeParams.Trim());
             }
@@ -354,7 +351,9 @@ namespace TAS.Server.MediaOperation
 
         private bool IsTrimmed()
         {
-            return Trim && Duration > TimeSpan.Zero && ((IngestDirectory)Source.Directory).VideoCodec != TVideoCodec.copy;
+            if (!(Source is MediaBase mediaBase && mediaBase.Directory is IngestDirectory ingestDirectory))
+                throw new ApplicationException("Media not belongs to IngestDirectory");
+            return Trim && Duration > TimeSpan.Zero && ingestDirectory.VideoCodec != TVideoCodec.copy;
         }
 
         private async Task<bool> ConvertMovie(MediaBase localSourceMedia, StreamInfo[] streams)
@@ -370,7 +369,9 @@ namespace TAS.Server.MediaOperation
                 return false;
             var helper = new FFMpegHelper(this, localSourceMedia.Duration);
             destMedia.MediaStatus = TMediaStatus.Copying;
-            var encodeParams = GetEncodeParameters(localSourceMedia, streams);
+            if (!(Source is MediaBase mediaBase && mediaBase.Directory is IngestDirectory ingestDirectory))
+                throw new ApplicationException("Media not belongs to IngestDirectory");
+            var encodeParams = GetEncodeParameters(ingestDirectory, localSourceMedia, streams);
             var ingestRegion = IsTrimmed() ? string.Format(CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - Source.TcStart, Duration) : string.Empty;
             var Params = string.Format(CultureInfo.InvariantCulture,
                 " -i \"{1}\"{0} -vsync cfr{2} -timecode {3} -y \"{4}\"",
@@ -398,19 +399,19 @@ namespace TAS.Server.MediaOperation
                 }
                 else
                 {
-                    if (Source.Directory is IngestDirectory directory && directory.DeleteSource)
+                    if (ingestDirectory.DeleteSource)
                         ThreadPool.QueueUserWorkItem(o =>
                        {
                            Thread.Sleep(2000);
-                           OwnerFileManager.Queue(new DeleteOperation(OwnerFileManager) { Source = Source });
+                           FileManager.Current.Queue(new DeleteOperation { Source = Source });
                        });
                 }
                 if (LoudnessCheck)
                 {
-                    ThreadPool.QueueUserWorkItem((o) =>
+                    ThreadPool.QueueUserWorkItem(o =>
                     {
                         Thread.Sleep(2000);
-                        OwnerFileManager.Queue(new LoudnessOperation(OwnerFileManager) { Source = destMedia });
+                        FileManager.Current.Queue(new LoudnessOperation { Source = destMedia });
                     });
                 }
                 return true;

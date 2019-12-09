@@ -16,10 +16,6 @@ namespace TAS.Server.MediaOperation
 
         private IMedia _sourceMedia;
 
-        internal CopyOperation(FileManager ownerFileManager) : base(ownerFileManager)
-        {
-        }
-       
         [JsonProperty]
         public IMediaDirectory DestDirectory { get; set; }
 
@@ -58,10 +54,13 @@ namespace TAS.Server.MediaOperation
                     newIngestStatus = TIngestStatus.Unknown;
                     break;
             }
-            if (_sourceMedia is IngestMedia im && _sourceMedia.Directory is ServerDirectory serverDirectory)
-                im.NotifyIngestStatus(serverDirectory, newIngestStatus);
-            if (_sourceMedia is ArchiveMedia am)
-                am.IngestStatus = newIngestStatus;
+            if (_sourceMedia is MediaBase mediaBase && mediaBase.Directory is ServerDirectory serverDirectory)
+            {
+                if (_sourceMedia is IngestMedia im)
+                    im.NotifyIngestStatus(serverDirectory, newIngestStatus);
+                if (_sourceMedia is ArchiveMedia am)
+                    am.NotifyIngestStatus(serverDirectory, newIngestStatus);
+            }
         }
 
         public override void Abort()

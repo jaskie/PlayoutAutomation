@@ -12,10 +12,6 @@ namespace TAS.Server.MediaOperation
 
         private IMedia _source;
 
-        internal DeleteOperation(FileManager ownerFileManager): base(ownerFileManager)
-        {
-        }
-       
         [JsonProperty]
         public IMedia Source { get => _source; set => SetField(ref _source, value); }
 
@@ -31,8 +27,8 @@ namespace TAS.Server.MediaOperation
                 return false;
             return await Task.Run(() =>
             {
-                if (!Source.Delete()) return false;
-                ((MediaDirectoryBase) Source.Directory).RefreshVolumeInfo();
+                if (!source.Delete()) return false;
+                (source.Directory as MediaDirectoryBase)?.RefreshVolumeInfo();
                 return true;
             });
         }

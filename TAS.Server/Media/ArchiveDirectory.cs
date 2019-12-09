@@ -26,17 +26,12 @@ namespace TAS.Server.Media
 
             if (deleteAfterSuccess && archived?.FileExists() == true)
             {
-                MediaManager.FileManager.Queue(
-                    new DeleteOperation((FileManager) MediaManager.FileManager) {Source = media});
+                FileManager.Current.Queue(
+                    new DeleteOperation {Source = media});
                 return;
             }
             if (archived?.FileExists() != true)
                 _archiveCopy(media, this, deleteAfterSuccess);
-        }
-
-        internal void Initialize(MediaManager mediaManager)
-        {
-            MediaManager = mediaManager;
         }
 
         public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory)
@@ -66,8 +61,7 @@ namespace TAS.Server.Media
             am.MediaStatus = TMediaStatus.Deleted;
             am.IsVerified = false;
             am.Save();
-            if (((ServerDirectory) MediaManager.MediaDirectoryPRI)?.FindMediaByMediaGuid(am.MediaGuid) is ServerMedia mediaPgm)
-                mediaPgm.IsArchived = false;
+            //TODO: notify ServerDirectory
             base.RemoveMedia(media);
         }
 
@@ -101,13 +95,12 @@ namespace TAS.Server.Media
 
         private void _archiveCopy(IMedia fromMedia, IMediaDirectory destDirectory, bool deleteAfterSuccess)
         {
-            var fileManager = (FileManager)MediaManager.FileManager;
-            FileOperationBase operation = deleteAfterSuccess
-                ? (FileOperationBase) new MoveOperation(fileManager) {Source = fromMedia, DestDirectory = destDirectory}
-                : new CopyOperation(fileManager) {Source = fromMedia, DestDirectory = destDirectory};
+            var operation = deleteAfterSuccess
+                ? (FileOperationBase) new MoveOperation {Source = fromMedia, DestDirectory = destDirectory}
+                : new CopyOperation {Source = fromMedia, DestDirectory = destDirectory};
             operation.Success += _archiveCopy_success;
             operation.Failure += _archiveCopy_failure;
-            MediaManager.FileManager.Queue(operation);
+            FileManager.Current.Queue(operation);
         }
 
         private void _archiveCopy_failure(object sender, EventArgs e)
@@ -122,8 +115,11 @@ namespace TAS.Server.Media
         {
             if (!(sender is FileOperationBase operation))
                 return;
-            if (sender is CopyOperation copyOperation &&  copyOperation.Source is ServerMedia serverMedia)
-                serverMedia.IsArchived = true;
+            if (sender is CopyOperation copyOperation && copyOperation.Source is ServerMedia serverMedia)
+            {
+                // TODO: notify serverMedia
+                //serverMedia.IsArchived = true;
+            }
             operation.Success -= _archiveCopy_success;
             operation.Failure -= _archiveCopy_failure;
         }

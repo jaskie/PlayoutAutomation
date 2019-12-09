@@ -12,7 +12,9 @@ namespace TAS.Server.Media
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public TempDirectory()
+        public static TempDirectory Current { get; } = new TempDirectory();
+
+        private TempDirectory()
         {
             Folder = ConfigurationManager.AppSettings["TempDirectory"];
             SweepStaleMedia();

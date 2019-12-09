@@ -1,8 +1,10 @@
-﻿namespace TAS.Common.Interfaces.Media
+﻿using TAS.Common.Interfaces.MediaDirectory;
+
+namespace TAS.Common.Interfaces.Media
 {
     public interface IServerMedia: IPersistentMedia, IServerMediaProperties
     {
-        bool IsArchived { get; }
+        bool GetIsArchived(IArchiveDirectoryProperties directory);
     }
 
     public interface IServerMediaProperties: IPersistentMediaProperties

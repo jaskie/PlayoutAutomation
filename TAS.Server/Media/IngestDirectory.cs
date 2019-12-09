@@ -32,9 +32,8 @@ namespace TAS.Server.Media
 
         public bool DeleteSource { get; set; }
 
-        public void Initialize()
+        public override void Initialize()
         {
-            base.Initialize();
             if (!string.IsNullOrWhiteSpace(Folder))
             {
                 if (Folder.StartsWith("ftp://"))
@@ -222,10 +221,10 @@ namespace TAS.Server.Media
         {
             if (AccessType != TDirectoryAccessType.FTP)
                 return base.DeleteMedia(media);
-            if (media.Directory != this)
+            if (!(media is MediaBase mediaBase) || mediaBase.Directory != this)
                 throw new ApplicationException("Media does not belong to the directory");
             var client = GetFtpClient();
-            var uri = new Uri(((MediaBase)media).FullPath);
+            var uri = new Uri(mediaBase.FullPath);
             try
             {
                 client.DeleteFile(uri.LocalPath);

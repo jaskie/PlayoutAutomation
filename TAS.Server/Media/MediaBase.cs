@@ -219,7 +219,6 @@ namespace TAS.Server.Media
             }
         }
 
-        [JsonProperty]
         public IMediaDirectory Directory { get; internal set; }
 
         #endregion //IMediaProperties
@@ -362,8 +361,8 @@ namespace TAS.Server.Media
 
         public void GetLoudness()
         {
-            ((MediaDirectoryBase)Directory).MediaManager.FileManager.Queue(
-                new LoudnessOperation((FileManager)((WatcherDirectory)Directory).MediaManager.FileManager)
+            FileManager.Current.Queue(
+                new LoudnessOperation
                 {
                     Source = this,
                     MeasureStart = TcPlay - TcStart,

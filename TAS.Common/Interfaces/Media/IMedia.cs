@@ -6,7 +6,6 @@ namespace TAS.Common.Interfaces.Media
 {
     public interface IMedia: IMediaProperties, INotifyPropertyChanged
     {
-        IMediaDirectory Directory { get; }
         bool FileExists();
         bool Delete();
         bool IsVerified { get; }

@@ -1,7 +1,9 @@
-﻿namespace TAS.Common.Interfaces.Media
+﻿using TAS.Common.Interfaces.MediaDirectory;
+
+namespace TAS.Common.Interfaces.Media
 {
     public interface IArchiveMedia: IPersistentMedia
     {
-        TIngestStatus IngestStatus { get; }
+        TIngestStatus GetIngestStatus(IServerDirectory directory);
     }
 }

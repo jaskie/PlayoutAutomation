@@ -49,12 +49,8 @@ namespace TAS.Server.Media
             get => _isInitialized;
             protected set => SetField(ref _isInitialized, value);
         }
-        
-        public virtual void Initialize(MediaManager mediaManager = null)
-        {
-            if (mediaManager != null)
-                MediaManager = mediaManager;
-        }
+
+        public abstract void Initialize();
 
         public virtual void UnInitialize()
         {
@@ -71,7 +67,7 @@ namespace TAS.Server.Media
 
         internal override bool DeleteMedia(IMedia media)
         {
-            if (media.Directory != this) 
+            if (!(media is MediaBase mediaBase) ||  mediaBase.Directory != this) 
                 throw new ApplicationException("Deleting media directory is invalid");
             var fullPath = ((MediaBase)media).FullPath;
             bool isLastWithTheName;

@@ -7,7 +7,6 @@ using jNet.RPC.Server;
 using Newtonsoft.Json;
 using NLog;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 
@@ -29,9 +28,6 @@ namespace TAS.Server.Media
 
         [JsonProperty, XmlIgnore]
         public bool HaveFileWatcher { get; protected set; }
-
-        [XmlIgnore]
-        public IMediaManager MediaManager { get; set; }
 
         [XmlIgnore, JsonProperty]
         public virtual long VolumeFreeSize

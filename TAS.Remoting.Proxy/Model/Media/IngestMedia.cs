@@ -9,7 +9,7 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IIngestMedia.IngestStatus))]
+        [JsonProperty(nameof(IIngestMedia.GetIngestStatus))]
         private TIngestStatus _ingestStatus;
 
         private readonly Lazy<TIngestStatus> _ingestStatusLazy;

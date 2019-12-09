@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
@@ -12,13 +11,6 @@ namespace TAS.Server.Media
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private bool _doNotArchive;
-        private readonly Lazy<bool> _isArchivedLazy;
-        private bool? _isArchived;
-
-        public ServerMedia() 
-        {
-            _isArchivedLazy = new Lazy<bool>(() => Directory is ServerDirectory dir && EngineController.Current.Database.ArchiveContainsMedia(dir.MediaManager.ArchiveDirectory as IArchiveDirectoryProperties, this));
-        }
 
         [JsonProperty]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ServerMediaFieldLengths;
@@ -30,11 +22,9 @@ namespace TAS.Server.Media
             set => SetField(ref _doNotArchive, value);
         }
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Collapsed)]
-        public bool IsArchived
+        public bool GetIsArchived(IArchiveDirectoryProperties directory)
         {
-            get => _isArchived ?? _isArchivedLazy.Value;
-            set => SetField(ref _isArchived, value);
+            return EngineController.Current.Database.ArchiveContainsMedia(directory, this);
         }
 
         internal override void CloneMediaProperties(IMediaProperties fromMedia)

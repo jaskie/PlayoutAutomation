@@ -792,7 +792,6 @@ namespace TAS.Client.ViewModels
         public bool IsSearchNotFound { get => _isSearchNotFound; set => SetField(ref _isSearchNotFound, value); }
 
         private string _searchText;
-        private bool _isRundownFocused;
 
         public string SearchText
         {

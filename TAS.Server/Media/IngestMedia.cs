@@ -20,7 +20,7 @@ namespace TAS.Server.Media
             return base.FileExists();
         }
 
-        public TIngestStatus IngestStatus(IServerDirectory directory)
+        public TIngestStatus GetIngestStatus(IServerDirectory directory)
         {
             if (!(directory is ServerDirectory sdir))
                 return TIngestStatus.Unknown;

@@ -314,8 +314,6 @@ namespace TAS.Server
                 chPRI.Owner.PropertyChanged += _server_PropertyChanged;
             }
 
-            _mediaManager.Initialize();
-
             Debug.WriteLine(this, "Reading Root Events");
             EngineController.Current.Database.ReadRootEvents(this);
 
