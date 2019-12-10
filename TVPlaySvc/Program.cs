@@ -22,8 +22,7 @@ namespace TVPlaySvc
         protected override void OnStart(string[] args)
         {
             base.OnStart(args);
-            EngineController.Current.LoadIngestDirectories();
-            EngineController.Current.InitializeEngines();
+            StartUp();
         }
 
         protected override void OnStop()
@@ -32,9 +31,15 @@ namespace TVPlaySvc
             base.OnStop();
         }
 
-        protected static void ExecuteApp(bool userInteractive)
+        private static void StartUp()
         {
             EngineController.Current.InitializeEngines();
+            EngineController.Current.LoadIngestDirectories();
+        }
+
+        protected static void ExecuteApp(bool userInteractive)
+        {
+            StartUp();
             if (userInteractive)
             {
                 try
