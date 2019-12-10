@@ -7,6 +7,7 @@ using System.Windows.Data;
 using System.Windows;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.Dynamic;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
@@ -67,7 +68,10 @@ namespace TAS.Client.ViewModels
             if (serverDirectorySec != null && serverDirectorySec != serverDirectoryPri)
                 MediaDirectories.Insert(0, new MediaDirectoryViewmodel(serverDirectorySec, resources._secondary));
             if (serverDirectoryPri != null)
+            {
                 MediaDirectories.Insert(0, new MediaDirectoryViewmodel(serverDirectoryPri, resources._primary));
+                serverDirectoryPri.IngestStatusUpdated += ServerDirectoryPri_IngestStatusUpdated;
+            }
 
             _mediaCategory = MediaCategories.FirstOrDefault();
             SelectedDirectory = MediaDirectories.FirstOrDefault();
@@ -320,6 +324,8 @@ namespace TAS.Client.ViewModels
                 RecordersViewmodel.PropertyChanged -= RecordersViewmodel_PropertyChanged;
             if (_mediaManager.ArchiveDirectory != null)
                 _mediaManager.ArchiveDirectory.MediaIsArchived -= ArchiveDirectory_MediaIsArchived;
+            if (_mediaManager.MediaDirectoryPRI != null)
+                _mediaManager.MediaDirectoryPRI.IngestStatusUpdated -= ServerDirectoryPri_IngestStatusUpdated;
         }
 
         // private methods
@@ -525,7 +531,7 @@ namespace TAS.Client.ViewModels
         {
             var newItems = items == null
                 ? new ObservableCollection<MediaViewViewmodel>()
-                : new ObservableCollection<MediaViewViewmodel>(items.Select(f => new MediaViewViewmodel(f) {IsArchived = _mediaManager.ArchiveDirectory?.ContainsMedia(f.MediaGuid) ?? false}));
+                : new ObservableCollection<MediaViewViewmodel>(items.Select(CreateMediaViewViewmodel));
             var oldMediaItems = _mediaItems;
             _mediaItems = newItems;
             if (oldMediaItems != null)
@@ -543,8 +549,19 @@ namespace TAS.Client.ViewModels
 
         private void AddMediaToItems(IMedia media)
         {
-            _mediaItems?.Add(new MediaViewViewmodel(media));
+            _mediaItems?.Add(CreateMediaViewViewmodel(media));
             NotifyDirectoryPropertiesChanged();
+        }
+
+        private MediaViewViewmodel CreateMediaViewViewmodel(IMedia media)
+        {
+            return new MediaViewViewmodel(media)
+            {
+                IsArchived = _mediaManager.ArchiveDirectory?.ContainsMedia(media.MediaGuid) ?? false,
+                IngestStatus = media is IIngestMedia ingestMedia && _mediaManager.MediaDirectoryPRI != null
+                    ? ingestMedia.GetIngestStatus(_mediaManager.MediaDirectoryPRI)
+                    : TIngestStatus.Unknown
+            };
         }
 
         private void SelectedDirectory_MediaAdded(object source, MediaEventArgs e)
@@ -764,7 +781,15 @@ namespace TAS.Client.ViewModels
             vm.IsArchived = e.IsArchived;
         }
 
-
+        private void ServerDirectoryPri_IngestStatusUpdated(object sender, MediaIngestStatusEventArgs e)
+        {
+            if (e.Media.Directory != _selectedDirectory.Directory)
+                return;
+            var vm = _mediaItems?.FirstOrDefault(m => m.Media == e.Media);
+            if (vm == null)
+                return;
+            vm.IngestStatus = e.IngestStatus;
+        }
 
     }
 }

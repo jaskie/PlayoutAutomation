@@ -27,7 +27,7 @@ namespace TAS.Client
         protected override void OnClosing(CancelEventArgs e)
         {
 #if DEBUG == false
-            int connectedClientCount = EngineController.GetConnectedClientCount();
+            int connectedClientCount = EngineController.Current.GetConnectedClientCount();
             e.Cancel = !((App)Application.Current).IsShutdown
                        && (MessageBox.Show(resources._query_ExitApplication, resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes
                            || (connectedClientCount > 0 && MessageBox.Show(string.Format(resources._query_ClientsConnectedOnExit, connectedClientCount), resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes));

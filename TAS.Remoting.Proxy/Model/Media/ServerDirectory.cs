@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using jNet.RPC;
+using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.MediaDirectory;
 
@@ -13,12 +15,37 @@ namespace TAS.Remoting.Model.Media
         [JsonProperty(nameof(IServerDirectory.MovieContainerFormat))]
         private readonly TMovieContainerFormat _movieContainerFormat;
 
-
-
 #pragma warning restore
 
         public TMovieContainerFormat MovieContainerFormat => _movieContainerFormat;
 
+        private event EventHandler<MediaIngestStatusEventArgs> IngestStatusUpdatedEvent;
+
+        public event EventHandler<MediaIngestStatusEventArgs> IngestStatusUpdated
+        {
+            add
+            {
+                EventAdd(IngestStatusUpdatedEvent);
+                IngestStatusUpdatedEvent += value;
+            }
+            remove
+            {
+                IngestStatusUpdatedEvent -= value;
+                EventRemove(IngestStatusUpdatedEvent);
+            }
+        }
+
         public bool IsRecursive => _isRecursive;
+
+        protected override void OnEventNotification(SocketMessage message)
+        {
+            base.OnEventNotification(message);
+            switch (message.MemberName)
+            {
+                case nameof(IngestStatusUpdated):
+                    IngestStatusUpdatedEvent?.Invoke(this, Deserialize<MediaIngestStatusEventArgs>(message));
+                    break;
+            }
+        }
     }
 }

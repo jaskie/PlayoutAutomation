@@ -335,7 +335,6 @@ namespace TAS.Server.Media
             }
             base.AddMedia(media);
         }
-
         
         public override IMediaSearchProvider Search(TMediaCategory? category, string searchString)
         {
@@ -343,7 +342,7 @@ namespace TAS.Server.Media
                 return base.Search(category, searchString);
             return new MediaSearchProvider(SearchForMediaForProvider(category, Folder, searchString));
         }
-        
+
         protected override void OnError(object source, ErrorEventArgs e)
         {
             base.OnError(source, e);

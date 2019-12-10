@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using TAS.FFMpegUtils;
 using TAS.Common;
@@ -30,9 +31,10 @@ namespace TAS.Server.Media
             return TIngestStatus.Unknown;
         }
 
-        public void NotifyIngestStatus(IServerDirectory directory, TIngestStatus newStatus)
+        public void NotifyIngestStatusUpdated(ServerDirectory directory, TIngestStatus newStatus)
         {
-            
+            Debug.Assert(directory != null);
+            directory.NotifyIngestStatusUpdated(this, newStatus);
         }
 
 

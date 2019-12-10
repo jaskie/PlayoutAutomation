@@ -118,7 +118,7 @@ namespace TAS.Server.MediaOperation
             {
                 if (!(Source is IngestMedia sourceMedia))
                     throw new ArgumentException("IngestOperation: Source is not of type IngestMedia");
-                sourceMedia.NotifyIngestStatus(DestDirectory as IServerDirectory, TIngestStatus.InProgress);
+                sourceMedia.NotifyIngestStatusUpdated(DestDirectory as ServerDirectory, TIngestStatus.InProgress);
                 if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
                     using (var localSourceMedia = (TempMedia)TempDirectory.Current.CreateMedia(sourceMedia))
                     {
@@ -133,7 +133,7 @@ namespace TAS.Server.MediaOperation
                             var result = DestProperties.MediaType == TMediaType.Still
                                 ? ConvertStill(localSourceMedia)
                                 : await ConvertMovie(localSourceMedia, localSourceMedia.StreamInfo);
-                            sourceMedia.NotifyIngestStatus(DestDirectory as IServerDirectory, result ? TIngestStatus.Ready : TIngestStatus.NotReady);
+                            sourceMedia.NotifyIngestStatusUpdated(DestDirectory as ServerDirectory, result ? TIngestStatus.Ready : TIngestStatus.NotReady);
                             return result;
                         }
                         finally
@@ -148,12 +148,12 @@ namespace TAS.Server.MediaOperation
                         var result = DestProperties.MediaType == TMediaType.Still
                             ? ConvertStill(sourceMedia)
                             : await ConvertMovie(sourceMedia, sourceMedia.StreamInfo);
-                        sourceMedia.NotifyIngestStatus(DestDirectory as IServerDirectory, result ? TIngestStatus.Ready : TIngestStatus.NotReady);
+                        sourceMedia.NotifyIngestStatusUpdated(DestDirectory as ServerDirectory, result ? TIngestStatus.Ready : TIngestStatus.NotReady);
                         return result;
                     }
                     else
                         AddOutputMessage(LogLevel.Trace, "Waiting for media to verify");
-                    sourceMedia.NotifyIngestStatus(DestDirectory as IServerDirectory, TIngestStatus.Unknown);
+                    sourceMedia.NotifyIngestStatusUpdated(DestDirectory as ServerDirectory, TIngestStatus.Unknown);
                     return false;
                 }
             }

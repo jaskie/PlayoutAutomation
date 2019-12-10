@@ -594,9 +594,8 @@ namespace TAS.Server
                         {
                             foreach (var ingestDirectory in IngestDirectories)
                             {
-                                if (((IngestDirectory) ingestDirectory).FindMediaByMediaGuid(operation.Source.MediaGuid)
-                                    is IngestMedia media)
-                                    media.NotifyIngestStatus(serverDirectory, TIngestStatus.Unknown);
+                                if (((IngestDirectory) ingestDirectory).FindMediaByMediaGuid(operation.Source.MediaGuid) is IngestMedia ingestMedia)
+                                    ingestMedia.NotifyIngestStatusUpdated(serverDirectory, TIngestStatus.Unknown);
                             }
                         };
                     FileManager.Queue(operation);

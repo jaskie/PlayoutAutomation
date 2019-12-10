@@ -57,7 +57,7 @@ namespace TAS.Server.MediaOperation
             if (_sourceMedia is MediaBase mediaBase && mediaBase.Directory is ServerDirectory serverDirectory)
             {
                 if (_sourceMedia is IngestMedia im)
-                    im.NotifyIngestStatus(serverDirectory, newIngestStatus);
+                    im.NotifyIngestStatusUpdated(serverDirectory, newIngestStatus);
                 if (_sourceMedia is ArchiveMedia am)
                     am.NotifyIngestStatus(serverDirectory, newIngestStatus);
             }

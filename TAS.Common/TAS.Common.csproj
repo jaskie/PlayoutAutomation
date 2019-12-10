@@ -118,6 +118,7 @@
     <Compile Include="Interfaces\Security\ISecurityObject.cs" />
     <Compile Include="Interfaces\Security\IUser.cs" />
     <Compile Include="Interfaces\Security\IUserManager.cs" />
+    <Compile Include="MediaIngestStatusEventArgs.cs" />
     <Compile Include="MediaIsArchivedEventArgs.cs" />
     <Compile Include="MediaOnLayerEventArgs.cs" />
     <Compile Include="MediaEventArgs.cs" />

@@ -61,6 +61,10 @@ namespace TAS.Server.Media
             }
         }
 
+        public event EventHandler<MediaEventArgs> MediaSaved;
+
+        public event EventHandler<MediaIngestStatusEventArgs> IngestStatusUpdated;
+
         internal override IMedia CreateMedia(IMediaProperties media)
         {
             var newFileName = media.FileName;
@@ -91,7 +95,12 @@ namespace TAS.Server.Media
             return result;
         }
 
-        public event EventHandler<MediaEventArgs> MediaSaved;
+
+        internal void NotifyIngestStatusUpdated(IMedia media, TIngestStatus ingestStatus)
+        {
+            IngestStatusUpdated?.Invoke(this, new MediaIngestStatusEventArgs(media, ingestStatus));
+        }
+
 
         protected override bool AcceptFile(string fullPath)
         {

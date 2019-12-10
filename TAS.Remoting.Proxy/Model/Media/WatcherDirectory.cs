@@ -6,7 +6,6 @@ namespace TAS.Remoting.Model.Media
 {
     public abstract class WatcherDirectory: MediaDirectoryBase, IWatcherDirectory
     {
-
         public void Refresh()
         {
             Invoke();
