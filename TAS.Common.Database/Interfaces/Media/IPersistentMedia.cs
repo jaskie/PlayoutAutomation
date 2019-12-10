@@ -6,6 +6,5 @@ namespace TAS.Common.Database.Interfaces.Media
     {
         ulong IdPersistentMedia { get; set; }
         new string FileName { get; set; }
-        IMediaDirectory Directory { get; }
     }
 }

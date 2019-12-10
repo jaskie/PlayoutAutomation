@@ -12,11 +12,17 @@ namespace TAS.Server.Media
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-
         public IArchiveMedia Find(Guid mediaGuid)
         {
             return EngineController.Current.Database.ArchiveMediaFind<ArchiveMedia>(this, mediaGuid);
         }
+
+        public bool ContainsMedia(Guid mediaGuid)
+        {
+            return EngineController.Current.Database.ArchiveContainsMedia(this, mediaGuid);
+        }
+
+        public event EventHandler<MediaIsArchivedEventArgs> MediaIsArchived;
 
         internal void ArchiveSave(ServerMedia media, bool deleteAfterSuccess)
         {
@@ -61,8 +67,8 @@ namespace TAS.Server.Media
             am.MediaStatus = TMediaStatus.Deleted;
             am.IsVerified = false;
             am.Save();
-            //TODO: notify ServerDirectory
             base.RemoveMedia(media);
+            MediaIsArchived?.Invoke(this, new MediaIsArchivedEventArgs(media, false));
         }
 
         internal override IMedia CreateMedia(IMediaProperties media)
@@ -115,11 +121,8 @@ namespace TAS.Server.Media
         {
             if (!(sender is FileOperationBase operation))
                 return;
-            if (sender is CopyOperation copyOperation && copyOperation.Source is ServerMedia serverMedia)
-            {
-                // TODO: notify serverMedia
-                //serverMedia.IsArchived = true;
-            }
+            if (sender is CopyOperation copyOperation)
+                MediaIsArchived?.Invoke(this, new MediaIsArchivedEventArgs(copyOperation.Dest, true));
             operation.Success -= _archiveCopy_success;
             operation.Failure -= _archiveCopy_failure;
         }

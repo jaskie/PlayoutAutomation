@@ -219,6 +219,7 @@ namespace TAS.Server.Media
             }
         }
 
+        [JsonProperty]
         public IMediaDirectory Directory { get; internal set; }
 
         #endregion //IMediaProperties

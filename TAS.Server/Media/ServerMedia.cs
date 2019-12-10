@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
-using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
@@ -20,11 +19,6 @@ namespace TAS.Server.Media
         {
             get => _doNotArchive;
             set => SetField(ref _doNotArchive, value);
-        }
-
-        public bool GetIsArchived(IArchiveDirectoryProperties directory)
-        {
-            return EngineController.Current.Database.ArchiveContainsMedia(directory, this);
         }
 
         internal override void CloneMediaProperties(IMediaProperties fromMedia)

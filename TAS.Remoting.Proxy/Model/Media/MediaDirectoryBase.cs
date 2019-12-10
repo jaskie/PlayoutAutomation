@@ -108,12 +108,18 @@ namespace TAS.Remoting.Model.Media
 
         protected override void OnEventNotification(SocketMessage message)
         {
-            if (message.MemberName == nameof(MediaAdded))
+            switch (message.MemberName)
+            {
+                case nameof(MediaAdded):
                     MediaAddedEvent?.Invoke(this, Deserialize<MediaEventArgs>(message));
-            if (message.MemberName == nameof(MediaRemoved))
-                MediaRemovedEvent?.Invoke(this, Deserialize<MediaEventArgs>(message));
-            if (message.MemberName == nameof(MediaVerified))
-                MediaVerifiedEvent?.Invoke(this, Deserialize<MediaEventArgs>(message));
+                    break;
+                case nameof(MediaRemoved):
+                    MediaRemovedEvent?.Invoke(this, Deserialize<MediaEventArgs>(message));
+                    break;
+                case nameof(MediaVerified):
+                    MediaVerifiedEvent?.Invoke(this, Deserialize<MediaEventArgs>(message));
+                    break;
+            }
         }
 
         #endregion // Ehent handling

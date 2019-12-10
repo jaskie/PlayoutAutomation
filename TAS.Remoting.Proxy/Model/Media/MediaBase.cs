@@ -4,6 +4,7 @@ using jNet.RPC.Client;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model.Media
 {
@@ -22,6 +23,9 @@ namespace TAS.Remoting.Model.Media
 
         [JsonProperty(nameof(IMedia.AudioVolume))]
         private double _audioVolume;
+
+        [JsonProperty(nameof(IMedia.Directory))]
+        private MediaDirectoryBase _directory;
 
         [JsonProperty(nameof(IMedia.Duration))]
         private TimeSpan _duration;
@@ -99,6 +103,8 @@ namespace TAS.Remoting.Model.Media
             get => _audioVolume;
             set => Set(value);
         }
+
+        public virtual IMediaDirectory Directory => _directory;
 
         public TimeSpan Duration
         {

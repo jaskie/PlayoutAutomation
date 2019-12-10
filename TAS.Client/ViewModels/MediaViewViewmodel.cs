@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -11,13 +12,15 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaViewViewmodel: ViewModelBase
+    public class MediaViewViewmodel : ViewModelBase
     {
         public readonly IMedia Media;
         private readonly Lazy<ObservableCollection<MediaSegmentViewmodel>> _mediaSegments;
         private IMediaSegments _segments;
         private bool _isExpanded;
         private MediaSegmentViewmodel _selectedSegment;
+        private bool _isArchived;
+        private TIngestStatus _ingestStatus;
 
         public MediaViewViewmodel(IMedia media)
         {
@@ -49,7 +52,6 @@ namespace TAS.Client.ViewModels
         public string MediaName => Media.MediaName;
         public string FileName => Media.FileName;
         public string Folder => Media.Folder;
-        public string Location => Media.Directory.GetDisplayName();
         public TimeSpan TcStart => Media.TcStart;
         public TimeSpan TcPlay => Media.TcPlay;
         public TimeSpan Duration => Media.Duration;
@@ -61,7 +63,7 @@ namespace TAS.Client.ViewModels
         public int SegmentCount => _mediaSegments?.Value.Count ?? 0;
         public bool HasSegments => SegmentCount != 0;
         public bool IsTrimmed => TcPlay != TcStart || Duration != DurationPlay;
-        public bool IsArchived => (Media as IServerMedia)?.IsArchived ?? false;
+        public bool IsArchived { get => _isArchived; set => SetField(ref _isArchived, value); }
         public bool IsExpired
         {
             get
@@ -76,8 +78,8 @@ namespace TAS.Client.ViewModels
         public int ClipNr => (Media as IXdcamMedia)?.ClipNr ?? 0;
         public int TotalClipCount => (Media.Directory as IIngestDirectory)?.XdcamClipCount ?? 0;
 
-        //TODO: determine ingest status
-        public TIngestStatus IngestStatus => TIngestStatus.Unknown;// IngestStatus. (Media as IIngestMedia)?.IngestStatus ?? ((Media as IArchiveMedia)?.IngestStatus ?? TIngestStatus.NotReady);
+        public TIngestStatus IngestStatus { get => _ingestStatus; set => SetField(ref _ingestStatus, value); }
+
         public TVideoFormat VideoFormat => Media.VideoFormat;
         public bool IsExpanded
         {
@@ -122,7 +124,7 @@ namespace TAS.Client.ViewModels
                         OnUiThread(() =>
                         {
                             foreach (MediaSegmentViewmodel segment in _mediaSegments.Value)
-                                segment.VideoFormat = ((IMedia) media).VideoFormat;
+                                segment.VideoFormat = ((IMedia)media).VideoFormat;
                         });
                     break;
                 case nameof(IPersistentMedia.KillDate):

@@ -301,16 +301,14 @@ namespace TAS.Server
             FrameRate = FormatDescription.FrameRate;
             var chPRI = PlayoutChannelPRI as CasparServerChannel;
             var chSEC = PlayoutChannelSEC as CasparServerChannel;
-            if (chSEC != null
-                && chSEC != chPRI)
+            if (chSEC != null && chSEC != chPRI)
             {
-                chSEC.Owner.Initialize(_mediaManager, false);
+                chSEC.Owner.Initialize(_mediaManager);
                 chSEC.Owner.PropertyChanged += _server_PropertyChanged;
             }
-
             if (chPRI != null)
             {
-                chPRI.Owner.Initialize(_mediaManager, true);
+                chPRI.Owner.Initialize(_mediaManager);
                 chPRI.Owner.PropertyChanged += _server_PropertyChanged;
             }
 

@@ -35,7 +35,7 @@ namespace TAS.Client.ViewModels
         private DateTime? _killDate;
 
         public IngestOperationViewModel(IIngestOperation operation, IPreview preview, IEngine engine)
-            : base(operation)
+            : base(operation, engine.MediaManager)
         {
             _operation = operation;
             _engine = engine;
@@ -109,7 +109,7 @@ namespace TAS.Client.ViewModels
             set => _operation.Trim = value;
         }
 
-        public string SourceFileName => $"{_operation.Source.Directory.GetDisplayName()}:{_operation.Source.MediaName}";
+        public string SourceFileName => $"{_operation.Source.Directory.GetDisplayName(_engine.MediaManager)}:{_operation.Source.MediaName}";
 
         public string DestMediaName
         {

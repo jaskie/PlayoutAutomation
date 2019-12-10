@@ -6,6 +6,5 @@ namespace TAS.Common.Interfaces.MediaDirectory
     public interface IAnimationDirectory: IWatcherDirectory
     {
         void CloneMedia(IAnimatedMedia source, Guid newMediaGuid);
-        bool IsPrimary { get; }
     }
 }

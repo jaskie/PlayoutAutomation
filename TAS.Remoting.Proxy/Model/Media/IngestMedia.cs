@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
+using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model.Media
 {
@@ -25,5 +26,9 @@ namespace TAS.Remoting.Model.Media
         }
 
         public TIngestStatus IngestStatus => _ingestStatusLazy.IsValueCreated ? _ingestStatus : _ingestStatusLazy.Value;
+        public TIngestStatus GetIngestStatus(IServerDirectory directory)
+        {
+            return Query<TIngestStatus>(parameters: new object[] {directory});
+        }
     }
 }

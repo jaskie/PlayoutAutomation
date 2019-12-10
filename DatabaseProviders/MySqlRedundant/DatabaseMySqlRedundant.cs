@@ -694,15 +694,15 @@ namespace TAS.Database.MySqlRedundant
             return result;
         }
 
-        public bool ArchiveContainsMedia(IArchiveDirectoryProperties dir, IPersistentMedia media)
+        public bool ArchiveContainsMedia(IArchiveDirectoryProperties dir, Guid mediaGuid)
         {
-            if (dir == null || media.MediaGuid == Guid.Empty)
+            if (dir == null || mediaGuid == Guid.Empty)
                 return false;
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant("SELECT count(*) FROM archivemedia WHERE idArchive=@idArchive && MediaGuid=@MediaGuid;", _connection);
                 cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
-                cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
                 var result = cmd.ExecuteScalar();
                 return result != null && (long)result > 0;
             }

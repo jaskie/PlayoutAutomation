@@ -6,6 +6,8 @@ namespace TAS.Common.Interfaces.MediaDirectory
     public interface IArchiveDirectory: IMediaDirectory
     {
         IArchiveMedia Find(Guid mediaGuid);
+        bool ContainsMedia(Guid mediaGuid);
+        event EventHandler<MediaIsArchivedEventArgs> MediaIsArchived;
     }
 
     public interface IArchiveDirectoryProperties: IMediaDirectoryProperties

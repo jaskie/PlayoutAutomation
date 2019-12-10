@@ -60,11 +60,11 @@ namespace TAS.Server
             Engines = Database.LoadEngines<Engine>(ulong.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (var e in Engines)
                 e.Initialize(Servers);
-            InitializeMediaDirectories();
             LoadArchiveDirectories();
             foreach (var e in Engines)
                 ((MediaManager) e.MediaManager).Initialize(
                     ArchiveDirectories.FirstOrDefault(a => a.IdArchive == e.IdArchive));
+            InitializeMediaDirectories();
             Logger.Debug("Engines initialized");
         }
 

@@ -51,9 +51,11 @@ namespace TAS.Client.ViewModels
 
             MediaDirectories = new List<MediaDirectoryViewmodel>();
             MediaDirectories.AddRange(_mediaManager.IngestDirectories.Where(d => d.ContainsImport()).Select(d => new MediaDirectoryViewmodel(d, d.DirectoryName, true)));
-            var archiveDirectory = _mediaManager.ArchiveDirectory;
-            if (archiveDirectory != null)
-                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(archiveDirectory, resources._archive));
+            if (_mediaManager.ArchiveDirectory != null)
+            {
+                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(_mediaManager.ArchiveDirectory, resources._archive));
+                _mediaManager.ArchiveDirectory.MediaIsArchived += ArchiveDirectory_MediaIsArchived;
+            }
             var animationDirectorySec = _mediaManager.AnimationDirectorySEC;
             var animationDirectoryPri = _mediaManager.AnimationDirectoryPRI;
             if (animationDirectorySec != null && animationDirectorySec != animationDirectoryPri)
@@ -70,7 +72,7 @@ namespace TAS.Client.ViewModels
             _mediaCategory = MediaCategories.FirstOrDefault();
             SelectedDirectory = MediaDirectories.FirstOrDefault();
             if (_mediaManager.FileManager != null)
-                FileManagerViewmodel = new FileManagerViewmodel(_mediaManager.FileManager);
+                FileManagerViewmodel = new FileManagerViewmodel(_mediaManager);
             RecordersViewmodel = new RecordersViewmodel(Engine, _mediaManager.Recorders);
             RecordersViewmodel.PropertyChanged += RecordersViewmodel_PropertyChanged;
             VideoPreview = UiPluginManager.ComposePart<IVideoPreview>(this);
@@ -316,6 +318,8 @@ namespace TAS.Client.ViewModels
             SelectedDirectory = null;
             if (RecordersViewmodel != null)
                 RecordersViewmodel.PropertyChanged -= RecordersViewmodel_PropertyChanged;
+            if (_mediaManager.ArchiveDirectory != null)
+                _mediaManager.ArchiveDirectory.MediaIsArchived -= ArchiveDirectory_MediaIsArchived;
         }
 
         // private methods
@@ -367,7 +371,7 @@ namespace TAS.Client.ViewModels
         {
             var selections = GetSelections();
             if (MessageBox.Show(
-                    string.Format(resources._query_DeleteSelectedFiles, selections.Select(m => $"{m.Directory.GetDisplayName()}:{m.MediaName}").AsString(Environment.NewLine)),
+                    string.Format(resources._query_DeleteSelectedFiles, selections.Select(m => $"{m.Directory.GetDisplayName(_mediaManager)}:{m.MediaName}").AsString(Environment.NewLine)),
                     resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
                 return;
             var reasons = _mediaManager.MediaDelete(selections, false);
@@ -521,7 +525,7 @@ namespace TAS.Client.ViewModels
         {
             var newItems = items == null
                 ? new ObservableCollection<MediaViewViewmodel>()
-                : new ObservableCollection<MediaViewViewmodel>(items.Select(f => new MediaViewViewmodel(f)));
+                : new ObservableCollection<MediaViewViewmodel>(items.Select(f => new MediaViewViewmodel(f) {IsArchived = _mediaManager.ArchiveDirectory?.ContainsMedia(f.MediaGuid) ?? false}));
             var oldMediaItems = _mediaItems;
             _mediaItems = newItems;
             if (oldMediaItems != null)
@@ -751,6 +755,15 @@ namespace TAS.Client.ViewModels
                                (directory is IIngestDirectory ingestDirectory && ingestDirectory.AccessType == TDirectoryAccessType.Direct);
             PreviewViewmodel.IsSegmentsVisible = directory is IServerDirectory || directory is IArchiveDirectory;
         }
+
+        private void ArchiveDirectory_MediaIsArchived(object sender, MediaIsArchivedEventArgs e)
+        {
+            var vm = _mediaItems?.FirstOrDefault(m => m.Media.MediaGuid == e.Media.MediaGuid);
+            if (vm == null)
+                return;
+            vm.IsArchived = e.IsArchived;
+        }
+
 
 
     }

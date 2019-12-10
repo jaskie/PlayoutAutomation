@@ -19,7 +19,6 @@ namespace TAS.Common.Database.Interfaces
         void CloneDatabase(string connectionStringSource, string connectionStringDestination);
         void Close();
         bool CreateEmptyDatabase(string connectionString, string collate);
-        bool ArchiveContainsMedia(IArchiveDirectoryProperties dir, IPersistentMedia media);
         void DeleteArchiveDirectory(IArchiveDirectoryProperties dir);
         void DeleteEngine(IEnginePersistent engine);
         bool DeleteEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent;
@@ -46,6 +45,7 @@ namespace TAS.Common.Database.Interfaces
         List<T> LoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new();
         List<T> LoadEngines<T>(ulong? instance = null) where T : IEnginePersistent;
         List<T> LoadServers<T>() where T : IPlayoutServerProperties;
+        bool ArchiveContainsMedia(IArchiveDirectoryProperties dir, Guid mediaGuid);
         T ArchiveMediaFind<T>(IArchiveDirectoryServerSide dir, Guid mediaGuid) where T : IArchiveMedia, new();
         MediaDeleteResult MediaInUse(IEngine engine, IServerMedia serverMedia);
         T MediaSegmentsRead<T>(IPersistentMedia media) where T : IMediaSegments;

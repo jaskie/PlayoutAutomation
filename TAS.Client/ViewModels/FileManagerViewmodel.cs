@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.ObjectModel;
-using System.Windows;
 using TAS.Common;
 using System.Windows.Input;
 using TAS.Client.Common;
@@ -13,13 +12,15 @@ namespace TAS.Client.ViewModels
     public class FileManagerViewmodel : ViewModelBase
     {
         private readonly IFileManager _fileManager;
+        private readonly IMediaManager _mediaManager;
 
-        public FileManagerViewmodel(IFileManager fileManager)
+        public FileManagerViewmodel(IMediaManager mediaManager)
         {
-            _fileManager = fileManager;
-            fileManager.OperationAdded += FileManager_OperationAdded;
-            fileManager.OperationCompleted += FileManager_OperationCompleted;
-            OperationList = new ObservableCollection<FileOperationViewmodel>(fileManager.GetOperationQueue().Select(fo => new FileOperationViewmodel(fo)));
+            _mediaManager = mediaManager;
+            _fileManager = mediaManager.FileManager;
+            _fileManager.OperationAdded += FileManager_OperationAdded;
+            _fileManager.OperationCompleted += FileManager_OperationCompleted;
+            OperationList = new ObservableCollection<FileOperationViewmodel>(_fileManager.GetOperationQueue().Select(fo => new FileOperationViewmodel(fo, mediaManager)));
             CommandClearFinished = new UiCommand(_clearFinishedOperations, o => OperationList.Any(op => op.Finished));
             CommandCancelPending = new UiCommand(o => _fileManager.CancelPending(), o => OperationList.Any(op => op.OperationStatus == FileOperationStatus.Waiting));
             DispatcherTimer clearTimer = new DispatcherTimer();
@@ -42,7 +43,7 @@ namespace TAS.Client.ViewModels
 
         public bool ClearFinished
         {
-            get { return _clearFinished; }
+            get => _clearFinished;
             set
             {
                 if (SetField(ref _clearFinished, value) && value)
@@ -77,7 +78,7 @@ namespace TAS.Client.ViewModels
                 return;
             OnUiThread(() => 
             {
-                OperationList.Insert(0, new FileOperationViewmodel(e.Operation));
+                OperationList.Insert(0, new FileOperationViewmodel(e.Operation, _mediaManager));
             });
         }
 

@@ -9,6 +9,7 @@ namespace TAS.Remoting.Model
 {
     public class FileManager : ProxyBase, IFileManager
     {
+
         private event EventHandler<FileOperationEventArgs> _operationAdded;
 
         private event EventHandler<FileOperationEventArgs> _operationCompleted;

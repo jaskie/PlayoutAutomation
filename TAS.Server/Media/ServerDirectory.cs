@@ -16,11 +16,10 @@ namespace TAS.Server.Media
         internal readonly IPlayoutServerProperties Server;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public ServerDirectory(IPlayoutServerProperties server, bool isPrimary)
+        public ServerDirectory(IPlayoutServerProperties server)
         {
             Server = server;
             IsRecursive = server.IsMediaFolderRecursive;
-            IsPrimary = isPrimary;
             MovieContainerFormat = server.MovieContainerFormat;
             HaveFileWatcher = true;
         }
@@ -29,12 +28,6 @@ namespace TAS.Server.Media
 
         [JsonProperty]
         public bool IsRecursive { get; }
-
-        [JsonProperty]
-        public bool IsPrimary { get; }
-
-        [JsonProperty]
-        public string DirectoryName { get; set; }
 
         public TMovieContainerFormat MovieContainerFormat { get; }
 
@@ -151,7 +144,7 @@ namespace TAS.Server.Media
 
         public override string ToString()
         {
-            return IsPrimary ? "PRI" : "SEC";
+            return Folder;
         }
     }
 }

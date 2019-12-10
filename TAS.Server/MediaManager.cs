@@ -21,9 +21,9 @@ namespace TAS.Server
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        [JsonProperty(nameof(Engine))]
-        private readonly Engine _engine;
         [JsonProperty(nameof(FileManager))]
+        private readonly FileManager _fileManager = Server.FileManager.Current;
+        private readonly Engine _engine;
         private readonly List<CasparRecorder> _recorders;
         private List<IngestDirectory> _ingestDirectories;
         private int _isInitialMediaSecToPriSynchronized;
@@ -35,8 +35,9 @@ namespace TAS.Server
             _recorders = new List<CasparRecorder>();
         }
 
-        public IFileManager FileManager => Server.FileManager.Current;
+        public IFileManager FileManager => _fileManager;
 
+        [JsonProperty]
         public IEngine Engine => _engine;
 
         [JsonProperty]

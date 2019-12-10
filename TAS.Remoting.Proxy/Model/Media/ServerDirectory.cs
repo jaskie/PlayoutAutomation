@@ -10,8 +10,6 @@ namespace TAS.Remoting.Model.Media
         [JsonProperty(nameof(IServerDirectory.IsRecursive))]
         private bool _isRecursive;
 
-        [JsonProperty(nameof(IServerDirectory.IsPrimary))]
-        private readonly bool _isPrimary;
         [JsonProperty(nameof(IServerDirectory.MovieContainerFormat))]
         private readonly TMovieContainerFormat _movieContainerFormat;
 
@@ -20,8 +18,6 @@ namespace TAS.Remoting.Model.Media
 #pragma warning restore
 
         public TMovieContainerFormat MovieContainerFormat => _movieContainerFormat;
-
-        public bool IsPrimary => _isPrimary;
 
         public bool IsRecursive => _isRecursive;
     }

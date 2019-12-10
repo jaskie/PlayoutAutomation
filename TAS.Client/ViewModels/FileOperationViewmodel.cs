@@ -11,9 +11,11 @@ namespace TAS.Client.ViewModels
     public class FileOperationViewmodel: ViewModelBase
     {
         private bool _isWarning;
+        private readonly IMediaManager _mediaManager;
 
-        public FileOperationViewmodel(IFileOperationBase fileOperation)
+        public FileOperationViewmodel(IFileOperationBase fileOperation, IMediaManager mediaManager)
         {
+            _mediaManager = mediaManager;
             FileOperation = fileOperation;
             FileOperation.PropertyChanged += OnFileOperationPropertyChanged;
             CommandAbort = new UiCommand(o => FileOperation.Abort(), o => FileOperation.OperationStatus == FileOperationStatus.Waiting || FileOperation.OperationStatus == FileOperationStatus.InProgress);
@@ -30,10 +32,7 @@ namespace TAS.Client.ViewModels
                     view.ShowDialog();
                 }
             );
-            CommandShowWarning = new UiCommand(o =>
-                System.Windows.MessageBox.Show(OperationWarning, resources._caption_Warning,
-                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation)
-            );
+            CommandShowWarning = new UiCommand(o => System.Windows.MessageBox.Show(OperationWarning, resources._caption_Warning, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation));
         }
 
         public ICommand CommandAbort { get; }
@@ -77,17 +76,17 @@ namespace TAS.Client.ViewModels
                 switch (FileOperation)
                 {
                     case IExportOperation exportOperation:
-                        return $"{resources._mediaOperation_Export} {string.Join(", ", exportOperation.Sources)} -> {exportOperation.DestDirectory.GetDisplayName()}";
+                        return $"{resources._mediaOperation_Export} {string.Join(", ", exportOperation.Sources)} -> {exportOperation.DestDirectory.GetDisplayName(_mediaManager)}";
                     case IIngestOperation ingestOperation:
-                        return $"{resources._mediaOperation_Ingest} {ingestOperation.Source.Directory.GetDisplayName()}:{ingestOperation.Source.MediaName} -> {ingestOperation.DestDirectory.GetDisplayName()}";
+                        return $"{resources._mediaOperation_Ingest} {ingestOperation.Source.Directory.GetDisplayName(_mediaManager)}:{ingestOperation.Source.MediaName} -> {ingestOperation.DestDirectory.GetDisplayName(_mediaManager)}";
                     case ILoudnessOperation loudnessOperation:
-                        return $"{resources._mediaOperation_Loudness} {loudnessOperation.Source.Directory.GetDisplayName()}:{loudnessOperation.Source.MediaName}";
+                        return $"{resources._mediaOperation_Loudness} {loudnessOperation.Source.Directory.GetDisplayName(_mediaManager)}:{loudnessOperation.Source.MediaName}";
                     case ICopyOperation copyOperation:
-                        return $"{resources._mediaOperation_Copy} {copyOperation.Source.Directory.GetDisplayName()}:{copyOperation.Source.MediaName} -> {copyOperation.DestDirectory.GetDisplayName()}";
+                        return $"{resources._mediaOperation_Copy} {copyOperation.Source.Directory.GetDisplayName(_mediaManager)}:{copyOperation.Source.MediaName} -> {copyOperation.DestDirectory.GetDisplayName(_mediaManager)}";
                     case IMoveOperation moveOperation:
-                        return $"{resources._mediaOperation_Move} {moveOperation.Source.Directory.GetDisplayName()}:{moveOperation.Source.MediaName} -> {moveOperation.DestDirectory.GetDisplayName()}";
+                        return $"{resources._mediaOperation_Move} {moveOperation.Source.Directory.GetDisplayName(_mediaManager)}:{moveOperation.Source.MediaName} -> {moveOperation.DestDirectory.GetDisplayName(_mediaManager)}";
                     case IDeleteOperation deleteOperation:
-                        return $"{resources._mediaOperation_Delete} {deleteOperation.Source.Directory.GetDisplayName()}:{deleteOperation.Source.MediaName}";
+                        return $"{resources._mediaOperation_Delete} {deleteOperation.Source.Directory.GetDisplayName(_mediaManager)}:{deleteOperation.Source.MediaName}";
                     default:
                         return FileOperation.ToString();
                 }

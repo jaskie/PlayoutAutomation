@@ -12,6 +12,7 @@ namespace TAS.Common.Interfaces.Media
         void Verify(bool updateFormatAndDurations);
         void GetLoudness();
         void RenameFileTo(string newFileName);
+        IMediaDirectory Directory { get; }
     }
 
     public interface IMediaProperties

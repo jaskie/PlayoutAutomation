@@ -12,7 +12,7 @@ namespace TAS.Server
     {
 #pragma warning disable CS0169
         [JsonProperty]
-        private readonly string Dummy; // at  least one property should be serialized to resolve references
+        public readonly string Dummy = string.Empty; // at  least one property must be serialized to resolve references
 #pragma warning restore
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly FileOperationQueue _queueSimpleOperation = new FileOperationQueue();

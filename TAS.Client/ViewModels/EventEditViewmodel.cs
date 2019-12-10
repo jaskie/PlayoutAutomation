@@ -37,7 +37,6 @@ namespace TAS.Client.ViewModels
         private TimeSpan? _requestedStartTime;
         private TimeSpan _duration;
         private TimeSpan _scheduledDelay;
-        private sbyte _layer;
         private bool _isEventNameFocused;
         private IRouterPort _selectedInputPort;
 

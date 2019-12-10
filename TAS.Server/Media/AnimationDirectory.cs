@@ -12,14 +12,11 @@ namespace TAS.Server.Media
     {
         public readonly CasparServer Server;
 
-        internal AnimationDirectory(CasparServer server, bool isPrimary)
+        internal AnimationDirectory(CasparServer server)
         {
-            IsPrimary = isPrimary;
             Server = server;
             HaveFileWatcher = true;
         }
-
-        public bool IsPrimary { get; }
 
         public override void Initialize()
         {
@@ -104,7 +101,7 @@ namespace TAS.Server.Media
 
         public override string ToString()
         {
-            return $"Archive {(IsPrimary ? "primary" : "secondary")}";
+            return Folder;
         }
     }
 }
