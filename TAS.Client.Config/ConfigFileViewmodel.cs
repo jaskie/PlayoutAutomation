@@ -21,6 +21,7 @@ namespace TAS.Client.Config
         private bool _isBackupInstance;
         private bool _isConnectionStringSecondary;
         private string _uiLanguage;
+        private double _referenceLoudnessLevel;
         private readonly IDatabase _db;
 
         protected override void OnDispose() { }
@@ -43,6 +44,12 @@ namespace TAS.Client.Config
         {
             get => _ingestFolders;
             set => SetField(ref _ingestFolders, value);
+        }
+
+        public double ReferenceLoudnessLevel
+        {
+            get => _referenceLoudnessLevel;
+            set => SetField(ref _referenceLoudnessLevel, value);
         }
 
         public string TempDirectory
@@ -92,7 +99,7 @@ namespace TAS.Client.Config
 
         private void _createDatabase(object obj)
         {
-            using (var vm = new CreateDatabaseViewmodel {ConnectionString = tasConnectionString})
+            using (var vm = new CreateDatabaseViewmodel { ConnectionString = tasConnectionString })
             {
                 if (vm.ShowDialog() != true)
                     return;
@@ -130,7 +137,7 @@ namespace TAS.Client.Config
                     tasConnectionString = vm.Model.ConnectionString;
             }
         }
-    
+
         private void _editConnectionStringSecondary(object obj)
         {
             using (var vm = new ConnectionStringViewmodel(_tasConnectionStringSecondary))

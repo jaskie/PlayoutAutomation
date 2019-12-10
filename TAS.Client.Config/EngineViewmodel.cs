@@ -13,7 +13,6 @@ namespace TAS.Client.Config
         private string _engineName;
         private int _timeCorrection;
         private TVideoFormat _videoFormat;
-        private double _volumeReferenceLoudness;
         private bool _enableCGElementsForNewEvents;
         private TCrawlEnableBehavior _crawlEnableBehavior;
         private int _cgStartDelay;
@@ -21,7 +20,7 @@ namespace TAS.Client.Config
         public EngineViewmodel(Engine engine)
             : base(engine)
         {
-            Channels = new List<object>() { Common.Properties.Resources._none_ };
+            Channels = new List<object> { Common.Properties.Resources._none_ };
             Model.Servers.ForEach(s => s.Channels.ForEach(c => Channels.Add(c)));
             _channelPRI = Channels.FirstOrDefault(c => c is CasparServerChannel
                                                         && ((CasparServerChannel)c).Id == Model.ServerChannelPRI
@@ -93,12 +92,6 @@ namespace TAS.Client.Config
         {
             get => _instance;
             set => SetField(ref _instance, value);
-        }
-
-        public double VolumeReferenceLoudness
-        {
-            get => _volumeReferenceLoudness;
-            set => SetField(ref _volumeReferenceLoudness, value);
         }
 
         public bool EnableCGElementsForNewEvents

@@ -161,7 +161,6 @@ namespace TAS.Server
 
         public ServerHost Remote { get; set; }
         public TAspectRatioControl AspectRatioControl { get; set; }
-        public double VolumeReferenceLoudness { get; set; }
 
         [JsonProperty]
         public int TimeCorrection

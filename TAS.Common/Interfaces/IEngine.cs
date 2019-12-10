@@ -111,7 +111,6 @@ namespace TAS.Common.Interfaces
     {
         TAspectRatioControl AspectRatioControl { get; set; }
         int TimeCorrection { get; set; }
-        double VolumeReferenceLoudness { get; set; }
         int CGStartDelay { get; set; }
         ulong Instance { get; set; }
         ulong IdServerPRI { get; set; }

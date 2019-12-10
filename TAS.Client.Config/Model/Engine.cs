@@ -44,8 +44,6 @@ namespace TAS.Client.Config.Model
 
         public TVideoFormat VideoFormat { get; set; }
 
-        public double VolumeReferenceLoudness { get; set; } = -23;
-
         public RemoteHost Remote { get; set; }
 
         public bool EnableCGElementsForNewEvents { get; set; }

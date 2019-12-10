@@ -78,7 +78,7 @@ namespace TAS.Client.Config
 
         private void _add(object obj)
         {
-            var newEngine = new Model.Engine() { Servers = Model.Servers, ArchiveDirectories = Model.ArchiveDirectories, VolumeReferenceLoudness = -23.0 };
+            var newEngine = new Model.Engine() { Servers = Model.Servers, ArchiveDirectories = Model.ArchiveDirectories };
             Model.EngineList.Add(newEngine);
             var newPlayoutServerViewmodel = new EngineViewmodel(newEngine);
             Engines.Add(newPlayoutServerViewmodel);

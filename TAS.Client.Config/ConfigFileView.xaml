@@ -24,6 +24,8 @@
             <TextBox Text="{Binding TempDirectory, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Instance binding"/>
             <TextBox Text="{Binding Instance, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Content="Reference loudness level"/>
+            <TextBox Text="{Binding ReferenceLoudnessLevel}"/>
             <CheckBox Margin="0, 5" IsChecked="{Binding IsBackupInstance}" Content="Backup instance"/>
             <Label Content="User interface language"/>
             <ComboBox ItemsSource="{Binding SupportedLanguages}" DisplayMemberPath="DisplayName" SelectedValuePath="Name" SelectedValue="{Binding UiLanguage}" />
