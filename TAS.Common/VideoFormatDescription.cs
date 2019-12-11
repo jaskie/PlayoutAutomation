@@ -284,16 +284,26 @@ namespace TAS.Common
         
         public static VideoFormatDescription Match(Size imageSize, RationalNumber frameRate, RationalNumber sar, bool interlaced)
         {
-            var result = Descriptions.Values.FirstOrDefault((v) => v.ImageSize.Equals(imageSize) 
+            var result = Descriptions.Values.FirstOrDefault(v => v.ImageSize.Equals(imageSize) 
                                                                 && (v.FrameRate.Equals(frameRate) || frameRate.Equals(RationalNumber.Zero))
                                                                 && (v.SAR.Equals(sar) || sar.Equals(RationalNumber.Zero))
                                                                 && v.Interlaced == interlaced);
-            return result ?? new VideoFormatDescription(imageSize, frameRate, sar, interlaced);
+            if (result != null)
+                return result;
+            if (imageSize.Height == Descriptions[TVideoFormat.PAL].ImageSize.Height && 
+                frameRate == Descriptions[TVideoFormat.PAL].FrameRate &&
+                imageSize.Width == 768 && sar == 1)
+                return interlaced ? Descriptions[TVideoFormat.PAL] : Descriptions[TVideoFormat.PAL_P];
+            if (imageSize.Height == Descriptions[TVideoFormat.PAL_FHA].ImageSize.Height &&
+                frameRate == Descriptions[TVideoFormat.PAL_FHA].FrameRate &&
+                (imageSize.Width == 1024 || imageSize.Width == 1050) && sar == 1)
+                return interlaced ? Descriptions[TVideoFormat.PAL_FHA] : Descriptions[TVideoFormat.PAL_FHA_P];
+            return new VideoFormatDescription(imageSize, frameRate, sar, interlaced); 
         }
 
         public TimeSpan FrameDuration => FrameRate.IsZero ? TimeSpan.Zero : new TimeSpan(TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num);
         public long FrameTicks => FrameRate.IsZero ? 0L : TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num;
 
-        public override string ToString() => Enum.GetName(typeof(TVideoFormat), Format);
+        public override string ToString() => Format.ToString();
     }
 }

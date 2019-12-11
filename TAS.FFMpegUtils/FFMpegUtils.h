@@ -88,8 +88,8 @@ namespace TAS {
 			}
 
 
-			TimeSpan^ GetVideoDuration() {
-				return gcnew TimeSpan(wrapper->getVideoDuration() * 10);
+			TimeSpan GetVideoDuration() {
+				return TimeSpan(wrapper->getVideoDuration() * 10);
 			}
 
 			int GetHeight() {
@@ -98,13 +98,13 @@ namespace TAS {
 			int GetWidth() {
 				return wrapper->getWidth();
 			}
-			TimeSpan^ GetAudioDuration() {
-				return gcnew TimeSpan(wrapper->getAudioDuration() * 10);
+			TimeSpan GetAudioDuration() {
+				return TimeSpan(wrapper->getAudioDuration() * 10);
 			}
 
-			TimeSpan^ GetFileDuration()
+			TimeSpan GetFileDuration()
 			{
-				return gcnew TimeSpan(wrapper->getFileDuration() * 10);
+				return TimeSpan(wrapper->getFileDuration() * 10);
 			}
 
 			FieldOrder GetFieldOrder() {
@@ -128,6 +128,7 @@ namespace TAS {
 				ret->Den = val.den;
 				return ret;
 			}
+
 			String^ GetTimeCode()
 			{
 				char* tc = wrapper->getTimeCode();
@@ -136,6 +137,7 @@ namespace TAS {
 				else
 					return nullptr;
 			}
+
 			array<StreamInfo^>^ GetStreamInfo()
 			{
 				auto ret = gcnew array<StreamInfo^>(wrapper->getStreamCount());
