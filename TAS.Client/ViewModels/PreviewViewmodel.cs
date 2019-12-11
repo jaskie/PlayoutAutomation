@@ -680,7 +680,17 @@ namespace TAS.Client.ViewModels
                 _preview.AudioVolume = ev.AudioVolume ?? media.AudioVolume;
         }
 
-        private IMedia MediaToLoad => SelectedMedia ?? SelectedEvent?.Media ?? SelectedIngestOperation?.Source;
+        private IMedia MediaToLoad
+        {
+            get
+            {
+                if (SelectedMedia != null)
+                    return SelectedMedia;
+                if (SelectedEvent?.EventType == TEventType.Movie || SelectedEvent?.EventType == TEventType.StillImage)
+                    return SelectedEvent.Media;
+                return SelectedIngestOperation?.Source;
+            }
+        }
 
         private void Preview_StillImageUnLoaded(object sender, MediaOnLayerEventArgs e)
         {

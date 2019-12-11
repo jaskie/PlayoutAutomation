@@ -35,6 +35,7 @@ namespace TAS.Client.Views
                 return;
             // Scroll to selected Item
             Common.DispatcherHelper.WaitForPriority();
+            // TODO: find conditions for InvalidOperationException in TransformToAncestor below
             Point offset = TransformToAncestor(parent as ScrollViewer).Transform(new Point(0, 0));
             (parent as ScrollViewer).ScrollToVerticalOffset(offset.Y + (parent as ScrollViewer).ContentVerticalOffset - ActualHeight);
         }

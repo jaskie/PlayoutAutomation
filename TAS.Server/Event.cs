@@ -538,7 +538,12 @@ namespace TAS.Server
         [JsonProperty]
         public IMedia Media
         {
-            get => ServerMediaPRI ?? ServerMediaSEC;
+            get
+            {
+                if (MediaGuid == Guid.Empty)
+                    return null;
+                return ServerMediaPRI ?? ServerMediaSEC;
+            }
             set => MediaGuid = value?.MediaGuid ?? Guid.Empty;
         }
 
