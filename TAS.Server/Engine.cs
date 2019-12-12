@@ -1074,7 +1074,7 @@ namespace TAS.Server
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
                 if (Router != null && eventType == TEventType.Live && _playing?.EventType == TEventType.Live)
-                    Router?.SelectInput(aEvent.RouterPort);
+                    Router.SelectInput(aEvent.RouterPort);
 
                 _playoutChannelPRI?.Play(aEvent);
                 _playoutChannelSEC?.Play(aEvent);
