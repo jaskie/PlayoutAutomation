@@ -4,12 +4,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:commonInterfaces="clr-namespace:TAS.Common.Interfaces;assembly=TAS.Common"
              mc:Ignorable="d" 
              d:DesignWidth="360"
              d:DesignHeight="530"
@@ -250,7 +252,24 @@
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
                             <TextBlock Margin="5" Text="{Resx _inputPort}" VerticalAlignment="Center" />
-                            <ComboBox Grid.Column="1" ItemsSource="{Binding InputPorts}" DisplayMemberPath="PortName" SelectedItem="{Binding SelectedInputPort}" IsEnabled="{Binding Router.IsConnected}" MinWidth="100" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding InputPorts}" SelectedItem="{Binding SelectedInputPort}" IsEnabled="{Binding Router.IsConnected}" MinWidth="100" VerticalAlignment="Center">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock>
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="{Binding PortName}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding}" Value="">
+                                                            <Setter Property="Text" Value="{Resx _noInputPort, ResxName=TAS.Client.Views.EventEditView}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </Grid>
                         <Grid Grid.Row="4" Visibility="{Binding IsMovieOrLive, Converter={StaticResource BoolToVis}}" >
                             <Grid.RowDefinitions>

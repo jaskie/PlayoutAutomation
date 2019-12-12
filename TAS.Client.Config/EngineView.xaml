@@ -36,7 +36,7 @@
             <Label Content="Primary program channel"/>
             <ComboBox SelectedItem="{Binding ChannelPRI}" ItemsSource="{Binding Channels}"/>
             <Label Content="Backup program channel"/>
-            <ComboBox SelectedItem="{Binding ChannelSEC}" ItemsSource="{Binding Channels}"/>
+            <    SelectedItem="{Binding ChannelSEC}" ItemsSource="{Binding Channels}"/>
             <Label Content="Preview channel"/>
             <ComboBox SelectedItem="{Binding ChannelPRV}" ItemsSource="{Binding Channels}"/>
             <Label Content="Archive directory"/>

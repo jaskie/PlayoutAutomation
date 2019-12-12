@@ -38,6 +38,10 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="jNet.RPC, Version=0.1.7278.15076, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TVPlay-TVP\TVPlayPlugins\submodules\jNet.RPC\jNet.RPC\bin\Release\jNet.RPC.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -52,6 +56,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="TAS.Common, Version=1.6.7279.15732, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TVPlay-TVP\TVPlayPlugins\dependencies\TAS.Common.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -101,16 +109,6 @@
     <Compile Include="Model\Media\WatcherDirectory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\Media\XDCAMMedia.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj">
-      <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
-      <Name>jNet.RPC</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TAS.Common\TAS.Common.csproj">
-      <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
-      <Name>TAS.Common</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

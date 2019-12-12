@@ -8,7 +8,6 @@ namespace TAS.Client.Config
 {
     public class EnginesViewmodel: OkCancelViewmodelBase<Model.Engines>
     {
-
         private EngineViewmodel _selectedEngine;
         private bool _isCollectionCanged;
         
