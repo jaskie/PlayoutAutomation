@@ -251,22 +251,22 @@
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="Labels" />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Margin="5" Text="{Resx _inputPort}" VerticalAlignment="Center" />
+                            <Label Margin="5" Content="{Resx _inputPort}" VerticalAlignment="Center" />
                             <ComboBox Grid.Column="1" ItemsSource="{Binding InputPorts}" SelectedItem="{Binding SelectedInputPort}" IsEnabled="{Binding Router.IsConnected}" MinWidth="100" VerticalAlignment="Center">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock>
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Text" Value="{Binding PortName}" />
+                                        <ComboBoxItem>
+                                            <ComboBoxItem.Style>
+                                                <Style TargetType="ComboBoxItem">
+                                                    <Setter Property="Content" Value="{Binding PortName}" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding}" Value="">
-                                                            <Setter Property="Text" Value="{Resx _noInputPort, ResxName=TAS.Client.Views.EventEditView}" />
+                                                            <Setter Property="Content" Value="{Resx _noInputPort, ResxName=TAS.Client.Views.EventEditView}" />
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
+                                            </ComboBoxItem.Style>
+                                        </ComboBoxItem>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
