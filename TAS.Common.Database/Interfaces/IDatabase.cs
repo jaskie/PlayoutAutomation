@@ -17,6 +17,9 @@ namespace TAS.Common.Database.Interfaces
 
         void AsRunLogWrite(ulong idEngine, IEvent e);
         void CloneDatabase(string connectionStringSource, string connectionStringDestination);
+        void TestConnect(string connectionString);
+        void Open(string connectionStringPrimary = null, string connectionStringSecondary = null);
+        void InitializeFieldLengths();
         void Close();
         bool CreateEmptyDatabase(string connectionString, string collate);
         void DeleteArchiveDirectory(IArchiveDirectoryProperties dir);
@@ -73,8 +76,6 @@ namespace TAS.Common.Database.Interfaces
         void LoadAnimationDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IAnimatedMedia, new();
         void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IServerMedia, new();
         T LoadArchiveDirectory<T>(ulong idArchive) where T : IArchiveDirectoryServerSide, new();
-        void Open(string connectionStringPrimary = null, string connectionStringSecondary = null);
-        void TestConnect(string connectionString);
         bool UpdateDb();
         bool UpdateRequired();
         IDictionary<string, int> ServerMediaFieldLengths { get; }

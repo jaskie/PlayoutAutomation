@@ -52,6 +52,7 @@ namespace TAS.Server
             Database = DatabaseProviderLoader.LoadDatabaseProvider();
             Logger.Debug("Connecting to database");
             Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
+            Database.InitializeFieldLengths();
             Servers = Database.LoadServers<CasparServer>();
             Servers.ForEach(s =>
             {

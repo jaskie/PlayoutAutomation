@@ -134,12 +134,12 @@ ALTER TABLE `rundownevent` ADD INDEX `idPlayState` (`PlayState` ASC);
 INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '1');</value>
   </data>
   <data name="V10" xml:space="preserve">
-    <value>ALTER TABLE `tas`.`asrunlog` 
+    <value>ALTER TABLE `asrunlog` 
 CHANGE COLUMN `typVideo` `typVideo` TINYINT(3) UNSIGNED NULL DEFAULT NULL ,
 CHANGE COLUMN `typAudio` `typAudio` TINYINT(3) UNSIGNED NULL DEFAULT NULL ;</value>
   </data>
   <data name="V11" xml:space="preserve">
-    <value>ALTER TABLE `tas`.`asrunlog` 
+    <value>ALTER TABLE `asrunlog` 
 ADD COLUMN `idEngine` BIGINT(20) NULL AFTER `idAsRunLog`,
 ADD INDEX `ixIdEngine` (`idEngine` ASC);
 </value>

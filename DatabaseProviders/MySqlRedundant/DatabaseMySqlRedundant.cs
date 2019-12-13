@@ -37,6 +37,10 @@ namespace TAS.Database.MySqlRedundant
             _connection = new DbConnectionRedundant(ConnectionStringPrimary, ConnectionStringSecondary);
             _connection.StateRedundantChange += _connection_StateRedundantChange;
             _connection.Open();
+        }
+
+        public void InitializeFieldLengths()
+        {
             if ((_connection.StateRedundant & (ConnectionStateRedundant.OpenPrimary | ConnectionStateRedundant.OpenSecondary)) != ConnectionStateRedundant.Closed)
                 _tablesStringFieldsLenghts = ReadTablesStringFieldLenghts();
 
@@ -45,7 +49,7 @@ namespace TAS.Database.MySqlRedundant
                 { nameof(IServerMedia.MediaName), _tablesStringFieldsLenghts["servermedia"]["MediaName"] },
                 { nameof(IServerMedia.FileName), _tablesStringFieldsLenghts["servermedia"]["FileName"] },
                 { nameof(IServerMedia.Folder), _tablesStringFieldsLenghts["servermedia"]["Folder"] },
-                { nameof(IServerMedia.IdAux), _tablesStringFieldsLenghts["servermedia"]["idAux"] } 
+                { nameof(IServerMedia.IdAux), _tablesStringFieldsLenghts["servermedia"]["idAux"] }
             };
 
             ArchiveMediaFieldLengths = new Dictionary<string, int>
@@ -62,7 +66,7 @@ namespace TAS.Database.MySqlRedundant
                 { nameof(IEvent.IdAux), _tablesStringFieldsLenghts["rundownevent"]["idAux"] },
                 { nameof(ICommandScript.Command), _tablesStringFieldsLenghts["rundownevent"]["Commands"] }
             };
-            
+
             MediaSegmentFieldLengths = new Dictionary<string, int>
             {
                 { nameof(IMediaSegment.SegmentName), _tablesStringFieldsLenghts["mediasegments"]["SegmentName"] },

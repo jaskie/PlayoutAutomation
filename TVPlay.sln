@@ -36,6 +36,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.Config", "TAS.Client.Config\TAS.Client.Config.csproj", "{86071DE4-1A5D-4889-B54A-08DA101B2B51}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPlay.config", "TVPlay.config\TVPlay.config.csproj", "{0BB48447-B299-4CE9-AF50-174384B269D0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D} = {4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client", "TAS.Client\TAS.Client.csproj", "{F6E01E47-5075-42A7-B2A2-BC35BC074F9F}"
 EndProject
