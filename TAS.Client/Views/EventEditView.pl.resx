@@ -207,6 +207,9 @@
   <data name="_name" xml:space="preserve">
     <value>Nazwa</value>
   </data>
+  <data name="_noInputPort" xml:space="preserve">
+    <value>&lt;Nie zmieniaj&gt;</value>
+  </data>
   <data name="_requiredAt" xml:space="preserve">
     <value>Wymagany o</value>
   </data>

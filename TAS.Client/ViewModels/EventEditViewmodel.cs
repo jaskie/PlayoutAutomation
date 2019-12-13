@@ -38,7 +38,8 @@ namespace TAS.Client.ViewModels
         private TimeSpan _duration;
         private TimeSpan _scheduledDelay;
         private bool _isEventNameFocused;
-        private IRouterPort _selectedInputPort;
+        private int _routerPort = -1;
+        private object _selectedInputPort;
 
 
         public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
@@ -57,9 +58,17 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
             Router = engineViewModel.Router;
+            InputPorts = new List<object>();
+
             if (Router != null)
-                Router.PropertyChanged += Router_PropertyChanged;    
-            _selectedInputPort = InputPorts?.FirstOrDefault(param => param.PortId == _routerPort);
+            {
+                InputPorts.Add(string.Empty); //default value in ComboBox
+                foreach (var input in Router.InputPorts)
+                    InputPorts.Add(input);
+                _selectedInputPort = InputPorts?.FirstOrDefault(param => param is IRouterPort routerPort && routerPort.PortId == _routerPort) ?? InputPorts?[0];
+            }
+                            
+                       
 
             CommandSaveEdit = new UiCommand(o => Save(), o => CanSave);
             CommandUndoEdit = new UiCommand(o => UndoEdit(), o => IsModified);
@@ -97,21 +106,6 @@ namespace TAS.Client.ViewModels
             {
                 TemplatedEditViewmodel = new TemplatedEditViewmodel(templated, true, true, engineViewModel.VideoFormat);
                 TemplatedEditViewmodel.ModifiedChanged += TemplatedEditViewmodel_ModifiedChanged;
-            }
-        }
-
-        private void Router_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch(e.PropertyName)
-            {
-                case nameof(Router.InputPorts):
-                    {
-                        NotifyPropertyChanged(nameof(InputPorts));
-                        _selectedInputPort = InputPorts?.FirstOrDefault(param => param.PortId == _routerPort);
-                        if (_selectedInputPort != null)
-                            NotifyPropertyChanged(nameof(SelectedInputPort));
-                        break;
-                    }
             }
         }
 
@@ -558,8 +552,6 @@ namespace TAS.Client.ViewModels
         public TVideoFormat VideoFormat => _engineViewModel.VideoFormat;
 
         #region Router
-        private int _routerPort = -1;       
-
         public int RouterPort
         {
             get => _routerPort;
@@ -569,23 +561,30 @@ namespace TAS.Client.ViewModels
                     return;
 
                 _routerPort = value;
-                _selectedInputPort = InputPorts?.FirstOrDefault(p => p.PortId == value);
+                _selectedInputPort = InputPorts?.FirstOrDefault(p => p is IRouterPort routerPort && routerPort.PortId == value) ?? InputPorts?[0];
                 NotifyPropertyChanged(nameof(SelectedInputPort));
             }
         }
 
         public IRouter Router { get; }
 
-        public IList<IRouterPort> InputPorts => Router?.InputPorts;
+        public IList<object> InputPorts { get; }
 
-        public IRouterPort SelectedInputPort
+        public object SelectedInputPort
         {
             get => _selectedInputPort;
             set
             {
                 if (!SetField(ref _selectedInputPort, value))
                     return;
-                RouterPort = value.PortId;
+
+                if (!(value is IRouterPort routerPort))
+                {
+                    RouterPort = -1;
+                    return;
+                }
+                
+                RouterPort = routerPort.PortId;
             }
         }
 
@@ -661,8 +660,6 @@ namespace TAS.Client.ViewModels
             }
             if (_media != null)
                 _media.PropertyChanged -= OnMediaPropertyChanged;
-            if (Router != null)
-                Router.PropertyChanged -= Router_PropertyChanged;
         }
 
         #region Command methods

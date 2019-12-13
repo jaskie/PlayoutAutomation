@@ -1012,8 +1012,8 @@ namespace TAS.Server
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
 
-                if (eventType == TEventType.Live && _playing.EventType != TEventType.Live)
-                    Router?.SelectInput(aEvent.RouterPort);
+                if (Router != null && eventType == TEventType.Live && _playing?.EventType != TEventType.Live)
+                    Router.SelectInput(aEvent.RouterPort);
 
                 if (!aEvent.IsHold
                     && CGElementsController?.IsConnected == true
@@ -1067,8 +1067,8 @@ namespace TAS.Server
                 aEvent.Position = 0;
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
-                if (eventType == TEventType.Live && _playing.EventType == TEventType.Live)
-                    Router?.SelectInput(aEvent.RouterPort);
+                if (Router != null && eventType == TEventType.Live && _playing?.EventType == TEventType.Live)
+                    Router.SelectInput(aEvent.RouterPort);
 
                 _playoutChannelPRI?.Play(aEvent);
                 _playoutChannelSEC?.Play(aEvent);
