@@ -292,11 +292,11 @@ namespace TAS.Common
                 return result;
             if (imageSize.Height == Descriptions[TVideoFormat.PAL].ImageSize.Height && 
                 frameRate == Descriptions[TVideoFormat.PAL].FrameRate &&
-                imageSize.Width == 768 && sar == 1)
+                imageSize.Width == 768 && sar == RationalNumber.One)
                 return interlaced ? Descriptions[TVideoFormat.PAL] : Descriptions[TVideoFormat.PAL_P];
             if (imageSize.Height == Descriptions[TVideoFormat.PAL_FHA].ImageSize.Height &&
                 frameRate == Descriptions[TVideoFormat.PAL_FHA].FrameRate &&
-                (imageSize.Width == 1024 || imageSize.Width == 1050) && sar == 1)
+                (imageSize.Width == 1024 || imageSize.Width == 1050) && sar == RationalNumber.One)
                 return interlaced ? Descriptions[TVideoFormat.PAL_FHA] : Descriptions[TVideoFormat.PAL_FHA_P];
             return new VideoFormatDescription(imageSize, frameRate, sar, interlaced); 
         }

@@ -52,6 +52,8 @@ namespace TAS.Common
 
         public static RationalNumber Zero = new RationalNumber(0, 1);
 
+        public static RationalNumber One = new RationalNumber(1, 1);
+
         public override string ToString()
         {
             return $"{_num}/{_den}";
