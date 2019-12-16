@@ -1,9 +1,10 @@
 ﻿//#undef DEBUG
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows;
+using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -15,10 +16,9 @@ namespace TAS.Client.ViewModels
         {
             Engine.EventLocated += _onEngineEventLocated;
             Engine.EventDeleted += _engine_EventDeleted;
-            foreach (var se in Engine.GetRootEvents())
-                AddRootEvent(se);
+            AddRootEvents();
         }
-
+        
         public IEnumerable<EventPanelViewmodelBase> HiddenContainers
         {
             get { return Childrens.Where(c => (c as EventPanelContainerViewmodel)?.IsVisible == false); }
@@ -37,6 +37,20 @@ namespace TAS.Client.ViewModels
             base.OnDispose();
             Engine.EventLocated -= _onEngineEventLocated;
             Engine.EventDeleted -= _engine_EventDeleted;
+        }
+
+        private async void AddRootEvents()
+        {
+            try
+            {
+            var root = await Task.Run(() => Engine.GetRootEvents());
+            foreach (var se in root)
+                AddRootEvent(se);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
         }
 
         private void _engine_EventDeleted(object sender, EventEventArgs e)

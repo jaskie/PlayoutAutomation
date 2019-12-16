@@ -28,17 +28,26 @@ namespace TVPlayClient
 
         public void Initialize()
         {
-#if DEBUG
-         Thread.Sleep(5000);   
-#endif
             _createView();
         }
 
-        public string TabName { get => _tabName; private set => SetField(ref _tabName, value); }
+        public string TabName
+        {
+            get => _tabName;
+            private set => SetField(ref _tabName, value);
+        }
 
-        public bool IsLoading { get => _isLoading; set => SetField(ref _isLoading, value); }
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set => SetField(ref _isLoading, value);
+        }
 
-        public ChannelViewmodel Channel { get => _channel; private set => SetField(ref _channel, value); }
+        public ChannelViewmodel Channel
+        {
+            get => _channel;
+            private set => SetField(ref _channel, value);
+        }
 
         protected override void OnDispose()
         {
@@ -68,34 +77,32 @@ namespace TVPlayClient
         {
             Task.Run(() =>
             {
-                while (!_disposed)
+#if DEBUG
+                Thread.Sleep(5000);
+#endif
+                try
                 {
-                    try
+                    _client = new RemoteClient(_channelConfiguration.Address)
                     {
-                        _client = new RemoteClient(_channelConfiguration.Address)
-                        {
-                            Binder = ClientTypeNameBinder.Current
-                        };
-                        _client.Disconnected += ClientDisconnected;
-                        var engine = _client.GetRootObject<Engine>();
-                        if (engine == null)
-                        {
-                            Thread.Sleep(1000);
-                            continue;
-                        }
-                        OnUiThread(() =>
-                        {
-                            Channel = new ChannelViewmodel(engine, _channelConfiguration.ShowEngine,
-                                _channelConfiguration.ShowMedia);
-                            TabName = Channel.DisplayName;
-                            IsLoading = false;
-                        });
-                        return;
-                    }
-                    catch (SocketException)
+                        Binder = ClientTypeNameBinder.Current
+                    };
+                    _client.Disconnected += ClientDisconnected;
+                    var engine = _client.GetRootObject<Engine>();
+                    if (engine == null)
                     {
                         Thread.Sleep(1000);
+                        return;
                     }
+                    OnUiThread(() =>
+                    {
+                        Channel = new ChannelViewmodel(engine, _channelConfiguration.ShowEngine, _channelConfiguration.ShowMedia);
+                        TabName = Channel.DisplayName;
+                        IsLoading = false;
+                    });
+                }
+                catch (SocketException)
+                {
+                    Thread.Sleep(1000);
                 }
             });
         }
