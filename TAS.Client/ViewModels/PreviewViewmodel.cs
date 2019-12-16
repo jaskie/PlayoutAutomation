@@ -626,14 +626,20 @@ namespace TAS.Client.ViewModels
 
         private void PreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (LoadedMedia != null && e.PropertyName == nameof(IPreview.MoviePosition))
+            switch (e.PropertyName)
             {
-                NotifyPropertyChanged(nameof(Position));
-                NotifyPropertyChanged(nameof(SliderPosition));
+                case nameof(IPreview.MoviePosition) when  LoadedMedia != null:
+                        NotifyPropertyChanged(nameof(Position));
+                        NotifyPropertyChanged(nameof(SliderPosition));
+                    break;
+                case nameof(IPreview.LoadedMovie):
+                    if (_preview.LoadedMovie != LoadedMedia)
+                        LoadedMedia = null;
+                    break;
+                case nameof(IPreview.IsConnected):
+                    NotifyPropertyChanged(nameof(IsEnabled));
+                    break;
             }
-            if (e.PropertyName == nameof(IPreview.LoadedMovie))
-                if (_preview.LoadedMovie != LoadedMedia)
-                    LoadedMedia = null;
         }
 
         private void _mediaSegments_SegmentRemoved(object sender, MediaSegmentEventArgs e)
