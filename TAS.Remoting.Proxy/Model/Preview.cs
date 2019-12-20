@@ -25,6 +25,9 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IPreview.IsPlaying))]
         private bool _isPlaying;
 
+        [JsonProperty(nameof(IPreview.IsLivePlaying))]
+        private bool _isLivePlaying;
+
         [JsonProperty(nameof(IPreview.IsMovieLoaded))]
         private bool _isMovieLoaded;
 
@@ -57,6 +60,8 @@ namespace TAS.Remoting.Model
 
         public bool IsPlaying => _isPlaying;
 
+        public bool IsLivePlaying => _isLivePlaying;
+
         public bool IsMovieLoaded => _isMovieLoaded;
 
         public void LoadStillImage(IMedia media, VideoLayer layer)
@@ -88,6 +93,8 @@ namespace TAS.Remoting.Model
         public void Pause() { Invoke(); }
 
         public void Play() { Invoke(); }
+
+        public void PlayLiveDevice() { Invoke(); }
 
         public void UnloadMovie() { Invoke(); }
 
