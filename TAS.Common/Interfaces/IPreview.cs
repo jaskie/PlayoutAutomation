@@ -10,6 +10,7 @@ namespace TAS.Common.Interfaces
         IPlayoutServerChannel Channel { get; }
         void LoadMovie(IMedia media, long seek, long duration, long position, double audioLevel);
         void UnloadMovie();
+        void PlayLiveDevice();
         void LoadStillImage(IMedia media, VideoLayer layer);
         bool UnLoadStillImage(VideoLayer layer);
         IMedia LoadedMovie { get; }
@@ -19,6 +20,7 @@ namespace TAS.Common.Interfaces
         bool IsConnected { get; }
         bool IsMovieLoaded { get; }
         bool IsPlaying { get; }
+        bool IsLivePlaying { get; }
         long MoviePosition { get; set; }
         long MovieSeekOnLoad { get; }
         double AudioVolume { get; set; }

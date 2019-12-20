@@ -28,6 +28,7 @@ namespace TAS.Server
         private double _audioVolume;
         private bool _isLoaded;
         private bool _isPlaying;
+        private bool _isLivePlaying;
         private long _currentTicks;
         private CancellationTokenSource _previewPositionCancellationTokenSource;
         private long _previewLastPositionSetTick;
@@ -121,6 +122,13 @@ namespace TAS.Server
             private set => SetField(ref _isPlaying, value);
         }
 
+        [XmlIgnore, JsonProperty]
+        public bool IsLivePlaying
+        {
+            get => _isLivePlaying;
+            private set => SetField(ref _isLivePlaying, value);
+        }
+
 
         public void LoadMovie(IMedia media, long seek, long duration, long position, double previewAudioVolume)
         {
@@ -182,15 +190,33 @@ namespace TAS.Server
             if (!_engine.HaveRight(EngineRight.Preview))
                 return;
             if (_loadedMovie != null && _channel?.Play(VideoLayer.Preview) == true)
+            {
+                IsLivePlaying = false;
                 IsPlaying = true;
+            }
+                
         }
 
         public void Pause()
         {
             if (!_engine.HaveRight(EngineRight.Preview))
                 return;
-            _channel?.Pause(VideoLayer.Preview);
-            IsPlaying = false;
+            if (_channel?.Pause(VideoLayer.Preview) ?? false)
+                IsPlaying = false;
+        }
+
+        public void PlayLiveDevice()
+        {
+            if (!_engine.HaveRight(EngineRight.Preview))
+                return;
+            if (_channel?.PlayLive(VideoLayer.Preview) ?? false)
+            {
+                if (_isLoaded)
+                    _movieUnload();
+
+                IsLivePlaying = true;
+            }
+                
         }
 
         public event EventHandler<MediaOnLayerEventArgs> StillImageLoaded;
@@ -198,19 +224,20 @@ namespace TAS.Server
         public event EventHandler<MediaOnLayerEventArgs> StillImageUnLoaded;
 
         private void _movieUnload()
-        {
+        {                           
             var channel = _channel;
             var media = _loadedMovie;
-            if (channel == null || media == null)
+            if ((channel == null || media == null) && !IsLivePlaying)
                 return;
             _previewPositionCancellationTokenSource?.Cancel();
-            channel.Clear(VideoLayer.Preview);
+            channel?.Clear(VideoLayer.Preview);
             _duration = 0;
             _position = 0;
             MovieSeekOnLoad = 0;
             _loadedMovie = null;
             IsMovieLoaded = false;
             IsPlaying = false;
+            IsLivePlaying = false;
             NotifyPropertyChanged(nameof(LoadedMovie));
             NotifyPropertyChanged(nameof(MoviePosition));
             NotifyPropertyChanged(nameof(MovieSeekOnLoad));
@@ -250,7 +277,6 @@ namespace TAS.Server
         {
             if (e.PropertyName == nameof(IPlayoutServerChannel.IsServerConnected))
                 NotifyPropertyChanged(nameof(IsConnected));
-        }
-
+        }        
     }
 }

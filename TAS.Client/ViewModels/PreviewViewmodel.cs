@@ -280,6 +280,8 @@ namespace TAS.Client.ViewModels
         public ICommand CommandFastForwardOneFrame { get; private set; }
         public ICommand CommandBackwardOneFrame { get; private set; }
 
+        public ICommand CommandLivePreview { get; private set; }
+
         public ICommand CommandToggleLayer { get; private set; }
 
 
@@ -492,6 +494,12 @@ namespace TAS.Client.ViewModels
                 o => IsLoaded && SliderPosition > 0
             );
             CommandToggleLayer = new UiCommand(_stillToggle, _canStillToggle);
+
+            CommandLivePreview = new UiCommand
+            (
+                o => _preview.PlayLiveDevice(),
+                o => !_preview.IsLivePlaying
+            );
         }
 
         private bool _canStillToggle(object obj)
@@ -515,6 +523,9 @@ namespace TAS.Client.ViewModels
 
         private bool _canUnload(object o)
         {
+            if (_preview.IsLivePlaying)
+                return true;
+
             MediaSegmentViewmodel segment = PlayWholeClip ? SelectedSegment : null;
             IMedia media = LoadedMedia;
             if (media == null)
@@ -548,7 +559,7 @@ namespace TAS.Client.ViewModels
         private void _mediaLoad(IMedia media, bool reloadSegments)
         {
             if (media == null)
-                return;
+                return;            
             LoadedMedia = media;
             if (reloadSegments)
             {

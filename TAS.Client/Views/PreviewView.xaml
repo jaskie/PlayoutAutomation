@@ -29,49 +29,61 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" MinWidth="300" >
         <DockPanel IsEnabled="{Binding IsEnabled}">
             <Grid DockPanel.Dock="Top" >
-                <StackPanel Orientation="Horizontal">
-                    <Button Command="{Binding CommandPause}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPause.ToolTip}">
-                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-pause.png"  />
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Command="{Binding CommandPause}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPause.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-pause.png"  />
+                </Button>
+                <Button Grid.Column="1" Command="{Binding CommandPlay}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlay.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-start.png" />
+                </Button>
+                <Button Grid.Column="2" Command="{Binding CommandPlayTheEnd}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlayTheEnd.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-end.png" />
+                </Button>
+                <Button Grid.Column="3" Command="{Binding CommandUnload}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png"  />
+                </Button>
+                <Grid Grid.Column="4">
+                    <Grid.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Width" Value="22" />
+                            <Setter Property="Height" Value="22"/>
+                            <Setter Property="Margin" Value="1" />
+                            <Setter Property="Padding" Value="0" />
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" ToolTip="{Resx _buttonStillImage1.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG1" Visibility="{Binding IsStillButton1Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsStill1Loaded, Converter={StaticResource BoolToBrushButton}}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer1.png" />
                     </Button>
-                    <Button Command="{Binding CommandPlay}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlay.ToolTip}">
-                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-start.png" />
+                    <Button Grid.Column="1" ToolTip="{Resx _buttonStillImage2.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG2" Visibility="{Binding IsStillButton2Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsStill2Loaded, Converter={StaticResource BoolToBrushButton}}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer2.png" />
                     </Button>
-                    <Button Command="{Binding CommandPlayTheEnd}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlayTheEnd.ToolTip}">
-                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-end.png" />
+                    <Button Grid.Column="2" ToolTip="{Resx _buttonStillImage3.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG3" Visibility="{Binding IsStillButton3Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsStill3Loaded, Converter={StaticResource BoolToBrushButton}}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer3.png" />
                     </Button>
-                    <Button Command="{Binding CommandUnload}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
-                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png"  />
-                    </Button>
-                    <Grid>
-                        <Grid.Resources>
-                            <Style TargetType="Button">
-                                <Setter Property="Width" Value="22" />
-                                <Setter Property="Height" Value="22"/>
-                                <Setter Property="Margin" Value="1" />
-                                <Setter Property="Padding" Value="0" />
-                            </Style>
-                        </Grid.Resources>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" ToolTip="{Resx _buttonStillImage1.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG1" Visibility="{Binding IsStillButton1Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsStill1Loaded, Converter={StaticResource BoolToBrushButton}}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer1.png" />
-                        </Button>
-                        <Button Grid.Column="1" ToolTip="{Resx _buttonStillImage2.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG2" Visibility="{Binding IsStillButton2Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsStill2Loaded, Converter={StaticResource BoolToBrushButton}}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer2.png" />
-                        </Button>
-                        <Button Grid.Column="2" ToolTip="{Resx _buttonStillImage3.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG3" Visibility="{Binding IsStillButton3Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsStill3Loaded, Converter={StaticResource BoolToBrushButton}}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer3.png" />
-                        </Button>
-                    </Grid>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Command="{Binding CommandTrimSource}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonTrimSource.ToolTip}">
-                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/time-update.png"  />
-                    </Button>
-                </StackPanel>
+                </Grid>
+
+                <Button Grid.Column="5" Command="{Binding CommandLivePreview}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonLivePreview.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventTypes/Live.png"  />
+                </Button>
+                <Button Grid.Column="6" Command="{Binding CommandTrimSource}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonTrimSource.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/time-update.png"  />
+                </Button>
+
             </Grid>
             <DockPanel IsEnabled="{Binding IsLoaded}">
                 <DockPanel.Resources>

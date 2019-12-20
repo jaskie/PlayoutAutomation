@@ -126,6 +126,9 @@
   <data name="_buttonCopyTCOut.ToolTip" xml:space="preserve">
     <value>Kopiuj bieżący TC do Out | Ctrl+O</value>
   </data>
+  <data name="_buttonLivePreview.ToolTip" xml:space="preserve">
+    <value>Podgląd na żywo</value>
+  </data>
   <data name="_buttonPause.ToolTip" xml:space="preserve">
     <value>Podgląd pierwszej ramki</value>
   </data>

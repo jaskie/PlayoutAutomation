@@ -90,7 +90,7 @@ namespace TAS.Server
         }
 
         public bool Load(Event aEvent)
-        {
+        {            
             var channel = _casparChannel;
             if (aEvent != null && CheckConnected(channel))
             {
@@ -113,6 +113,8 @@ namespace TAS.Server
             Debug.WriteLine(aEvent, "CasparLoad did not load");
             return false;
         }
+
+        
 
         public bool Load(MediaBase media, VideoLayer videolayer, long seek, long duration)
         {
@@ -168,6 +170,17 @@ namespace TAS.Server
             channel.Seek((int)videolayer, (uint)position);
             Debug.WriteLine("CasparSeek Channel {0} Layer {1} Position {2}", Id, (int)videolayer, position);
             return true;
+        }
+
+        public bool PlayLive(VideoLayer layer)
+        {
+            if (LiveDevice == null)
+                return false;
+
+            var channel = _casparChannel;
+            var item = new CasparItem((int)layer, LiveDevice);
+            channel?.LoadBG(item);            
+            return Play(layer); ;
         }
 
         public bool Play(Event aEvent)
