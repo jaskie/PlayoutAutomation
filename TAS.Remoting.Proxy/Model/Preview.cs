@@ -25,6 +25,9 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IPreview.IsPlaying))]
         private bool _isPlaying;
 
+        [JsonProperty(nameof(IPreview.HaveLiveDevice))]
+        private bool _haveLiveDevice;
+
         [JsonProperty(nameof(IPreview.IsLivePlaying))]
         private bool _isLivePlaying;
 
@@ -61,6 +64,8 @@ namespace TAS.Remoting.Model
         public bool IsPlaying => _isPlaying;
 
         public bool IsLivePlaying => _isLivePlaying;
+
+        public bool HaveLiveDevice => _haveLiveDevice;
 
         public bool IsMovieLoaded => _isMovieLoaded;
 

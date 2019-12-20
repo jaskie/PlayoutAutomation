@@ -20,6 +20,7 @@ namespace TAS.Common.Interfaces
         bool IsConnected { get; }
         bool IsMovieLoaded { get; }
         bool IsPlaying { get; }
+        bool HaveLiveDevice { get; }
         bool IsLivePlaying { get; }
         long MoviePosition { get; set; }
         long MovieSeekOnLoad { get; }

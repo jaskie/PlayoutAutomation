@@ -40,6 +40,7 @@ namespace TAS.Client.ViewModels
             preview.PropertyChanged += PreviewPropertyChanged;
             preview.StillImageLoaded += Preview_StillImageLoaded;
             preview.StillImageUnLoaded += Preview_StillImageUnLoaded;
+            HaveLiveDevice = preview.HaveLiveDevice;
             _loadedStillImages = new Dictionary<VideoLayer, IMedia>(preview.LoadedStillImages);
             _preview = preview;
             FormatDescription = VideoFormatDescription.Descriptions[preview.VideoFormat];
@@ -50,6 +51,8 @@ namespace TAS.Client.ViewModels
         public VideoFormatDescription FormatDescription { get; }
 
         public TVideoFormat VideoFormat => FormatDescription.Format;
+
+        public bool HaveLiveDevice { get; }
 
         public IMedia SelectedMedia
         {
