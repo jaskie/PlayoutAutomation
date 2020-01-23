@@ -108,6 +108,10 @@
       <DependentUpon>FilenameEntry.xaml</DependentUpon>
     </Compile>
     <Compile Include="IngestDirectoryExtensions.cs" />
+    <Compile Include="OkCancelView.xaml.cs">
+      <DependentUpon>OkCancelView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OkCancelViewmodelBase.cs" />
     <Compile Include="Plugin\IUiEngine.cs" />
     <Compile Include="Plugin\IUiPluginContext.cs" />
     <Compile Include="Plugin\UiMenuItemBase.cs" />
@@ -151,6 +155,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="OkCancelView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Styles\StretchedTreeViewItem.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

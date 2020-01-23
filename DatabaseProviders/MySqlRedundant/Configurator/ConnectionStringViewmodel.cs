@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using TAS.Client.Common;
 using MySql.Data.MySqlClient;
+using TAS.Client.Config;
 
-namespace TAS.Client.Config
+namespace TAS.Database.MySqlRedundant.Configurator
 {
     public class ConnectionStringViewmodel : OkCancelViewmodelBase<MySqlConnectionStringBuilder>
     {

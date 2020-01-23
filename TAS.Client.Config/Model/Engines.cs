@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 using TAS.Common;
 using TAS.Common.Database;
 using TAS.Common.Database.Interfaces;
@@ -10,16 +12,12 @@ namespace TAS.Client.Config.Model
     {
         internal readonly List<CasparServer> Servers;
         internal readonly ArchiveDirectories ArchiveDirectories;
-        public readonly string ConnectionStringPrimary;
-        public readonly string ConnectionStringSecondary;
         private readonly IDatabase _db;
 
-        public Engines(string connectionStringPrimary, string connectionStringSecondary)
+        public Engines(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {
-            ConnectionStringPrimary = connectionStringPrimary;
-            ConnectionStringSecondary = connectionStringSecondary;
-            _db = DatabaseProviderLoader.LoadDatabaseProvider();
-            _db.Open(connectionStringPrimary, connectionStringSecondary);
+            _db = DatabaseProviderLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
+            _db.Open(connectionStringSettingsCollection);
             ArchiveDirectories = new ArchiveDirectories(_db);
             EngineList = _db.LoadEngines<Engine>();
             Servers = _db.LoadServers<CasparServer>();

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
 using TAS.Common;
+using TAS.Common.Database;
 using TAS.Common.Database.Interfaces;
 using TAS.Common.Database.Interfaces.Media;
 using TAS.Common.Interfaces;
@@ -20,6 +22,8 @@ namespace TAS.Database.MySqlRedundant
     [Export(typeof(IDatabase))]
     public class DatabaseMySqlRedundant : IDatabase
     {
+        public DatabaseType DatabaseType => DatabaseType.MySQL;
+
         private static readonly DateTime MinMySqlDate = new DateTime(1000, 01, 01);
         private static readonly DateTime MaxMySqlDate = new DateTime(9999, 12, 31, 23, 59, 59);
 
@@ -27,14 +31,20 @@ namespace TAS.Database.MySqlRedundant
 
         private Dictionary<string, Dictionary<string, int>> _tablesStringFieldsLenghts;
 
-        public void Open(string connectionStringPrimary = null, string connectionStringSecondary = null)
+        public void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {
-            if (connectionStringPrimary != null)
-            {
-                ConnectionStringPrimary = connectionStringPrimary;
-                ConnectionStringSecondary = connectionStringSecondary;
-            }
+            ConnectionStringPrimary =  connectionStringSettingsCollection[ConnectionStringsNames.Primary]?.ConnectionString;
+            ConnectionStringSecondary = connectionStringSettingsCollection[ConnectionStringsNames.Secondary]?.ConnectionString;
+            Close();
             _connection = new DbConnectionRedundant(ConnectionStringPrimary, ConnectionStringSecondary);
+            _connection.StateRedundantChange += _connection_StateRedundantChange;
+            _connection.Open();
+        }
+
+        public void Open(string connectionStringPrimary, string connectionStringSecondary)
+        {
+            Close();
+            _connection = new DbConnectionRedundant(connectionStringPrimary, connectionStringSecondary);
             _connection.StateRedundantChange += _connection_StateRedundantChange;
             _connection.Open();
         }
@@ -109,7 +119,11 @@ namespace TAS.Database.MySqlRedundant
 
         public void Close()
         {
+            if (_connection == null)
+                return;
+            _connection.StateRedundantChange -= _connection_StateRedundantChange;
             _connection.Close();
+            _connection = null;
         }
 
         public string ConnectionStringPrimary { get; private set; }

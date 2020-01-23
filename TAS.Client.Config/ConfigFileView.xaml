@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:common="clr-namespace:TAS.Client;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:config ="clr-namespace:TAS.Client.Config"
              mc:Ignorable="d" 
@@ -22,50 +21,40 @@
                 InitialDirectory="{Binding ExeDirectory}"/>
             <Label Content="Temp directory"/>
             <TextBox Text="{Binding TempDirectory, UpdateSourceTrigger=PropertyChanged}"/>
-            <Label Content="Instance binding"/>
-            <TextBox Text="{Binding Instance, UpdateSourceTrigger=PropertyChanged}"/>
-            <Label Content="Reference loudness level"/>
-            <TextBox Text="{Binding ReferenceLoudnessLevel}"/>
+            <Grid>
+                <Grid.Resources>
+                    <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                        <Setter Property="MinWidth" Value="50"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Label>Instance binding</Label>
+                <TextBox Grid.Column="1" Text="{Binding Instance, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.ToolTip>
+                        <TextBlock>You have to set the same value to relevant field of each playout engine<LineBreak/>
+                            that should run in this configuration</TextBlock>
+                    </TextBox.ToolTip>
+                </TextBox>
+                <Label Grid.Row="1">Reference loudness level</Label>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ReferenceLoudnessLevel}"/>
+            </Grid>
             <CheckBox Margin="0, 5" IsChecked="{Binding IsBackupInstance}" Content="Backup instance"/>
             <Label Content="User interface language"/>
             <ComboBox ItemsSource="{Binding SupportedLanguages}" DisplayMemberPath="DisplayName" SelectedValuePath="Name" SelectedValue="{Binding UiLanguage}" />
-            <Separator Margin="10"/>
-            <Label Content="Database" FontWeight="Bold" HorizontalAlignment="Center"/>
-            <Label Content="Connection string"/>
             <DockPanel>
-                <Button DockPanel.Dock="Right" MaxHeight="31" VerticalAlignment="Top" Height="{Binding ElementName=edConnectionString, Path=ActualHeight}" Command="{Binding CommandEditConnectionString}" ToolTip="Edit...">
-                    <Image Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
-                </Button>
-                <TextBox x:Name="edConnectionString" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding tasConnectionString}" IsReadOnly="True"/>
+                <Label Content="Database type"/>
+                <ComboBox ItemsSource="{Binding DatabaseTypes}" SelectedItem="{Binding DatabaseType}" VerticalAlignment="Center" HorizontalAlignment="Right" Width="100"/>
             </DockPanel>
-            <CheckBox IsChecked="{Binding IsSConnectionStringSecondary}" Margin="0, 5" Content="Mirror database"/>
-            <DockPanel Visibility="{Binding IsSConnectionStringSecondary, Converter={StaticResource BoolToVis}}" >
-                <Button DockPanel.Dock="Right" MaxHeight="31" VerticalAlignment="Top" Height="{Binding ElementName=edConnectionStringSecondary, Path=ActualHeight}" Command="{Binding CommandEditConnectionStringSecondary}" ToolTip="Edit...">
-                    <Image Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
-                </Button>
-                <TextBox x:Name="edConnectionStringSecondary" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding tasConnectionStringSecondary}" IsReadOnly="True"/>
-            </DockPanel>
-            <Grid Margin="5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" HorizontalAlignment="Center" ToolTip="Test connectivity" Command="{Binding CommandTestConnectivity}">
-                    <Image Source="/TAS.Client.Common;component/Images/Actions/database-connect.png" Stretch="None"/>                    
-                </Button>
-                <Button Grid.Column="1" HorizontalAlignment="Center" ToolTip="Create new, empty database" Command="{Binding CommandCreateDatabase}">
-                    <Image Source="/TAS.Client.Common;component/Images/Actions/database-create.png" Stretch="None"/>
-                </Button>
-                <Button Grid.Column="2" HorizontalAlignment="Center" ToolTip="Clone primary database to mirror" Command="{Binding CommandCloneDatabase}" Visibility="{Binding IsSConnectionStringSecondary, Converter={StaticResource BoolToVis}}">
-                    <Image Source="/TAS.Client.Common;component/Images/Actions/database-clone.png" Stretch="None"/>
-                </Button>
-                <Button Grid.Column="3" HorizontalAlignment="Center" ToolTip="Test connectivity to secondary database" Command="{Binding CommandTestConnectivitySecodary}">
-                    <Image Source="/TAS.Client.Common;component/Images/Actions/database-secondary-connect.png" Stretch="None"/>
-                </Button>
-            </Grid>
-            
+            <ContentControl Content="{Binding DatabaseConfigurator.View}"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

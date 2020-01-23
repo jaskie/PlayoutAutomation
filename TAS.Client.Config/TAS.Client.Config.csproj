@@ -98,13 +98,6 @@
       <DependentUpon>ConfigFileView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ConfigFileViewmodel.cs" />
-    <Compile Include="ConnectionStringView.xaml.cs">
-      <DependentUpon>ConnectionStringView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ConnectionStringViewmodel.cs" />
-    <Compile Include="CreateDatabaseView.xaml.cs">
-      <DependentUpon>CreateDatabaseView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="EnginesView.xaml.cs">
       <DependentUpon>EnginesView.xaml</DependentUpon>
     </Compile>
@@ -120,8 +113,6 @@
     <Compile Include="Model\ArchiveDirectories.cs" />
     <Compile Include="Model\ArchiveDirectory.cs" />
     <Compile Include="Model\CasparRecorder.cs" />
-    <Compile Include="Model\CreateDatabase.cs" />
-    <Compile Include="CreateDatabaseViewmodel.cs" />
     <Compile Include="IngestDirectoriesView.xaml.cs">
       <DependentUpon>IngestDirectoriesView.xaml</DependentUpon>
     </Compile>
@@ -138,10 +129,6 @@
     <Compile Include="Model\CasparServerChannel.cs" />
     <Compile Include="Model\PlayoutServers.cs" />
     <Compile Include="Model\RemoteHost.cs" />
-    <Compile Include="OkCancelView.xaml.cs">
-      <DependentUpon>OkCancelView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="OkCancelViewmodelBase.cs" />
     <Compile Include="PlayoutRecorderViewmodel.cs" />
     <Compile Include="PlayoutServerChannelView.xaml.cs">
       <DependentUpon>PlayoutServerChannelView.xaml</DependentUpon>
@@ -162,14 +149,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ConnectionStringView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="CreateDatabaseView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="EnginesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -187,10 +166,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="IngestDirectoryView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="OkCancelView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

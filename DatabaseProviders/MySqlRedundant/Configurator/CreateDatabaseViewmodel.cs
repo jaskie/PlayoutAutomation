@@ -1,14 +1,15 @@
 ﻿using System.Windows.Input;
 using TAS.Client.Common;
+using TAS.Client.Config;
 
-namespace TAS.Client.Config
+namespace TAS.Database.MySqlRedundant.Configurator
 {
     public class CreateDatabaseViewmodel: OkCancelViewmodelBase<Model.CreateDatabase>
     {
         private string _connectionString;
         private string _collation;
 
-        public CreateDatabaseViewmodel(): base(new Model.CreateDatabase(), typeof(CreateDatabaseView), "Create database") 
+        public CreateDatabaseViewmodel(DatabaseMySqlRedundant db) : base(new Model.CreateDatabase(db), typeof(CreateDatabaseView), "Create database") 
         {
             CommandEditConnectionString = new UiCommand(_editConnectionString);
         }
@@ -25,7 +26,7 @@ namespace TAS.Client.Config
             set => SetField(ref _collation, value);
         }
 
-        public static string[] Collations => Config.Model.CreateDatabase.Collations;
+        public static string[] Collations => Configurator.Model.CreateDatabase.Collations;
 
         public ICommand CommandEditConnectionString { get; }
 

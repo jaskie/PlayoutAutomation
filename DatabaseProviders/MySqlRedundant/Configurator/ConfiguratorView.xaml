@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="TAS.Database.MySqlRedundant.Configurator.ConfiguratorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TAS.Database.MySqlRedundant.Configurator"
+             d:DataContext="{d:DesignInstance local:ConfiguratorViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="250" d:DesignWidth="250">
+    <Grid>
+        <StackPanel>
+            <Separator/>
+            <Label Content="MySql database settings" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <Label Content="Connection string"/>
+        <DockPanel>
+            <Button DockPanel.Dock="Right" MaxHeight="31" VerticalAlignment="Top" Height="{Binding ElementName=edConnectionString, Path=ActualHeight}" Command="{Binding CommandEditConnectionString}" ToolTip="Edit...">
+                <Image Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
+            </Button>
+                <TextBox x:Name="edConnectionString" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding ConnectionStringPrimary}" IsReadOnly="True"/>
+        </DockPanel>
+        <CheckBox IsChecked="{Binding IsSConnectionStringSecondary}" Margin="0, 5" Content="Mirror database"/>
+        <DockPanel Visibility="{Binding IsSConnectionStringSecondary, Converter={StaticResource BoolToVis}}" >
+            <Button DockPanel.Dock="Right" MaxHeight="31" VerticalAlignment="Top" Height="{Binding ElementName=edConnectionStringSecondary, Path=ActualHeight}" Command="{Binding CommandEditConnectionStringSecondary}" ToolTip="Edit...">
+                <Image Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
+            </Button>
+            <TextBox x:Name="edConnectionStringSecondary" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding ConnectionStringSecondary}" IsReadOnly="True"/>
+        </DockPanel>
+        <Grid Margin="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" HorizontalAlignment="Center" ToolTip="Test connectivity" Command="{Binding CommandTestConnectivity}">
+                <Image Source="/TAS.Client.Common;component/Images/Actions/database-connect.png" Stretch="None"/>
+            </Button>
+            <Button Grid.Column="1" HorizontalAlignment="Center" ToolTip="Create new, empty database" Command="{Binding CommandCreateDatabase}">
+                <Image Source="/TAS.Client.Common;component/Images/Actions/database-create.png" Stretch="None"/>
+            </Button>
+            <Button Grid.Column="2" HorizontalAlignment="Center" ToolTip="Clone primary database to mirror" Command="{Binding CommandCloneDatabase}" Visibility="{Binding IsSConnectionStringSecondary, Converter={StaticResource BoolToVis}}">
+                <Image Source="/TAS.Client.Common;component/Images/Actions/database-clone.png" Stretch="None"/>
+            </Button>
+            <Button Grid.Column="3" HorizontalAlignment="Center" ToolTip="Test connectivity to secondary database" Command="{Binding CommandTestConnectivitySecodary}">
+                <Image Source="/TAS.Client.Common;component/Images/Actions/database-secondary-connect.png" Stretch="None"/>
+            </Button>
+        </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,7 +1,6 @@
-﻿using TAS.Common;
-using TAS.Common.Interfaces;
+﻿using TAS.Common.Interfaces;
 
-namespace TAS.Database.MySqlRedundant
+namespace TAS.Common.Database
 {
     public static class DbEventExtensions
     {

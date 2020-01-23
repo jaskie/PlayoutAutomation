@@ -4,24 +4,19 @@ using TAS.Common.Interfaces;
 using TAS.Common.Database.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Common.Interfaces.Security;
+using System.Configuration;
 
 namespace TAS.Common.Database.Interfaces
 {
     public interface IDatabase
     {
+        DatabaseType DatabaseType { get; }
         ConnectionStateRedundant ConnectionState { get; }
-        string ConnectionStringPrimary { get; }
-        string ConnectionStringSecondary { get; }
-
         event EventHandler<RedundantConnectionStateEventArgs> ConnectionStateChanged;
-
-        void AsRunLogWrite(ulong idEngine, IEvent e);
-        void CloneDatabase(string connectionStringSource, string connectionStringDestination);
-        void TestConnect(string connectionString);
-        void Open(string connectionStringPrimary = null, string connectionStringSecondary = null);
+        void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection);
         void InitializeFieldLengths();
         void Close();
-        bool CreateEmptyDatabase(string connectionString, string collate);
+        void AsRunLogWrite(ulong idEngine, IEvent e);
         void DeleteArchiveDirectory(IArchiveDirectoryProperties dir);
         void DeleteEngine(IEnginePersistent engine);
         bool DeleteEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent;
@@ -76,8 +71,6 @@ namespace TAS.Common.Database.Interfaces
         void LoadAnimationDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IAnimatedMedia, new();
         void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IServerMedia, new();
         T LoadArchiveDirectory<T>(ulong idArchive) where T : IArchiveDirectoryServerSide, new();
-        bool UpdateDb();
-        bool UpdateRequired();
         IDictionary<string, int> ServerMediaFieldLengths { get; }
         IDictionary<string, int> ArchiveMediaFieldLengths { get; }
         IDictionary<string, int> EventFieldLengths { get; }
@@ -85,5 +78,8 @@ namespace TAS.Common.Database.Interfaces
         IDictionary<string, int> MediaSegmentFieldLengths { get; }
         IDictionary<string, int> EngineFieldLengths { get; }
         IDictionary<string, int> ServerFieldLengths { get; }
+        
+        bool UpdateDb();
+        bool UpdateRequired();
     }
 }

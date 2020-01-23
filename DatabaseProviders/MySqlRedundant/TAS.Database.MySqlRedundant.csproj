@@ -46,6 +46,8 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
       <HintPath>..\..\packages\SSH.NET.2016.1.0\lib\net40\Renci.SshNet.dll</HintPath>
     </Reference>
@@ -63,14 +65,31 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configurator\ConfiguratorView.xaml.cs">
+      <DependentUpon>ConfiguratorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Configurator\ConfiguratorViewModel.cs" />
+    <Compile Include="Configurator\ConnectionStringView.xaml.cs">
+      <DependentUpon>ConnectionStringView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Configurator\ConnectionStringViewmodel.cs" />
+    <Compile Include="Configurator\CreateDatabaseView.xaml.cs">
+      <DependentUpon>CreateDatabaseView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Configurator\CreateDatabaseViewmodel.cs" />
+    <Compile Include="Configurator\Model\CreateDatabase.cs" />
+    <Compile Include="ConnectionStringsNames.cs" />
     <Compile Include="DatabaseMySqlRedundant.cs" />
     <Compile Include="DbCommandRedundant.cs" />
     <Compile Include="DbConnectionRedundant.cs" />
@@ -78,7 +97,7 @@
     <Compile Include="DbParameterCollectionRedundant.cs" />
     <Compile Include="DbParameterRedundant.cs" />
     <Compile Include="DbTransactionRedundant.cs" />
-    <Compile Include="DbEventExtensions.cs" />
+    <Compile Include="MySqlRedundantConfigurator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +111,10 @@
       <Project>{2625a6b7-505a-43f7-9282-24afe5a3db64}</Project>
       <Name>MySqlBackup</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj">
+      <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
+      <Name>TAS.Client.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TAS.Common.Database\TAS.Common.Database.csproj">
       <Project>{f73445a5-2375-49ea-bd4f-8c6778d8736d}</Project>
       <Name>TAS.Common.Database</Name>
@@ -103,6 +126,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Configurator\ConfiguratorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Configurator\ConnectionStringView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Configurator\CreateDatabaseView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

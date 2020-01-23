@@ -380,7 +380,8 @@ namespace TAS.Server.Media
         {
             base.DoDispose();
             CancelBeginWatch();
-            ClearFiles();
+            lock (((IDictionary)Files).SyncRoot)
+                Files.Values.ToList().ForEach(m => m.Dispose());
             if (_watcher == null)
                 return;
             DisposeWatcher(_watcher);

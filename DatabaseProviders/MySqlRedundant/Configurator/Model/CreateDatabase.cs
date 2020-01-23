@@ -1,13 +1,15 @@
 ﻿using System.Linq;
-using TAS.Common;
-using TAS.Common.Database;
+using TAS.Database.MySqlRedundant;
 
-namespace TAS.Client.Config.Model
+namespace TAS.Database.MySqlRedundant.Configurator.Model
 {
     public class CreateDatabase
     {
-        public CreateDatabase()
+        private readonly DatabaseMySqlRedundant _db;
+
+        public CreateDatabase(DatabaseMySqlRedundant db)
         {
+            _db = db;
             Collation = Collations.FirstOrDefault();
         }
         public string ConnectionString { get; set; }
@@ -44,7 +46,7 @@ namespace TAS.Client.Config.Model
 
         public bool CreateEmptyDatabase()
         {
-            return DatabaseProviderLoader.LoadDatabaseProvider().CreateEmptyDatabase(ConnectionString, Collation);
+            return _db.CreateEmptyDatabase(ConnectionString, Collation);
         }
     }
 }

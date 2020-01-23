@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Configuration;
 using System.Linq;
 using System.Windows.Input;
 using TAS.Client.Common;
+using TAS.Common;
 
 namespace TAS.Client.Config
 {
@@ -12,8 +14,8 @@ namespace TAS.Client.Config
         private EngineViewmodel _selectedEngine;
         private bool _isCollectionCanged;
         
-        public EnginesViewmodel(string connectionString, string connectionStringSecondary)
-            : base(new Model.Engines(connectionString, connectionStringSecondary), typeof(EnginesView), "Engines")
+        public EnginesViewmodel(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
+            : base(new Model.Engines(databaseType, connectionStringSettingsCollection), typeof(EnginesView), "Engines")
         {
             Engines = new ObservableCollection<EngineViewmodel>(Model.EngineList.Select(e => new EngineViewmodel(e)));
             Engines.CollectionChanged += _engines_CollectionChanged;

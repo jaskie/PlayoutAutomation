@@ -559,4 +559,10 @@ namespace TAS.Common
         IpAddress,
         // WindowsCredentials // not implemented yet
     }    
+    
+    public enum DatabaseType
+    {
+        MySQL,
+        SQLite
+    }
 }

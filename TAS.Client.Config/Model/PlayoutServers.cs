@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 using TAS.Common;
 using TAS.Common.Database;
 using TAS.Common.Database.Interfaces;
@@ -9,10 +11,10 @@ namespace TAS.Client.Config.Model
     public class PlayoutServers: IDisposable
     {
         readonly IDatabase _db;
-        public PlayoutServers(string connectionStringPrimary, string connectionStringSecondary)
+        public PlayoutServers(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {
-            _db = DatabaseProviderLoader.LoadDatabaseProvider();
-            _db.Open(connectionStringPrimary, connectionStringSecondary);
+            _db = DatabaseProviderLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
+            _db.Open(connectionStringSettingsCollection);
             Servers = _db.LoadServers<CasparServer>();
             Servers.ForEach(s =>
                 {

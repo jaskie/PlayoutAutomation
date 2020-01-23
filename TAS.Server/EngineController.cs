@@ -45,13 +45,10 @@ namespace TAS.Server
         {
             FtpTrace.AddListener(new NLog.NLogTraceListener());
             Logger.Info("Engines initializing");
-            ConnectionStringSettings connectionStringPrimary =
-                ConfigurationManager.ConnectionStrings["tasConnectionString"];
-            ConnectionStringSettings connectionStringSecondary =
-                ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
-            Database = DatabaseProviderLoader.LoadDatabaseProvider();
+
+            Database = DatabaseProviderLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == Common.DatabaseType.MySQL);
             Logger.Debug("Connecting to database");
-            Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
+            Database.Open(ConfigurationManager.ConnectionStrings);
             Database.InitializeFieldLengths();
             Servers = Database.LoadServers<CasparServer>();
             Servers.ForEach(s =>
