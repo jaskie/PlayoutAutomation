@@ -1,8 +1,7 @@
 BEGIN TRANSACTION;
-PRAGMA schema.user_version = 1 ;
 CREATE TABLE archive (
-  idArchive                 INTEGER PRIMARY KEY,
-  Folder                    TEXT
+  idArchive INTEGER PRIMARY KEY,
+  Folder TEXT
 );
 
 CREATE TABLE archivemedia (
@@ -62,7 +61,7 @@ CREATE TABLE customcommand (
 );
 
 CREATE TABLE engine (
-  idEngine INTEGER PRIMARY KEY AUTOINCREMENT,
+  idEngine INTEGER PRIMARY KEY,
   Instance BIGINT NOT NULL,
   idServerPRI BIGINT NOT NULL,
   ServerChannelPRI INTEGER NOT NULL,
@@ -127,20 +126,19 @@ CREATE INDEX rundownevent_ScheduledTime ON rundownevent (ScheduledTime);
 CREATE INDEX rundownevent_PlayState ON rundownevent (PlayState);
 
 CREATE TABLE rundownevent_templated (
-  idrundownevent_templated BIGINT PRIMARY KEY,
+  idrundownevent_templated INTEGER PRIMARY KEY,
   Method TINYINT NOT NULL,
   TemplateLayer INTEGER NOT NULL,
   Fields TEXT
 );
 
 CREATE TABLE server (
-  idServer BIGINT PRIMARY KEY,
-  typServer INTEGER NOT NULL,
+  idServer INTEGER PRIMARY KEY,
   Config TEXT
 );
 
 CREATE TABLE servermedia (
-  idserverMedia BIGINT PRIMARY KEY,
+  idserverMedia INTEGER PRIMARY KEY,
   MediaGuid BLOB NOT NULL,
   idServer BIGINT NOT NULL,
   MediaName TEXT,
@@ -176,7 +174,7 @@ CREATE TABLE aco (
 );
 
 CREATE TABLE rundownevent_acl (
-  idRundownevent_ACL BIGINT PRIMARY KEY,
+  idRundownevent_ACL INTEGER PRIMARY KEY,
   idRundownEvent BIGINT NOT NULL,
   idACO BIGINT NOT NULL,
   ACL BIGINT NOT NULL,
@@ -188,7 +186,7 @@ CREATE INDEX rundownevent_acl_idRundownEvent ON rundownevent_acl (idRundownEvent
 CREATE INDEX rundownevent_acl_idACO ON rundownevent_acl (idACO);
 
 CREATE TABLE engine_acl (
-  idEngine_ACL BIGINT PRIMARY KEY,
+  idEngine_ACL INTEGER PRIMARY KEY,
   idEngine BIGINT NOT NULL,
   idACO BIGINT NOT NULL,
   ACL BIGINT NOT NULL,
@@ -198,5 +196,7 @@ CREATE TABLE engine_acl (
 
 CREATE INDEX engine_acl_idEngine ON engine_acl (idEngine);
 CREATE INDEX engine_acl_idACO ON engine_acl (idACO);
+
+PRAGMA user_version = 1;
 
 COMMIT;

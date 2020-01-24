@@ -749,7 +749,7 @@ VALUES
             lock (_connection)
             {
                 {
-                    var cmd = new SQLiteCommand(@"INSERT INTO server VALUES(typServer=0, Config=@Config);", _connection);
+                    var cmd = new SQLiteCommand(@"INSERT INTO server (Config) VALUES(@Config);", _connection);
                     var serializer = new XmlSerializer(server.GetType());
                     using (var writer = new StringWriter())
                     {

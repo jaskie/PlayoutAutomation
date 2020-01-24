@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.FtpClient;
 using System.Xml.Serialization;
+using TAS.Common;
 using TAS.Common.Database;
 using TAS.Common.Database.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -45,8 +47,8 @@ namespace TAS.Server
         {
             FtpTrace.AddListener(new NLog.NLogTraceListener());
             Logger.Info("Engines initializing");
-
-            Database = DatabaseProviderLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == Common.DatabaseType.MySQL);
+            Enum.TryParse<DatabaseType>(ConfigurationManager.AppSettings["DatabaseType"], out var databaseType);
+            Database = DatabaseProviderLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
             Logger.Debug("Connecting to database");
             Database.Open(ConfigurationManager.ConnectionStrings);
             Database.InitializeFieldLengths();

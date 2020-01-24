@@ -157,6 +157,7 @@ namespace TAS.Client.ViewModels
             _mediaEdit = (Acl & (ulong)EngineRight.MediaEdit) != 0;
             _mediaDelete = (Acl & (ulong)EngineRight.MediaDelete) != 0;
             _mediaArchive = (Acl & (ulong)EngineRight.MediaArchive) != 0;
+            _mediaExport = (Acl & (ulong)EngineRight.MediaExport) != 0;
         }
 
         public ISecurityObject SecurityObject => Right.SecurityObject;

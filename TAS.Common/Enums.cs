@@ -562,7 +562,7 @@ namespace TAS.Common
     
     public enum DatabaseType
     {
-        MySQL,
-        SQLite
+        SQLite,
+        MySQL
     }
 }
