@@ -66,7 +66,7 @@ namespace TAS.Client.Common
             if (busy == _isBusy)
                 return;
             _isBusy = busy;
-            Mouse.OverrideCursor = busy ? Cursors.Wait : null;
+            Application.Current.Dispatcher.BeginInvoke((Action)(() => Mouse.OverrideCursor = busy ? Cursors.Wait : null ));                                
             if (_isBusy)
                 new DispatcherTimer(TimeSpan.Zero, DispatcherPriority.ContextIdle, dispatcherTimer_Tick, Application.Current.Dispatcher);
         }

@@ -28,7 +28,7 @@ namespace TVPlayClient
 
         public void Initialize()
         {
-            _createView();
+            _ = _createView();
         }
 
         public string TabName
@@ -69,44 +69,41 @@ namespace TVPlayClient
                 Channel = null;
                 IsLoading = true;
                 channel?.Dispose();
-                _createView();
+                _ = _createView();
             });
         }
 
-        private void _createView()
+        private async Task _createView()
         {
-            Task.Run(() =>
+            await Task.Run(async () =>
             {
-#if DEBUG
-                Thread.Sleep(5000);
-#endif
                 try
                 {
-                    _client = new RemoteClient(_channelConfiguration.Address)
+                    _client = new RemoteClient()
                     {
                         Binder = ClientTypeNameBinder.Current
                     };
                     _client.Disconnected += ClientDisconnected;
+                    _client.Connect(_channelConfiguration.Address);
+
                     var engine = _client.GetRootObject<Engine>();
                     if (engine == null)
                     {
-                        Thread.Sleep(1000);
+                        await Task.Delay(1000).ConfigureAwait(false);
                         return;
                     }
-                    OnUiThread(() =>
-                    {
-                        Channel = new ChannelViewmodel(engine, _channelConfiguration.ShowEngine, _channelConfiguration.ShowMedia);
-                        TabName = Channel.DisplayName;
-                        IsLoading = false;
-                    });
+                    
+                    Channel = new ChannelViewmodel(engine, _channelConfiguration.ShowEngine, _channelConfiguration.ShowMedia);
+                                      
+                    TabName = Channel.DisplayName;
+                    IsLoading = false;                    
                 }
                 catch (SocketException)
                 {
-                    Thread.Sleep(1000);
+                    await Task.Delay(1000).ConfigureAwait(false);
                 }
             });
+            
         }
-
     }
-
 }
