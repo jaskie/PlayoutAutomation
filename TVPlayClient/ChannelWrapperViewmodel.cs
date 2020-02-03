@@ -78,31 +78,30 @@ namespace TVPlayClient
             await Task.Run(async () =>
             {
                 try
-                {
+                {                    
                     _client = new RemoteClient()
                     {
                         Binder = ClientTypeNameBinder.Current
                     };
                     _client.Disconnected += ClientDisconnected;
                     _client.Connect(_channelConfiguration.Address);
-
+                    
                     var engine = _client.GetRootObject<Engine>();
                     if (engine == null)
                     {
-                        await Task.Delay(1000).ConfigureAwait(false);
+                        await Task.Delay(1000);
                         return;
                     }
                     
-                    Channel = new ChannelViewmodel(engine, _channelConfiguration.ShowEngine, _channelConfiguration.ShowMedia);
-                                      
+                    Channel = new ChannelViewmodel(engine, _channelConfiguration.ShowEngine, _channelConfiguration.ShowMedia);                    
                     TabName = Channel.DisplayName;
                     IsLoading = false;                    
                 }
                 catch (SocketException)
                 {
-                    await Task.Delay(1000).ConfigureAwait(false);
+                    await Task.Delay(1000);
                 }
-            });
+            }).ConfigureAwait(false);
             
         }
     }
