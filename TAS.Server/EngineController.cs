@@ -72,20 +72,20 @@ namespace TAS.Server
 
         private void InitializeMediaDirectories()
         {
-            var initalizationList = new List<IMediaDirectory>();
+            var initalizationList = new HashSet<IMediaDirectory>();
             foreach (var mediaManager in Engines.Select(e => e.MediaManager))
             {
-                if (mediaManager.MediaDirectoryPRI != null && !initalizationList.Contains(mediaManager.MediaDirectoryPRI))
-                    initalizationList.Add(mediaManager.MediaDirectoryPRI);
-                if (mediaManager.MediaDirectorySEC != null && !initalizationList.Contains(mediaManager.MediaDirectorySEC))
-                    initalizationList.Add(mediaManager.MediaDirectorySEC);
-                if (mediaManager.MediaDirectoryPRV != null && !initalizationList.Contains(mediaManager.MediaDirectoryPRV))
-                    initalizationList.Add(mediaManager.MediaDirectoryPRV);
+                initalizationList.Add(mediaManager.MediaDirectoryPRI);
+                initalizationList.Add(mediaManager.MediaDirectorySEC);
+                initalizationList.Add(mediaManager.MediaDirectoryPRV);
+                initalizationList.Add(mediaManager.AnimationDirectoryPRI);
+                initalizationList.Add(mediaManager.AnimationDirectorySEC);
+                initalizationList.Add(mediaManager.AnimationDirectoryPRV);
             }
             foreach (var mediaDirectory in initalizationList)
             {
-                if (mediaDirectory is ServerDirectory serverDirectory)
-                    serverDirectory.Initialize();
+                if (mediaDirectory is WatcherDirectory directory)
+                    directory.Initialize();
             }
         }
 

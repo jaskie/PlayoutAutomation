@@ -193,7 +193,6 @@ namespace TAS.Remoting.Model
 
         public Guid MediaGuid { get => _mediaGuid; set => Set(value); }
 
-        [JsonProperty]
         public IEvent Next
         {
             get => _next.Value;
@@ -204,7 +203,6 @@ namespace TAS.Remoting.Model
             }
         }
 
-        [JsonProperty]
         public IEvent Parent
         {
             get => _parent.Value;
@@ -215,7 +213,6 @@ namespace TAS.Remoting.Model
             }
         }
 
-        [JsonProperty]
         public IEvent Prior
         {
             get => _prior.Value;
