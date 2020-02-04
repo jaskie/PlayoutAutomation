@@ -1434,12 +1434,13 @@ VALUES
         {
             try
             {
-                var cmd = new DbCommandRedundant(@"INSERT IGNORE INTO media_templated (MediaGuid, Fields, TemplateLayer, Method) VALUES (@MediaGuid, @Fields, @TemplateLayer, @Method);", _connection);
+                var cmd = new DbCommandRedundant(@"INSERT IGNORE INTO media_templated (MediaGuid, Fields, TemplateLayer, Method, ScheduledDelay, StartType) VALUES (@MediaGuid, @Fields, @TemplateLayer, @Method, @ScheduledDelay, @StartType);", _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
                 cmd.Parameters.AddWithValue("@TemplateLayer", media.TemplateLayer);
                 cmd.Parameters.AddWithValue("@Method", (byte)media.Method);
+                cmd.Parameters.AddWithValue("@ScheduledDelay", media.ScheduledDelay);
+                cmd.Parameters.AddWithValue("@StartType", (byte)media.StartType);
                 cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
-
                 cmd.ExecuteNonQuery();
                 return true;
             }

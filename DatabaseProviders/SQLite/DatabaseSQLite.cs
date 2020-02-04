@@ -701,10 +701,12 @@ VALUES
         {
             try
             {
-                var cmd = new SQLiteCommand(@"INSERT IGNORE INTO media_templated (MediaGuid, Fields, TemplateLayer, Method) VALUES (@MediaGuid, @Fields, @TemplateLayer, @Method);", _connection);
+                var cmd = new SQLiteCommand(@"INSERT OR IGNORE INTO media_templated (MediaGuid, Fields, TemplateLayer, Method, ScheduledDelay, StartType) VALUES (@MediaGuid, @Fields, @TemplateLayer, @Method, @ScheduledDelay, @StartType);", _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
                 cmd.Parameters.AddWithValue("@TemplateLayer", media.TemplateLayer);
                 cmd.Parameters.AddWithValue("@Method", (byte)media.Method);
+                cmd.Parameters.AddWithValue("@ScheduledDelay", media.ScheduledDelay.Ticks);
+                cmd.Parameters.AddWithValue("@StartType", (byte)media.StartType);
                 cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
 
                 cmd.ExecuteNonQuery();
@@ -1648,17 +1650,17 @@ WHERE idServerMedia=@idServerMedia;", _connection);
             if (media is IServerMedia && media.Directory is IServerDirectory)
             {
                 cmd.Parameters.AddWithValue("@idServer", serverId);
-                cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
+                cmd.Parameters.AddWithValue("@typVideo", media.VideoFormat);
             }
             if (media is IAnimatedMedia && media.Directory is IAnimationDirectory)
             {
                 cmd.Parameters.AddWithValue("@idServer", serverId);
-                cmd.Parameters.AddWithValue("@typVideo", DBNull.Value);
+                cmd.Parameters.AddWithValue("@typVideo", TVideoFormat.Other);
             }
             if (media is IArchiveMedia && media.Directory is IArchiveDirectoryServerSide archiveDirectory)
             {
                 cmd.Parameters.AddWithValue("@idArchive", archiveDirectory.IdArchive);
-                cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
+                cmd.Parameters.AddWithValue("@typVideo", media.VideoFormat);
             }
             cmd.Parameters.AddWithValue("@MediaName", media.MediaName);
             cmd.Parameters.AddWithValue("@Duration", media.Duration.Ticks);
