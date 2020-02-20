@@ -66,27 +66,7 @@ namespace TAS.Server
             foreach (var e in Engines)
                 ((MediaManager) e.MediaManager).Initialize(
                     ArchiveDirectories.FirstOrDefault(a => a.IdArchive == e.IdArchive));
-            InitializeMediaDirectories();
             Logger.Debug("Engines initialized");
-        }
-
-        private void InitializeMediaDirectories()
-        {
-            var initalizationList = new HashSet<IMediaDirectory>();
-            foreach (var mediaManager in Engines.Select(e => e.MediaManager))
-            {
-                initalizationList.Add(mediaManager.MediaDirectoryPRI);
-                initalizationList.Add(mediaManager.MediaDirectorySEC);
-                initalizationList.Add(mediaManager.MediaDirectoryPRV);
-                initalizationList.Add(mediaManager.AnimationDirectoryPRI);
-                initalizationList.Add(mediaManager.AnimationDirectorySEC);
-                initalizationList.Add(mediaManager.AnimationDirectoryPRV);
-            }
-            foreach (var mediaDirectory in initalizationList)
-            {
-                if (mediaDirectory is WatcherDirectory directory)
-                    directory.Initialize();
-            }
         }
 
         private void LoadArchiveDirectories()

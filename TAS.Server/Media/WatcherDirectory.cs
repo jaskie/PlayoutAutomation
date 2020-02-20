@@ -202,7 +202,6 @@ namespace TAS.Server.Media
                         Debug.WriteLine("Watcher setup canceled");
                         Logger.Debug("Directory {0} watcher setup error", Folder);
                     }
-                    IsInitialized = true;
                 }, watcherTaskCancelationTokenSource.Token);
             _watcherTaskCancelationTokenSource = watcherTaskCancelationTokenSource;
         }

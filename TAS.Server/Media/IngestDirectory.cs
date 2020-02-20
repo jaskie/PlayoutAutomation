@@ -53,7 +53,10 @@ namespace TAS.Server.Media
                 {
                     HaveFileWatcher = true;
                     if (IsImport && ConnectDirectory())
+                    {
                         BeginWatch(IsRecursive);
+                        IsInitialized = true;
+                    }
                 }
             }
             _subDirectories?.ToList().ForEach(d => d.Initialize());

@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
+using System.ComponentModel;
 
 namespace TAS.Server
 {
@@ -72,6 +73,7 @@ namespace TAS.Server
         public IEnumerable<IPlayoutServerChannel> Channels => ChannelsSer;
 
         [XmlArray(nameof(Recorders))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public List<CasparRecorder> RecordersSer { get; set; }
 
         [XmlIgnore]

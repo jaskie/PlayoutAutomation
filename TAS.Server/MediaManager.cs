@@ -90,10 +90,16 @@ namespace TAS.Server
                 AnimationDirectoryPRV = ((CasparServerChannel)_engine.Preview.Channel)?.Owner.AnimationDirectory;
             }
 
+            ((WatcherDirectory)MediaDirectoryPRI)?.Initialize();
+            ((WatcherDirectory)MediaDirectorySEC)?.Initialize();
+            ((WatcherDirectory)MediaDirectoryPRV)?.Initialize();
+            ((WatcherDirectory)AnimationDirectoryPRI)?.Initialize();
+            ((WatcherDirectory)AnimationDirectorySEC)?.Initialize();
+            ((WatcherDirectory)AnimationDirectoryPRV)?.Initialize();
+
             if (MediaDirectoryPRI is ServerDirectory sdir)
             {
                 sdir.MediaPropertyChanged += _serverMediaPropertyChanged;
-                sdir.PropertyChanged += _serverDirectoryPropertyChanged;
                 sdir.MediaSaved += _serverDirectoryMediaSaved;
                 sdir.MediaVerified += _mediaPRIVerified;
                 sdir.MediaRemoved += _mediaPRIRemoved;
@@ -102,7 +108,6 @@ namespace TAS.Server
             if (MediaDirectoryPRI != MediaDirectorySEC && sdir != null)
             {
                 sdir.MediaPropertyChanged += _serverMediaPropertyChanged;
-                sdir.PropertyChanged += _serverDirectoryPropertyChanged;
                 sdir.MediaSaved += _serverDirectoryMediaSaved;
             }
             if (AnimationDirectoryPRI is AnimationDirectory adir)
@@ -116,6 +121,7 @@ namespace TAS.Server
             adir = AnimationDirectorySEC as AnimationDirectory;
             if (adir != null)
                 adir.PropertyChanged += _animationDirectoryPropertyChanged;
+            InitialMediaSynchronization();
             Debug.WriteLine(this, "End initializing");
             Logger.Debug("End initializing");
         }
@@ -356,12 +362,6 @@ namespace TAS.Server
                 pi.SetValue(compMedia, pi.GetValue(media, null), null);
         }
 
-        private void _serverDirectoryPropertyChanged(object dir, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(IServerDirectory.IsInitialized))
-                InitialMediaSynchronization();
-        }
-
         private void _animationDirectoryPropertyChanged(object dir, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IAnimationDirectory.IsInitialized))
@@ -544,7 +544,7 @@ namespace TAS.Server
                         && m.LastUpdated.DateTimeEqualToDays(pRImedia.LastUpdated)
                         && (!pri.IsRecursive || !sec.IsRecursive || string.Equals(pRImedia.Folder, m.Folder, StringComparison.OrdinalIgnoreCase))
                     );
-                if (secMedia != null)
+                if (secMedia?.FileExists() == true)
                 {
                     secMedia.CloneMediaProperties(pRImedia);
                     sec.UpdateMediaGuid(secMedia, pRImedia.MediaGuid);
@@ -554,7 +554,8 @@ namespace TAS.Server
                     FileManager.Queue(new CopyOperation
                     {
                         Source = pRImedia,
-                        DestDirectory = sec
+                        DestDirectory = sec,
+                        Dest = secMedia
                     });
             }
         }
@@ -610,7 +611,6 @@ namespace TAS.Server
             if (MediaDirectoryPRI is ServerDirectory sdir)
             {
                 sdir.MediaPropertyChanged -= _serverMediaPropertyChanged;
-                sdir.PropertyChanged -= _serverDirectoryPropertyChanged;
                 sdir.MediaSaved -= _serverDirectoryMediaSaved;
                 sdir.MediaVerified -= _mediaPRIVerified;
                 sdir.MediaRemoved -= _mediaPRIRemoved;
@@ -620,7 +620,6 @@ namespace TAS.Server
             {
                 sdir.MediaPropertyChanged -= _serverMediaPropertyChanged;
                 sdir.MediaSaved -= _serverDirectoryMediaSaved;
-                sdir.PropertyChanged -= _serverDirectoryPropertyChanged;
             }
             if (AnimationDirectoryPRI is AnimationDirectory adir)
             {

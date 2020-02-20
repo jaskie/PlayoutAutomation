@@ -36,6 +36,7 @@ namespace TAS.Server.Media
             if (IsInitialized)
                 return;
             EngineController.Current.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
+            IsInitialized = true;
             BeginWatch(IsRecursive);
             Debug.WriteLine(this, "Directory initialized");
         }
