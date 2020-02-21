@@ -216,9 +216,6 @@
   <data name="_recorderChannel" xml:space="preserve">
     <value>Channel</value>
   </data>
-  <data name="_recorderFilename" xml:space="preserve">
-    <value>Filename</value>
-  </data>
   <data name="_recorderName" xml:space="preserve">
     <value>Recorder</value>
   </data>

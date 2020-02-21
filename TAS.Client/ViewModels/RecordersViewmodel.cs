@@ -312,6 +312,7 @@ namespace TAS.Client.ViewModels
         private void FinishRecord(object obj)
         {
             _selectedRecorder.Finish();
+            RecordingMedia = null;
         }
 
         private void StartRecord(object obj)
@@ -405,6 +406,7 @@ namespace TAS.Client.ViewModels
         private void Stop(object obj)
         {
             _selectedRecorder?.DeckStop();
+            RecordingMedia = null;
         }
 
         private void Play(object obj)
