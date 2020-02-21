@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using TAS.Server.Media;
+using TAS.Common.Database;
 
 namespace TAS.Server
 {
@@ -39,20 +40,22 @@ namespace TAS.Server
 
         #region IPlayoutServerChannel
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public int Id { get; set; }
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public string ChannelName { get; set; }
 
+        [Hibernate]
         public double MasterVolume { get; set; } = 1;
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public int AudioChannelCount { get; set; } = 2;
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public string PreviewUrl { get; set; }
 
+        [Hibernate]
         public string LiveDevice { get; set; }
 
         [XmlIgnore]

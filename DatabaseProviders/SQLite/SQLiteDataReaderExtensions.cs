@@ -12,11 +12,11 @@ namespace TAS.Database.SQLite
     {
         public static Int32 GetInt32(this SQLiteDataReader dataReader, string name)
         {
-            return dataReader.GetInt32(dataReader.GetOrdinal(name));
+            return (Int32)GetValue<Int64>(dataReader, name);
         }
-        public static uint GetUInt32(this SQLiteDataReader dataReader, string name)
+        public static UInt32 GetUInt32(this SQLiteDataReader dataReader, string name)
         {
-            return (uint)dataReader.GetInt32(dataReader.GetOrdinal(name));
+            return (UInt32)GetValue<Int64>(dataReader, name);
         }
         public static bool IsDBNull(this SQLiteDataReader dataReader, string name)
         {
@@ -24,47 +24,46 @@ namespace TAS.Database.SQLite
         }
         public static DateTime GetDateTime(this SQLiteDataReader dataReader, string name)
         {
-            var index = dataReader.GetOrdinal(name);
-            if (dataReader.IsDBNull(index))
-                return new DateTime();
-            else
-                return new DateTime(dataReader.GetDateTime(index).Ticks);
+            return new DateTime(GetValue<Int64>(dataReader, name));
         }
         public static Guid GetGuid(this SQLiteDataReader dataReader, string name)
         {
-            var index = dataReader.GetOrdinal(name);
-            return dataReader.IsDBNull(index) ? new Guid() : dataReader.GetGuid(index);
+            var bytes = GetValue<Byte[]>(dataReader, name);
+            return bytes == null ? Guid.Empty : new Guid(bytes);
         }
         public static long GetInt64(this SQLiteDataReader dataReader, string name)
         {
-            return (long)dataReader.GetInt64(dataReader.GetOrdinal(name));
+            return GetValue<Int64>(dataReader, name);
         }
         public static UInt64 GetUInt64(this SQLiteDataReader dataReader, string name)
         {
-            var index = dataReader.GetOrdinal(name);
-            return dataReader.IsDBNull(index) ? 0UL : (ulong)dataReader.GetInt64(index);
+            return (UInt64)GetValue<Int64>(dataReader, name);
         }
         public static string GetString(this SQLiteDataReader dataReader, string name)
         {
-            var index = dataReader.GetOrdinal(name);
-            return dataReader.IsDBNull(index) ? "" : dataReader.GetString(index);
+            return GetValue<string>(dataReader, name);
         }
         public static byte GetByte(this SQLiteDataReader dataReader, string name)
         {
-            return dataReader.GetByte(dataReader.GetOrdinal(name));
+            return (byte)GetValue<Int64>(dataReader, name);
         }
         public static double GetDouble(this SQLiteDataReader dataReader, string name)
         {
-            return dataReader.GetDouble(dataReader.GetOrdinal(name));
+            return (double)GetValue<decimal>(dataReader, name);
         }
-        public static short GetInt16(this SQLiteDataReader dataReader, string name)
+        public static Int16 GetInt16(this SQLiteDataReader dataReader, string name)
         {
-            return dataReader.GetInt16(dataReader.GetOrdinal(name));
+            return (Int16)GetValue<Int64>(dataReader, name);
         }
         public static TimeSpan GetTimeSpan(this SQLiteDataReader dataReader, string name)
-        { 
+        {
+            return new TimeSpan(GetValue<Int64>(dataReader, name));
+        }
+
+        private static T GetValue<T>(SQLiteDataReader dataReader, string name)
+        {
             var index = dataReader.GetOrdinal(name);
-            return dataReader.IsDBNull(index) ? new TimeSpan() : new TimeSpan((long)dataReader.GetInt64(index));
+            return dataReader.IsDBNull(index) ? default : dataReader.GetFieldValue<T>(index);
         }
     }
 }

@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="DatabaseConfiguratorLoader.cs" />
     <Compile Include="DatabaseProviderLoader.cs" />
+    <Compile Include="DbEventExtensions.cs" />
     <Compile Include="Interfaces\IDatabase.cs" />
     <Compile Include="Interfaces\IDatabaseConfigurator.cs" />
     <Compile Include="Interfaces\Media\IAnimatedMedia.cs" />
@@ -55,6 +56,7 @@
     <Compile Include="Interfaces\Media\IPersistentMedia.cs" />
     <Compile Include="Interfaces\Media\IServerMedia.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="HibernateAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TAS.Common\TAS.Common.csproj">

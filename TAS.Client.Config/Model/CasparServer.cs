@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using TAS.Common;
+using TAS.Common.Database;
 using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
@@ -10,17 +11,25 @@ namespace TAS.Client.Config.Model
     {
         [XmlIgnore]
         public bool IsNew = true;
+        [Hibernate]
         public string ServerAddress { get; set; }
+        [Hibernate]
         public int OscPort { get; set; }
+        [Hibernate]
         public string MediaFolder { get; set; }
+        [Hibernate]
         public bool IsMediaFolderRecursive { get; set; }
-
+        [Hibernate]
         public string AnimationFolder { get; set; }
         [XmlIgnore]
         public ulong Id { get; set; }
+        [Hibernate]
         public TServerType ServerType { get; set; }
+        [Hibernate]
         public TMovieContainerFormat MovieContainerFormat { get; set; }
+        [Hibernate]
         public List<CasparServerChannel> Channels { get; set; } = new List<CasparServerChannel>();
+        [Hibernate]
         public List<CasparRecorder> Recorders { get; set; } = new List<CasparRecorder>();
         public override string ToString()
         {

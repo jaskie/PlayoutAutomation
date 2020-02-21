@@ -12,9 +12,9 @@ CREATE TABLE archivemedia (
   Folder TEXT,
   FileName TEXT,
   FileSize INTEGER NOT NULL,
-  LastUpdated BIGINT NOT NULL,
-  Duration BIGINT NOT NULL,
-  DurationPlay BIGINT NOT NULL,
+  LastUpdated INTEGER NOT NULL,
+  Duration INTEGER NOT NULL,
+  DurationPlay INTEGER NOT NULL,
   typVideo INTEGER NOT NULL,
   typAudio INTEGER NOT NULL,
   typMedia INTEGER NOT NULL,
@@ -22,11 +22,11 @@ CREATE TABLE archivemedia (
   AudioLevelIntegrated NUMERIC NOT NULL,
   AudioLevelPeak NUMERIC NOT NULL,
   statusMedia INTEGER NOT NULL,
-  TCStart BIGINT NOT NULL,
-  TCPlay BIGINT NOT NULL,
-  idProgramme BIGINT NOT NULL,
+  TCStart INTEGER NOT NULL,
+  TCPlay INTEGER NOT NULL,
+  idProgramme INTEGER NOT NULL,
   idAux TEXT,
-  KillDate BIGINT,
+  KillDate INTEGER,
   flags INTEGER NOT NULL
 );
 
@@ -35,12 +35,12 @@ CREATE INDEX archivemedia_MediaGuid ON archivemedia (MediaGuid);
 
 CREATE TABLE asrunlog (
   idAsRunLog INTEGER PRIMARY KEY,
-  idEngine BIGINT NOT NULL,
-  ExecuteTime BIGINT NOT NULL,
+  idEngine INTEGER NOT NULL,
+  ExecuteTime INTEGER NOT NULL,
   MediaName TEXT,
-  StartTC BIGINT NOT NULL,
-  Duration BIGINT NOT NULL,
-  idProgramme BIGINT NOT NULL,
+  StartTC INTEGER NOT NULL,
+  Duration INTEGER NOT NULL,
+  idProgramme INTEGER NOT NULL,
   idAuxMedia TEXT,
   idAuxRundown TEXT,
   SecEvents TEXT,
@@ -54,7 +54,7 @@ CREATE INDEX asrunlog_idEngine ON asrunlog (idEngine);
 
 CREATE TABLE customcommand (
   idCustomCommand INTEGER PRIMARY KEY,
-  idEngine BIGINT NOT NULL,
+  idEngine INTEGER NOT NULL,
   CommandName TEXT,
   CommandIn TEXT,
   CommandOut TEXT 
@@ -62,22 +62,22 @@ CREATE TABLE customcommand (
 
 CREATE TABLE engine (
   idEngine INTEGER PRIMARY KEY,
-  Instance BIGINT NOT NULL,
-  idServerPRI BIGINT NOT NULL,
+  Instance INTEGER NOT NULL,
+  idServerPRI INTEGER NOT NULL,
   ServerChannelPRI INTEGER NOT NULL,
-  idServerSEC BIGINT NOT NULL,
+  idServerSEC INTEGER NOT NULL,
   ServerChannelSEC INTEGER NOT NULL,
   idServerPRV INTEGER NOT NULL,
   ServerChannelPRV INTEGER NOT NULL,
-  idArchive BIGINT NOT NULL,
+  idArchive INTEGER NOT NULL,
   Config TEXT NOT NULL
 );
 
 CREATE TABLE mediasegments (
   idMediaSegment INTEGER PRIMARY KEY,
   MediaGuid BLOB NOT NULL,
-  TCIn BIGINT NOT NULL,
-  TCOut BIGINT NOT NULL,
+  TCIn INTEGER NOT NULL,
+  TCOut INTEGER NOT NULL,
   SegmentName TEXT NOT NULL
 );
 
@@ -87,34 +87,34 @@ CREATE TABLE media_templated (
   MediaGuid BLOB PRIMARY KEY NOT NULL,
   Method INTEGER NOT NULL,
   TemplateLayer INTEGER NOT NULL,
-  ScheduledDelay BIGINT NOT NULL,
+  ScheduledDelay INTEGER NOT NULL,
   StartType INTEGER NOT NULL,
   Fields TEXT NOT NULL
 );
 
 CREATE TABLE rundownevent (
   idRundownEvent INTEGER PRIMARY KEY,
-  idEngine BIGINT NOT NULL,
-  idEventBinding BIGINT NOT NULL,
+  idEngine INTEGER NOT NULL,
+  idEventBinding INTEGER NOT NULL,
   MediaGuid BLOB,
   typEvent INTEGER NOT NULL,
   typStart INTEGER NOT NULL,
-  ScheduledTime BIGINT,
-  ScheduledDelay BIGINT NOT NULL,
-  ScheduledTC BIGINT,
-  Duration BIGINT NOT NULL,
+  ScheduledTime INTEGER,
+  ScheduledDelay INTEGER NOT NULL,
+  ScheduledTC INTEGER,
+  Duration INTEGER NOT NULL,
   EventName TEXT NOT NULL,
   Layer INTEGER NOT NULL,
   AudioVolume NUMERIC,
-  StartTime BIGINT,
-  StartTC BIGINT,
-  RequestedStartTime BIGINT,
+  StartTime INTEGER,
+  StartTC INTEGER,
+  RequestedStartTime INTEGER,
   PlayState INTEGER NOT NULL,
-  TransitionTime BIGINT NOT NULL,
-  TransitionPauseTime BIGINT NOT NULL,
+  TransitionTime INTEGER NOT NULL,
+  TransitionPauseTime INTEGER NOT NULL,
   typTransition INTEGER NOT NULL,
-  idProgramme BIGINT NOT NULL,
-  idCustomCommand BIGINT,
+  idProgramme INTEGER NOT NULL,
+  idCustomCommand INTEGER,
   flagsEvent INTEGER,
   idAux TEXT,
   Commands TEXT,
@@ -127,7 +127,7 @@ CREATE INDEX rundownevent_PlayState ON rundownevent (PlayState);
 
 CREATE TABLE rundownevent_templated (
   idrundownevent_templated INTEGER PRIMARY KEY,
-  Method TINYINT NOT NULL,
+  Method INTEGER NOT NULL,
   TemplateLayer INTEGER NOT NULL,
   Fields TEXT
 );
@@ -140,14 +140,14 @@ CREATE TABLE server (
 CREATE TABLE servermedia (
   idserverMedia INTEGER PRIMARY KEY,
   MediaGuid BLOB NOT NULL,
-  idServer BIGINT NOT NULL,
+  idServer INTEGER NOT NULL,
   MediaName TEXT,
   Folder TEXT,
   FileName TEXT,
-  FileSize BIGINT NOT NULL,
-  LastUpdated BIGINT NOT NULL,
-  Duration BIGINT NOT NULL,
-  DurationPlay BIGINT NOT NULL,
+  FileSize INTEGER NOT NULL,
+  LastUpdated INTEGER NOT NULL,
+  Duration INTEGER NOT NULL,
+  DurationPlay INTEGER NOT NULL,
   typVideo INTEGER NOT NULL,
   typAudio INTEGER NOT NULL,
   typMedia INTEGER NOT NULL,
@@ -155,11 +155,11 @@ CREATE TABLE servermedia (
   AudioLevelIntegrated NUMERIC NOT NULL,
   AudioLevelPeak NUMERIC NOT NULL,
   statusMedia INTEGER NOT NULL,
-  TCStart BIGINT NOT NULL,
-  TCPlay BIGINT NOT NULL,
-  idProgramme BIGINT NOT NULL,
+  TCStart INTEGER NOT NULL,
+  TCPlay INTEGER NOT NULL,
+  idProgramme INTEGER NOT NULL,
   idAux TEXT,
-  KillDate BIGINT,
+  KillDate INTEGER,
   flags INTEGER NOT NULL
 );
 
@@ -175,9 +175,9 @@ CREATE TABLE aco (
 
 CREATE TABLE rundownevent_acl (
   idRundownevent_ACL INTEGER PRIMARY KEY,
-  idRundownEvent BIGINT NOT NULL,
-  idACO BIGINT NOT NULL,
-  ACL BIGINT NOT NULL,
+  idRundownEvent INTEGER NOT NULL,
+  idACO INTEGER NOT NULL,
+  ACL INTEGER NOT NULL,
   CONSTRAINT rundownevent_acl_ACO FOREIGN KEY (idACO) REFERENCES aco (idACO) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT rundownevent_acl_RundownEvent FOREIGN KEY (idRundownEvent) REFERENCES rundownevent (idRundownEvent) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -187,9 +187,9 @@ CREATE INDEX rundownevent_acl_idACO ON rundownevent_acl (idACO);
 
 CREATE TABLE engine_acl (
   idEngine_ACL INTEGER PRIMARY KEY,
-  idEngine BIGINT NOT NULL,
-  idACO BIGINT NOT NULL,
-  ACL BIGINT NOT NULL,
+  idEngine INTEGER NOT NULL,
+  idACO INTEGER NOT NULL,
+  ACL INTEGER NOT NULL,
   CONSTRAINT engine_acl_ACO FOREIGN KEY (idACO) REFERENCES aco (idACO) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT engine_acl_Engine FOREIGN KEY (idEngine) REFERENCES engine (idEngine) ON DELETE CASCADE ON UPDATE CASCADE
 );

@@ -13,6 +13,7 @@ using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 using System.ComponentModel;
+using TAS.Common.Database;
 
 namespace TAS.Server
 {
@@ -45,18 +46,25 @@ namespace TAS.Server
         }
         #endregion
         
+        [Hibernate]
         public string ServerAddress { get; set; }
 
+        [Hibernate]
         public int OscPort { get; set; }
 
+        [Hibernate]
         public string MediaFolder { get; set; }
 
+        [Hibernate]
         public bool IsMediaFolderRecursive { get; set; }
 
+        [Hibernate]
         public string AnimationFolder { get; set; }
 
+        [Hibernate]
         public TServerType ServerType { get; set; }
 
+        [Hibernate]
         public TMovieContainerFormat MovieContainerFormat { get; set; }
 
         [JsonProperty(TypeNameHandling = TypeNameHandling.Objects), XmlIgnore]
@@ -65,14 +73,14 @@ namespace TAS.Server
         [JsonProperty(TypeNameHandling = TypeNameHandling.Objects), XmlIgnore]
         public IAnimationDirectory AnimationDirectory { get; private set; }
 
-        [XmlArray(nameof(Channels))]
+        [XmlArray(nameof(Channels)), Hibernate(nameof(Channels))]
         public List<CasparServerChannel> ChannelsSer { get; set; }
 
         [XmlIgnore]
         [JsonProperty(TypeNameHandling = TypeNameHandling.None, ItemIsReference = true, ItemTypeNameHandling = TypeNameHandling.Objects)]
         public IEnumerable<IPlayoutServerChannel> Channels => ChannelsSer;
 
-        [XmlArray(nameof(Recorders))]
+        [XmlArray(nameof(Recorders)), Hibernate(nameof(Recorders))]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public List<CasparRecorder> RecordersSer { get; set; }
 

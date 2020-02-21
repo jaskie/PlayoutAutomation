@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Common.Database;
 using TAS.Common.Database.Interfaces;
@@ -24,6 +23,12 @@ namespace TAS.Database.SQLite
     {
        
         private static readonly string DatabaseFile = Path.Combine(FileUtils.LocalApplicationDataPath, "TVPlay.db");
+
+        private static readonly Newtonsoft.Json.JsonSerializerSettings HibernationSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
+        {
+            ContractResolver = new HibernationContractResolver(),
+            NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+        };
 
         public DatabaseType DatabaseType => DatabaseType.SQLite;
 
@@ -502,12 +507,7 @@ VALUES
                     cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
                     cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
                     cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
-                    var serializer = new XmlSerializer(engine.GetType());
-                    using (var writer = new StringWriter())
-                    {
-                        serializer.Serialize(writer, engine);
-                        cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                    }
+                    cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(engine, HibernationSerializerSettings));
                     cmd.ExecuteNonQuery();
                     engine.Id = (ulong)_connection.LastInsertRowId;
                 }
@@ -569,13 +569,10 @@ VALUES
             cmd.Parameters.AddWithValue("@typEvent", aEvent.EventType);
             cmd.Parameters.AddWithValue("@typStart", aEvent.StartType);
 
-            cmd.Parameters.AddWithValue("@ScheduledTime", DBNull.Value);
+            cmd.Parameters.AddWithValue("@ScheduledTime", aEvent.ScheduledTime.Ticks);
 
             cmd.Parameters.AddWithValue("@Duration", aEvent.Duration.Ticks);
-            if (aEvent.ScheduledTc.Equals(TimeSpan.Zero))
-                cmd.Parameters.AddWithValue("@ScheduledTC", DBNull.Value);
-            else
-                cmd.Parameters.AddWithValue("@ScheduledTC", aEvent.ScheduledTc.Ticks);
+            cmd.Parameters.AddWithValue("@ScheduledTC", aEvent.ScheduledTc.Ticks);
             cmd.Parameters.AddWithValue("@ScheduledDelay", aEvent.ScheduledDelay.Ticks);
             if (aEvent.MediaGuid == Guid.Empty)
                 cmd.Parameters.AddWithValue("@MediaGuid", DBNull.Value);
@@ -583,15 +580,12 @@ VALUES
                 cmd.Parameters.AddWithValue("@MediaGuid", aEvent.MediaGuid);
             cmd.Parameters.AddWithValue("@EventName", aEvent.EventName);
             cmd.Parameters.AddWithValue("@PlayState", aEvent.PlayState);
-            cmd.Parameters.AddWithValue("@StartTime", DBNull.Value);
-            if (aEvent.StartTc.Equals(TimeSpan.Zero))
-                cmd.Parameters.AddWithValue("@StartTC", DBNull.Value);
-            else
-                cmd.Parameters.AddWithValue("@StartTC", aEvent.StartTc.Ticks);
+            cmd.Parameters.AddWithValue("@StartTime", aEvent.StartTime.Ticks);
+            cmd.Parameters.AddWithValue("@StartTC", aEvent.StartTc.Ticks);
             if (aEvent.RequestedStartTime == null)
                 cmd.Parameters.AddWithValue("@RequestedStartTime", DBNull.Value);
             else
-                cmd.Parameters.AddWithValue("@RequestedStartTime", aEvent.RequestedStartTime);
+                cmd.Parameters.AddWithValue("@RequestedStartTime", aEvent.RequestedStartTime.Value.Ticks);
             cmd.Parameters.AddWithValue("@TransitionTime", aEvent.TransitionTime.Ticks);
             cmd.Parameters.AddWithValue("@TransitionPauseTime", aEvent.TransitionPauseTime.Ticks);
             cmd.Parameters.AddWithValue("@typTransition", (ushort)aEvent.TransitionType | ((ushort)aEvent.TransitionEasing) << 8);
@@ -733,12 +727,7 @@ VALUES
             {
                 {
                     var cmd = new SQLiteCommand(@"insert into aco (typAco, Config) VALUES (@typAco, @Config);", _connection);
-                    var serializer = new XmlSerializer(pAco.GetType());
-                    using (var writer = new StringWriter())
-                    {
-                        serializer.Serialize(writer, pAco);
-                        cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                    }
+                    cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(aco, HibernationSerializerSettings));
                     cmd.Parameters.AddWithValue("@typAco", (int)aco.SecurityObjectTypeType);
                     cmd.ExecuteNonQuery();
                     pAco.Id = (ulong)_connection.LastInsertRowId;
@@ -752,12 +741,7 @@ VALUES
             {
                 {
                     var cmd = new SQLiteCommand(@"INSERT INTO server (Config) VALUES(@Config);", _connection);
-                    var serializer = new XmlSerializer(server.GetType());
-                    using (var writer = new StringWriter())
-                    {
-                        serializer.Serialize(writer, server);
-                        cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                    }
+                    cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(server, HibernationSerializerSettings));
                     cmd.ExecuteNonQuery();
                     server.Id = (ulong)_connection.LastInsertRowId;
                 }
@@ -778,9 +762,7 @@ VALUES
                 {
                     while (dataReader.Read())
                     {
-                        var reader = new StringReader(dataReader.GetString("Config"));
-                        var serializer = new XmlSerializer(typeof(T));
-                        var user = (T)serializer.Deserialize(reader);
+                        var user = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"));
                         if (user is IPersistent pUser)
                             pUser.Id = dataReader.GetUInt64("idACO");
                         users.Add(user);
@@ -879,10 +861,8 @@ VALUES
                 using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
-                    {
-                        var reader = new StringReader(dataReader.GetString("Config"));
-                        var serializer = new XmlSerializer(typeof(T));
-                        var engine = (T)serializer.Deserialize(reader);
+                    {   
+                        var engine = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"), HibernationSerializerSettings); 
                         engine.Id = dataReader.GetUInt64("idEngine");
                         engine.IdServerPRI = dataReader.GetUInt64("idServerPRI");
                         engine.ServerChannelPRI = dataReader.GetInt32("ServerChannelPRI");
@@ -943,9 +923,7 @@ VALUES
                 {
                     while (dataReader.Read())
                     {
-                        var reader = new StringReader(dataReader.GetString("Config"));
-                        var serializer = new XmlSerializer(typeof(T));
-                        var server = (T)serializer.Deserialize(reader);
+                        var server = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"), HibernationSerializerSettings);
                         server.Id = dataReader.GetUInt64("idServer");
                         servers.Add(server);
                     }
@@ -979,7 +957,7 @@ VALUES
 
         private IEvent _eventRead(IEngine engine, SQLiteDataReader dataReader)
         {
-            var flags = dataReader.IsDBNull("flagsEvent") ? 0 : dataReader.GetUInt32("flagsEvent");
+            var flags = dataReader.GetUInt32("flagsEvent");
             var transitionType = dataReader.GetInt16("typTransition");
             var eventType = (TEventType)dataReader.GetByte("typEvent");
             var newEvent = engine.CreateNewEvent(
@@ -1447,12 +1425,7 @@ VALUES
                 cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
                 cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
                 cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
-                var serializer = new XmlSerializer(engine.GetType());
-                using (var writer = new StringWriter())
-                {
-                    serializer.Serialize(writer, engine);
-                    cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                }
+                cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(engine, HibernationSerializerSettings));
                 cmd.ExecuteNonQuery();
             }
         }
@@ -1638,7 +1611,7 @@ WHERE idServerMedia=@idServerMedia;", _connection);
             if (media.KillDate == null)
                 cmd.Parameters.AddWithValue("@KillDate", DBNull.Value);
             else
-                cmd.Parameters.AddWithValue("@KillDate", media.KillDate);
+                cmd.Parameters.AddWithValue("@KillDate", media.KillDate.Value.Ticks);
             var flags = ((media is IServerMedia serverMedia && serverMedia.DoNotArchive) ? 0x1 : (uint)0x0)
                         | (media.IsProtected ? 0x2 : (uint)0x0)
                         | (media.FieldOrderInverted ? 0x4 : (uint)0x0)
@@ -1671,7 +1644,7 @@ WHERE idServerMedia=@idServerMedia;", _connection);
             if (media.LastUpdated == default(DateTime))
                 cmd.Parameters.AddWithValue("@LastUpdated", DBNull.Value);
             else
-                cmd.Parameters.AddWithValue("@LastUpdated", media.LastUpdated);
+                cmd.Parameters.AddWithValue("@LastUpdated", media.LastUpdated.Ticks);
             cmd.Parameters.AddWithValue("@statusMedia", (int)media.MediaStatus);
             cmd.Parameters.AddWithValue("@typMedia", (int)media.MediaType);
             cmd.Parameters.AddWithValue("@typAudio", (byte)media.AudioChannelMapping);
@@ -1751,12 +1724,7 @@ WHERE idServerMedia=@idServerMedia;", _connection);
             {
                 {
                     var cmd = new SQLiteCommand(@"update aco set Config=@Config where idACO=@idACO;", _connection);
-                    var serializer = new XmlSerializer(pAco.GetType());
-                    using (var writer = new StringWriter())
-                    {
-                        serializer.Serialize(writer, pAco);
-                        cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                    }
+                    cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(aco, HibernationSerializerSettings));
                     cmd.Parameters.AddWithValue("@idACO", pAco.Id);
                     cmd.ExecuteNonQuery();
                 }
@@ -1770,12 +1738,7 @@ WHERE idServerMedia=@idServerMedia;", _connection);
 
                 var cmd = new SQLiteCommand("UPDATE server SET Config=@Config WHERE idServer=@idServer;", _connection);
                 cmd.Parameters.AddWithValue("@idServer", server.Id);
-                var serializer = new XmlSerializer(server.GetType());
-                using (var writer = new StringWriter())
-                {
-                    serializer.Serialize(writer, server);
-                    cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                }
+                cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(server, HibernationSerializerSettings));
                 cmd.ExecuteNonQuery();
             }
         }

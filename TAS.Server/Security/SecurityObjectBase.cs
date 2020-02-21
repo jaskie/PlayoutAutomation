@@ -3,6 +3,7 @@ using System.Xml.Serialization;
 using jNet.RPC.Server;
 using Newtonsoft.Json;
 using TAS.Common;
+using TAS.Common.Database;
 using TAS.Common.Interfaces.Security;
 
 namespace TAS.Server.Security
@@ -28,7 +29,7 @@ namespace TAS.Server.Security
         [XmlIgnore]
         public ulong Id { get; set; }
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public string Name
         {
             get => _name;

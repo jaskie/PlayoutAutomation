@@ -109,6 +109,7 @@
     <Compile Include="Security\AuthenticationService.cs" />
     <Compile Include="Security\Group.cs" />
     <Compile Include="Security\User.cs" />
+    <Compile Include="ServerHost.cs" />
     <Compile Include="XDCAM\EditList.cs" />
     <Compile Include="XDCAM\MediaProfile.cs" />
     <Compile Include="XDCAM\Meta.cs" />

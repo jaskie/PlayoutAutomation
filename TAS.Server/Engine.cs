@@ -11,16 +11,16 @@ using System.Collections.Concurrent;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.Security;
 using TAS.Server.Media;
 using TAS.Server.Security;
+using TAS.Common.Database;
 
 namespace TAS.Server
 {
-    public class Engine : DtoBase, IEngine, IEnginePersistent
+    public class Engine : jNet.RPC.Server.DtoBase, IEngine, IEnginePersistent
     {
 
         private string _engineName;
@@ -127,18 +127,19 @@ namespace TAS.Server
         [XmlIgnore]
         public int ServerChannelPRV { get; set; }
 
+        [Hibernate]
         public int CGStartDelay { get; set; }
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public string EngineName { get => _engineName; set => SetField(ref _engineName, value); }
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public bool EnableCGElementsForNewEvents { get => _enableCGElementsForNewEvents; set => SetField(ref _enableCGElementsForNewEvents, value); }
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public bool StudioMode { get => _studioMode; set => SetField(ref _studioMode, value); }
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
 
         #endregion //IEngineProperties
@@ -159,10 +160,13 @@ namespace TAS.Server
         [JsonProperty]
         public IRouter Router { get; private set; }
 
+        [Hibernate]
         public ServerHost Remote { get; set; }
+        
+        [Hibernate]
         public TAspectRatioControl AspectRatioControl { get; set; }
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public int TimeCorrection
         {
             get => _timeCorrection;
@@ -196,7 +200,7 @@ namespace TAS.Server
         [JsonProperty]
         public RationalNumber FrameRate { get; private set; }
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public TVideoFormat VideoFormat { get; set; }
 
         [XmlIgnore]

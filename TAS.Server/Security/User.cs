@@ -6,6 +6,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using TAS.Common;
+using TAS.Common.Database;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
 
@@ -41,14 +42,14 @@ namespace TAS.Server.Security
             set { SetField(ref _isAdmin, value); }
         }
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public AuthenticationSource AuthenticationSource
         {
             get { return _authenticationSource; }
             set { SetField(ref _authenticationSource, value); }
         }
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public string AuthenticationObject
         {
             get { return _authenticationObject; }
@@ -62,6 +63,7 @@ namespace TAS.Server.Security
         }
 
         [XmlArray("Groups"), XmlArrayItem(nameof(Group))]
+        [Hibernate("Groups")]
         public ulong[] GroupsId
         {
             get
