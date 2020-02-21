@@ -31,7 +31,7 @@ namespace TAS.Server
         private TDeckControl _deckControl;
         private bool _isDeckConnected;
         private bool _isServerConnected;
-        private string _recorderName;
+        private string _recorderName;        
 
         #region Deserialized properties
         public int RecorderNumber { get; set; }
@@ -51,6 +51,8 @@ namespace TAS.Server
         #endregion Deserialized properties
 
         #region IRecorder
+        [JsonProperty, XmlIgnore]
+        public int ServerId { get => (int)_ownerServer.Id; }
         [JsonProperty, XmlIgnore]
         public TimeSpan CurrentTc { get => _currentTc; private set => SetField(ref _currentTc, value); }
 
@@ -142,11 +144,13 @@ namespace TAS.Server
         public void Finish()
         {
             _recorder?.Finish();
+            RecordingMedia = null;
         }
         
         public void Abort()
         {
             _recorder?.Abort();
+            RecordingMedia = null;
         }
 
         public void DeckPlay()
@@ -156,6 +160,7 @@ namespace TAS.Server
         public void DeckStop()
         {
             _recorder?.Stop();
+            RecordingMedia = null;
         }
 
         public void DeckFastForward()
@@ -205,7 +210,7 @@ namespace TAS.Server
 
         internal void SetOwner(CasparServer owner)
         {
-            _ownerServer = owner;
+            _ownerServer = owner;            
         }
 
         internal event EventHandler<MediaEventArgs> CaptureSuccess;
@@ -252,6 +257,7 @@ namespace TAS.Server
                         CaptureSuccess?.Invoke(this, new MediaEventArgs(media));
                 });
             }
+            RecordingMedia = null;
             Logger.Trace("Capture completed notified");
         }
 

@@ -24,7 +24,7 @@ namespace TAS.Common.Interfaces
         List<IEvent> FixedTimeEvents { get; }
         IDictionary<string, int> ServerMediaFieldLengths { get; }
         IDictionary<string, int> ArchiveMediaFieldLengths { get; }
-        IDictionary<string, int> EventFieldLengths { get; }
+        IDictionary<string, int> EventFieldLengths { get; }        
 
         IEvent CreateNewEvent(
             ulong idRundownEvent = 0,
@@ -61,7 +61,8 @@ namespace TAS.Common.Interfaces
             IDictionary<string, string> fields = null,
             TemplateMethod method = TemplateMethod.Add,
             int templateLayer = 10,
-            short routerPort = -1
+            short routerPort = -1,
+            RecordingInfo recordingInfo = null
         );
 
         void Load(IEvent aEvent);

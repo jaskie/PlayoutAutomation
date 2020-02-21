@@ -38,10 +38,12 @@ namespace TAS.Client.ViewModels
         private TimeSpan _duration;
         private TimeSpan _scheduledDelay;
         private bool _isEventNameFocused;
+        private RecordingInfo _recordingInfo;
+        #region Router
         private int _routerPort = -1;
         private object _selectedInputPort;
-
-
+        #endregion
+                     
         public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
         public static readonly Regex RegexMixerClip = new Regex(TAS.Common.EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
         public static readonly Regex RegexMixerClear = new Regex(TAS.Common.EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase);
@@ -68,7 +70,11 @@ namespace TAS.Client.ViewModels
                 _selectedInputPort = InputPorts?.FirstOrDefault(param => param is IRouterPort routerPort && routerPort.PortId == _routerPort) ?? InputPorts?[0];
             }
                             
-                       
+            if (@event.EventType == TEventType.Live && Model.Engine.MediaManager.Recorders.Count() > 0)
+            {
+                RecordingInfoViewmodel = new RecordingInfoViewModel(@event.Engine, _recordingInfo);
+                RecordingInfoViewmodel.ModifiedChanged += RecordingInfoViewmodel_ModifiedChanged;
+            }
 
             CommandSaveEdit = new UiCommand(o => Save(), o => CanSave);
             CommandUndoEdit = new UiCommand(o => UndoEdit(), o => IsModified);
@@ -109,6 +115,11 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        private void RecordingInfoViewmodel_ModifiedChanged(object sender, EventArgs e)
+        {
+            IsModified = true;
+        }
+
         public void Save()
         {
             Update();
@@ -118,6 +129,7 @@ namespace TAS.Client.ViewModels
         {
             TemplatedEditViewmodel?.UndoEdit();
             EventRightsEditViewmodel?.UndoEdit();
+            RecordingInfoViewmodel?.UndoEdit();
             Load();
         }
         
@@ -126,6 +138,7 @@ namespace TAS.Client.ViewModels
             base.Update(Model);
             EventRightsEditViewmodel?.Save();
             TemplatedEditViewmodel?.Save();
+            RecordingInfoViewmodel?.Save();
             Model.Save();
         }
 
@@ -616,10 +629,11 @@ namespace TAS.Client.ViewModels
         public ICGElement[] Crawls => Model.Engine.CGElementsController?.Crawls.ToArray() ?? new ICGElement[0];
 
         public ICGElement[] Parentals => Model.Engine.CGElementsController?.Parentals.ToArray() ?? new ICGElement[0];
-
+        
         public EventRightsEditViewmodel EventRightsEditViewmodel { get; }
 
         public TemplatedEditViewmodel TemplatedEditViewmodel { get; }
+        public RecordingInfoViewModel RecordingInfoViewmodel { get; }
 
         public override string ToString()
         {
@@ -877,6 +891,18 @@ namespace TAS.Client.ViewModels
                     case nameof(IEvent.CurrentUserRights):
                         InvalidateRequerySuggested();
                         break;
+                    case nameof(IEvent.RecordingInfo):
+                        RecordingInfo = s.RecordingInfo;
+                        break;
+                    //case nameof(IEvent.RecordingInfo.IsRecordingScheduled):
+                    //    RecordingInfoViewmodel.IsRecordingScheduled = s.RecordingInfo.IsRecordingScheduled;
+                    //    break;                    
+                    //case nameof(IEvent.RecordingInfo.ChannelId):
+                    //    RecordingInfoViewmodel.ChannelId = s.RecordingInfo.ChannelId;
+                    //    break;
+                    //case nameof(IEvent.RecordingInfo.RecorderId):
+                    //    RecordingInfoViewmodel.RecorderId = s.RecordingInfo.RecorderId;
+                    //    break;
                 }
             });
         }
@@ -983,6 +1009,8 @@ namespace TAS.Client.ViewModels
         }
 
         public bool IsValid => (from pi in GetType().GetProperties() select this[pi.Name]).All(string.IsNullOrEmpty);
+
+        public RecordingInfo RecordingInfo { get => _recordingInfo; set => SetField(ref _recordingInfo, value); }
 
         private bool IsValidCommand(string commandText)
         {

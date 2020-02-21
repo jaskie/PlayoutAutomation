@@ -145,6 +145,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Rights.pl.resx</DependentUpon>
     </Compile>
+    <Compile Include="RecordingInfo.cs" />
     <Compile Include="RedundantConnectionStateEventArgs.cs" />
     <Compile Include="MediaConversion.cs" />
     <Compile Include="MediaDeleteResult.cs" />

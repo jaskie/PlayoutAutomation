@@ -833,6 +833,13 @@ namespace TAS.Database.MySqlRedundant
             var flags = dataReader.IsDBNull("flagsEvent") ? 0 : dataReader.GetUInt32("flagsEvent");
             var transitionType = dataReader.GetUInt16("typTransition");
             var eventType = (TEventType)dataReader.GetByte("typEvent");
+            RecordingInfo recordingInfo = null;
+            if (!dataReader.IsDBNull("RecordingInfo"))
+            {
+                var reader = new StringReader(dataReader.GetString("RecordingInfo"));
+                var serializer = new XmlSerializer(typeof(RecordingInfo));
+                recordingInfo = (RecordingInfo)serializer.Deserialize(reader);
+            }
             var newEvent = engine.CreateNewEvent(
                 dataReader.GetUInt64("idRundownEvent"),
                 dataReader.GetUInt64("idEventBinding"),
@@ -865,7 +872,8 @@ namespace TAS.Database.MySqlRedundant
                 flags.Parental(),
                 flags.AutoStartFlags(),
                 dataReader.GetString("Commands"), 
-                routerPort: dataReader.IsDBNull("RouterPort") ? (short)-1 : dataReader.GetInt16("RouterPort")
+                routerPort: dataReader.IsDBNull("RouterPort") ? (short)-1 : dataReader.GetInt16("RouterPort"),
+                recordingInfo: recordingInfo
                 );
             return newEvent;
         }
@@ -918,6 +926,14 @@ namespace TAS.Database.MySqlRedundant
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent.AudioVolume);
             cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
             cmd.Parameters.AddWithValue("@RouterPort", aEvent.RouterPort == -1 ? (object) DBNull.Value : aEvent.RouterPort);
+            
+            using (var writer = new StringWriter())
+            {
+                var serializer = new XmlSerializer(typeof(RecordingInfo));
+                serializer.Serialize(writer, aEvent.RecordingInfo);
+                cmd.Parameters.AddWithValue("@RecordingInfo", writer.ToString());
+            }
+                
             var command = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript
                 ? (object)((ICommandScript) aEvent).Command
                 : DBNull.Value;
@@ -949,9 +965,9 @@ namespace TAS.Database.MySqlRedundant
                 using (var transaction = _connection.BeginTransaction())
                 {
                     const string query = @"INSERT INTO RundownEvent 
-(idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, TransitionPauseTime, typTransition, AudioVolume, idProgramme, flagsEvent, Commands, RouterPort) 
+(idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, TransitionPauseTime, typTransition, AudioVolume, idProgramme, flagsEvent, Commands, RouterPort, RecordingInfo) 
 VALUES 
-(@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @TransitionPauseTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent, @Commands, @RouterPort);";
+(@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @TransitionPauseTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent, @Commands, @RouterPort, @RecordingInfo);";
                     using (var cmd = new DbCommandRedundant(query, _connection))
                         if (_eventFillParamsAndExecute(cmd, aEvent))
                         {
@@ -997,7 +1013,8 @@ AudioVolume=@AudioVolume,
 idProgramme=@idProgramme, 
 flagsEvent=@flagsEvent,
 Commands=@Commands,
-RouterPort=@RouterPort
+RouterPort=@RouterPort,
+RecordingInfo=@RecordingInfo
 WHERE idRundownEvent=@idRundownEvent;";
                     using (var cmd = new DbCommandRedundant(query, _connection))
                     {

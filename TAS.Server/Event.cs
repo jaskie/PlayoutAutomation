@@ -37,7 +37,7 @@ namespace TAS.Server
         private byte _logo;
         private byte _parental;
         private int _routerPort = -1;
-        
+        private RecordingInfo _recordingInfo;
         private double? _audioVolume;
         private TimeSpan _duration;
         private bool _isEnabled;
@@ -97,7 +97,8 @@ namespace TAS.Server
                     byte crawl,
                     byte logo,
                     byte parental,
-                    short routerPort)
+                    short routerPort,
+                    RecordingInfo recordingInfo)
         {
             _engine = engine;
             _rundownSync = engine.RundownSync;
@@ -177,6 +178,7 @@ namespace TAS.Server
                 return rights;
             });
             _routerPort = routerPort;
+            _recordingInfo = recordingInfo ?? new RecordingInfo();
 
         FieldLengths = EngineController.Current.Database.EventFieldLengths;
         }
@@ -205,7 +207,7 @@ namespace TAS.Server
         {
             get => _audioVolume;
             set => SetField(ref _audioVolume, value);
-        }
+        }        
 
         [JsonProperty]
         public TimeSpan Duration
@@ -468,6 +470,13 @@ namespace TAS.Server
         {
             get => _isForcedNext;
             internal set => SetField(ref _isForcedNext, value);
+        }
+
+        [JsonProperty]
+        public RecordingInfo RecordingInfo
+        {
+            get => _recordingInfo;
+            set => SetField(ref _recordingInfo, value);
         }
 
         public bool IsModified

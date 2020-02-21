@@ -9,9 +9,11 @@ namespace TAS.Client.Config
         private int _id;
         private string _recorderName;
         private int _defaultChannel;
+        private int _serverId;        
 
         public PlayoutRecorderViewmodel(CasparRecorder r): base(r)
         {
+            _serverId = r.ServerId;
             _id = r.Id;
             _recorderName = r.RecorderName;
         }
@@ -32,6 +34,12 @@ namespace TAS.Client.Config
         {
             get => _defaultChannel;
             set => SetField(ref _defaultChannel, value);
+        }
+
+        public int ServerId
+        {
+            get => _serverId;
+            set => SetField(ref _serverId, value);
         }
 
         protected override void OnDispose()

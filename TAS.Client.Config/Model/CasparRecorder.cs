@@ -8,7 +8,7 @@ namespace TAS.Client.Config.Model
         public int Id { get; set; }
         public string RecorderName { get; set; }
         public int DefaultChannel { get; set; }
-
+        public int ServerId { get; }
         public override string ToString()
         {
             return $"{RecorderName} ({Id})";

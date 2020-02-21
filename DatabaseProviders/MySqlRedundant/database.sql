@@ -122,6 +122,7 @@ CREATE TABLE `rundownevent` (
   `idAux` varchar(16) COLLATE `utf8_general_ci` DEFAULT NULL,
   `Commands` TEXT NULL,
   `RouterPort` smallint DEFAULT NULL,
+  `RecordingInfo` TEXT DEFAULT NULL,
   PRIMARY KEY (`idRundownEvent`),
   KEY `idEventBinding` (`idEventBinding`) USING BTREE,
   KEY `id_ScheduledTime` (`ScheduledTime`) USING BTREE,
@@ -210,4 +211,4 @@ CREATE TABLE `engine_acl` (
 );
 
 
-INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '12');
+INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '13');

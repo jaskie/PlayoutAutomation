@@ -13,7 +13,7 @@ namespace TAS.Common.Interfaces
     }
 
     public interface IEvent: IEventProperties, IAclObject, IPersistent, INotifyPropertyChanged
-    {
+    {        
         TPlayState PlayState { get; }
         IMedia Media { get; set; }
         IEngine Engine { get; }
@@ -38,6 +38,8 @@ namespace TAS.Common.Interfaces
         bool IsForcedNext { get; }
         bool HaveRight(EventRight right);
         IEvent GetSuccessor();
+
+        RecordingInfo RecordingInfo { get; set; }
 
         event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
         event EventHandler<EventPositionEventArgs> PositionChanged;

@@ -35,6 +35,9 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IRecorder.Id))]
         private int _id;
 
+        [JsonProperty(nameof(IRecorder.ServerId))]
+        private int _serverId;
+
         [JsonProperty(nameof(IRecorder.IsDeckConnected))]
         private bool _isDeckConnected;
 
@@ -78,6 +81,8 @@ namespace TAS.Remoting.Model
         public IMedia RecordingMedia => _recordingMedia;
 
         public TimeSpan TimeLimit => _timeLimit;
+
+        public int ServerId => _serverId;
 
         public void Abort() { Invoke(); }
 

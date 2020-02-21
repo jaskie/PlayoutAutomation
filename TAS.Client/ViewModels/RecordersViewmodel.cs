@@ -326,7 +326,8 @@ namespace TAS.Client.ViewModels
                    && _timeLimit > TimeSpan.FromSeconds(1)
                    && _recordMedia?.MediaStatus != TMediaStatus.Copying
                    && !string.IsNullOrEmpty(MediaName)
-                   && !_selectedRecorder.RecordingDirectory.FileExists(FileName);
+                   && !_selectedRecorder.RecordingDirectory.FileExists(FileName)
+                   && _selectedRecorder.RecordingMedia == null;
         }
 
         private bool CanSetRecordTimeLimit(object obj)
