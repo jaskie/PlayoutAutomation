@@ -34,8 +34,14 @@ namespace TAS.Database.SQLite
 
         private SQLiteConnection _connection;
 
-        private long Version() => (long)new SQLiteCommand("PRAGMA user_version", _connection).ExecuteScalar();
- 
+        private long Version()
+        {
+            using (var cmd = new SQLiteCommand("PRAGMA user_version", _connection))
+            {
+                return (long)cmd.ExecuteScalar();
+            }
+        }
+
         public ConnectionStateRedundant ConnectionState => (ConnectionStateRedundant)_connection.State;
 
         public IDictionary<string, int> ServerMediaFieldLengths { get; } = new Dictionary<string, int>();
@@ -60,11 +66,13 @@ namespace TAS.Database.SQLite
                 return false;
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("SELECT count(*) FROM archivemedia WHERE idArchive=@idArchive AND MediaGuid=@MediaGuid;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
-                cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
-                var result = cmd.ExecuteScalar();
-                return result != null && (long)result > 0;
+                using (var cmd = new SQLiteCommand("SELECT count(*) FROM archivemedia WHERE idArchive=@idArchive AND MediaGuid=@MediaGuid;", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                    cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
+                    var result = cmd.ExecuteScalar();
+                    return result != null && (long)result > 0;
+                }
             }
         }
 
@@ -75,16 +83,18 @@ namespace TAS.Database.SQLite
                 return result;
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("SELECT * FROM archivemedia WHERE idArchive=@idArchive AND MediaGuid=@MediaGuid;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
-                cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
-                using (var dataReader = cmd.ExecuteReader(CommandBehavior.SingleRow))
+                using (var cmd = new SQLiteCommand("SELECT * FROM archivemedia WHERE idArchive=@idArchive AND MediaGuid=@MediaGuid;", _connection))
                 {
-                    if (dataReader.Read())
+                    cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                    cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
+                    using (var dataReader = cmd.ExecuteReader(CommandBehavior.SingleRow))
                     {
-                        result = _readArchiveMedia<T>(dataReader);
+                        if (dataReader.Read())
+                        {
+                            result = _readArchiveMedia<T>(dataReader);
+                        }
+                        dataReader.Close();
                     }
-                    dataReader.Close();
                 }
             }
             return result;
@@ -95,30 +105,29 @@ namespace TAS.Database.SQLite
             lock (_connection)
             {
                 var textSearches = (from text in search.ToLower().Split(' ').Where(s => !string.IsNullOrEmpty(s)) select "(LOWER(MediaName) LIKE \"%" + text + "%\" or LOWER(FileName) LIKE \"%" + text + "%\")").ToArray();
-                SQLiteCommand cmd;
-                if (mediaCategory == null)
-                    cmd = new SQLiteCommand(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive"
-                                                + (textSearches.Length > 0 ? " and" + string.Join(" and", textSearches) : string.Empty)
-                                                + " order by idArchiveMedia DESC LIMIT 0, 1000;", _connection);
-                else
+                using (var cmd = mediaCategory == null
+                    ? new SQLiteCommand(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive"
+                                                + (textSearches.Length > 0 ? " AND" + string.Join(" and", textSearches) : string.Empty)
+                                                + " ORDER BY idArchiveMedia DESC LIMIT 0, 1000;", _connection)
+                    : new SQLiteCommand(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and ((flags >> 4) & 3)=@Category"
+                                                + (textSearches.Length > 0 ? " AND" + string.Join(" and", textSearches) : string.Empty)
+                                                + " ORDER BY idArchiveMedia DESC LIMIT 0, 1000;", _connection))
                 {
-                    cmd = new SQLiteCommand(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and ((flags >> 4) & 3)=@Category"
-                                                + (textSearches.Length > 0 ? " and" + string.Join(" and", textSearches) : string.Empty)
-                                                + " order by idArchiveMedia DESC LIMIT 0, 1000;", _connection);
-                    cmd.Parameters.AddWithValue("@Category", (uint)mediaCategory);
-                }
-                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
-                using (var dataReader = cmd.ExecuteReader())
-                {
-                    var result = new List<T>();
-                    while (dataReader.Read())
+                    if (mediaCategory != null)
+                        cmd.Parameters.AddWithValue("@Category", (uint)mediaCategory);
+                    cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                    using (var dataReader = cmd.ExecuteReader())
                     {
-                        var media = _readArchiveMedia<T>(dataReader);
-                        dir.AddMedia(media);
-                        result.Add(media);
+                        var result = new List<T>();
+                        while (dataReader.Read())
+                        {
+                            var media = _readArchiveMedia<T>(dataReader);
+                            dir.AddMedia(media);
+                            result.Add(media);
+                        }
+                        dataReader.Close();
+                        return result;
                     }
-                    dataReader.Close();
-                    return result;
                 }
             }
         }
@@ -129,7 +138,7 @@ namespace TAS.Database.SQLite
             {
                 lock (_connection)
                 {
-                    var cmd = new SQLiteCommand(
+                    using (var cmd = new SQLiteCommand(
 @"INSERT INTO asrunlog (
 idEngine,
 ExecuteTime, 
@@ -158,34 +167,36 @@ VALUES
 @typVideo, 
 @typAudio,
 @Flags
-);", _connection);
-                    cmd.Parameters.AddWithValue("@idEngine", idEngine);
-                    cmd.Parameters.AddWithValue("@ExecuteTime", e.StartTime.Ticks);
-                    var media = e.Media;
-                    if (media != null)
+);", _connection))
                     {
-                        cmd.Parameters.AddWithValue("@MediaName", media.MediaName);
-                        if (media is IPersistentMedia)
-                            cmd.Parameters.AddWithValue("@idAuxMedia", (media as IPersistentMedia).IdAux);
+                        cmd.Parameters.AddWithValue("@idEngine", idEngine);
+                        cmd.Parameters.AddWithValue("@ExecuteTime", e.StartTime.Ticks);
+                        var media = e.Media;
+                        if (media != null)
+                        {
+                            cmd.Parameters.AddWithValue("@MediaName", media.MediaName);
+                            if (media is IPersistentMedia)
+                                cmd.Parameters.AddWithValue("@idAuxMedia", (media as IPersistentMedia).IdAux);
+                            else
+                                cmd.Parameters.AddWithValue("@idAuxMedia", DBNull.Value);
+                            cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
+                            cmd.Parameters.AddWithValue("@typAudio", (byte)media.AudioChannelMapping);
+                        }
                         else
+                        {
+                            cmd.Parameters.AddWithValue("@MediaName", e.EventName);
                             cmd.Parameters.AddWithValue("@idAuxMedia", DBNull.Value);
-                        cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
-                        cmd.Parameters.AddWithValue("@typAudio", (byte)media.AudioChannelMapping);
+                            cmd.Parameters.AddWithValue("@typVideo", DBNull.Value);
+                            cmd.Parameters.AddWithValue("@typAudio", DBNull.Value);
+                        }
+                        cmd.Parameters.AddWithValue("@StartTC", e.StartTc.Ticks);
+                        cmd.Parameters.AddWithValue("@Duration", e.Duration.Ticks);
+                        cmd.Parameters.AddWithValue("@idProgramme", e.IdProgramme);
+                        cmd.Parameters.AddWithValue("@idAuxRundown", e.IdAux);
+                        cmd.Parameters.AddWithValue("@SecEvents", string.Join(";", e.SubEvents.Select(se => se.EventName)));
+                        cmd.Parameters.AddWithValue("@Flags", e.ToFlags());
+                        cmd.ExecuteNonQuery();
                     }
-                    else
-                    {
-                        cmd.Parameters.AddWithValue("@MediaName", e.EventName);
-                        cmd.Parameters.AddWithValue("@idAuxMedia", DBNull.Value);
-                        cmd.Parameters.AddWithValue("@typVideo", DBNull.Value);
-                        cmd.Parameters.AddWithValue("@typAudio", DBNull.Value);
-                    }
-                    cmd.Parameters.AddWithValue("@StartTC", e.StartTc.Ticks);
-                    cmd.Parameters.AddWithValue("@Duration", e.Duration.Ticks);
-                    cmd.Parameters.AddWithValue("@idProgramme", e.IdProgramme);
-                    cmd.Parameters.AddWithValue("@idAuxRundown", e.IdAux);
-                    cmd.Parameters.AddWithValue("@SecEvents", string.Join(";", e.SubEvents.Select(se => se.EventName)));
-                    cmd.Parameters.AddWithValue("@Flags", e.ToFlags());
-                    cmd.ExecuteNonQuery();
                 }
                 Debug.WriteLine(e, "AsRunLog written for");
             }
@@ -229,9 +240,11 @@ VALUES
         {
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("DELETE FROM archive WHERE idArchive=@idArchive;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SQLiteCommand("DELETE FROM archive WHERE idArchive=@idArchive;", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -239,9 +252,11 @@ VALUES
         {
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("DELETE FROM engine WHERE idEngine=@idEngine;", _connection);
-                cmd.Parameters.AddWithValue("@idEngine", engine.Id);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SQLiteCommand("DELETE FROM engine WHERE idEngine=@idEngine;", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idEngine", engine.Id);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -249,9 +264,11 @@ VALUES
         {
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("DELETE FROM engine_acl WHERE idEngine_ACL=@idEngine_ACL;", _connection);
-                cmd.Parameters.AddWithValue("@idEngine_ACL", acl.Id);
-                return cmd.ExecuteNonQuery() == 1;
+                using (var cmd = new SQLiteCommand("DELETE FROM engine_acl WHERE idEngine_ACL=@idEngine_ACL;", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idEngine_ACL", acl.Id);
+                    return cmd.ExecuteNonQuery() == 1;
+                }
             }
         }
 
@@ -259,9 +276,11 @@ VALUES
         {
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("DELETE FROM rundownevent WHERE idRundownEvent=@idRundownEvent;", _connection);
-                cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SQLiteCommand("DELETE FROM rundownevent WHERE idRundownEvent=@idRundownEvent;", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
+                    cmd.ExecuteNonQuery();
+                }
                 Debug.WriteLine("DbDeleteEvent Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
                 return true;
             }
@@ -272,9 +291,11 @@ VALUES
             lock (_connection)
             {
                 var query = "DELETE FROM rundownevent_acl WHERE idRundownevent_ACL=@idRundownevent_ACL;";
-                var cmd = new SQLiteCommand(query, _connection);
-                cmd.Parameters.AddWithValue("@idRundownevent_ACL", acl.Id);
-                return cmd.ExecuteNonQuery() == 1;
+                using (var cmd = new SQLiteCommand(query, _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idRundownevent_ACL", acl.Id);
+                    return cmd.ExecuteNonQuery() == 1;
+                }
             }
         }
 
@@ -305,18 +326,22 @@ VALUES
 
         private bool _deleteServerMedia(IPersistentMedia serverMedia)
         {
-            var cmd = new SQLiteCommand("DELETE FROM servermedia WHERE idServerMedia=@idServerMedia;", _connection);
-            cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
-            return cmd.ExecuteNonQuery() == 1;
+            using (var cmd = new SQLiteCommand("DELETE FROM servermedia WHERE idServerMedia=@idServerMedia;", _connection))
+            {
+                cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
+                return cmd.ExecuteNonQuery() == 1;
+            }
         }
 
         private bool _delete_media_templated(IAnimatedMedia media)
         {
             try
             {
-                var cmd = new SQLiteCommand(@"DELETE FROM media_templated WHERE MediaGuid = @MediaGuid;", _connection);
-                cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SQLiteCommand(@"DELETE FROM media_templated WHERE MediaGuid=@MediaGuid;", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                    cmd.ExecuteNonQuery();
+                }
                 return true;
             }
             catch (Exception e)
@@ -330,9 +355,11 @@ VALUES
         {
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("DELETE FROM archivemedia WHERE idArchiveMedia=@idArchiveMedia;", _connection);
-                cmd.Parameters.AddWithValue("@idArchiveMedia", archiveMedia.IdPersistentMedia);
-                return cmd.ExecuteNonQuery() == 1;
+                using (var cmd = new SQLiteCommand("DELETE FROM archivemedia WHERE idArchiveMedia=@idArchiveMedia;", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idArchiveMedia", archiveMedia.IdPersistentMedia);
+                    return cmd.ExecuteNonQuery() == 1;
+                }
             }
         }
 
@@ -350,9 +377,11 @@ VALUES
                 return;
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("DELETE FROM mediasegments WHERE idMediaSegment=@idMediaSegment;", _connection);
-                cmd.Parameters.AddWithValue("@idMediaSegment", ps.Id);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SQLiteCommand("DELETE FROM mediasegments WHERE idMediaSegment=@idMediaSegment;", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idMediaSegment", ps.Id);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -362,8 +391,8 @@ VALUES
                 throw new ArgumentNullException(nameof(aco));
             lock (_connection)
             {
+                using (var cmd = new SQLiteCommand(@"DELETE FROM aco WHERE idACO=@idACO;", _connection))
                 {
-                    var cmd = new SQLiteCommand(@"delete from aco where idACO=@idACO;", _connection);
                     cmd.Parameters.AddWithValue("@idACO", pAco.Id);
                     cmd.ExecuteNonQuery();
                 }
@@ -374,29 +403,17 @@ VALUES
         {
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("DELETE FROM server WHERE idServer=@idServer;", _connection);
-                cmd.Parameters.AddWithValue("@idServer", server.Id);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SQLiteCommand("DELETE FROM server WHERE idServer=@idServer;", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idServer", server.Id);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
-        public bool DropDatabase(string connectionString)
+        public void DropDatabase(string connectionString)
         {
-            var csb = new SQLiteConnectionStringBuilder(connectionString);
-            var databaseName = csb.DataSource;
-            if (string.IsNullOrWhiteSpace(databaseName))
-                return false;
-            csb.Remove("Database");
-            using (var connection = new SQLiteConnection(csb.ConnectionString))
-            {
-                connection.Open();
-                using (var dropCommand = new SQLiteCommand($"DROP DATABASE `{databaseName}`;", connection))
-                {
-                    if (dropCommand.ExecuteNonQuery() > 0)
-                        return true;
-                }
-                return false;
-            }
+            throw new NotSupportedException();
         }
 
         public List<T> FindArchivedStaleMedia<T>(IArchiveDirectoryServerSide dir) where T : IArchiveMedia, new()
@@ -404,13 +421,15 @@ VALUES
             var returnList = new List<T>();
             lock (_connection)
             {
-                var cmd = new SQLiteCommand(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and KillDate<CURRENT_DATE and KillDate>'2000-01-01' LIMIT 0, 1000;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
-                using (var dataReader = cmd.ExecuteReader())
+                using (var cmd = new SQLiteCommand(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive AND KillDate<CURRENT_DATE AND KillDate>'2000-01-01' LIMIT 0, 1000;", _connection))
                 {
-                    while (dataReader.Read())
-                        returnList.Add(_readArchiveMedia<T>(dataReader));
-                    dataReader.Close();
+                    cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                            returnList.Add(_readArchiveMedia<T>(dataReader));
+                        dataReader.Close();
+                    }
                 }
             }
             return returnList;
@@ -484,8 +503,9 @@ VALUES
         {
             lock (_connection)
             {
+                using (var cmd = new SQLiteCommand(@"INSERT INTO archive (Folder) VALUES (@Folder)", _connection))
                 {
-                    var cmd = new SQLiteCommand(@"INSERT INTO archive (Folder) VALUES (@Folder)", _connection);
+                    
                     cmd.Parameters.AddWithValue("@Folder", dir.Folder);
                     cmd.ExecuteNonQuery();
                     dir.IdArchive = (ulong)_connection.LastInsertRowId;
@@ -497,8 +517,8 @@ VALUES
         {
             lock (_connection)
             {
-                {                   
-                    var cmd = new SQLiteCommand(@"INSERT INTO engine (Instance, idServerPRI, ServerChannelPRI, idServerSEC, ServerChannelSEC, idServerPRV, ServerChannelPRV, idArchive, Config) VALUES(@Instance, @idServerPRI, @ServerChannelPRI, @idServerSEC, @ServerChannelSEC, @idServerPRV, @ServerChannelPRV, @idArchive, @Config);", _connection);
+                using (var cmd = new SQLiteCommand(@"INSERT INTO engine (Instance, idServerPRI, ServerChannelPRI, idServerSEC, ServerChannelSEC, idServerPRV, ServerChannelPRV, idArchive, Config) VALUES (@Instance, @idServerPRI, @ServerChannelPRI, @idServerSEC, @ServerChannelSEC, @idServerPRV, @ServerChannelPRV, @idArchive, @Config);", _connection))
+                {
                     cmd.Parameters.AddWithValue("@Instance", engine.Instance);
                     cmd.Parameters.AddWithValue("@idServerPRI", engine.IdServerPRI);
                     cmd.Parameters.AddWithValue("@ServerChannelPRI", engine.ServerChannelPRI);
@@ -520,10 +540,7 @@ VALUES
                 return false;
             lock (_connection)
             {
-                using (var cmd =
-                    new SQLiteCommand(
-                        "INSERT INTO engine_acl (idEngine, idACO, ACL) VALUES (@idEngine, @idACO, @ACL);",
-                        _connection))
+                using (var cmd = new SQLiteCommand("INSERT INTO engine_acl (idEngine, idACO, ACL) VALUES (@idEngine, @idACO, @ACL);", _connection))
                 {
                     cmd.Parameters.AddWithValue("@idEngine", acl.Owner.Id);
                     cmd.Parameters.AddWithValue("@idACO", acl.SecurityObject.Id);
@@ -541,7 +558,7 @@ VALUES
             {
                 using (var transaction = _connection.BeginTransaction())
                 {
-                    const string query = @"INSERT INTO RundownEvent 
+                    const string query = @"INSERT INTO rundownevent 
 (idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, TransitionPauseTime, typTransition, AudioVolume, idProgramme, flagsEvent, Commands, RouterPort) 
 VALUES 
 (@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @TransitionPauseTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent, @Commands, @RouterPort);";
@@ -606,8 +623,8 @@ VALUES
         private void _eventAnimatedSave(ulong id, ITemplated e, bool inserting)
         {
             var query = inserting ?
-                @"INSERT INTO `rundownevent_templated` (`idrundownevent_templated`, `Method`, `TemplateLayer`, `Fields`) VALUES (@idrundownevent_templated, @Method, @TemplateLayer, @Fields);" :
-                @"UPDATE `rundownevent_templated` SET  `Method`=@Method, `TemplateLayer`=@TemplateLayer, `Fields`=@Fields WHERE `idrundownevent_templated`=@idrundownevent_templated;";
+                @"INSERT INTO rundownevent_templated (idrundownevent_templated, Method, TemplateLayer, Fields) VALUES (@idrundownevent_templated, @Method, @TemplateLayer, @Fields);" :
+                @"UPDATE rundownevent_templated SET Method=@Method, TemplateLayer=@TemplateLayer, Fields=@Fields WHERE idrundownevent_templated=@idrundownevent_templated;";
             using (var cmd = new SQLiteCommand(query, _connection))
             {
                 cmd.Parameters.AddWithValue("@idrundownevent_templated", id);
@@ -625,10 +642,7 @@ VALUES
                 return false;
             lock (_connection)
             {
-                using (var cmd =
-                    new SQLiteCommand(
-                        "INSERT INTO rundownevent_acl (idRundownEvent, idACO, ACL) VALUES (@idRundownEvent, @idACO, @ACL);",
-                        _connection))
+                using (var cmd = new SQLiteCommand("INSERT INTO rundownevent_acl (idRundownEvent, idACO, ACL) VALUES (@idRundownEvent, @idACO, @ACL);", _connection))
                 {
                     cmd.Parameters.AddWithValue("@idRundownEvent", acl.Owner.Id);
                     cmd.Parameters.AddWithValue("@idACO", acl.SecurityObject.Id);
@@ -667,12 +681,14 @@ VALUES
 
         private bool _dbInsertMedia(IPersistentMedia media, ulong serverId)
         {
-            var cmd = new SQLiteCommand(@"INSERT INTO servermedia 
+            using (var cmd = new SQLiteCommand(@"INSERT INTO servermedia 
 (idServer, MediaName, Folder, FileName, FileSize, LastUpdated, Duration, DurationPlay, idProgramme, statusMedia, typMedia, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
 VALUES 
-(@idServer, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);", _connection);
-            _mediaFillParamsAndExecute(cmd, "servermedia", media, serverId);
-            media.IdPersistentMedia = (ulong)_connection.LastInsertRowId;
+(@idServer, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);", _connection))
+            {
+                _mediaFillParamsAndExecute(cmd, "servermedia", media, serverId);
+                media.IdPersistentMedia = (ulong)_connection.LastInsertRowId;
+            }
             Debug.WriteLine(media, "ServerMediaInserte-d");
             return true;
         }
@@ -681,12 +697,14 @@ VALUES
         {
             lock (_connection)
             {
-                var cmd = new SQLiteCommand(@"INSERT INTO archivemedia 
+                using (var cmd = new SQLiteCommand(@"INSERT INTO archivemedia 
 (idArchive, MediaName, Folder, FileName, FileSize, LastUpdated, Duration, DurationPlay, idProgramme, statusMedia, typMedia, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
 VALUES 
-(@idArchive, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);", _connection);
-                _mediaFillParamsAndExecute(cmd, "archivemedia", archiveMedia, serverid);
-                archiveMedia.IdPersistentMedia = (ulong)_connection.LastInsertRowId;
+(@idArchive, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);", _connection))
+                {
+                    _mediaFillParamsAndExecute(cmd, "archivemedia", archiveMedia, serverid);
+                    archiveMedia.IdPersistentMedia = (ulong)_connection.LastInsertRowId;
+                }
             }
             return true;
         }
@@ -695,15 +713,16 @@ VALUES
         {
             try
             {
-                var cmd = new SQLiteCommand(@"INSERT OR IGNORE INTO media_templated (MediaGuid, Fields, TemplateLayer, Method, ScheduledDelay, StartType) VALUES (@MediaGuid, @Fields, @TemplateLayer, @Method, @ScheduledDelay, @StartType);", _connection);
-                cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
-                cmd.Parameters.AddWithValue("@TemplateLayer", media.TemplateLayer);
-                cmd.Parameters.AddWithValue("@Method", (byte)media.Method);
-                cmd.Parameters.AddWithValue("@ScheduledDelay", media.ScheduledDelay.Ticks);
-                cmd.Parameters.AddWithValue("@StartType", (byte)media.StartType);
-                cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
-
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SQLiteCommand(@"INSERT OR IGNORE INTO media_templated (MediaGuid, Fields, TemplateLayer, Method, ScheduledDelay, StartType) VALUES (@MediaGuid, @Fields, @TemplateLayer, @Method, @ScheduledDelay, @StartType);", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                    cmd.Parameters.AddWithValue("@TemplateLayer", media.TemplateLayer);
+                    cmd.Parameters.AddWithValue("@Method", (byte)media.Method);
+                    cmd.Parameters.AddWithValue("@ScheduledDelay", media.ScheduledDelay.Ticks);
+                    cmd.Parameters.AddWithValue("@StartType", (byte)media.StartType);
+                    cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
+                    cmd.ExecuteNonQuery();
+                }
                 return true;
             }
             catch (Exception e)
@@ -725,8 +744,8 @@ VALUES
                 throw new ArgumentNullException(nameof(aco));
             lock (_connection)
             {
+                using (var cmd = new SQLiteCommand(@"INSERT INTO aco (typAco, Config) VALUES (@typAco, @Config);", _connection))
                 {
-                    var cmd = new SQLiteCommand(@"insert into aco (typAco, Config) VALUES (@typAco, @Config);", _connection);
                     cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(aco, HibernationSerializerSettings));
                     cmd.Parameters.AddWithValue("@typAco", (int)aco.SecurityObjectTypeType);
                     cmd.ExecuteNonQuery();
@@ -739,8 +758,8 @@ VALUES
         {
             lock (_connection)
             {
+                using (var cmd = new SQLiteCommand(@"INSERT INTO server (Config) VALUES(@Config);", _connection))
                 {
-                    var cmd = new SQLiteCommand(@"INSERT INTO server (Config) VALUES(@Config);", _connection);
                     cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(server, HibernationSerializerSettings));
                     cmd.ExecuteNonQuery();
                     server.Id = (ulong)_connection.LastInsertRowId;
@@ -753,22 +772,24 @@ VALUES
             var users = new List<T>();
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("select * from aco where typACO=@typACO;", _connection);
-                if (typeof(IUser).IsAssignableFrom(typeof(T)))
-                    cmd.Parameters.AddWithValue("@typACO", (int)SecurityObjectType.User);
-                if (typeof(IGroup).IsAssignableFrom(typeof(T)))
-                    cmd.Parameters.AddWithValue("@typACO", (int)SecurityObjectType.Group);
-                using (SQLiteDataReader dataReader = cmd.ExecuteReader())
+                using (var cmd = new SQLiteCommand("SELECT * FROM aco WHERE typACO=@typACO;", _connection))
                 {
-                    while (dataReader.Read())
+                    if (typeof(IUser).IsAssignableFrom(typeof(T)))
+                        cmd.Parameters.AddWithValue("@typACO", (int)SecurityObjectType.User);
+                    if (typeof(IGroup).IsAssignableFrom(typeof(T)))
+                        cmd.Parameters.AddWithValue("@typACO", (int)SecurityObjectType.Group);
+                    using (SQLiteDataReader dataReader = cmd.ExecuteReader())
                     {
-                        var user = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"));
-                        if (user is IPersistent pUser)
-                            pUser.Id = dataReader.GetUInt64("idACO");
-                        users.Add(user);
+                        while (dataReader.Read())
+                        {
+                            var user = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"));
+                            if (user is IPersistent pUser)
+                                pUser.Id = dataReader.GetUInt64("idACO");
+                            users.Add(user);
+                        }
+                        dataReader.Close();
+                        return users;
                     }
-                    dataReader.Close();
-                    return users;
                 }
             }
         }
@@ -778,29 +799,31 @@ VALUES
             Debug.WriteLine(directory, "AnimationDirectory load started");
             lock (_connection)
             {
-                SQLiteCommand cmd = new SQLiteCommand("SELECT servermedia.*, media_templated.`Fields`, media_templated.`Method`, media_templated.`TemplateLayer`, media_templated.`ScheduledDelay`, media_templated.`StartType` FROM serverMedia LEFT JOIN media_templated ON servermedia.MediaGuid = media_templated.MediaGuid WHERE idServer=@idServer and typMedia = @typMedia", _connection);
-                cmd.Parameters.AddWithValue("@idServer", serverId);
-                cmd.Parameters.AddWithValue("@typMedia", TMediaType.Animation);
-                try
+                using (var cmd = new SQLiteCommand("SELECT servermedia.*, media_templated.Fields, media_templated.Method, media_templated.TemplateLayer, media_templated.ScheduledDelay, media_templated.StartType FROM serverMedia LEFT JOIN media_templated ON servermedia.MediaGuid = media_templated.MediaGuid WHERE idServer=@idServer AND typMedia = @typMedia", _connection))
                 {
-                    using (SQLiteDataReader dataReader = cmd.ExecuteReader())
+                    cmd.Parameters.AddWithValue("@idServer", serverId);
+                    cmd.Parameters.AddWithValue("@typMedia", TMediaType.Animation);
+                    try
                     {
-                        while (dataReader.Read())
+                        using (SQLiteDataReader dataReader = cmd.ExecuteReader())
                         {
-
-                            var media = new T
+                            while (dataReader.Read())
                             {
-                                IdPersistentMedia = dataReader.GetUInt64("idServerMedia"),
-                            };
-                            _mediaReadFields(media, dataReader);
-                            directory.AddMedia(media);
+
+                                var media = new T
+                                {
+                                    IdPersistentMedia = dataReader.GetUInt64("idServerMedia"),
+                                };
+                                _mediaReadFields(media, dataReader);
+                                directory.AddMedia(media);
+                            }
                         }
+                        Debug.WriteLine(directory, "Directory loaded");
                     }
-                    Debug.WriteLine(directory, "Directory loaded");
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(directory, e.Message);
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(directory, e.Message);
+                    }
                 }
             }
         }
@@ -810,7 +833,7 @@ VALUES
             var directories = new List<T>();
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("SELECT * FROM archive;", _connection);
+                using (var cmd = new SQLiteCommand("SELECT * FROM archive;", _connection))
                 using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
@@ -832,16 +855,18 @@ VALUES
         {
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("SELECT Folder FROM archive WHERE idArchive=@idArchive;", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", idArchive);
-                var folder = (string)cmd.ExecuteScalar();
-                if (string.IsNullOrEmpty(folder))
-                    return default(T);
-                return new T
+                using (var cmd = new SQLiteCommand("SELECT Folder FROM archive WHERE idArchive=@idArchive;", _connection))
                 {
-                    IdArchive = idArchive,
-                    Folder = folder
-                };
+                    cmd.Parameters.AddWithValue("@idArchive", idArchive);
+                    var folder = (string)cmd.ExecuteScalar();
+                    if (string.IsNullOrEmpty(folder))
+                        return default;
+                    return new T
+                    {
+                        IdArchive = idArchive,
+                        Folder = folder
+                    };
+                }
             }
         }
 
@@ -850,32 +875,32 @@ VALUES
             var engines = new List<T>();
             lock (_connection)
             {
-                SQLiteCommand cmd;
-                if (instance == null)
-                    cmd = new SQLiteCommand("SELECT * FROM engine;", _connection);
-                else
+                using (var cmd = instance == null
+                    ? new SQLiteCommand("SELECT * FROM engine;", _connection)
+                    : new SQLiteCommand("SELECT * FROM engine WHERE Instance=@Instance;", _connection)
+                    )
                 {
-                    cmd = new SQLiteCommand("SELECT * FROM engine where Instance=@Instance;", _connection);
-                    cmd.Parameters.AddWithValue("@Instance", instance);
-                }
-                using (var dataReader = cmd.ExecuteReader())
-                {
-                    while (dataReader.Read())
-                    {   
-                        var engine = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"), HibernationSerializerSettings); 
-                        engine.Id = dataReader.GetUInt64("idEngine");
-                        engine.IdServerPRI = dataReader.GetUInt64("idServerPRI");
-                        engine.ServerChannelPRI = dataReader.GetInt32("ServerChannelPRI");
-                        engine.IdServerSEC = dataReader.GetUInt64("idServerSEC");
-                        engine.ServerChannelSEC = dataReader.GetInt32("ServerChannelSEC");
-                        engine.IdServerPRV = dataReader.GetUInt64("idServerPRV");
-                        engine.ServerChannelPRV = dataReader.GetInt32("ServerChannelPRV");
-                        engine.IdArchive = dataReader.GetUInt64("IdArchive");
-                        engine.Instance = dataReader.GetUInt64("Instance");
-                        engines.Add(engine);
+                    if (instance != null)
+                        cmd.Parameters.AddWithValue("@Instance", instance);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var engine = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"), HibernationSerializerSettings);
+                            engine.Id = dataReader.GetUInt64("idEngine");
+                            engine.IdServerPRI = dataReader.GetUInt64("idServerPRI");
+                            engine.ServerChannelPRI = dataReader.GetInt32("ServerChannelPRI");
+                            engine.IdServerSEC = dataReader.GetUInt64("idServerSEC");
+                            engine.ServerChannelSEC = dataReader.GetInt32("ServerChannelSEC");
+                            engine.IdServerPRV = dataReader.GetUInt64("idServerPRV");
+                            engine.ServerChannelPRV = dataReader.GetInt32("ServerChannelPRV");
+                            engine.IdArchive = dataReader.GetUInt64("IdArchive");
+                            engine.Instance = dataReader.GetUInt64("Instance");
+                            engines.Add(engine);
+                        }
+                        dataReader.Close();
+                        return engines;
                     }
-                    dataReader.Close();
-                    return engines;
                 }
             }
         }
@@ -886,29 +911,31 @@ VALUES
             lock (_connection)
             {
 
-                var cmd = new SQLiteCommand("SELECT * FROM serverMedia WHERE idServer=@idServer and typMedia in (@typMediaMovie, @typMediaStill)", _connection);
-                cmd.Parameters.AddWithValue("@idServer", serverId);
-                cmd.Parameters.AddWithValue("@typMediaMovie", TMediaType.Movie);
-                cmd.Parameters.AddWithValue("@typMediaStill", TMediaType.Still);
-                try
+                using (var cmd = new SQLiteCommand("SELECT * FROM serverMedia WHERE idServer=@idServer AND typMedia IN (@typMediaMovie, @typMediaStill)", _connection))
                 {
-                    using (var dataReader = cmd.ExecuteReader())
+                    cmd.Parameters.AddWithValue("@idServer", serverId);
+                    cmd.Parameters.AddWithValue("@typMediaMovie", TMediaType.Movie);
+                    cmd.Parameters.AddWithValue("@typMediaStill", TMediaType.Still);
+                    try
                     {
-                        while (dataReader.Read())
+                        using (var dataReader = cmd.ExecuteReader())
                         {
-                            var media = new T
+                            while (dataReader.Read())
                             {
-                                IdPersistentMedia = dataReader.GetUInt64("idServerMedia")
-                            };
-                            _mediaReadFields(media, dataReader);
-                            directory.AddMedia(media);
+                                var media = new T
+                                {
+                                    IdPersistentMedia = dataReader.GetUInt64("idServerMedia")
+                                };
+                                _mediaReadFields(media, dataReader);
+                                directory.AddMedia(media);
+                            }
                         }
+                        Debug.WriteLine(directory, "Directory loaded");
                     }
-                    Debug.WriteLine(directory, "Directory loaded");
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(directory, e.Message);
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(directory, e.Message);
+                    }
                 }
             }
         }
@@ -918,7 +945,7 @@ VALUES
             var servers = new List<T>();
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("SELECT * FROM server;", _connection);
+                using (var cmd = new SQLiteCommand("SELECT * FROM server;", _connection))
                 using (var dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
@@ -938,19 +965,21 @@ VALUES
             var reason = MediaDeleteResult.NoDeny;
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("select * from rundownevent where MediaGuid=@MediaGuid and (ScheduledTime + Duration) > datetime('now', 'localtime');", _connection);
-                cmd.Parameters.AddWithValue("@MediaGuid", serverMedia.MediaGuid);
-                IEvent futureScheduled = null;
-                using (var reader = cmd.ExecuteReader())
-                    if (reader.Read())
-                        futureScheduled = _eventRead(engine, reader);
-                if (futureScheduled is ITemplated && futureScheduled is IEventPersistent)
+                using (var cmd = new SQLiteCommand("SELECT * FROM rundownevent WHERE MediaGuid=@MediaGuid AND (ScheduledTime + Duration) > datetime('now', 'localtime');", _connection))
                 {
-                    _readAnimatedEvent(((IEventPersistent)futureScheduled).Id, futureScheduled as ITemplated);
-                    ((IEventPersistent)futureScheduled).IsModified = false;
+                    cmd.Parameters.AddWithValue("@MediaGuid", serverMedia.MediaGuid);
+                    IEvent futureScheduled = null;
+                    using (var reader = cmd.ExecuteReader())
+                        if (reader.Read())
+                            futureScheduled = _eventRead(engine, reader);
+                    if (futureScheduled is ITemplated && futureScheduled is IEventPersistent)
+                    {
+                        _readAnimatedEvent(((IEventPersistent)futureScheduled).Id, futureScheduled as ITemplated);
+                        ((IEventPersistent)futureScheduled).IsModified = false;
+                    }
+                    if (futureScheduled != null)
+                        return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InSchedule, Media = serverMedia, Event = futureScheduled };
                 }
-                if (futureScheduled != null)
-                    return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InSchedule, Media = serverMedia, Event = futureScheduled };
             }
             return reason;
         }
@@ -999,23 +1028,27 @@ VALUES
 
         private void _readAnimatedEvent(ulong id, ITemplated animatedEvent)
         {
-            var cmd = new SQLiteCommand("SELECT * FROM `rundownevent_templated` where `idrundownevent_templated` = @id;", _connection);
-            cmd.Parameters.AddWithValue("@id", id);
-            using (var reader = cmd.ExecuteReader())
+            using (var cmd = new SQLiteCommand("SELECT * FROM rundownevent_templated WHERE idrundownevent_templated = @id;", _connection))
             {
-                if (!reader.Read())
-                    return;
-                animatedEvent.Method = (TemplateMethod)reader.GetByte("Method");
-                animatedEvent.TemplateLayer = reader.GetInt16("TemplateLayer");
-                var templateFields = reader.GetString("Fields");
-                if (string.IsNullOrWhiteSpace(templateFields))
-                    return;
-                var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
-                if (fieldsDeserialized != null)
-                    animatedEvent.Fields = fieldsDeserialized;
+                cmd.Parameters.AddWithValue("@id", id);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (!reader.Read())
+                        return;
+                    animatedEvent.Method = (TemplateMethod)reader.GetByte("Method");
+                    animatedEvent.TemplateLayer = reader.GetInt16("TemplateLayer");
+                    var templateFields = reader.GetString("Fields");
+                    if (string.IsNullOrWhiteSpace(templateFields))
+                        return;
+                    var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
+                    if (fieldsDeserialized != null)
+                        animatedEvent.Fields = fieldsDeserialized;
+                }
             }
         }
+        
         private readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference> _mediaSegments = new System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference>();
+       
         private IMediaSegments _findInDictionary(Guid mediaGuid)
         {
             if (!_mediaSegments.TryGetValue(mediaGuid, out var existingRef))
@@ -1038,28 +1071,30 @@ VALUES
                     throw new ApplicationException("No constructor found for IMediaSegments");
 
                 var mediaGuid = media.MediaGuid;
-                var cmd = new SQLiteCommand("SELECT * FROM MediaSegments where MediaGuid = @MediaGuid;", _connection);
-                cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
-                var segments = _findInDictionary(mediaGuid);
-                if (segments == null)
+                using (var cmd = new SQLiteCommand("SELECT * FROM MediaSegments WHERE MediaGuid = @MediaGuid;", _connection))
                 {
-                    segments = (IMediaSegments)_mediaSegmentsConstructorInfo.Invoke(new object[] { mediaGuid });
-                    _mediaSegments.TryAdd(mediaGuid, new WeakReference(segments));
-                }
-                using (var dataReader = cmd.ExecuteReader())
-                {
-                    while (dataReader.Read())
+                    cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
+                    var segments = _findInDictionary(mediaGuid);
+                    if (segments == null)
                     {
-                        var newSegment = segments.Add(
-                            dataReader.IsDBNull("TCIn") ? default(TimeSpan) : dataReader.GetTimeSpan("TCIn"),
-                            dataReader.IsDBNull("TCOut") ? default(TimeSpan) : dataReader.GetTimeSpan("TCOut"),
-                            dataReader.IsDBNull("SegmentName") ? string.Empty : dataReader.GetString("SegmentName")
-                            );
-                        newSegment.Id = dataReader.GetUInt64("idMediaSegment");
+                        segments = (IMediaSegments)_mediaSegmentsConstructorInfo.Invoke(new object[] { mediaGuid });
+                        _mediaSegments.TryAdd(mediaGuid, new WeakReference(segments));
                     }
-                    dataReader.Close();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var newSegment = segments.Add(
+                                dataReader.IsDBNull("TCIn") ? default(TimeSpan) : dataReader.GetTimeSpan("TCIn"),
+                                dataReader.IsDBNull("TCOut") ? default(TimeSpan) : dataReader.GetTimeSpan("TCOut"),
+                                dataReader.IsDBNull("SegmentName") ? string.Empty : dataReader.GetString("SegmentName")
+                                );
+                            newSegment.Id = dataReader.GetUInt64("idMediaSegment");
+                        }
+                        dataReader.Close();
+                    }
+                    return (T)segments;
                 }
-                return (T)segments;
             }
         }
 
@@ -1088,26 +1123,26 @@ VALUES
         {
             lock (_connection)
             {
-                var cmd =
-                    new SQLiteCommand("SELECT * FROM engine_acl WHERE idEngine=@idEngine;",
-                        _connection);
-                cmd.Parameters.AddWithValue("@idEngine", engine.Id);
-                var acl = new List<IAclRight>();
-                using (var dataReader = cmd.ExecuteReader())
+                using (var cmd = new SQLiteCommand("SELECT * FROM engine_acl WHERE idEngine=@idEngine;", _connection))
                 {
-                    while (dataReader.Read())
+                    cmd.Parameters.AddWithValue("@idEngine", engine.Id);
+                    var acl = new List<IAclRight>();
+                    using (var dataReader = cmd.ExecuteReader())
                     {
-                        var item = new TEngineAcl
+                        while (dataReader.Read())
                         {
-                            Id = dataReader.GetUInt64("idEngine_ACL"),
-                            Owner = engine,
-                            SecurityObject = authenticationService.FindSecurityObject(dataReader.GetUInt64("idACO")),
-                            Acl = dataReader.GetUInt64("ACL")
-                        };
-                        acl.Add(item);
+                            var item = new TEngineAcl
+                            {
+                                Id = dataReader.GetUInt64("idEngine_ACL"),
+                                Owner = engine,
+                                SecurityObject = authenticationService.FindSecurityObject(dataReader.GetUInt64("idACO")),
+                                Acl = dataReader.GetUInt64("ACL")
+                            };
+                            acl.Add(item);
+                        }
                     }
+                    return acl;
                 }
-                return acl;
             }
         }
 
@@ -1118,12 +1153,14 @@ VALUES
             lock (_connection)
             {
                 IEvent result = null;
-                var cmd = new SQLiteCommand("SELECT * FROM rundownevent where idRundownEvent = @idRundownEvent", _connection);
-                cmd.Parameters.AddWithValue("@idRundownEvent", idRundownEvent);
-                using (var reader = cmd.ExecuteReader())
+                using (var cmd = new SQLiteCommand("SELECT * FROM rundownevent WHERE idRundownEvent = @idRundownEvent", _connection))
                 {
-                    if (reader.Read())
-                        result = _eventRead(engine, reader);
+                    cmd.Parameters.AddWithValue("@idRundownEvent", idRundownEvent);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                            result = _eventRead(engine, reader);
+                    }
                 }
                 if (!(result is ITemplated) || !(result is IEventPersistent))
                     return result;
@@ -1139,24 +1176,26 @@ VALUES
                 return null;
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("SELECT * FROM rundownevent_acl WHERE idRundownEvent = @idRundownEvent;", _connection);
-                cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
-                var acl = new List<IAclRight>();
-                using (var dataReader = cmd.ExecuteReader())
+                using (var cmd = new SQLiteCommand("SELECT * FROM rundownevent_acl WHERE idRundownEvent = @idRundownEvent;", _connection))
                 {
-                    while (dataReader.Read())
+                    cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
+                    var acl = new List<IAclRight>();
+                    using (var dataReader = cmd.ExecuteReader())
                     {
-                        var item = new TEventAcl
+                        while (dataReader.Read())
                         {
-                            Id = dataReader.GetUInt64("idRundownevent_ACL"),
-                            Owner = aEvent,
-                            SecurityObject = authenticationService.FindSecurityObject(dataReader.GetUInt64("idACO")),
-                            Acl = dataReader.GetUInt64("ACL")
-                        };
-                        acl.Add(item);
+                            var item = new TEventAcl
+                            {
+                                Id = dataReader.GetUInt64("idRundownevent_ACL"),
+                                Owner = aEvent,
+                                SecurityObject = authenticationService.FindSecurityObject(dataReader.GetUInt64("idACO")),
+                                Acl = dataReader.GetUInt64("ACL")
+                            };
+                            acl.Add(item);
+                        }
                     }
+                    return acl;
                 }
-                return acl;
             }
         }
 
@@ -1167,19 +1206,21 @@ VALUES
             lock (_connection)
             {
                 IEvent next = null;
-                var cmd = new SQLiteCommand("SELECT * FROM rundownevent where idEventBinding = @idEventBinding and typStart=@StartType;", _connection);
-                cmd.Parameters.AddWithValue("@idEventBinding", aEvent.Id);
-                cmd.Parameters.AddWithValue("@StartType", TStartType.After);
-                using (var reader = cmd.ExecuteReader())
+                using (var cmd = new SQLiteCommand("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND typStart=@StartType;", _connection))
                 {
-                    if (reader.Read())
-                        next = _eventRead(engine, reader);
-                }
-                if (!(next is ITemplated) || !(next is IEventPersistent))
+                    cmd.Parameters.AddWithValue("@idEventBinding", aEvent.Id);
+                    cmd.Parameters.AddWithValue("@StartType", TStartType.After);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                            next = _eventRead(engine, reader);
+                    }
+                    if (!(next is ITemplated) || !(next is IEventPersistent))
+                        return next;
+                    _readAnimatedEvent(((IEventPersistent)next).Id, next as ITemplated);
+                    ((IEventPersistent)next).IsModified = false;
                     return next;
-                _readAnimatedEvent(((IEventPersistent)next).Id, next as ITemplated);
-                ((IEventPersistent)next).IsModified = false;
-                return next;
+                }
             }
         }
 
@@ -1187,19 +1228,21 @@ VALUES
         {
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("SELECT * FROM rundownevent where typStart in (@StartTypeManual, @StartTypeOnFixedTime, @StartTypeNone) and idEventBinding=0 and idEngine=@idEngine order by ScheduledTime, EventName", _connection);
-                cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
-                cmd.Parameters.AddWithValue("@StartTypeManual", (byte)TStartType.Manual);
-                cmd.Parameters.AddWithValue("@StartTypeOnFixedTime", (byte)TStartType.OnFixedTime);
-                cmd.Parameters.AddWithValue("@StartTypeNone", (byte)TStartType.None);
-                using (var dataReader = cmd.ExecuteReader())
+                using (var cmd = new SQLiteCommand("SELECT * FROM rundownevent WHERE typStart IN (@StartTypeManual, @StartTypeOnFixedTime, @StartTypeNone) AND idEventBinding=0 AND idEngine=@idEngine ORDER BY ScheduledTime, EventName", _connection))
                 {
-                    while (dataReader.Read())
+                    cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
+                    cmd.Parameters.AddWithValue("@StartTypeManual", (byte)TStartType.Manual);
+                    cmd.Parameters.AddWithValue("@StartTypeOnFixedTime", (byte)TStartType.OnFixedTime);
+                    cmd.Parameters.AddWithValue("@StartTypeNone", (byte)TStartType.None);
+                    using (var dataReader = cmd.ExecuteReader())
                     {
-                        var newEvent = _eventRead(engine, dataReader);
-                        engine.AddRootEvent(newEvent);
+                        while (dataReader.Read())
+                        {
+                            var newEvent = _eventRead(engine, dataReader);
+                            engine.AddRootEvent(newEvent);
+                        }
+                        dataReader.Close();
                     }
-                    dataReader.Close();
                 }
                 Debug.WriteLine(engine, "EventReadRootEvents read");
             }
@@ -1211,32 +1254,36 @@ VALUES
                 return null;
             lock (_connection)
             {
-                var cmd = new SQLiteCommand("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND (typStart=@StartTypeManual OR typStart=@StartTypeOnFixedTime);", _connection);
-                if (eventOwner.EventType == TEventType.Container)
+                using (var cmd = eventOwner.EventType == TEventType.Container
+                    ? new SQLiteCommand("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND (typStart=@StartTypeManual OR typStart=@StartTypeOnFixedTime);", _connection)
+                    : new SQLiteCommand("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND typStart IN (@StartTypeWithParent, @StartTypeWithParentFromEnd);", _connection)
+                    )
                 {
-                    cmd.Parameters.AddWithValue("@StartTypeManual", TStartType.Manual);
-                    cmd.Parameters.AddWithValue("@StartTypeOnFixedTime", TStartType.OnFixedTime);
-                }
-                else
-                {
-                    cmd = new SQLiteCommand("SELECT * FROM rundownevent where idEventBinding = @idEventBinding and typStart in (@StartTypeWithParent, @StartTypeWithParentFromEnd);", _connection);
-                    cmd.Parameters.AddWithValue("@StartTypeWithParent", TStartType.WithParent);
-                    cmd.Parameters.AddWithValue("@StartTypeWithParentFromEnd", TStartType.WithParentFromEnd);
-                }
-                cmd.Parameters.AddWithValue("@idEventBinding", eventOwner.Id);
-                var subevents = new List<IEvent>();
-                using (var dataReader = cmd.ExecuteReader())
-                {
-                    while (dataReader.Read())
-                        subevents.Add(_eventRead(engine, dataReader));
-                }
-                foreach (var e in subevents)
-                    if (e is ITemplated)
+                    if (eventOwner.EventType == TEventType.Container)
                     {
-                        _readAnimatedEvent(e.Id, e as ITemplated);
-                        ((IEventPersistent)e).IsModified = false;
+                        cmd.Parameters.AddWithValue("@StartTypeManual", TStartType.Manual);
+                        cmd.Parameters.AddWithValue("@StartTypeOnFixedTime", TStartType.OnFixedTime);
                     }
-                return subevents;
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@StartTypeWithParent", TStartType.WithParent);
+                        cmd.Parameters.AddWithValue("@StartTypeWithParentFromEnd", TStartType.WithParentFromEnd);
+                    }
+                    cmd.Parameters.AddWithValue("@idEventBinding", eventOwner.Id);
+                    var subevents = new List<IEvent>();
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                            subevents.Add(_eventRead(engine, dataReader));
+                    }
+                    foreach (var e in subevents)
+                        if (e is ITemplated)
+                        {
+                            _readAnimatedEvent(e.Id, e as ITemplated);
+                            ((IEventPersistent)e).IsModified = false;
+                        }
+                    return subevents;
+                }
             }
         }
 
@@ -1246,20 +1293,20 @@ VALUES
                 return 0;
             lock (_connection)
             {
-                SQLiteCommand command;
-                if (ps.Id == 0)
-                    command = new SQLiteCommand("INSERT INTO mediasegments (MediaGuid, TCIn, TCOut, SegmentName) VALUES (@MediaGuid, @TCIn, @TCOut, @SegmentName);", _connection);
-                else
+                using (var command = ps.Id == 0
+                    ? new SQLiteCommand("INSERT INTO mediasegments (MediaGuid, TCIn, TCOut, SegmentName) VALUES (@MediaGuid, @TCIn, @TCOut, @SegmentName);", _connection)
+                    : new SQLiteCommand("UPDATE mediasegments SET TCIn = @TCIn, TCOut = @TCOut, SegmentName = @SegmentName WHERE idMediaSegment=@idMediaSegment AND MediaGuid = @MediaGuid;", _connection)
+                    )
                 {
-                    command = new SQLiteCommand("UPDATE mediasegments SET TCIn = @TCIn, TCOut = @TCOut, SegmentName = @SegmentName WHERE idMediaSegment=@idMediaSegment AND MediaGuid = @MediaGuid;", _connection);
-                    command.Parameters.AddWithValue("@idMediaSegment", ps.Id);
+                    if (ps.Id != 0)
+                        command.Parameters.AddWithValue("@idMediaSegment", ps.Id);
+                    command.Parameters.AddWithValue("@MediaGuid", mediaSegment.Owner.MediaGuid);
+                    command.Parameters.AddWithValue("@TCIn", mediaSegment.TcIn);
+                    command.Parameters.AddWithValue("@TCOut", mediaSegment.TcOut);
+                    command.Parameters.AddWithValue("@SegmentName", mediaSegment.SegmentName);
+                    command.ExecuteNonQuery();
+                    return (ulong)_connection.LastInsertRowId;
                 }
-                command.Parameters.AddWithValue("@MediaGuid", mediaSegment.Owner.MediaGuid);
-                command.Parameters.AddWithValue("@TCIn", mediaSegment.TcIn);
-                command.Parameters.AddWithValue("@TCOut", mediaSegment.TcOut);
-                command.Parameters.AddWithValue("@SegmentName", mediaSegment.SegmentName);
-                command.ExecuteNonQuery();
-                return (ulong)_connection.LastInsertRowId;
             }
         }
 
@@ -1268,44 +1315,46 @@ VALUES
             {
                 lock (_connection)
                 {
-                    var cmd = new SQLiteCommand("SELECT * FROM rundownevent m WHERE m.idEngine=@idEngine and m.typStart <= @typStart and (SELECT s.idRundownEvent FROM rundownevent s WHERE m.idEventBinding = s.idRundownEvent) IS NULL", _connection);
-                    cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
-                    cmd.Parameters.AddWithValue("@typStart", (int)TStartType.Manual);
-                    var foundEvents = new List<IEvent>();
-                    using (var dataReader = cmd.ExecuteReader())
+                    using (var cmd = new SQLiteCommand("SELECT * FROM rundownevent m WHERE m.idEngine=@idEngine AND m.typStart <= @typStart AND (SELECT s.idRundownEvent FROM rundownevent s WHERE m.idEventBinding = s.idRundownEvent) IS NULL", _connection))
                     {
-                        while (dataReader.Read())
+                        cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
+                        cmd.Parameters.AddWithValue("@typStart", (int)TStartType.Manual);
+                        var foundEvents = new List<IEvent>();
+                        using (var dataReader = cmd.ExecuteReader())
                         {
-                            if (engine.GetRootEvents().Any(e => (e as IEventPersistent)?.Id == dataReader.GetUInt64("idRundownEvent")))
+                            while (dataReader.Read())
+                            {
+                                if (engine.GetRootEvents().Any(e => (e as IEventPersistent)?.Id == dataReader.GetUInt64("idRundownEvent")))
+                                    continue;
+                                var newEvent = _eventRead(engine, dataReader);
+                                foundEvents.Add(newEvent);
+                            }
+                            dataReader.Close();
+                        }
+                        foreach (var e in foundEvents)
+                        {
+                            if (e is ITemplated et && e is IEventPersistent ep)
+                                _readAnimatedEvent(ep.Id, et);
+                            if (e.EventType == TEventType.Container)
                                 continue;
-                            var newEvent = _eventRead(engine, dataReader);
-                            foundEvents.Add(newEvent);
-                        }
-                        dataReader.Close();
-                    }
-                    foreach (var e in foundEvents)
-                    {
-                        if (e is ITemplated et && e is IEventPersistent ep)
-                            _readAnimatedEvent(ep.Id, et);
-                        if (e.EventType == TEventType.Container)
-                            continue;
-                        if (e.EventType != TEventType.Rundown)
-                        {
-                            var cont = engine.CreateNewEvent(
-                                eventType: TEventType.Rundown,
-                                eventName: $"Rundown for {e.EventName}",
-                                scheduledTime: e.ScheduledTime,
-                                startType: TStartType.Manual
-                                );
-                            engine.AddRootEvent(cont);
-                            cont.Save();
-                            cont.InsertUnder(e, false);
-                        }
-                        else
-                        {
-                            e.StartType = TStartType.Manual;
-                            engine.AddRootEvent(e);
-                            e.Save();
+                            if (e.EventType != TEventType.Rundown)
+                            {
+                                var cont = engine.CreateNewEvent(
+                                    eventType: TEventType.Rundown,
+                                    eventName: $"Rundown for {e.EventName}",
+                                    scheduledTime: e.ScheduledTime,
+                                    startType: TStartType.Manual
+                                    );
+                                engine.AddRootEvent(cont);
+                                cont.Save();
+                                cont.InsertUnder(e, false);
+                            }
+                            else
+                            {
+                                e.StartType = TStartType.Manual;
+                                engine.AddRootEvent(e);
+                                e.Save();
+                            }
                         }
                     }
                 }
@@ -1317,26 +1366,28 @@ VALUES
             {
                 lock (_connection)
                 {
-                    var cmd = new SQLiteCommand("SELECT * FROM rundownevent WHERE idEngine=@idEngine and PlayState=@PlayState", _connection);
-                    cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
-                    cmd.Parameters.AddWithValue("@PlayState", TPlayState.Playing);
-                    var foundEvents = new List<IEvent>();
-                    using (var dataReader = cmd.ExecuteReader())
+                    using (var cmd = new SQLiteCommand("SELECT * FROM rundownevent WHERE idEngine=@idEngine AND PlayState=@PlayState", _connection))
                     {
-                        while (dataReader.Read())
+                        cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
+                        cmd.Parameters.AddWithValue("@PlayState", TPlayState.Playing);
+                        var foundEvents = new List<IEvent>();
+                        using (var dataReader = cmd.ExecuteReader())
                         {
-                            var newEvent = _eventRead(engine, dataReader);
-                            foundEvents.Add(newEvent);
+                            while (dataReader.Read())
+                            {
+                                var newEvent = _eventRead(engine, dataReader);
+                                foundEvents.Add(newEvent);
+                            }
+                            dataReader.Close();
                         }
-                        dataReader.Close();
+                        foreach (var ev in foundEvents)
+                            if (ev is ITemplated && ev is IEventPersistent)
+                            {
+                                _readAnimatedEvent(((IEventPersistent)ev).Id, ev as ITemplated);
+                                ((IEventPersistent)ev).IsModified = false;
+                            }
+                        return foundEvents;
                     }
-                    foreach (var ev in foundEvents)
-                        if (ev is ITemplated && ev is IEventPersistent)
-                        {
-                            _readAnimatedEvent(((IEventPersistent)ev).Id, ev as ITemplated);
-                            ((IEventPersistent)ev).IsModified = false;
-                        }
-                    return foundEvents;
                 }
             }
         }
@@ -1350,83 +1401,37 @@ VALUES
         {
             lock (_connection)
             {
-                var cmd = new SQLiteCommand(@"UPDATE archive set Folder=@Folder where idArchive=@idArchive", _connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
-                cmd.Parameters.AddWithValue("@Folder", dir.Folder);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SQLiteCommand(@"UPDATE archive SET Folder=@Folder WHERE idArchive=@idArchive", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                    cmd.Parameters.AddWithValue("@Folder", dir.Folder);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
-        public bool UpdateDb()
+        public void UpdateDb()
         {
-            var command = new SQLiteCommand("select `value` from `params` where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);
-            int dbVersionNr = 0;
-            try
-            {
-                string dbVersionStr;
-                lock (_connection)
-                    dbVersionStr = (string)command.ExecuteScalar();
-                var regexMatchDb = System.Text.RegularExpressions.Regex.Match(dbVersionStr, @"\d+");
-                if (regexMatchDb.Success)
-                    int.TryParse(regexMatchDb.Value, out dbVersionNr);
-            }
-            catch
-            {
-                // ignored
-            }
-            var schemaUpdates = new System.Resources.ResourceManager("TAS.Database.MySqlRedundant.SchemaUpdates", Assembly.GetExecutingAssembly());
-            var resourceEnumerator = schemaUpdates.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true).GetEnumerator();
-            var updatesPending = new SortedList<int, string>();
-            while (resourceEnumerator.MoveNext())
-            {
-                if (resourceEnumerator.Key is string s && resourceEnumerator.Value is string)
-                {
-                    var regexMatchRes = System.Text.RegularExpressions.Regex.Match(s, @"\d+");
-                    if (regexMatchRes.Success
-                        && int.TryParse(regexMatchRes.Value, out var resVersionNr)
-                        && resVersionNr > dbVersionNr)
-                        updatesPending.Add(resVersionNr, (string)resourceEnumerator.Value);
-                }
-            }
-            if (updatesPending.Count > 0)
-            {
-                foreach (var kvp in updatesPending)
-                {
-                    using (var tran = _connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            var cmdUpdateVersion = new SQLiteCommand($"update `params` set `value` = \"{kvp.Key}\" where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);
-                            cmdUpdateVersion.ExecuteNonQuery();
-                            tran.Commit();
-                        }
-                        catch
-                        {
-                            tran.Rollback();
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
         }
 
         public void UpdateEngine(IEnginePersistent engine)
         {
             lock (_connection)
             {
-                var cmd = new SQLiteCommand(@"UPDATE engine set Instance=@Instance, idServerPRI=@idServerPRI, ServerChannelPRI=@ServerChannelPRI, idServerSEC=@idServerSEC, ServerChannelSEC=@ServerChannelSEC, idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config where idEngine=@idEngine", _connection);
-                cmd.Parameters.AddWithValue("@idEngine", engine.Id);
-                cmd.Parameters.AddWithValue("@Instance", engine.Instance);
-                cmd.Parameters.AddWithValue("@idServerPRI", engine.IdServerPRI);
-                cmd.Parameters.AddWithValue("@ServerChannelPRI", engine.ServerChannelPRI);
-                cmd.Parameters.AddWithValue("@idServerSEC", engine.IdServerSEC);
-                cmd.Parameters.AddWithValue("@ServerChannelSEC", engine.ServerChannelSEC);
-                cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
-                cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
-                cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
-                cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(engine, HibernationSerializerSettings));
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SQLiteCommand(@"UPDATE engine SET Instance=@Instance, idServerPRI=@idServerPRI, ServerChannelPRI=@ServerChannelPRI, idServerSEC=@idServerSEC, ServerChannelSEC=@ServerChannelSEC, idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config WHERE idEngine=@idEngine", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idEngine", engine.Id);
+                    cmd.Parameters.AddWithValue("@Instance", engine.Instance);
+                    cmd.Parameters.AddWithValue("@idServerPRI", engine.IdServerPRI);
+                    cmd.Parameters.AddWithValue("@ServerChannelPRI", engine.ServerChannelPRI);
+                    cmd.Parameters.AddWithValue("@idServerSEC", engine.IdServerSEC);
+                    cmd.Parameters.AddWithValue("@ServerChannelSEC", engine.ServerChannelSEC);
+                    cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
+                    cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
+                    cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
+                    cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(engine, HibernationSerializerSettings));
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -1434,10 +1439,7 @@ VALUES
         {
             lock (_connection)
             {
-                using (var cmd =
-                    new SQLiteCommand(
-                        "UPDATE engine_acl SET ACL=@ACL WHERE idEngine_ACL=@idEngine_ACL;",
-                        _connection))
+                using (var cmd = new SQLiteCommand("UPDATE engine_acl SET ACL=@ACL WHERE idEngine_ACL=@idEngine_ACL;", _connection))
                 {
                     cmd.Parameters.AddWithValue("@idEngine_ACL", acl.Id);
                     cmd.Parameters.AddWithValue("@ACL", acl.Acl);
@@ -1452,8 +1454,8 @@ VALUES
             {
                 using (var transaction = _connection.BeginTransaction())
                 {
-                    const string query = @"UPDATE rundownevent 
-SET 
+                    const string query = 
+@"UPDATE rundownevent SET 
 idEngine=@idEngine, 
 idEventBinding=@idEventBinding, 
 Layer=@Layer, 
@@ -1497,10 +1499,7 @@ WHERE idRundownEvent=@idRundownEvent;";
         {
             lock (_connection)
             {
-                using (var cmd =
-                    new SQLiteCommand(
-                        "UPDATE rundownevent_acl SET ACL=@ACL WHERE idRundownevent_ACL=@idRundownevent_ACL;",
-                        _connection))
+                using (var cmd = new SQLiteCommand("UPDATE rundownevent_acl SET ACL=@ACL WHERE idRundownevent_ACL=@idRundownevent_ACL;", _connection))
                 {
                     cmd.Parameters.AddWithValue("@idRundownevent_ACL", acl.Id);
                     cmd.Parameters.AddWithValue("@ACL", acl.Acl);
@@ -1533,7 +1532,8 @@ WHERE idRundownEvent=@idRundownEvent;";
         {
             lock (_connection)
             {
-                var cmd = new SQLiteCommand(@"UPDATE archivemedia SET 
+                using (var cmd = new SQLiteCommand(
+@"UPDATE archivemedia SET 
 idArchive=@idArchive, 
 MediaName=@MediaName, 
 Folder=@Folder, 
@@ -1556,9 +1556,11 @@ idAux=@idAux,
 KillDate=@KillDate, 
 MediaGuid=@MediaGuid, 
 flags=@flags 
-WHERE idArchiveMedia=@idArchiveMedia;", _connection);
-                cmd.Parameters.AddWithValue("@idArchiveMedia", archiveMedia.IdPersistentMedia);
-                _mediaFillParamsAndExecute(cmd, "archivemedia", archiveMedia, serverId);
+WHERE idArchiveMedia=@idArchiveMedia;", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idArchiveMedia", archiveMedia.IdPersistentMedia);
+                    _mediaFillParamsAndExecute(cmd, "archivemedia", archiveMedia, serverId);
+                }
                 Debug.WriteLine(archiveMedia, "ArchiveMediaUpdate-d");
             }
         }
@@ -1571,7 +1573,8 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection);
 
         private void _dbUpdateMedia(IPersistentMedia serverMedia, ulong serverId)
         {
-            var cmd = new SQLiteCommand(@"UPDATE servermedia SET 
+            using (var cmd = new SQLiteCommand(
+@"UPDATE servermedia SET 
 idServer=@idServer, 
 MediaName=@MediaName, 
 Folder=@Folder, 
@@ -1594,9 +1597,11 @@ idAux=@idAux,
 KillDate=@KillDate, 
 MediaGuid=@MediaGuid, 
 flags=@flags 
-WHERE idServerMedia=@idServerMedia;", _connection);
-            cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
-            _mediaFillParamsAndExecute(cmd, "servermedia", serverMedia, serverId);
+WHERE idServerMedia=@idServerMedia;", _connection))
+            {
+                cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
+                _mediaFillParamsAndExecute(cmd, "servermedia", serverMedia, serverId);
+            }
             Debug.WriteLine(serverMedia, "ServerMediaUpdate-d");
         }
 
@@ -1665,14 +1670,16 @@ WHERE idServerMedia=@idServerMedia;", _connection);
         {
             try
             {
-                var cmd = new SQLiteCommand(@"UPDATE media_templated SET Fields = @Fields, TemplateLayer=@TemplateLayer, ScheduledDelay=@ScheduledDelay, StartType=@StartType, Method=@Method WHERE MediaGuid = @MediaGuid;", _connection);
-                cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
-                cmd.Parameters.AddWithValue("@TemplateLayer", media.TemplateLayer);
-                cmd.Parameters.AddWithValue("@Method", (byte)media.Method);
-                cmd.Parameters.AddWithValue("@ScheduledDelay", media.ScheduledDelay.Ticks);
-                cmd.Parameters.AddWithValue("@StartType", (byte)media.StartType);
-                cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SQLiteCommand(@"UPDATE media_templated SET Fields = @Fields, TemplateLayer=@TemplateLayer, ScheduledDelay=@ScheduledDelay, StartType=@StartType, Method=@Method WHERE MediaGuid = @MediaGuid;", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                    cmd.Parameters.AddWithValue("@TemplateLayer", media.TemplateLayer);
+                    cmd.Parameters.AddWithValue("@Method", (byte)media.Method);
+                    cmd.Parameters.AddWithValue("@ScheduledDelay", media.ScheduledDelay.Ticks);
+                    cmd.Parameters.AddWithValue("@StartType", (byte)media.StartType);
+                    cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
+                    cmd.ExecuteNonQuery();
+                }
             }
             catch (Exception e)
             {
@@ -1682,37 +1689,6 @@ WHERE idServerMedia=@idServerMedia;", _connection);
 
         public bool UpdateRequired()
         {
-            var command =
-                new SQLiteCommand(
-                    "select `value` from `params` where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);
-            var dbVersionNr = 0;
-            try
-            {
-                string dbVersionStr;
-                lock (_connection)
-                    dbVersionStr = (string)command.ExecuteScalar();
-                var regexMatchDb = System.Text.RegularExpressions.Regex.Match(dbVersionStr, @"\d+");
-                if (regexMatchDb.Success)
-                    int.TryParse(regexMatchDb.Value, out dbVersionNr);
-            }
-            catch
-            {
-                // ignored
-            }
-            var schemaUpdates = new System.Resources.ResourceManager("TAS.Database.MySqlRedundant.SchemaUpdates",
-                Assembly.GetExecutingAssembly());
-            var resourceEnumerator = schemaUpdates
-                .GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true).GetEnumerator();
-            while (resourceEnumerator.MoveNext())
-            {
-                if (!(resourceEnumerator.Key is string) || !(resourceEnumerator.Value is string))
-                    continue;
-                var regexMatchRes = System.Text.RegularExpressions.Regex.Match((string)resourceEnumerator.Key, @"\d+");
-                if (regexMatchRes.Success
-                    && int.TryParse(regexMatchRes.Value, out var resVersionNr)
-                    && resVersionNr > dbVersionNr)
-                    return true;
-            }
             return false;
         }
 
@@ -1723,10 +1699,12 @@ WHERE idServerMedia=@idServerMedia;", _connection);
             lock (_connection)
             {
                 {
-                    var cmd = new SQLiteCommand(@"update aco set Config=@Config where idACO=@idACO;", _connection);
-                    cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(aco, HibernationSerializerSettings));
-                    cmd.Parameters.AddWithValue("@idACO", pAco.Id);
-                    cmd.ExecuteNonQuery();
+                    using (var cmd = new SQLiteCommand(@"UPDATE aco SET Config=@Config WHERE idACO=@idACO;", _connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(aco, HibernationSerializerSettings));
+                        cmd.Parameters.AddWithValue("@idACO", pAco.Id);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
         }
@@ -1736,10 +1714,12 @@ WHERE idServerMedia=@idServerMedia;", _connection);
             lock (_connection)
             {
 
-                var cmd = new SQLiteCommand("UPDATE server SET Config=@Config WHERE idServer=@idServer;", _connection);
-                cmd.Parameters.AddWithValue("@idServer", server.Id);
-                cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(server, HibernationSerializerSettings));
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SQLiteCommand("UPDATE server SET Config=@Config WHERE idServer=@idServer;", _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idServer", server.Id);
+                    cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(server, HibernationSerializerSettings));
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
     }

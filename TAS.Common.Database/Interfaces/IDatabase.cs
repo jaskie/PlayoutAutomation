@@ -67,7 +67,6 @@ namespace TAS.Common.Database.Interfaces
         void UpdateMedia(IServerMedia serverMedia, ulong serverId);
         void UpdateSecurityObject(ISecurityObject aco);
         void UpdateServer(IPlayoutServerProperties server);
-        bool DropDatabase(string connectionString);
         void LoadAnimationDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IAnimatedMedia, new();
         void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IServerMedia, new();
         T LoadArchiveDirectory<T>(ulong idArchive) where T : IArchiveDirectoryServerSide, new();
@@ -78,8 +77,9 @@ namespace TAS.Common.Database.Interfaces
         IDictionary<string, int> MediaSegmentFieldLengths { get; }
         IDictionary<string, int> EngineFieldLengths { get; }
         IDictionary<string, int> ServerFieldLengths { get; }
-        
-        bool UpdateDb();
+
+        void DropDatabase(string connectionString);
+        void UpdateDb();
         bool UpdateRequired();
     }
 }

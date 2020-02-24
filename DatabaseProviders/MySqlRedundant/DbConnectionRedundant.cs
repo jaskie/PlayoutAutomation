@@ -59,22 +59,16 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        public static bool DropDatabase(string connectionString)
+        public static void DropDatabase(string connectionString)
         {
             var csb = new MySqlConnectionStringBuilder(connectionString);
             var databaseName = csb.Database;
-            if (string.IsNullOrWhiteSpace(databaseName))
-                return false;
             csb.Remove("Database");
             using (var connection = new MySqlConnection(csb.ConnectionString))
             {
                 connection.Open();
                 using (var dropCommand = new MySqlCommand($"DROP DATABASE `{databaseName}`;", connection))
-                {
-                    if (dropCommand.ExecuteNonQuery() > 0)
-                        return true;
-                }
-                return false;
+                    dropCommand.ExecuteNonQuery();
             }
         }
 

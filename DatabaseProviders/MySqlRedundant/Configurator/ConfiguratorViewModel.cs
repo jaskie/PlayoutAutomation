@@ -91,13 +91,15 @@ namespace TAS.Database.MySqlRedundant.Configurator
                     {
                         if (MessageBox.Show(Window, "Connection successful, but database should be updated. \nUpdate now?", "Connection test", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
                             MessageBoxResult.Yes)
-                            if (_db.UpdateDb())
-                                MessageBox.Show(Window, "Database is now up-to-date.", "Connection test", MessageBoxButton.OK,
-                                    MessageBoxImage.Information);
-                            else
-                                MessageBox.Show(Window, "Database update failed.", "Connection test", MessageBoxButton.OK,
-                                    MessageBoxImage.Error);
-
+                            try
+                            {
+                                _db.UpdateDb();
+                                MessageBox.Show(Window, "Database is now up-to-date.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                            catch (Exception e)
+                            {
+                                MessageBox.Show(Window, e.ToString(), "Update failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
                     }
                     else
                         MessageBox.Show(Window, "Connection successful and database is up-to-date.", "Connection test",
@@ -145,10 +147,13 @@ namespace TAS.Database.MySqlRedundant.Configurator
                     if (MessageBox.Show(Window, "Secondary database already exists. Delete it first?", "Warning - database exists",
                             MessageBoxButton.YesNo, MessageBoxImage.Hand) != MessageBoxResult.Yes)
                         return;
-                    if (!_db.DropDatabase(ConnectionStringSecondary))
+                    try
                     {
-                        MessageBox.Show(Window, "Database delete failed, cannot proceed.", "Database clone", MessageBoxButton.OK,
-                            MessageBoxImage.Error);
+                        _db.DropDatabase(ConnectionStringSecondary);
+                    }
+                    catch
+                    {
+                        MessageBox.Show(Window, "Database delete failed, cannot proceed.", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
