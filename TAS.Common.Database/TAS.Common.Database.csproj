@@ -34,6 +34,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -49,6 +52,7 @@
     <Compile Include="DatabaseConfiguratorLoader.cs" />
     <Compile Include="DatabaseProviderLoader.cs" />
     <Compile Include="DbEventExtensions.cs" />
+    <Compile Include="HibernationContractResolver.cs" />
     <Compile Include="Interfaces\IDatabase.cs" />
     <Compile Include="Interfaces\IDatabaseConfigurator.cs" />
     <Compile Include="Interfaces\Media\IAnimatedMedia.cs" />
@@ -63,6 +67,9 @@
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
       <Name>TAS.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

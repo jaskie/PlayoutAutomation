@@ -7,9 +7,9 @@ ALTER TABLE `asrunlog`
 ADD COLUMN `Flags` BIGINT UNSIGNED NULL AFTER `typAudio`;
 ";
 
-        public override void Update(DbConnectionRedundant connection)
+        public override void Update()
         {
-            SimpleUpdate(connection, Script);
+            SimpleUpdate(Script);
         }
     }
 

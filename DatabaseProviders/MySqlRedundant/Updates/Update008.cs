@@ -35,9 +35,9 @@ CREATE TABLE `engine_acl` (
 );
 ";
 
-        public override void Update(DbConnectionRedundant connection)
+        public override void Update()
         {
-            SimpleUpdate(connection, Script);
+            SimpleUpdate(Script);
         }
     }
 

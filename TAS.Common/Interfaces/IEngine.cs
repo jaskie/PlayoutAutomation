@@ -77,7 +77,6 @@ namespace TAS.Common.Interfaces
         void ForceNext(IEvent aEvent);
         void Execute(string command);
         DateTime CurrentTime { get; }
-        int TimeCorrection { get; set; }
         ICGElementsController CGElementsController { get; }
         IRouter Router { get; }
         void SearchMissingEvents();
@@ -100,18 +99,18 @@ namespace TAS.Common.Interfaces
 
     public interface IEngineProperties
     {
+        TAspectRatioControl AspectRatioControl { get; set; }
         string EngineName { get; }
         TVideoFormat VideoFormat { get; set; }
         bool EnableCGElementsForNewEvents { get; set; }
         TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
         bool StudioMode { get; set; }
+        int TimeCorrection { get; set; }
+        int CGStartDelay { get; set; }
     }
 
     public interface IEnginePersistent : IEngineProperties, IPersistent
     {
-        TAspectRatioControl AspectRatioControl { get; set; }
-        int TimeCorrection { get; set; }
-        int CGStartDelay { get; set; }
         ulong Instance { get; set; }
         ulong IdServerPRI { get; set; }
         int ServerChannelPRI { get; set; }

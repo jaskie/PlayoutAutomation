@@ -769,7 +769,7 @@ VALUES
 
         public List<T> Load<T>() where T : ISecurityObject
         {
-            var users = new List<T>();
+            var acos = new List<T>();
             lock (_connection)
             {
                 using (var cmd = new SQLiteCommand("SELECT * FROM aco WHERE typACO=@typACO;", _connection))
@@ -782,13 +782,13 @@ VALUES
                     {
                         while (dataReader.Read())
                         {
-                            var user = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"));
-                            if (user is IPersistent pUser)
+                            var aco = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"));
+                            if (aco is IPersistent pUser)
                                 pUser.Id = dataReader.GetUInt64("idACO");
-                            users.Add(user);
+                            acos.Add(aco);
                         }
                         dataReader.Close();
-                        return users;
+                        return acos;
                     }
                 }
             }

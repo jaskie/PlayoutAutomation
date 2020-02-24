@@ -8,9 +8,9 @@ CHANGE COLUMN `typVideo` `typVideo` TINYINT(3) UNSIGNED NULL DEFAULT NULL ,
 CHANGE COLUMN `typAudio` `typAudio` TINYINT(3) UNSIGNED NULL DEFAULT NULL ;
 ";
 
-        public override void Update(DbConnectionRedundant connection)
+        public override void Update()
         {
-            SimpleUpdate(connection, Script);
+            SimpleUpdate(Script);
         }
     }
 

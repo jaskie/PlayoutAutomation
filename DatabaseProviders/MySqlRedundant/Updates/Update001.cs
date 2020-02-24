@@ -18,9 +18,9 @@ ALTER TABLE `rundownevent` ADD INDEX `idPlayState` (`PlayState` ASC);
 INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '1');
 ";
 
-        public override void Update(DbConnectionRedundant connection)
+        public override void Update()
         {
-            SimpleUpdate(connection, Script);
+            SimpleUpdate(Script);
         }
     }
 

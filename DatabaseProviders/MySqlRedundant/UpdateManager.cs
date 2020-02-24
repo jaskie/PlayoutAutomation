@@ -9,7 +9,7 @@ namespace TAS.Database.MySqlRedundant
     internal class UpdateManager
     {
         private readonly DbConnectionRedundant _connection;
-        public const int ReqiuredVersion = 12;
+        public const int ReqiuredVersion = 13;
 
         public UpdateManager(DbConnectionRedundant connection)
         {
@@ -50,9 +50,10 @@ namespace TAS.Database.MySqlRedundant
                 if (updateType == null)
                     throw new ApplicationException($"Missing class to perform update {i}");
                 var update = (UpdateBase)Activator.CreateInstance(updateType);
+                update.Connection = _connection;
                 try
                 {
-                    update.Update(_connection);
+                    update.Update();
                 }
                 catch (Exception e)
                 {

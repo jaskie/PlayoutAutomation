@@ -16,9 +16,9 @@ CREATE TABLE `rundownevent_templated` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ";
 
-        public override void Update(DbConnectionRedundant connection)
+        public override void Update()
         {
-            SimpleUpdate(connection, Script);
+            SimpleUpdate(Script);
         }
     }
 

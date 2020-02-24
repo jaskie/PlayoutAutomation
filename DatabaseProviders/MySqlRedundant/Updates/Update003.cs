@@ -11,9 +11,9 @@ ADD COLUMN `Method` TINYINT NULL AFTER `idrundownevent_templated`,
 ADD COLUMN `TemplateLayer` INT NULL AFTER `Method`;
 ";
 
-        public override void Update(DbConnectionRedundant connection)
+        public override void Update()
         {
-            SimpleUpdate(connection, Script);
+            SimpleUpdate(Script);
         }
     }
 

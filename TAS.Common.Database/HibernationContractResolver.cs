@@ -6,9 +6,9 @@ using System.Linq;
 using System.Reflection;
 using TAS.Common.Database;
 
-namespace TAS.Database.SQLite
+namespace TAS.Common.Database
 {
-    internal class HibernationContractResolver: DefaultContractResolver
+    public class HibernationContractResolver: DefaultContractResolver
     {
         protected override List<MemberInfo> GetSerializableMembers(Type objectType)
         {

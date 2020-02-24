@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Common.Database;
 using TAS.Common.Database.Interfaces;
@@ -23,6 +22,12 @@ namespace TAS.Database.MySqlRedundant
     public class DatabaseMySqlRedundant : IDatabase
     {
         public DatabaseType DatabaseType => DatabaseType.MySQL;
+
+        private static readonly Newtonsoft.Json.JsonSerializerSettings HibernationSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
+        {
+            ContractResolver = new HibernationContractResolver(),
+            NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+        };
 
         private static readonly DateTime MinMySqlDate = new DateTime(1000, 01, 01);
         private static readonly DateTime MaxMySqlDate = new DateTime(9999, 12, 31, 23, 59, 59);
@@ -206,9 +211,7 @@ namespace TAS.Database.MySqlRedundant
                 {
                     while (dataReader.Read())
                     {
-                        var reader = new StringReader(dataReader.GetString("Config"));
-                        var serializer = new XmlSerializer(typeof(T));
-                        var server = (T)serializer.Deserialize(reader);
+                        var server = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"), HibernationSerializerSettings);
                         server.Id = dataReader.GetUInt64("idServer");
                         servers.Add(server);
                     }
@@ -225,12 +228,7 @@ namespace TAS.Database.MySqlRedundant
                 {
                     using (var cmd = new DbCommandRedundant(@"INSERT INTO server SET typServer=0, Config=@Config", _connection))
                     {
-                        var serializer = new XmlSerializer(server.GetType());
-                        using (var writer = new StringWriter())
-                        {
-                            serializer.Serialize(writer, server);
-                            cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                        }
+                        cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(server, HibernationSerializerSettings));
                         cmd.ExecuteNonQuery();
                         server.Id = (ulong)cmd.LastInsertedId;
                     }
@@ -246,12 +244,7 @@ namespace TAS.Database.MySqlRedundant
                 using (var cmd = new DbCommandRedundant("UPDATE server SET Config=@Config WHERE idServer=@idServer;", _connection))
                 {
                     cmd.Parameters.AddWithValue("@idServer", server.Id);
-                    var serializer = new XmlSerializer(server.GetType());
-                    using (var writer = new StringWriter())
-                    {
-                        serializer.Serialize(writer, server);
-                        cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                    }
+                    cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(server, HibernationSerializerSettings));
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -289,9 +282,7 @@ namespace TAS.Database.MySqlRedundant
                     {
                         while (dataReader.Read())
                         {
-                            var reader = new StringReader(dataReader.GetString("Config"));
-                            var serializer = new XmlSerializer(typeof(T));
-                            var engine = (T)serializer.Deserialize(reader);
+                            var engine = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"), HibernationSerializerSettings);
                             engine.Id = dataReader.GetUInt64("idEngine");
                             engine.IdServerPRI = dataReader.GetUInt64("idServerPRI");
                             engine.ServerChannelPRI = dataReader.GetInt32("ServerChannelPRI");
@@ -325,12 +316,7 @@ namespace TAS.Database.MySqlRedundant
                         cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
                         cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
                         cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
-                        var serializer = new XmlSerializer(engine.GetType());
-                        using (var writer = new StringWriter())
-                        {
-                            serializer.Serialize(writer, engine);
-                            cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                        }
+                        cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(engine, HibernationSerializerSettings));
                         cmd.ExecuteNonQuery();
                         engine.Id = (ulong)cmd.LastInsertedId;
                     }
@@ -353,12 +339,7 @@ namespace TAS.Database.MySqlRedundant
                     cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
                     cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
                     cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
-                    var serializer = new XmlSerializer(engine.GetType());
-                    using (var writer = new StringWriter())
-                    {
-                        serializer.Serialize(writer, engine);
-                        cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                    }
+                    cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(engine, HibernationSerializerSettings));
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -703,8 +684,8 @@ namespace TAS.Database.MySqlRedundant
             lock (_connection)
             {
                 using (var cmd = eventOwner.EventType == TEventType.Container
-                    ? new DbCommandRedundant("SELECT * FROM rundownrvent WHERE idEventBinding = @idEventBinding AND typStart IN (@StartTypeWithParent, @StartTypeWithParentFromEnd);", _connection)
-                    : new DbCommandRedundant("SELECT * FROM rundownrvent WHERE idEventBinding = @idEventBinding AND (typStart=@StartTypeManual OR typStart=@StartTypeOnFixedTime);", _connection))
+                    ? new DbCommandRedundant("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND (typStart=@StartTypeManual OR typStart=@StartTypeOnFixedTime);", _connection)
+                    : new DbCommandRedundant("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND typStart IN (@StartTypeWithParent, @StartTypeWithParentFromEnd);", _connection))
                 {
                     if (eventOwner.EventType == TEventType.Container)
                     {
@@ -1792,12 +1773,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection))
                 {
                     using (var cmd = new DbCommandRedundant(@"INSERT INTO aco SET typAco=@typAco, Config=@Config;", _connection))
                     {
-                        var serializer = new XmlSerializer(pAco.GetType());
-                        using (var writer = new StringWriter())
-                        {
-                            serializer.Serialize(writer, pAco);
-                            cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                        }
+                        cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(aco, HibernationSerializerSettings));
                         cmd.Parameters.AddWithValue("@typAco", (int)aco.SecurityObjectTypeType);
                         cmd.ExecuteNonQuery();
                         pAco.Id = (ulong)cmd.LastInsertedId;
@@ -1831,12 +1807,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection))
                 {
                     using (var cmd = new DbCommandRedundant(@"UPDATE aco SET Config=@Config WHERE idACO=@idACO;", _connection))
                     {
-                        var serializer = new XmlSerializer(pAco.GetType());
-                        using (var writer = new StringWriter())
-                        {
-                            serializer.Serialize(writer, pAco);
-                            cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                        }
+                        cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(aco, HibernationSerializerSettings));
                         cmd.Parameters.AddWithValue("@idACO", pAco.Id);
                         cmd.ExecuteNonQuery();
                     }
@@ -1846,7 +1817,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection))
 
         public List<T> Load<T>() where T : ISecurityObject
         {
-            var users = new List<T>();
+            var acos = new List<T>();
             lock (_connection)
             {
                 using (var cmd = new DbCommandRedundant("SELECT * FROM aco WHERE typACO=@typACO;", _connection))
@@ -1859,15 +1830,13 @@ WHERE idArchiveMedia=@idArchiveMedia;", _connection))
                     {
                         while (dataReader.Read())
                         {
-                            var reader = new StringReader(dataReader.GetString("Config"));
-                            var serializer = new XmlSerializer(typeof(T));
-                            var user = (T)serializer.Deserialize(reader);
-                            if (user is IPersistent pUser)
+                            var aco = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"));
+                            if (aco is IPersistent pUser)
                                 pUser.Id = dataReader.GetUInt64("idACO");
-                            users.Add(user);
+                            acos.Add(aco);
                         }
                         dataReader.Close();
-                        return users;
+                        return acos;
                     }
                 }
             }

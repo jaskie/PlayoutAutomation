@@ -14,9 +14,9 @@ ALTER TABLE `archivemedia`
 CHANGE COLUMN `LastUpdated` `LastUpdated` DATETIME NULL DEFAULT NULL ;
 ";
 
-        public override void Update(DbConnectionRedundant connection)
+        public override void Update()
         {
-            SimpleUpdate(connection, Script);
+            SimpleUpdate(Script);
         }
     }
 

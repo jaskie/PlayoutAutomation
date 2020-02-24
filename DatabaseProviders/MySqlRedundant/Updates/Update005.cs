@@ -10,9 +10,9 @@ UPDATE `rundownevent` SET `Layer`=`Layer`+16 WHERE `Layer` >= 0;
 UPDATE `rundownevent` SET `Layer`=26 WHERE `typEvent` = 6;
 ";
 
-        public override void Update(DbConnectionRedundant connection)
+        public override void Update()
         {
-            SimpleUpdate(connection, Script);
+            SimpleUpdate(Script);
         }
     }
 

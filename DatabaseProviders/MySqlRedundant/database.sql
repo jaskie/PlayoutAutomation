@@ -210,4 +210,4 @@ CREATE TABLE `engine_acl` (
 );
 
 
-INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '12');
+INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '13');

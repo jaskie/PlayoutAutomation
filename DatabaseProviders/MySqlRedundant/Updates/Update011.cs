@@ -8,9 +8,9 @@ ADD COLUMN `idEngine` BIGINT(20) NULL AFTER `idAsRunLog`,
 ADD INDEX `ixIdEngine` (`idEngine` ASC);
 ";
 
-        public override void Update(DbConnectionRedundant connection)
+        public override void Update()
         {
-            SimpleUpdate(connection, Script);
+            SimpleUpdate(Script);
         }
     }
 

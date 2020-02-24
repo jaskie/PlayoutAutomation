@@ -6,8 +6,10 @@ namespace TAS.Database.MySqlRedundant
     internal abstract class UpdateBase
     {
         private DbTransaction _transaction;
+        
+        public DbConnectionRedundant Connection { get; set;  }
 
-        public abstract void Update(DbConnectionRedundant connection);
+        public abstract void Update();
 
         protected int Version
         {
@@ -18,27 +20,27 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        protected void ExecuteScript(string script, DbConnectionRedundant connection)
+        protected void ExecuteScript(string script)
         {
-            connection.ExecuteScript(script);
+            Connection.ExecuteScript(script);
         }
 
-        protected void BeginTransaction(DbConnection connection)
+        protected void BeginTransaction()
         {
             if (_transaction != null)
                 throw new ApplicationException("Transaction already started");
-            _transaction = connection.BeginTransaction();
+            _transaction = Connection.BeginTransaction();
         }
 
-        protected void Commit(DbConnectionRedundant connection)
+        protected void CommitTransaction()
         {
-            using (var cmdUpdateVersion = new DbCommandRedundant($"UPDATE params SET value = \"{Version}\" WHERE SECTION=\"DATABASE\" AND `key`=\"VERSION\"", connection))
+            using (var cmdUpdateVersion = new DbCommandRedundant($"UPDATE params SET value = \"{Version}\" WHERE SECTION=\"DATABASE\" AND `key`=\"VERSION\"", Connection))
                 cmdUpdateVersion.ExecuteNonQuery();
             _transaction.Commit();
             _transaction = null;
         }
 
-        protected void Rollback()
+        protected void RollbackTransaction()
         {
             if (_transaction == null)
                 throw new ApplicationException("No active transaction");
@@ -46,17 +48,17 @@ namespace TAS.Database.MySqlRedundant
             _transaction = null;
         }
 
-        protected void SimpleUpdate(DbConnectionRedundant connection, string script)
+        protected void SimpleUpdate(string script)
         {
-            BeginTransaction(connection);
+            BeginTransaction();
             try
             {
-                ExecuteScript(script, connection);
-                Commit(connection);
+                ExecuteScript(script);
+                CommitTransaction();
             }
             catch 
             {
-                Rollback();
+                RollbackTransaction();
                 throw;
             }
         }

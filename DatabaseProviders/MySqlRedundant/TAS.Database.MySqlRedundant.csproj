@@ -101,6 +101,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UpdateBase.cs" />
     <Compile Include="UpdateManager.cs" />
+    <Compile Include="Updates\Update013.cs" />
     <Compile Include="Updates\Update012.cs" />
     <Compile Include="Updates\Update011.cs" />
     <Compile Include="Updates\Update010.cs" />
@@ -136,6 +137,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

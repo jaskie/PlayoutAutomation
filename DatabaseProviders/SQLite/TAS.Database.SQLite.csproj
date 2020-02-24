@@ -54,7 +54,6 @@
   <ItemGroup>
     <Compile Include="DatabaseSQLite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="HibernationContractResolver.cs" />
     <Compile Include="SQLiteDataReaderExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

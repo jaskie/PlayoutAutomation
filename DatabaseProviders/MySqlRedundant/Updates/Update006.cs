@@ -9,9 +9,9 @@ ALTER TABLE `rundownevent_templated`
 CHANGE COLUMN `idrundownevent_templated` `idrundownevent_templated` BIGINT UNSIGNED NOT NULL ;
 ";
 
-        public override void Update(DbConnectionRedundant connection)
+        public override void Update()
         {
-            SimpleUpdate(connection, Script);
+            SimpleUpdate(Script);
         }
     }
 

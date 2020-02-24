@@ -7,9 +7,9 @@ ALTER TABLE `rundownevent`
 ADD COLUMN `RouterPort` SMALLINT DEFAULT NULL;
 ";
 
-        public override void Update(DbConnectionRedundant connection)
+        public override void Update()
         {
-            SimpleUpdate(connection, Script);
+            SimpleUpdate(Script);
         }
     }
 
