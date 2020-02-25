@@ -5,7 +5,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class RecordingInfoViewModel : EditViewmodelBase<RecordingInfo>
+    public class RecordingInfoViewModel : ModifyableViewModelBase
     {
         private readonly IEngine _engine;
 
@@ -28,20 +28,46 @@ namespace TAS.Client.ViewModels
             get => _isRecordingScheduled;
             set
             {
-                if (!SetField(ref _isRecordingScheduled, value))
+                if (_isRecordingScheduled == value)
                     return;
-                
+
+                _isRecordingScheduled = value;
+                NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(RecordingChecked));
+
                 if (!value)
                 {
-                    SelectedRecorderChannel = null;                    
-                    SelectedRecorder = null;
+                    _selectedRecorder = null;
+                    NotifyPropertyChanged(nameof(_selectedRecorder));
+                    _selectedRecorderChannel = null;
+                    NotifyPropertyChanged(nameof(_selectedRecorderChannel));                    
                     Recorders = null;
                     return;
                 }
 
                 Recorders = _engine?.MediaManager.Recorders.ToArray();                
             }
-        }        
+        }    
+        public bool RecordingChecked 
+        {
+            get => _isRecordingScheduled;
+            set
+            {
+                if (!SetField(ref _isRecordingScheduled, value))
+                    return;
+
+                if (!value)
+                {
+                    SelectedRecorderChannel = null;
+                    SelectedRecorder = null;
+                    Recorders = null;
+                    return;
+                }
+
+                Recorders = _engine?.MediaManager.Recorders.ToArray();
+            }
+        }
+
         private int _channelId;
         public int ChannelId 
         { 
@@ -71,24 +97,41 @@ namespace TAS.Client.ViewModels
         #endregion
         
         private IPlayoutServerChannel _selectedRecorderChannel;
-        private IRecorder _selectedRecorder;                
+        private IRecorder _selectedRecorder;    
+        private readonly RecordingInfo _recordingInfo;
 
-        public RecordingInfoViewModel(IEngine engine, RecordingInfo recordingInfo) : base(recordingInfo)
+        public RecordingInfoViewModel(IEngine engine, RecordingInfo recordingInfo)
         {
+            _recordingInfo = recordingInfo;
             _engine = engine;
             Recorders = _engine.MediaManager.Recorders.ToArray();
-            _selectedRecorder = Recorders.FirstOrDefault(r => r.Id == _recorderId && r.ServerId == _serverId);
-            _selectedRecorderChannel = _selectedRecorder?.Channels.FirstOrDefault(c=> c.Id == _channelId);
-        }
+            if (recordingInfo != null)
+            {
+                _isRecordingScheduled = recordingInfo.IsRecordingScheduled;
+                ServerId = recordingInfo.ServerId;
+                RecorderId = recordingInfo.RecorderId;
+                ChannelId = recordingInfo.ChannelId;                
+            }
+            else
+                _recordingInfo = new RecordingInfo();
+        }        
 
         public void Save()
         {
-            Update();
+            _recordingInfo.ServerId = ServerId;
+            _recordingInfo.RecorderId = RecorderId;
+            _recordingInfo.ChannelId = ChannelId;
+            _recordingInfo.IsRecordingScheduled = IsRecordingScheduled;
+            IsModified = false;
         }
 
         public void UndoEdit()
         {
-            Load();
+            IsRecordingScheduled = _recordingInfo.IsRecordingScheduled;
+            ServerId = _recordingInfo.ServerId;
+            RecorderId = _recordingInfo.RecorderId;
+            ChannelId = _recordingInfo.ChannelId;
+            IsModified = false;
         }
 
         protected override void OnDispose()

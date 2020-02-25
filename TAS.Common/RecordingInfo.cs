@@ -17,8 +17,10 @@ namespace TAS.Common
         {
 
         }
-        public RecordingInfo(int recorderId, int channelId, string filename, bool isRecorderScheduled)
+        
+        public RecordingInfo(int serverId, int recorderId, int channelId, bool isRecorderScheduled)
         {
+            ServerId = serverId;
             RecorderId = recorderId;
             ChannelId = channelId;            
             IsRecordingScheduled = isRecorderScheduled;

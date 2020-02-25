@@ -36,6 +36,7 @@ namespace TAS.Server
         #region Deserialized properties
         public int RecorderNumber { get; set; }
 
+        [JsonProperty]
         public int Id { get; set; }
 
         [JsonProperty]

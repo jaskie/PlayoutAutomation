@@ -39,6 +39,7 @@ namespace TAS.Client.ViewModels
         private TimeSpan _scheduledDelay;
         private bool _isEventNameFocused;
         private RecordingInfo _recordingInfo;
+
         #region Router
         private int _routerPort = -1;
         private object _selectedInputPort;
@@ -127,19 +128,30 @@ namespace TAS.Client.ViewModels
 
         public void UndoEdit()
         {
-            TemplatedEditViewmodel?.UndoEdit();
-            EventRightsEditViewmodel?.UndoEdit();
             RecordingInfoViewmodel?.UndoEdit();
+            TemplatedEditViewmodel?.UndoEdit();
+            EventRightsEditViewmodel?.UndoEdit();            
             Load();
         }
         
         protected override void Update(object destObject = null)
-        {
+        {            
             base.Update(Model);
-            EventRightsEditViewmodel?.Save();
-            TemplatedEditViewmodel?.Save();
+
+            if (RecordingInfoViewmodel != null && RecordingInfoViewmodel.IsModified)
+            {
+                if (!RecordingInfoViewmodel.IsRecordingScheduled)
+                    _recordingInfo = null;
+
+                Model.RecordingInfo = RecordingInfoViewmodel.IsRecordingScheduled ? new RecordingInfo(RecordingInfoViewmodel.ServerId, RecordingInfoViewmodel.RecorderId, RecordingInfoViewmodel.ChannelId, RecordingInfoViewmodel.IsRecordingScheduled) : null;
+            }
+            else if (RecordingInfoViewmodel == null)
+                Model.RecordingInfo = null;
+            
             RecordingInfoViewmodel?.Save();
-            Model.Save();
+            EventRightsEditViewmodel?.Save();
+            TemplatedEditViewmodel?.Save();            
+            Model.Save();            
         }
 
         public ICommand CommandUndoEdit { get; }
@@ -178,6 +190,8 @@ namespace TAS.Client.ViewModels
                         return _validateScheduledDelay();
                     case nameof(EventName):
                         return _validateEventName();
+                    case nameof(RecordingInfoViewmodel):
+                        return _validateRecordingInfo();
                     case nameof(Command):
                         return IsValidCommand(_command)
                             ? string.Empty
@@ -186,7 +200,7 @@ namespace TAS.Client.ViewModels
                         return null;
                 }
             }
-        }
+        }        
 
         public IMedia Media
         {
@@ -892,17 +906,40 @@ namespace TAS.Client.ViewModels
                         InvalidateRequerySuggested();
                         break;
                     case nameof(IEvent.RecordingInfo):
-                        RecordingInfo = s.RecordingInfo;
-                        break;
-                    //case nameof(IEvent.RecordingInfo.IsRecordingScheduled):
-                    //    RecordingInfoViewmodel.IsRecordingScheduled = s.RecordingInfo.IsRecordingScheduled;
-                    //    break;                    
-                    //case nameof(IEvent.RecordingInfo.ChannelId):
-                    //    RecordingInfoViewmodel.ChannelId = s.RecordingInfo.ChannelId;
-                    //    break;
-                    //case nameof(IEvent.RecordingInfo.RecorderId):
-                    //    RecordingInfoViewmodel.RecorderId = s.RecordingInfo.RecorderId;
-                    //    break;
+                        if (s.RecordingInfo == null)
+                        {
+                            _recordingInfo = null;
+
+                            if (RecordingInfoViewmodel == null)
+                            {
+                                NotifyPropertyChanged(nameof(RecordingInfo));
+                                return;
+                            }
+                                
+
+                            RecordingInfoViewmodel.IsRecordingScheduled = false;
+                            RecordingInfoViewmodel.ServerId = 0;
+                            RecordingInfoViewmodel.RecorderId = 0;
+                            RecordingInfoViewmodel.ChannelId = 0;
+                        }
+                        else
+                        {
+                            _recordingInfo = new RecordingInfo(s.RecordingInfo.ServerId, s.RecordingInfo.RecorderId, s.RecordingInfo.ChannelId, s.RecordingInfo.IsRecordingScheduled);
+
+                            if (RecordingInfoViewmodel == null)
+                            {
+                                NotifyPropertyChanged(nameof(RecordingInfo));
+                                return;
+                            }
+
+                            RecordingInfoViewmodel.IsRecordingScheduled = s.RecordingInfo.IsRecordingScheduled;
+                            RecordingInfoViewmodel.ServerId = s.RecordingInfo.ServerId;
+                            RecordingInfoViewmodel.RecorderId = s.RecordingInfo.RecorderId;
+                            RecordingInfoViewmodel.ChannelId = s.RecordingInfo.ChannelId;
+                        }
+                                                    
+                        NotifyPropertyChanged(nameof(RecordingInfo));                        
+                        break;                    
                 }
             });
         }
@@ -951,6 +988,18 @@ namespace TAS.Client.ViewModels
                 return string.Format(resources._validate_StartTCBeforeFile,
                     media.TcStart.ToSmpteTimecodeString(Model.Engine.VideoFormat));
             return null;
+        }
+
+        private string _validateRecordingInfo()
+        {
+            if (RecordingInfoViewmodel != null && RecordingInfoViewmodel.IsRecordingScheduled && RecordingInfoViewmodel.SelectedRecorder != null && RecordingInfoViewmodel.SelectedRecorderChannel != null)
+                return null;
+            else if (RecordingInfoViewmodel != null && !RecordingInfoViewmodel.IsRecordingScheduled)
+                return null;
+            else if (RecordingInfoViewmodel == null)
+                return null;
+
+            return resources._validateRecordingInfo;
         }
 
         private string _validateDuration()
@@ -1010,7 +1059,14 @@ namespace TAS.Client.ViewModels
 
         public bool IsValid => (from pi in GetType().GetProperties() select this[pi.Name]).All(string.IsNullOrEmpty);
 
-        public RecordingInfo RecordingInfo { get => _recordingInfo; set => SetField(ref _recordingInfo, value); }
+        public RecordingInfo RecordingInfo 
+        { 
+            get => _recordingInfo;                
+            set
+            {
+                SetField(ref _recordingInfo, value);
+            }
+        }
 
         private bool IsValidCommand(string commandText)
         {

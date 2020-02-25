@@ -178,7 +178,7 @@ namespace TAS.Server
                 return rights;
             });
             _routerPort = routerPort;
-            _recordingInfo = recordingInfo ?? new RecordingInfo();
+            _recordingInfo = recordingInfo;
 
         FieldLengths = EngineController.Current.Database.EventFieldLengths;
         }

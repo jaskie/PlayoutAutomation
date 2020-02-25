@@ -926,14 +926,18 @@ namespace TAS.Database.MySqlRedundant
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent.AudioVolume);
             cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
             cmd.Parameters.AddWithValue("@RouterPort", aEvent.RouterPort == -1 ? (object) DBNull.Value : aEvent.RouterPort);
-            
-            using (var writer = new StringWriter())
+            if (aEvent.RecordingInfo != null)
             {
-                var serializer = new XmlSerializer(typeof(RecordingInfo));
-                serializer.Serialize(writer, aEvent.RecordingInfo);
-                cmd.Parameters.AddWithValue("@RecordingInfo", writer.ToString());
+                using (var writer = new StringWriter())
+                {
+                    var serializer = new XmlSerializer(typeof(RecordingInfo));
+                    serializer.Serialize(writer, aEvent.RecordingInfo);
+                    cmd.Parameters.AddWithValue("@RecordingInfo", writer.ToString());
+                }
             }
-                
+            else
+                cmd.Parameters.AddWithValue("@RecordingInfo", DBNull.Value);
+
             var command = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript
                 ? (object)((ICommandScript) aEvent).Command
                 : DBNull.Value;

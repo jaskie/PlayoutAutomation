@@ -357,8 +357,8 @@
                                     <RowDefinition Height="auto" />
                                     <RowDefinition Height="auto" />
                                 </Grid.RowDefinitions>
-                                <CheckBox DataContext="{Binding RecordingInfoViewmodel}" IsChecked="{Binding IsRecordingScheduled}" Content="{Resx _isRecordingScheduled}" Margin="10,5,0,0" />
-                                <Grid Grid.Row="1" Visibility="{Binding IsRecordingScheduled, Converter={StaticResource BoolToVis}}" DataContext="{Binding RecordingInfoViewmodel}">
+                                <CheckBox DataContext="{Binding RecordingInfoViewmodel}" IsChecked="{Binding RecordingChecked}" Content="{Resx _isRecordingScheduled}" Margin="10,5,0,0" />
+                                <Grid Grid.Row="1" Visibility="{Binding RecordingChecked, Converter={StaticResource BoolToVis}}" DataContext="{Binding RecordingInfoViewmodel}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="auto" />
                                         <RowDefinition Height="auto" />

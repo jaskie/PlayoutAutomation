@@ -371,4 +371,7 @@ Really exit?</value>
   <data name="_mediaOperation_Move" xml:space="preserve">
     <value>Move</value>
   </data>
+  <data name="_validateRecordingInfo" xml:space="preserve">
+    <value>Fill all recording informations.</value>
+  </data>
 </root>
