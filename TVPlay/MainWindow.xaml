@@ -2,7 +2,6 @@
         x:Class="TAS.Client.MainWindow" 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:client="clr-namespace:TAS.Client"
         xmlns:vm="clr-namespace:TAS.Client.ViewModels;assembly=TAS.Client"
         xmlns:views="clr-namespace:TAS.Client.Views;assembly=TAS.Client"

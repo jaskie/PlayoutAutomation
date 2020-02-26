@@ -118,7 +118,8 @@ CREATE TABLE rundownevent (
   flagsEvent INTEGER,
   idAux TEXT,
   Commands TEXT,
-  RouterPort INTEGER
+  RouterPort INTEGER,
+  RecordingInfo TEXT
 );
 
 CREATE INDEX rundownevent_idEventBinding ON rundownevent (idEventBinding);

@@ -38,10 +38,12 @@ namespace TAS.Client.ViewModels
         private TimeSpan _duration;
         private TimeSpan _scheduledDelay;
         private bool _isEventNameFocused;
+
+        #region Router
         private int _routerPort = -1;
         private object _selectedInputPort;
-
-
+        #endregion
+                     
         public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
         public static readonly Regex RegexMixerClip = new Regex(TAS.Common.EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
         public static readonly Regex RegexMixerClear = new Regex(TAS.Common.EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase);
@@ -68,7 +70,11 @@ namespace TAS.Client.ViewModels
                 _selectedInputPort = InputPorts?.FirstOrDefault(param => param is IRouterPort routerPort && routerPort.PortId == _routerPort) ?? InputPorts?[0];
             }
                             
-                       
+            if (@event.EventType == TEventType.Live && Model.Engine.MediaManager.Recorders.Count() > 0)
+            {
+                RecordingInfoViewmodel = new RecordingInfoViewModel(@event.Engine, @event.RecordingInfo);
+                RecordingInfoViewmodel.ModifiedChanged += RecordingInfoViewmodel_ModifiedChanged;
+            }
 
             CommandSaveEdit = new UiCommand(o => Save(), o => CanSave);
             CommandUndoEdit = new UiCommand(o => UndoEdit(), o => IsModified);
@@ -109,6 +115,11 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        private void RecordingInfoViewmodel_ModifiedChanged(object sender, EventArgs e)
+        {
+            IsModified = true;
+        }
+
         public void Save()
         {
             Update();
@@ -116,17 +127,19 @@ namespace TAS.Client.ViewModels
 
         public void UndoEdit()
         {
+            RecordingInfoViewmodel?.Load();
             TemplatedEditViewmodel?.UndoEdit();
-            EventRightsEditViewmodel?.UndoEdit();
+            EventRightsEditViewmodel?.UndoEdit();            
             Load();
         }
         
         protected override void Update(object destObject = null)
         {
+            Model.RecordingInfo = RecordingInfoViewmodel?.GetRecordingInfo();
             base.Update(Model);
             EventRightsEditViewmodel?.Save();
-            TemplatedEditViewmodel?.Save();
-            Model.Save();
+            TemplatedEditViewmodel?.Save();            
+            Model.Save();            
         }
 
         public ICommand CommandUndoEdit { get; }
@@ -165,6 +178,8 @@ namespace TAS.Client.ViewModels
                         return _validateScheduledDelay();
                     case nameof(EventName):
                         return _validateEventName();
+                    case nameof(RecordingInfoViewmodel):
+                        return _validateRecordingInfo();
                     case nameof(Command):
                         return IsValidCommand(_command)
                             ? string.Empty
@@ -173,7 +188,7 @@ namespace TAS.Client.ViewModels
                         return null;
                 }
             }
-        }
+        }        
 
         public IMedia Media
         {
@@ -616,10 +631,11 @@ namespace TAS.Client.ViewModels
         public ICGElement[] Crawls => Model.Engine.CGElementsController?.Crawls.ToArray() ?? new ICGElement[0];
 
         public ICGElement[] Parentals => Model.Engine.CGElementsController?.Parentals.ToArray() ?? new ICGElement[0];
-
+        
         public EventRightsEditViewmodel EventRightsEditViewmodel { get; }
 
         public TemplatedEditViewmodel TemplatedEditViewmodel { get; }
+        public RecordingInfoViewModel RecordingInfoViewmodel { get; }
 
         public override string ToString()
         {
@@ -877,6 +893,9 @@ namespace TAS.Client.ViewModels
                     case nameof(IEvent.CurrentUserRights):
                         InvalidateRequerySuggested();
                         break;
+                    case nameof(IEvent.RecordingInfo):
+                        RecordingInfoViewmodel?.UpdateInfo(s.RecordingInfo);
+                        break;                    
                 }
             });
         }
@@ -925,6 +944,18 @@ namespace TAS.Client.ViewModels
                 return string.Format(resources._validate_StartTCBeforeFile,
                     media.TcStart.ToSmpteTimecodeString(Model.Engine.VideoFormat));
             return null;
+        }
+
+        private string _validateRecordingInfo()
+        {
+            if (RecordingInfoViewmodel != null && RecordingInfoViewmodel.IsRecordingScheduled && RecordingInfoViewmodel.SelectedRecorder != null && RecordingInfoViewmodel.SelectedRecorderChannel != null)
+                return null;
+            else if (RecordingInfoViewmodel != null && !RecordingInfoViewmodel.IsRecordingScheduled)
+                return null;
+            else if (RecordingInfoViewmodel == null)
+                return null;
+
+            return resources._validateRecordingInfo;
         }
 
         private string _validateDuration()

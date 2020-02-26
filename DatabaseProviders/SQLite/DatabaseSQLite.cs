@@ -559,9 +559,9 @@ VALUES
                 using (var transaction = _connection.BeginTransaction())
                 {
                     const string query = @"INSERT INTO rundownevent 
-(idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, TransitionPauseTime, typTransition, AudioVolume, idProgramme, flagsEvent, Commands, RouterPort) 
+(idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, TransitionPauseTime, typTransition, AudioVolume, idProgramme, flagsEvent, Commands, RouterPort, RecordingInfo) 
 VALUES 
-(@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @TransitionPauseTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent, @Commands, @RouterPort);";
+(@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @TransitionPauseTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent, @Commands, @RouterPort, @RecordingInfo);";
                     using (var cmd = new SQLiteCommand(query, _connection))
                         if (_eventFillParamsAndExecute(cmd, aEvent))
                         {
@@ -613,6 +613,7 @@ VALUES
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent.AudioVolume);
             cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
             cmd.Parameters.AddWithValue("@RouterPort", aEvent.RouterPort == -1 ? (object)DBNull.Value : aEvent.RouterPort);
+            cmd.Parameters.AddWithValue("@RecordingInfo", aEvent.RecordingInfo == null ? (object)DBNull.Value : Newtonsoft.Json.JsonConvert.SerializeObject(aEvent.RecordingInfo));
             var command = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript
                 ? (object)((ICommandScript)aEvent).Command
                 : DBNull.Value;
@@ -1021,7 +1022,8 @@ VALUES
                 flags.Parental(),
                 flags.AutoStartFlags(),
                 dataReader.GetString("Commands"),
-                routerPort: dataReader.IsDBNull("RouterPort") ? (short)-1 : dataReader.GetInt16("RouterPort")
+                routerPort: dataReader.IsDBNull("RouterPort") ? (short)-1 : dataReader.GetInt16("RouterPort"),
+                recordingInfo: dataReader.IsDBNull("RecordingInfo")? null : Newtonsoft.Json.JsonConvert.DeserializeObject<RecordingInfo>(dataReader.GetString("RecordingInfo"))
                 );
             return newEvent;
         }
@@ -1454,7 +1456,7 @@ VALUES
             {
                 using (var transaction = _connection.BeginTransaction())
                 {
-                    const string query = 
+                    const string query =
 @"UPDATE rundownevent SET 
 idEngine=@idEngine, 
 idEventBinding=@idEventBinding, 
@@ -1478,7 +1480,8 @@ AudioVolume=@AudioVolume,
 idProgramme=@idProgramme, 
 flagsEvent=@flagsEvent,
 Commands=@Commands,
-RouterPort=@RouterPort
+RouterPort=@RouterPort,
+RecordingInfo=@RecordingInfo
 WHERE idRundownEvent=@idRundownEvent;";
                     using (var cmd = new SQLiteCommand(query, _connection))
                     {

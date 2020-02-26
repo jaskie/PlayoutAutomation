@@ -9,7 +9,7 @@ namespace TAS.Database.MySqlRedundant
     internal class UpdateManager
     {
         private readonly DbConnectionRedundant _connection;
-        public const int ReqiuredVersion = 13;
+        public const int ReqiuredVersion = 14;
 
         public UpdateManager(DbConnectionRedundant connection)
         {

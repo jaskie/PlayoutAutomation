@@ -39,7 +39,7 @@ namespace TAS.Server
         private Preview _preview;
 
         [JsonProperty(nameof(AuthenticationService))]
-        private IAuthenticationService _authenticationService;
+        private IAuthenticationService _authenticationService;        
 
         Thread _engineThread;
         private long _currentTicks;
@@ -63,6 +63,7 @@ namespace TAS.Server
         private TEngineState _engineState;
         private double _programAudioVolume = 1;
         private bool _fieldOrderInverted;
+        private RecordingManager _recordingManager;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
@@ -127,7 +128,7 @@ namespace TAS.Server
         [XmlIgnore]
         public int ServerChannelPRV { get; set; }
 
-        [Hibernate]
+        [JsonProperty, Hibernate]
         public int CGStartDelay { get; set; }
 
         [JsonProperty, Hibernate]
@@ -163,7 +164,7 @@ namespace TAS.Server
         [Hibernate]
         public ServerHost Remote { get; set; }
         
-        [Hibernate]
+        [JsonProperty, Hibernate]
         public TAspectRatioControl AspectRatioControl { get; set; }
 
         [JsonProperty, Hibernate]
@@ -276,7 +277,7 @@ namespace TAS.Server
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Initializing engine {0}", this);
             _authenticationService = Security.AuthenticationService.Current;
-
+            _recordingManager = new RecordingManager(this, servers);
             var recorders = new List<CasparRecorder>();
 
             var sPRI = servers.FirstOrDefault(s => s.Id == IdServerPRI);
@@ -566,6 +567,9 @@ namespace TAS.Server
             Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this);
             lock (_tickLock)
             {
+                if (_recordingManager.Recorder != null)
+                    _recordingManager.Stop();
+
                 _clearRunning();
                 lock (((IList)_visibleEvents).SyncRoot)
                     _visibleEvents.Clear();
@@ -695,7 +699,8 @@ namespace TAS.Server
             IDictionary<string, string> fields = null,
             TemplateMethod method = TemplateMethod.Add,
             int templateLayer = 10,
-            short routerPort = -1
+            short routerPort = -1,
+            RecordingInfo recordingInfo = null
         )
         {
             if (idRundownEvent != 0
@@ -710,7 +715,7 @@ namespace TAS.Server
                     result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, startType, playState, scheduledDelay, eventName, startTime, isEnabled, command);
                     break;
                 default:
-                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental, routerPort);
+                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental, routerPort, recordingInfo);
                     break;
             }
             if (idRundownEvent != 0)
@@ -998,7 +1003,7 @@ namespace TAS.Server
         }
 
         private void _loadNext(Event aEvent)
-        {
+        {            
             if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
                 aEvent = aEvent.InternalGetSuccessor();
             if (aEvent == null)
@@ -1044,7 +1049,8 @@ namespace TAS.Server
         private void _play(Event aEvent, bool fromBeginning)
         {
             if (aEvent == null)
-                return;
+                return;                 
+            
             var eventType = aEvent.EventType;
             if (!aEvent.IsEnabled || (aEvent.Length == TimeSpan.Zero && eventType != TEventType.Animation && eventType != TEventType.CommandScript))
                 aEvent = aEvent.InternalGetSuccessor();
@@ -1071,6 +1077,12 @@ namespace TAS.Server
                 aEvent.Position = 0;
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
+                if (_recordingManager.Recorder != null && _recordingManager.Recorded == Playing)
+                    _recordingManager.Stop();
+
+                if (aEvent.RecordingInfo != null)
+                    _recordingManager.Capture(aEvent);
+
                 if (Router != null && eventType == TEventType.Live && _playing?.EventType == TEventType.Live)
                     Router.SelectInput(aEvent.RouterPort);
 
@@ -1175,6 +1187,9 @@ namespace TAS.Server
 
         private void _stop(Event aEvent)
         {
+            if (_recordingManager.Recorder != null && _recordingManager.Recorded == aEvent)
+                _recordingManager.Stop();
+
             aEvent.PlayState = aEvent.Position == 0 ? TPlayState.Scheduled : aEvent.IsFinished() ? TPlayState.Played : TPlayState.Aborted;
             aEvent.SaveDelayed();
             lock (((IList)_visibleEvents).SyncRoot)

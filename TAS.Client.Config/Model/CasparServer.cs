@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Common.Database;
 using TAS.Common.Interfaces;
@@ -9,7 +8,6 @@ namespace TAS.Client.Config.Model
 {
     public class CasparServer: IPlayoutServerProperties
     {
-        [XmlIgnore]
         public bool IsNew = true;
         [Hibernate]
         public string ServerAddress { get; set; }
@@ -21,7 +19,6 @@ namespace TAS.Client.Config.Model
         public bool IsMediaFolderRecursive { get; set; }
         [Hibernate]
         public string AnimationFolder { get; set; }
-        [XmlIgnore]
         public ulong Id { get; set; }
         [Hibernate]
         public TServerType ServerType { get; set; }

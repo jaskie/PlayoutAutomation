@@ -58,7 +58,7 @@ namespace TAS.Server
                         false,
                         false,
                         AutoStartFlags.None,
-                        false, 0, 0, 0, -1
+                        false, 0, 0, 0, -1, null
                         )
         {
             _fields = fields == null ? new Dictionary<string, string>() : new Dictionary<string, string>(fields);

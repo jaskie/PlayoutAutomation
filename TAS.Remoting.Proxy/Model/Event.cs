@@ -141,6 +141,9 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEvent.CurrentUserRights))]
         private ulong _currentUserRights;
 
+        [JsonProperty(nameof(IEvent.RecordingInfo))]
+        private RecordingInfo _recordingInfo;
+
 #pragma warning restore
 
         public Event()
@@ -257,6 +260,8 @@ namespace TAS.Remoting.Model
 
         public TTransitionType TransitionType { get => _transitionType; set => Set(value); }
 
+        public RecordingInfo RecordingInfo { get => _recordingInfo; set => Set(value); }
+
         public IEvent GetSuccessor()
         {
             return Query<Event>();
@@ -344,9 +349,10 @@ namespace TAS.Remoting.Model
 
         public void DeleteRight(IAclRight item) { Invoke(parameters: new object[] { item }); }
 
-        public ulong CurrentUserRights => _currentUserRights;
+        public ulong CurrentUserRights => _currentUserRights;        
+    
 
-        public bool HaveRight(EventRight right)
+    public bool HaveRight(EventRight right)
         {
             if (_engine.HaveRight(EngineRight.Rundown))
                 return true;

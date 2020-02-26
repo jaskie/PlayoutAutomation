@@ -16,7 +16,6 @@ namespace TAS.Server
 {
     public class EngineController
     {
-
         private readonly double _referenceLoudnessLevel;
 
         private EngineController()
@@ -40,8 +39,6 @@ namespace TAS.Server
         public IDatabase Database { get; private set; }
 
         public double ReferenceLoudnessLevel => _referenceLoudnessLevel;
-
-
 
         public void InitializeEngines()
         {

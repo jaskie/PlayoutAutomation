@@ -6,7 +6,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IRecorder :IRecorderProperties, INotifyPropertyChanged
+    public interface IRecorder : IRecorderProperties, INotifyPropertyChanged
     {
         void DeckPlay();
         void DeckStop();
@@ -27,6 +27,7 @@ namespace TAS.Common.Interfaces
         IEnumerable<IPlayoutServerChannel> Channels { get; }
         IMedia RecordingMedia { get; }
         IWatcherDirectory RecordingDirectory { get; }
+        int ServerId { get; }
     }
 
     public interface IRecorderProperties

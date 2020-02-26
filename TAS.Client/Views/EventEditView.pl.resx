@@ -195,6 +195,9 @@
   <data name="_inputPort" xml:space="preserve">
     <value>Źródło</value>
   </data>
+  <data name="_isRecordingScheduled" xml:space="preserve">
+    <value>Nagrywaj</value>
+  </data>
   <data name="_loop" xml:space="preserve">
     <value>Pętla</value>
   </data>
@@ -209,6 +212,12 @@
   </data>
   <data name="_noInputPort" xml:space="preserve">
     <value>&lt;Nie zmieniaj&gt;</value>
+  </data>
+  <data name="_recorderChannel" xml:space="preserve">
+    <value>Kanał</value>
+  </data>
+  <data name="_recorderName" xml:space="preserve">
+    <value>Rekorder</value>
   </data>
   <data name="_requiredAt" xml:space="preserve">
     <value>Wymagany o</value>

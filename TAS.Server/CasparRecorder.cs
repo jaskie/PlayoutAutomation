@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using jNet.RPC.Server;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
+using TAS.Common.Database;
 
 namespace TAS.Server
 {
@@ -31,51 +31,55 @@ namespace TAS.Server
         private TDeckControl _deckControl;
         private bool _isDeckConnected;
         private bool _isServerConnected;
-        private string _recorderName;
+        private string _recorderName;        
 
         #region Deserialized properties
         public int RecorderNumber { get; set; }
 
+        [JsonProperty, Hibernate]
         public int Id { get; set; }
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public string RecorderName
         {
             get => _recorderName;
             set => SetField(ref _recorderName, value);
         }
 
-        [JsonProperty]
+        [JsonProperty, Hibernate]
         public int DefaultChannel { get; set; }
 
         #endregion Deserialized properties
 
         #region IRecorder
-        [JsonProperty, XmlIgnore]
+        [JsonProperty]
+        public int ServerId { get => (int)_ownerServer.Id; }
+
+        [JsonProperty]
         public TimeSpan CurrentTc { get => _currentTc; private set => SetField(ref _currentTc, value); }
 
-        [JsonProperty, XmlIgnore]
+        [JsonProperty]
         public TimeSpan TimeLimit { get => _timeLimit; private set => SetField(ref _timeLimit, value); }
 
-        [JsonProperty, XmlIgnore]
+        [JsonProperty]
         public TDeckState DeckState { get => _deckState; private set => SetField(ref _deckState, value); }
 
-        [JsonProperty, XmlIgnore]
+        [JsonProperty]
         public TDeckControl DeckControl { get => _deckControl; private set => SetField(ref _deckControl, value); }
 
-        [JsonProperty, XmlIgnore]
+        [JsonProperty]
         public bool IsDeckConnected { get => _isDeckConnected; private set => SetField(ref _isDeckConnected, value); }
 
-        [JsonProperty, XmlIgnore]
+        [JsonProperty]
         public bool IsServerConnected { get => _isServerConnected; internal set => SetField(ref _isServerConnected, value); }
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects), XmlIgnore]
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
         public IEnumerable<IPlayoutServerChannel> Channels => _ownerServer.Channels.ToList();
 
-        [JsonProperty, XmlIgnore]
+        [JsonProperty]
         public IMedia RecordingMedia { get => _recordingMedia; private set => SetField(ref _recordingMedia, value); }
 
-        [JsonProperty, XmlIgnore]
+        [JsonProperty]
         public IWatcherDirectory RecordingDirectory => _ownerServer.MediaDirectory;
         
         public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName, int[] channelMap)
@@ -142,11 +146,13 @@ namespace TAS.Server
         public void Finish()
         {
             _recorder?.Finish();
+            RecordingMedia = null;
         }
         
         public void Abort()
         {
             _recorder?.Abort();
+            RecordingMedia = null;
         }
 
         public void DeckPlay()
@@ -156,6 +162,7 @@ namespace TAS.Server
         public void DeckStop()
         {
             _recorder?.Stop();
+            RecordingMedia = null;
         }
 
         public void DeckFastForward()
@@ -205,7 +212,7 @@ namespace TAS.Server
 
         internal void SetOwner(CasparServer owner)
         {
-            _ownerServer = owner;
+            _ownerServer = owner;            
         }
 
         internal event EventHandler<MediaEventArgs> CaptureSuccess;
@@ -252,6 +259,7 @@ namespace TAS.Server
                         CaptureSuccess?.Invoke(this, new MediaEventArgs(media));
                 });
             }
+            RecordingMedia = null;
             Logger.Trace("Capture completed notified");
         }
 

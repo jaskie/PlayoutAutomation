@@ -124,6 +124,7 @@
     <Compile Include="ViewModels\MediaViewViewmodel.cs" />
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
     <Compile Include="ViewModels\RecordersViewmodel.cs" />
+    <Compile Include="ViewModels\RecordingInfoViewModel.cs" />
     <Compile Include="ViewModels\SecurityObjectSelectorViewmodel.cs" />
     <Compile Include="ViewModels\TemplatedEditViewmodel.cs" />
     <Compile Include="ViewModels\UserManagerViewmodel.cs" />
