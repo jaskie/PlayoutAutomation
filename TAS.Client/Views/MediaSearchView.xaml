@@ -24,13 +24,19 @@
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <DockPanel>
-            <Label Content="{Resx _search}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <StackPanel DockPanel.Dock="Right" Height="35" Orientation="Horizontal">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="{Resx _search}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <StackPanel Grid.Column="3" DockPanel.Dock="Right" Height="35" Orientation="Horizontal">
                 <Button Style="{StaticResource CancelButtonStyle}" Click="BtnClose_OnClick"/>
                 <Button Content="{Binding OkButtonText}" Command="{Binding CommandAdd}" Click="ButtonOk_OnClick" IsDefault="True" Margin="5" MinWidth="90"/>
             </StackPanel>
-            <ComboBox DockPanel.Dock="Right" Width="130" VerticalAlignment="Center" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
+            <ComboBox Grid.Column="2" DockPanel.Dock="Right" Width="130" VerticalAlignment="Center" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -40,18 +46,18 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <TextBox Name="TbSearch" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" Margin="5" >
+            <TextBox Grid.Column="1" Name="TbSearch" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" Margin="5" >
                 <i:Interaction.Behaviors>
                     <behaviors:Focus SelectAllOnFocus="True"/>
                 </i:Interaction.Behaviors>
             </TextBox>
-        </DockPanel>
+        </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <ContentControl Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
+            <ContentControl Content="{Binding PreviewViewmodel}" Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                 <ContentControl.Resources>
                     <DataTemplate DataType="{x:Type vm:PreviewViewmodel}" >
                         <views:PreviewView Width="330"/>
@@ -164,9 +170,9 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn x:Name="folderColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Folder}" Width="*" Binding="{Binding Folder, Mode=OneWay}" Visibility="{Binding Data.IsRecursive, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}"/>
-                        <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" />
-                        <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="DurationPlay">
+                        <DataGridTextColumn x:Name="folderColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Folder}" Width="Auto" Binding="{Binding Folder, Mode=OneWay}" Visibility="{Binding Data.IsRecursive, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}"/>
+                        <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" Width="Auto" />
+                        <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="DurationPlay" Width="*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <controls:TimecodeTextBlock Timecode="{Binding DurationPlay}" VideoFormat="{Binding VideoFormat}"/>
