@@ -141,9 +141,7 @@ namespace TAS.Server
             _position = position;
             _loadedMovie = media;
             _previewLastPositionSetTick = _currentTicks;
-            _channel.SetAspect(VideoLayer.Preview, media.VideoFormat == TVideoFormat.NTSC
-                                                             || media.VideoFormat == TVideoFormat.PAL
-                                                             || media.VideoFormat == TVideoFormat.PAL_P);
+            _channel.SetAspect(VideoLayer.Preview, _engine.FormatDescription, !media.VideoFormat.IsWideScreen());
             IsMovieLoaded = true;
             AudioVolume = previewAudioVolume;
             _channel.Load(mediaToLoad, VideoLayer.Preview, seek + position, duration - position);
@@ -208,7 +206,7 @@ namespace TAS.Server
         {
             if (!_engine.HaveRight(EngineRight.Preview))
                 return;
-            if (_channel.PlayLive(VideoLayer.Preview))
+            if (_channel.PlayLiveDevice(VideoLayer.Preview))
             {
                 if (_isLoaded)
                     _movieUnload();

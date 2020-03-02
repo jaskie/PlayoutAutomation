@@ -283,7 +283,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandFastForwardOneFrame { get; private set; }
         public ICommand CommandBackwardOneFrame { get; private set; }
 
-        public ICommand CommandLivePreview { get; private set; }
+        public ICommand CommandLoadLiveDevice { get; private set; }
 
         public ICommand CommandToggleLayer { get; private set; }
 
@@ -498,7 +498,7 @@ namespace TAS.Client.ViewModels
             );
             CommandToggleLayer = new UiCommand(_stillToggle, _canStillToggle);
 
-            CommandLivePreview = new UiCommand
+            CommandLoadLiveDevice = new UiCommand
             (
                 o => _preview.PlayLiveDevice(),
                 o => !_preview.IsLivePlaying

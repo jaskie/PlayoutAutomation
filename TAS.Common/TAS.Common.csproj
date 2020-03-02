@@ -156,6 +156,7 @@
     <Compile Include="SMPTETimecodeExtensions.cs" />
     <Compile Include="CurrentUser.cs" />
     <Compile Include="VideoFormatDescription.cs" />
+    <Compile Include="VideoFormatExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Enums.pl.resx">

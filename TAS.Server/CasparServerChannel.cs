@@ -175,11 +175,10 @@ namespace TAS.Server
             return true;
         }
 
-        public bool PlayLive(VideoLayer layer)
+        public bool PlayLiveDevice(VideoLayer layer)
         {
-            if (LiveDevice == null)
+            if (string.IsNullOrEmpty(LiveDevice))
                 return false;
-
             var channel = _casparChannel;
             var item = new CasparItem((int)layer, LiveDevice);
             channel?.LoadBG(item);            
@@ -405,18 +404,29 @@ namespace TAS.Server
                 channel.SetInvertedFieldOrder((int)videolayer, invert);
         }
 
-        public void SetAspect(VideoLayer layer, bool narrow)
+        public void SetAspect(VideoLayer layer, VideoFormatDescription engineFormatDescription, bool narrow)
         {
             var channel = _casparChannel;
-            _outputAspectNarrow.TryGetValue(layer, out var oldAspectNarrow);
+            if (!_outputAspectNarrow.TryGetValue(layer, out var oldAspectNarrow))
+                oldAspectNarrow = !engineFormatDescription.IsWideScreen;
             if (oldAspectNarrow != narrow
                 && CheckConnected(channel))
             {
                 _outputAspectNarrow[layer] = narrow;
-                if (narrow)
-                    channel.Fill((int)layer, 0.125f, 0f, 0.75f, 1f, 10, Easing.Linear);
+                if (engineFormatDescription.IsWideScreen)
+                {
+                    if (narrow)
+                        channel.Fill((int)layer, 0.125f, 0f, 0.75f, 1f, 10, Easing.Linear);
+                    else
+                        channel.Fill((int)layer, 0f, 0f, 1f, 1f, 10, Easing.Linear);
+                }
                 else
-                    channel.Fill((int)layer, 0f, 0f, 1f, 1f, 10, Easing.Linear);
+                {
+                    if (!narrow)
+                        channel.Fill((int)layer, 0f, 0.125f, 1f, 0.75f, 10, Easing.Linear);
+                    else
+                        channel.Fill((int)layer, 0f, 0f, 1f, 1f, 10, Easing.Linear);
+                }
                 Debug.WriteLine("SetAspect narrow: {0}", narrow);
             }
         }
@@ -549,6 +559,7 @@ namespace TAS.Server
         #endregion //IPlayoutServerChannel
 
         internal CasparServer Owner { get; set; }
+        
         internal void AssignCasparChannel(Channel casparChannel)
         {
             if (casparChannel == null)

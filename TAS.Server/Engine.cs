@@ -59,7 +59,7 @@ namespace TAS.Server
         private List<IGpi> _localGpis;
         private List<IEnginePlugin> _plugins;
         private int _timeCorrection;
-        private bool _isWideScreen = true;
+        private bool _isWideScreen;
         private TEngineState _engineState;
         private double _programAudioVolume = 1;
         private bool _fieldOrderInverted;
@@ -303,6 +303,7 @@ namespace TAS.Server
             FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
             FrameTicks = FormatDescription.FrameTicks;
             FrameRate = FormatDescription.FrameRate;
+            _isWideScreen = FormatDescription.IsWideScreen;
             var chPRI = PlayoutChannelPRI as CasparServerChannel;
             var chSEC = PlayoutChannelSEC as CasparServerChannel;
             if (chSEC != null && chSEC != chPRI)
@@ -453,8 +454,8 @@ namespace TAS.Server
                 if (SetField(ref _isWideScreen, value))
                     if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
                     {
-                        _playoutChannelPRI?.SetAspect(VideoLayer.Program, !value);
-                        _playoutChannelSEC?.SetAspect(VideoLayer.Program, !value);
+                        _playoutChannelPRI?.SetAspect(VideoLayer.Program, FormatDescription, !value);
+                        _playoutChannelSEC?.SetAspect(VideoLayer.Program, FormatDescription, !value);
                     }
             }
         }
@@ -1166,7 +1167,7 @@ namespace TAS.Server
             if (aEvent == null || !(aEvent.Layer == VideoLayer.Program || aEvent.Layer == VideoLayer.Preset))
                 return;
             var media = aEvent.Media;
-            var narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC || media.VideoFormat == TVideoFormat.PAL_P);
+            var narrow = media != null && (!media.VideoFormat.IsWideScreen());
             IsWideScreen = !narrow;
             if (AspectRatioControl != TAspectRatioControl.GPI &&
                 AspectRatioControl != TAspectRatioControl.GPIandImageResize)
@@ -1583,9 +1584,9 @@ namespace TAS.Server
                     if (ev.Layer == VideoLayer.Program || ev.Layer == VideoLayer.Preset)
                     {
                         IMedia media = ev.Media;
-                        bool narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC || media.VideoFormat == TVideoFormat.PAL_P);
+                        var narrow = media != null && (!media.VideoFormat.IsWideScreen());
                         if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
-                            channel.SetAspect(VideoLayer.Program, narrow);
+                            channel.SetAspect(VideoLayer.Program, FormatDescription, narrow);
                     }
                 }
             }
