@@ -374,4 +374,14 @@ Really exit?</value>
   <data name="_validateRecordingInfo" xml:space="preserve">
     <value>Fill all recording informations.</value>
   </data>
+  <data name="_message_CantInitializeApplication" xml:space="preserve">
+    <value>Cannot initialize application because of error: 
+{0}</value>
+  </data>
+  <data name="_message_DatabaseUpdateRequired" xml:space="preserve">
+    <value>Database update is required to run the application.
+Backup is strongly recommended.
+
+Proceed with update?</value>
+  </data>
 </root>

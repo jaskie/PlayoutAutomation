@@ -15,24 +15,16 @@ namespace TAS.Client
 
         public MainWindowViewmodel()
         {
-            if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject())) return;
+            if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject())) 
+                return;
             try
             {
-                SplashScreenView.Current?.Notify("Initializing engines...");
-                EngineController.Current.InitializeEngines();
-                SplashScreenView.Current?.Notify("Loading ingest directories...");
-                EngineController.Current.LoadIngestDirectories();
                 Tabs = new List<ViewModelBase>(
                     EngineController.Current.Engines.Select(engine =>
                     {
-                        SplashScreenView.Current?.Notify($"Creating {engine.EngineName}...");
+                        SplashScreenView.Current?.Notify($"Creating view for {engine.EngineName}...");
                         return new ChannelViewmodel(engine, true, true);
                     }));
-            }
-            catch (TypeInitializationException e)
-            {
-                MessageBox.Show(string.Format(resources._message_CantInitializeEngines, e.InnerException),
-                    resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception e)
             {
@@ -45,7 +37,7 @@ namespace TAS.Client
 #else
                 $"{exceptionToShow.GetType().Name} {exceptionToShow.Message}";
 #endif
-                MessageBox.Show(string.Format(resources._message_CantInitializeEngines, message),
+                MessageBox.Show(string.Format(resources._message_CantInitializeApplication, message),
                     resources._caption_Error,
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown(1);

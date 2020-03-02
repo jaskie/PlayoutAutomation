@@ -205,6 +205,16 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot initialize application because of error: 
+        ///{0}.
+        /// </summary>
+        public static string _message_CantInitializeApplication {
+            get {
+                return ResourceManager.GetString("_message_CantInitializeApplication", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot initialize engines because of error: 
         ///{0}
         ///Use TVPlay.config program to configure the system..
@@ -222,6 +232,18 @@ namespace TAS.Client.Common.Properties {
         public static string _message_CommandFailed {
             get {
                 return ResourceManager.GetString("_message_CommandFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Database update is required to run the application.
+        ///Backup is strongly recommended.
+        ///
+        ///Proceed with update?.
+        /// </summary>
+        public static string _message_DatabaseUpdateRequired {
+            get {
+                return ResourceManager.GetString("_message_DatabaseUpdateRequired", resourceCulture);
             }
         }
         

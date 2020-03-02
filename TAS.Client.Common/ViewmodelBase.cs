@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -127,7 +128,10 @@ namespace TAS.Client.Common
 
         public void OnUiThread(Action action)
         {
-            Application.Current?.Dispatcher.BeginInvoke(action);
+            if (Thread.CurrentThread == Application.Current?.Dispatcher.Thread)
+                action();
+            else
+                Application.Current?.Dispatcher.BeginInvoke(action);
         }
 
         public void OnIdle(Action action)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -33,7 +34,10 @@ namespace TAS.Client.Views
 
         public void Notify(string message)
         {
-            LoadStage.Text = message;
+            if (Thread.CurrentThread == Dispatcher.Thread)
+                LoadStage.Text = message;
+            else
+                Dispatcher.BeginInvoke(new Action(() => LoadStage.Text = message));
         }
 
         protected override void OnClosed(EventArgs e)

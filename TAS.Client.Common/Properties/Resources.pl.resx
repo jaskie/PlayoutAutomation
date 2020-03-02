@@ -374,4 +374,14 @@ Zamknąć aplikację?</value>
   <data name="_validateRecordingInfo" xml:space="preserve">
     <value>Uzupełnij wszystkie pola.</value>
   </data>
+  <data name="_message_CantInitializeApplication" xml:space="preserve">
+    <value>Nie można prawidłowo zainicjalizować aplikacji z powodu błędu: 
+{0}</value>
+  </data>
+  <data name="_message_DatabaseUpdateRequired" xml:space="preserve">
+    <value>Do pracy aplikacji konieczna jest aktualizacja bazy danych.
+Wskazane jest wykonanie kopii bezpieczeństwa.
+
+Kontynuować?</value>
+  </data>
 </root>

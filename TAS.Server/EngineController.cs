@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.FtpClient;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Common.Database;
@@ -40,15 +41,18 @@ namespace TAS.Server
 
         public double ReferenceLoudnessLevel => _referenceLoudnessLevel;
 
-        public void InitializeEngines()
+        public void LoadDbProvider()
         {
-            FtpTrace.AddListener(new NLog.NLogTraceListener());
-            Logger.Info("Engines initializing");
             Enum.TryParse<DatabaseType>(ConfigurationManager.AppSettings["DatabaseType"], out var databaseType);
             Database = DatabaseProviderLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
             Logger.Debug("Connecting to database");
             Database.Open(ConfigurationManager.ConnectionStrings);
             Database.InitializeFieldLengths();
+        }
+        public void InitializeEngines()
+        {
+            FtpTrace.AddListener(new NLog.NLogTraceListener());
+            Logger.Info("Engines initializing");
             Servers = Database.LoadServers<CasparServer>();
             Servers.ForEach(s =>
             {

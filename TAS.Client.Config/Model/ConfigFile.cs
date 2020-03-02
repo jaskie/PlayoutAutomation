@@ -45,7 +45,7 @@ namespace TAS.Client.Config.Model
 
     public class AppSettings
     {
-        public DatabaseType DatabaseType { get; set; } = DatabaseType.MySQL;
+        public DatabaseType DatabaseType { get; set; } = DatabaseType.SQLite;
         public double ReferenceLoudnessLevel { get; set; } = -23d;
         public string IngestFolders { get; set; }
         public string TempDirectory { get; set; }

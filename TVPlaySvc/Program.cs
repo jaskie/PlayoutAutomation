@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Configuration.Install;
-using System.Diagnostics;
 using System.Reflection;
 using System.ServiceProcess;
 using TAS.Server;
 
 namespace TVPlaySvc
 {
-	[System.ComponentModel.DesignerCategory("Code")]
+    [System.ComponentModel.DesignerCategory("Code")]
     internal class TvPlayService : ServiceBase
     {
 
@@ -33,6 +32,10 @@ namespace TVPlaySvc
 
         private static void StartUp()
         {
+            EngineController.Current.LoadDbProvider();
+            var database = EngineController.Current.Database ?? throw new ApplicationException("No database provider loaded");
+            if (database.UpdateRequired())
+                database.UpdateDb();
             EngineController.Current.InitializeEngines();
             EngineController.Current.LoadIngestDirectories();
         }
@@ -59,7 +62,6 @@ namespace TVPlaySvc
                                 case "q":
                                     return;
                                 case "gc":
-                                    Debug.WriteLine("Garbage collection requested.");
                                     GC.Collect(GC.MaxGeneration);
                                     Console.WriteLine("Garbage collection requested.");
                                     break;
