@@ -212,7 +212,7 @@
                                 </DatePicker.Style>
                             </DatePicker>
                             <Label Grid.Column="2" Content="{Resx _at}" Width="Auto"/>
-                            <controls:TimecodeEdit Grid.Column="3" Timecode="{Binding ScheduledTimeOfDay, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
+                            <controls:TimecodeEdit VerticalContentAlignment="Center" Grid.Column="3" Timecode="{Binding ScheduledTimeOfDay, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
                         </Grid>
                         <Grid Grid.Row="1" Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>
