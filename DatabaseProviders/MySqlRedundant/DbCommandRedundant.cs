@@ -219,15 +219,12 @@ namespace TAS.Database.MySqlRedundant
 
         #endregion
 
-        public long LastInsertedId
+        public long GetLastInsertedId()
         {
-            get
-            {
                 var primaryId = CommandPrimary.LastInsertedId;
                 if (IsConnectionValid(CommandSecondary.Connection) && CommandSecondary.LastInsertedId != primaryId)
                     _dbConnection.StateRedundant |= ConnectionStateRedundant.Desynchronized;
                 return primaryId;
-            }
         }
 
         internal MySqlCommand CommandPrimary { get; }

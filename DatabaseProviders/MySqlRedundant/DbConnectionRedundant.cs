@@ -12,7 +12,7 @@ namespace TAS.Database.MySqlRedundant
 {
     
     [DesignerCategory("Code")]
-    internal class DbConnectionRedundant : DbConnection
+    public class DbConnectionRedundant : DbConnection
     {
         private Timer _idleTimeTimerPrimary;
         private Timer _idleTimeTimerSecondary;

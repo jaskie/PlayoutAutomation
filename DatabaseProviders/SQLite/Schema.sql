@@ -15,8 +15,8 @@ CREATE TABLE archivemedia (
   LastUpdated INTEGER NOT NULL,
   Duration INTEGER NOT NULL,
   DurationPlay INTEGER NOT NULL,
-  typVideo INTEGER NOT NULL,
-  typAudio INTEGER NOT NULL,
+  typVideo INTEGER,
+  typAudio INTEGER,
   typMedia INTEGER NOT NULL,
   AudioVolume NUMERIC NOT NULL,
   AudioLevelIntegrated NUMERIC NOT NULL,
@@ -135,6 +135,7 @@ CREATE TABLE rundownevent_templated (
 
 CREATE TABLE server (
   idServer INTEGER PRIMARY KEY,
+  typServer INTEGER,
   Config TEXT
 );
 
@@ -149,8 +150,8 @@ CREATE TABLE servermedia (
   LastUpdated INTEGER NOT NULL,
   Duration INTEGER NOT NULL,
   DurationPlay INTEGER NOT NULL,
-  typVideo INTEGER NOT NULL,
-  typAudio INTEGER NOT NULL,
+  typVideo INTEGER,
+  typAudio INTEGER,
   typMedia INTEGER NOT NULL,
   AudioVolume NUMERIC NOT NULL,
   AudioLevelIntegrated NUMERIC NOT NULL,

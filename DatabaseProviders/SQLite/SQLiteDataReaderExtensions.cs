@@ -47,6 +47,10 @@ namespace TAS.Database.SQLite
         {
             return (byte)GetValue<Int64>(dataReader, name);
         }
+        public static sbyte GetSByte(this SQLiteDataReader dataReader, string name)
+        {
+            return (sbyte)GetValue<Int64>(dataReader, name);
+        }
         public static double GetDouble(this SQLiteDataReader dataReader, string name)
         {
             return (double)GetValue<decimal>(dataReader, name);
@@ -54,6 +58,10 @@ namespace TAS.Database.SQLite
         public static Int16 GetInt16(this SQLiteDataReader dataReader, string name)
         {
             return (Int16)GetValue<Int64>(dataReader, name);
+        }
+        public static UInt16 GetUInt16(this SQLiteDataReader dataReader, string name)
+        {
+            return (UInt16)GetValue<Int64>(dataReader, name);
         }
         public static TimeSpan GetTimeSpan(this SQLiteDataReader dataReader, string name)
         {

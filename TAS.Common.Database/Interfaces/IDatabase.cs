@@ -77,8 +77,6 @@ namespace TAS.Common.Database.Interfaces
         IDictionary<string, int> MediaSegmentFieldLengths { get; }
         IDictionary<string, int> EngineFieldLengths { get; }
         IDictionary<string, int> ServerFieldLengths { get; }
-
-        void DropDatabase(string connectionString);
         void UpdateDb();
         bool UpdateRequired();
     }
