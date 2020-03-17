@@ -46,6 +46,7 @@
       <Command Key="24"  ActiveOn="Press" CommandTarget="Keyboard" Method="F11"/>
       <Command Key="2"   ActiveOn="Press" CommandTarget="Preview" Method="Cue"/>
       <Command Key="10"  ActiveOn="Press" CommandTarget="Preview" Method="TogglePlay"/>
+      <Command Key="18"  ActiveOn="Press" CommandTarget="Preview" Method="PlayTheEnd"/>
       <Command Key="26"  ActiveOn="Press" CommandTarget="Preview" Method="Unload"/>
     </Commands>
     <Backlights>

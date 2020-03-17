@@ -77,7 +77,7 @@ namespace TAS.Client.XKeys
             for (byte bit = 0; bit < 8; bit++)
             {
                 if ((changedBits & 0x1) > 0)
-                    XKeysDeviceEnumerator.KeyNotify(unitId, column * 8 + bit, (newValues & 0x1) > 0, GetAllKeys(alldata));
+                    XKeysDeviceEnumerator.KeyNotify(this, column * 8 + bit, (newValues & 0x1) > 0, GetAllKeys(alldata));
                 changedBits = changedBits >> 1;
                 newValues = (byte) (newValues >> 1);
             }

@@ -47,6 +47,7 @@ namespace TAS.Client.XKeys
                 if (_currentPreview == value)
                     return;
                 _currentPreview = value;
+                Logger.Trace("Preview changed");
             }
         }
 
@@ -73,6 +74,7 @@ namespace TAS.Client.XKeys
             context.Engine.PropertyChanged += Engine_PropertyChanged;
             XKeysDeviceEnumerator.DeviceConnected += DeviceEnumeratorOnDeviceConnected;
             SetBacklight(context.Engine);
+            Logger.Debug("Preview changed");
             return true;
         }
 
@@ -81,19 +83,27 @@ namespace TAS.Client.XKeys
             SetBacklight(Context?.Engine);
         }
 
-        internal void Notify(KeyNotifyEventArgs keyNotifyEventArgs)
+        internal void Notify(KeyNotifyEventArgs e)
         {
             try
             {
-                Logger.Trace("Key notified: UnitId={0}, IsPressed={1}, Key={2}, AllKeys=[{3}]", keyNotifyEventArgs.UnitId, keyNotifyEventArgs.IsPressed, keyNotifyEventArgs.Key, string.Join(",", keyNotifyEventArgs.AllKeys));
-                if (keyNotifyEventArgs.UnitId != UnitId)
+                if (e.Device.UnitId != UnitId)
                     return;
                 if (!(Context is IUiEngine engine))
                     return;
+                Logger.Trace("Key notified: UnitId={0}, IsPressed={1}, Key={2}, AllKeys=[{3}]", e.Device.UnitId, e.IsPressed, e.Key, string.Join(",", e.AllKeys));
+                var preview = CurrentPreview;
+                if (e.Device.DeviceModel == DeviceModelEnum.Xk12JogAndShuttle && e.IsPressed && preview != null)
+                {
+                    if (e.Key == 7)
+                        preview.CommandFastForwardOneFrame.Execute(null);
+                    if (e.Key == 15)
+                        preview.CommandBackwardOneFrame.Execute(null);
+                }
                 var commands = Commands.Where(c =>
-                    c.Key == keyNotifyEventArgs.Key &&
-                    keyNotifyEventArgs.IsPressed == (c.ActiveOn == ActiveOnEnum.Press) &&
-                    (c.Required < 0 || keyNotifyEventArgs.AllKeys.Contains(c.Required))).ToList();
+                    c.Key == e.Key &&
+                    e.IsPressed == (c.ActiveOn == ActiveOnEnum.Press) &&
+                    (c.Required < 0 || e.AllKeys.Contains(c.Required))).ToList();
                 var command = commands.FirstOrDefault(c => c.Required >= 0) ?? commands.FirstOrDefault(); //executes single command, the one with modifier has higher priority
                 if (command == null)
                     return;
@@ -113,9 +123,9 @@ namespace TAS.Client.XKeys
                         break;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Logger.Error(e);
+                Logger.Error(ex);
             }
         }
 
@@ -174,7 +184,6 @@ namespace TAS.Client.XKeys
                     e.IsEnabled = !e.IsEnabled;
                     e.Save();
                     break;
-
             }
         }
 

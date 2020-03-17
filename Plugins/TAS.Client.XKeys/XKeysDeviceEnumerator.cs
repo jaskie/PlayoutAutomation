@@ -24,9 +24,9 @@ namespace TAS.Client.XKeys
             enumerationThread.Start();
         }
 
-        internal static void KeyNotify(byte unitId, int keyNr, bool pressed, IReadOnlyList<int> allKeys)
+        internal static void KeyNotify(XKeysDevice device, int keyNr, bool pressed, IReadOnlyList<int> allKeys)
         {
-            KeyNotified?.Invoke(null, new KeyNotifyEventArgs(unitId, keyNr, pressed, allKeys));
+            KeyNotified?.Invoke(null, new KeyNotifyEventArgs(device, keyNr, pressed, allKeys));
         }
         
         public static event EventHandler<KeyNotifyEventArgs> KeyNotified;

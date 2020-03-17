@@ -308,8 +308,7 @@ namespace TAS.Client.ViewModels
                             NotifyPropertyChanged(nameof(Position));
                         }
                     },
-                o => LoadedMedia?.MediaStatus == TMediaStatus.Available
-                                          || _canLoad(MediaToLoad)
+                o => (IsEnabled && IsLoaded) || CanLoad(MediaToLoad)
             );
             CommandTogglePlay = new UiCommand
             (
@@ -329,8 +328,7 @@ namespace TAS.Client.ViewModels
                                 _preview.Play();
                         }
                     },
-                o => LoadedMedia?.MediaStatus == TMediaStatus.Available
-                                          || _canLoad(MediaToLoad)
+                o => (IsEnabled && IsLoaded) || CanLoad(MediaToLoad)
             );
             CommandPlayTheEnd = new UiCommand
             (
@@ -341,12 +339,12 @@ namespace TAS.Client.ViewModels
                     Position = LoadedMedia.TcStart + Duration - EndDuration;
                     _preview.Play();
                 },
-                o => LoadedMedia?.MediaStatus == TMediaStatus.Available && Duration > EndDuration
+                o => IsEnabled && IsLoaded && Duration > EndDuration
             );
             CommandUnload = new UiCommand
             (
                 o => _mediaUnload(),
-                _canUnload
+                CanUnload
             );
             CommandSeek = new UiCommand
             (
@@ -374,19 +372,19 @@ namespace TAS.Client.ViewModels
                         _preview.MoviePosition = _preview.MoviePosition + seekFrames;
                         NotifyPropertyChanged(nameof(Position));
                     },
-                _canUnload
+                CanUnload
             );
 
             CommandCopyToTcIn = new UiCommand
             (
                 o => TcIn = Position,
-                _canUnload
+                CanUnload
             );
 
             CommandCopyToTcOut = new UiCommand
             (
                 o => TcOut = Position,
-                _canUnload
+                CanUnload
             );
 
             CommandSaveSegment = new UiCommand
@@ -526,22 +524,23 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private bool _canUnload(object o)
+        private bool CanUnload(object o)
         {
             if (_preview.IsLivePlaying)
                 return true;
 
             MediaSegmentViewmodel segment = PlayWholeClip ? SelectedSegment : null;
             IMedia media = LoadedMedia;
-            if (media == null)
+            if (media == null || !IsEnabled)
                 return false;
             TimeSpan duration = PlayWholeClip ? media.Duration : (segment?.Duration ?? media.Duration);
             return duration.Ticks >= FormatDescription.FrameTicks;
         }
 
-        private bool _canLoad(IMedia media)
+        private bool CanLoad(IMedia media)
         {
             return media != null
+                && IsEnabled
                 && media.MediaType == TMediaType.Movie
                 && (media.Directory is IServerDirectory || media.Directory is IArchiveDirectory || (media.Directory is IIngestDirectory && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct))
                 && media.MediaStatus == TMediaStatus.Available
