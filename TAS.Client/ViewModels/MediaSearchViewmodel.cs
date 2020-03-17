@@ -13,16 +13,18 @@ using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using resources = TAS.Client.Common.Properties.Resources;
+using TAS.Client.Common.Plugin;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaSearchViewmodel : ViewModelBase
+    public class MediaSearchViewmodel : ViewModelBase, IUiPreviewProvider
     {
         private readonly TMediaType _mediaType;
         private readonly VideoFormatDescription _videoFormatDescription;
         private IWatcherDirectory _searchDirectory;
         private ICollectionView _itemsView;
         public readonly VideoLayer Layer;
+        public PreviewViewmodel _preview;
 
         private IEvent _baseEvent;
         private string[] _searchTextSplit = new string[0];
@@ -40,13 +42,13 @@ namespace TAS.Client.ViewModels
             {
                 _videoFormatDescription = engine.FormatDescription;
                 if (preview != null)
-                    PreviewViewmodel = new PreviewViewmodel(preview, false, false) { IsSegmentsVisible = true };
+                    _preview = new PreviewViewmodel(preview, false, false) { IsSegmentsVisible = true };
             }
             else
                 _videoFormatDescription = videoFormatDescription;
             _mediaType = mediaType;
-            if (PreviewViewmodel != null)
-                PreviewViewmodel.PropertyChanged += _onPreviewViewModelPropertyChanged;
+            if (_preview != null)
+                _preview.PropertyChanged += _onPreviewViewModelPropertyChanged;
             CommandAdd = new UiCommand(_add, _allowAdd);
             _mediaCategory = MediaCategories.FirstOrDefault();
             NewEventStartType = TStartType.After;
@@ -93,8 +95,6 @@ namespace TAS.Client.ViewModels
         public ObservableCollection<MediaViewViewmodel> Items { get => _items; private set => SetField(ref _items, value); }
 
         public ICommand CommandAdd { get; }
-
-        public PreviewViewmodel PreviewViewmodel { get; }
 
         public Views.MediaSearchView Window { get; set; }
 
@@ -161,8 +161,8 @@ namespace TAS.Client.ViewModels
                 {
                     _selectedItem = value;
                     var media = SelectedMedia;
-                    if (PreviewViewmodel != null)
-                        PreviewViewmodel.SelectedMedia = media;
+                    if (_preview != null)
+                        _preview.SelectedMedia = media;
                     InvalidateRequerySuggested();
                 }
             }
@@ -215,6 +215,8 @@ namespace TAS.Client.ViewModels
         public IEngine Engine { get; }
 
         public bool UserSorted { get; set; }
+
+        public IUiPreview Preview => _preview;
 
         private bool _canAddMediaToCollection(IMedia media, TMediaType requiredMediaType)
         {
@@ -270,44 +272,44 @@ namespace TAS.Client.ViewModels
 
         private TimeSpan GetTCStart()
         {
-            var pvlm = PreviewViewmodel?.LoadedMedia;
+            var pvlm = _preview?.LoadedMedia;
             if (pvlm != null && pvlm.MediaGuid == SelectedMedia?.MediaGuid)
             {
-                var s = PreviewViewmodel.SelectedSegment;
+                var s = _preview.SelectedSegment;
                 if (s != null)
                     return s.TcIn;
-                if (PreviewViewmodel.TcIn != pvlm.TcPlay ||
-                    PreviewViewmodel.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
-                    return PreviewViewmodel.TcIn;
+                if (_preview.TcIn != pvlm.TcPlay ||
+                    _preview.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
+                    return _preview.TcIn;
             }
             return SelectedItem?.SelectedSegment?.TcIn ?? SelectedItem?.TcPlay ?? TimeSpan.Zero;
         }
 
         private TimeSpan GetDuration()
         {
-            var pvlm = PreviewViewmodel?.LoadedMedia;
+            var pvlm = _preview?.LoadedMedia;
             if (pvlm != null && pvlm.MediaGuid == SelectedMedia?.MediaGuid)
             {
-                var s = PreviewViewmodel.SelectedSegment;
+                var s = _preview.SelectedSegment;
                 if (s != null)
                     return s.Duration;
-                if (PreviewViewmodel.TcIn != pvlm.TcPlay ||
-                    PreviewViewmodel.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
-                    return new TimeSpan(PreviewViewmodel.TcOut.Ticks - PreviewViewmodel.TcIn.Ticks + PreviewViewmodel.FormatDescription.FrameTicks);
+                if (_preview.TcIn != pvlm.TcPlay ||
+                    _preview.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
+                    return new TimeSpan(_preview.TcOut.Ticks - _preview.TcIn.Ticks + _preview.FormatDescription.FrameTicks);
             }
             return SelectedItem?.SelectedSegment?.Duration ?? SelectedItem?.DurationPlay ?? TimeSpan.Zero;
         }
 
         private string GetMediaName()
         {
-            var pvlm = PreviewViewmodel?.LoadedMedia;
+            var pvlm = _preview?.LoadedMedia;
             if (pvlm != null)
             {
-                var s = PreviewViewmodel.SelectedSegment;
+                var s = _preview.SelectedSegment;
                 if (s != null)
                     return pvlm.MediaName + " [" + s.SegmentName + "]";
-                if (PreviewViewmodel.TcIn != pvlm.TcPlay ||
-                    PreviewViewmodel.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
+                if (_preview.TcIn != pvlm.TcPlay ||
+                    _preview.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
                     return pvlm.MediaName + " [fragment]";
             }
 
@@ -322,7 +324,7 @@ namespace TAS.Client.ViewModels
                 return false;
             if (BaseEvent == null)
                 return true;
-            var loadedMedia = PreviewViewmodel?.LoadedMedia;
+            var loadedMedia = _preview?.LoadedMedia;
             if (loadedMedia != null && SelectedMedia.MediaGuid != loadedMedia.MediaGuid)
                 return false;
             switch (NewEventStartType)
@@ -365,7 +367,7 @@ namespace TAS.Client.ViewModels
 
         private void _onPreviewViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(PreviewViewmodel.LoadedMedia))
+            if (e.PropertyName == nameof(_preview.LoadedMedia))
                 InvalidateRequerySuggested();
         }
 
@@ -380,10 +382,10 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             BaseEvent = null;
-            if (PreviewViewmodel != null)
+            if (_preview != null)
             {
-                PreviewViewmodel.PropertyChanged -= _onPreviewViewModelPropertyChanged;
-                PreviewViewmodel.Dispose();
+                _preview.PropertyChanged -= _onPreviewViewModelPropertyChanged;
+                _preview.Dispose();
             }
             if (_searchDirectory != null)
             {

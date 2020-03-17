@@ -16,7 +16,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class EngineViewmodel : ViewModelBase, IUiEngine
+    public class EngineViewmodel : ViewModelBase, IUiEngine, IUiPreviewProvider
     {
         private EventPanelViewmodelBase _selectedEventPanel;
         private DateTime _currentTime;
@@ -28,6 +28,7 @@ namespace TAS.Client.ViewModels
         private readonly IUiPlugin[] _plugins;
         private EventEditViewmodel _selectedEventEditViewmodel;
         private IEvent _selectedEvent;
+        private PreviewViewmodel _preview;
 
         private MediaSearchViewmodel _mediaSearchViewModel;
         private readonly ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
@@ -59,7 +60,7 @@ namespace TAS.Client.ViewModels
             
 
             if (preview != null && engine.HaveRight(EngineRight.Preview))
-                PreviewViewmodel = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit), false) { IsSegmentsVisible = true };
+                _preview = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit), false) { IsSegmentsVisible = true };
 
 
             _multiSelectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
@@ -218,14 +219,15 @@ namespace TAS.Client.ViewModels
 
         #region PreviewCommands
 
-        public ICommand CommandPreviewPlay => PreviewViewmodel?.CommandPlay;
-        public ICommand CommandPreviewUnload => PreviewViewmodel?.CommandUnload;
-        public ICommand CommandPreviewFastForward => PreviewViewmodel?.CommandFastForward;
-        public ICommand CommandPreviewBackward => PreviewViewmodel?.CommandBackward;
-        public ICommand CommandPreviewFastForwardOneFrame => PreviewViewmodel?.CommandFastForwardOneFrame;
-        public ICommand CommandPreviewBackwardOneFrame => PreviewViewmodel?.CommandBackwardOneFrame;
+        public ICommand CommandPreviewCue => _preview?.CommandCue;
+        public ICommand CommandPreviewTogglePlay => _preview?.CommandTogglePlay;
+        public ICommand CommandPreviewUnload => _preview?.CommandUnload;
+        public ICommand CommandPreviewFastForward => _preview?.CommandFastForward;
+        public ICommand CommandPreviewBackward => _preview?.CommandBackward;
+        public ICommand CommandPreviewFastForwardOneFrame => _preview?.CommandFastForwardOneFrame;
+        public ICommand CommandPreviewBackwardOneFrame => _preview?.CommandBackwardOneFrame;
 
-        public ICommand CommandPreviewTrimSource => PreviewViewmodel?.CommandTrimSource;
+        public ICommand CommandPreviewTrimSource => _preview?.CommandTrimSource;
         #endregion
 
         public bool IsDebugBuild
@@ -244,7 +246,7 @@ namespace TAS.Client.ViewModels
 
         public EventPanelViewmodelBase RootEventViewModel { get; }
 
-        public PreviewViewmodel PreviewViewmodel { get; }
+        public IUiPreview Preview => _preview;
 
         public EngineRouterViewModel EngineRouterViewModel { get; }
 
@@ -901,8 +903,8 @@ namespace TAS.Client.ViewModels
                     value.PropertyChanged += _onSelectedEventPropertyChanged;
                     SelectedEventEditViewmodel = new EventEditViewmodel(value, this);
                 }
-                if (PreviewViewmodel != null)
-                    PreviewViewmodel.SelectedEvent = value;
+                if (_preview != null)
+                    _preview.SelectedEvent = value;
             }
         }
 

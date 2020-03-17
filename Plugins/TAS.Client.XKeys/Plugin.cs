@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using NLog;
@@ -16,6 +17,38 @@ namespace TAS.Client.XKeys
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static readonly InputSimulator.InputSimulator InputSimulator = new InputSimulator.InputSimulator();
         private static readonly KeyGestureConverter KeyGestureConverter = new KeyGestureConverter();
+
+        private IUiPreview _currentPreview;
+
+        public Plugin()
+        {
+            EventManager.RegisterClassHandler(
+                typeof(FrameworkElement),
+                Keyboard.PreviewGotKeyboardFocusEvent,
+                (KeyboardFocusChangedEventHandler)OnPreviewGotKeyboardFocus);
+        }
+
+        private void OnPreviewGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (!(sender is FrameworkElement element && 
+                element.DataContext is IUiPreviewProvider previewProvider && 
+                previewProvider.Engine == Context?.Engine
+                ))
+                return;
+            CurrentPreview = previewProvider.Preview;
+        }
+
+        [XmlIgnore]
+        public IUiPreview CurrentPreview
+        {
+            get => _currentPreview;
+            private set
+            {
+                if (_currentPreview == value)
+                    return;
+                _currentPreview = value;
+            }
+        }
 
         [XmlAttribute]
         public string EngineName { get; set; }
@@ -38,12 +71,12 @@ namespace TAS.Client.XKeys
                 return false;
             Context = context;
             context.Engine.PropertyChanged += Engine_PropertyChanged;
-            DeviceEnumerator.DeviceConnected += DeviceEnumeratorOnDeviceConnected;
+            XKeysDeviceEnumerator.DeviceConnected += DeviceEnumeratorOnDeviceConnected;
             SetBacklight(context.Engine);
             return true;
         }
 
-        private void DeviceEnumeratorOnDeviceConnected(object sender, DeviceEventArgs deviceEventArgs)
+        private void DeviceEnumeratorOnDeviceConnected(object _, XKeysDevice device)
         {
             SetBacklight(Context?.Engine);
         }
@@ -68,6 +101,9 @@ namespace TAS.Client.XKeys
                 {
                     case CommandTargetEnum.Engine:
                         ExecuteOnEngine(engine, command.Method, command.Parameter);
+                        break;
+                    case CommandTargetEnum.Preview:
+                        ExecuteOnPreview(CurrentPreview, command.Method, command.Parameter);
                         break;
                     case CommandTargetEnum.Keyboard:
                         ExecuteOnKeyboard(command.Method);
@@ -104,12 +140,24 @@ namespace TAS.Client.XKeys
         {
             var propertyName = $"Command{commandMethod}";
             var propertyInfo = typeof(IUiEngine).GetProperty(propertyName);
-            if (propertyInfo == null)
+            if (propertyInfo == null || engine == null)
                 return;
             var o = propertyInfo.GetValue(engine);
             if (!(o is ICommand command))
                 return;
             engine.OnUiThread(() => command.Execute(commandParameter));
+        }
+
+        private static void ExecuteOnPreview(IUiPreview preview, string commandName, string commandParameter)
+        {
+            var propertyName = $"Command{commandName}";
+            var propertyInfo = typeof(IUiPreview).GetProperty(propertyName);
+            if (propertyInfo == null || preview == null)
+                return;
+            var o = propertyInfo.GetValue(preview);
+            if (!(o is ICommand command))
+                return;
+            preview.OnUiThread(() => command.Execute(commandParameter));
         }
 
         private static void ExecuteOnSelectedEvent(IEvent e, string commandMethod)
@@ -136,10 +184,10 @@ namespace TAS.Client.XKeys
             {
                 foreach (var backlight in Backlights.Where(b => b.State != engine.EngineState))
                     foreach (var backlightKey in backlight.Keys)
-                        DeviceEnumerator.SetBacklight(UnitId, backlightKey, BacklightColorEnum.None, false);
+                        XKeysDeviceEnumerator.SetBacklight(UnitId, backlightKey, BacklightColorEnum.None, false);
                 foreach (var backlight in Backlights.Where(b => b.State == engine.EngineState))
                     foreach (var backlightKey in backlight.Keys)
-                        DeviceEnumerator.SetBacklight(UnitId, backlightKey, backlight.Color, backlight.Blinking);
+                        XKeysDeviceEnumerator.SetBacklight(UnitId, backlightKey, backlight.Color, backlight.Blinking);
             }
             catch (Exception exception)
             {

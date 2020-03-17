@@ -40,10 +40,18 @@
   <!-- Sample configuration for XK-12 Jog&Shuttle - preview control -->
   <Plugin EngineName="TVP Szczecin" UnitId="1">
     <Commands>
-      <Command Key="0"  ActiveOn="Press" CommandTarget="Engine" Method="LoadSelected"/>
-      <Command Key="8"  ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
-      <Command Key="16" ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
-      <Command Key="24" ActiveOn="Press" CommandTarget="Keyboard" Method="F11"/>
+      <Command Key="0"   ActiveOn="Press" CommandTarget="Engine" Method="LoadSelected"/>
+      <Command Key="8"   ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
+      <Command Key="16"  ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
+      <Command Key="24"  ActiveOn="Press" CommandTarget="Keyboard" Method="F11"/>
+      <Command Key="2"   ActiveOn="Press" CommandTarget="Preview" Method="Cue"/>
+      <Command Key="10"  ActiveOn="Press" CommandTarget="Preview" Method="TogglePlay"/>
+      <Command Key="26"  ActiveOn="Press" CommandTarget="Preview" Method="Unload"/>
     </Commands>
+    <Backlights>
+      <Backlight State="Hold" Color="Blue" Keys="0" Blinking="true"/>
+      <Backlight State="Running" Color="Blue" Keys="8, 16" Blinking="false"/>
+      <Backlight State="Idle" Color="Red" Keys="8, 16" Blinking="false"/>
+    </Backlights>
   </Plugin>
 </XKeys>

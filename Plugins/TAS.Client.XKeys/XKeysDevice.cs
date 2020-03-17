@@ -12,13 +12,13 @@ namespace TAS.Client.XKeys
         Xk12JogAndShuttle
     }
 
-    public class Device: PIEDataHandler, PIEErrorHandler, IDisposable
+    public class XKeysDevice: PIEDataHandler, PIEErrorHandler, IDisposable
     {
         private readonly byte[] _oldData;
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public Device(PIEDevice pieDevice)
+        public XKeysDevice(PIEDevice pieDevice)
         {
             PieDevice = pieDevice;
             DeviceModel = GetDeviceModel(pieDevice);
@@ -77,7 +77,7 @@ namespace TAS.Client.XKeys
             for (byte bit = 0; bit < 8; bit++)
             {
                 if ((changedBits & 0x1) > 0)
-                    DeviceEnumerator.KeyNotify(unitId, column * 8 + bit, (newValues & 0x1) > 0, GetAllKeys(alldata));
+                    XKeysDeviceEnumerator.KeyNotify(unitId, column * 8 + bit, (newValues & 0x1) > 0, GetAllKeys(alldata));
                 changedBits = changedBits >> 1;
                 newValues = (byte) (newValues >> 1);
             }

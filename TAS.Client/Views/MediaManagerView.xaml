@@ -35,8 +35,9 @@
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding CommandRefresh}"/>
-        <KeyBinding Gesture="Ctrl+Delete" Command="{Binding CommandDeleteSelected}"/>
-        <KeyBinding Command="{Binding CommandPreviewPlay}" Gesture="Ctrl+Space"/>
+        <KeyBinding Command="{Binding CommandDeleteSelected}" Gesture="Ctrl+Delete" />
+        <KeyBinding Command="{Binding CommandPreviewCue}" Gesture="Ctrl+Alt+Space"/>
+        <KeyBinding Command="{Binding CommandPreviewTogglePlay}" Gesture="Ctrl+Space"/>
         <KeyBinding Command="{Binding CommandPreviewUnload}" Gesture="Ctrl+Shift+Space"/>
         <KeyBinding Command="{Binding CommandPreviewFastForward}" Gesture="Ctrl+OemPeriod"/>
         <KeyBinding Command="{Binding CommandPreviewBackward}" Gesture="Ctrl+OemComma"/>
@@ -91,7 +92,7 @@
                     </ContentControl.Resources>
                 </ContentControl>
                 <GridSplitter Grid.Row="0" Visibility="{Binding IsDisplayPreview, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
-                <ContentControl Visibility="{Binding IsDisplayPreview, Converter={StaticResource BoolToVis}}" Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding PreviewViewmodel}">
+                <ContentControl Visibility="{Binding IsDisplayPreview, Converter={StaticResource BoolToVis}}" Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding Preview}">
                     <ContentControl.Resources>
                         <DataTemplate DataType="{x:Type viewmodels:PreviewViewmodel}" >
                             <views:PreviewView/>

@@ -30,7 +30,7 @@ namespace TAS.Client.XKeys
             {
                 var serializer = new XmlSerializer(typeof(Plugin[]), new XmlRootAttribute("XKeys"));
                 _plugins = (Plugin[])serializer.Deserialize(streamReader);
-                DeviceEnumerator.KeyNotified += KeyNotified;
+                XKeysDeviceEnumerator.KeyNotified += KeyNotified;
             }
         }
 

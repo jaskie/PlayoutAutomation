@@ -9,10 +9,12 @@ using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
+using TAS.Client.Common.Plugin;
 
 namespace TAS.Client.ViewModels
 {
-    public class PreviewViewmodel : ViewModelBase
+
+    public class PreviewViewmodel : ViewModelBase, IUiPreview
     {
         private IMedia _selectedMedia;
         private IEvent _selectedEvent;
@@ -258,15 +260,15 @@ namespace TAS.Client.ViewModels
         public bool IsStillButton3Visible => _showStillButtons || _loadedStillImages.ContainsKey(VideoLayer.PreviewCG3);
 
         public bool IsStill1Loaded => _loadedStillImages.ContainsKey(VideoLayer.PreviewCG1);
-                            
+
         public bool IsStill2Loaded => _loadedStillImages.ContainsKey(VideoLayer.PreviewCG2);
-                            
+
         public bool IsStill3Loaded => _loadedStillImages.ContainsKey(VideoLayer.PreviewCG3);
 
         #region Commands
 
-        public ICommand CommandPause { get; private set; }
-        public ICommand CommandPlay { get; private set; }
+        public ICommand CommandCue { get; private set; }
+        public ICommand CommandTogglePlay { get; private set; }
         public ICommand CommandPlayTheEnd { get; private set; }
         public ICommand CommandUnload { get; private set; }
         public ICommand CommandSeek { get; private set; }
@@ -291,7 +293,7 @@ namespace TAS.Client.ViewModels
 
         private void CreateCommands()
         {
-            CommandPause = new UiCommand
+            CommandCue = new UiCommand
             (
                 o =>
                     {
@@ -309,7 +311,7 @@ namespace TAS.Client.ViewModels
                 o => LoadedMedia?.MediaStatus == TMediaStatus.Available
                                           || _canLoad(MediaToLoad)
             );
-            CommandPlay = new UiCommand
+            CommandTogglePlay = new UiCommand
             (
                 o =>
                     {
@@ -322,7 +324,7 @@ namespace TAS.Client.ViewModels
                         }
                         else
                         {
-                            CommandPause.Execute(null);
+                            CommandCue.Execute(null);
                             if (LoadedMedia != null)
                                 _preview.Play();
                         }
@@ -520,7 +522,7 @@ namespace TAS.Client.ViewModels
                 _preview.UnLoadStillImage(layer);
             else
             {
-                _preview.LoadStillImage(_selectedMedia, layer);   
+                _preview.LoadStillImage(_selectedMedia, layer);
             }
         }
 
@@ -562,7 +564,7 @@ namespace TAS.Client.ViewModels
         private void _mediaLoad(IMedia media, bool reloadSegments)
         {
             if (media == null)
-                return;            
+                return;
             LoadedMedia = media;
             if (reloadSegments)
             {
@@ -642,9 +644,9 @@ namespace TAS.Client.ViewModels
         {
             switch (e.PropertyName)
             {
-                case nameof(IPreview.MoviePosition) when  LoadedMedia != null:
-                        NotifyPropertyChanged(nameof(Position));
-                        NotifyPropertyChanged(nameof(SliderPosition));
+                case nameof(IPreview.MoviePosition) when LoadedMedia != null:
+                    NotifyPropertyChanged(nameof(Position));
+                    NotifyPropertyChanged(nameof(SliderPosition));
                     break;
                 case nameof(IPreview.LoadedMovie):
                     if (_preview.LoadedMovie != LoadedMedia)

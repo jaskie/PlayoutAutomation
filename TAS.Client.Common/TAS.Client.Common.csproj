@@ -114,6 +114,8 @@
     <Compile Include="OkCancelViewmodelBase.cs" />
     <Compile Include="Plugin\IUiEngine.cs" />
     <Compile Include="Plugin\IUiPluginContext.cs" />
+    <Compile Include="Plugin\IUiPreview.cs" />
+    <Compile Include="Plugin\IUiPreviewProvider.cs" />
     <Compile Include="Plugin\UiMenuItemBase.cs" />
     <Compile Include="Plugin\IUiPluginFactory.cs" />
     <Compile Include="Plugin\UiPluginManager.cs" />
@@ -554,6 +556,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Actions\hourglass.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\MediaNavigation\media-playback-cue.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
