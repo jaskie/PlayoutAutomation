@@ -61,6 +61,7 @@
     <Compile Include="Backlight.cs" />
     <Compile Include="BacklightColorEnum.cs" />
     <Compile Include="CommandTargetEnum.cs" />
+    <Compile Include="ShuttlePositionEnum.cs" />
     <Compile Include="XKeysDevice.cs" />
     <Compile Include="XKeysDeviceEnumerator.cs" />
     <Compile Include="InputSimulator\IInputDeviceStateAdaptor.cs" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -19,6 +20,7 @@ namespace TAS.Client.XKeys
         private static readonly KeyGestureConverter KeyGestureConverter = new KeyGestureConverter();
 
         private IUiPreview _currentPreview;
+        private ShuttlePositionEnum _shuttlePosition = ShuttlePositionEnum.Neutral;
 
         public Plugin()
         {
@@ -30,8 +32,8 @@ namespace TAS.Client.XKeys
 
         private void OnPreviewGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            if (!(sender is FrameworkElement element && 
-                element.DataContext is IUiPreviewProvider previewProvider && 
+            if (!(sender is FrameworkElement element &&
+                element.DataContext is IUiPreviewProvider previewProvider &&
                 previewProvider.Engine == Context?.Engine
                 ))
                 return;
@@ -99,6 +101,7 @@ namespace TAS.Client.XKeys
                         preview.CommandFastForwardOneFrame.Execute(null);
                     if (e.Key == 15)
                         preview.CommandBackwardOneFrame.Execute(null);
+                    SetShuttlePosition(e.Key);
                 }
                 var commands = Commands.Where(c =>
                     c.Key == e.Key &&
@@ -126,6 +129,72 @@ namespace TAS.Client.XKeys
             catch (Exception ex)
             {
                 Logger.Error(ex);
+            }
+        }
+
+        private void SetShuttlePosition(int key)
+        {
+            if (!Enum.IsDefined(typeof(ShuttlePositionEnum), key))
+                return;
+            var oldPosition = _shuttlePosition;
+            _shuttlePosition = (ShuttlePositionEnum)key;
+            if (_shuttlePosition == ShuttlePositionEnum.Neutral)
+                return;
+            if (oldPosition == ShuttlePositionEnum.Neutral)
+                Shuttle();
+        }
+
+        private async void Shuttle()
+        {
+            var preview = CurrentPreview;
+            if (preview == null)
+                return;
+            while (_shuttlePosition != ShuttlePositionEnum.Neutral)
+            {
+                await Task.Run(() =>
+                {
+                    preview.OnUiThread(() => preview.CommandSeek.Execute(ShuttlePositionToFrames(_shuttlePosition)));
+                    Thread.Sleep(1000);
+                });
+            }
+        }
+
+        private static long ShuttlePositionToFrames(ShuttlePositionEnum shuttlePosition)
+        {
+            switch (shuttlePosition)
+            {
+                case ShuttlePositionEnum.Backward7:
+                    return -15625;
+                case ShuttlePositionEnum.Backward6:
+                    return -3125;
+                case ShuttlePositionEnum.Backward5:
+                    return -625;
+                case ShuttlePositionEnum.Backward4:
+                    return -125;
+                case ShuttlePositionEnum.Backward3:
+                    return -25;
+                case ShuttlePositionEnum.Backward2:
+                    return -5;
+                case ShuttlePositionEnum.Backward1:
+                    return -1;
+                case ShuttlePositionEnum.Neutral:
+                    return 0;
+                case ShuttlePositionEnum.Forward1:
+                    return 1;
+                case ShuttlePositionEnum.Forward2:
+                    return 5;
+                case ShuttlePositionEnum.Forward3:
+                    return 25;
+                case ShuttlePositionEnum.Forward4:
+                    return 125;
+                case ShuttlePositionEnum.Forward5:
+                    return 625;
+                case ShuttlePositionEnum.Forward6:
+                    return 3125;
+                case ShuttlePositionEnum.Forward7:
+                    return 15625;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(shuttlePosition));
             }
         }
 
@@ -211,4 +280,6 @@ namespace TAS.Client.XKeys
             Task.Run(() => SetBacklight(engine));
         }
     }
+
+
 }

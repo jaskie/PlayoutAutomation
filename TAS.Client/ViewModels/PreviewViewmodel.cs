@@ -350,25 +350,28 @@ namespace TAS.Client.ViewModels
             (
                 param =>
                     {
-                        long seekFrames;
-                        switch ((string)param)
-                        {
-                            case "fframe":
-                                seekFrames = 1;
-                                break;
-                            case "rframe":
-                                seekFrames = -1;
-                                break;
-                            case "fsecond":
-                                seekFrames = FramesPerSecond;
-                                break;
-                            case "rsecond":
-                                seekFrames = -FramesPerSecond;
-                                break;
-                            default:
-                                seekFrames = 0;
-                                break;
-                        }
+                        long seekFrames = 0;
+                        if (param is long longParam)
+                            seekFrames = longParam;
+                        if (param is string stringParam)
+                            switch (stringParam)
+                            {
+                                case "fframe":
+                                    seekFrames = 1;
+                                    break;
+                                case "rframe":
+                                    seekFrames = -1;
+                                    break;
+                                case "fsecond":
+                                    seekFrames = FramesPerSecond;
+                                    break;
+                                case "rsecond":
+                                    seekFrames = -FramesPerSecond;
+                                    break;
+                                default:
+                                    seekFrames = 0;
+                                    break;
+                            }
                         _preview.MoviePosition = _preview.MoviePosition + seekFrames;
                         NotifyPropertyChanged(nameof(Position));
                     },
