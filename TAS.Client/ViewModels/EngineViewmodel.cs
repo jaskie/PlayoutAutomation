@@ -54,7 +54,7 @@ namespace TAS.Client.ViewModels
             Engine.VisibleEventAdded += _engine_VisibleEventAdded;
             Engine.VisibleEventRemoved += _engine_VisibleEventRemoved;
             Engine.RunningEventsOperation += OnEngineRunningEventsOperation;
-            _plugins = UiPluginManager.ComposeParts<IUiPlugin>(this);
+            _plugins = UiPluginManager.ComposeUiParts(this);
             VideoPreview = UiPluginManager.ComposePart<IVideoPreview>(this);
             
 

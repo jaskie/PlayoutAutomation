@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <XKeys>
+  <!-- Sample configuration for XK-24 - playout control -->
   <Plugin EngineName="TVP Szczecin" UnitId="0">
     <Commands>
       <Command Key="0"  ActiveOn="Press" CommandTarget="Engine" Method="LoadSelected"/>
@@ -35,5 +36,14 @@
       <Backlight State="Running" Color="Blue" Keys="8, 16" Blinking="false"/>
       <Backlight State="Idle" Color="Red" Keys="8, 16" Blinking="false"/>
     </Backlights>
+  </Plugin>
+  <!-- Sample configuration for XK-12 Jog&Shuttle - preview control -->
+  <Plugin EngineName="TVP Szczecin" UnitId="1">
+    <Commands>
+      <Command Key="0"  ActiveOn="Press" CommandTarget="Engine" Method="LoadSelected"/>
+      <Command Key="8"  ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
+      <Command Key="16" ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>
+      <Command Key="24" ActiveOn="Press" CommandTarget="Keyboard" Method="F11"/>
+    </Commands>
   </Plugin>
 </XKeys>

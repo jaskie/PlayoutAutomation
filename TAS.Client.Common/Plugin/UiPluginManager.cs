@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Linq;
@@ -36,39 +37,37 @@ namespace TAS.Client.Common.Plugin
             }
         }
 
-        public static T[] ComposeParts<T>(IUiPluginContext context) where T : IUiPlugin
+        public static IUiPlugin[] ComposeUiParts(IUiPluginContext context) 
         {
             try
             {
-                if (Factories != null)
-                    return Factories
-                        .Where(f => typeof(T).IsAssignableFrom(f.Type))
-                        .Select(f => (T) f.CreateNew(context))
-                        .Where(p => p != null)
-                        .ToArray();
+                return Factories
+                    .Where(f => typeof(IUiPlugin).IsAssignableFrom(f.Type))
+                    .SelectMany(f => f.Create(context))
+                    .Cast<IUiPlugin>().ToArray();
             }
             catch (Exception e)
             {
                 Logger.Error(e);
             }
-            return new T[0];
+            return new IUiPlugin[0];
         }
 
-        public static T ComposePart<T>(IUiPluginContext context)
+        public static T ComposePart<T>(IUiPluginContext context) where T: class
         {
             try
             {
                 if (Factories != null)
                     return Factories
                         .Where(f => typeof(T).IsAssignableFrom(f.Type))
-                        .Select(f => (T) f.CreateNew(context))
-                        .FirstOrDefault(p => p != null);
+                        .SelectMany(f => f.Create(context))
+                        .FirstOrDefault() as T;
             }
             catch (Exception e)
             {
                 Logger.Error(e);
             }
-            return default(T);
+            return null;
         }
     }
 }

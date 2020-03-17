@@ -23,11 +23,11 @@ namespace TAS.Client.XKeys
         [XmlAttribute]
         public byte UnitId { get; set; }
 
-        public IUiMenuItem Menu { get; } = null;
+        public IUiMenuItem Menu { get; } = null; // this plugin does not contain any menu item
 
-        public Command[] Commands { get; set; }
+        public Command[] Commands { get; set; } = new Command[0];
 
-        public Backlight[] Backlights { get; set; }
+        public Backlight[] Backlights { get; set; } = new Backlight[0];
 
         [XmlIgnore]
         public IUiPluginContext Context { get; private set; }
