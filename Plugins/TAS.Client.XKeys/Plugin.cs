@@ -151,11 +151,8 @@ namespace TAS.Client.XKeys
                 return;
             while (_shuttlePosition != ShuttlePositionEnum.Neutral)
             {
-                await Task.Run(() =>
-                {
-                    preview.OnUiThread(() => preview.CommandSeek.Execute(ShuttlePositionToFrames(_shuttlePosition)));
-                    Thread.Sleep(1000);
-                });
+                preview.OnUiThread(() => preview.CommandSeek.Execute(ShuttlePositionToFrames(_shuttlePosition)));
+                await Task.Delay(1000);
             }
         }
 
