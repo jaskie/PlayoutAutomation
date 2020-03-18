@@ -5,7 +5,7 @@ namespace TAS.Client.XKeys
 {
     public class KeyNotifyEventArgs: EventArgs
     {
-        public byte UnitId { get; }
+        public XKeysDevice Device { get; }
 
         public int Key { get; }
 
@@ -13,9 +13,9 @@ namespace TAS.Client.XKeys
 
         public IReadOnlyList<int> AllKeys { get; }
 
-        public KeyNotifyEventArgs(byte unitId, int key, bool isPressed, IReadOnlyList<int> allKeys)
+        public KeyNotifyEventArgs(XKeysDevice device, int key, bool isPressed, IReadOnlyList<int> allKeys)
         {
-            UnitId = unitId;
+            Device = device;
             Key = key;
             IsPressed = isPressed;
             AllKeys = allKeys;

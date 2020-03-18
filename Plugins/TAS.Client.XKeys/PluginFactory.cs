@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
@@ -29,18 +30,16 @@ namespace TAS.Client.XKeys
             {
                 var serializer = new XmlSerializer(typeof(Plugin[]), new XmlRootAttribute("XKeys"));
                 _plugins = (Plugin[])serializer.Deserialize(streamReader);
-                DeviceEnumerator.KeyNotified += KeyNotified;
+                XKeysDeviceEnumerator.KeyNotified += KeyNotified;
             }
         }
 
-        public object CreateNew(IUiPluginContext context)
+        public object[] Create(IUiPluginContext context)
         {
-            var result = _plugins?.FirstOrDefault(xk => string.Equals(xk.EngineName, context.Engine.EngineName, StringComparison.OrdinalIgnoreCase));
-            if (result != null)
-            {
-                if (!result.SetContext(context))
+            var result = _plugins?.Where(xk => string.Equals(xk.EngineName, context.Engine.EngineName, StringComparison.OrdinalIgnoreCase)).ToArray();
+            foreach (var plugin in result)
+                if (!plugin.SetContext(context))
                     throw new ApplicationException($"The {Type.FullName} plugin cannot be re-used");
-            }
             return result;
         }
 

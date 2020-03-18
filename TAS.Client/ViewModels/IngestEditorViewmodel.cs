@@ -13,10 +13,10 @@ namespace TAS.Client.ViewModels
         private readonly IEngine _engine;
         private IngestOperationViewModel _selectedOperation;
 
-        public IngestEditorViewmodel(IList<IIngestOperation> convertionList, IPreview preview, IEngine engine)
+        public IngestEditorViewmodel(IList<IIngestOperation> convertionList, IEngine engine)
         {
             _engine = engine;
-            OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op => new IngestOperationViewModel(op, preview, engine)));
+            OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op => new IngestOperationViewModel(op, engine)));
             SelectedOperation = OperationList.FirstOrDefault();
             foreach (var c in OperationList)
             {

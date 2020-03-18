@@ -5,26 +5,29 @@ using PIEHid64Net;
 
 namespace TAS.Client.XKeys
 {
-    public class Device: PIEDataHandler, PIEErrorHandler, IDisposable
+    public enum DeviceModelEnum
+    {
+        Unsupported,
+        Xk24,
+        Xk12JogAndShuttle
+    }
+
+    public class XKeysDevice: PIEDataHandler, PIEErrorHandler, IDisposable
     {
         private readonly byte[] _oldData;
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public Device(PIEDevice pieDevice)
+        public XKeysDevice(PIEDevice pieDevice)
         {
             PieDevice = pieDevice;
+            DeviceModel = GetDeviceModel(pieDevice);
+            if (DeviceModel == DeviceModelEnum.Unsupported)
+            {
+                Logger.Error("This plugin does not support the {0} device in mode {1}", pieDevice.ProductString, pieDevice.Pid);
+                return;
+            }
             pieDevice.SetupInterface();
-            if (!string.Equals(pieDevice.ProductString, "XK-24 HID", StringComparison.Ordinal))
-            {
-                Logger.Error("This plugin does not support the {0} device", pieDevice.ProductString);
-                return;
-            }
-            if (pieDevice.Pid != 1029)
-            {
-                Logger.Error("Invalid XKeys device PID mode: {0}, should be 1029 (mode 1)", pieDevice.Pid);
-                return;
-            }
             pieDevice.SetDataCallback(this);
             pieDevice.SetErrorCallback(this);
             _oldData = new byte[pieDevice.ReadLength];
@@ -34,6 +37,8 @@ namespace TAS.Client.XKeys
         }
 
         public PIEDevice PieDevice { get; }
+
+        public DeviceModelEnum DeviceModel { get; }
 
         public byte UnitId { get; }
 
@@ -72,7 +77,7 @@ namespace TAS.Client.XKeys
             for (byte bit = 0; bit < 8; bit++)
             {
                 if ((changedBits & 0x1) > 0)
-                    DeviceEnumerator.KeyNotify(unitId, column * 8 + bit, (newValues & 0x1) > 0, GetAllKeys(alldata));
+                    XKeysDeviceEnumerator.KeyNotify(this, column * 8 + bit, (newValues & 0x1) > 0, GetAllKeys(alldata));
                 changedBits = changedBits >> 1;
                 newValues = (byte) (newValues >> 1);
             }
@@ -190,6 +195,19 @@ namespace TAS.Client.XKeys
                 result = PieDevice.ReadData(ref rData);
             return rData[1];
 
+        }
+
+        private static DeviceModelEnum GetDeviceModel(PIEDevice device)
+        {
+            switch (device.Pid)
+            {
+                case 1029:
+                    return DeviceModelEnum.Xk24;
+                case 1062:
+                    return DeviceModelEnum.Xk12JogAndShuttle;
+                default:
+                    return DeviceModelEnum.Unsupported;
+            }
         }
 
 

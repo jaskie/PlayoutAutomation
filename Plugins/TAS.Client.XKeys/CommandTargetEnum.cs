@@ -3,6 +3,7 @@
     public enum CommandTargetEnum
     {
         Engine,
+        Preview,
         SelectedEvent,
         Keyboard,
     }

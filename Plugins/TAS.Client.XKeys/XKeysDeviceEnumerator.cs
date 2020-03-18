@@ -8,12 +8,12 @@ using PIEHid64Net;
 
 namespace TAS.Client.XKeys
 {
-    public static class DeviceEnumerator
+    public static class XKeysDeviceEnumerator
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private static readonly List<Device> Devices = new List<Device>();
+        private static readonly List<XKeysDevice> Devices = new List<XKeysDevice>();
 
-        static DeviceEnumerator()
+        static XKeysDeviceEnumerator()
         {
             var enumerationThread = new Thread(EnumerationThreadProc)
             {
@@ -24,9 +24,9 @@ namespace TAS.Client.XKeys
             enumerationThread.Start();
         }
 
-        internal static void KeyNotify(byte unitId, int keyNr, bool pressed, IReadOnlyList<int> allKeys)
+        internal static void KeyNotify(XKeysDevice device, int keyNr, bool pressed, IReadOnlyList<int> allKeys)
         {
-            KeyNotified?.Invoke(null, new KeyNotifyEventArgs(unitId, keyNr, pressed, allKeys));
+            KeyNotified?.Invoke(null, new KeyNotifyEventArgs(device, keyNr, pressed, allKeys));
         }
         
         public static event EventHandler<KeyNotifyEventArgs> KeyNotified;
@@ -41,10 +41,10 @@ namespace TAS.Client.XKeys
                     var devices = PIEDevice.EnumeratePIE();
                     foreach (var pieDevice in devices.Where(d => d.HidUsagePage == 0xC && !oldDevices.Any(od => DeviceEquals(od, d))))
                     {
-                        var device = new Device(pieDevice);
+                        var device = new XKeysDevice(pieDevice);
                         lock (((IList)Devices).SyncRoot)
                             Devices.Add(device);
-                        DeviceConnected?.Invoke(null, new DeviceEventArgs(device));
+                        DeviceConnected?.Invoke(null, device);
                         Logger.Info("New device connected {0}:{1}", pieDevice.Pid, pieDevice.Vid);
                     }
                     foreach (var pieDevice in oldDevices.Where(d => d.HidUsagePage == 0xC && !devices.Any(od => DeviceEquals(od, d))))
@@ -85,6 +85,6 @@ namespace TAS.Client.XKeys
             }
         }
 
-        public static event EventHandler<DeviceEventArgs> DeviceConnected;
+        public static event EventHandler<XKeysDevice> DeviceConnected;
     }
 }

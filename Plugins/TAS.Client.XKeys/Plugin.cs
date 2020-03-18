@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using NLog;
@@ -17,17 +19,51 @@ namespace TAS.Client.XKeys
         private static readonly InputSimulator.InputSimulator InputSimulator = new InputSimulator.InputSimulator();
         private static readonly KeyGestureConverter KeyGestureConverter = new KeyGestureConverter();
 
+        private IUiPreview _currentPreview;
+        private ShuttlePositionEnum _shuttlePosition = ShuttlePositionEnum.Neutral;
+
+        public Plugin()
+        {
+            EventManager.RegisterClassHandler(
+                typeof(FrameworkElement),
+                Keyboard.PreviewGotKeyboardFocusEvent,
+                (KeyboardFocusChangedEventHandler)OnPreviewGotKeyboardFocus);
+        }
+
+        private void OnPreviewGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (!(sender is FrameworkElement element &&
+                element.DataContext is IUiPreviewProvider previewProvider &&
+                previewProvider.Engine == Context?.Engine
+                ))
+                return;
+            CurrentPreview = previewProvider.Preview;
+        }
+
+        [XmlIgnore]
+        public IUiPreview CurrentPreview
+        {
+            get => _currentPreview;
+            private set
+            {
+                if (_currentPreview == value)
+                    return;
+                _currentPreview = value;
+                Logger.Trace("Preview changed");
+            }
+        }
+
         [XmlAttribute]
         public string EngineName { get; set; }
 
         [XmlAttribute]
         public byte UnitId { get; set; }
 
-        public IUiMenuItem Menu { get; } = null;
+        public IUiMenuItem Menu { get; } = null; // this plugin does not contain any menu item
 
-        public Command[] Commands { get; set; }
+        public Command[] Commands { get; set; } = new Command[0];
 
-        public Backlight[] Backlights { get; set; }
+        public Backlight[] Backlights { get; set; } = new Backlight[0];
 
         [XmlIgnore]
         public IUiPluginContext Context { get; private set; }
@@ -38,29 +74,39 @@ namespace TAS.Client.XKeys
                 return false;
             Context = context;
             context.Engine.PropertyChanged += Engine_PropertyChanged;
-            DeviceEnumerator.DeviceConnected += DeviceEnumeratorOnDeviceConnected;
+            XKeysDeviceEnumerator.DeviceConnected += DeviceEnumeratorOnDeviceConnected;
             SetBacklight(context.Engine);
+            Logger.Debug("Preview changed");
             return true;
         }
 
-        private void DeviceEnumeratorOnDeviceConnected(object sender, DeviceEventArgs deviceEventArgs)
+        private void DeviceEnumeratorOnDeviceConnected(object _, XKeysDevice device)
         {
             SetBacklight(Context?.Engine);
         }
 
-        internal void Notify(KeyNotifyEventArgs keyNotifyEventArgs)
+        internal void Notify(KeyNotifyEventArgs e)
         {
             try
             {
-                Logger.Trace("Key notified: UnitId={0}, IsPressed={1}, Key={2}, AllKeys=[{3}]", keyNotifyEventArgs.UnitId, keyNotifyEventArgs.IsPressed, keyNotifyEventArgs.Key, string.Join(",", keyNotifyEventArgs.AllKeys));
-                if (keyNotifyEventArgs.UnitId != UnitId)
+                if (e.Device.UnitId != UnitId)
                     return;
                 if (!(Context is IUiEngine engine))
                     return;
+                Logger.Trace("Key notified: UnitId={0}, IsPressed={1}, Key={2}, AllKeys=[{3}]", e.Device.UnitId, e.IsPressed, e.Key, string.Join(",", e.AllKeys));
+                var preview = CurrentPreview;
+                if (e.Device.DeviceModel == DeviceModelEnum.Xk12JogAndShuttle && e.IsPressed && preview != null)
+                {
+                    if (e.Key == 7)
+                        preview.CommandFastForwardOneFrame.Execute(null);
+                    if (e.Key == 15)
+                        preview.CommandBackwardOneFrame.Execute(null);
+                    SetShuttlePosition(e.Key);
+                }
                 var commands = Commands.Where(c =>
-                    c.Key == keyNotifyEventArgs.Key &&
-                    keyNotifyEventArgs.IsPressed == (c.ActiveOn == ActiveOnEnum.Press) &&
-                    (c.Required < 0 || keyNotifyEventArgs.AllKeys.Contains(c.Required))).ToList();
+                    c.Key == e.Key &&
+                    e.IsPressed == (c.ActiveOn == ActiveOnEnum.Press) &&
+                    (c.Required < 0 || e.AllKeys.Contains(c.Required))).ToList();
                 var command = commands.FirstOrDefault(c => c.Required >= 0) ?? commands.FirstOrDefault(); //executes single command, the one with modifier has higher priority
                 if (command == null)
                     return;
@@ -68,6 +114,9 @@ namespace TAS.Client.XKeys
                 {
                     case CommandTargetEnum.Engine:
                         ExecuteOnEngine(engine, command.Method, command.Parameter);
+                        break;
+                    case CommandTargetEnum.Preview:
+                        ExecuteOnPreview(CurrentPreview, command.Method, command.Parameter);
                         break;
                     case CommandTargetEnum.Keyboard:
                         ExecuteOnKeyboard(command.Method);
@@ -77,9 +126,72 @@ namespace TAS.Client.XKeys
                         break;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Logger.Error(e);
+                Logger.Error(ex);
+            }
+        }
+
+        private void SetShuttlePosition(int key)
+        {
+            if (!Enum.IsDefined(typeof(ShuttlePositionEnum), key))
+                return;
+            var oldPosition = _shuttlePosition;
+            _shuttlePosition = (ShuttlePositionEnum)key;
+            if (_shuttlePosition == ShuttlePositionEnum.Neutral)
+                return;
+            if (oldPosition == ShuttlePositionEnum.Neutral)
+                Shuttle();
+        }
+
+        private async void Shuttle()
+        {
+            var preview = CurrentPreview;
+            if (preview == null)
+                return;
+            while (_shuttlePosition != ShuttlePositionEnum.Neutral)
+            {
+                preview.OnUiThread(() => preview.CommandSeek.Execute(ShuttlePositionToFrames(_shuttlePosition)));
+                await Task.Delay(1000);
+            }
+        }
+
+        private static long ShuttlePositionToFrames(ShuttlePositionEnum shuttlePosition)
+        {
+            switch (shuttlePosition)
+            {
+                case ShuttlePositionEnum.Backward7:
+                    return -15625;
+                case ShuttlePositionEnum.Backward6:
+                    return -3125;
+                case ShuttlePositionEnum.Backward5:
+                    return -625;
+                case ShuttlePositionEnum.Backward4:
+                    return -125;
+                case ShuttlePositionEnum.Backward3:
+                    return -25;
+                case ShuttlePositionEnum.Backward2:
+                    return -5;
+                case ShuttlePositionEnum.Backward1:
+                    return -1;
+                case ShuttlePositionEnum.Neutral:
+                    return 0;
+                case ShuttlePositionEnum.Forward1:
+                    return 1;
+                case ShuttlePositionEnum.Forward2:
+                    return 5;
+                case ShuttlePositionEnum.Forward3:
+                    return 25;
+                case ShuttlePositionEnum.Forward4:
+                    return 125;
+                case ShuttlePositionEnum.Forward5:
+                    return 625;
+                case ShuttlePositionEnum.Forward6:
+                    return 3125;
+                case ShuttlePositionEnum.Forward7:
+                    return 15625;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(shuttlePosition));
             }
         }
 
@@ -104,12 +216,24 @@ namespace TAS.Client.XKeys
         {
             var propertyName = $"Command{commandMethod}";
             var propertyInfo = typeof(IUiEngine).GetProperty(propertyName);
-            if (propertyInfo == null)
+            if (propertyInfo == null || engine == null)
                 return;
             var o = propertyInfo.GetValue(engine);
             if (!(o is ICommand command))
                 return;
             engine.OnUiThread(() => command.Execute(commandParameter));
+        }
+
+        private static void ExecuteOnPreview(IUiPreview preview, string commandName, string commandParameter)
+        {
+            var propertyName = $"Command{commandName}";
+            var propertyInfo = typeof(IUiPreview).GetProperty(propertyName);
+            if (propertyInfo == null || preview == null)
+                return;
+            var o = propertyInfo.GetValue(preview);
+            if (!(o is ICommand command))
+                return;
+            preview.OnUiThread(() => command.Execute(commandParameter));
         }
 
         private static void ExecuteOnSelectedEvent(IEvent e, string commandMethod)
@@ -126,7 +250,6 @@ namespace TAS.Client.XKeys
                     e.IsEnabled = !e.IsEnabled;
                     e.Save();
                     break;
-
             }
         }
 
@@ -136,10 +259,10 @@ namespace TAS.Client.XKeys
             {
                 foreach (var backlight in Backlights.Where(b => b.State != engine.EngineState))
                     foreach (var backlightKey in backlight.Keys)
-                        DeviceEnumerator.SetBacklight(UnitId, backlightKey, BacklightColorEnum.None, false);
+                        XKeysDeviceEnumerator.SetBacklight(UnitId, backlightKey, BacklightColorEnum.None, false);
                 foreach (var backlight in Backlights.Where(b => b.State == engine.EngineState))
                     foreach (var backlightKey in backlight.Keys)
-                        DeviceEnumerator.SetBacklight(UnitId, backlightKey, backlight.Color, backlight.Blinking);
+                        XKeysDeviceEnumerator.SetBacklight(UnitId, backlightKey, backlight.Color, backlight.Blinking);
             }
             catch (Exception exception)
             {
@@ -154,4 +277,6 @@ namespace TAS.Client.XKeys
             Task.Run(() => SetBacklight(engine));
         }
     }
+
+
 }

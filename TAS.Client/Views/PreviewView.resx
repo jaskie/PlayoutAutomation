@@ -126,11 +126,11 @@
   <data name="_buttonCopyTCOut.ToolTip" xml:space="preserve">
     <value>Copy current TC to Out | Ctrl+O</value>
   </data>
+  <data name="_buttonCue.ToolTip" xml:space="preserve">
+    <value>Cue preview</value>
+  </data>
   <data name="_buttonLivePreview.ToolTip" xml:space="preserve">
     <value>Preview Live Device</value>
-  </data>
-  <data name="_buttonPause.ToolTip" xml:space="preserve">
-    <value>First frame preview</value>
   </data>
   <data name="_buttonPlay.ToolTip" xml:space="preserve">
     <value>Play | Ctrl+Space</value>

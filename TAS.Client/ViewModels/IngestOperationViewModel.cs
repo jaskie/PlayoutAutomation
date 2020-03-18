@@ -9,11 +9,12 @@ using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
+using TAS.Client.Common.Plugin;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class IngestOperationViewModel : FileOperationViewmodel, IDataErrorInfo
+    public class IngestOperationViewModel : FileOperationViewmodel, IDataErrorInfo, IUiPreviewProvider
     {
         private readonly IIngestOperation _operation;
         private readonly IEngine _engine;
@@ -34,7 +35,7 @@ namespace TAS.Client.ViewModels
         private TVideoFormat _destMediaVideoFormat;
         private DateTime? _killDate;
 
-        public IngestOperationViewModel(IIngestOperation operation, IPreview preview, IEngine engine)
+        public IngestOperationViewModel(IIngestOperation operation, IEngine engine)
             : base(operation, engine.MediaManager)
         {
             _operation = operation;
@@ -54,8 +55,8 @@ namespace TAS.Client.ViewModels
             operation.Source.PropertyChanged += OnSourceMediaPropertyChanged;
             AspectConversionsEnforce = new TAspectConversion[3];
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
-            if (preview != null)
-                PreviewViewmodel = new PreviewViewmodel(preview, true, false) { SelectedIngestOperation = operation };
+            if (engine.Preview != null)
+                _preview = new PreviewViewmodel(engine.Preview, true, false) { SelectedIngestOperation = operation };
             CommandRemove = new UiCommand(o => Removed?.Invoke(this, EventArgs.Empty));
         }
 
@@ -227,9 +228,9 @@ namespace TAS.Client.ViewModels
 
         public bool CanTrim => EncodeVideo && EncodeAudio && _operation.Source.MediaStatus == TMediaStatus.Available && _operation.Source.Duration > TimeSpan.Zero;
 
-        public PreviewViewmodel PreviewViewmodel { get; }
+        private PreviewViewmodel _preview;
 
-        public bool CanPreview => (PreviewViewmodel != null && ((IIngestDirectory)_operation.Source.Directory).AccessType == TDirectoryAccessType.Direct);
+        public bool CanPreview => (_preview != null && ((IIngestDirectory)_operation.Source.Directory).AccessType == TDirectoryAccessType.Direct);
 
         public bool LoudnessCheck
         {
@@ -300,6 +301,10 @@ namespace TAS.Client.ViewModels
 
         public string Error => string.Empty;
 
+        public IUiPreview Preview => _preview;
+
+        public IEngine Engine => _engine;
+
         // utilities
 
         protected override void OnFileOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -352,7 +357,7 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             _operation.Source.PropertyChanged -= OnSourceMediaPropertyChanged;
-            PreviewViewmodel?.Dispose();
+            _preview?.Dispose();
             base.OnDispose();
         }
 

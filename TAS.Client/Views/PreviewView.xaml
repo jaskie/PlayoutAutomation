@@ -40,10 +40,10 @@
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
 
-                <Button Command="{Binding CommandPause}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPause.ToolTip}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-pause.png"  />
+                <Button Command="{Binding CommandCue}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPause.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-cue.png"  />
                 </Button>
-                <Button Grid.Column="1" Command="{Binding CommandPlay}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlay.ToolTip}">
+                <Button Grid.Column="1" Command="{Binding CommandTogglePlay}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlay.ToolTip}">
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-start.png" />
                 </Button>
                 <Button Grid.Column="2" Command="{Binding CommandPlayTheEnd}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlayTheEnd.ToolTip}">

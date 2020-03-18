@@ -21,12 +21,12 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaManagerViewmodel : ViewModelBase, IUiPluginContext
+    public class MediaManagerViewmodel : ViewModelBase, IUiPluginContext, IUiPreviewProvider
     {
         private const int MinSearchLength = 3;
         private readonly IMediaManager _mediaManager;
-        private readonly IPreview _preview;
         bool _isDisplayPreview;
+        private PreviewViewmodel _preview;
         private MediaViewViewmodel _selectedMediaVm;
         private MediaEditViewmodel _editMedia;
         private IList _selectedMediaList;
@@ -46,9 +46,8 @@ namespace TAS.Client.ViewModels
         {
             _mediaManager = engine.MediaManager;
             Engine = engine;
-            _preview = preview;
             if (preview != null)
-                PreviewViewmodel = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit), true);
+                _preview = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit), true);
 
             MediaDirectories = new List<MediaDirectoryViewmodel>();
             MediaDirectories.AddRange(_mediaManager.IngestDirectories.Where(d => d.ContainsImport()).Select(d => new MediaDirectoryViewmodel(d, d.DirectoryName, true)));
@@ -115,16 +114,15 @@ namespace TAS.Client.ViewModels
 
 
         #region PreviewCommands
-        public ICommand CommandPreviewPlay => PreviewViewmodel?.CommandPlay;
-        public ICommand CommandPreviewUnload => PreviewViewmodel?.CommandUnload;
-        public ICommand CommandPreviewFastForward => PreviewViewmodel?.CommandFastForward;
-        public ICommand CommandPreviewBackward => PreviewViewmodel?.CommandBackward;
-        public ICommand CommandPreviewFastForwardOneFrame => PreviewViewmodel?.CommandFastForwardOneFrame;
-        public ICommand CommandPreviewBackwardOneFrame => PreviewViewmodel?.CommandBackwardOneFrame;
-        public ICommand CommandPreviewTrimSource => PreviewViewmodel?.CommandTrimSource;
+        public ICommand CommandPreviewCue => _preview?.CommandCue;
+        public ICommand CommandPreviewTogglePlay => _preview?.CommandTogglePlay;
+        public ICommand CommandPreviewUnload => _preview?.CommandUnload;
+        public ICommand CommandPreviewFastForward => _preview?.CommandFastForward;
+        public ICommand CommandPreviewBackward => _preview?.CommandBackward;
+        public ICommand CommandPreviewFastForwardOneFrame => _preview?.CommandFastForwardOneFrame;
+        public ICommand CommandPreviewBackwardOneFrame => _preview?.CommandBackwardOneFrame;
+        public ICommand CommandPreviewTrimSource => _preview?.CommandTrimSource;
         #endregion
-
-        public PreviewViewmodel PreviewViewmodel { get; }
 
         public IVideoPreview VideoPreview { get; }
 
@@ -180,8 +178,8 @@ namespace TAS.Client.ViewModels
                 if (value is IIngestMedia && !value.IsVerified)
                     Task.Run(() => value.Verify(true));
                 EditMedia = value == null ? null : new MediaEditViewmodel(value, _mediaManager, true);
-                if (PreviewViewmodel != null)
-                    PreviewViewmodel.SelectedMedia = value;
+                if (_preview != null)
+                    _preview.SelectedMedia = value;
             }
         }
 
@@ -424,8 +422,8 @@ namespace TAS.Client.ViewModels
                 if (media != null)
                 {
                     EditMedia = new MediaEditViewmodel(media, _mediaManager, true);
-                    if (PreviewViewmodel != null)
-                        PreviewViewmodel.SelectedMedia = media;
+                    if (_preview != null)
+                        _preview.SelectedMedia = media;
                 }
             }
             if (e.PropertyName == nameof(RecordersViewmodel.Channel))
@@ -526,6 +524,8 @@ namespace TAS.Client.ViewModels
         }
 
         public bool IsSearching { get => _isSearching; set => SetField(ref _isSearching, value); }
+
+        public IUiPreview Preview => _preview;
 
         private void SetMediaItems(IEnumerable<IMedia> items)
         {
@@ -706,7 +706,7 @@ namespace TAS.Client.ViewModels
                 }
             if (ingestList.Count == 0)
                 return;
-            using (var ievm = new IngestEditorViewmodel(ingestList, _preview, Engine))
+            using (var ievm = new IngestEditorViewmodel(ingestList, Engine))
             {
                 if (UiServices.ShowDialog<Views.IngestEditorView>(ievm) == true)
                     ievm.ScheduleAll();
@@ -765,12 +765,12 @@ namespace TAS.Client.ViewModels
 
         private void SetupPreview(IMediaDirectory directory)
         {
-            if (PreviewViewmodel == null)
+            if (_preview == null)
                 return;
             IsDisplayPreview = directory is IServerDirectory ||
                                directory is IArchiveDirectory ||
                                (directory is IIngestDirectory ingestDirectory && ingestDirectory.AccessType == TDirectoryAccessType.Direct);
-            PreviewViewmodel.IsSegmentsVisible = directory is IServerDirectory || directory is IArchiveDirectory;
+            _preview.IsSegmentsVisible = directory is IServerDirectory || directory is IArchiveDirectory;
         }
 
         private void ArchiveDirectory_MediaIsArchived(object sender, MediaIsArchivedEventArgs e)

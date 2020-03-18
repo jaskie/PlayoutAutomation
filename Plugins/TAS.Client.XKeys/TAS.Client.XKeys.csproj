@@ -39,6 +39,7 @@
       <HintPath>.\PIEHid64Net.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
@@ -60,9 +61,9 @@
     <Compile Include="Backlight.cs" />
     <Compile Include="BacklightColorEnum.cs" />
     <Compile Include="CommandTargetEnum.cs" />
-    <Compile Include="Device.cs" />
-    <Compile Include="DeviceEventArgs.cs" />
-    <Compile Include="DeviceEnumerator.cs" />
+    <Compile Include="ShuttlePositionEnum.cs" />
+    <Compile Include="XKeysDevice.cs" />
+    <Compile Include="XKeysDeviceEnumerator.cs" />
     <Compile Include="InputSimulator\IInputDeviceStateAdaptor.cs" />
     <Compile Include="InputSimulator\IInputMessageDispatcher.cs" />
     <Compile Include="InputSimulator\IInputSimulator.cs" />

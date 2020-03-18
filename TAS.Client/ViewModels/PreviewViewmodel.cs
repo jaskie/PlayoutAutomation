@@ -9,10 +9,12 @@ using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
+using TAS.Client.Common.Plugin;
 
 namespace TAS.Client.ViewModels
 {
-    public class PreviewViewmodel : ViewModelBase
+
+    public class PreviewViewmodel : ViewModelBase, IUiPreview
     {
         private IMedia _selectedMedia;
         private IEvent _selectedEvent;
@@ -258,15 +260,15 @@ namespace TAS.Client.ViewModels
         public bool IsStillButton3Visible => _showStillButtons || _loadedStillImages.ContainsKey(VideoLayer.PreviewCG3);
 
         public bool IsStill1Loaded => _loadedStillImages.ContainsKey(VideoLayer.PreviewCG1);
-                            
+
         public bool IsStill2Loaded => _loadedStillImages.ContainsKey(VideoLayer.PreviewCG2);
-                            
+
         public bool IsStill3Loaded => _loadedStillImages.ContainsKey(VideoLayer.PreviewCG3);
 
         #region Commands
 
-        public ICommand CommandPause { get; private set; }
-        public ICommand CommandPlay { get; private set; }
+        public ICommand CommandCue { get; private set; }
+        public ICommand CommandTogglePlay { get; private set; }
         public ICommand CommandPlayTheEnd { get; private set; }
         public ICommand CommandUnload { get; private set; }
         public ICommand CommandSeek { get; private set; }
@@ -291,7 +293,7 @@ namespace TAS.Client.ViewModels
 
         private void CreateCommands()
         {
-            CommandPause = new UiCommand
+            CommandCue = new UiCommand
             (
                 o =>
                     {
@@ -306,10 +308,9 @@ namespace TAS.Client.ViewModels
                             NotifyPropertyChanged(nameof(Position));
                         }
                     },
-                o => LoadedMedia?.MediaStatus == TMediaStatus.Available
-                                          || _canLoad(MediaToLoad)
+                o => (IsEnabled && IsLoaded) || CanLoad(MediaToLoad)
             );
-            CommandPlay = new UiCommand
+            CommandTogglePlay = new UiCommand
             (
                 o =>
                     {
@@ -322,13 +323,12 @@ namespace TAS.Client.ViewModels
                         }
                         else
                         {
-                            CommandPause.Execute(null);
+                            CommandCue.Execute(null);
                             if (LoadedMedia != null)
                                 _preview.Play();
                         }
                     },
-                o => LoadedMedia?.MediaStatus == TMediaStatus.Available
-                                          || _canLoad(MediaToLoad)
+                o => (IsEnabled && IsLoaded) || CanLoad(MediaToLoad)
             );
             CommandPlayTheEnd = new UiCommand
             (
@@ -339,52 +339,55 @@ namespace TAS.Client.ViewModels
                     Position = LoadedMedia.TcStart + Duration - EndDuration;
                     _preview.Play();
                 },
-                o => LoadedMedia?.MediaStatus == TMediaStatus.Available && Duration > EndDuration
+                o => IsEnabled && IsLoaded && Duration > EndDuration
             );
             CommandUnload = new UiCommand
             (
                 o => _mediaUnload(),
-                _canUnload
+                CanUnload
             );
             CommandSeek = new UiCommand
             (
                 param =>
                     {
-                        long seekFrames;
-                        switch ((string)param)
-                        {
-                            case "fframe":
-                                seekFrames = 1;
-                                break;
-                            case "rframe":
-                                seekFrames = -1;
-                                break;
-                            case "fsecond":
-                                seekFrames = FramesPerSecond;
-                                break;
-                            case "rsecond":
-                                seekFrames = -FramesPerSecond;
-                                break;
-                            default:
-                                seekFrames = 0;
-                                break;
-                        }
+                        long seekFrames = 0;
+                        if (param is long longParam)
+                            seekFrames = longParam;
+                        if (param is string stringParam)
+                            switch (stringParam)
+                            {
+                                case "fframe":
+                                    seekFrames = 1;
+                                    break;
+                                case "rframe":
+                                    seekFrames = -1;
+                                    break;
+                                case "fsecond":
+                                    seekFrames = FramesPerSecond;
+                                    break;
+                                case "rsecond":
+                                    seekFrames = -FramesPerSecond;
+                                    break;
+                                default:
+                                    seekFrames = 0;
+                                    break;
+                            }
                         _preview.MoviePosition = _preview.MoviePosition + seekFrames;
                         NotifyPropertyChanged(nameof(Position));
                     },
-                _canUnload
+                CanUnload
             );
 
             CommandCopyToTcIn = new UiCommand
             (
                 o => TcIn = Position,
-                _canUnload
+                CanUnload
             );
 
             CommandCopyToTcOut = new UiCommand
             (
                 o => TcOut = Position,
-                _canUnload
+                CanUnload
             );
 
             CommandSaveSegment = new UiCommand
@@ -520,26 +523,27 @@ namespace TAS.Client.ViewModels
                 _preview.UnLoadStillImage(layer);
             else
             {
-                _preview.LoadStillImage(_selectedMedia, layer);   
+                _preview.LoadStillImage(_selectedMedia, layer);
             }
         }
 
-        private bool _canUnload(object o)
+        private bool CanUnload(object o)
         {
             if (_preview.IsLivePlaying)
                 return true;
 
             MediaSegmentViewmodel segment = PlayWholeClip ? SelectedSegment : null;
             IMedia media = LoadedMedia;
-            if (media == null)
+            if (media == null || !IsEnabled)
                 return false;
             TimeSpan duration = PlayWholeClip ? media.Duration : (segment?.Duration ?? media.Duration);
             return duration.Ticks >= FormatDescription.FrameTicks;
         }
 
-        private bool _canLoad(IMedia media)
+        private bool CanLoad(IMedia media)
         {
             return media != null
+                && IsEnabled
                 && media.MediaType == TMediaType.Movie
                 && (media.Directory is IServerDirectory || media.Directory is IArchiveDirectory || (media.Directory is IIngestDirectory && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct))
                 && media.MediaStatus == TMediaStatus.Available
@@ -562,7 +566,7 @@ namespace TAS.Client.ViewModels
         private void _mediaLoad(IMedia media, bool reloadSegments)
         {
             if (media == null)
-                return;            
+                return;
             LoadedMedia = media;
             if (reloadSegments)
             {
@@ -642,9 +646,9 @@ namespace TAS.Client.ViewModels
         {
             switch (e.PropertyName)
             {
-                case nameof(IPreview.MoviePosition) when  LoadedMedia != null:
-                        NotifyPropertyChanged(nameof(Position));
-                        NotifyPropertyChanged(nameof(SliderPosition));
+                case nameof(IPreview.MoviePosition) when LoadedMedia != null:
+                    NotifyPropertyChanged(nameof(Position));
+                    NotifyPropertyChanged(nameof(SliderPosition));
                     break;
                 case nameof(IPreview.LoadedMovie):
                     if (_preview.LoadedMovie != LoadedMedia)

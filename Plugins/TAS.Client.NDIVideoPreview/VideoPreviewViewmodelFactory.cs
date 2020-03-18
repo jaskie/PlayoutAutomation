@@ -7,9 +7,9 @@ namespace TAS.Client.NDIVideoPreview
     [Export(typeof(IUiPluginFactory))]
     public class VideoPreviewViewmodelFactory: IUiPluginFactory
     {
-        public object CreateNew(IUiPluginContext context)
+        object[] IUiPluginFactory.Create(IUiPluginContext context)
         {
-            return new VideoPreviewViewmodel();
+            return new object[] { new VideoPreviewViewmodel() };
         }
 
         public Type Type { get; } = typeof(VideoPreviewViewmodel);

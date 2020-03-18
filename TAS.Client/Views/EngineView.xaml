@@ -62,8 +62,9 @@
         <KeyBinding Command="{Binding CommandMoveDown}" Gesture="Alt+Down"/>
         <KeyBinding Command="{Binding CommandSearchShowPanel}" Gesture="Ctrl+F"/>
         <KeyBinding Command="{Binding CommandTogglePropertiesPanel}" Gesture="F11"/>
-        
-        <KeyBinding Command="{Binding CommandPreviewPlay}" Gesture="Ctrl+Space"/>
+
+        <KeyBinding Command="{Binding CommandPreviewCue}" Gesture="Ctrl+Alt+Space"/>
+        <KeyBinding Command="{Binding CommandPreviewTogglePlay}" Gesture="Ctrl+Space"/>
         <KeyBinding Command="{Binding CommandPreviewUnload}" Gesture="Ctrl+Shift+Space"/>
         <KeyBinding Command="{Binding CommandPreviewFastForward}" Gesture="Ctrl+OemPeriod"/>
         <KeyBinding Command="{Binding CommandPreviewBackward}" Gesture="Ctrl+OemComma"/>
@@ -498,8 +499,8 @@
                             </DataTemplate>
                         </ContentControl.Resources>
                     </ContentControl>
-                    <GridSplitter Grid.Row="0" Visibility="{Binding PreviewViewmodel, Converter={StaticResource NullToVis}}"  HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
-                    <ContentControl Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding PreviewViewmodel}">
+                    <GridSplitter Grid.Row="0" Visibility="{Binding Preview, Converter={StaticResource NullToVis}}"  HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
+                    <ContentControl Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding Preview}">
                         <ContentControl.Resources>
                             <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
                                 <views:PreviewView/>
