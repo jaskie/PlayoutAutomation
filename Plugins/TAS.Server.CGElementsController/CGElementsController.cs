@@ -8,7 +8,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
-    public class CgElementsController : DtoBase, ICGElementsController, IEnginePlugin
+    public class CgElementsController : ServerObjectBase, ICGElementsController, IEnginePlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 

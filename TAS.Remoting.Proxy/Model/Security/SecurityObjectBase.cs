@@ -10,7 +10,7 @@ namespace TAS.Remoting.Model.Security
     /// <summary>
     /// base class for User and Group
     /// </summary>
-    public abstract class SecurityObjectBase : ProxyBase, ISecurityObject
+    public abstract class SecurityObjectBase : ProxyObjectBase, ISecurityObject
     {
         
 #pragma warning disable CS0649

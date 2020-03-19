@@ -14,7 +14,7 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.MediaOperation
 {
-    public abstract class FileOperationBase : DtoBase, IFileOperationBase
+    public abstract class FileOperationBase : ServerObjectBase, IFileOperationBase
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private int _tryCount = 15;

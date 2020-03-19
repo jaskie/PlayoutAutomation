@@ -8,7 +8,7 @@ using TAS.Server.MediaOperation;
 
 namespace TAS.Server
 {
-    public class FileManager: DtoBase, IFileManager
+    public class FileManager: ServerObjectBase, IFileManager
     {
 #pragma warning disable CS0169
         [JsonProperty]

@@ -6,7 +6,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public class PlayoutServerChannel : ProxyBase, IPlayoutServerChannel
+    public class PlayoutServerChannel : ProxyObjectBase, IPlayoutServerChannel
     {
 #pragma warning disable CS0649
 

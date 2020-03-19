@@ -11,7 +11,7 @@ using TAS.Remoting.Model.Security;
 
 namespace TAS.Remoting.Model
 {
-    public class Engine : ProxyBase, IEngine
+    public class Engine : ProxyObjectBase, IEngine
     {
         #pragma warning disable CS0649
 

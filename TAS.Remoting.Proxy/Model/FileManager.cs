@@ -7,7 +7,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public class FileManager : ProxyBase, IFileManager
+    public class FileManager : ProxyObjectBase, IFileManager
     {
 
         private event EventHandler<FileOperationEventArgs> _operationAdded;

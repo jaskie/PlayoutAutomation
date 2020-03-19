@@ -8,7 +8,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
-    public abstract class SearchProvider<T> : DtoBase, ISearchProvider<T>
+    public abstract class SearchProvider<T> : ServerObjectBase, ISearchProvider<T>
     {
 
         private readonly IEnumerable<T> _result;

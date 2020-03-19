@@ -8,7 +8,7 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Remoting.Model.Security
 {
-    public class AuthenticationService: ProxyBase, IAuthenticationService
+    public class AuthenticationService: ProxyObjectBase, IAuthenticationService
     {
 #pragma warning disable CS0649
         [JsonProperty(nameof(IAuthenticationService.Users))]

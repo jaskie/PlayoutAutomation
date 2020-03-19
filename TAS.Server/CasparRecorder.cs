@@ -16,7 +16,7 @@ using TAS.Common.Database;
 namespace TAS.Server
 {
 
-    public class CasparRecorder: DtoBase, IRecorder
+    public class CasparRecorder: ServerObjectBase, IRecorder
     {
         private TVideoFormat _tcFormat = TVideoFormat.PAL;
         private Recorder _recorder;

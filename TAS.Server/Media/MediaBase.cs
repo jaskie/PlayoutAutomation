@@ -15,7 +15,7 @@ using TAS.Server.MediaOperation;
 namespace TAS.Server.Media
 {
     [DebuggerDisplay("{Directory}:{_mediaName} ({FullPath})")]
-    public abstract class MediaBase : DtoBase, IMedia
+    public abstract class MediaBase : ServerObjectBase, IMedia
     {
         private string _folder = string.Empty;
         private string _fileName = string.Empty;

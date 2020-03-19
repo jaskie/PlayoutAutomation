@@ -8,7 +8,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {
-    public class MediaSegments : DtoBase, IMediaSegments
+    public class MediaSegments : ServerObjectBase, IMediaSegments
     {
         private readonly Dictionary<Guid, IMediaSegment> _segments = new Dictionary<Guid, IMediaSegment>();
 

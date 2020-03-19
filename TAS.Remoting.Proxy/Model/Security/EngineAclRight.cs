@@ -6,7 +6,7 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Remoting.Model.Security
 {
-    public class EngineAclRight: ProxyBase, IAclRight
+    public class EngineAclRight: ProxyObjectBase, IAclRight
     {
 #pragma warning disable CS0649
         [JsonProperty(nameof(IAclRight.Owner))]

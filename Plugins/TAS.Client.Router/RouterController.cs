@@ -10,7 +10,7 @@ using TAS.Server.RouterCommunicators;
 
 namespace TAS.Server
 {
-    public class RouterController : DtoBase, IRouter
+    public class RouterController : ServerObjectBase, IRouter
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly IRouterCommunicator _routerCommunicator;

@@ -7,7 +7,7 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Server.Security
 {
-    public abstract class AclRightBase: DtoBase, IAclRight, IPersistent
+    public abstract class AclRightBase: ServerObjectBase, IAclRight, IPersistent
     {
         private ulong _acl;
         private ISecurityObject _securityObject;

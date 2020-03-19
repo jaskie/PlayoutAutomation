@@ -6,7 +6,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {
-    public class MediaSegment : DtoBase, IMediaSegment
+    public class MediaSegment : ServerObjectBase, IMediaSegment
     {
         private string _segmentName;
         private TimeSpan _tcIn;

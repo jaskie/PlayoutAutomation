@@ -17,7 +17,7 @@ using TAS.Server.MediaOperation;
 
 namespace TAS.Server
 {
-    public class MediaManager : DtoBase, IMediaManager
+    public class MediaManager : ServerObjectBase, IMediaManager
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 

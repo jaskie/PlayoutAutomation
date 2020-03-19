@@ -8,7 +8,7 @@ using TAS.Remoting.Model.Media;
 
 namespace TAS.Remoting.Model
 {
-    public class PlayoutServer : ProxyBase, IPlayoutServer
+    public class PlayoutServer : ProxyObjectBase, IPlayoutServer
     {
         #pragma warning disable CS0649
         [JsonProperty(nameof(IPlayoutServer.AnimationDirectory))]

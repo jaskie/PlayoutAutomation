@@ -11,7 +11,7 @@ using TAS.Remoting.Model.Media;
 
 namespace TAS.Remoting.Model
 {
-    public class Recorder : ProxyBase, IRecorder
+    public class Recorder : ProxyObjectBase, IRecorder
     {
         #region IRecorder
 

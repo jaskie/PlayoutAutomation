@@ -6,7 +6,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
-    public class LocalGpiDeviceBinding : DtoBase, IGpi, IEnginePlugin
+    public class LocalGpiDeviceBinding : ServerObjectBase, IGpi, IEnginePlugin
     {
 
         public class GPIPin

@@ -6,7 +6,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public class Router : ProxyBase, IRouter
+    public class Router : ProxyObjectBase, IRouter
     {
 #pragma warning disable CS0649 
 

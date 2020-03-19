@@ -8,7 +8,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Remoting.Model.Media
 {
-    public abstract class MediaBase : ProxyBase, IMedia
+    public abstract class MediaBase : ProxyObjectBase, IMedia
     {
         #pragma warning disable CS0649 
 

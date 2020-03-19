@@ -12,7 +12,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
-    public abstract class MediaDirectoryBase : DtoBase, IMediaDirectoryServerSide
+    public abstract class MediaDirectoryBase : ServerObjectBase, IMediaDirectoryServerSide
     {
         private long _volumeFreeSize;
         private long _volumeTotalSize;

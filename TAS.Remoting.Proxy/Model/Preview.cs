@@ -10,7 +10,7 @@ using TAS.Remoting.Model.Media;
 
 namespace TAS.Remoting.Model
 {
-    public class Preview: ProxyBase, IPreview
+    public class Preview: ProxyObjectBase, IPreview
     {
 #pragma warning disable CS0649
         [JsonProperty(nameof(IPreview.Channel))]

@@ -20,7 +20,7 @@ using TAS.Common.Database;
 
 namespace TAS.Server
 {
-    public class Engine : jNet.RPC.Server.DtoBase, IEngine, IEnginePersistent
+    public class Engine : jNet.RPC.Server.ServerObjectBase, IEngine, IEnginePersistent
     {
 
         private string _engineName;

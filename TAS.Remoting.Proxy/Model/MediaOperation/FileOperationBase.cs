@@ -8,7 +8,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model.MediaOperation
 {
-    public class FileOperationBase : ProxyBase, IFileOperationBase
+    public class FileOperationBase : ProxyObjectBase, IFileOperationBase
     {
         #pragma warning disable CS0649 
 

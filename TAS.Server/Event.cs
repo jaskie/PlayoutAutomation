@@ -18,7 +18,7 @@ using TAS.Server.Security;
 namespace TAS.Server
 {
     [DebuggerDisplay("{" + nameof(_eventName) + "}")]
-    public class Event : DtoBase, IEventPersistent
+    public class Event : ServerObjectBase, IEventPersistent
     {
         bool _isForcedNext;
         private bool _isModified;

@@ -17,7 +17,7 @@ using TAS.Common.Database;
 
 namespace TAS.Server
 {
-    public class CasparServerChannel : DtoBase, IPlayoutServerChannel, IPlayoutServerChannelProperties
+    public class CasparServerChannel : ServerObjectBase, IPlayoutServerChannel, IPlayoutServerChannelProperties
     {
         private Channel _casparChannel;
         private readonly ConcurrentDictionary<VideoLayer, bool> _outputAspectNarrow = new ConcurrentDictionary<VideoLayer, bool>();

@@ -15,7 +15,7 @@ using TAS.Remoting.Model.Security;
 namespace TAS.Remoting.Model
 {
     [DebuggerDisplay("{" + nameof(EventName) + "}")]
-    public class Event : ProxyBase, IEvent
+    public class Event : ProxyObjectBase, IEvent
     {
 #pragma warning disable CS0649
 

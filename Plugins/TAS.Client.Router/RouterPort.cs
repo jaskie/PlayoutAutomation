@@ -4,7 +4,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
-    public class RouterPort : DtoBase, IRouterPort
+    public class RouterPort : ServerObjectBase, IRouterPort
     {
         private short _portId;
         private string _portName;

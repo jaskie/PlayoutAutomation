@@ -6,7 +6,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public abstract class SearchProvider<T> : ProxyBase, ISearchProvider<T>
+    public abstract class SearchProvider<T> : ProxyObjectBase, ISearchProvider<T>
     {
 
         private event EventHandler _finished;

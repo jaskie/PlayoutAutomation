@@ -5,7 +5,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    class RouterPort : ProxyBase, IRouterPort
+    class RouterPort : ProxyObjectBase, IRouterPort
     {
         #pragma warning disable CS0649
         [JsonProperty(nameof(IRouterPort.PortId))]

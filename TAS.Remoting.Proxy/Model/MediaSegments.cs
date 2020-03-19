@@ -7,7 +7,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public class MediaSegments : ProxyBase, IMediaSegments
+    public class MediaSegments : ProxyObjectBase, IMediaSegments
     {
         #pragma warning disable CS0649
 

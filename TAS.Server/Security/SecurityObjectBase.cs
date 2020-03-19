@@ -11,7 +11,7 @@ namespace TAS.Server.Security
     /// <summary>
     /// base class for User and Group
     /// </summary>
-    public abstract class SecurityObjectBase: DtoBase, ISecurityObject
+    public abstract class SecurityObjectBase: ServerObjectBase, ISecurityObject
     {
         private string _name;
 

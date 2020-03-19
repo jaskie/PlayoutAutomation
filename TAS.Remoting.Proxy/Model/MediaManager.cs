@@ -10,7 +10,7 @@ using TAS.Remoting.Model.Media;
 
 namespace TAS.Remoting.Model
 {
-    public class MediaManager : ProxyBase, IMediaManager
+    public class MediaManager : ProxyObjectBase, IMediaManager
     {
 
         #pragma warning disable CS0649

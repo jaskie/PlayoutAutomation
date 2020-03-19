@@ -12,7 +12,7 @@ using TAS.Server.Media;
 
 namespace TAS.Server
 {
-    public class Preview: DtoBase, IPreview
+    public class Preview: ServerObjectBase, IPreview
     {
         private const int PerviewPositionSetDelay = 100;
 

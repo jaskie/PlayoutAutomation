@@ -7,7 +7,7 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Server.Security
 {
-    public class AuthenticationService: DtoBase, IAuthenticationService, IAuthenticationServicePersitency
+    public class AuthenticationService: ServerObjectBase, IAuthenticationService, IAuthenticationServicePersitency
     {
         private readonly AcoHive<User> _users;
         private readonly AcoHive<IGroup> _groups;
