@@ -1,7 +1,6 @@
-﻿using System.Xml.Serialization;
-using Newtonsoft.Json;
+﻿using jNet.RPC;
+using System.Xml.Serialization;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
 
 namespace TAS.Server.Security
@@ -11,7 +10,7 @@ namespace TAS.Server.Security
         public Group():base(null) { }
         public Group(IAuthenticationService authenticationService): base(authenticationService) { }
 
-        [JsonProperty, XmlIgnore]
+        [DtoField, XmlIgnore]
         public override SecurityObjectType SecurityObjectTypeType { get; } = SecurityObjectType.Group;
 
         public override void Save()

@@ -8,12 +8,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using jNet.RPC.Server;
 using TAS.Common;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 using TAS.Server.MediaOperation;
+using jNet.RPC;
 
 namespace TAS.Server
 {
@@ -21,7 +21,7 @@ namespace TAS.Server
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        [JsonProperty(nameof(FileManager))]
+        [DtoField(nameof(FileManager))]
         private readonly FileManager _fileManager = Server.FileManager.Current;
         private readonly Engine _engine;
         private readonly List<CasparRecorder> _recorders;
@@ -37,42 +37,36 @@ namespace TAS.Server
 
         public IFileManager FileManager => _fileManager;
 
-        [JsonProperty]
+        [DtoField]
         public IEngine Engine => _engine;
 
-        [JsonProperty]
+        [DtoField]
         public IServerDirectory MediaDirectoryPRI { get; private set; }
 
-        [JsonProperty]
+        [DtoField]
         public IServerDirectory MediaDirectorySEC { get; private set; }
 
-        [JsonProperty]
+        [DtoField]
         public IServerDirectory MediaDirectoryPRV { get; private set; }
 
-        [JsonProperty]
+        [DtoField]
         public IAnimationDirectory AnimationDirectoryPRI { get; private set; }
 
-        [JsonProperty]
+        [DtoField]
         public IAnimationDirectory AnimationDirectorySEC { get; private set; }
 
-        [JsonProperty]
+        [DtoField]
         public IAnimationDirectory AnimationDirectoryPRV { get; private set; }
 
-        [JsonProperty]
+        [DtoField]
         public IArchiveDirectory ArchiveDirectory { get; private set; }
 
         public ICGElementsController CGElementsController => _engine.CGElementsController;
 
-        [JsonProperty(IsReference = false)]
-        public VideoFormatDescription FormatDescription => _engine.FormatDescription;
-
-        [JsonProperty]
-        public TVideoFormat VideoFormat => _engine.VideoFormat;
-
-        [JsonProperty]
+        [DtoField]
         public IEnumerable<IIngestDirectory> IngestDirectories => EngineController.Current.IngestDirectories;
 
-        [JsonProperty]
+        [DtoField]
         public IEnumerable<IRecorder> Recorders => _recorders;
 
         public void Initialize(ArchiveDirectory archiveDirectory)
@@ -128,8 +122,8 @@ namespace TAS.Server
 
         public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList)
         {
-            var destDir = MediaDirectoryPRI != null && MediaDirectoryPRI.DirectoryExists() ? (ServerDirectory)MediaDirectoryPRI :
-                MediaDirectoryPRV != null && MediaDirectoryPRV.DirectoryExists() ? (ServerDirectory)MediaDirectoryPRV :
+            var destDir = MediaDirectoryPRI != null && MediaDirectoryPRI.DirectoryExists? (ServerDirectory)MediaDirectoryPRI :
+                MediaDirectoryPRV != null && MediaDirectoryPRV.DirectoryExists? (ServerDirectory)MediaDirectoryPRV :
                     throw new ApplicationException("No ServerDirectory available to copy media to");
             foreach (var sourceMedia in mediaList)
             {
@@ -157,9 +151,9 @@ namespace TAS.Server
         {
             var pri = MediaDirectoryPRI;
             var sec = MediaDirectorySEC;
-            if (pri?.DirectoryExists() == true)
+            if (pri?.DirectoryExists== true)
                 return pri;
-            if (sec?.DirectoryExists() == true)
+            if (sec?.DirectoryExists== true)
                 return sec;
             return null;
         }

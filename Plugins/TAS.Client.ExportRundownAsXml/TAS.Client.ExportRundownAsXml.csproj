@@ -49,10 +49,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UiMenuItem.cs" />
-    <Compile Include="UiPlugin.cs" />
+    <Compile Include="MenuItem.cs" />
+    <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UiPluginFactory.cs" />
+    <Compile Include="PluginFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj">

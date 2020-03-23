@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using jNet.RPC;
@@ -15,91 +14,82 @@ namespace TAS.Remoting.Model
     {
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IEngine.CurrentTime))]
+        [DtoField(nameof(IEngine.CurrentTime))]
         private DateTime _currentTime;
 
-        [JsonProperty(nameof(IEngine.TimeCorrection))]
+        [DtoField(nameof(IEngine.TimeCorrection))]
         private int _timeCorrection;
 
-        [JsonProperty(nameof(IEngine.EngineName))]
+        [DtoField(nameof(IEngine.EngineName))]
         private string _engineName;
 
-        [JsonProperty(nameof(IEngine.EngineState))]
+        [DtoField(nameof(IEngine.EngineState))]
         private TEngineState _engineState;
 
-        [JsonProperty(nameof(IEngine.ForcedNext))]
+        [DtoField(nameof(IEngine.ForcedNext))]
         private IEvent _forcedNext;
 
-        [JsonProperty(nameof(IEngine.FormatDescription))]
-        private VideoFormatDescription _formatDescription;
-
-        [JsonProperty(nameof(IEngine.FrameRate))]
-        private RationalNumber _frameRate;
-
-        [JsonProperty(nameof(IEngine.FrameTicks))]
-        private long _frameTicks;
-
-        [JsonProperty(nameof(IEngine.CGElementsController))]
+        [DtoField(nameof(IEngine.CGElementsController))]
         private CGElementsController _cGElementsController;
 
-        [JsonProperty(nameof(IEngine.Router))]
+        [DtoField(nameof(IEngine.Router))]
         private Router _router;
 
-        [JsonProperty(nameof(IEngine.EnableCGElementsForNewEvents))]
+        [DtoField(nameof(IEngine.EnableCGElementsForNewEvents))]
         private bool _enableCGElementsForNewEvents;
 
-        [JsonProperty(nameof(IEngine.StudioMode))]
+        [DtoField(nameof(IEngine.StudioMode))]
         private bool _studioMode;
 
-        [JsonProperty(nameof(IEngine.CrawlEnableBehavior))]
+        [DtoField(nameof(IEngine.CrawlEnableBehavior))]
         private TCrawlEnableBehavior _crawlEnableBehavior;
 
-        [JsonProperty(nameof(IEngine.FieldOrderInverted))]
+        [DtoField(nameof(IEngine.FieldOrderInverted))]
         private bool _fieldOrderInverted;
 
-        [JsonProperty(nameof(IEngine.Preview))]
+        [DtoField(nameof(IEngine.Preview))]
         private Preview _preview;
 
-        [JsonProperty(nameof(IEngine.MediaManager))]
+        [DtoField(nameof(IEngine.MediaManager))]
         private MediaManager _mediaManager;
 
-        [JsonProperty(nameof(IEngine.PlayoutChannelPRI))]
+        [DtoField(nameof(IEngine.PlayoutChannelPRI))]
         private PlayoutServerChannel _playoutChannelPRI;
 
-        [JsonProperty(nameof(IEngine.PlayoutChannelSEC))]
+        [DtoField(nameof(IEngine.PlayoutChannelSEC))]
         private PlayoutServerChannel _playoutChannelSEC;
 
-        [JsonProperty(nameof(IEngine.IsWideScreen))]
+        [DtoField(nameof(IEngine.IsWideScreen))]
         private bool _isWideScreen;
 
-        [JsonProperty(nameof(IEngine.ProgramAudioVolume))]
+        [DtoField(nameof(IEngine.ProgramAudioVolume))]
         private double _programAudioVolume;
 
-        [JsonProperty(nameof(IEngine.Pst2Prv))]
+        [DtoField(nameof(IEngine.Pst2Prv))]
         private bool _pst2Prv;
 
-        [JsonProperty(nameof(IEngine.AuthenticationService))]
+        [DtoField(nameof(IEngine.AuthenticationService))]
         private AuthenticationService _authenticationService;
 
-        [JsonProperty(nameof(IEngine.VideoFormat))]
+        [DtoField(nameof(IEngine.VideoFormat))]
         private TVideoFormat _videoFormat;
 
-        [JsonProperty(nameof(IEngine.DatabaseConnectionState))]
+        [DtoField(nameof(IEngine.DatabaseConnectionState))]
         private ConnectionStateRedundant _databaseConnectionState;
 
-        [JsonProperty(nameof(IEngine.Playing))]
+        [DtoField(nameof(IEngine.Playing))]
         private Event _playing;
 
-        [JsonProperty(nameof(IEngine.ServerMediaFieldLengths))]
+        [DtoField(nameof(IEngine.ServerMediaFieldLengths))]
         private IDictionary<string, int> _serverMediaFieldLengths;
 
-        [JsonProperty(nameof(IEngine.ArchiveMediaFieldLengths))]
+        [DtoField(nameof(IEngine.ArchiveMediaFieldLengths))]
         private IDictionary<string, int> _archiveMediaFieldLengths;
 
-        [JsonProperty(nameof(IEngine.EventFieldLengths))]
+        [DtoField(nameof(IEngine.EventFieldLengths))]
         private IDictionary<string, int> _eventFieldLengths;
 
-        [JsonProperty(nameof(IEngine.NextToPlay))]
+        [DtoField(nameof(IEngine.NextToPlay))]
         private Event _nextToPlay;
 
         #pragma warning restore
@@ -119,11 +109,11 @@ namespace TAS.Remoting.Model
 
         public IEvent ForcedNext => _forcedNext;
 
-        public VideoFormatDescription FormatDescription => _formatDescription;
+        public VideoFormatDescription FormatDescription => VideoFormatDescription.Descriptions[VideoFormat];
 
-        public RationalNumber FrameRate => _frameRate;
+        public RationalNumber FrameRate => FormatDescription.FrameRate;
 
-        public long FrameTicks => _frameTicks;
+        public long FrameTicks => FormatDescription.FrameTicks;
 
         public ICGElementsController CGElementsController => _cGElementsController;
 
@@ -268,13 +258,13 @@ namespace TAS.Remoting.Model
 
         public void DeleteRight(IAclRight item) { Invoke(parameters: new object[] { item }); }
 
-        [JsonProperty]
+        [DtoField]
         public ulong CurrentUserRights { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public TAspectRatioControl AspectRatioControl { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public int CGStartDelay { get; set; }
 
         public bool HaveRight(EngineRight right)

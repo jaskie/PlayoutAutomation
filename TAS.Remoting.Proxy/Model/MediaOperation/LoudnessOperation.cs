@@ -1,6 +1,5 @@
 ﻿using System;
 using jNet.RPC;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -12,13 +11,13 @@ namespace TAS.Remoting.Model.MediaOperation
     {
         #pragma warning disable CS0649, CS0169
 
-        [JsonProperty(nameof(ILoudnessOperation.MeasureDuration))]
+        [DtoField(nameof(ILoudnessOperation.MeasureDuration))]
         private TimeSpan _measureDuration;
 
-        [JsonProperty(nameof(ILoudnessOperation.MeasureStart))]
+        [DtoField(nameof(ILoudnessOperation.MeasureStart))]
         private TimeSpan _measureStart;
 
-        [JsonProperty(nameof(ILoudnessOperation.Source))]
+        [DtoField(nameof(ILoudnessOperation.Source))]
         private MediaBase _source;
 
         #pragma warning restore

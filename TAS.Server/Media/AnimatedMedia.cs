@@ -1,6 +1,6 @@
-﻿using System;
+﻿using jNet.RPC;
+using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 
@@ -16,31 +16,31 @@ namespace TAS.Server.Media
         private TimeSpan _scheduledDelay;
         private TStartType _startType = TStartType.WithParent;
 
-        [JsonProperty]
+        [DtoField]
         public Dictionary<string, string> Fields
         {
             get => _fields;
             set => SetField(ref _fields, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public TemplateMethod Method { get => _method; set => SetField(ref _method, value); }
 
-        [JsonProperty]
+        [DtoField]
         public int TemplateLayer { get => _templateLayer; set => SetField(ref _templateLayer, value); }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan ScheduledDelay { get => _scheduledDelay; set => SetField(ref _scheduledDelay, value); }
 
-        [JsonProperty]
+        [DtoField]
         public TStartType StartType { get => _startType; set => SetField(ref _startType, value); }
 
-        [JsonProperty]
+        [DtoField]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ServerMediaFieldLengths;
 
-        public override bool Save()
+        public override void Save()
         {
-            var result = false;
+            var saved = false;
             try
             {
                 if (Directory is AnimationDirectory directory)
@@ -48,16 +48,16 @@ namespace TAS.Server.Media
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = EngineController.Current.Database.DeleteMedia(this);
+                            saved = EngineController.Current.Database.DeleteMedia(this);
                     }
                     else if (IdPersistentMedia == 0)
-                        result = EngineController.Current.Database.InsertMedia(this, directory.Server.Id);
+                        saved = EngineController.Current.Database.InsertMedia(this, directory.Server.Id);
                     else if (IsModified)
                     {
                         EngineController.Current.Database.UpdateMedia(this, directory.Server.Id);
-                        result = true;
+                        saved = true;
                     }
-                    if (result)
+                    if (saved)
                         directory.OnMediaSaved(this);
                 }
             }
@@ -65,8 +65,7 @@ namespace TAS.Server.Media
             {
                 Logger.Error(e, "Error saving {0}", MediaName);
             }
-            IsModified = false;
-            return result;
+            base.Save();
         }
 
         internal override void CloneMediaProperties(IMediaProperties fromMedia)

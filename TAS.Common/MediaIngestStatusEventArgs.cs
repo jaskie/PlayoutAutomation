@@ -1,5 +1,4 @@
 ﻿using System;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Common
@@ -11,12 +10,10 @@ namespace TAS.Common
             Media = media;
             IngestStatus = ingestStatus;
         }
-
-        [JsonProperty]
-        public IMedia Media { get; private set; }
-
-        [JsonProperty]
-        public TIngestStatus IngestStatus { get; private set; }
+                
+        public IMedia Media { get; }
+                
+        public TIngestStatus IngestStatus { get; }
     }
 
 

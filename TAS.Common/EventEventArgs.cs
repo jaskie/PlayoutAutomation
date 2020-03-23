@@ -1,16 +1,15 @@
 ﻿using System;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 
 namespace TAS.Common
 {
     public class EventEventArgs: EventArgs
     {
-        public EventEventArgs(IEvent ev)
+        public EventEventArgs(IEvent @event)
         {
-            Event = ev;
+            Event = @event;
         }
-        [JsonProperty(IsReference = true, TypeNameHandling = TypeNameHandling.Objects)]
-        public IEvent Event { get; private set; }
+        
+        public IEvent Event { get; }
     }
 }

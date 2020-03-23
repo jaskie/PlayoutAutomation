@@ -17,8 +17,6 @@ namespace TAS.Common.Interfaces
         IEnumerable<IIngestDirectory> IngestDirectories { get; }
         IEnumerable<IRecorder> Recorders { get; }
         IFileManager FileManager { get; }
-        VideoFormatDescription FormatDescription { get; }
-        TVideoFormat VideoFormat { get; }
         ICGElementsController CGElementsController { get; }
         void CopyMediaToPlayout(IEnumerable<IMedia> mediaList);
         List<MediaDeleteResult> MediaArchive(IEnumerable<IMedia> mediaList, bool deleteAfter, bool forceDelete);

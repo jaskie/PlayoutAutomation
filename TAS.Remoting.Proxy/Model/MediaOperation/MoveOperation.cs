@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using jNet.RPC;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -10,10 +10,10 @@ namespace TAS.Remoting.Model.MediaOperation
     {
 #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IMoveOperation.DestDirectory))]
+        [DtoField(nameof(IMoveOperation.DestDirectory))]
         private MediaDirectoryBase _destDirectory;
 
-        [JsonProperty(nameof(IMoveOperation.Source))]
+        [DtoField(nameof(IMoveOperation.Source))]
         private MediaBase _source;
 
 #pragma warning restore

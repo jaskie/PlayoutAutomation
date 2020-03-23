@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using NLog;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -13,6 +12,7 @@ using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 using TAS.Server.XDCAM;
+using jNet.RPC;
 
 namespace TAS.Server.MediaOperation
 {
@@ -36,7 +36,7 @@ namespace TAS.Server.MediaOperation
             TryCount = 1;
         }
 
-        [JsonProperty]
+        [DtoField]
         public IEnumerable<MediaExportDescription> Sources
         {
             get => _sources;
@@ -47,10 +47,10 @@ namespace TAS.Server.MediaOperation
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public IMediaProperties DestProperties { get => _destMediaProperties; set => SetField(ref _destMediaProperties, value); }
 
-        [JsonProperty]
+        [DtoField]
         public IMediaDirectory DestDirectory { get; set; }
 
         internal MediaBase Dest { get; set; }

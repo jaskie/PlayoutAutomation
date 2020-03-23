@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using jNet.RPC;
 using jNet.RPC.Server;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
@@ -17,10 +17,10 @@ namespace TAS.Server.Media
             MediaGuid = mediaGuid;
         }
 
-        [JsonProperty]
+        [DtoField]
         public Guid MediaGuid { get; }
 
-        [JsonProperty]
+        [DtoField]
         public IEnumerable<IMediaSegment> Segments
         {
             get
@@ -30,7 +30,7 @@ namespace TAS.Server.Media
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public int Count
         {
             get

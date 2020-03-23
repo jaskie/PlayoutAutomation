@@ -10,10 +10,8 @@ namespace TAS.Common
             TimeToAttention = timeToAttention;
         }
 
-        [Newtonsoft.Json.JsonProperty]
-        public DateTime CurrentTime { get; private set; }
+        public DateTime CurrentTime { get; }
 
-        [Newtonsoft.Json.JsonProperty]
-        public TimeSpan TimeToAttention { get; private set; }
+        public TimeSpan TimeToAttention { get; }
     }
 }

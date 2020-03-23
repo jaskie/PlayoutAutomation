@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -13,40 +12,40 @@ namespace TAS.Remoting.Model
     public class Preview: ProxyObjectBase, IPreview
     {
 #pragma warning disable CS0649
-        [JsonProperty(nameof(IPreview.Channel))]
+        [DtoField(nameof(IPreview.Channel))]
         private PlayoutServerChannel _channel;
 
-        [JsonProperty(nameof(IPreview.AudioVolume))]
+        [DtoField(nameof(IPreview.AudioVolume))]
         private double _audioVolume;
 
-        [JsonProperty(nameof(IPreview.IsConnected))]
+        [DtoField(nameof(IPreview.IsConnected))]
         private bool _isConnected;
 
-        [JsonProperty(nameof(IPreview.IsPlaying))]
+        [DtoField(nameof(IPreview.IsPlaying))]
         private bool _isPlaying;
 
-        [JsonProperty(nameof(IPreview.HaveLiveDevice))]
+        [DtoField(nameof(IPreview.HaveLiveDevice))]
         private bool _haveLiveDevice;
 
-        [JsonProperty(nameof(IPreview.IsLivePlaying))]
+        [DtoField(nameof(IPreview.IsLivePlaying))]
         private bool _isLivePlaying;
 
-        [JsonProperty(nameof(IPreview.IsMovieLoaded))]
+        [DtoField(nameof(IPreview.IsMovieLoaded))]
         private bool _isMovieLoaded;
 
-        [JsonProperty(nameof(IPreview.LoadedMovie))]
+        [DtoField(nameof(IPreview.LoadedMovie))]
         private MediaBase _loadedMovie;
 
-        [JsonProperty(nameof(IPreview.MoviePosition))]
+        [DtoField(nameof(IPreview.MoviePosition))]
         private long _position;
 
-        [JsonProperty(nameof(IPreview.MovieSeekOnLoad))]
+        [DtoField(nameof(IPreview.MovieSeekOnLoad))]
         private long _movieSeekOnLoad;
 
-        [JsonProperty(nameof(IPreview.VideoFormat))]
+        [DtoField(nameof(IPreview.VideoFormat))]
         private TVideoFormat _videoFormat;
 
-        [JsonProperty(nameof(IPreview.LoadedStillImages))]
+        [DtoField(nameof(IPreview.LoadedStillImages))]
         private Dictionary<VideoLayer, IMedia> _loadedStillImages;
 
 #pragma warning restore

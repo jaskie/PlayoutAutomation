@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Security;
 
@@ -11,10 +10,10 @@ namespace TAS.Remoting.Model.Security
     public class AuthenticationService: ProxyObjectBase, IAuthenticationService
     {
 #pragma warning disable CS0649
-        [JsonProperty(nameof(IAuthenticationService.Users))]
+        [DtoField(nameof(IAuthenticationService.Users))]
         private List<User> _users;
 
-        [JsonProperty(nameof(IAuthenticationService.Groups))]
+        [DtoField(nameof(IAuthenticationService.Groups))]
         private List<Group> _groups;
 
         private event EventHandler<CollectionOperationEventArgs<IUser>> _usersOperation;

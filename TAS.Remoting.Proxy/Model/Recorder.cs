@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
@@ -17,43 +16,43 @@ namespace TAS.Remoting.Model
 
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IRecorder.Channels))]
+        [DtoField(nameof(IRecorder.Channels))]
         private List<PlayoutServerChannel> _channels;
 
-        [JsonProperty(nameof(IRecorder.RecordingDirectory))]
+        [DtoField(nameof(IRecorder.RecordingDirectory))]
         private ServerDirectory _recordingDirectory;
 
-        [JsonProperty(nameof(IRecorder.CurrentTc))]
+        [DtoField(nameof(IRecorder.CurrentTc))]
         private TimeSpan _currentTc;
 
-        [JsonProperty(nameof(IRecorder.DeckControl))]
+        [DtoField(nameof(IRecorder.DeckControl))]
         private TDeckControl _deckControl;
 
-        [JsonProperty(nameof(IRecorder.DeckState))]
+        [DtoField(nameof(IRecorder.DeckState))]
         private TDeckState _deckState;
 
-        [JsonProperty(nameof(IRecorder.Id))]
+        [DtoField(nameof(IRecorder.Id))]
         private int _id;
 
-        [JsonProperty(nameof(IRecorder.ServerId))]
+        [DtoField(nameof(IRecorder.ServerId))]
         private int _serverId;
 
-        [JsonProperty(nameof(IRecorder.IsDeckConnected))]
+        [DtoField(nameof(IRecorder.IsDeckConnected))]
         private bool _isDeckConnected;
 
-        [JsonProperty(nameof(IRecorder.IsServerConnected))]
+        [DtoField(nameof(IRecorder.IsServerConnected))]
         private bool _isServerConnected;
 
-        [JsonProperty(nameof(IRecorder.RecorderName))]
+        [DtoField(nameof(IRecorder.RecorderName))]
         private string _recorderName;
 
-        [JsonProperty(nameof(IRecorder.RecordingMedia))]
+        [DtoField(nameof(IRecorder.RecordingMedia))]
         private IMedia _recordingMedia;
 
-        [JsonProperty(nameof(IRecorder.TimeLimit))]
+        [DtoField(nameof(IRecorder.TimeLimit))]
         private TimeSpan _timeLimit;
 
-        [JsonProperty(nameof(IRecorder.DefaultChannel))]
+        [DtoField(nameof(IRecorder.DefaultChannel))]
         private readonly int _defaultChannel;
 
 #pragma warning restore

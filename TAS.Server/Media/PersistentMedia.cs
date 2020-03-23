@@ -1,6 +1,6 @@
-﻿using System;
+﻿using jNet.RPC;
+using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -14,6 +14,7 @@ namespace TAS.Server.Media
         private string _idAux;
         private TMediaEmphasis _mediaEmphasis;
         private bool _protected;
+        private bool _isDbReading;
         private readonly Lazy<MediaSegments> _mediaSegments;
 
         protected PersistentMedia() 
@@ -22,34 +23,31 @@ namespace TAS.Server.Media
         }
         public ulong IdPersistentMedia { get; set; }
 
-        // media properties
-
-        [JsonProperty]
+        [DtoField]
         public DateTime? KillDate
         {
             get => _killDate;
             set => SetField(ref _killDate, value);
         }
 
-        // content properties
-        [JsonProperty]
+        [DtoField]
         public ulong IdProgramme { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public string IdAux
         {
             get => _idAux;
             set => SetField(ref _idAux, value);
-        } // auxiliary Id from external system
+        } 
 
-        [JsonProperty]
+        [DtoField]
         public TMediaEmphasis MediaEmphasis
         {
             get => _mediaEmphasis;
             set => SetField(ref _mediaEmphasis, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsProtected
         {
             get => _protected;
@@ -72,23 +70,41 @@ namespace TAS.Server.Media
             KillDate = properties.KillDate;
         }
 
-        public abstract bool Save();
+        public void BeginDbRead()
+        {
+            _isDbReading = true;
+        }
 
-        public bool IsModified { get; set; }
+        public void EndDbRead()
+        {
+            _isDbReading = false;
+        }
+
+        public virtual void Save()
+        {
+            IsModified = false;
+        }
+
+        public bool IsModified { get; protected set; }
 
         public override void Verify(bool updateFormatAndDurations)
         {
             base.Verify(updateFormatAndDurations);
-            if (IsModified)
-                Save();
+            Save();
         }
 
         protected override bool SetField<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
+            if (_isDbReading)
+            {
+                field = value;
+                return false;
+            }
             var modified = base.SetField(ref field, value, propertyName);
             if (modified && propertyName != nameof(IsVerified))
                 IsModified = true;
             return modified;
         }
+
     }
 }

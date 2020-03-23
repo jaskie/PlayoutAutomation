@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace TAS.Common.Interfaces
 {
@@ -15,14 +14,14 @@ namespace TAS.Common.Interfaces
         event EventHandler<MediaSegmentEventArgs> SegmentRemoved;
     }
 
-    [JsonObject(IsReference = false)]
     public class MediaSegmentEventArgs: EventArgs
     {
         public MediaSegmentEventArgs(IMediaSegment segment)
         {
             Segment = segment;
         }
-        [JsonProperty(IsReference = true)]
+
+        
         public IMediaSegment Segment { get; private set; }
     }
 }

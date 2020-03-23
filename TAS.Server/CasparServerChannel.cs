@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using TAS.Common;
 using System.Text.RegularExpressions;
@@ -14,6 +13,7 @@ using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using TAS.Server.Media;
 using TAS.Common.Database;
+using jNet.RPC;
 
 namespace TAS.Server
 {
@@ -40,34 +40,34 @@ namespace TAS.Server
 
         #region IPlayoutServerChannel
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public int Id { get; set; }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public string ChannelName { get; set; }
 
         [Hibernate]
         public double MasterVolume { get; set; } = 1;
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public int AudioChannelCount { get; set; } = 2;
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public string PreviewUrl { get; set; }
 
         [Hibernate]
         public string LiveDevice { get; set; }
 
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public TVideoFormat VideoFormat { get; set; }
 
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public bool IsServerConnected { get => _isServerConnected; internal set => SetField(ref _isServerConnected, value); }
 
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public int AudioLevel { get => _audiolevel; private set => SetField(ref _audiolevel, value); }
 
         public bool LoadNext(Event aEvent)
@@ -728,9 +728,9 @@ namespace TAS.Server
             Layer = layer;
             Volume = volume;
         }
-        [JsonProperty]
+        [DtoField]
         public double Volume { get; private set; }
-        [JsonProperty]
+        [DtoField]
         public VideoLayer Layer { get; private set; }
     }
 

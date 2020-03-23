@@ -55,9 +55,9 @@ namespace TAS.Common
             OldState = oldState;
             NewState = newState;
         }
-        [Newtonsoft.Json.JsonProperty]
-        public ConnectionStateRedundant OldState { get; private set; }
-        [Newtonsoft.Json.JsonProperty]
-        public ConnectionStateRedundant NewState { get; private set; }
+        
+        public ConnectionStateRedundant OldState { get; }
+        
+        public ConnectionStateRedundant NewState { get; }
     }
 }

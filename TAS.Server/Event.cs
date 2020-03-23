@@ -5,7 +5,6 @@ using System.Linq;
 using System.Diagnostics;
 using TAS.Common;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using jNet.RPC.Server;
@@ -14,6 +13,7 @@ using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.Security;
 using TAS.Server.Media;
 using TAS.Server.Security;
+using jNet.RPC;
 
 namespace TAS.Server
 {
@@ -24,7 +24,8 @@ namespace TAS.Server
         private bool _isModified;
         TPlayState _playState;
         private long _position;
-        [JsonProperty(nameof(IEventPersistent.Engine))]
+        
+        [DtoField(nameof(IEventPersistent.Engine))]
         private readonly Engine _engine;
         private readonly object _rundownSync;
         private readonly Lazy<SynchronizedCollection<Event>> _subEvents;
@@ -193,7 +194,7 @@ namespace TAS.Server
 
         #region IEventPesistent 
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public ulong Id {get; set; }
 
         public ulong IdEventBinding { get; private set; }
@@ -202,21 +203,21 @@ namespace TAS.Server
 
         #region IEventProperties
 
-        [JsonProperty]
+        [DtoField]
         public double? AudioVolume
         {
             get => _audioVolume;
             set => SetField(ref _audioVolume, value);
         }        
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan Duration
         {
             get => _duration;
             set => _setDuration(((Engine)Engine).AlignTimeSpan(value));
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsEnabled
         {
             get => _isEnabled;
@@ -233,14 +234,14 @@ namespace TAS.Server
 
         string _eventName;        
 
-        [JsonProperty]
+        [DtoField]
         public string EventName
         {
             get => _eventName;
             set => SetField(ref _eventName, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public TEventType EventType
         {
             get => _eventType;
@@ -253,38 +254,38 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsHold
         {
             get => _isHold;
             set => SetField(ref _isHold, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsLoop
         {
             get => _isLoop;
             set => SetField(ref _isLoop, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public string IdAux
         {
             get => _idAux;
             set => SetField(ref _idAux, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public ulong IdProgramme
         {
             get => _idProgramme;
             set => SetField(ref _idProgramme, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public VideoLayer Layer { get => _layer; set => SetField(ref _layer, value); }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan? RequestedStartTime
         {
             get => _requestedStartTime;
@@ -296,21 +297,21 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan ScheduledDelay
         {
             get => _scheduledDelay;
             set => SetField(ref _scheduledDelay, ((Engine) Engine).AlignTimeSpan(value));
         }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan ScheduledTc
         {
             get => _scheduledTc;
             set => SetField(ref _scheduledTc, ((Engine) Engine).AlignTimeSpan(value));
         }
 
-        [JsonProperty]
+        [DtoField]
         public DateTime ScheduledTime
         {
             get => _scheduledTime;
@@ -321,7 +322,7 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public DateTime StartTime
         {
             get => _startTime;
@@ -334,7 +335,7 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public TStartType StartType
         {
             get => _startType;
@@ -351,7 +352,7 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan TransitionTime
         {
             get => _transitionTime;
@@ -365,35 +366,35 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan TransitionPauseTime
         {
             get => _transitionPauseTime;
             set => SetField(ref _transitionPauseTime, ((Engine)Engine).AlignTimeSpan(value));
         }
 
-        [JsonProperty]
+        [DtoField]
         public TTransitionType TransitionType
         {
             get => _transitionType;
             set => SetField(ref _transitionType, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public TEasing TransitionEasing
         {
             get => _transitionEasing;
             set => SetField(ref _transitionEasing, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public AutoStartFlags AutoStartFlags
         {
             get => _autoStartFlags;
             set => SetField(ref _autoStartFlags, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public Guid MediaGuid
         {
             get => _mediaGuid;
@@ -438,7 +439,7 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public ulong CurrentUserRights
         {
             get
@@ -465,14 +466,14 @@ namespace TAS.Server
 
         #endregion // IAclObject
 
-        [JsonProperty]
+        [DtoField]
         public bool IsForcedNext
         {
             get => _isForcedNext;
             internal set => SetField(ref _isForcedNext, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public RecordingInfo RecordingInfo
         {
             get => _recordingInfo;
@@ -491,14 +492,14 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual TPlayState PlayState
         {
             get => _playState;
             set => _setPlayState(value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public long Position // in frames
         {
             get => _position;
@@ -516,7 +517,7 @@ namespace TAS.Server
 
         public IEnumerable<IEvent> SubEvents { get { lock (_subEvents) return _subEvents.Value.ToArray(); } }
 
-        [JsonProperty]
+        [DtoField]
         public int SubEventsCount
         {
             get
@@ -530,10 +531,10 @@ namespace TAS.Server
         internal TimeSpan Length => _isEnabled ? _duration : TimeSpan.Zero;
         internal long LengthInFrames => Length.Ticks / Engine.FrameTicks;
         
-        [JsonProperty]
+        [DtoField]
         public DateTime EndTime => _scheduledTime + Length;
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan StartTc
         {
             get => _startTc;
@@ -544,7 +545,7 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public IMedia Media
         {
             get
@@ -587,7 +588,7 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan? Offset
         {
             get
@@ -599,45 +600,45 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsDeleted { get; private set; }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsCGEnabled
         {
             get => _isCGEnabled;
             set => SetField(ref _isCGEnabled, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public IRouterPort InputPort
         {
             get => _inputPort;
             set => SetField(ref _inputPort, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public byte Crawl
         {
             get => _crawl;
             set => SetField(ref _crawl, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public byte Logo
         {
             get => _logo;
             set => SetField(ref _logo, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public byte Parental
         {
             get => _parental;
             set => SetField(ref _parental, value);
         }
                      
-        [JsonProperty]
+        [DtoField]
         public int RouterPort
         {
             get => _routerPort;

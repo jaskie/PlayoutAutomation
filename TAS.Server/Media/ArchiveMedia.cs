@@ -1,7 +1,7 @@
-﻿using System;
+﻿using jNet.RPC;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.MediaDirectory;
 
@@ -16,7 +16,7 @@ namespace TAS.Server.Media
             Debug.WriteLine("ArchiveMedia finalized");    
         }
 
-        [JsonProperty]
+        [DtoField]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ArchiveMediaFieldLengths;
 
 
@@ -35,36 +35,33 @@ namespace TAS.Server.Media
 
         }
 
-        public override bool Save()
+        public override void Save()
         {
-            bool result = false;
             try
             {
+                var directory = Directory as ArchiveDirectory ?? throw new ApplicationException("Media directory not set on Save");
                 if (MediaStatus != TMediaStatus.Unknown)
                 {
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = EngineController.Current.Database.DeleteMedia(this);
+                            EngineController.Current.Database.DeleteMedia(this);
                     }
                     else
                     {
                         if (IdPersistentMedia == 0)
-                            result = EngineController.Current.Database.InsertMedia(this, ((ArchiveDirectory)Directory).IdArchive);
+                            EngineController.Current.Database.InsertMedia(this, directory.IdArchive);
                         else if (IsModified)
-                        {
-                            EngineController.Current.Database.UpdateMedia(this, ((ArchiveDirectory) Directory).IdArchive);
-                            result = true;
-                        }
-                        IsModified = false;
+                            EngineController.Current.Database.UpdateMedia(this, directory.IdArchive);
                     }
+
                 }
             }
             catch (Exception e)
             {
                 Logger.Error(e, "Error saving {0}", MediaName);
             }
-            return result;
+            base.Save();
         }
     }
 }

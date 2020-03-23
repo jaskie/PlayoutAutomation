@@ -1,7 +1,6 @@
 ﻿using System;
 using jNet.RPC;
 using jNet.RPC.Client;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -12,22 +11,19 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IMediaDirectory.Folder))]
+        [DtoField(nameof(IMediaDirectory.Folder))]
         private string _folder;
 
-        [JsonProperty(nameof(IMediaDirectory.PathSeparator))]
+        [DtoField(nameof(IMediaDirectory.PathSeparator))]
         private char _pathSeparator;
 
-        [JsonProperty(nameof(IWatcherDirectory.IsInitialized))]
-        private bool _isInitialized;
-
-        [JsonProperty(nameof(IMediaDirectory.VolumeFreeSize))]
+        [DtoField(nameof(IMediaDirectory.VolumeFreeSize))]
         private long _volumeFreeSize;
 
-        [JsonProperty(nameof(IMediaDirectory.VolumeTotalSize))]
+        [DtoField(nameof(IMediaDirectory.VolumeTotalSize))]
         private long _volumeTotalSize;
 
-        [JsonProperty(nameof(IMediaDirectory.HaveFileWatcher))]
+        [DtoField(nameof(IMediaDirectory.HaveFileWatcher))]
         private bool _haveFileWatcher;
 
 
@@ -35,8 +31,6 @@ namespace TAS.Remoting.Model.Media
         public string Folder { get => _folder; set => Set(value); }
 
         public char PathSeparator => _pathSeparator;
-
-        public bool IsInitialized => _isInitialized;
 
         public long VolumeFreeSize => _volumeFreeSize;
 
@@ -124,25 +118,16 @@ namespace TAS.Remoting.Model.Media
 
         #endregion // Ehent handling
 
-        public bool DeleteMedia(IMedia media)
-        {
-            return Query<bool>(parameters: media );
-        }
+        public bool DeleteMedia(IMedia media) => Query<bool>(parameters: media);
 
         public bool FileExists(string filename, string subfolder = null)
         {
             return Query<bool>(parameters: new object[] { filename, subfolder });
         }
 
-        public bool DirectoryExists()
-        {
-            return Query<bool>();
-        }
+        public bool DirectoryExists => Get<bool>();
 
-        public void SweepStaleMedia()
-        {
-            throw new NotImplementedException();
-        }
+        public void SweepStaleMedia() => throw new NotImplementedException();
 
         public string GetUniqueFileName(string fileName)
         {

@@ -1,6 +1,5 @@
 ﻿using jNet.RPC;
 using jNet.RPC.Client;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
 
@@ -9,13 +8,13 @@ namespace TAS.Remoting.Model.Security
     public class EngineAclRight: ProxyObjectBase, IAclRight
     {
 #pragma warning disable CS0649
-        [JsonProperty(nameof(IAclRight.Owner))]
+        [DtoField(nameof(IAclRight.Owner))]
         private Event _owner;
 
-        [JsonProperty(nameof(IAclRight.SecurityObject))]
+        [DtoField(nameof(IAclRight.SecurityObject))]
         private ISecurityObject _securityObject;
 
-        [JsonProperty(nameof(IAclRight.Acl))]
+        [DtoField(nameof(IAclRight.Acl))]
         private ulong _acl;
 #pragma warning restore
 

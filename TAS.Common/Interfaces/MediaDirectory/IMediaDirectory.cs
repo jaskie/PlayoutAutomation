@@ -9,7 +9,8 @@ namespace TAS.Common.Interfaces.MediaDirectory
         long VolumeTotalSize { get; }
         long VolumeFreeSize { get; }
         char PathSeparator { get; }
-        bool DirectoryExists();
+        bool DirectoryExists { get; }
+
         bool FileExists(string filename, string subfolder = null);
         bool HaveFileWatcher { get; }
         string GetUniqueFileName(string fileName);

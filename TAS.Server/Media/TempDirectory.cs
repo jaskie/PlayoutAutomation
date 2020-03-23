@@ -31,14 +31,14 @@ namespace TAS.Server.Media
 
         internal override IMedia CreateMedia(IMediaProperties media)
         {
-            if (!DirectoryExists())
+            if (!DirectoryExists)
                 throw new DirectoryNotFoundException(Folder);
             return new TempMedia(this, media);
         }
         
         private void SweepStaleMedia()
         {
-            if (!DirectoryExists())
+            if (!DirectoryExists)
                 return;
             foreach (string fileName in Directory.GetFiles(Folder))
                 try

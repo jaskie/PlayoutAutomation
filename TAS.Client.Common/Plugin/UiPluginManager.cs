@@ -41,10 +41,11 @@ namespace TAS.Client.Common.Plugin
         {
             try
             {
-                return Factories
-                    .Where(f => typeof(IUiPlugin).IsAssignableFrom(f.Type))
-                    .SelectMany(f => f.Create(context))
-                    .Cast<IUiPlugin>().ToArray();
+                if (Factories != null)
+                    return Factories
+                        .Where(f => typeof(IUiPlugin).IsAssignableFrom(f.Type))
+                        .SelectMany(f => f.Create(context))
+                        .Cast<IUiPlugin>().ToArray();
             }
             catch (Exception e)
             {

@@ -1,13 +1,12 @@
-﻿using System;
+﻿using jNet.RPC;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Database;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
 
 namespace TAS.Server.Security
@@ -26,30 +25,30 @@ namespace TAS.Server.Security
         private AuthenticationSource _authenticationSource;
         private string _authenticationObject;
 
-        [JsonProperty, XmlIgnore]
+        [DtoField, XmlIgnore]
         public override SecurityObjectType SecurityObjectTypeType { get; } = SecurityObjectType.User;
 
-        [JsonProperty]
+        [DtoField]
         public string AuthenticationType => _authenticationSource.ToString();
 
-        [JsonProperty]
+        [DtoField]
         public bool IsAuthenticated => !string.IsNullOrEmpty(Name);
 
-        [JsonProperty]
+        [DtoField, Hibernate]
         public bool IsAdmin
         {
             get { return _isAdmin; }
             set { SetField(ref _isAdmin, value); }
         }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public AuthenticationSource AuthenticationSource
         {
             get { return _authenticationSource; }
             set { SetField(ref _authenticationSource, value); }
         }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public string AuthenticationObject
         {
             get { return _authenticationObject; }

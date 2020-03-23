@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common;
@@ -15,44 +14,37 @@ namespace TAS.Remoting.Model
 
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IMediaManager.AnimationDirectoryPRI))]
+        [DtoField(nameof(IMediaManager.AnimationDirectoryPRI))]
         private AnimationDirectory _animationDirectoryPRI;
 
-        [JsonProperty(nameof(IMediaManager.MediaDirectoryPRI))]
+        [DtoField(nameof(IMediaManager.MediaDirectoryPRI))]
         private ServerDirectory _mediaDirectoryPri;
 
-        [JsonProperty(nameof(IMediaManager.AnimationDirectorySEC))]
+        [DtoField(nameof(IMediaManager.AnimationDirectorySEC))]
         private AnimationDirectory _animationDirectorySEC;
 
-        [JsonProperty(nameof(IMediaManager.IngestDirectories))]
+        [DtoField(nameof(IMediaManager.IngestDirectories))]
         private List<IngestDirectory> _ingestDirectories;
         
-        [JsonProperty(nameof(IMediaManager.AnimationDirectoryPRV))]
+        [DtoField(nameof(IMediaManager.AnimationDirectoryPRV))]
         private AnimationDirectory _animationDirectoryPRV;
         
-        [JsonProperty(nameof(IMediaManager.ArchiveDirectory))]
+        [DtoField(nameof(IMediaManager.ArchiveDirectory))]
         private ArchiveDirectory _archiveDirectory;
 
-        [JsonProperty(nameof(IMediaManager.Recorders))]
+        [DtoField(nameof(IMediaManager.Recorders))]
         private List<Recorder> _recorders;
 
-        [JsonProperty(nameof(IMediaManager.MediaDirectorySEC))]
+        [DtoField(nameof(IMediaManager.MediaDirectorySEC))]
         private ServerDirectory _mediaDirectorySec;
 
-
-        [JsonProperty(nameof(IMediaManager.FileManager))]
+        [DtoField(nameof(IMediaManager.FileManager))]
         private FileManager _fileManager;
 
-        [JsonProperty(nameof(IMediaManager.MediaDirectoryPRV))]
+        [DtoField(nameof(IMediaManager.MediaDirectoryPRV))]
         private ServerDirectory _mediaDirectoryPrv;
 
-        [JsonProperty(nameof(IMediaManager.FormatDescription))]
-        private VideoFormatDescription _videoFormatDescription;
-
-        [JsonProperty(nameof(IMediaManager.VideoFormat))]
-        private TVideoFormat _videoFormat;
-
-        [JsonProperty(nameof(IEngine.CGElementsController))]
+        [DtoField(nameof(IEngine.CGElementsController))]
         private CGElementsController _cgElementsController;
 
         #pragma warning restore
@@ -62,8 +54,6 @@ namespace TAS.Remoting.Model
         public IEngine Engine => Get<Engine>();
 
         public IFileManager FileManager => _fileManager;
-
-        public VideoFormatDescription FormatDescription => _videoFormatDescription;
 
         public IEnumerable<IIngestDirectory> IngestDirectories => _ingestDirectories;
 
@@ -80,9 +70,6 @@ namespace TAS.Remoting.Model
         public IServerDirectory MediaDirectorySEC => _mediaDirectorySec;
 
         public IServerDirectory MediaDirectoryPRV => _mediaDirectoryPrv;
-
-        public TVideoFormat VideoFormat => _videoFormat;
-
 
         public IServerDirectory DetermineValidServerDirectory()
         {

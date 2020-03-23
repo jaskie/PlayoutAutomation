@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Remoting.Model.Media;
@@ -11,19 +10,19 @@ namespace TAS.Remoting.Model
     public class PlayoutServer : ProxyObjectBase, IPlayoutServer
     {
         #pragma warning disable CS0649
-        [JsonProperty(nameof(IPlayoutServer.AnimationDirectory))]
+        [DtoField(nameof(IPlayoutServer.AnimationDirectory))]
         private IAnimationDirectory _animationDirectory;
 
-        [JsonProperty(nameof(IPlayoutServer.Channels))]
+        [DtoField(nameof(IPlayoutServer.Channels))]
         private List<PlayoutServerChannel> _channels;
 
-        [JsonProperty(nameof(IPlayoutServer.Recorders))]
+        [DtoField(nameof(IPlayoutServer.Recorders))]
         private List<Recorder> _recorders;
 
-        [JsonProperty(nameof(IPlayoutServer.IsConnected))]
+        [DtoField(nameof(IPlayoutServer.IsConnected))]
         private bool _isConnected;
 
-        [JsonProperty(nameof(IPlayoutServer.MediaDirectory))]
+        [DtoField(nameof(IPlayoutServer.MediaDirectory))]
         private ServerDirectory _mediaDirectory;
 
         #pragma warning restore

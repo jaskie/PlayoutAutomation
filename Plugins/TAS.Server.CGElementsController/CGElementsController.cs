@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
+using jNet.RPC;
 
 namespace TAS.Server
 {
@@ -33,17 +33,17 @@ namespace TAS.Server
         [XmlAttribute]
         public string EngineName { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public byte DefaultCrawl { get; set; } = 1;
 
-        [JsonProperty]
+        [DtoField]
         public byte DefaultLogo { get; set; } = 1;
 
-        [JsonProperty]
+        [DtoField]
         public virtual bool IsConnected => true;
 
 
-        [JsonProperty]
+        [DtoField]
         [XmlIgnore]
         public bool IsCGEnabled
         {
@@ -51,10 +51,10 @@ namespace TAS.Server
             set => SetField(ref _isCgEnabled, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsMaster => true;
 
-        [JsonProperty]
+        [DtoField]
         [XmlIgnore]
         public bool IsWideScreen
         {
@@ -62,7 +62,7 @@ namespace TAS.Server
             set => SetField(ref _isWideScreen, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         [XmlIgnore]
         public byte Crawl
         {
@@ -75,13 +75,13 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty(nameof(Crawls), ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [DtoField(nameof(Crawls))]
         [XmlArray(nameof(Crawls)), XmlArrayItem(nameof(Crawl))]
         public CGElement[] _crawls { get; set; } = new CGElement[0];
 
         public IEnumerable<ICGElement> Crawls => _crawls;
 
-        [JsonProperty]
+        [DtoField]
         [XmlIgnore]
         public byte Logo
         {
@@ -94,13 +94,13 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty(nameof(Logos), ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [DtoField(nameof(Logos))]
         [XmlArray(nameof(Logos)), XmlArrayItem(nameof(Logo))]
         public CGElement[] _logos { get; set; } = new CGElement[0];
 
         public IEnumerable<ICGElement> Logos => _logos;
 
-        [JsonProperty]
+        [DtoField]
         [XmlIgnore]
         public byte Parental
         {
@@ -113,7 +113,7 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty(nameof(Parentals), ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [DtoField(nameof(Parentals))]
         [XmlArray(nameof(Parentals)), XmlArrayItem(nameof(Parental))]
         public CGElement[] _parentals { get; set; } = new CGElement[0];
 

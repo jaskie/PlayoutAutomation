@@ -1,5 +1,5 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using jNet.RPC;
+using System;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -10,7 +10,7 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IIngestMedia.GetIngestStatus))]
+        [DtoField(nameof(IIngestMedia.GetIngestStatus))]
         private TIngestStatus _ingestStatus;
 
         private readonly Lazy<TIngestStatus> _ingestStatusLazy;

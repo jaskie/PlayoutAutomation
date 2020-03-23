@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace TAS.Common
 {
-    [JsonObject]
     public sealed class VideoFormatDescription
     {
         #region Constructors
@@ -234,19 +232,18 @@ namespace TAS.Common
 
         private VideoFormatDescription() { }
         #endregion
+        
+        public TVideoFormat Format { get; }
+        
+        public Size ImageSize { get; }
 
-        [JsonProperty]
-        public readonly TVideoFormat Format;
-        [JsonProperty]
-        public readonly Size ImageSize;
-        [JsonProperty]
-        public readonly RationalNumber FrameRate;
-        [JsonProperty]
-        public readonly bool Interlaced;
-        [JsonProperty]
-        public readonly RationalNumber SAR;
-        [JsonProperty]
-        public readonly bool IsWideScreen;
+        public RationalNumber FrameRate { get; }
+
+        public bool Interlaced { get; }
+
+        public RationalNumber SAR { get; }
+
+        public bool IsWideScreen { get; }
 
         public static Dictionary<TVideoFormat, VideoFormatDescription> Descriptions = new Dictionary<TVideoFormat, VideoFormatDescription>
         {

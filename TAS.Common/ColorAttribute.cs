@@ -4,7 +4,7 @@ using System.Windows.Media;
 namespace TAS.Common
 {
     [AttributeUsage(AttributeTargets.All)]
-    public class ColorAttribute: Attribute
+    public sealed class ColorAttribute: Attribute
     {
         public ColorAttribute(uint color)
         {

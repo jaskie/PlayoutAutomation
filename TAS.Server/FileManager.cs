@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using jNet.RPC.Server;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Common;
 using TAS.Server.MediaOperation;
+using jNet.RPC;
 
 namespace TAS.Server
 {
     public class FileManager: ServerObjectBase, IFileManager
     {
 #pragma warning disable CS0169
-        [JsonProperty]
+        [DtoField]
         public readonly string Dummy = string.Empty; // at  least one property must be serialized to resolve references
 #pragma warning restore
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

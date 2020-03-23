@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using jNet.RPC;
 using System;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -15,7 +15,7 @@ namespace TAS.Server
             _command = command;
         }
 
-        [JsonProperty]
+        [DtoField]
         public string Command
         {
             get { return _command; }

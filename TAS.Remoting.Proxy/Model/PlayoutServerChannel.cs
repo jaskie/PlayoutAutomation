@@ -1,6 +1,5 @@
 ﻿using jNet.RPC;
 using jNet.RPC.Client;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -10,25 +9,25 @@ namespace TAS.Remoting.Model
     {
 #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IPlayoutServerChannel.ChannelName))]
+        [DtoField(nameof(IPlayoutServerChannel.ChannelName))]
         private string _channelName;
 
-        [JsonProperty(nameof(IPlayoutServerChannel.Id))]
+        [DtoField(nameof(IPlayoutServerChannel.Id))]
         private int _id;
 
-        [JsonProperty(nameof(IPlayoutServerChannel.IsServerConnected))]
+        [DtoField(nameof(IPlayoutServerChannel.IsServerConnected))]
         private bool _isServerConnected;
 
-        [JsonProperty(nameof(IPlayoutServerChannel.VideoFormat))]
+        [DtoField(nameof(IPlayoutServerChannel.VideoFormat))]
         private TVideoFormat _videoFormat;
 
-        [JsonProperty(nameof(IPlayoutServerChannel.AudioLevel))]
+        [DtoField(nameof(IPlayoutServerChannel.AudioLevel))]
         private int _audioLevel;
 
-        [JsonProperty(nameof(IPlayoutServerChannel.PreviewUrl))]
+        [DtoField(nameof(IPlayoutServerChannel.PreviewUrl))]
         private string _previewUrl;
 
-        [JsonProperty(nameof(IPlayoutServerChannel.AudioChannelCount))]
+        [DtoField(nameof(IPlayoutServerChannel.AudioChannelCount))]
         private int _audioChannelCount;
 
 #pragma warning restore

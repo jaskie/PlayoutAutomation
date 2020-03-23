@@ -5,13 +5,13 @@ using TAS.Client.Common.Plugin;
 namespace TAS.Client.UiPluginExample
 {
     [Export(typeof(IUiPluginFactory))]
-    public class UiPluginFactory: IUiPluginFactory
+    public class PluginFactory: IUiPluginFactory
     {
         public object[] Create(IUiPluginContext context)
         {
-            return new object[] { new UiPlugin(context) };
+            return new object[] { new Plugin(context) };
         }
 
-        public Type Type { get; } = typeof(UiPlugin);
+        public Type Type { get; } = typeof(Plugin);
     }
 }

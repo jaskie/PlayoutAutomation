@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
@@ -11,13 +10,13 @@ namespace TAS.Remoting.Model
     {
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IMediaSegments.Segments))]
+        [DtoField(nameof(IMediaSegments.Segments))]
         private List<MediaSegment> _segments;
 
-        [JsonProperty(nameof(IMediaSegments.Count))]
+        [DtoField(nameof(IMediaSegments.Count))]
         private int _count;
 
-        [JsonProperty(nameof(IMediaSegments.MediaGuid))]
+        [DtoField(nameof(IMediaSegments.MediaGuid))]
         private Guid _mediaGuid;
 
         public IEnumerable<IMediaSegment> Segments => _segments;

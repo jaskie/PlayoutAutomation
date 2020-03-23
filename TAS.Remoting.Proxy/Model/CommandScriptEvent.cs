@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using jNet.RPC;
 using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
@@ -7,7 +7,7 @@ namespace TAS.Remoting.Model
     {
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(ICommandScript.Command))]
+        [DtoField(nameof(ICommandScript.Command))]
         private string _command;
 
         #pragma warning restore

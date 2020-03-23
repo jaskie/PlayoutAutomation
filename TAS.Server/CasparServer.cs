@@ -8,12 +8,12 @@ using System.Threading;
 using System.Xml.Serialization;
 using jNet.RPC.Server;
 using TAS.Common;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 using System.ComponentModel;
 using TAS.Common.Database;
+using jNet.RPC;
 
 namespace TAS.Server
 {
@@ -30,7 +30,7 @@ namespace TAS.Server
         #region IPersistent
 
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public ulong Id { get; set; }
 
         public IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ServerFieldLengths;
@@ -67,17 +67,17 @@ namespace TAS.Server
         [Hibernate]
         public TMovieContainerFormat MovieContainerFormat { get; set; }
 
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects), XmlIgnore]
+        [DtoField, XmlIgnore]
         public IServerDirectory MediaDirectory { get; private set; }
 
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects), XmlIgnore]
+        [DtoField, XmlIgnore]
         public IAnimationDirectory AnimationDirectory { get; private set; }
 
         [XmlArray(nameof(Channels)), Hibernate(nameof(Channels))]
         public List<CasparServerChannel> ChannelsSer { get; set; }
 
         [XmlIgnore]
-        [JsonProperty(TypeNameHandling = TypeNameHandling.None, ItemIsReference = true, ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [DtoField]
         public IEnumerable<IPlayoutServerChannel> Channels => ChannelsSer;
 
         [XmlArray(nameof(Recorders)), Hibernate(nameof(Recorders))]
@@ -85,10 +85,10 @@ namespace TAS.Server
         public List<CasparRecorder> RecordersSer { get; set; }
 
         [XmlIgnore]
-        [JsonProperty(TypeNameHandling = TypeNameHandling.None, ItemIsReference = true, ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [DtoField]
         public IEnumerable<IRecorder> Recorders => RecordersSer;
 
-        [JsonProperty]
+        [DtoField]
         [XmlIgnore]
         public bool IsConnected
         {

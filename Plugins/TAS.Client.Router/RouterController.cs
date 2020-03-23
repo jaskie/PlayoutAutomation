@@ -4,9 +4,9 @@ using TAS.Common;
 using TAS.Common.Interfaces;
 using System.Linq;
 using jNet.RPC.Server;
-using Newtonsoft.Json;
 using TAS.Server.Model;
 using TAS.Server.RouterCommunicators;
+using jNet.RPC;
 
 namespace TAS.Server
 {
@@ -39,17 +39,17 @@ namespace TAS.Server
             Init();
         }
 
-        [JsonProperty]
+        [DtoField]
         public IRouterPort SelectedInputPort
         {
             get => _selectedInputPort;
             set => SetField(ref _selectedInputPort, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public IList<IRouterPort> InputPorts { get; } = new List<IRouterPort>();
 
-        [JsonProperty]
+        [DtoField]
         public bool IsConnected
         {
             get => _isConnected;

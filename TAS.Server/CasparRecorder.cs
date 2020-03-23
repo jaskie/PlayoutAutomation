@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Svt.Caspar;
+﻿using Svt.Caspar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +11,7 @@ using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 using TAS.Common.Database;
+using jNet.RPC;
 
 namespace TAS.Server
 {
@@ -36,50 +36,50 @@ namespace TAS.Server
         #region Deserialized properties
         public int RecorderNumber { get; set; }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public int Id { get; set; }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public string RecorderName
         {
             get => _recorderName;
             set => SetField(ref _recorderName, value);
         }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public int DefaultChannel { get; set; }
 
         #endregion Deserialized properties
 
         #region IRecorder
-        [JsonProperty]
+        [DtoField]
         public int ServerId { get => (int)_ownerServer.Id; }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan CurrentTc { get => _currentTc; private set => SetField(ref _currentTc, value); }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan TimeLimit { get => _timeLimit; private set => SetField(ref _timeLimit, value); }
 
-        [JsonProperty]
+        [DtoField]
         public TDeckState DeckState { get => _deckState; private set => SetField(ref _deckState, value); }
 
-        [JsonProperty]
+        [DtoField]
         public TDeckControl DeckControl { get => _deckControl; private set => SetField(ref _deckControl, value); }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsDeckConnected { get => _isDeckConnected; private set => SetField(ref _isDeckConnected, value); }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsServerConnected { get => _isServerConnected; internal set => SetField(ref _isServerConnected, value); }
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [DtoField]
         public IEnumerable<IPlayoutServerChannel> Channels => _ownerServer.Channels.ToList();
 
-        [JsonProperty]
+        [DtoField]
         public IMedia RecordingMedia { get => _recordingMedia; private set => SetField(ref _recordingMedia, value); }
 
-        [JsonProperty]
+        [DtoField]
         public IWatcherDirectory RecordingDirectory => _ownerServer.MediaDirectory;
         
         public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName, int[] channelMap)

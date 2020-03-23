@@ -1,6 +1,6 @@
-﻿using System;
+﻿using jNet.RPC;
+using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -12,19 +12,19 @@ namespace TAS.Remoting.Model.Media
 
 #pragma warning disable CS0649
 
-        [JsonProperty(nameof(ITemplated.Fields))]
+        [DtoField(nameof(ITemplated.Fields))]
         private Dictionary<string, string> _fields;
 
-        [JsonProperty(nameof(ITemplated.Method))]
+        [DtoField(nameof(ITemplated.Method))]
         private TemplateMethod _method;
 
-        [JsonProperty(nameof(ITemplated.TemplateLayer))]
+        [DtoField(nameof(ITemplated.TemplateLayer))]
         private int _templateLayer;
 
-        [JsonProperty(nameof(ITemplated.ScheduledDelay))]
+        [DtoField(nameof(ITemplated.ScheduledDelay))]
         private TimeSpan _scheduledDelay;
 
-        [JsonProperty(nameof(ITemplated.StartType))]
+        [DtoField(nameof(ITemplated.StartType))]
         private TStartType _startType;
 
 #pragma warning restore

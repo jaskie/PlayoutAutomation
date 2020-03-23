@@ -5,10 +5,9 @@ namespace TAS.Common.Interfaces.Media
 {
     public interface IPersistentMedia: IMedia, IPersistentMediaProperties
     {
-        bool IsModified { get; set; }
         IDictionary<string, int> FieldLengths { get; }
         IMediaSegments GetMediaSegments();
-        bool Save();
+        void Save();
     }
 
     public interface IPersistentMediaProperties: IMediaProperties

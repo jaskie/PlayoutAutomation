@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -19,115 +18,115 @@ namespace TAS.Remoting.Model
     {
 #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IEvent.Id))]
+        [DtoField(nameof(IEvent.Id))]
         private ulong _id;
 
-        [JsonProperty(nameof(IEvent.AudioVolume))]
+        [DtoField(nameof(IEvent.AudioVolume))]
         private double? _audioVolume;
 
-        [JsonProperty(nameof(IEvent.AutoStartFlags))]
+        [DtoField(nameof(IEvent.AutoStartFlags))]
         private AutoStartFlags _autoStartFlags;
 
-        [JsonProperty(nameof(IEvent.Crawl))]
+        [DtoField(nameof(IEvent.Crawl))]
         private byte _crawl;
 
-        [JsonProperty(nameof(IEvent.RouterPort))]
+        [DtoField(nameof(IEvent.RouterPort))]
         private int _routerPort;
 
-        [JsonProperty(nameof(IEvent.Duration))]
+        [DtoField(nameof(IEvent.Duration))]
         private TimeSpan _duration;
 
-        [JsonProperty(nameof(IEvent.EndTime))]
+        [DtoField(nameof(IEvent.EndTime))]
         private DateTime _endTime;
 
-        [JsonProperty(nameof(IEvent.Engine))]
+        [DtoField(nameof(IEvent.Engine))]
         private IEngine _engine;
 
-        [JsonProperty(nameof(IEvent.EventName))]
+        [DtoField(nameof(IEvent.EventName))]
         private string _eventName;
 
-        [JsonProperty(nameof(IEvent.EventType))]
+        [DtoField(nameof(IEvent.EventType))]
         private TEventType _eventType;
 
-        [JsonProperty(nameof(IEvent.IdAux))]
+        [DtoField(nameof(IEvent.IdAux))]
         private string _idAux;
 
-        [JsonProperty(nameof(IEvent.IdProgramme))]
+        [DtoField(nameof(IEvent.IdProgramme))]
         private ulong _idProgramme;
 
-        [JsonProperty(nameof(IEvent.IsCGEnabled))]
+        [DtoField(nameof(IEvent.IsCGEnabled))]
         private bool _isCGEnabled;
 
-        [JsonProperty(nameof(IEvent.IsDeleted))]
+        [DtoField(nameof(IEvent.IsDeleted))]
         private bool _isDeleted;
 
-        [JsonProperty(nameof(IEvent.IsEnabled))]
+        [DtoField(nameof(IEvent.IsEnabled))]
         private bool _isEnabled;
 
-        [JsonProperty(nameof(IEvent.IsForcedNext))]
+        [DtoField(nameof(IEvent.IsForcedNext))]
         private bool _isForcedNext;
 
-        [JsonProperty(nameof(IEvent.IsHold))]
+        [DtoField(nameof(IEvent.IsHold))]
         private bool _isHold;
 
-        [JsonProperty(nameof(IEvent.IsLoop))]
+        [DtoField(nameof(IEvent.IsLoop))]
         private bool _isLoop;
 
-        [JsonProperty(nameof(IEvent.Layer))]
+        [DtoField(nameof(IEvent.Layer))]
         private VideoLayer _layer;
 
-        [JsonProperty(nameof(IEvent.Logo))]
+        [DtoField(nameof(IEvent.Logo))]
         private byte _logo;
 
-        [JsonProperty(nameof(IEvent.Media))]
+        [DtoField(nameof(IEvent.Media))]
         private MediaBase _media;
 
-        [JsonProperty(nameof(IEvent.MediaGuid))]
+        [DtoField(nameof(IEvent.MediaGuid))]
         private Guid _mediaGuid;
 
-        [JsonProperty(nameof(IEvent.Offset))]
+        [DtoField(nameof(IEvent.Offset))]
         private TimeSpan? _offset;
 
-        [JsonProperty(nameof(IEvent.Parental))]
+        [DtoField(nameof(IEvent.Parental))]
         private byte _parental;
 
-        [JsonProperty(nameof(IEvent.PlayState))]
+        [DtoField(nameof(IEvent.PlayState))]
         private TPlayState _playState;
 
-        [JsonProperty(nameof(IEvent.RequestedStartTime))]
+        [DtoField(nameof(IEvent.RequestedStartTime))]
         private TimeSpan? _requestedStartTime;
 
-        [JsonProperty(nameof(IEvent.ScheduledDelay))]
+        [DtoField(nameof(IEvent.ScheduledDelay))]
         private TimeSpan _scheduledDelay;
 
-        [JsonProperty(nameof(IEvent.ScheduledTc))]
+        [DtoField(nameof(IEvent.ScheduledTc))]
         private TimeSpan _scheduledTc;
 
-        [JsonProperty(nameof(IEvent.ScheduledTime))]
+        [DtoField(nameof(IEvent.ScheduledTime))]
         private DateTime _scheduledTime;
 
-        [JsonProperty(nameof(IEvent.StartTc))]
+        [DtoField(nameof(IEvent.StartTc))]
         private TimeSpan _startTc;
 
-        [JsonProperty(nameof(IEvent.StartTime))]
+        [DtoField(nameof(IEvent.StartTime))]
         private DateTime _startTime;
 
-        [JsonProperty(nameof(IEvent.StartType))]
+        [DtoField(nameof(IEvent.StartType))]
         private TStartType _startType;
 
-        [JsonProperty(nameof(IEvent.SubEventsCount))]
+        [DtoField(nameof(IEvent.SubEventsCount))]
         private int _subEventsCount;
 
-        [JsonProperty(nameof(IEvent.TransitionEasing))]
+        [DtoField(nameof(IEvent.TransitionEasing))]
         private TEasing _transitionEasing;
 
-        [JsonProperty(nameof(IEvent.TransitionPauseTime))]
+        [DtoField(nameof(IEvent.TransitionPauseTime))]
         private TimeSpan _transitionPauseTime;
 
-        [JsonProperty(nameof(IEvent.TransitionTime))]
+        [DtoField(nameof(IEvent.TransitionTime))]
         private TimeSpan _transitionTime;
 
-        [JsonProperty(nameof(IEvent.TransitionType))]
+        [DtoField(nameof(IEvent.TransitionType))]
         private TTransitionType _transitionType;
 
         private Lazy<IEvent> _parent;
@@ -138,10 +137,10 @@ namespace TAS.Remoting.Model
 
         private Lazy<List<IEvent>> _subEvents;
 
-        [JsonProperty(nameof(IEvent.CurrentUserRights))]
+        [DtoField(nameof(IEvent.CurrentUserRights))]
         private ulong _currentUserRights;
 
-        [JsonProperty(nameof(IEvent.RecordingInfo))]
+        [DtoField(nameof(IEvent.RecordingInfo))]
         private RecordingInfo _recordingInfo;
 
 #pragma warning restore

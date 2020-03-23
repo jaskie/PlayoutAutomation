@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using jNet.RPC;
 using TAS.Common.Interfaces.Security;
 
 namespace TAS.Remoting.Model.Security
@@ -7,7 +7,7 @@ namespace TAS.Remoting.Model.Security
     {
 
 #pragma warning disable CS0649
-        [JsonProperty(nameof(IGroup.Name))]
+        [DtoField(nameof(IGroup.Name))]
         private string _name;
 #pragma warning restore
 

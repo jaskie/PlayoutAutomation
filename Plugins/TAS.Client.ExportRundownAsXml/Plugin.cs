@@ -3,14 +3,14 @@ using TAS.Client.Common.Plugin;
 
 namespace TAS.Client.UiPluginExample
 {
-    public class UiPlugin : IUiPlugin
+    public class Plugin : IUiPlugin
     {
-        private readonly UiMenuItem _menu;
+        private readonly MenuItem _menu;
 
-        public UiPlugin(IUiPluginContext context)
+        public Plugin(IUiPluginContext context)
         {
             Context = context;
-            _menu = new UiMenuItem(this) {Header = "Export selected rundown as XML"};
+            _menu = new MenuItem(this) {Header = "Export selected rundown as XML"};
             Debug.WriteLine(this, "Plugin created");
             context.PropertyChanged += Context_PropertyChanged;
         }

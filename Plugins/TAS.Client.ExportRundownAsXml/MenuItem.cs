@@ -6,9 +6,9 @@ using TAS.Common;
 
 namespace TAS.Client.UiPluginExample
 {
-    public class UiMenuItem: UiMenuItemBase
+    public class MenuItem: UiMenuItemBase
     {
-        public UiMenuItem(IUiPlugin owner) : base(owner)
+        public MenuItem(IUiPlugin owner) : base(owner)
         {
             Items = new List<IUiMenuItem>();
         }

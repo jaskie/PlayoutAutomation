@@ -1,6 +1,6 @@
-﻿using System;
+﻿using jNet.RPC;
+using System;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Server.Media;
@@ -12,7 +12,7 @@ namespace TAS.Server.MediaOperation
 
         private IMedia _source;
 
-        [JsonProperty]
+        [DtoField]
         public IMedia Source { get => _source; set => SetField(ref _source, value); }
 
         

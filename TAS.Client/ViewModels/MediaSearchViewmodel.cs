@@ -32,6 +32,10 @@ namespace TAS.Client.ViewModels
         private object _mediaCategory;
         private MediaViewViewmodel _selectedItem;
         private string _okButtonText = "OK";
+        internal TStartType NewEventStartType;
+        private ObservableCollection<MediaViewViewmodel> _items = new ObservableCollection<MediaViewViewmodel>();
+        private bool _isRecursive;
+        private bool _showExpired;
 
         public MediaSearchViewmodel(IPreview preview, IEngine engine, TMediaType mediaType, VideoLayer layer,
             bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
@@ -63,9 +67,9 @@ namespace TAS.Client.ViewModels
             var sec = _mediaType == TMediaType.Animation
                 ? (IWatcherDirectory)Engine.MediaManager.AnimationDirectorySEC
                 : Engine.MediaManager.MediaDirectorySEC;
-            _searchDirectory = pri != null && await Task.Run(() => pri.DirectoryExists())
+            _searchDirectory = pri != null && await Task.Run(() => pri.DirectoryExists)
                 ? pri
-                : sec != null && await Task.Run(() => sec.DirectoryExists())
+                : sec != null && await Task.Run(() => sec.DirectoryExists)
                     ? sec
                     : null;
             if (_searchDirectory == null)
@@ -144,7 +148,7 @@ namespace TAS.Client.ViewModels
             {
                 if (!SetField(ref _showExpired, value))
                     return;
-                _itemsView.Refresh();
+                _itemsView?.Refresh();
             }
         }
 
@@ -188,11 +192,6 @@ namespace TAS.Client.ViewModels
         }
 
         public event EventHandler<MediaSearchEventArgs> MediaChoosen;
-
-        internal TStartType NewEventStartType;
-        private ObservableCollection<MediaViewViewmodel> _items;
-        private bool _isRecursive;
-        private bool _showExpired;
 
         internal IEvent BaseEvent
         {
@@ -400,14 +399,14 @@ namespace TAS.Client.ViewModels
 
         private void SortByName()
         {
-            _itemsView.SortDescriptions.Clear();
-            _itemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
+            _itemsView?.SortDescriptions.Clear();
+            _itemsView?.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
         }
 
         private void SortByIngestDate()
         {
-            _itemsView.SortDescriptions.Clear();
-            _itemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending));
+            _itemsView?.SortDescriptions.Clear();
+            _itemsView?.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending));
         }
 
     }

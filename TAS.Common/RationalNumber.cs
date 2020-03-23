@@ -5,25 +5,21 @@ using System.Runtime.Serialization;
 namespace TAS.Common
 {
     [DebuggerDisplay("{Num}/{Den}")]
-    [DataContract]
     public struct RationalNumber : IEquatable<RationalNumber>
     {
-        [DataMember(Name ="Num")]
-        private readonly long _num;
-        [DataMember(Name ="Den")]
-        private readonly long _den;
-
-        public RationalNumber(long numerator, long denominator)
+        public RationalNumber(long num, long den)
         {
-            _num = numerator;
-            _den = denominator;
+            Num = num;
+            Den = den;
         }
-        public long Num => _num;
-        public long Den => _den;
+        public long Num { get; }
+        public long Den { get; }
 
-        public bool IsZero => _num == 0;
+        [IgnoreDataMember]
+        public bool IsZero => Num == 0;
 
-        public bool IsInvalid => _den == 0 && _num != 0;
+        [IgnoreDataMember]
+        public bool IsInvalid => Den == 0 && Num != 0;
 
         public bool Equals(RationalNumber r)
         {
@@ -31,7 +27,7 @@ namespace TAS.Common
                 return true;
             if (r.IsInvalid && IsInvalid)
                 return true;
-            return _num * r._den == _den * r._num;
+            return Num * r.Den == Den * r.Num;
         }
 
         public override bool Equals(object o)
@@ -46,8 +42,8 @@ namespace TAS.Common
             if (IsZero)
                 return 0;
             if (IsInvalid)
-                return Int32.MinValue;
-            return ((float)_num / _den).GetHashCode();
+                return int.MinValue;
+            return ((float)Num / Den).GetHashCode();
         }
 
         public static RationalNumber Zero = new RationalNumber(0, 1);
@@ -56,7 +52,7 @@ namespace TAS.Common
 
         public override string ToString()
         {
-            return $"{_num}/{_den}";
+            return $"{Num}/{Den}";
         }
 
         #region Operators

@@ -1,7 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using jNet.RPC;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -66,20 +65,20 @@ namespace TAS.Server
             _templateLayer = templateLayer;
         }
 
-        [JsonProperty]
+        [DtoField]
         public Dictionary<string, string> Fields
         {
             get => _fields;
             set => SetField(ref _fields, value == null ? new Dictionary<string, string>() : new Dictionary<string, string>(value));
         }
 
-        [JsonProperty]
+        [DtoField]
         public TemplateMethod Method {
             get => _method;
             set => SetField(ref _method, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public int TemplateLayer {
             get => _templateLayer;
             set => SetField(ref _templateLayer, value);

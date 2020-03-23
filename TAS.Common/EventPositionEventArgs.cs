@@ -9,9 +9,9 @@ namespace TAS.Common
             Position = position;
             TimeToFinish = timeToFinish;
         }
-        [Newtonsoft.Json.JsonProperty]
-        public long Position { get; private set; }
-        [Newtonsoft.Json.JsonProperty]
-        public TimeSpan TimeToFinish { get; private set; }
+        
+        public long Position { get; }
+        
+        public TimeSpan TimeToFinish { get; }
     }
 }

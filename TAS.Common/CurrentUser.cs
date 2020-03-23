@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
 
 namespace TAS.Common

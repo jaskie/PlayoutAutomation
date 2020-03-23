@@ -5,8 +5,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using jNet.RPC;
 using jNet.RPC.Server;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -43,7 +43,7 @@ namespace TAS.Server.Media
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         #region IMediaProperties
-        [JsonProperty]
+        [DtoField]
         public string Folder
         {
             get => _folder;
@@ -54,7 +54,7 @@ namespace TAS.Server.Media
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public string FileName
         {
             get => _fileName;
@@ -65,14 +65,14 @@ namespace TAS.Server.Media
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public ulong FileSize 
         {
             get => _fileSize;
             set => SetField(ref _fileSize, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public DateTime LastUpdated
         {
             get => _lastUpdated;
@@ -95,120 +95,119 @@ namespace TAS.Server.Media
         //}
 
         // media parameters
-        [JsonProperty]
+        [DtoField]
         public virtual string MediaName
         {
             get => _mediaName;
             set => SetField(ref _mediaName, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public TMediaType MediaType
         {
             get => _mediaType;
             set => SetField(ref _mediaType, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual TimeSpan Duration
         {
             get => _duration;
             set => SetField(ref _duration, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual TimeSpan DurationPlay
         {
             get => _durationPlay;
             set => SetField(ref _durationPlay, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual TimeSpan TcStart 
         {
             get => _tcStart;
             set => SetField(ref _tcStart, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual TimeSpan TcPlay
         {
             get => _tcPlay;
             set => SetField(ref _tcPlay, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual TVideoFormat VideoFormat
         {
             get => _videoFormat;
             set => SetField(ref _videoFormat, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual bool FieldOrderInverted
         {
             get => _fieldOrderInverted;
             set => SetField(ref _fieldOrderInverted, value);
         }
 
-        [JsonProperty]
-        [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+        [DtoField]
         public virtual TAudioChannelMapping AudioChannelMapping 
         {
             get => _audioChannelMapping;
             set => SetField(ref _audioChannelMapping, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual double AudioVolume // correction amount on play
         {
             get => _audioVolume;
             set => SetField(ref _audioVolume, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual double AudioLevelIntegrated //measured
         {
             get => _audioLevelIntegrated;
             set => SetField(ref _audioLevelIntegrated, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual double AudioLevelPeak //measured
         {
             get => _audioLevelPeak;
             set => SetField(ref _audioLevelPeak, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual TMediaCategory MediaCategory
         {
             get => _mediaCategory;
             set => SetField(ref _mediaCategory, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual byte Parental
         {
             get => _parental;
             set => SetField(ref _parental, value);
         }
         
-        [JsonProperty]
+        [DtoField]
         public Guid MediaGuid
         {
             get => _mediaGuid;
             set => SetField(ref _mediaGuid, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public TMediaStatus MediaStatus
         {
             get => _mediaStatus;
             set => SetField(ref _mediaStatus, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsVerified
         {
             get => _verified;
@@ -219,7 +218,7 @@ namespace TAS.Server.Media
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public IMediaDirectory Directory { get; internal set; }
 
         #endregion //IMediaProperties
@@ -326,7 +325,7 @@ namespace TAS.Server.Media
             if (_mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required || 
                 (Directory is IngestDirectory ingestDirectory && ingestDirectory.AccessType != TDirectoryAccessType.Direct))
                 return;
-            if (Directory?.DirectoryExists() == true && !FileExists())
+            if (Directory?.DirectoryExists== true && !FileExists())
             {
                 _mediaStatus = TMediaStatus.Deleted;
                 return; // in case that no file was found, and directory exists

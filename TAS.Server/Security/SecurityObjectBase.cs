@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
+using jNet.RPC;
 using jNet.RPC.Server;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Database;
 using TAS.Common.Interfaces.Security;
@@ -23,13 +23,13 @@ namespace TAS.Server.Security
 
         public abstract SecurityObjectType SecurityObjectTypeType { get; }
 
-        [JsonProperty, XmlIgnore]
+        [DtoField, XmlIgnore]
         public IAuthenticationService AuthenticationService { get; set; }
 
         [XmlIgnore]
         public ulong Id { get; set; }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public string Name
         {
             get => _name;

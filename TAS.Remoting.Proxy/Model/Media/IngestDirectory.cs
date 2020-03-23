@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using jNet.RPC;
+using System.Collections.Generic;
 using TAS.Common;
 using TAS.Common.Interfaces.MediaDirectory;
 
@@ -9,94 +9,94 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IIngestDirectory.DirectoryName))]
+        [DtoField(nameof(IIngestDirectory.DirectoryName))]
         private string _directoryName;
 
-        [JsonProperty(nameof(IIngestDirectory.AccessType))]
+        [DtoField(nameof(IIngestDirectory.AccessType))]
         private TDirectoryAccessType _accessType;
 
-        [JsonProperty(nameof(IIngestDirectory.AspectConversion))]
+        [DtoField(nameof(IIngestDirectory.AspectConversion))]
         private TAspectConversion _aspectConversion;
 
-        [JsonProperty(nameof(IIngestDirectory.AudioVolume))]
+        [DtoField(nameof(IIngestDirectory.AudioVolume))]
         private double _audioVolume;
 
-        [JsonProperty(nameof(IIngestDirectory.DeleteSource))]
+        [DtoField(nameof(IIngestDirectory.DeleteSource))]
         private bool _deleteSource;
 
-        [JsonProperty(nameof(IIngestDirectory.EncodeParams))]
+        [DtoField(nameof(IIngestDirectory.EncodeParams))]
         private string _encodeParams;
 
-        [JsonProperty(nameof(IIngestDirectory.ExportParams))]
+        [DtoField(nameof(IIngestDirectory.ExportParams))]
         private string _exportParams;
 
-        [JsonProperty(nameof(IIngestDirectory.IsWAN))]
+        [DtoField(nameof(IIngestDirectory.IsWAN))]
         private bool _isWan;
 
-        [JsonProperty(nameof(IIngestDirectory.Kind))]
+        [DtoField(nameof(IIngestDirectory.Kind))]
         private TIngestDirectoryKind _kind;
 
-        [JsonProperty(nameof(IIngestDirectory.IsRecursive))]
+        [DtoField(nameof(IIngestDirectory.IsRecursive))]
         private bool _isRecursive;
 
-        [JsonProperty(nameof(IIngestDirectory.IsExport))]
+        [DtoField(nameof(IIngestDirectory.IsExport))]
         private bool _isExport;
 
-        [JsonProperty(nameof(IIngestDirectory.IsImport))]
+        [DtoField(nameof(IIngestDirectory.IsImport))]
         private bool _isImport;
 
-        [JsonProperty(nameof(IIngestDirectory.MediaCategory))]
+        [DtoField(nameof(IIngestDirectory.MediaCategory))]
         private TMediaCategory _mediaCategory;
 
-        [JsonProperty(nameof(IIngestDirectory.MediaDoNotArchive))]
+        [DtoField(nameof(IIngestDirectory.MediaDoNotArchive))]
         private bool _mediaDoNotArchive;
 
-        [JsonProperty(nameof(IIngestDirectory.MediaRetnentionDays))]
+        [DtoField(nameof(IIngestDirectory.MediaRetnentionDays))]
         private int _mediaRetnentionDays;
 
-        [JsonProperty(nameof(IIngestDirectory.MediaLoudnessCheckAfterIngest))]
+        [DtoField(nameof(IIngestDirectory.MediaLoudnessCheckAfterIngest))]
         private bool _mediaLoudnessCheckAfterIngest;
 
-        [JsonProperty(nameof(IIngestDirectory.SourceFieldOrder))]
+        [DtoField(nameof(IIngestDirectory.SourceFieldOrder))]
         private TFieldOrder _sourceFieldOrder;
 
-        [JsonProperty(nameof(IIngestDirectory.MXFAudioExportFormat))]
+        [DtoField(nameof(IIngestDirectory.MXFAudioExportFormat))]
         private TmXFAudioExportFormat _mxfAudioExportFormat;
 
-        [JsonProperty(nameof(IIngestDirectory.MXFVideoExportFormat))]
+        [DtoField(nameof(IIngestDirectory.MXFVideoExportFormat))]
         private TmXFVideoExportFormat _mxfVideoExportFormat;
 
-        [JsonProperty(nameof(IIngestDirectory.ExportContainerFormat))]
+        [DtoField(nameof(IIngestDirectory.ExportContainerFormat))]
         private TMovieContainerFormat _exportContainerFormat;
 
-        [JsonProperty(nameof(IIngestDirectory.ExportVideoFormat))]
+        [DtoField(nameof(IIngestDirectory.ExportVideoFormat))]
         private TVideoFormat _exportVideoFormat;
 
-        [JsonProperty(nameof(IIngestDirectory.VideoCodec))]
+        [DtoField(nameof(IIngestDirectory.VideoCodec))]
         private TVideoCodec _videoCodec;
 
-        [JsonProperty(nameof(IIngestDirectory.AudioCodec))]
+        [DtoField(nameof(IIngestDirectory.AudioCodec))]
         private TAudioCodec _audioCodec;
 
-        [JsonProperty(nameof(IIngestDirectory.VideoBitrateRatio))]
+        [DtoField(nameof(IIngestDirectory.VideoBitrateRatio))]
         private double _videoBitrateRatio;
 
-        [JsonProperty(nameof(IIngestDirectory.AudioBitrateRatio))]
+        [DtoField(nameof(IIngestDirectory.AudioBitrateRatio))]
         private double _audioBitrateRatio;
 
-        [JsonProperty(nameof(IIngestDirectory.Extensions))]
+        [DtoField(nameof(IIngestDirectory.Extensions))]
         private string[] _extensions;
 
-        [JsonProperty(nameof(IIngestDirectory.Password))]
+        [DtoField(nameof(IIngestDirectory.Password))]
         private string _password;
 
-        [JsonProperty(nameof(IIngestDirectory.Username))]
+        [DtoField(nameof(IIngestDirectory.Username))]
         private string _username;
 
-        [JsonProperty(nameof(IIngestDirectory.XdcamClipCount))]
+        [DtoField(nameof(IIngestDirectory.XdcamClipCount))]
         private int _xdcamClipCount;
 
-        [JsonProperty(nameof(SubDirectories))]
+        [DtoField(nameof(SubDirectories))]
         private List<IngestDirectory> _subDirectories;
 
         #pragma warning restore

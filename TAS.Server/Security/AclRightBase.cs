@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using jNet.RPC;
 using jNet.RPC.Server;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
 
@@ -16,14 +16,14 @@ namespace TAS.Server.Security
         /// <summary>
         /// object to who right is assigned
         /// </summary>
-        [JsonProperty]
+        [DtoField]
         public ISecurityObject SecurityObject
         {
             get => _securityObject;
             set => SetField(ref _securityObject, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public ulong Acl
         {
             get => _acl;

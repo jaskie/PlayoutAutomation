@@ -1,5 +1,5 @@
-﻿using System.Collections.ObjectModel;
-using Newtonsoft.Json;
+﻿using jNet.RPC;
+using System.Collections.ObjectModel;
 using TAS.Common;
 using TAS.Common.Interfaces.Security;
 
@@ -8,22 +8,22 @@ namespace TAS.Remoting.Model.Security
     public class User: SecurityObjectBase, IUser
     {
 #pragma warning disable CS0649 
-        [JsonProperty(nameof(IUser.Name))]
+        [DtoField(nameof(IUser.Name))]
         private string _name;
         
-        [JsonProperty(nameof(IUser.IsAuthenticated))]
+        [DtoField(nameof(IUser.IsAuthenticated))]
         private bool _isAuthenticated;
 
-        [JsonProperty(nameof(IUser.AuthenticationType))]
+        [DtoField(nameof(IUser.AuthenticationType))]
         private string _authenticationType;
 
-        [JsonProperty(nameof(IUser.IsAdmin))]
+        [DtoField(nameof(IUser.IsAdmin))]
         private bool _isAdmin;
 
-        [JsonProperty(nameof(IUser.AuthenticationSource))]
+        [DtoField(nameof(IUser.AuthenticationSource))]
         private AuthenticationSource _authenticationSource;
 
-        [JsonProperty(nameof(IUser.AuthenticationObject))]
+        [DtoField(nameof(IUser.AuthenticationObject))]
         private string _authenticationObject;
 #pragma warning restore
 

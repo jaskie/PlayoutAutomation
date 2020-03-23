@@ -1,7 +1,7 @@
-﻿using System;
+﻿using jNet.RPC;
+using System;
 using System.IO;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -16,10 +16,10 @@ namespace TAS.Server.MediaOperation
 
         private IMedia _sourceMedia;
 
-        [JsonProperty]
+        [DtoField]
         public IMediaDirectory DestDirectory { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public IMedia Source { get => _sourceMedia; set => SetField(ref _sourceMedia, value); }
 
         internal MediaBase Dest { get; set; }

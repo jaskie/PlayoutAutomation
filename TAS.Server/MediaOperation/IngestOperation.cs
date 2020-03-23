@@ -6,7 +6,6 @@ using System.Threading;
 using System.Text;
 using System.ComponentModel;
 using TAS.FFMpegUtils;
-using Newtonsoft.Json;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -18,6 +17,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Dependencies;
 using TAS.Server.Media;
 using LogLevel = NLog.LogLevel;
+using jNet.RPC;
 
 namespace TAS.Server.MediaOperation
 {
@@ -43,67 +43,67 @@ namespace TAS.Server.MediaOperation
             _audioChannelMappingConversion = TAudioChannelMappingConversion.FirstTwoChannels;
         }
 
-        [JsonProperty]
+        [DtoField]
         public IMedia Source { get => _source; set => SetField(ref _source, value); }
 
-        [JsonProperty]
+        [DtoField]
         public IMediaProperties DestProperties { get => _destProperties; set => SetField(ref _destProperties, value); }
 
-        [JsonProperty]
+        [DtoField]
         public IMediaDirectory DestDirectory { get => _destDirectory; set => SetField(ref _destDirectory, value); }
 
         internal MediaBase Dest { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public TAspectConversion AspectConversion
         {
             get => _aspectConversion;
             set => SetField(ref _aspectConversion, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public TAudioChannelMappingConversion AudioChannelMappingConversion
         {
             get => _audioChannelMappingConversion;
             set => SetField(ref _audioChannelMappingConversion, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public double AudioVolume
         {
             get => _audioVolume;
             set => SetField(ref _audioVolume, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public TFieldOrder SourceFieldOrderEnforceConversion
         {
             get => _sourceFieldOrderEnforceConversion;
             set => SetField(ref _sourceFieldOrderEnforceConversion, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan StartTC
         {
             get => _startTc;
             set => SetField(ref _startTc, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan Duration
         {
             get => _duration;
             set => SetField(ref _duration, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool Trim
         {
             get => _trim;
             set => SetField(ref _trim, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool LoudnessCheck { get; set; }
 
         protected override void OnOperationStatusChanged()

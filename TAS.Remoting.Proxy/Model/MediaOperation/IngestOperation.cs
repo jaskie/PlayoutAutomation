@@ -1,5 +1,5 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using jNet.RPC;
+using System;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -13,37 +13,37 @@ namespace TAS.Remoting.Model.MediaOperation
 
 #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IIngestOperation.DestProperties))]
+        [DtoField(nameof(IIngestOperation.DestProperties))]
         private IMediaProperties _destProperties;
 
-        [JsonProperty(nameof(IIngestOperation.DestDirectory))]
+        [DtoField(nameof(IIngestOperation.DestDirectory))]
         private MediaDirectoryBase _destDirectory;
 
-        [JsonProperty(nameof(IIngestOperation.Source))]
+        [DtoField(nameof(IIngestOperation.Source))]
         private MediaBase _source;
 
-        [JsonProperty(nameof(IIngestOperation.AspectConversion))]
+        [DtoField(nameof(IIngestOperation.AspectConversion))]
         private TAspectConversion _aspectConversion;
 
-        [JsonProperty(nameof(IIngestOperation.AudioChannelMappingConversion))]
+        [DtoField(nameof(IIngestOperation.AudioChannelMappingConversion))]
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
 
-        [JsonProperty(nameof(IIngestOperation.AudioVolume))]
+        [DtoField(nameof(IIngestOperation.AudioVolume))]
         private double _audioVolume;
 
-        [JsonProperty(nameof(IIngestOperation.SourceFieldOrderEnforceConversion))]
+        [DtoField(nameof(IIngestOperation.SourceFieldOrderEnforceConversion))]
         private TFieldOrder _sourceFieldOrderEnforceConversion;
 
-        [JsonProperty(nameof(IIngestOperation.StartTC))]
+        [DtoField(nameof(IIngestOperation.StartTC))]
         private TimeSpan _startTc;
 
-        [JsonProperty(nameof(IIngestOperation.Duration))]
+        [DtoField(nameof(IIngestOperation.Duration))]
         private TimeSpan _duration;
 
-        [JsonProperty(nameof(IIngestOperation.Trim))]
+        [DtoField(nameof(IIngestOperation.Trim))]
         private bool _trim;
 
-        [JsonProperty(nameof(IIngestOperation.LoudnessCheck))]
+        [DtoField(nameof(IIngestOperation.LoudnessCheck))]
         private bool _loudnessCheck;
         
 

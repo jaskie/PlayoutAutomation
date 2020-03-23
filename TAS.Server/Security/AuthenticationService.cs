@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using jNet.RPC;
 using jNet.RPC.Server;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Security;
 
@@ -32,10 +32,10 @@ namespace TAS.Server.Security
 
         public static IAuthenticationService Current { get; } = new AuthenticationService();
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [DtoField]
         public IEnumerable<IUser> Users => _users.Items;
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [DtoField]
         public IEnumerable<IGroup> Groups => _groups.Items;
 
         public IUser CreateUser() => new User(this);

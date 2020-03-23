@@ -1249,48 +1249,56 @@ VALUES
 #endif
         {
             var flags = dataReader.IsDBNull("flags") ? 0 : dataReader.GetUInt32("flags");
-            media.MediaName = dataReader.IsDBNull("MediaName") ? string.Empty : dataReader.GetString("MediaName");
-            media.LastUpdated = dataReader.GetDateTime("LastUpdated");
-            media.MediaGuid = dataReader.GetGuid("MediaGuid");
-            media.MediaType = (TMediaType)(dataReader.IsDBNull("typMedia") ? 0 : dataReader.GetInt32("typMedia"));
-            media.Duration = dataReader.IsDBNull("Duration") ? default : dataReader.GetTimeSpan("Duration");
-            media.DurationPlay = dataReader.IsDBNull("DurationPlay") ? default : dataReader.GetTimeSpan("DurationPlay");
-            media.Folder = dataReader.IsDBNull("Folder") ? string.Empty : dataReader.GetString("Folder");
-            media.FileName = dataReader.IsDBNull("FileName") ? string.Empty : dataReader.GetString("FileName");
-            media.FileSize = dataReader.IsDBNull("FileSize") ? 0 : dataReader.GetUInt64("FileSize");
-            media.MediaStatus = (TMediaStatus)(dataReader.IsDBNull("statusMedia") ? 0 : dataReader.GetInt32("statusMedia"));
-            media.TcStart = dataReader.IsDBNull("TCStart") ? default : dataReader.GetTimeSpan("TCStart");
-            media.TcPlay = dataReader.IsDBNull("TCPlay") ? default : dataReader.GetTimeSpan("TCPlay");
-            media.IdProgramme = dataReader.IsDBNull("idProgramme") ? 0 : dataReader.GetUInt64("idProgramme");
-            media.AudioVolume = dataReader.IsDBNull("AudioVolume") ? 0 : dataReader.GetDouble("AudioVolume");
-            media.AudioLevelIntegrated = dataReader.IsDBNull("AudioLevelIntegrated") ? 0 : dataReader.GetDouble("AudioLevelIntegrated");
-            media.AudioLevelPeak = dataReader.IsDBNull("AudioLevelPeak") ? 0 : dataReader.GetDouble("AudioLevelPeak");
-            media.AudioChannelMapping = dataReader.IsDBNull("typAudio") ? TAudioChannelMapping.Stereo : (TAudioChannelMapping)dataReader.GetByte("typAudio");
-            media.VideoFormat = dataReader.IsDBNull("typVideo") ?  TVideoFormat.Other : (TVideoFormat)dataReader.GetByte("typVideo");
-            media.IdAux = dataReader.IsDBNull("idAux") ? string.Empty : dataReader.GetString("idAux");
-            media.KillDate = dataReader.IsDBNull("KillDate") ? (DateTime?)null : dataReader.GetDateTime("KillDate");
-            media.MediaEmphasis = (TMediaEmphasis)((flags >> 8) & 0xF);
-            media.Parental = (byte)((flags >> 12) & 0xF);
-            if (media is IServerMedia serverMedia)
-                serverMedia.DoNotArchive = (flags & 0x1) != 0;
-            media.IsProtected = (flags & 0x2) != 0;
-            media.FieldOrderInverted = (flags & 0x4) != 0;
-            media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
-            if (media is ITemplated templated)
+            media.BeginDbRead();
+            try
             {
-                var templateFields = dataReader.GetString("Fields");
-                if (!string.IsNullOrWhiteSpace(templateFields))
+                media.MediaName = dataReader.IsDBNull("MediaName") ? string.Empty : dataReader.GetString("MediaName");
+                media.LastUpdated = dataReader.GetDateTime("LastUpdated");
+                media.MediaGuid = dataReader.GetGuid("MediaGuid");
+                media.MediaType = (TMediaType)(dataReader.IsDBNull("typMedia") ? 0 : dataReader.GetInt32("typMedia"));
+                media.Duration = dataReader.IsDBNull("Duration") ? default : dataReader.GetTimeSpan("Duration");
+                media.DurationPlay = dataReader.IsDBNull("DurationPlay") ? default : dataReader.GetTimeSpan("DurationPlay");
+                media.Folder = dataReader.IsDBNull("Folder") ? string.Empty : dataReader.GetString("Folder");
+                media.FileName = dataReader.IsDBNull("FileName") ? string.Empty : dataReader.GetString("FileName");
+                media.FileSize = dataReader.IsDBNull("FileSize") ? 0 : dataReader.GetUInt64("FileSize");
+                media.MediaStatus = (TMediaStatus)(dataReader.IsDBNull("statusMedia") ? 0 : dataReader.GetInt32("statusMedia"));
+                media.TcStart = dataReader.IsDBNull("TCStart") ? default : dataReader.GetTimeSpan("TCStart");
+                media.TcPlay = dataReader.IsDBNull("TCPlay") ? default : dataReader.GetTimeSpan("TCPlay");
+                media.IdProgramme = dataReader.IsDBNull("idProgramme") ? 0 : dataReader.GetUInt64("idProgramme");
+                media.AudioVolume = dataReader.IsDBNull("AudioVolume") ? 0 : dataReader.GetDouble("AudioVolume");
+                media.AudioLevelIntegrated = dataReader.IsDBNull("AudioLevelIntegrated") ? 0 : dataReader.GetDouble("AudioLevelIntegrated");
+                media.AudioLevelPeak = dataReader.IsDBNull("AudioLevelPeak") ? 0 : dataReader.GetDouble("AudioLevelPeak");
+                media.AudioChannelMapping = dataReader.IsDBNull("typAudio") ? TAudioChannelMapping.Stereo : (TAudioChannelMapping)dataReader.GetByte("typAudio");
+                media.VideoFormat = dataReader.IsDBNull("typVideo") ? TVideoFormat.Other : (TVideoFormat)dataReader.GetByte("typVideo");
+                media.IdAux = dataReader.IsDBNull("idAux") ? string.Empty : dataReader.GetString("idAux");
+                media.KillDate = dataReader.IsDBNull("KillDate") ? (DateTime?)null : dataReader.GetDateTime("KillDate");
+                media.MediaEmphasis = (TMediaEmphasis)((flags >> 8) & 0xF);
+                media.Parental = (byte)((flags >> 12) & 0xF);
+                if (media is IServerMedia serverMedia)
+                    serverMedia.DoNotArchive = (flags & 0x1) != 0;
+                media.IsProtected = (flags & 0x2) != 0;
+                media.FieldOrderInverted = (flags & 0x4) != 0;
+                media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
+                if (media is ITemplated templated)
                 {
-                    var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
-                    if (fieldsDeserialized != null)
-                        templated.Fields = fieldsDeserialized;
+                    var templateFields = dataReader.GetString("Fields");
+                    if (!string.IsNullOrWhiteSpace(templateFields))
+                    {
+                        var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
+                        if (fieldsDeserialized != null)
+                            templated.Fields = fieldsDeserialized;
+                    }
+                    templated.Method = (TemplateMethod)dataReader.GetByte("Method");
+                    templated.TemplateLayer = dataReader.GetInt32("TemplateLayer");
+                    templated.ScheduledDelay = dataReader.GetTimeSpan("ScheduledDelay");
+                    templated.StartType = (TStartType)dataReader.GetByte("StartType");
+                    if (templated.StartType != TStartType.WithParentFromEnd)
+                        templated.StartType = TStartType.WithParent;
                 }
-                templated.Method = (TemplateMethod)dataReader.GetByte("Method");
-                templated.TemplateLayer = dataReader.GetInt32("TemplateLayer");
-                templated.ScheduledDelay = dataReader.GetTimeSpan("ScheduledDelay");
-                templated.StartType = (TStartType)dataReader.GetByte("StartType");
-                if (templated.StartType != TStartType.WithParentFromEnd)
-                    templated.StartType = TStartType.WithParent;
+            }
+            finally
+            {
+                media.EndDbRead();
             }
         }
 

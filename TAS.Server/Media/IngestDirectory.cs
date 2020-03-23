@@ -10,7 +10,7 @@ using System.Net.FtpClient;
 using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
+using jNet.RPC;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -68,75 +68,75 @@ namespace TAS.Server.Media
 
         public TVideoFormat ExportVideoFormat { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public string DirectoryName { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public TIngestDirectoryKind Kind { get; set; } = TIngestDirectoryKind.WatchFolder;
 
-        [JsonProperty]
+        [DtoField]
         public bool IsWAN { get; set; }
 
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public int XdcamClipCount { get => _xdcamClipCount; protected set => SetField(ref _xdcamClipCount, value); }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsRecursive { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsExport { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public TVideoCodec VideoCodec { get; set; }
-        [JsonProperty]
+        [DtoField]
         public TAudioCodec AudioCodec { get; set; }
 
         public double VideoBitrateRatio { get; set; } = 1;
         public double AudioBitrateRatio { get; set; } = 1;
 
         [DefaultValue(true)]
-        [JsonProperty]
+        [DtoField]
         public bool IsImport { get; set; } = true;
 
-        [JsonProperty]
+        [DtoField]
         public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
 
         public string ExportParams { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public bool MediaDoNotArchive { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public int MediaRetnentionDays { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public bool MediaLoudnessCheckAfterIngest { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public TMediaCategory MediaCategory { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public double AudioVolume { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public TFieldOrder SourceFieldOrder { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public TAspectConversion AspectConversion { get; set; }
         
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public TDirectoryAccessType AccessType { get; protected set; }
 
         [XmlArray(nameof(SubDirectories))]
         public List<IngestDirectory> _subDirectories;
 
         [XmlIgnore]
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [DtoField]
         public IEnumerable<IIngestDirectoryProperties> SubDirectories => _subDirectories;
 
         public string Username { get; set; }
@@ -147,7 +147,7 @@ namespace TAS.Server.Media
         [XmlArrayItem("Extension")]
         public string[] Extensions { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         [XmlIgnore]
         public override char PathSeparator => AccessType == TDirectoryAccessType.Direct ? Path.DirectorySeparatorChar : '/';
 

@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using jNet.RPC;
 using jNet.RPC.Server;
-using Newtonsoft.Json;
 using NLog;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -29,14 +29,14 @@ namespace TAS.Server.MediaOperation
         protected readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
         private bool _isAborted;
 
-        [JsonProperty]
+        [DtoField]
         public int TryCount
         {
             get => _tryCount;
             internal set => SetField(ref _tryCount, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public int Progress
         {
             get => _progress;
@@ -48,28 +48,28 @@ namespace TAS.Server.MediaOperation
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public DateTime ScheduledTime
         {
             get => _scheduledTime;
             internal set => SetField(ref _scheduledTime, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public DateTime StartTime
         {
             get => _startTime;
             protected set => SetField(ref _startTime, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public DateTime FinishedTime 
         {
             get => _finishedTime;
             protected set => SetField(ref _finishedTime, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public FileOperationStatus OperationStatus
         {
             get => _operationStatus;
@@ -108,21 +108,21 @@ namespace TAS.Server.MediaOperation
         }
 
 
-        [JsonProperty]
+        [DtoField]
         public bool IsIndeterminate
         {
             get => _isIndeterminate;
             set => SetField(ref _isIndeterminate, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsAborted
         {
             get => _isAborted;
             private set => SetField(ref _isAborted, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public List<string> OperationWarning
         {
             get
@@ -134,7 +134,7 @@ namespace TAS.Server.MediaOperation
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public List<string> OperationOutput
         {
             get

@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using jNet.RPC;
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -34,15 +33,15 @@ namespace TAS.Server.MediaOperation
             TryCount = 1;
         }
 
-        [JsonProperty]
+        [DtoField]
         public IMedia Source { get => _source; set => SetField(ref _source, value); }
 
         public event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured; // will not save to Media object if not null
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan MeasureStart { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan MeasureDuration { get; set; }
 
         protected override void OnOperationStatusChanged()

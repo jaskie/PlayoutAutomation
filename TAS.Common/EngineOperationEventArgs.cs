@@ -5,14 +5,14 @@ namespace TAS.Common
 {
     public class EngineOperationEventArgs : EventArgs
     {
-        public EngineOperationEventArgs(IEvent aEvent, TEngineOperation aOperation)
+        public EngineOperationEventArgs(IEvent @event, TEngineOperation operation)
         {
-            Operation = aOperation;
-            Event = aEvent;
+            Operation = operation;
+            Event = @event;
         }
-        [Newtonsoft.Json.JsonProperty]
-        public TEngineOperation Operation { get; private set; }
-        [Newtonsoft.Json.JsonProperty(IsReference = true)]
-        public IEvent Event { get; private set; }
+        
+        public TEngineOperation Operation { get; }
+        
+        public IEvent Event { get; }
     }
 }

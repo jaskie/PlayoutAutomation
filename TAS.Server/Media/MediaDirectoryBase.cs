@@ -3,8 +3,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using jNet.RPC;
 using jNet.RPC.Server;
-using Newtonsoft.Json;
 using NLog;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
@@ -26,37 +26,34 @@ namespace TAS.Server.Media
         internal event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged;
 
 
-        [JsonProperty, XmlIgnore]
+        [DtoField, XmlIgnore]
         public bool HaveFileWatcher { get; protected set; }
 
-        [XmlIgnore, JsonProperty]
+        [DtoField, XmlIgnore]
         public virtual long VolumeFreeSize
         {
             get => _volumeFreeSize;
             protected set => SetField(ref _volumeFreeSize, value);
         }
 
-        [XmlIgnore, JsonProperty]
+        [DtoField, XmlIgnore]
         public virtual long VolumeTotalSize
         {
             get => _volumeTotalSize;
             protected set => SetField(ref _volumeTotalSize, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public string Folder
         {
             get => _folder;
             set => SetField(ref _folder, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public virtual char PathSeparator => Path.DirectorySeparatorChar;
 
-        public bool DirectoryExists()
-        {
-            return Directory.Exists(Folder);
-        }
+        public bool DirectoryExists => Directory.Exists(Folder);
 
         public string GetUniqueFileName(string fileName)
         {

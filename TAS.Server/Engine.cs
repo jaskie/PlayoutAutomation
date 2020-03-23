@@ -8,7 +8,6 @@ using System.ComponentModel;
 using System.Xml.Serialization;
 using TAS.Common;
 using System.Collections.Concurrent;
-using Newtonsoft.Json;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using TAS.Common.Interfaces;
@@ -17,6 +16,7 @@ using TAS.Common.Interfaces.Security;
 using TAS.Server.Media;
 using TAS.Server.Security;
 using TAS.Common.Database;
+using jNet.RPC;
 
 namespace TAS.Server
 {
@@ -26,20 +26,20 @@ namespace TAS.Server
         private string _engineName;
         private bool _pst2Prv;
 
-        [JsonProperty(nameof(PlayoutChannelPRI))]
+        [DtoField(nameof(PlayoutChannelPRI))]
         private CasparServerChannel _playoutChannelPRI;
 
-        [JsonProperty(nameof(PlayoutChannelSEC))]
+        [DtoField(nameof(PlayoutChannelSEC))]
         private CasparServerChannel _playoutChannelSEC;
 
-        [JsonProperty(nameof(MediaManager))]
+        [DtoField(nameof(MediaManager))]
         private readonly MediaManager _mediaManager;
 
-        [JsonProperty(nameof(Preview))]
+        [DtoField(nameof(Preview))]
         private Preview _preview;
 
-        [JsonProperty(nameof(AuthenticationService))]
-        private IAuthenticationService _authenticationService;        
+        [DtoField(nameof(AuthenticationService))]
+        private IAuthenticationService _authenticationService;
 
         Thread _engineThread;
         private long _currentTicks;
@@ -70,6 +70,7 @@ namespace TAS.Server
         private bool _enableCGElementsForNewEvents;
         private bool _studioMode;
         private ConnectionStateRedundant _databaseConnectionState;
+        private TVideoFormat _videoFormat;
 
         public Engine()
         {
@@ -128,19 +129,19 @@ namespace TAS.Server
         [XmlIgnore]
         public int ServerChannelPRV { get; set; }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public int CGStartDelay { get; set; }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public string EngineName { get => _engineName; set => SetField(ref _engineName, value); }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public bool EnableCGElementsForNewEvents { get => _enableCGElementsForNewEvents; set => SetField(ref _enableCGElementsForNewEvents, value); }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public bool StudioMode { get => _studioMode; set => SetField(ref _studioMode, value); }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
 
         #endregion //IEngineProperties
@@ -149,25 +150,25 @@ namespace TAS.Server
 
         [XmlIgnore]
         public IPreview Preview => _preview;
-        
+
         [XmlIgnore]
         public IMediaManager MediaManager => _mediaManager;
 
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public ICGElementsController CGElementsController { get; private set; }
 
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public IRouter Router { get; private set; }
 
         [Hibernate]
         public ServerHost Remote { get; set; }
-        
-        [JsonProperty, Hibernate]
+
+        [DtoField, Hibernate]
         public TAspectRatioControl AspectRatioControl { get; set; }
 
-        [JsonProperty, Hibernate]
+        [DtoField, Hibernate]
         public int TimeCorrection
         {
             get => _timeCorrection;
@@ -194,22 +195,29 @@ namespace TAS.Server
         public IPlayoutServerChannel PlayoutChannelSEC => _playoutChannelSEC;
 
         [XmlIgnore]
-        [JsonProperty]
-        public long FrameTicks { get; private set; }
+        public long FrameTicks { get; private set; } = VideoFormatDescription.Descriptions[default].FrameTicks;
 
         [XmlIgnore]
-        [JsonProperty]
-        public RationalNumber FrameRate { get; private set; }
-
-        [JsonProperty, Hibernate]
-        public TVideoFormat VideoFormat { get; set; }
+        public RationalNumber FrameRate => FormatDescription.FrameRate;
 
         [XmlIgnore]
-        [JsonProperty(IsReference = false)]
-        public VideoFormatDescription FormatDescription { get; private set; }
+        public VideoFormatDescription FormatDescription { get; private set; } = VideoFormatDescription.Descriptions[default];
+
+        [DtoField, Hibernate]
+        public TVideoFormat VideoFormat
+        {
+            get => _videoFormat; 
+            set
+            {
+                if (!SetField(ref _videoFormat, value))
+                    return;
+                FormatDescription = VideoFormatDescription.Descriptions[value];
+                FrameTicks = FormatDescription.FrameTicks;
+            }
+        }
 
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public TEngineState EngineState
         {
             get => _engineState;
@@ -241,7 +249,7 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public bool FieldOrderInverted
         {
             get => _fieldOrderInverted;
@@ -256,7 +264,7 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public double ProgramAudioVolume
         {
             get => _programAudioVolume;
@@ -292,7 +300,7 @@ namespace TAS.Server
             if (sPRV != null && sPRV != sPRI && sPRV != sSEC)
                 recorders.AddRange(sPRV.Recorders.Select(r => r as CasparRecorder));
             var previewChannel = sPRV?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV) as CasparServerChannel;
-            if (previewChannel != null) 
+            if (previewChannel != null)
                 _preview = new Preview(this, previewChannel);
             _mediaManager.SetRecorders(recorders);
 
@@ -300,9 +308,6 @@ namespace TAS.Server
             _plugins = this.ComposeParts<IEnginePlugin>();
             CGElementsController = this.ComposePart<ICGElementsController>();
             Router = this.ComposePart<IRouter>();
-            FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
-            FrameTicks = FormatDescription.FrameTicks;
-            FrameRate = FormatDescription.FrameRate;
             _isWideScreen = FormatDescription.IsWideScreen;
             var chPRI = PlayoutChannelPRI as CasparServerChannel;
             var chSEC = PlayoutChannelSEC as CasparServerChannel;
@@ -348,7 +353,7 @@ namespace TAS.Server
             Logger.Debug("Engine {0} initialized", this);
         }
 
-        [JsonProperty]
+        [DtoField]
         public ConnectionStateRedundant DatabaseConnectionState { get => _databaseConnectionState; set => SetField(ref _databaseConnectionState, value); }
 
         [XmlIgnore]
@@ -373,7 +378,7 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        [JsonProperty]
+        [DtoField]
         public IEvent Playing
         {
             get => _playing;
@@ -394,7 +399,7 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public IEvent NextToPlay
         {
             get
@@ -422,7 +427,7 @@ namespace TAS.Server
             return e;
         }
 
-        [XmlIgnore, JsonProperty]
+        [DtoField, XmlIgnore]
         public IEvent ForcedNext
         {
             get => _forcedNext;
@@ -445,7 +450,7 @@ namespace TAS.Server
             }
         }
 
-        [XmlIgnore, JsonProperty]
+        [DtoField, XmlIgnore]
         public bool IsWideScreen
         {
             get { return _isWideScreen; }
@@ -460,7 +465,7 @@ namespace TAS.Server
             }
         }
 
-        [XmlIgnore, JsonProperty]
+        [DtoField, XmlIgnore]
         public bool Pst2Prv
         {
             get => _pst2Prv;
@@ -489,7 +494,7 @@ namespace TAS.Server
             {
                 EngineState = TEngineState.Hold;
                 List<Event> el;
-                lock (((IList) _visibleEvents).SyncRoot)
+                lock (((IList)_visibleEvents).SyncRoot)
                     el = _visibleEvents.ToList();
                 foreach (var e in el)
                     _stop(e);
@@ -610,7 +615,7 @@ namespace TAS.Server
 
             Logger.Info("{0} {1}: Restart", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this);
             List<Event> le;
-            lock (((IList) _visibleEvents).SyncRoot)
+            lock (((IList)_visibleEvents).SyncRoot)
                 le = _visibleEvents.ToList();
             foreach (var e in le)
                 _restartEvent(e);
@@ -764,16 +769,16 @@ namespace TAS.Server
         [XmlIgnore]
         public IAuthenticationService AuthenticationService => _authenticationService;
 
-        [JsonProperty]
+        [DtoField]
         public IDictionary<string, int> FieldLengths { get; }
 
-        [JsonProperty]
+        [DtoField]
         public IDictionary<string, int> ServerMediaFieldLengths { get; }
 
-        [JsonProperty]
+        [DtoField]
         public IDictionary<string, int> ArchiveMediaFieldLengths { get; }
 
-        [JsonProperty]
+        [DtoField]
         public IDictionary<string, int> EventFieldLengths { get; }
 
 
@@ -820,7 +825,7 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public ulong CurrentUserRights
         {
             get
@@ -1004,14 +1009,14 @@ namespace TAS.Server
         }
 
         private void _loadNext(Event aEvent)
-        {            
+        {
             if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
                 aEvent = aEvent.InternalGetSuccessor();
             if (aEvent == null)
                 return;
 
             var eventType = aEvent.EventType;
-            
+
             if ((eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage) &&
                 !(_preloadedEvents.TryGetValue(aEvent.Layer, out var preloaded) && preloaded == aEvent))
             {
@@ -1035,14 +1040,14 @@ namespace TAS.Server
                         Thread.Sleep(_preloadTime + TimeSpan.FromMilliseconds(CGStartDelay));
                         try
                         {
-                            CGElementsController.SetState(aEvent);                                                        
+                            CGElementsController.SetState(aEvent);
                         }
                         catch (Exception e)
                         {
                             Logger.Error(e);
                         }
                     });
-                }                
+                }
             }
             _run(aEvent);
         }
@@ -1050,8 +1055,8 @@ namespace TAS.Server
         private void _play(Event aEvent, bool fromBeginning)
         {
             if (aEvent == null)
-                return;                 
-            
+                return;
+
             var eventType = aEvent.EventType;
             if (!aEvent.IsEnabled || (aEvent.Length == TimeSpan.Zero && eventType != TEventType.Animation && eventType != TEventType.CommandScript))
                 aEvent = aEvent.InternalGetSuccessor();
@@ -1252,7 +1257,7 @@ namespace TAS.Server
             channel.Load(System.Drawing.Color.Black, VideoLayer.Preset);
         }
 
-        
+
         private void _restartEvent(Event ev)
         {
             if (ev == null)
@@ -1469,7 +1474,7 @@ namespace TAS.Server
             lock (_rights)
             {
                 if (_rights.IsValueCreated)
-                    _rights.Value.ForEach(r => ((EngineAclRight) r).Saved -= AclRight_Saved);
+                    _rights.Value.ForEach(r => ((EngineAclRight)r).Saved -= AclRight_Saved);
             }
             EngineController.Current.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
             CGElementsController?.Dispose();
@@ -1618,7 +1623,7 @@ namespace TAS.Server
 
         private void SetVisibleEvent(Event aEvent)
         {
-            lock (((IList) _visibleEvents).SyncRoot)
+            lock (((IList)_visibleEvents).SyncRoot)
             {
                 var oldEvent = _visibleEvents.Find(e => e.Layer == aEvent.Layer);
                 if (aEvent == oldEvent)

@@ -3,8 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using jNet.RPC;
 using jNet.RPC.Server;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -18,7 +18,7 @@ namespace TAS.Server
 
         private readonly Engine _engine;
 
-        [JsonProperty(nameof(LoadedMovie))]
+        [DtoField(nameof(LoadedMovie))]
         private IMedia _loadedMovie;
         private long _duration;
         private long _position;
@@ -40,24 +40,24 @@ namespace TAS.Server
             previewChannel.PropertyChanged += ChannelPropertyChanged;
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool HaveLiveDevice { get; }
 
         public IMedia LoadedMovie => _loadedMovie;
 
-        [JsonProperty]
+        [DtoField]
         public IPlayoutServerChannel Channel => _channel;
 
-        [JsonProperty]
+        [DtoField]
         public bool IsConnected => _channel.IsServerConnected;
 
-        [JsonProperty]
+        [DtoField]
         public TVideoFormat VideoFormat => _engine.VideoFormat; 
 
-        [JsonProperty]
+        [DtoField]
         public long MovieSeekOnLoad { get; private set; }
 
-        [JsonProperty]
+        [DtoField]
         public long MoviePosition // from 0 to duration
         {
             get => _position;
@@ -90,7 +90,7 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public double AudioVolume
         {
             get => _audioVolume;
@@ -101,7 +101,7 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsMovieLoaded
         {
             get => _isLoaded;
@@ -114,14 +114,14 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsPlaying
         {
             get => _isPlaying;
             private set => SetField(ref _isPlaying, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsLivePlaying
         {
             get => _isLivePlaying;
@@ -172,7 +172,7 @@ namespace TAS.Server
             return true;
         }
 
-        [JsonProperty]
+        [DtoField]
         public Dictionary<VideoLayer, IMedia> LoadedStillImages => new Dictionary<VideoLayer, IMedia>(_previewLoadedStills);
         
         public void UnloadMovie()

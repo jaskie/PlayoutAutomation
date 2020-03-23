@@ -9,7 +9,7 @@ namespace TAS.Common
         {
             Operation = operation;
         }
-        [Newtonsoft.Json.JsonProperty(ItemIsReference = true)]
-        public IFileOperationBase Operation { get; private set; }
+        
+        public IFileOperationBase Operation { get; }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Common
@@ -12,11 +11,9 @@ namespace TAS.Common
             IsArchived = isArchived;
         }
 
-        [JsonProperty]
-        public IMedia Media { get; private set; }
-
-        [JsonProperty]
-        public bool IsArchived { get; private set; }
+        public IMedia Media { get; }
+                
+        public bool IsArchived { get; }
     }
 
 

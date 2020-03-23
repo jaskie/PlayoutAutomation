@@ -1,7 +1,6 @@
 ﻿using System;
 using jNet.RPC;
 using jNet.RPC.Client;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -12,70 +11,70 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649 
 
-        [JsonProperty(nameof(IMedia.AudioChannelMapping))]
+        [DtoField(nameof(IMedia.AudioChannelMapping))]
         private TAudioChannelMapping _audioChannelMapping;
 
-        [JsonProperty(nameof(IMedia.AudioLevelIntegrated))]
+        [DtoField(nameof(IMedia.AudioLevelIntegrated))]
         private double _audioLevelIntegrated;
 
-        [JsonProperty(nameof(IMedia.AudioLevelPeak))]
+        [DtoField(nameof(IMedia.AudioLevelPeak))]
         private double _audioLevelPeak;
 
-        [JsonProperty(nameof(IMedia.AudioVolume))]
+        [DtoField(nameof(IMedia.AudioVolume))]
         private double _audioVolume;
 
-        [JsonProperty(nameof(IMedia.Directory))]
+        [DtoField(nameof(IMedia.Directory))]
         private MediaDirectoryBase _directory;
 
-        [JsonProperty(nameof(IMedia.Duration))]
+        [DtoField(nameof(IMedia.Duration))]
         private TimeSpan _duration;
 
-        [JsonProperty(nameof(IMedia.DurationPlay))]
+        [DtoField(nameof(IMedia.DurationPlay))]
         private TimeSpan _durationPlay;
 
-        [JsonProperty(nameof(IMedia.FileName))]
+        [DtoField(nameof(IMedia.FileName))]
         private string _fileName;
 
-        [JsonProperty(nameof(IMedia.FileSize))]
+        [DtoField(nameof(IMedia.FileSize))]
         private ulong _fileSize;
 
-        [JsonProperty(nameof(IMedia.Folder))]
+        [DtoField(nameof(IMedia.Folder))]
         private string _folder;
 
-        [JsonProperty(nameof(IMedia.LastUpdated))]
+        [DtoField(nameof(IMedia.LastUpdated))]
         private DateTime _lastUpdated;
 
-        [JsonProperty(nameof(IMedia.MediaCategory))]
+        [DtoField(nameof(IMedia.MediaCategory))]
         private TMediaCategory _mediaCategory;
 
-        [JsonProperty(nameof(IMedia.MediaGuid))]
+        [DtoField(nameof(IMedia.MediaGuid))]
         private Guid _mediaGuid;
 
-        [JsonProperty(nameof(IMedia.MediaName))]
+        [DtoField(nameof(IMedia.MediaName))]
         private string _mediaName;
 
-        [JsonProperty(nameof(IMedia.MediaStatus))]
+        [DtoField(nameof(IMedia.MediaStatus))]
         private TMediaStatus _mediaStatus;
 
-        [JsonProperty(nameof(IMedia.MediaType))]
+        [DtoField(nameof(IMedia.MediaType))]
         private TMediaType _mediaType;
 
-        [JsonProperty(nameof(IMedia.Parental))]
+        [DtoField(nameof(IMedia.Parental))]
         private byte _parental;
 
-        [JsonProperty(nameof(IMedia.TcPlay))]
+        [DtoField(nameof(IMedia.TcPlay))]
         private TimeSpan _tcPlay;
 
-        [JsonProperty(nameof(IMedia.TcStart))]
+        [DtoField(nameof(IMedia.TcStart))]
         private TimeSpan _tcStart;
 
-        [JsonProperty(nameof(IMedia.IsVerified))]
+        [DtoField(nameof(IMedia.IsVerified))]
         private bool _isVerified;
 
-        [JsonProperty(nameof(IMedia.VideoFormat))]
+        [DtoField(nameof(IMedia.VideoFormat))]
         private TVideoFormat _videoFormat;
 
-        [JsonProperty(nameof(IMedia.FieldOrderInverted))]
+        [DtoField(nameof(IMedia.FieldOrderInverted))]
         private bool _fieldOrderInverted;
 
         #pragma warning restore

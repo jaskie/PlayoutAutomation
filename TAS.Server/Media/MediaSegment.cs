@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using jNet.RPC;
 using jNet.RPC.Server;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
@@ -22,20 +22,20 @@ namespace TAS.Server.Media
 
         public ulong Id { get; set; }
         
-        [JsonProperty]
+        [DtoField]
         public string SegmentName
         {
             get => _segmentName;
             set => SetField(ref _segmentName, value);
         }
-        [JsonProperty]
+        [DtoField]
         public TimeSpan TcIn
         {
             get => _tcIn;
             set => SetField(ref _tcIn, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public TimeSpan TcOut
         {
             get => _tcOut;

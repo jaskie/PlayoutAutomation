@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using jNet.RPC;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -10,13 +10,13 @@ namespace TAS.Remoting.Model
 
 #pragma warning disable CS0649
 
-        [JsonProperty(nameof(ITemplated.Fields))]
+        [DtoField(nameof(ITemplated.Fields))]
         private Dictionary<string, string> _fields;
 
-        [JsonProperty(nameof(ITemplated.Method))]
+        [DtoField(nameof(ITemplated.Method))]
         private TemplateMethod _method;
 
-        [JsonProperty(nameof(ITemplated.TemplateLayer))]
+        [DtoField(nameof(ITemplated.TemplateLayer))]
         private int _templateLayer;
 
 #pragma warning restore

@@ -9,7 +9,6 @@ namespace TAS.Common
             AudioVolume = audioVolume;
         }
 
-        [Newtonsoft.Json.JsonProperty]
-        public double AudioVolume { get; private set; }
+        public double AudioVolume { get; }
     }
 }

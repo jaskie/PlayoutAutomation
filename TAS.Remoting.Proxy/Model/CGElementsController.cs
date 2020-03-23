@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
@@ -12,39 +11,39 @@ namespace TAS.Remoting.Model
     {
         #pragma warning disable CS0649 
 
-        [JsonProperty(nameof(ICGElementsController.Crawls))]
+        [DtoField(nameof(ICGElementsController.Crawls))]
         private List<CGElement> _crawls;
-        [JsonProperty(nameof(ICGElementsController.Logos))]
+        [DtoField(nameof(ICGElementsController.Logos))]
         private List<CGElement> _logos;
 
-        [JsonProperty(nameof(ICGElementsController.Parentals))]
+        [DtoField(nameof(ICGElementsController.Parentals))]
         private List<CGElement> _parentals;
 
-        [JsonProperty(nameof(ICGElementsController.Crawl))]
+        [DtoField(nameof(ICGElementsController.Crawl))]
         private byte _crawl;
 
-        [JsonProperty(nameof(ICGElementsController.DefaultCrawl))]
+        [DtoField(nameof(ICGElementsController.DefaultCrawl))]
         private byte _defaultCrawl;
 
-        [JsonProperty(nameof(ICGElementsController.DefaultLogo))]
+        [DtoField(nameof(ICGElementsController.DefaultLogo))]
         private byte _defaultLogo;
 
-        [JsonProperty(nameof(ICGElementsController.IsCGEnabled))]
+        [DtoField(nameof(ICGElementsController.IsCGEnabled))]
         private bool _isCgEnabled;
 
-        [JsonProperty(nameof(ICGElementsController.IsConnected))]
+        [DtoField(nameof(ICGElementsController.IsConnected))]
         private bool _isConnected;
 
-        [JsonProperty(nameof(ICGElementsController.IsMaster))]
+        [DtoField(nameof(ICGElementsController.IsMaster))]
         private bool _isMaster;
 
-        [JsonProperty(nameof(ICGElementsController.IsWideScreen))]
+        [DtoField(nameof(ICGElementsController.IsWideScreen))]
         private bool _isWideScreen;
 
-        [JsonProperty(nameof(ICGElementsController.Logo))]
+        [DtoField(nameof(ICGElementsController.Logo))]
         private byte _logo;
 
-        [JsonProperty(nameof(ICGElementsController.Parental))]
+        [DtoField(nameof(ICGElementsController.Parental))]
         private byte _parental;
 
 

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using jNet.RPC;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -26,7 +26,7 @@ namespace TAS.Server.Media
 
         internal bool RequiresInitialization { get; set; }
 
-        [JsonProperty]
+        [DtoField]
         public bool IsRecursive { get; }
 
         public TMovieContainerFormat MovieContainerFormat { get; }

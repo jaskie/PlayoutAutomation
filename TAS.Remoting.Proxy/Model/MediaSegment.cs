@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
@@ -11,16 +10,16 @@ namespace TAS.Remoting.Model
     {
 #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IMediaSegment.SegmentName))]
+        [DtoField(nameof(IMediaSegment.SegmentName))]
         private string _segmentName;
 
-        [JsonProperty(nameof(IMediaSegment.TcIn))]
+        [DtoField(nameof(IMediaSegment.TcIn))]
         private TimeSpan _tcIn;
 
-        [JsonProperty(nameof(IMediaSegment.TcOut))]
+        [DtoField(nameof(IMediaSegment.TcOut))]
         private TimeSpan _tcOut;
 
-        [JsonProperty(nameof(IMediaSegment.FieldLengths))]
+        [DtoField(nameof(IMediaSegment.FieldLengths))]
         private IDictionary<string, int> _fieldLengths;
 
 #pragma warning restore

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using jNet.RPC;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Remoting.Model.Media
@@ -7,7 +7,7 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(IServerMedia.DoNotArchive))]
+        [DtoField(nameof(IServerMedia.DoNotArchive))]
         private bool _doNotArchive;
 
         #pragma warning restore

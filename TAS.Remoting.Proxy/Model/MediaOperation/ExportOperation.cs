@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using jNet.RPC;
+using System.Collections.Generic;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -13,13 +13,13 @@ namespace TAS.Remoting.Model.MediaOperation
 
         #pragma warning disable CS0649
         
-        [JsonProperty(nameof(IExportOperation.DestProperties))]
+        [DtoField(nameof(IExportOperation.DestProperties))]
         private IMediaProperties _destProperties;
 
-        [JsonProperty(nameof(IExportOperation.DestDirectory))]
+        [DtoField(nameof(IExportOperation.DestDirectory))]
         private MediaDirectoryBase _destDirectory;
 
-        [JsonProperty(nameof(IExportOperation.Sources))]
+        [DtoField(nameof(IExportOperation.Sources))]
         private List<MediaExportDescription> _sources;
         
         #pragma warning restore 

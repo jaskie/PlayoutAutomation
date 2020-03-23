@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using jNet.RPC;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Remoting.Model.Media
@@ -6,7 +6,7 @@ namespace TAS.Remoting.Model.Media
     public class XDCAMMedia : IngestMedia, IXdcamMedia
     {
 #pragma warning disable CS0649
-        [JsonProperty(nameof(IXdcamMedia.ClipNr))]
+        [DtoField(nameof(IXdcamMedia.ClipNr))]
         private int _clipNr;
 #pragma warning restore
 

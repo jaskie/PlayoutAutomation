@@ -1,5 +1,5 @@
-﻿using jNet.RPC.Server;
-using Newtonsoft.Json;
+﻿using jNet.RPC;
+using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server
@@ -16,21 +16,21 @@ namespace TAS.Server
             PortName = portName;
         }
 
-        [JsonProperty]
+        [DtoField]
         public short PortId
         { 
             get => _portId; 
             set => SetField(ref _portId, value);
         }
         
-        [JsonProperty]
+        [DtoField]
         public string PortName
         {
             get => _portName;
             set => SetField(ref _portName, value);
         }
 
-        [JsonProperty]
+        [DtoField]
         public bool? IsSignalPresent
         {
             get => _isSignalPresent;

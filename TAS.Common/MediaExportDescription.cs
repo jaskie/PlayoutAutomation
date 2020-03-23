@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Common
 {
-    [JsonObject]
     public class MediaExportDescription
     {
         public MediaExportDescription(IMedia media, List<IMedia> logos, TimeSpan startTC, TimeSpan duration, double audioVolume)
@@ -16,15 +14,15 @@ namespace TAS.Common
             Duration = duration;
             AudioVolume = audioVolume;
         }
-        [JsonProperty]
+                
         public IMedia Media { get; private set; }
-        [JsonProperty(ItemIsReference = true, TypeNameHandling = TypeNameHandling.All, ItemTypeNameHandling = TypeNameHandling.All)]
+        
         public List<IMedia> Logos { get; }
-        [JsonProperty]
+        
         public TimeSpan Duration;
-        [JsonProperty]
+        
         public TimeSpan StartTC;
-        [JsonProperty]
+        
         public double AudioVolume;
 
         public void AddLogo(IMedia logo)

@@ -1,5 +1,4 @@
 ﻿using System;
-using Newtonsoft.Json;
 
 namespace TAS.Common
 {
@@ -17,9 +16,8 @@ namespace TAS.Common
             Item = item;
         }
 
-        [JsonProperty]
-        public CollectionOperation Operation { get; private set; }
-        [JsonProperty]
-        public T Item { get; private set; }
+        public CollectionOperation Operation { get; }
+        
+        public T Item { get; }
     }
 }

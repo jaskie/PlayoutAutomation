@@ -1,4 +1,5 @@
-﻿using System;
+﻿using jNet.RPC;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,7 +9,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -43,7 +43,7 @@ namespace TAS.Server.Media
         }
 #endif
 
-        [XmlIgnore, JsonProperty]
+        [XmlIgnore, DtoField]
         public bool IsInitialized
         {
             get => _isInitialized;

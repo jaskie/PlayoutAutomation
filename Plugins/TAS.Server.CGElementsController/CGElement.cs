@@ -2,7 +2,6 @@
 using System.IO;
 using System.Xml.Serialization;
 using TAS.Common;
-using Newtonsoft.Json;
 using System.Drawing;
 using jNet.RPC;
 using jNet.RPC.Server;
@@ -16,10 +15,10 @@ namespace TAS.Server
         private readonly object _imageLock = new object();
         
         [XmlAttribute]
-        [JsonProperty]
+        [DtoField]
         public byte Id { get; set; }
         [XmlAttribute]
-        [JsonProperty]
+        [DtoField]
         public string Name { get; set; }
         private string _imageFile;
         [XmlAttribute]
@@ -37,8 +36,7 @@ namespace TAS.Server
 
         private Bitmap _image;
 
-        [JsonProperty]
-        [JsonConverter(typeof(BitmapJsonConverter))]
+        [DtoField]
         public Bitmap Image
         {
             get

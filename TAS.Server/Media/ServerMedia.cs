@@ -1,6 +1,6 @@
-﻿using System;
+﻿using jNet.RPC;
+using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 
@@ -11,10 +11,10 @@ namespace TAS.Server.Media
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private bool _doNotArchive;
 
-        [JsonProperty]
+        [DtoField]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ServerMediaFieldLengths;
 
-        [JsonProperty]
+        [DtoField]
         public bool DoNotArchive
         {
             get => _doNotArchive;
@@ -28,9 +28,9 @@ namespace TAS.Server.Media
                 DoNotArchive = serverMediaProperties.DoNotArchive;
         }
 
-        public override bool Save()
+        public override void Save()
         {
-            var result = false;
+            var saved = false;
             try
             {
                 var directory = Directory as ServerDirectory;
@@ -39,31 +39,30 @@ namespace TAS.Server.Media
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = EngineController.Current.Database.DeleteMedia(this);
+                            saved = EngineController.Current.Database.DeleteMedia(this);
                     }
                     else
                     {
                         if (directory != null)
                         {
                             if (IdPersistentMedia == 0)
-                                result = EngineController.Current.Database.InsertMedia(this, directory.Server.Id);
+                                saved = EngineController.Current.Database.InsertMedia(this, directory.Server.Id);
                             else if (IsModified)
                             {
                                 EngineController.Current.Database.UpdateMedia(this, directory.Server.Id);
-                                result = true;
+                                saved = true;
                             }
                         }
-                        IsModified = false;
                     }
                 }
-                if (result)
+                if (saved)
                     directory?.OnMediaSaved(this);
             }
             catch (Exception e)
             {
                 Logger.Error(e, "Error saving {0}", MediaName);
             }
-            return result;
+            base.Save();
         }
 
         }

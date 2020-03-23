@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Drawing;
+﻿using System.Drawing;
 using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common.Interfaces;
@@ -10,16 +9,16 @@ namespace TAS.Remoting.Model
     {
         #pragma warning disable CS0649
 
-        [JsonProperty(nameof(ICGElement.Id))]
+        [DtoField(nameof(ICGElement.Id))]
         private byte _id;
 
-        [JsonProperty(nameof(ICGElement.Image)), JsonConverter(typeof(BitmapJsonConverter))]
+        [DtoField(nameof(ICGElement.Image))]
         private Bitmap _image;
 
-        [JsonProperty(nameof(ICGElement.ImageFile))]
+        [DtoField(nameof(ICGElement.ImageFile))]
         private string _imageFile;
 
-        [JsonProperty(nameof(ICGElement.Name))]
+        [DtoField(nameof(ICGElement.Name))]
         private string _name;
 
         #pragma warning restore

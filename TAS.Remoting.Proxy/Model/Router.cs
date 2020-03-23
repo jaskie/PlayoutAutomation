@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common.Interfaces;
@@ -10,13 +9,13 @@ namespace TAS.Remoting.Model
     {
 #pragma warning disable CS0649 
 
-        [JsonProperty(nameof(IRouter.InputPorts))]
+        [DtoField(nameof(IRouter.InputPorts))]
         private IList<IRouterPort> _inputPorts;
 
-        [JsonProperty(nameof(IRouter.SelectedInputPort))]
+        [DtoField(nameof(IRouter.SelectedInputPort))]
         private IRouterPort _selectedInputPort;
 
-        [JsonProperty(nameof(IRouter.IsConnected))]
+        [DtoField(nameof(IRouter.IsConnected))]
         private bool _isConnected;
 
 #pragma warning restore

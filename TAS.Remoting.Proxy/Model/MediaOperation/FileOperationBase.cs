@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -12,34 +11,34 @@ namespace TAS.Remoting.Model.MediaOperation
     {
         #pragma warning disable CS0649 
 
-        [JsonProperty(nameof(IFileOperationBase.IsAborted))]
+        [DtoField(nameof(IFileOperationBase.IsAborted))]
         private bool _isAborted;
 
-        [JsonProperty(nameof(IFileOperationBase.FinishedTime))]
+        [DtoField(nameof(IFileOperationBase.FinishedTime))]
         private DateTime _finishedTime;
 
-        [JsonProperty(nameof(IFileOperationBase.IsIndeterminate))]
+        [DtoField(nameof(IFileOperationBase.IsIndeterminate))]
         private bool _isIndeterminate;
 
-        [JsonProperty(nameof(IFileOperationBase.OperationOutput))]
+        [DtoField(nameof(IFileOperationBase.OperationOutput))]
         private List<string> _operationOutput;
 
-        [JsonProperty(nameof(IFileOperationBase.OperationStatus))]
+        [DtoField(nameof(IFileOperationBase.OperationStatus))]
         private FileOperationStatus _operationStatus;
 
-        [JsonProperty(nameof(IFileOperationBase.OperationWarning))]
+        [DtoField(nameof(IFileOperationBase.OperationWarning))]
         private List<string> _operationWarning;
 
-        [JsonProperty(nameof(IFileOperationBase.Progress))]
+        [DtoField(nameof(IFileOperationBase.Progress))]
         private int _progress;
 
-        [JsonProperty(nameof(IFileOperationBase.ScheduledTime))]
+        [DtoField(nameof(IFileOperationBase.ScheduledTime))]
         private DateTime _scheduledTime;
 
-        [JsonProperty(nameof(IFileOperationBase.StartTime))]
+        [DtoField(nameof(IFileOperationBase.StartTime))]
         private DateTime _startTime;
 
-        [JsonProperty(nameof(IFileOperationBase.TryCount))]
+        [DtoField(nameof(IFileOperationBase.TryCount))]
         private int _tryCount;
 
         #pragma warning restore

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
-using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces.Security;
 
@@ -14,10 +13,10 @@ namespace TAS.Remoting.Model.Security
     {
         
 #pragma warning disable CS0649
-        [JsonProperty(nameof(ISecurityObject.SecurityObjectTypeType))]
+        [DtoField(nameof(ISecurityObject.SecurityObjectTypeType))]
         private SecurityObjectType _securityObjectType;
 
-        [JsonProperty(nameof(ISecurityObject.FieldLengths))]
+        [DtoField(nameof(ISecurityObject.FieldLengths))]
         private IDictionary<string, int> _fieldLengths;
 #pragma warning restore
 

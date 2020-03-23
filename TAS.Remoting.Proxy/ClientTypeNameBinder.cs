@@ -1,12 +1,12 @@
-﻿using System;
-using Newtonsoft.Json.Serialization;
+﻿using Newtonsoft.Json.Serialization;
+using System;
 
 namespace TAS.Remoting
 {
     public class ClientTypeNameBinder : ISerializationBinder
     {
         private ClientTypeNameBinder() { }
-        public static ISerializationBinder Current { get; } = new ClientTypeNameBinder();
+        public static ClientTypeNameBinder Current { get; } = new ClientTypeNameBinder();
 
         public Type BindToType(string assemblyName, string typeName)
         {
