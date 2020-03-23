@@ -9,16 +9,16 @@ namespace TAS.Remoting.Model
     {
         #pragma warning disable CS0649
 
-        [DtoField(nameof(ICGElement.Id))]
+        [DtoMember(nameof(ICGElement.Id))]
         private byte _id;
 
-        [DtoField(nameof(ICGElement.Image))]
+        [DtoMember(nameof(ICGElement.Image))]
         private Bitmap _image;
 
-        [DtoField(nameof(ICGElement.ImageFile))]
+        [DtoMember(nameof(ICGElement.ImageFile))]
         private string _imageFile;
 
-        [DtoField(nameof(ICGElement.Name))]
+        [DtoMember(nameof(ICGElement.Name))]
         private string _name;
 
         #pragma warning restore

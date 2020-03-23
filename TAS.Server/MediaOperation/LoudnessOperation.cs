@@ -33,15 +33,15 @@ namespace TAS.Server.MediaOperation
             TryCount = 1;
         }
 
-        [DtoField]
+        [DtoMember]
         public IMedia Source { get => _source; set => SetField(ref _source, value); }
 
         public event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured; // will not save to Media object if not null
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan MeasureStart { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan MeasureDuration { get; set; }
 
         protected override void OnOperationStatusChanged()

@@ -23,13 +23,13 @@ namespace TAS.Server.Security
 
         public abstract SecurityObjectType SecurityObjectTypeType { get; }
 
-        [DtoField, XmlIgnore]
+        [DtoMember, XmlIgnore]
         public IAuthenticationService AuthenticationService { get; set; }
 
         [XmlIgnore]
         public ulong Id { get; set; }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public string Name
         {
             get => _name;

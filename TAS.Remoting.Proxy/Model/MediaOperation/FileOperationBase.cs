@@ -11,34 +11,34 @@ namespace TAS.Remoting.Model.MediaOperation
     {
         #pragma warning disable CS0649 
 
-        [DtoField(nameof(IFileOperationBase.IsAborted))]
+        [DtoMember(nameof(IFileOperationBase.IsAborted))]
         private bool _isAborted;
 
-        [DtoField(nameof(IFileOperationBase.FinishedTime))]
+        [DtoMember(nameof(IFileOperationBase.FinishedTime))]
         private DateTime _finishedTime;
 
-        [DtoField(nameof(IFileOperationBase.IsIndeterminate))]
+        [DtoMember(nameof(IFileOperationBase.IsIndeterminate))]
         private bool _isIndeterminate;
 
-        [DtoField(nameof(IFileOperationBase.OperationOutput))]
+        [DtoMember(nameof(IFileOperationBase.OperationOutput))]
         private List<string> _operationOutput;
 
-        [DtoField(nameof(IFileOperationBase.OperationStatus))]
+        [DtoMember(nameof(IFileOperationBase.OperationStatus))]
         private FileOperationStatus _operationStatus;
 
-        [DtoField(nameof(IFileOperationBase.OperationWarning))]
+        [DtoMember(nameof(IFileOperationBase.OperationWarning))]
         private List<string> _operationWarning;
 
-        [DtoField(nameof(IFileOperationBase.Progress))]
+        [DtoMember(nameof(IFileOperationBase.Progress))]
         private int _progress;
 
-        [DtoField(nameof(IFileOperationBase.ScheduledTime))]
+        [DtoMember(nameof(IFileOperationBase.ScheduledTime))]
         private DateTime _scheduledTime;
 
-        [DtoField(nameof(IFileOperationBase.StartTime))]
+        [DtoMember(nameof(IFileOperationBase.StartTime))]
         private DateTime _startTime;
 
-        [DtoField(nameof(IFileOperationBase.TryCount))]
+        [DtoMember(nameof(IFileOperationBase.TryCount))]
         private int _tryCount;
 
         #pragma warning restore

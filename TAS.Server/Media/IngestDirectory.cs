@@ -68,75 +68,75 @@ namespace TAS.Server.Media
 
         public TVideoFormat ExportVideoFormat { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public string DirectoryName { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public TIngestDirectoryKind Kind { get; set; } = TIngestDirectoryKind.WatchFolder;
 
-        [DtoField]
+        [DtoMember]
         public bool IsWAN { get; set; }
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public int XdcamClipCount { get => _xdcamClipCount; protected set => SetField(ref _xdcamClipCount, value); }
 
-        [DtoField]
+        [DtoMember]
         public bool IsRecursive { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public bool IsExport { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public TVideoCodec VideoCodec { get; set; }
-        [DtoField]
+        [DtoMember]
         public TAudioCodec AudioCodec { get; set; }
 
         public double VideoBitrateRatio { get; set; } = 1;
         public double AudioBitrateRatio { get; set; } = 1;
 
         [DefaultValue(true)]
-        [DtoField]
+        [DtoMember]
         public bool IsImport { get; set; } = true;
 
-        [DtoField]
+        [DtoMember]
         public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
 
         public string ExportParams { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public bool MediaDoNotArchive { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public int MediaRetnentionDays { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public bool MediaLoudnessCheckAfterIngest { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public TMediaCategory MediaCategory { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public double AudioVolume { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public TFieldOrder SourceFieldOrder { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public TAspectConversion AspectConversion { get; set; }
         
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public TDirectoryAccessType AccessType { get; protected set; }
 
         [XmlArray(nameof(SubDirectories))]
         public List<IngestDirectory> _subDirectories;
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public IEnumerable<IIngestDirectoryProperties> SubDirectories => _subDirectories;
 
         public string Username { get; set; }
@@ -147,7 +147,7 @@ namespace TAS.Server.Media
         [XmlArrayItem("Extension")]
         public string[] Extensions { get; set; }
 
-        [DtoField]
+        [DtoMember]
         [XmlIgnore]
         public override char PathSeparator => AccessType == TDirectoryAccessType.Direct ? Path.DirectorySeparatorChar : '/';
 

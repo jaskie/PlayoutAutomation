@@ -14,82 +14,82 @@ namespace TAS.Remoting.Model
     {
         #pragma warning disable CS0649
 
-        [DtoField(nameof(IEngine.CurrentTime))]
+        [DtoMember(nameof(IEngine.CurrentTime))]
         private DateTime _currentTime;
 
-        [DtoField(nameof(IEngine.TimeCorrection))]
+        [DtoMember(nameof(IEngine.TimeCorrection))]
         private int _timeCorrection;
 
-        [DtoField(nameof(IEngine.EngineName))]
+        [DtoMember(nameof(IEngine.EngineName))]
         private string _engineName;
 
-        [DtoField(nameof(IEngine.EngineState))]
+        [DtoMember(nameof(IEngine.EngineState))]
         private TEngineState _engineState;
 
-        [DtoField(nameof(IEngine.ForcedNext))]
+        [DtoMember(nameof(IEngine.ForcedNext))]
         private IEvent _forcedNext;
 
-        [DtoField(nameof(IEngine.CGElementsController))]
+        [DtoMember(nameof(IEngine.CGElementsController))]
         private CGElementsController _cGElementsController;
 
-        [DtoField(nameof(IEngine.Router))]
+        [DtoMember(nameof(IEngine.Router))]
         private Router _router;
 
-        [DtoField(nameof(IEngine.EnableCGElementsForNewEvents))]
+        [DtoMember(nameof(IEngine.EnableCGElementsForNewEvents))]
         private bool _enableCGElementsForNewEvents;
 
-        [DtoField(nameof(IEngine.StudioMode))]
+        [DtoMember(nameof(IEngine.StudioMode))]
         private bool _studioMode;
 
-        [DtoField(nameof(IEngine.CrawlEnableBehavior))]
+        [DtoMember(nameof(IEngine.CrawlEnableBehavior))]
         private TCrawlEnableBehavior _crawlEnableBehavior;
 
-        [DtoField(nameof(IEngine.FieldOrderInverted))]
+        [DtoMember(nameof(IEngine.FieldOrderInverted))]
         private bool _fieldOrderInverted;
 
-        [DtoField(nameof(IEngine.Preview))]
+        [DtoMember(nameof(IEngine.Preview))]
         private Preview _preview;
 
-        [DtoField(nameof(IEngine.MediaManager))]
+        [DtoMember(nameof(IEngine.MediaManager))]
         private MediaManager _mediaManager;
 
-        [DtoField(nameof(IEngine.PlayoutChannelPRI))]
+        [DtoMember(nameof(IEngine.PlayoutChannelPRI))]
         private PlayoutServerChannel _playoutChannelPRI;
 
-        [DtoField(nameof(IEngine.PlayoutChannelSEC))]
+        [DtoMember(nameof(IEngine.PlayoutChannelSEC))]
         private PlayoutServerChannel _playoutChannelSEC;
 
-        [DtoField(nameof(IEngine.IsWideScreen))]
+        [DtoMember(nameof(IEngine.IsWideScreen))]
         private bool _isWideScreen;
 
-        [DtoField(nameof(IEngine.ProgramAudioVolume))]
+        [DtoMember(nameof(IEngine.ProgramAudioVolume))]
         private double _programAudioVolume;
 
-        [DtoField(nameof(IEngine.Pst2Prv))]
+        [DtoMember(nameof(IEngine.Pst2Prv))]
         private bool _pst2Prv;
 
-        [DtoField(nameof(IEngine.AuthenticationService))]
+        [DtoMember(nameof(IEngine.AuthenticationService))]
         private AuthenticationService _authenticationService;
 
-        [DtoField(nameof(IEngine.VideoFormat))]
+        [DtoMember(nameof(IEngine.VideoFormat))]
         private TVideoFormat _videoFormat;
 
-        [DtoField(nameof(IEngine.DatabaseConnectionState))]
+        [DtoMember(nameof(IEngine.DatabaseConnectionState))]
         private ConnectionStateRedundant _databaseConnectionState;
 
-        [DtoField(nameof(IEngine.Playing))]
+        [DtoMember(nameof(IEngine.Playing))]
         private Event _playing;
 
-        [DtoField(nameof(IEngine.ServerMediaFieldLengths))]
+        [DtoMember(nameof(IEngine.ServerMediaFieldLengths))]
         private IDictionary<string, int> _serverMediaFieldLengths;
 
-        [DtoField(nameof(IEngine.ArchiveMediaFieldLengths))]
+        [DtoMember(nameof(IEngine.ArchiveMediaFieldLengths))]
         private IDictionary<string, int> _archiveMediaFieldLengths;
 
-        [DtoField(nameof(IEngine.EventFieldLengths))]
+        [DtoMember(nameof(IEngine.EventFieldLengths))]
         private IDictionary<string, int> _eventFieldLengths;
 
-        [DtoField(nameof(IEngine.NextToPlay))]
+        [DtoMember(nameof(IEngine.NextToPlay))]
         private Event _nextToPlay;
 
         #pragma warning restore
@@ -258,13 +258,13 @@ namespace TAS.Remoting.Model
 
         public void DeleteRight(IAclRight item) { Invoke(parameters: new object[] { item }); }
 
-        [DtoField]
+        [DtoMember]
         public ulong CurrentUserRights { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public TAspectRatioControl AspectRatioControl { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public int CGStartDelay { get; set; }
 
         public bool HaveRight(EngineRight right)

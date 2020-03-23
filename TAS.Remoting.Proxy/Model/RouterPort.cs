@@ -7,11 +7,11 @@ namespace TAS.Remoting.Model
     class RouterPort : ProxyObjectBase, IRouterPort
     {
         #pragma warning disable CS0649
-        [DtoField(nameof(IRouterPort.PortId))]
+        [DtoMember(nameof(IRouterPort.PortId))]
         private short _portId;
-        [DtoField(nameof(IRouterPort.PortName))]
+        [DtoMember(nameof(IRouterPort.PortName))]
         private string _portName;
-        [DtoField(nameof(IRouterPort.IsSignalPresent))]
+        [DtoMember(nameof(IRouterPort.IsSignalPresent))]
         private bool? _portIsSignalPresent;
         #pragma warning restore
 

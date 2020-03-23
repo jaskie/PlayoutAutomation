@@ -43,7 +43,7 @@ namespace TAS.Server.Media
         }
 #endif
 
-        [XmlIgnore, DtoField]
+        [XmlIgnore, DtoMember]
         public bool IsInitialized
         {
             get => _isInitialized;

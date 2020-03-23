@@ -10,13 +10,13 @@ namespace TAS.Remoting.Model
     {
         #pragma warning disable CS0649
 
-        [DtoField(nameof(IMediaSegments.Segments))]
+        [DtoMember(nameof(IMediaSegments.Segments))]
         private List<MediaSegment> _segments;
 
-        [DtoField(nameof(IMediaSegments.Count))]
+        [DtoMember(nameof(IMediaSegments.Count))]
         private int _count;
 
-        [DtoField(nameof(IMediaSegments.MediaGuid))]
+        [DtoMember(nameof(IMediaSegments.MediaGuid))]
         private Guid _mediaGuid;
 
         public IEnumerable<IMediaSegment> Segments => _segments;

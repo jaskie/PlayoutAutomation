@@ -65,20 +65,20 @@ namespace TAS.Server
             _templateLayer = templateLayer;
         }
 
-        [DtoField]
+        [DtoMember]
         public Dictionary<string, string> Fields
         {
             get => _fields;
             set => SetField(ref _fields, value == null ? new Dictionary<string, string>() : new Dictionary<string, string>(value));
         }
 
-        [DtoField]
+        [DtoMember]
         public TemplateMethod Method {
             get => _method;
             set => SetField(ref _method, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public int TemplateLayer {
             get => _templateLayer;
             set => SetField(ref _templateLayer, value);

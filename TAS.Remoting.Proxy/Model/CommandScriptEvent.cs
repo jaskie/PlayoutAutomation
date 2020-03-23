@@ -7,7 +7,7 @@ namespace TAS.Remoting.Model
     {
         #pragma warning disable CS0649
 
-        [DtoField(nameof(ICommandScript.Command))]
+        [DtoMember(nameof(ICommandScript.Command))]
         private string _command;
 
         #pragma warning restore

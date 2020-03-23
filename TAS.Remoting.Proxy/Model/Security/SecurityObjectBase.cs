@@ -13,10 +13,10 @@ namespace TAS.Remoting.Model.Security
     {
         
 #pragma warning disable CS0649
-        [DtoField(nameof(ISecurityObject.SecurityObjectTypeType))]
+        [DtoMember(nameof(ISecurityObject.SecurityObjectTypeType))]
         private SecurityObjectType _securityObjectType;
 
-        [DtoField(nameof(ISecurityObject.FieldLengths))]
+        [DtoMember(nameof(ISecurityObject.FieldLengths))]
         private IDictionary<string, int> _fieldLengths;
 #pragma warning restore
 

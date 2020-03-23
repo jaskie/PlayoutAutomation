@@ -21,7 +21,7 @@ namespace TAS.Server
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        [DtoField(nameof(FileManager))]
+        [DtoMember(nameof(FileManager))]
         private readonly FileManager _fileManager = Server.FileManager.Current;
         private readonly Engine _engine;
         private readonly List<CasparRecorder> _recorders;
@@ -37,36 +37,36 @@ namespace TAS.Server
 
         public IFileManager FileManager => _fileManager;
 
-        [DtoField]
+        [DtoMember]
         public IEngine Engine => _engine;
 
-        [DtoField]
+        [DtoMember]
         public IServerDirectory MediaDirectoryPRI { get; private set; }
 
-        [DtoField]
+        [DtoMember]
         public IServerDirectory MediaDirectorySEC { get; private set; }
 
-        [DtoField]
+        [DtoMember]
         public IServerDirectory MediaDirectoryPRV { get; private set; }
 
-        [DtoField]
+        [DtoMember]
         public IAnimationDirectory AnimationDirectoryPRI { get; private set; }
 
-        [DtoField]
+        [DtoMember]
         public IAnimationDirectory AnimationDirectorySEC { get; private set; }
 
-        [DtoField]
+        [DtoMember]
         public IAnimationDirectory AnimationDirectoryPRV { get; private set; }
 
-        [DtoField]
+        [DtoMember]
         public IArchiveDirectory ArchiveDirectory { get; private set; }
 
         public ICGElementsController CGElementsController => _engine.CGElementsController;
 
-        [DtoField]
+        [DtoMember]
         public IEnumerable<IIngestDirectory> IngestDirectories => EngineController.Current.IngestDirectories;
 
-        [DtoField]
+        [DtoMember]
         public IEnumerable<IRecorder> Recorders => _recorders;
 
         public void Initialize(ArchiveDirectory archiveDirectory)

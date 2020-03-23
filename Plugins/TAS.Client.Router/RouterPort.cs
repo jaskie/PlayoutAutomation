@@ -16,21 +16,21 @@ namespace TAS.Server
             PortName = portName;
         }
 
-        [DtoField]
+        [DtoMember]
         public short PortId
         { 
             get => _portId; 
             set => SetField(ref _portId, value);
         }
         
-        [DtoField]
+        [DtoMember]
         public string PortName
         {
             get => _portName;
             set => SetField(ref _portName, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public bool? IsSignalPresent
         {
             get => _isSignalPresent;

@@ -26,31 +26,31 @@ namespace TAS.Server.Media
         internal event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged;
 
 
-        [DtoField, XmlIgnore]
+        [DtoMember, XmlIgnore]
         public bool HaveFileWatcher { get; protected set; }
 
-        [DtoField, XmlIgnore]
+        [DtoMember, XmlIgnore]
         public virtual long VolumeFreeSize
         {
             get => _volumeFreeSize;
             protected set => SetField(ref _volumeFreeSize, value);
         }
 
-        [DtoField, XmlIgnore]
+        [DtoMember, XmlIgnore]
         public virtual long VolumeTotalSize
         {
             get => _volumeTotalSize;
             protected set => SetField(ref _volumeTotalSize, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public string Folder
         {
             get => _folder;
             set => SetField(ref _folder, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual char PathSeparator => Path.DirectorySeparatorChar;
 
         public bool DirectoryExists => Directory.Exists(Folder);

@@ -23,31 +23,31 @@ namespace TAS.Server.Media
         }
         public ulong IdPersistentMedia { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public DateTime? KillDate
         {
             get => _killDate;
             set => SetField(ref _killDate, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public ulong IdProgramme { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public string IdAux
         {
             get => _idAux;
             set => SetField(ref _idAux, value);
         } 
 
-        [DtoField]
+        [DtoMember]
         public TMediaEmphasis MediaEmphasis
         {
             get => _mediaEmphasis;
             set => SetField(ref _mediaEmphasis, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public bool IsProtected
         {
             get => _protected;

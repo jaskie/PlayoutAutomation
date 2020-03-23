@@ -10,19 +10,19 @@ namespace TAS.Remoting.Model
     public class PlayoutServer : ProxyObjectBase, IPlayoutServer
     {
         #pragma warning disable CS0649
-        [DtoField(nameof(IPlayoutServer.AnimationDirectory))]
+        [DtoMember(nameof(IPlayoutServer.AnimationDirectory))]
         private IAnimationDirectory _animationDirectory;
 
-        [DtoField(nameof(IPlayoutServer.Channels))]
+        [DtoMember(nameof(IPlayoutServer.Channels))]
         private List<PlayoutServerChannel> _channels;
 
-        [DtoField(nameof(IPlayoutServer.Recorders))]
+        [DtoMember(nameof(IPlayoutServer.Recorders))]
         private List<Recorder> _recorders;
 
-        [DtoField(nameof(IPlayoutServer.IsConnected))]
+        [DtoMember(nameof(IPlayoutServer.IsConnected))]
         private bool _isConnected;
 
-        [DtoField(nameof(IPlayoutServer.MediaDirectory))]
+        [DtoMember(nameof(IPlayoutServer.MediaDirectory))]
         private ServerDirectory _mediaDirectory;
 
         #pragma warning restore

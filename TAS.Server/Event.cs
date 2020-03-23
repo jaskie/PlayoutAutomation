@@ -25,7 +25,7 @@ namespace TAS.Server
         TPlayState _playState;
         private long _position;
         
-        [DtoField(nameof(IEventPersistent.Engine))]
+        [DtoMember(nameof(IEventPersistent.Engine))]
         private readonly Engine _engine;
         private readonly object _rundownSync;
         private readonly Lazy<SynchronizedCollection<Event>> _subEvents;
@@ -194,7 +194,7 @@ namespace TAS.Server
 
         #region IEventPesistent 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public ulong Id {get; set; }
 
         public ulong IdEventBinding { get; private set; }
@@ -203,21 +203,21 @@ namespace TAS.Server
 
         #region IEventProperties
 
-        [DtoField]
+        [DtoMember]
         public double? AudioVolume
         {
             get => _audioVolume;
             set => SetField(ref _audioVolume, value);
         }        
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan Duration
         {
             get => _duration;
             set => _setDuration(((Engine)Engine).AlignTimeSpan(value));
         }
 
-        [DtoField]
+        [DtoMember]
         public bool IsEnabled
         {
             get => _isEnabled;
@@ -234,14 +234,14 @@ namespace TAS.Server
 
         string _eventName;        
 
-        [DtoField]
+        [DtoMember]
         public string EventName
         {
             get => _eventName;
             set => SetField(ref _eventName, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public TEventType EventType
         {
             get => _eventType;
@@ -254,38 +254,38 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public bool IsHold
         {
             get => _isHold;
             set => SetField(ref _isHold, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public bool IsLoop
         {
             get => _isLoop;
             set => SetField(ref _isLoop, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public string IdAux
         {
             get => _idAux;
             set => SetField(ref _idAux, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public ulong IdProgramme
         {
             get => _idProgramme;
             set => SetField(ref _idProgramme, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public VideoLayer Layer { get => _layer; set => SetField(ref _layer, value); }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan? RequestedStartTime
         {
             get => _requestedStartTime;
@@ -297,21 +297,21 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan ScheduledDelay
         {
             get => _scheduledDelay;
             set => SetField(ref _scheduledDelay, ((Engine) Engine).AlignTimeSpan(value));
         }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan ScheduledTc
         {
             get => _scheduledTc;
             set => SetField(ref _scheduledTc, ((Engine) Engine).AlignTimeSpan(value));
         }
 
-        [DtoField]
+        [DtoMember]
         public DateTime ScheduledTime
         {
             get => _scheduledTime;
@@ -322,7 +322,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public DateTime StartTime
         {
             get => _startTime;
@@ -335,7 +335,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public TStartType StartType
         {
             get => _startType;
@@ -352,7 +352,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan TransitionTime
         {
             get => _transitionTime;
@@ -366,35 +366,35 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan TransitionPauseTime
         {
             get => _transitionPauseTime;
             set => SetField(ref _transitionPauseTime, ((Engine)Engine).AlignTimeSpan(value));
         }
 
-        [DtoField]
+        [DtoMember]
         public TTransitionType TransitionType
         {
             get => _transitionType;
             set => SetField(ref _transitionType, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public TEasing TransitionEasing
         {
             get => _transitionEasing;
             set => SetField(ref _transitionEasing, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public AutoStartFlags AutoStartFlags
         {
             get => _autoStartFlags;
             set => SetField(ref _autoStartFlags, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public Guid MediaGuid
         {
             get => _mediaGuid;
@@ -439,7 +439,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public ulong CurrentUserRights
         {
             get
@@ -466,14 +466,14 @@ namespace TAS.Server
 
         #endregion // IAclObject
 
-        [DtoField]
+        [DtoMember]
         public bool IsForcedNext
         {
             get => _isForcedNext;
             internal set => SetField(ref _isForcedNext, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public RecordingInfo RecordingInfo
         {
             get => _recordingInfo;
@@ -492,14 +492,14 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual TPlayState PlayState
         {
             get => _playState;
             set => _setPlayState(value);
         }
 
-        [DtoField]
+        [DtoMember]
         public long Position // in frames
         {
             get => _position;
@@ -517,7 +517,7 @@ namespace TAS.Server
 
         public IEnumerable<IEvent> SubEvents { get { lock (_subEvents) return _subEvents.Value.ToArray(); } }
 
-        [DtoField]
+        [DtoMember]
         public int SubEventsCount
         {
             get
@@ -531,10 +531,10 @@ namespace TAS.Server
         internal TimeSpan Length => _isEnabled ? _duration : TimeSpan.Zero;
         internal long LengthInFrames => Length.Ticks / Engine.FrameTicks;
         
-        [DtoField]
+        [DtoMember]
         public DateTime EndTime => _scheduledTime + Length;
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan StartTc
         {
             get => _startTc;
@@ -545,7 +545,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public IMedia Media
         {
             get
@@ -588,7 +588,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan? Offset
         {
             get
@@ -600,45 +600,45 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public bool IsDeleted { get; private set; }
 
-        [DtoField]
+        [DtoMember]
         public bool IsCGEnabled
         {
             get => _isCGEnabled;
             set => SetField(ref _isCGEnabled, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public IRouterPort InputPort
         {
             get => _inputPort;
             set => SetField(ref _inputPort, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public byte Crawl
         {
             get => _crawl;
             set => SetField(ref _crawl, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public byte Logo
         {
             get => _logo;
             set => SetField(ref _logo, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public byte Parental
         {
             get => _parental;
             set => SetField(ref _parental, value);
         }
                      
-        [DtoField]
+        [DtoMember]
         public int RouterPort
         {
             get => _routerPort;

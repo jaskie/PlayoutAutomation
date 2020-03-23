@@ -11,10 +11,10 @@ namespace TAS.Server.Media
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private bool _doNotArchive;
 
-        [DtoField]
+        [DtoMember]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ServerMediaFieldLengths;
 
-        [DtoField]
+        [DtoMember]
         public bool DoNotArchive
         {
             get => _doNotArchive;

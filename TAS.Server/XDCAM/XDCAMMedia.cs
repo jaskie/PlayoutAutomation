@@ -16,7 +16,7 @@ namespace TAS.Server.XDCAM
 
         private int _clipNr;
 
-        [DtoField]
+        [DtoMember]
         public int ClipNr { get => _clipNr; set => SetField(ref _clipNr, value); }
 
         public override Stream GetFileStream(bool forWrite)

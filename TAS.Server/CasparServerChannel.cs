@@ -40,34 +40,34 @@ namespace TAS.Server
 
         #region IPlayoutServerChannel
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public int Id { get; set; }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public string ChannelName { get; set; }
 
         [Hibernate]
         public double MasterVolume { get; set; } = 1;
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public int AudioChannelCount { get; set; } = 2;
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public string PreviewUrl { get; set; }
 
         [Hibernate]
         public string LiveDevice { get; set; }
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public TVideoFormat VideoFormat { get; set; }
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public bool IsServerConnected { get => _isServerConnected; internal set => SetField(ref _isServerConnected, value); }
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public int AudioLevel { get => _audiolevel; private set => SetField(ref _audiolevel, value); }
 
         public bool LoadNext(Event aEvent)
@@ -728,9 +728,9 @@ namespace TAS.Server
             Layer = layer;
             Volume = volume;
         }
-        [DtoField]
+        [DtoMember]
         public double Volume { get; private set; }
-        [DtoField]
+        [DtoMember]
         public VideoLayer Layer { get; private set; }
     }
 

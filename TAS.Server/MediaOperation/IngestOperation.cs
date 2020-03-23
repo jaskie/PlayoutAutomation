@@ -43,67 +43,67 @@ namespace TAS.Server.MediaOperation
             _audioChannelMappingConversion = TAudioChannelMappingConversion.FirstTwoChannels;
         }
 
-        [DtoField]
+        [DtoMember]
         public IMedia Source { get => _source; set => SetField(ref _source, value); }
 
-        [DtoField]
+        [DtoMember]
         public IMediaProperties DestProperties { get => _destProperties; set => SetField(ref _destProperties, value); }
 
-        [DtoField]
+        [DtoMember]
         public IMediaDirectory DestDirectory { get => _destDirectory; set => SetField(ref _destDirectory, value); }
 
         internal MediaBase Dest { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public TAspectConversion AspectConversion
         {
             get => _aspectConversion;
             set => SetField(ref _aspectConversion, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public TAudioChannelMappingConversion AudioChannelMappingConversion
         {
             get => _audioChannelMappingConversion;
             set => SetField(ref _audioChannelMappingConversion, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public double AudioVolume
         {
             get => _audioVolume;
             set => SetField(ref _audioVolume, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public TFieldOrder SourceFieldOrderEnforceConversion
         {
             get => _sourceFieldOrderEnforceConversion;
             set => SetField(ref _sourceFieldOrderEnforceConversion, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan StartTC
         {
             get => _startTc;
             set => SetField(ref _startTc, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan Duration
         {
             get => _duration;
             set => SetField(ref _duration, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public bool Trim
         {
             get => _trim;
             set => SetField(ref _trim, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public bool LoudnessCheck { get; set; }
 
         protected override void OnOperationStatusChanged()

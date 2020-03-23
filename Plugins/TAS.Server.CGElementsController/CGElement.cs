@@ -15,10 +15,10 @@ namespace TAS.Server
         private readonly object _imageLock = new object();
         
         [XmlAttribute]
-        [DtoField]
+        [DtoMember]
         public byte Id { get; set; }
         [XmlAttribute]
-        [DtoField]
+        [DtoMember]
         public string Name { get; set; }
         private string _imageFile;
         [XmlAttribute]
@@ -36,7 +36,7 @@ namespace TAS.Server
 
         private Bitmap _image;
 
-        [DtoField]
+        [DtoMember]
         public Bitmap Image
         {
             get

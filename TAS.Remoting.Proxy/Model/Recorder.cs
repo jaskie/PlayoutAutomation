@@ -16,43 +16,43 @@ namespace TAS.Remoting.Model
 
         #pragma warning disable CS0649
 
-        [DtoField(nameof(IRecorder.Channels))]
+        [DtoMember(nameof(IRecorder.Channels))]
         private List<PlayoutServerChannel> _channels;
 
-        [DtoField(nameof(IRecorder.RecordingDirectory))]
+        [DtoMember(nameof(IRecorder.RecordingDirectory))]
         private ServerDirectory _recordingDirectory;
 
-        [DtoField(nameof(IRecorder.CurrentTc))]
+        [DtoMember(nameof(IRecorder.CurrentTc))]
         private TimeSpan _currentTc;
 
-        [DtoField(nameof(IRecorder.DeckControl))]
+        [DtoMember(nameof(IRecorder.DeckControl))]
         private TDeckControl _deckControl;
 
-        [DtoField(nameof(IRecorder.DeckState))]
+        [DtoMember(nameof(IRecorder.DeckState))]
         private TDeckState _deckState;
 
-        [DtoField(nameof(IRecorder.Id))]
+        [DtoMember(nameof(IRecorder.Id))]
         private int _id;
 
-        [DtoField(nameof(IRecorder.ServerId))]
+        [DtoMember(nameof(IRecorder.ServerId))]
         private int _serverId;
 
-        [DtoField(nameof(IRecorder.IsDeckConnected))]
+        [DtoMember(nameof(IRecorder.IsDeckConnected))]
         private bool _isDeckConnected;
 
-        [DtoField(nameof(IRecorder.IsServerConnected))]
+        [DtoMember(nameof(IRecorder.IsServerConnected))]
         private bool _isServerConnected;
 
-        [DtoField(nameof(IRecorder.RecorderName))]
+        [DtoMember(nameof(IRecorder.RecorderName))]
         private string _recorderName;
 
-        [DtoField(nameof(IRecorder.RecordingMedia))]
+        [DtoMember(nameof(IRecorder.RecordingMedia))]
         private IMedia _recordingMedia;
 
-        [DtoField(nameof(IRecorder.TimeLimit))]
+        [DtoMember(nameof(IRecorder.TimeLimit))]
         private TimeSpan _timeLimit;
 
-        [DtoField(nameof(IRecorder.DefaultChannel))]
+        [DtoMember(nameof(IRecorder.DefaultChannel))]
         private readonly int _defaultChannel;
 
 #pragma warning restore

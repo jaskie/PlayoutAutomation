@@ -10,16 +10,16 @@ namespace TAS.Remoting.Model
     {
 #pragma warning disable CS0649
 
-        [DtoField(nameof(IMediaSegment.SegmentName))]
+        [DtoMember(nameof(IMediaSegment.SegmentName))]
         private string _segmentName;
 
-        [DtoField(nameof(IMediaSegment.TcIn))]
+        [DtoMember(nameof(IMediaSegment.TcIn))]
         private TimeSpan _tcIn;
 
-        [DtoField(nameof(IMediaSegment.TcOut))]
+        [DtoMember(nameof(IMediaSegment.TcOut))]
         private TimeSpan _tcOut;
 
-        [DtoField(nameof(IMediaSegment.FieldLengths))]
+        [DtoMember(nameof(IMediaSegment.FieldLengths))]
         private IDictionary<string, int> _fieldLengths;
 
 #pragma warning restore

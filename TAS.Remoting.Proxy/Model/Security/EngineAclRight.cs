@@ -8,13 +8,13 @@ namespace TAS.Remoting.Model.Security
     public class EngineAclRight: ProxyObjectBase, IAclRight
     {
 #pragma warning disable CS0649
-        [DtoField(nameof(IAclRight.Owner))]
+        [DtoMember(nameof(IAclRight.Owner))]
         private Event _owner;
 
-        [DtoField(nameof(IAclRight.SecurityObject))]
+        [DtoMember(nameof(IAclRight.SecurityObject))]
         private ISecurityObject _securityObject;
 
-        [DtoField(nameof(IAclRight.Acl))]
+        [DtoMember(nameof(IAclRight.Acl))]
         private ulong _acl;
 #pragma warning restore
 

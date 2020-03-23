@@ -43,7 +43,7 @@ namespace TAS.Server.Media
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         #region IMediaProperties
-        [DtoField]
+        [DtoMember]
         public string Folder
         {
             get => _folder;
@@ -54,7 +54,7 @@ namespace TAS.Server.Media
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public string FileName
         {
             get => _fileName;
@@ -65,14 +65,14 @@ namespace TAS.Server.Media
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public ulong FileSize 
         {
             get => _fileSize;
             set => SetField(ref _fileSize, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public DateTime LastUpdated
         {
             get => _lastUpdated;
@@ -95,119 +95,119 @@ namespace TAS.Server.Media
         //}
 
         // media parameters
-        [DtoField]
+        [DtoMember]
         public virtual string MediaName
         {
             get => _mediaName;
             set => SetField(ref _mediaName, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public TMediaType MediaType
         {
             get => _mediaType;
             set => SetField(ref _mediaType, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual TimeSpan Duration
         {
             get => _duration;
             set => SetField(ref _duration, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual TimeSpan DurationPlay
         {
             get => _durationPlay;
             set => SetField(ref _durationPlay, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual TimeSpan TcStart 
         {
             get => _tcStart;
             set => SetField(ref _tcStart, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual TimeSpan TcPlay
         {
             get => _tcPlay;
             set => SetField(ref _tcPlay, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual TVideoFormat VideoFormat
         {
             get => _videoFormat;
             set => SetField(ref _videoFormat, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual bool FieldOrderInverted
         {
             get => _fieldOrderInverted;
             set => SetField(ref _fieldOrderInverted, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual TAudioChannelMapping AudioChannelMapping 
         {
             get => _audioChannelMapping;
             set => SetField(ref _audioChannelMapping, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual double AudioVolume // correction amount on play
         {
             get => _audioVolume;
             set => SetField(ref _audioVolume, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual double AudioLevelIntegrated //measured
         {
             get => _audioLevelIntegrated;
             set => SetField(ref _audioLevelIntegrated, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual double AudioLevelPeak //measured
         {
             get => _audioLevelPeak;
             set => SetField(ref _audioLevelPeak, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual TMediaCategory MediaCategory
         {
             get => _mediaCategory;
             set => SetField(ref _mediaCategory, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public virtual byte Parental
         {
             get => _parental;
             set => SetField(ref _parental, value);
         }
         
-        [DtoField]
+        [DtoMember]
         public Guid MediaGuid
         {
             get => _mediaGuid;
             set => SetField(ref _mediaGuid, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public TMediaStatus MediaStatus
         {
             get => _mediaStatus;
             set => SetField(ref _mediaStatus, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public bool IsVerified
         {
             get => _verified;
@@ -218,7 +218,7 @@ namespace TAS.Server.Media
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public IMediaDirectory Directory { get; internal set; }
 
         #endregion //IMediaProperties

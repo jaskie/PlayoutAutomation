@@ -36,50 +36,50 @@ namespace TAS.Server
         #region Deserialized properties
         public int RecorderNumber { get; set; }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public int Id { get; set; }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public string RecorderName
         {
             get => _recorderName;
             set => SetField(ref _recorderName, value);
         }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public int DefaultChannel { get; set; }
 
         #endregion Deserialized properties
 
         #region IRecorder
-        [DtoField]
+        [DtoMember]
         public int ServerId { get => (int)_ownerServer.Id; }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan CurrentTc { get => _currentTc; private set => SetField(ref _currentTc, value); }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan TimeLimit { get => _timeLimit; private set => SetField(ref _timeLimit, value); }
 
-        [DtoField]
+        [DtoMember]
         public TDeckState DeckState { get => _deckState; private set => SetField(ref _deckState, value); }
 
-        [DtoField]
+        [DtoMember]
         public TDeckControl DeckControl { get => _deckControl; private set => SetField(ref _deckControl, value); }
 
-        [DtoField]
+        [DtoMember]
         public bool IsDeckConnected { get => _isDeckConnected; private set => SetField(ref _isDeckConnected, value); }
 
-        [DtoField]
+        [DtoMember]
         public bool IsServerConnected { get => _isServerConnected; internal set => SetField(ref _isServerConnected, value); }
 
-        [DtoField]
+        [DtoMember]
         public IEnumerable<IPlayoutServerChannel> Channels => _ownerServer.Channels.ToList();
 
-        [DtoField]
+        [DtoMember]
         public IMedia RecordingMedia { get => _recordingMedia; private set => SetField(ref _recordingMedia, value); }
 
-        [DtoField]
+        [DtoMember]
         public IWatcherDirectory RecordingDirectory => _ownerServer.MediaDirectory;
         
         public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName, int[] channelMap)

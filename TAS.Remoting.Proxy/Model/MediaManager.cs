@@ -14,37 +14,37 @@ namespace TAS.Remoting.Model
 
         #pragma warning disable CS0649
 
-        [DtoField(nameof(IMediaManager.AnimationDirectoryPRI))]
+        [DtoMember(nameof(IMediaManager.AnimationDirectoryPRI))]
         private AnimationDirectory _animationDirectoryPRI;
 
-        [DtoField(nameof(IMediaManager.MediaDirectoryPRI))]
+        [DtoMember(nameof(IMediaManager.MediaDirectoryPRI))]
         private ServerDirectory _mediaDirectoryPri;
 
-        [DtoField(nameof(IMediaManager.AnimationDirectorySEC))]
+        [DtoMember(nameof(IMediaManager.AnimationDirectorySEC))]
         private AnimationDirectory _animationDirectorySEC;
 
-        [DtoField(nameof(IMediaManager.IngestDirectories))]
+        [DtoMember(nameof(IMediaManager.IngestDirectories))]
         private List<IngestDirectory> _ingestDirectories;
         
-        [DtoField(nameof(IMediaManager.AnimationDirectoryPRV))]
+        [DtoMember(nameof(IMediaManager.AnimationDirectoryPRV))]
         private AnimationDirectory _animationDirectoryPRV;
         
-        [DtoField(nameof(IMediaManager.ArchiveDirectory))]
+        [DtoMember(nameof(IMediaManager.ArchiveDirectory))]
         private ArchiveDirectory _archiveDirectory;
 
-        [DtoField(nameof(IMediaManager.Recorders))]
+        [DtoMember(nameof(IMediaManager.Recorders))]
         private List<Recorder> _recorders;
 
-        [DtoField(nameof(IMediaManager.MediaDirectorySEC))]
+        [DtoMember(nameof(IMediaManager.MediaDirectorySEC))]
         private ServerDirectory _mediaDirectorySec;
 
-        [DtoField(nameof(IMediaManager.FileManager))]
+        [DtoMember(nameof(IMediaManager.FileManager))]
         private FileManager _fileManager;
 
-        [DtoField(nameof(IMediaManager.MediaDirectoryPRV))]
+        [DtoMember(nameof(IMediaManager.MediaDirectoryPRV))]
         private ServerDirectory _mediaDirectoryPrv;
 
-        [DtoField(nameof(IEngine.CGElementsController))]
+        [DtoMember(nameof(IEngine.CGElementsController))]
         private CGElementsController _cgElementsController;
 
         #pragma warning restore

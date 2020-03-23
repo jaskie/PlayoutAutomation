@@ -9,25 +9,25 @@ namespace TAS.Remoting.Model
     {
 #pragma warning disable CS0649
 
-        [DtoField(nameof(IPlayoutServerChannel.ChannelName))]
+        [DtoMember(nameof(IPlayoutServerChannel.ChannelName))]
         private string _channelName;
 
-        [DtoField(nameof(IPlayoutServerChannel.Id))]
+        [DtoMember(nameof(IPlayoutServerChannel.Id))]
         private int _id;
 
-        [DtoField(nameof(IPlayoutServerChannel.IsServerConnected))]
+        [DtoMember(nameof(IPlayoutServerChannel.IsServerConnected))]
         private bool _isServerConnected;
 
-        [DtoField(nameof(IPlayoutServerChannel.VideoFormat))]
+        [DtoMember(nameof(IPlayoutServerChannel.VideoFormat))]
         private TVideoFormat _videoFormat;
 
-        [DtoField(nameof(IPlayoutServerChannel.AudioLevel))]
+        [DtoMember(nameof(IPlayoutServerChannel.AudioLevel))]
         private int _audioLevel;
 
-        [DtoField(nameof(IPlayoutServerChannel.PreviewUrl))]
+        [DtoMember(nameof(IPlayoutServerChannel.PreviewUrl))]
         private string _previewUrl;
 
-        [DtoField(nameof(IPlayoutServerChannel.AudioChannelCount))]
+        [DtoMember(nameof(IPlayoutServerChannel.AudioChannelCount))]
         private int _audioChannelCount;
 
 #pragma warning restore

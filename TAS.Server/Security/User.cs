@@ -25,30 +25,30 @@ namespace TAS.Server.Security
         private AuthenticationSource _authenticationSource;
         private string _authenticationObject;
 
-        [DtoField, XmlIgnore]
+        [DtoMember, XmlIgnore]
         public override SecurityObjectType SecurityObjectTypeType { get; } = SecurityObjectType.User;
 
-        [DtoField]
+        [DtoMember]
         public string AuthenticationType => _authenticationSource.ToString();
 
-        [DtoField]
+        [DtoMember]
         public bool IsAuthenticated => !string.IsNullOrEmpty(Name);
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public bool IsAdmin
         {
             get { return _isAdmin; }
             set { SetField(ref _isAdmin, value); }
         }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public AuthenticationSource AuthenticationSource
         {
             get { return _authenticationSource; }
             set { SetField(ref _authenticationSource, value); }
         }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public string AuthenticationObject
         {
             get { return _authenticationObject; }

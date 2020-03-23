@@ -12,19 +12,19 @@ namespace TAS.Remoting.Model.Media
 
 #pragma warning disable CS0649
 
-        [DtoField(nameof(ITemplated.Fields))]
+        [DtoMember(nameof(ITemplated.Fields))]
         private Dictionary<string, string> _fields;
 
-        [DtoField(nameof(ITemplated.Method))]
+        [DtoMember(nameof(ITemplated.Method))]
         private TemplateMethod _method;
 
-        [DtoField(nameof(ITemplated.TemplateLayer))]
+        [DtoMember(nameof(ITemplated.TemplateLayer))]
         private int _templateLayer;
 
-        [DtoField(nameof(ITemplated.ScheduledDelay))]
+        [DtoMember(nameof(ITemplated.ScheduledDelay))]
         private TimeSpan _scheduledDelay;
 
-        [DtoField(nameof(ITemplated.StartType))]
+        [DtoMember(nameof(ITemplated.StartType))]
         private TStartType _startType;
 
 #pragma warning restore

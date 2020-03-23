@@ -22,20 +22,20 @@ namespace TAS.Server.Media
 
         public ulong Id { get; set; }
         
-        [DtoField]
+        [DtoMember]
         public string SegmentName
         {
             get => _segmentName;
             set => SetField(ref _segmentName, value);
         }
-        [DtoField]
+        [DtoMember]
         public TimeSpan TcIn
         {
             get => _tcIn;
             set => SetField(ref _tcIn, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan TcOut
         {
             get => _tcOut;

@@ -16,26 +16,26 @@ namespace TAS.Server.Media
         private TimeSpan _scheduledDelay;
         private TStartType _startType = TStartType.WithParent;
 
-        [DtoField]
+        [DtoMember]
         public Dictionary<string, string> Fields
         {
             get => _fields;
             set => SetField(ref _fields, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public TemplateMethod Method { get => _method; set => SetField(ref _method, value); }
 
-        [DtoField]
+        [DtoMember]
         public int TemplateLayer { get => _templateLayer; set => SetField(ref _templateLayer, value); }
 
-        [DtoField]
+        [DtoMember]
         public TimeSpan ScheduledDelay { get => _scheduledDelay; set => SetField(ref _scheduledDelay, value); }
 
-        [DtoField]
+        [DtoMember]
         public TStartType StartType { get => _startType; set => SetField(ref _startType, value); }
 
-        [DtoField]
+        [DtoMember]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ServerMediaFieldLengths;
 
         public override void Save()

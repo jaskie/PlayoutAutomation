@@ -26,19 +26,19 @@ namespace TAS.Server
         private string _engineName;
         private bool _pst2Prv;
 
-        [DtoField(nameof(PlayoutChannelPRI))]
+        [DtoMember(nameof(PlayoutChannelPRI))]
         private CasparServerChannel _playoutChannelPRI;
 
-        [DtoField(nameof(PlayoutChannelSEC))]
+        [DtoMember(nameof(PlayoutChannelSEC))]
         private CasparServerChannel _playoutChannelSEC;
 
-        [DtoField(nameof(MediaManager))]
+        [DtoMember(nameof(MediaManager))]
         private readonly MediaManager _mediaManager;
 
-        [DtoField(nameof(Preview))]
+        [DtoMember(nameof(Preview))]
         private Preview _preview;
 
-        [DtoField(nameof(AuthenticationService))]
+        [DtoMember(nameof(AuthenticationService))]
         private IAuthenticationService _authenticationService;
 
         Thread _engineThread;
@@ -129,19 +129,19 @@ namespace TAS.Server
         [XmlIgnore]
         public int ServerChannelPRV { get; set; }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public int CGStartDelay { get; set; }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public string EngineName { get => _engineName; set => SetField(ref _engineName, value); }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public bool EnableCGElementsForNewEvents { get => _enableCGElementsForNewEvents; set => SetField(ref _enableCGElementsForNewEvents, value); }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public bool StudioMode { get => _studioMode; set => SetField(ref _studioMode, value); }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
 
         #endregion //IEngineProperties
@@ -155,20 +155,20 @@ namespace TAS.Server
         public IMediaManager MediaManager => _mediaManager;
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public ICGElementsController CGElementsController { get; private set; }
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public IRouter Router { get; private set; }
 
         [Hibernate]
         public ServerHost Remote { get; set; }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public TAspectRatioControl AspectRatioControl { get; set; }
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public int TimeCorrection
         {
             get => _timeCorrection;
@@ -203,7 +203,7 @@ namespace TAS.Server
         [XmlIgnore]
         public VideoFormatDescription FormatDescription { get; private set; } = VideoFormatDescription.Descriptions[default];
 
-        [DtoField, Hibernate]
+        [DtoMember, Hibernate]
         public TVideoFormat VideoFormat
         {
             get => _videoFormat; 
@@ -217,7 +217,7 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public TEngineState EngineState
         {
             get => _engineState;
@@ -249,7 +249,7 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public bool FieldOrderInverted
         {
             get => _fieldOrderInverted;
@@ -264,7 +264,7 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public double ProgramAudioVolume
         {
             get => _programAudioVolume;
@@ -353,7 +353,7 @@ namespace TAS.Server
             Logger.Debug("Engine {0} initialized", this);
         }
 
-        [DtoField]
+        [DtoMember]
         public ConnectionStateRedundant DatabaseConnectionState { get => _databaseConnectionState; set => SetField(ref _databaseConnectionState, value); }
 
         [XmlIgnore]
@@ -378,7 +378,7 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public IEvent Playing
         {
             get => _playing;
@@ -399,7 +399,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public IEvent NextToPlay
         {
             get
@@ -427,7 +427,7 @@ namespace TAS.Server
             return e;
         }
 
-        [DtoField, XmlIgnore]
+        [DtoMember, XmlIgnore]
         public IEvent ForcedNext
         {
             get => _forcedNext;
@@ -450,7 +450,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField, XmlIgnore]
+        [DtoMember, XmlIgnore]
         public bool IsWideScreen
         {
             get { return _isWideScreen; }
@@ -465,7 +465,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField, XmlIgnore]
+        [DtoMember, XmlIgnore]
         public bool Pst2Prv
         {
             get => _pst2Prv;
@@ -769,16 +769,16 @@ namespace TAS.Server
         [XmlIgnore]
         public IAuthenticationService AuthenticationService => _authenticationService;
 
-        [DtoField]
+        [DtoMember]
         public IDictionary<string, int> FieldLengths { get; }
 
-        [DtoField]
+        [DtoMember]
         public IDictionary<string, int> ServerMediaFieldLengths { get; }
 
-        [DtoField]
+        [DtoMember]
         public IDictionary<string, int> ArchiveMediaFieldLengths { get; }
 
-        [DtoField]
+        [DtoMember]
         public IDictionary<string, int> EventFieldLengths { get; }
 
 
@@ -825,7 +825,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public ulong CurrentUserRights
         {
             get

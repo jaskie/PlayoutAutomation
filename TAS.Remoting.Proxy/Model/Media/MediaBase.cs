@@ -11,70 +11,70 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649 
 
-        [DtoField(nameof(IMedia.AudioChannelMapping))]
+        [DtoMember(nameof(IMedia.AudioChannelMapping))]
         private TAudioChannelMapping _audioChannelMapping;
 
-        [DtoField(nameof(IMedia.AudioLevelIntegrated))]
+        [DtoMember(nameof(IMedia.AudioLevelIntegrated))]
         private double _audioLevelIntegrated;
 
-        [DtoField(nameof(IMedia.AudioLevelPeak))]
+        [DtoMember(nameof(IMedia.AudioLevelPeak))]
         private double _audioLevelPeak;
 
-        [DtoField(nameof(IMedia.AudioVolume))]
+        [DtoMember(nameof(IMedia.AudioVolume))]
         private double _audioVolume;
 
-        [DtoField(nameof(IMedia.Directory))]
+        [DtoMember(nameof(IMedia.Directory))]
         private MediaDirectoryBase _directory;
 
-        [DtoField(nameof(IMedia.Duration))]
+        [DtoMember(nameof(IMedia.Duration))]
         private TimeSpan _duration;
 
-        [DtoField(nameof(IMedia.DurationPlay))]
+        [DtoMember(nameof(IMedia.DurationPlay))]
         private TimeSpan _durationPlay;
 
-        [DtoField(nameof(IMedia.FileName))]
+        [DtoMember(nameof(IMedia.FileName))]
         private string _fileName;
 
-        [DtoField(nameof(IMedia.FileSize))]
+        [DtoMember(nameof(IMedia.FileSize))]
         private ulong _fileSize;
 
-        [DtoField(nameof(IMedia.Folder))]
+        [DtoMember(nameof(IMedia.Folder))]
         private string _folder;
 
-        [DtoField(nameof(IMedia.LastUpdated))]
+        [DtoMember(nameof(IMedia.LastUpdated))]
         private DateTime _lastUpdated;
 
-        [DtoField(nameof(IMedia.MediaCategory))]
+        [DtoMember(nameof(IMedia.MediaCategory))]
         private TMediaCategory _mediaCategory;
 
-        [DtoField(nameof(IMedia.MediaGuid))]
+        [DtoMember(nameof(IMedia.MediaGuid))]
         private Guid _mediaGuid;
 
-        [DtoField(nameof(IMedia.MediaName))]
+        [DtoMember(nameof(IMedia.MediaName))]
         private string _mediaName;
 
-        [DtoField(nameof(IMedia.MediaStatus))]
+        [DtoMember(nameof(IMedia.MediaStatus))]
         private TMediaStatus _mediaStatus;
 
-        [DtoField(nameof(IMedia.MediaType))]
+        [DtoMember(nameof(IMedia.MediaType))]
         private TMediaType _mediaType;
 
-        [DtoField(nameof(IMedia.Parental))]
+        [DtoMember(nameof(IMedia.Parental))]
         private byte _parental;
 
-        [DtoField(nameof(IMedia.TcPlay))]
+        [DtoMember(nameof(IMedia.TcPlay))]
         private TimeSpan _tcPlay;
 
-        [DtoField(nameof(IMedia.TcStart))]
+        [DtoMember(nameof(IMedia.TcStart))]
         private TimeSpan _tcStart;
 
-        [DtoField(nameof(IMedia.IsVerified))]
+        [DtoMember(nameof(IMedia.IsVerified))]
         private bool _isVerified;
 
-        [DtoField(nameof(IMedia.VideoFormat))]
+        [DtoMember(nameof(IMedia.VideoFormat))]
         private TVideoFormat _videoFormat;
 
-        [DtoField(nameof(IMedia.FieldOrderInverted))]
+        [DtoMember(nameof(IMedia.FieldOrderInverted))]
         private bool _fieldOrderInverted;
 
         #pragma warning restore

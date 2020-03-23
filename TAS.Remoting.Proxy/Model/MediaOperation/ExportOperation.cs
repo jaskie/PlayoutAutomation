@@ -13,13 +13,13 @@ namespace TAS.Remoting.Model.MediaOperation
 
         #pragma warning disable CS0649
         
-        [DtoField(nameof(IExportOperation.DestProperties))]
+        [DtoMember(nameof(IExportOperation.DestProperties))]
         private IMediaProperties _destProperties;
 
-        [DtoField(nameof(IExportOperation.DestDirectory))]
+        [DtoMember(nameof(IExportOperation.DestDirectory))]
         private MediaDirectoryBase _destDirectory;
 
-        [DtoField(nameof(IExportOperation.Sources))]
+        [DtoMember(nameof(IExportOperation.Sources))]
         private List<MediaExportDescription> _sources;
         
         #pragma warning restore 

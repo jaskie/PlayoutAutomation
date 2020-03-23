@@ -7,7 +7,7 @@ namespace TAS.Remoting.Model.Security
     {
 
 #pragma warning disable CS0649
-        [DtoField(nameof(IGroup.Name))]
+        [DtoMember(nameof(IGroup.Name))]
         private string _name;
 #pragma warning restore
 

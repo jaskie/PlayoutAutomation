@@ -12,7 +12,7 @@ namespace TAS.Server.MediaOperation
 
         private IMedia _source;
 
-        [DtoField]
+        [DtoMember]
         public IMedia Source { get => _source; set => SetField(ref _source, value); }
 
         

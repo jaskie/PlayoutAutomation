@@ -33,17 +33,17 @@ namespace TAS.Server
         [XmlAttribute]
         public string EngineName { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public byte DefaultCrawl { get; set; } = 1;
 
-        [DtoField]
+        [DtoMember]
         public byte DefaultLogo { get; set; } = 1;
 
-        [DtoField]
+        [DtoMember]
         public virtual bool IsConnected => true;
 
 
-        [DtoField]
+        [DtoMember]
         [XmlIgnore]
         public bool IsCGEnabled
         {
@@ -51,10 +51,10 @@ namespace TAS.Server
             set => SetField(ref _isCgEnabled, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public bool IsMaster => true;
 
-        [DtoField]
+        [DtoMember]
         [XmlIgnore]
         public bool IsWideScreen
         {
@@ -62,7 +62,7 @@ namespace TAS.Server
             set => SetField(ref _isWideScreen, value);
         }
 
-        [DtoField]
+        [DtoMember]
         [XmlIgnore]
         public byte Crawl
         {
@@ -75,13 +75,13 @@ namespace TAS.Server
             }
         }
 
-        [DtoField(nameof(Crawls))]
+        [DtoMember(nameof(Crawls))]
         [XmlArray(nameof(Crawls)), XmlArrayItem(nameof(Crawl))]
         public CGElement[] _crawls { get; set; } = new CGElement[0];
 
         public IEnumerable<ICGElement> Crawls => _crawls;
 
-        [DtoField]
+        [DtoMember]
         [XmlIgnore]
         public byte Logo
         {
@@ -94,13 +94,13 @@ namespace TAS.Server
             }
         }
 
-        [DtoField(nameof(Logos))]
+        [DtoMember(nameof(Logos))]
         [XmlArray(nameof(Logos)), XmlArrayItem(nameof(Logo))]
         public CGElement[] _logos { get; set; } = new CGElement[0];
 
         public IEnumerable<ICGElement> Logos => _logos;
 
-        [DtoField]
+        [DtoMember]
         [XmlIgnore]
         public byte Parental
         {
@@ -113,7 +113,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField(nameof(Parentals))]
+        [DtoMember(nameof(Parentals))]
         [XmlArray(nameof(Parentals)), XmlArrayItem(nameof(Parental))]
         public CGElement[] _parentals { get; set; } = new CGElement[0];
 

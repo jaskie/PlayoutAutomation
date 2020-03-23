@@ -32,10 +32,10 @@ namespace TAS.Server.Security
 
         public static IAuthenticationService Current { get; } = new AuthenticationService();
 
-        [DtoField]
+        [DtoMember]
         public IEnumerable<IUser> Users => _users.Items;
 
-        [DtoField]
+        [DtoMember]
         public IEnumerable<IGroup> Groups => _groups.Items;
 
         public IUser CreateUser() => new User(this);

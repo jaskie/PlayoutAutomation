@@ -18,7 +18,7 @@ namespace TAS.Server
 
         private readonly Engine _engine;
 
-        [DtoField(nameof(LoadedMovie))]
+        [DtoMember(nameof(LoadedMovie))]
         private IMedia _loadedMovie;
         private long _duration;
         private long _position;
@@ -40,24 +40,24 @@ namespace TAS.Server
             previewChannel.PropertyChanged += ChannelPropertyChanged;
         }
 
-        [DtoField]
+        [DtoMember]
         public bool HaveLiveDevice { get; }
 
         public IMedia LoadedMovie => _loadedMovie;
 
-        [DtoField]
+        [DtoMember]
         public IPlayoutServerChannel Channel => _channel;
 
-        [DtoField]
+        [DtoMember]
         public bool IsConnected => _channel.IsServerConnected;
 
-        [DtoField]
+        [DtoMember]
         public TVideoFormat VideoFormat => _engine.VideoFormat; 
 
-        [DtoField]
+        [DtoMember]
         public long MovieSeekOnLoad { get; private set; }
 
-        [DtoField]
+        [DtoMember]
         public long MoviePosition // from 0 to duration
         {
             get => _position;
@@ -90,7 +90,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public double AudioVolume
         {
             get => _audioVolume;
@@ -101,7 +101,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public bool IsMovieLoaded
         {
             get => _isLoaded;
@@ -114,14 +114,14 @@ namespace TAS.Server
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public bool IsPlaying
         {
             get => _isPlaying;
             private set => SetField(ref _isPlaying, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public bool IsLivePlaying
         {
             get => _isLivePlaying;
@@ -172,7 +172,7 @@ namespace TAS.Server
             return true;
         }
 
-        [DtoField]
+        [DtoMember]
         public Dictionary<VideoLayer, IMedia> LoadedStillImages => new Dictionary<VideoLayer, IMedia>(_previewLoadedStills);
         
         public void UnloadMovie()

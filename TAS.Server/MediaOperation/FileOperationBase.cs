@@ -29,14 +29,14 @@ namespace TAS.Server.MediaOperation
         protected readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
         private bool _isAborted;
 
-        [DtoField]
+        [DtoMember]
         public int TryCount
         {
             get => _tryCount;
             internal set => SetField(ref _tryCount, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public int Progress
         {
             get => _progress;
@@ -48,28 +48,28 @@ namespace TAS.Server.MediaOperation
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public DateTime ScheduledTime
         {
             get => _scheduledTime;
             internal set => SetField(ref _scheduledTime, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public DateTime StartTime
         {
             get => _startTime;
             protected set => SetField(ref _startTime, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public DateTime FinishedTime 
         {
             get => _finishedTime;
             protected set => SetField(ref _finishedTime, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public FileOperationStatus OperationStatus
         {
             get => _operationStatus;
@@ -108,21 +108,21 @@ namespace TAS.Server.MediaOperation
         }
 
 
-        [DtoField]
+        [DtoMember]
         public bool IsIndeterminate
         {
             get => _isIndeterminate;
             set => SetField(ref _isIndeterminate, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public bool IsAborted
         {
             get => _isAborted;
             private set => SetField(ref _isAborted, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public List<string> OperationWarning
         {
             get
@@ -134,7 +134,7 @@ namespace TAS.Server.MediaOperation
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public List<string> OperationOutput
         {
             get

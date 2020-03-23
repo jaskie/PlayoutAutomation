@@ -10,10 +10,10 @@ namespace TAS.Remoting.Model.Security
     public class AuthenticationService: ProxyObjectBase, IAuthenticationService
     {
 #pragma warning disable CS0649
-        [DtoField(nameof(IAuthenticationService.Users))]
+        [DtoMember(nameof(IAuthenticationService.Users))]
         private List<User> _users;
 
-        [DtoField(nameof(IAuthenticationService.Groups))]
+        [DtoMember(nameof(IAuthenticationService.Groups))]
         private List<Group> _groups;
 
         private event EventHandler<CollectionOperationEventArgs<IUser>> _usersOperation;

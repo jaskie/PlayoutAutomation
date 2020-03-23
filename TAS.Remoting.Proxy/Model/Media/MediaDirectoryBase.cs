@@ -11,19 +11,19 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649
 
-        [DtoField(nameof(IMediaDirectory.Folder))]
+        [DtoMember(nameof(IMediaDirectory.Folder))]
         private string _folder;
 
-        [DtoField(nameof(IMediaDirectory.PathSeparator))]
+        [DtoMember(nameof(IMediaDirectory.PathSeparator))]
         private char _pathSeparator;
 
-        [DtoField(nameof(IMediaDirectory.VolumeFreeSize))]
+        [DtoMember(nameof(IMediaDirectory.VolumeFreeSize))]
         private long _volumeFreeSize;
 
-        [DtoField(nameof(IMediaDirectory.VolumeTotalSize))]
+        [DtoMember(nameof(IMediaDirectory.VolumeTotalSize))]
         private long _volumeTotalSize;
 
-        [DtoField(nameof(IMediaDirectory.HaveFileWatcher))]
+        [DtoMember(nameof(IMediaDirectory.HaveFileWatcher))]
         private bool _haveFileWatcher;
 
 

@@ -39,17 +39,17 @@ namespace TAS.Server
             Init();
         }
 
-        [DtoField]
+        [DtoMember]
         public IRouterPort SelectedInputPort
         {
             get => _selectedInputPort;
             set => SetField(ref _selectedInputPort, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public IList<IRouterPort> InputPorts { get; } = new List<IRouterPort>();
 
-        [DtoField]
+        [DtoMember]
         public bool IsConnected
         {
             get => _isConnected;

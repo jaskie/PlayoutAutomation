@@ -13,37 +13,37 @@ namespace TAS.Remoting.Model.MediaOperation
 
 #pragma warning disable CS0649
 
-        [DtoField(nameof(IIngestOperation.DestProperties))]
+        [DtoMember(nameof(IIngestOperation.DestProperties))]
         private IMediaProperties _destProperties;
 
-        [DtoField(nameof(IIngestOperation.DestDirectory))]
+        [DtoMember(nameof(IIngestOperation.DestDirectory))]
         private MediaDirectoryBase _destDirectory;
 
-        [DtoField(nameof(IIngestOperation.Source))]
+        [DtoMember(nameof(IIngestOperation.Source))]
         private MediaBase _source;
 
-        [DtoField(nameof(IIngestOperation.AspectConversion))]
+        [DtoMember(nameof(IIngestOperation.AspectConversion))]
         private TAspectConversion _aspectConversion;
 
-        [DtoField(nameof(IIngestOperation.AudioChannelMappingConversion))]
+        [DtoMember(nameof(IIngestOperation.AudioChannelMappingConversion))]
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
 
-        [DtoField(nameof(IIngestOperation.AudioVolume))]
+        [DtoMember(nameof(IIngestOperation.AudioVolume))]
         private double _audioVolume;
 
-        [DtoField(nameof(IIngestOperation.SourceFieldOrderEnforceConversion))]
+        [DtoMember(nameof(IIngestOperation.SourceFieldOrderEnforceConversion))]
         private TFieldOrder _sourceFieldOrderEnforceConversion;
 
-        [DtoField(nameof(IIngestOperation.StartTC))]
+        [DtoMember(nameof(IIngestOperation.StartTC))]
         private TimeSpan _startTc;
 
-        [DtoField(nameof(IIngestOperation.Duration))]
+        [DtoMember(nameof(IIngestOperation.Duration))]
         private TimeSpan _duration;
 
-        [DtoField(nameof(IIngestOperation.Trim))]
+        [DtoMember(nameof(IIngestOperation.Trim))]
         private bool _trim;
 
-        [DtoField(nameof(IIngestOperation.LoudnessCheck))]
+        [DtoMember(nameof(IIngestOperation.LoudnessCheck))]
         private bool _loudnessCheck;
         
 

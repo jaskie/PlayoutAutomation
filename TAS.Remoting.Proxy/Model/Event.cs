@@ -18,115 +18,115 @@ namespace TAS.Remoting.Model
     {
 #pragma warning disable CS0649
 
-        [DtoField(nameof(IEvent.Id))]
+        [DtoMember(nameof(IEvent.Id))]
         private ulong _id;
 
-        [DtoField(nameof(IEvent.AudioVolume))]
+        [DtoMember(nameof(IEvent.AudioVolume))]
         private double? _audioVolume;
 
-        [DtoField(nameof(IEvent.AutoStartFlags))]
+        [DtoMember(nameof(IEvent.AutoStartFlags))]
         private AutoStartFlags _autoStartFlags;
 
-        [DtoField(nameof(IEvent.Crawl))]
+        [DtoMember(nameof(IEvent.Crawl))]
         private byte _crawl;
 
-        [DtoField(nameof(IEvent.RouterPort))]
+        [DtoMember(nameof(IEvent.RouterPort))]
         private int _routerPort;
 
-        [DtoField(nameof(IEvent.Duration))]
+        [DtoMember(nameof(IEvent.Duration))]
         private TimeSpan _duration;
 
-        [DtoField(nameof(IEvent.EndTime))]
+        [DtoMember(nameof(IEvent.EndTime))]
         private DateTime _endTime;
 
-        [DtoField(nameof(IEvent.Engine))]
+        [DtoMember(nameof(IEvent.Engine))]
         private IEngine _engine;
 
-        [DtoField(nameof(IEvent.EventName))]
+        [DtoMember(nameof(IEvent.EventName))]
         private string _eventName;
 
-        [DtoField(nameof(IEvent.EventType))]
+        [DtoMember(nameof(IEvent.EventType))]
         private TEventType _eventType;
 
-        [DtoField(nameof(IEvent.IdAux))]
+        [DtoMember(nameof(IEvent.IdAux))]
         private string _idAux;
 
-        [DtoField(nameof(IEvent.IdProgramme))]
+        [DtoMember(nameof(IEvent.IdProgramme))]
         private ulong _idProgramme;
 
-        [DtoField(nameof(IEvent.IsCGEnabled))]
+        [DtoMember(nameof(IEvent.IsCGEnabled))]
         private bool _isCGEnabled;
 
-        [DtoField(nameof(IEvent.IsDeleted))]
+        [DtoMember(nameof(IEvent.IsDeleted))]
         private bool _isDeleted;
 
-        [DtoField(nameof(IEvent.IsEnabled))]
+        [DtoMember(nameof(IEvent.IsEnabled))]
         private bool _isEnabled;
 
-        [DtoField(nameof(IEvent.IsForcedNext))]
+        [DtoMember(nameof(IEvent.IsForcedNext))]
         private bool _isForcedNext;
 
-        [DtoField(nameof(IEvent.IsHold))]
+        [DtoMember(nameof(IEvent.IsHold))]
         private bool _isHold;
 
-        [DtoField(nameof(IEvent.IsLoop))]
+        [DtoMember(nameof(IEvent.IsLoop))]
         private bool _isLoop;
 
-        [DtoField(nameof(IEvent.Layer))]
+        [DtoMember(nameof(IEvent.Layer))]
         private VideoLayer _layer;
 
-        [DtoField(nameof(IEvent.Logo))]
+        [DtoMember(nameof(IEvent.Logo))]
         private byte _logo;
 
-        [DtoField(nameof(IEvent.Media))]
+        [DtoMember(nameof(IEvent.Media))]
         private MediaBase _media;
 
-        [DtoField(nameof(IEvent.MediaGuid))]
+        [DtoMember(nameof(IEvent.MediaGuid))]
         private Guid _mediaGuid;
 
-        [DtoField(nameof(IEvent.Offset))]
+        [DtoMember(nameof(IEvent.Offset))]
         private TimeSpan? _offset;
 
-        [DtoField(nameof(IEvent.Parental))]
+        [DtoMember(nameof(IEvent.Parental))]
         private byte _parental;
 
-        [DtoField(nameof(IEvent.PlayState))]
+        [DtoMember(nameof(IEvent.PlayState))]
         private TPlayState _playState;
 
-        [DtoField(nameof(IEvent.RequestedStartTime))]
+        [DtoMember(nameof(IEvent.RequestedStartTime))]
         private TimeSpan? _requestedStartTime;
 
-        [DtoField(nameof(IEvent.ScheduledDelay))]
+        [DtoMember(nameof(IEvent.ScheduledDelay))]
         private TimeSpan _scheduledDelay;
 
-        [DtoField(nameof(IEvent.ScheduledTc))]
+        [DtoMember(nameof(IEvent.ScheduledTc))]
         private TimeSpan _scheduledTc;
 
-        [DtoField(nameof(IEvent.ScheduledTime))]
+        [DtoMember(nameof(IEvent.ScheduledTime))]
         private DateTime _scheduledTime;
 
-        [DtoField(nameof(IEvent.StartTc))]
+        [DtoMember(nameof(IEvent.StartTc))]
         private TimeSpan _startTc;
 
-        [DtoField(nameof(IEvent.StartTime))]
+        [DtoMember(nameof(IEvent.StartTime))]
         private DateTime _startTime;
 
-        [DtoField(nameof(IEvent.StartType))]
+        [DtoMember(nameof(IEvent.StartType))]
         private TStartType _startType;
 
-        [DtoField(nameof(IEvent.SubEventsCount))]
+        [DtoMember(nameof(IEvent.SubEventsCount))]
         private int _subEventsCount;
 
-        [DtoField(nameof(IEvent.TransitionEasing))]
+        [DtoMember(nameof(IEvent.TransitionEasing))]
         private TEasing _transitionEasing;
 
-        [DtoField(nameof(IEvent.TransitionPauseTime))]
+        [DtoMember(nameof(IEvent.TransitionPauseTime))]
         private TimeSpan _transitionPauseTime;
 
-        [DtoField(nameof(IEvent.TransitionTime))]
+        [DtoMember(nameof(IEvent.TransitionTime))]
         private TimeSpan _transitionTime;
 
-        [DtoField(nameof(IEvent.TransitionType))]
+        [DtoMember(nameof(IEvent.TransitionType))]
         private TTransitionType _transitionType;
 
         private Lazy<IEvent> _parent;
@@ -137,10 +137,10 @@ namespace TAS.Remoting.Model
 
         private Lazy<List<IEvent>> _subEvents;
 
-        [DtoField(nameof(IEvent.CurrentUserRights))]
+        [DtoMember(nameof(IEvent.CurrentUserRights))]
         private ulong _currentUserRights;
 
-        [DtoField(nameof(IEvent.RecordingInfo))]
+        [DtoMember(nameof(IEvent.RecordingInfo))]
         private RecordingInfo _recordingInfo;
 
 #pragma warning restore

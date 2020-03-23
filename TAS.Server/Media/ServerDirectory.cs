@@ -26,7 +26,7 @@ namespace TAS.Server.Media
 
         internal bool RequiresInitialization { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public bool IsRecursive { get; }
 
         public TMovieContainerFormat MovieContainerFormat { get; }

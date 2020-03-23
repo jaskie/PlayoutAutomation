@@ -7,7 +7,7 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649
 
-        [DtoField(nameof(IServerMedia.DoNotArchive))]
+        [DtoMember(nameof(IServerMedia.DoNotArchive))]
         private bool _doNotArchive;
 
         #pragma warning restore

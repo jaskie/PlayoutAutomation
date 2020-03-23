@@ -9,7 +9,7 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649
         
-        [DtoField(nameof(IWatcherDirectory.IsInitialized))]
+        [DtoMember(nameof(IWatcherDirectory.IsInitialized))]
         private bool _isInitialized;
 
         #pragma warning restore

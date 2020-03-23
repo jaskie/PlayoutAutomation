@@ -10,10 +10,10 @@ namespace TAS.Remoting.Model.MediaOperation
     {
 #pragma warning disable CS0649
 
-        [DtoField(nameof(IMoveOperation.DestDirectory))]
+        [DtoMember(nameof(IMoveOperation.DestDirectory))]
         private MediaDirectoryBase _destDirectory;
 
-        [DtoField(nameof(IMoveOperation.Source))]
+        [DtoMember(nameof(IMoveOperation.Source))]
         private MediaBase _source;
 
 #pragma warning restore

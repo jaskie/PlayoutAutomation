@@ -10,7 +10,7 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649
 
-        [DtoField(nameof(IIngestMedia.GetIngestStatus))]
+        [DtoMember(nameof(IIngestMedia.GetIngestStatus))]
         private TIngestStatus _ingestStatus;
 
         private readonly Lazy<TIngestStatus> _ingestStatusLazy;

@@ -10,7 +10,7 @@ namespace TAS.Server.Security
         public Group():base(null) { }
         public Group(IAuthenticationService authenticationService): base(authenticationService) { }
 
-        [DtoField, XmlIgnore]
+        [DtoMember, XmlIgnore]
         public override SecurityObjectType SecurityObjectTypeType { get; } = SecurityObjectType.Group;
 
         public override void Save()

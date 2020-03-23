@@ -9,13 +9,13 @@ namespace TAS.Remoting.Model
     {
 #pragma warning disable CS0649 
 
-        [DtoField(nameof(IRouter.InputPorts))]
+        [DtoMember(nameof(IRouter.InputPorts))]
         private IList<IRouterPort> _inputPorts;
 
-        [DtoField(nameof(IRouter.SelectedInputPort))]
+        [DtoMember(nameof(IRouter.SelectedInputPort))]
         private IRouterPort _selectedInputPort;
 
-        [DtoField(nameof(IRouter.IsConnected))]
+        [DtoMember(nameof(IRouter.IsConnected))]
         private bool _isConnected;
 
 #pragma warning restore

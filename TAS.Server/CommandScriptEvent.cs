@@ -15,7 +15,7 @@ namespace TAS.Server
             _command = command;
         }
 
-        [DtoField]
+        [DtoMember]
         public string Command
         {
             get { return _command; }

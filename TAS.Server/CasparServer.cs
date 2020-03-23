@@ -30,7 +30,7 @@ namespace TAS.Server
         #region IPersistent
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public ulong Id { get; set; }
 
         public IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ServerFieldLengths;
@@ -67,17 +67,17 @@ namespace TAS.Server
         [Hibernate]
         public TMovieContainerFormat MovieContainerFormat { get; set; }
 
-        [DtoField, XmlIgnore]
+        [DtoMember, XmlIgnore]
         public IServerDirectory MediaDirectory { get; private set; }
 
-        [DtoField, XmlIgnore]
+        [DtoMember, XmlIgnore]
         public IAnimationDirectory AnimationDirectory { get; private set; }
 
         [XmlArray(nameof(Channels)), Hibernate(nameof(Channels))]
         public List<CasparServerChannel> ChannelsSer { get; set; }
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public IEnumerable<IPlayoutServerChannel> Channels => ChannelsSer;
 
         [XmlArray(nameof(Recorders)), Hibernate(nameof(Recorders))]
@@ -85,10 +85,10 @@ namespace TAS.Server
         public List<CasparRecorder> RecordersSer { get; set; }
 
         [XmlIgnore]
-        [DtoField]
+        [DtoMember]
         public IEnumerable<IRecorder> Recorders => RecordersSer;
 
-        [DtoField]
+        [DtoMember]
         [XmlIgnore]
         public bool IsConnected
         {

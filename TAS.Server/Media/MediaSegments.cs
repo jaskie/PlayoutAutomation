@@ -17,10 +17,10 @@ namespace TAS.Server.Media
             MediaGuid = mediaGuid;
         }
 
-        [DtoField]
+        [DtoMember]
         public Guid MediaGuid { get; }
 
-        [DtoField]
+        [DtoMember]
         public IEnumerable<IMediaSegment> Segments
         {
             get
@@ -30,7 +30,7 @@ namespace TAS.Server.Media
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public int Count
         {
             get

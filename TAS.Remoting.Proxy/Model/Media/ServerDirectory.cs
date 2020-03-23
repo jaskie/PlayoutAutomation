@@ -8,10 +8,10 @@ namespace TAS.Remoting.Model.Media
     public class ServerDirectory : WatcherDirectory, IServerDirectory
     {
 #pragma warning disable CS0649
-        [DtoField(nameof(IServerDirectory.IsRecursive))]
+        [DtoMember(nameof(IServerDirectory.IsRecursive))]
         private bool _isRecursive;
 
-        [DtoField(nameof(IServerDirectory.MovieContainerFormat))]
+        [DtoMember(nameof(IServerDirectory.MovieContainerFormat))]
         private readonly TMovieContainerFormat _movieContainerFormat;
 
 #pragma warning restore

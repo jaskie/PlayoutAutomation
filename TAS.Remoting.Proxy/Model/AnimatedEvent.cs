@@ -10,13 +10,13 @@ namespace TAS.Remoting.Model
 
 #pragma warning disable CS0649
 
-        [DtoField(nameof(ITemplated.Fields))]
+        [DtoMember(nameof(ITemplated.Fields))]
         private Dictionary<string, string> _fields;
 
-        [DtoField(nameof(ITemplated.Method))]
+        [DtoMember(nameof(ITemplated.Method))]
         private TemplateMethod _method;
 
-        [DtoField(nameof(ITemplated.TemplateLayer))]
+        [DtoMember(nameof(ITemplated.TemplateLayer))]
         private int _templateLayer;
 
 #pragma warning restore

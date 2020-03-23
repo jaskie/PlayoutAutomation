@@ -11,39 +11,39 @@ namespace TAS.Remoting.Model
     {
         #pragma warning disable CS0649 
 
-        [DtoField(nameof(ICGElementsController.Crawls))]
+        [DtoMember(nameof(ICGElementsController.Crawls))]
         private List<CGElement> _crawls;
-        [DtoField(nameof(ICGElementsController.Logos))]
+        [DtoMember(nameof(ICGElementsController.Logos))]
         private List<CGElement> _logos;
 
-        [DtoField(nameof(ICGElementsController.Parentals))]
+        [DtoMember(nameof(ICGElementsController.Parentals))]
         private List<CGElement> _parentals;
 
-        [DtoField(nameof(ICGElementsController.Crawl))]
+        [DtoMember(nameof(ICGElementsController.Crawl))]
         private byte _crawl;
 
-        [DtoField(nameof(ICGElementsController.DefaultCrawl))]
+        [DtoMember(nameof(ICGElementsController.DefaultCrawl))]
         private byte _defaultCrawl;
 
-        [DtoField(nameof(ICGElementsController.DefaultLogo))]
+        [DtoMember(nameof(ICGElementsController.DefaultLogo))]
         private byte _defaultLogo;
 
-        [DtoField(nameof(ICGElementsController.IsCGEnabled))]
+        [DtoMember(nameof(ICGElementsController.IsCGEnabled))]
         private bool _isCgEnabled;
 
-        [DtoField(nameof(ICGElementsController.IsConnected))]
+        [DtoMember(nameof(ICGElementsController.IsConnected))]
         private bool _isConnected;
 
-        [DtoField(nameof(ICGElementsController.IsMaster))]
+        [DtoMember(nameof(ICGElementsController.IsMaster))]
         private bool _isMaster;
 
-        [DtoField(nameof(ICGElementsController.IsWideScreen))]
+        [DtoMember(nameof(ICGElementsController.IsWideScreen))]
         private bool _isWideScreen;
 
-        [DtoField(nameof(ICGElementsController.Logo))]
+        [DtoMember(nameof(ICGElementsController.Logo))]
         private byte _logo;
 
-        [DtoField(nameof(ICGElementsController.Parental))]
+        [DtoMember(nameof(ICGElementsController.Parental))]
         private byte _parental;
 
 

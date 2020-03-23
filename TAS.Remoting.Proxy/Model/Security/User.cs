@@ -8,22 +8,22 @@ namespace TAS.Remoting.Model.Security
     public class User: SecurityObjectBase, IUser
     {
 #pragma warning disable CS0649 
-        [DtoField(nameof(IUser.Name))]
+        [DtoMember(nameof(IUser.Name))]
         private string _name;
         
-        [DtoField(nameof(IUser.IsAuthenticated))]
+        [DtoMember(nameof(IUser.IsAuthenticated))]
         private bool _isAuthenticated;
 
-        [DtoField(nameof(IUser.AuthenticationType))]
+        [DtoMember(nameof(IUser.AuthenticationType))]
         private string _authenticationType;
 
-        [DtoField(nameof(IUser.IsAdmin))]
+        [DtoMember(nameof(IUser.IsAdmin))]
         private bool _isAdmin;
 
-        [DtoField(nameof(IUser.AuthenticationSource))]
+        [DtoMember(nameof(IUser.AuthenticationSource))]
         private AuthenticationSource _authenticationSource;
 
-        [DtoField(nameof(IUser.AuthenticationObject))]
+        [DtoMember(nameof(IUser.AuthenticationObject))]
         private string _authenticationObject;
 #pragma warning restore
 

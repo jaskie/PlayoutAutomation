@@ -11,13 +11,13 @@ namespace TAS.Remoting.Model.MediaOperation
     {
         #pragma warning disable CS0649, CS0169
 
-        [DtoField(nameof(ILoudnessOperation.MeasureDuration))]
+        [DtoMember(nameof(ILoudnessOperation.MeasureDuration))]
         private TimeSpan _measureDuration;
 
-        [DtoField(nameof(ILoudnessOperation.MeasureStart))]
+        [DtoMember(nameof(ILoudnessOperation.MeasureStart))]
         private TimeSpan _measureStart;
 
-        [DtoField(nameof(ILoudnessOperation.Source))]
+        [DtoMember(nameof(ILoudnessOperation.Source))]
         private MediaBase _source;
 
         #pragma warning restore

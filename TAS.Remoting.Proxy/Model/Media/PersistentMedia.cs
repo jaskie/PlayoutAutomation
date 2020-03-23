@@ -11,22 +11,22 @@ namespace TAS.Remoting.Model.Media
     {
 #pragma warning disable CS0649
 
-        [DtoField(nameof(IPersistentMedia.MediaEmphasis))]
+        [DtoMember(nameof(IPersistentMedia.MediaEmphasis))]
         private TMediaEmphasis _mediaEmphasis;
 
-        [DtoField(nameof(IPersistentMedia.IdAux))]
+        [DtoMember(nameof(IPersistentMedia.IdAux))]
         private string _idAux;
 
-        [DtoField(nameof(IPersistentMedia.KillDate))]
+        [DtoMember(nameof(IPersistentMedia.KillDate))]
         private DateTime? _killDate;
 
-        [DtoField(nameof(IPersistentMedia.IdProgramme))]
+        [DtoMember(nameof(IPersistentMedia.IdProgramme))]
         private ulong _idProgramme;
 
-        [DtoField(nameof(IPersistentMedia.IsProtected))]
+        [DtoMember(nameof(IPersistentMedia.IsProtected))]
         private bool _protected;
 
-        [DtoField(nameof(FieldLengths))]
+        [DtoMember(nameof(FieldLengths))]
         private Dictionary<string, int> _fieldsLengths;
 
 #pragma warning restore

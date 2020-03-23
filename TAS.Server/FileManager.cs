@@ -11,7 +11,7 @@ namespace TAS.Server
     public class FileManager: ServerObjectBase, IFileManager
     {
 #pragma warning disable CS0169
-        [DtoField]
+        [DtoMember]
         public readonly string Dummy = string.Empty; // at  least one property must be serialized to resolve references
 #pragma warning restore
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

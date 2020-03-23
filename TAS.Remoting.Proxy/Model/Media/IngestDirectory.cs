@@ -9,94 +9,94 @@ namespace TAS.Remoting.Model.Media
     {
         #pragma warning disable CS0649
 
-        [DtoField(nameof(IIngestDirectory.DirectoryName))]
+        [DtoMember(nameof(IIngestDirectory.DirectoryName))]
         private string _directoryName;
 
-        [DtoField(nameof(IIngestDirectory.AccessType))]
+        [DtoMember(nameof(IIngestDirectory.AccessType))]
         private TDirectoryAccessType _accessType;
 
-        [DtoField(nameof(IIngestDirectory.AspectConversion))]
+        [DtoMember(nameof(IIngestDirectory.AspectConversion))]
         private TAspectConversion _aspectConversion;
 
-        [DtoField(nameof(IIngestDirectory.AudioVolume))]
+        [DtoMember(nameof(IIngestDirectory.AudioVolume))]
         private double _audioVolume;
 
-        [DtoField(nameof(IIngestDirectory.DeleteSource))]
+        [DtoMember(nameof(IIngestDirectory.DeleteSource))]
         private bool _deleteSource;
 
-        [DtoField(nameof(IIngestDirectory.EncodeParams))]
+        [DtoMember(nameof(IIngestDirectory.EncodeParams))]
         private string _encodeParams;
 
-        [DtoField(nameof(IIngestDirectory.ExportParams))]
+        [DtoMember(nameof(IIngestDirectory.ExportParams))]
         private string _exportParams;
 
-        [DtoField(nameof(IIngestDirectory.IsWAN))]
+        [DtoMember(nameof(IIngestDirectory.IsWAN))]
         private bool _isWan;
 
-        [DtoField(nameof(IIngestDirectory.Kind))]
+        [DtoMember(nameof(IIngestDirectory.Kind))]
         private TIngestDirectoryKind _kind;
 
-        [DtoField(nameof(IIngestDirectory.IsRecursive))]
+        [DtoMember(nameof(IIngestDirectory.IsRecursive))]
         private bool _isRecursive;
 
-        [DtoField(nameof(IIngestDirectory.IsExport))]
+        [DtoMember(nameof(IIngestDirectory.IsExport))]
         private bool _isExport;
 
-        [DtoField(nameof(IIngestDirectory.IsImport))]
+        [DtoMember(nameof(IIngestDirectory.IsImport))]
         private bool _isImport;
 
-        [DtoField(nameof(IIngestDirectory.MediaCategory))]
+        [DtoMember(nameof(IIngestDirectory.MediaCategory))]
         private TMediaCategory _mediaCategory;
 
-        [DtoField(nameof(IIngestDirectory.MediaDoNotArchive))]
+        [DtoMember(nameof(IIngestDirectory.MediaDoNotArchive))]
         private bool _mediaDoNotArchive;
 
-        [DtoField(nameof(IIngestDirectory.MediaRetnentionDays))]
+        [DtoMember(nameof(IIngestDirectory.MediaRetnentionDays))]
         private int _mediaRetnentionDays;
 
-        [DtoField(nameof(IIngestDirectory.MediaLoudnessCheckAfterIngest))]
+        [DtoMember(nameof(IIngestDirectory.MediaLoudnessCheckAfterIngest))]
         private bool _mediaLoudnessCheckAfterIngest;
 
-        [DtoField(nameof(IIngestDirectory.SourceFieldOrder))]
+        [DtoMember(nameof(IIngestDirectory.SourceFieldOrder))]
         private TFieldOrder _sourceFieldOrder;
 
-        [DtoField(nameof(IIngestDirectory.MXFAudioExportFormat))]
+        [DtoMember(nameof(IIngestDirectory.MXFAudioExportFormat))]
         private TmXFAudioExportFormat _mxfAudioExportFormat;
 
-        [DtoField(nameof(IIngestDirectory.MXFVideoExportFormat))]
+        [DtoMember(nameof(IIngestDirectory.MXFVideoExportFormat))]
         private TmXFVideoExportFormat _mxfVideoExportFormat;
 
-        [DtoField(nameof(IIngestDirectory.ExportContainerFormat))]
+        [DtoMember(nameof(IIngestDirectory.ExportContainerFormat))]
         private TMovieContainerFormat _exportContainerFormat;
 
-        [DtoField(nameof(IIngestDirectory.ExportVideoFormat))]
+        [DtoMember(nameof(IIngestDirectory.ExportVideoFormat))]
         private TVideoFormat _exportVideoFormat;
 
-        [DtoField(nameof(IIngestDirectory.VideoCodec))]
+        [DtoMember(nameof(IIngestDirectory.VideoCodec))]
         private TVideoCodec _videoCodec;
 
-        [DtoField(nameof(IIngestDirectory.AudioCodec))]
+        [DtoMember(nameof(IIngestDirectory.AudioCodec))]
         private TAudioCodec _audioCodec;
 
-        [DtoField(nameof(IIngestDirectory.VideoBitrateRatio))]
+        [DtoMember(nameof(IIngestDirectory.VideoBitrateRatio))]
         private double _videoBitrateRatio;
 
-        [DtoField(nameof(IIngestDirectory.AudioBitrateRatio))]
+        [DtoMember(nameof(IIngestDirectory.AudioBitrateRatio))]
         private double _audioBitrateRatio;
 
-        [DtoField(nameof(IIngestDirectory.Extensions))]
+        [DtoMember(nameof(IIngestDirectory.Extensions))]
         private string[] _extensions;
 
-        [DtoField(nameof(IIngestDirectory.Password))]
+        [DtoMember(nameof(IIngestDirectory.Password))]
         private string _password;
 
-        [DtoField(nameof(IIngestDirectory.Username))]
+        [DtoMember(nameof(IIngestDirectory.Username))]
         private string _username;
 
-        [DtoField(nameof(IIngestDirectory.XdcamClipCount))]
+        [DtoMember(nameof(IIngestDirectory.XdcamClipCount))]
         private int _xdcamClipCount;
 
-        [DtoField(nameof(SubDirectories))]
+        [DtoMember(nameof(SubDirectories))]
         private List<IngestDirectory> _subDirectories;
 
         #pragma warning restore

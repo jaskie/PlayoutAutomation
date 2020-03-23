@@ -16,7 +16,7 @@ namespace TAS.Server.Media
             Debug.WriteLine("ArchiveMedia finalized");    
         }
 
-        [DtoField]
+        [DtoMember]
         public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ArchiveMediaFieldLengths;
 
 

@@ -16,14 +16,14 @@ namespace TAS.Server.Security
         /// <summary>
         /// object to who right is assigned
         /// </summary>
-        [DtoField]
+        [DtoMember]
         public ISecurityObject SecurityObject
         {
             get => _securityObject;
             set => SetField(ref _securityObject, value);
         }
 
-        [DtoField]
+        [DtoMember]
         public ulong Acl
         {
             get => _acl;

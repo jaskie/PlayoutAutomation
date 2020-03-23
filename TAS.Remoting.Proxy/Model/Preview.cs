@@ -12,40 +12,40 @@ namespace TAS.Remoting.Model
     public class Preview: ProxyObjectBase, IPreview
     {
 #pragma warning disable CS0649
-        [DtoField(nameof(IPreview.Channel))]
+        [DtoMember(nameof(IPreview.Channel))]
         private PlayoutServerChannel _channel;
 
-        [DtoField(nameof(IPreview.AudioVolume))]
+        [DtoMember(nameof(IPreview.AudioVolume))]
         private double _audioVolume;
 
-        [DtoField(nameof(IPreview.IsConnected))]
+        [DtoMember(nameof(IPreview.IsConnected))]
         private bool _isConnected;
 
-        [DtoField(nameof(IPreview.IsPlaying))]
+        [DtoMember(nameof(IPreview.IsPlaying))]
         private bool _isPlaying;
 
-        [DtoField(nameof(IPreview.HaveLiveDevice))]
+        [DtoMember(nameof(IPreview.HaveLiveDevice))]
         private bool _haveLiveDevice;
 
-        [DtoField(nameof(IPreview.IsLivePlaying))]
+        [DtoMember(nameof(IPreview.IsLivePlaying))]
         private bool _isLivePlaying;
 
-        [DtoField(nameof(IPreview.IsMovieLoaded))]
+        [DtoMember(nameof(IPreview.IsMovieLoaded))]
         private bool _isMovieLoaded;
 
-        [DtoField(nameof(IPreview.LoadedMovie))]
+        [DtoMember(nameof(IPreview.LoadedMovie))]
         private MediaBase _loadedMovie;
 
-        [DtoField(nameof(IPreview.MoviePosition))]
+        [DtoMember(nameof(IPreview.MoviePosition))]
         private long _position;
 
-        [DtoField(nameof(IPreview.MovieSeekOnLoad))]
+        [DtoMember(nameof(IPreview.MovieSeekOnLoad))]
         private long _movieSeekOnLoad;
 
-        [DtoField(nameof(IPreview.VideoFormat))]
+        [DtoMember(nameof(IPreview.VideoFormat))]
         private TVideoFormat _videoFormat;
 
-        [DtoField(nameof(IPreview.LoadedStillImages))]
+        [DtoMember(nameof(IPreview.LoadedStillImages))]
         private Dictionary<VideoLayer, IMedia> _loadedStillImages;
 
 #pragma warning restore

@@ -36,7 +36,7 @@ namespace TAS.Server.MediaOperation
             TryCount = 1;
         }
 
-        [DtoField]
+        [DtoMember]
         public IEnumerable<MediaExportDescription> Sources
         {
             get => _sources;
@@ -47,10 +47,10 @@ namespace TAS.Server.MediaOperation
             }
         }
 
-        [DtoField]
+        [DtoMember]
         public IMediaProperties DestProperties { get => _destMediaProperties; set => SetField(ref _destMediaProperties, value); }
 
-        [DtoField]
+        [DtoMember]
         public IMediaDirectory DestDirectory { get; set; }
 
         internal MediaBase Dest { get; set; }

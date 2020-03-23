@@ -16,10 +16,10 @@ namespace TAS.Server.MediaOperation
 
         private IMedia _sourceMedia;
 
-        [DtoField]
+        [DtoMember]
         public IMediaDirectory DestDirectory { get; set; }
 
-        [DtoField]
+        [DtoMember]
         public IMedia Source { get => _sourceMedia; set => SetField(ref _sourceMedia, value); }
 
         internal MediaBase Dest { get; set; }
