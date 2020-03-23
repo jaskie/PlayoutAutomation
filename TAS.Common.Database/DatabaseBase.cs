@@ -51,7 +51,7 @@ namespace TAS.Database.SQLite
         private static readonly Newtonsoft.Json.JsonSerializerSettings HibernationSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
         {
             ContractResolver = new HibernationContractResolver(),
-            NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+            NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
         };
 
         public abstract void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection);
@@ -1292,7 +1292,6 @@ VALUES
                 if (templated.StartType != TStartType.WithParentFromEnd)
                     templated.StartType = TStartType.WithParent;
             }
-            media.IsModified = false;
         }
 
         public void LoadAnimationDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IAnimatedMedia, new()
@@ -1815,7 +1814,7 @@ WHERE idArchiveMedia=@idArchiveMedia;"))
                     {
                         while (dataReader.Read())
                         {
-                            var aco = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"));
+                            var aco = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(dataReader.GetString("Config"), HibernationSerializerSettings);
                             if (aco is IPersistent pUser)
                                 pUser.Id = dataReader.GetUInt64("idACO");
                             acos.Add(aco);

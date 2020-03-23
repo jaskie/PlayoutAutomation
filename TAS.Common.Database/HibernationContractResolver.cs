@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using TAS.Common.Database;
 
 namespace TAS.Common.Database
 {
@@ -12,7 +11,7 @@ namespace TAS.Common.Database
     {
         protected override List<MemberInfo> GetSerializableMembers(Type objectType)
         {
-            return objectType.GetProperties().Where(p => p.GetCustomAttribute(typeof(HibernateAttribute)) != null).Cast<MemberInfo>().ToList();
+            return objectType.GetMembers().Where(p => p.GetCustomAttribute<HibernateAttribute>() != null).ToList();
         }
 
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
@@ -23,6 +22,13 @@ namespace TAS.Common.Database
             if (name != null)
                 property.PropertyName = name;
             return property;
+        }
+
+        protected override JsonObjectContract CreateObjectContract(Type objectType)
+        {
+            var contract = base.CreateObjectContract(objectType);
+            contract.IsReference = false;
+            return contract;
         }
     }
 }
