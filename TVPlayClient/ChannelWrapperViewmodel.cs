@@ -18,7 +18,6 @@ namespace TVPlayClient
         private RemoteClient _client;
         private ChannelViewmodel _channel;
         private bool _isLoading = true;
-        private bool _disposed;
         private string _tabName;
 
         public ChannelWrapperViewmodel(ChannelConfiguration channel)
@@ -28,7 +27,7 @@ namespace TVPlayClient
 
         public void Initialize()
         {
-            _ = _createView();
+            Task.Run(CreateView);
         }
 
         public string TabName
@@ -53,7 +52,6 @@ namespace TVPlayClient
         {
             _channel?.Dispose();
             _client?.Dispose();
-            _disposed = true;
             Debug.WriteLine(this, "Disposed");
         }
 
@@ -67,11 +65,18 @@ namespace TVPlayClient
             Channel = null;
             IsLoading = true;
             channel?.Dispose();
-            _ = _createView();
+            CreateView();
         }
 
-        private async Task _createView()
-        {            
+        private void SetupChannel(Engine engine)
+        {
+            Channel = new ChannelViewmodel(engine, _channelConfiguration.ShowEngine, _channelConfiguration.ShowMedia);
+            TabName = Channel.DisplayName;
+            IsLoading = false;
+        }
+
+        private async void CreateView()
+        {
             try
             {
                 _client = new RemoteClient()
@@ -79,27 +84,19 @@ namespace TVPlayClient
                     Binder = ClientTypeNameBinder.Current
                 };
                 _client.Disconnected += ClientDisconnected;
-                await _client.Connect(_channelConfiguration.Address).ConfigureAwait(false);
+                await _client.Connect(_channelConfiguration.Address);
 
                 var engine = _client.GetRootObject<Engine>();
                 if (engine == null)
                 {
-                    await Task.Delay(1000).ConfigureAwait(false);
+                    await Task.Delay(1000);
                     return;
                 }
-
-                OnUiThread(() => 
-                { 
-                    Channel = new ChannelViewmodel(engine, _channelConfiguration.ShowEngine, _channelConfiguration.ShowMedia);
-                    TabName = Channel.DisplayName;
-                    IsLoading = false;
-                });
-                
-                
+                OnUiThread(() => SetupChannel(engine));
             }
             catch (SocketException)
             {
-                await Task.Delay(1000).ConfigureAwait(false);
+                await Task.Delay(1000);
             }
         }
     }
