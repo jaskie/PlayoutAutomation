@@ -14,12 +14,12 @@ namespace TAS.Server.Media
         private string _idAux;
         private TMediaEmphasis _mediaEmphasis;
         private bool _protected;
-        private bool _isDbReading;
+        private bool _isModifiedDisabled;
         private readonly Lazy<MediaSegments> _mediaSegments;
 
         protected PersistentMedia() 
         {
-            _mediaSegments = new Lazy<MediaSegments>(() => EngineController.Current.Database.MediaSegmentsRead<MediaSegments>(this));
+            _mediaSegments = new Lazy<MediaSegments>(() => DatabaseProvider.Database.MediaSegmentsRead<MediaSegments>(this));
         }
         public ulong IdPersistentMedia { get; set; }
 
@@ -68,38 +68,34 @@ namespace TAS.Server.Media
             IdProgramme = properties.IdProgramme;
             MediaEmphasis = properties.MediaEmphasis;
             KillDate = properties.KillDate;
+            IsProtected = properties.IsProtected;
         }
 
-        public void BeginDbRead()
+        public void DisableIsModified()
         {
-            _isDbReading = true;
+            _isModifiedDisabled = true;
         }
 
-        public void EndDbRead()
+        public void EnableIsModified()
         {
-            _isDbReading = false;
+            _isModifiedDisabled = false;
         }
 
-        public virtual void Save()
-        {
-            IsModified = false;
-        }
+        public abstract void Save();
 
         public bool IsModified { get; protected set; }
 
         public override void Verify(bool updateFormatAndDurations)
         {
             base.Verify(updateFormatAndDurations);
-            Save();
+            if (IsModified)
+                Save();
         }
 
         protected override bool SetField<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
-            if (_isDbReading)
-            {
-                field = value;
-                return false;
-            }
+            if (_isModifiedDisabled)
+                return base.SetField(ref field, value, propertyName);
             var modified = base.SetField(ref field, value, propertyName);
             if (modified && propertyName != nameof(IsVerified))
                 IsModified = true;

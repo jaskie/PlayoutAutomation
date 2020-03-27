@@ -1,6 +1,7 @@
 ﻿//#undef DEBUG
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Data;
 using System.Data.Common;
@@ -90,7 +91,7 @@ namespace TAS.Database.SQLite
         #region IPlayoutServer
 
 
-        public List<T> LoadServers<T>() where T : IPlayoutServerProperties
+        public ReadOnlyCollection<T> LoadServers<T>() where T : IPlayoutServerProperties
         {
             var servers = new List<T>();
             lock (SyncRoot)
@@ -107,7 +108,7 @@ namespace TAS.Database.SQLite
                     dataReader.Close();
                 }
             }
-            return servers;
+            return servers.AsReadOnly();
         }
 
         public void InsertServer(IPlayoutServerProperties server) 
@@ -155,7 +156,7 @@ namespace TAS.Database.SQLite
 
         #region IEngine
 
-        public List<T> LoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
+        public ReadOnlyCollection<T> LoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
         {
             var engines = new List<T>();
             lock (SyncRoot)
@@ -184,7 +185,7 @@ namespace TAS.Database.SQLite
                             engines.Add(engine);
                         }
                         dataReader.Close();
-                        return engines;
+                        return engines.AsReadOnly();
                     }
                 }
             }
@@ -383,7 +384,7 @@ namespace TAS.Database.SQLite
 #endregion //IEngine
 
 #region ArchiveDirectory
-        public List<T> LoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
+        public ReadOnlyCollection<T> LoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
         {
             var directories = new List<T>();
             lock (SyncRoot)
@@ -403,7 +404,7 @@ namespace TAS.Database.SQLite
                     dataReader.Close();
                 }
             }
-            return directories;
+            return directories.AsReadOnly();
         }
 
         public void InsertArchiveDirectory(IArchiveDirectoryProperties dir) 
@@ -493,25 +494,6 @@ namespace TAS.Database.SQLite
             }
         }
         
-        public T LoadArchiveDirectory<T>(ulong idArchive) where T: IArchiveDirectoryServerSide, new()
-        {
-            lock (SyncRoot)
-            {
-                using (var cmd = CreateCommand("SELECT Folder FROM archive WHERE idArchive=@idArchive;"))
-                {
-                    cmd.Parameters.AddWithValue("@idArchive", idArchive);
-                    var folder = (string)cmd.ExecuteScalar();
-                    if (string.IsNullOrEmpty(folder))
-                        return default;
-                    return new T
-                    {
-                        IdArchive = idArchive,
-                        Folder = folder
-                    };
-                }
-            }
-        }
-
         public List<T> FindArchivedStaleMedia<T>(IArchiveDirectoryServerSide dir) where T : IArchiveMedia, new()
         {
             var returnList = new List<T>();
@@ -1162,9 +1144,9 @@ VALUES
 
 #region Media
 #if MYSQL
-        private void MediaFillParamsAndExecute(DbCommandRedundant cmd, string tableName, IPersistentMedia media, ulong serverId)
+        private bool MediaFillParamsAndExecute(DbCommandRedundant cmd, string tableName, IPersistentMedia media, ulong serverId)
 #elif SQLITE
-        private void MediaFillParamsAndExecute(SQLiteCommand cmd, string tableName, IPersistentMedia media, ulong serverId)
+        private bool MediaFillParamsAndExecute(SQLiteCommand cmd, string tableName, IPersistentMedia media, ulong serverId)
 #endif
         {
             cmd.Parameters.AddWithValue("@idProgramme", media.IdProgramme);
@@ -1236,10 +1218,13 @@ VALUES
             cmd.Parameters.AddWithValue("@AudioLevelPeak", media.AudioLevelPeak);
             try
             {
-                cmd.ExecuteNonQuery();
+                return cmd.ExecuteNonQuery() == 1;
             }
             catch (Exception e)
-            { Debug.WriteLine(media, e.Message); }
+            {
+                Debug.WriteLine(media, e.Message); 
+            }
+            return false;
         }
 
 #if MYSQL
@@ -1249,7 +1234,7 @@ VALUES
 #endif
         {
             var flags = dataReader.IsDBNull("flags") ? 0 : dataReader.GetUInt32("flags");
-            media.BeginDbRead();
+            media.DisableIsModified();
             try
             {
                 media.MediaName = dataReader.IsDBNull("MediaName") ? string.Empty : dataReader.GetString("MediaName");
@@ -1298,7 +1283,7 @@ VALUES
             }
             finally
             {
-                media.EndDbRead();
+                media.EnableIsModified();
             }
         }
 
@@ -1444,7 +1429,7 @@ VALUES
             }
         }
 
-        public bool InsertMedia(IAnimatedMedia animatedMedia, ulong serverId )
+        public void InsertMedia(IAnimatedMedia animatedMedia, ulong serverId )
         {
             var result = false;
             lock (SyncRoot)
@@ -1453,9 +1438,8 @@ VALUES
                 {
                     try
                     {
-                        result = DbInsertMedia(animatedMedia, serverId);
-                        if (result)
-                            result = Insert_media_templated(animatedMedia);
+                        result = DbInsertMedia(animatedMedia, serverId)
+                            && Insert_media_templated(animatedMedia);
                     }
                     finally
                     {
@@ -1466,13 +1450,12 @@ VALUES
                     }
                 }
             }
-            return result;
         }
 
-        public bool InsertMedia(IServerMedia serverMedia, ulong serverId)
+        public void InsertMedia(IServerMedia serverMedia, ulong serverId)
         {
             lock (SyncRoot)
-                return DbInsertMedia(serverMedia, serverId);
+                DbInsertMedia(serverMedia, serverId);
         }
 
         private bool DbInsertMedia(IPersistentMedia media, ulong serverId)
@@ -1482,14 +1465,14 @@ VALUES
 VALUES 
 (@idServer, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);"))
             {
-                MediaFillParamsAndExecute(cmd, "servermedia", media, serverId);
+                var result = MediaFillParamsAndExecute(cmd, "servermedia", media, serverId);
                 media.IdPersistentMedia = (ulong)cmd.GetLastInsertedId();
                 Debug.WriteLine(media, "ServerMediaInserte-d");
-                return true;
+                return result;
             }
         }
 
-        public bool InsertMedia(IArchiveMedia archiveMedia, ulong serverid)
+        public void InsertMedia(IArchiveMedia archiveMedia, ulong serverid)
         {
             lock (SyncRoot)
             {
@@ -1502,7 +1485,6 @@ VALUES
                     archiveMedia.IdPersistentMedia = (ulong)cmd.GetLastInsertedId();
                 }
             }
-            return true;
         }
 
         public bool DeleteMedia(IServerMedia serverMedia)
@@ -1807,7 +1789,7 @@ WHERE idArchiveMedia=@idArchiveMedia;"))
             }
         }
 
-        public List<T> Load<T>() where T : ISecurityObject
+        public List<T> LoadSecurityObject<T>() where T : ISecurityObject
         {
             var acos = new List<T>();
             lock (SyncRoot)

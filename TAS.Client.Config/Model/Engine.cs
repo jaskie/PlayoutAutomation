@@ -69,7 +69,7 @@ namespace TAS.Client.Config.Model
             throw new NotImplementedException();
         }
 
-        internal List<CasparServer> Servers;
+        internal IReadOnlyCollection<CasparServer> Servers;
 
         internal ArchiveDirectories ArchiveDirectories;
 

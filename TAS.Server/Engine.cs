@@ -76,19 +76,19 @@ namespace TAS.Server
         {
             _engineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
-            _databaseConnectionState = EngineController.Current.Database.ConnectionState;
-            EngineController.Current.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
+            _databaseConnectionState = DatabaseProvider.Database.ConnectionState;
+            DatabaseProvider.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
             _rights = new Lazy<List<IAclRight>>(() =>
             {
-                var rights = EngineController.Current.Database.ReadEngineAclList<EngineAclRight>(this,
+                var rights = DatabaseProvider.Database.ReadEngineAclList<EngineAclRight>(this,
                         AuthenticationService as IAuthenticationServicePersitency);
                 rights.ForEach(r => ((EngineAclRight)r).Saved += AclRight_Saved);
                 return rights;
             });
-            FieldLengths = EngineController.Current.Database.EngineFieldLengths;
-            ServerMediaFieldLengths = EngineController.Current.Database.ServerMediaFieldLengths;
-            ArchiveMediaFieldLengths = EngineController.Current.Database.ArchiveMediaFieldLengths;
-            EventFieldLengths = EngineController.Current.Database.EventFieldLengths;
+            FieldLengths = DatabaseProvider.Database.EngineFieldLengths;
+            ServerMediaFieldLengths = DatabaseProvider.Database.ServerMediaFieldLengths;
+            ArchiveMediaFieldLengths = DatabaseProvider.Database.ArchiveMediaFieldLengths;
+            EventFieldLengths = DatabaseProvider.Database.EventFieldLengths;
         }
 
         public event EventHandler<EngineTickEventArgs> EngineTick;
@@ -323,7 +323,7 @@ namespace TAS.Server
             }
 
             Debug.WriteLine(this, "Reading Root Events");
-            EngineController.Current.Database.ReadRootEvents(this);
+            DatabaseProvider.Database.ReadRootEvents(this);
 
             EngineState = TEngineState.Idle;
             if (CGElementsController != null)
@@ -652,7 +652,7 @@ namespace TAS.Server
                 if (reason.Result != MediaDeleteResult.MediaDeleteResultEnum.Success)
                     return reason;
             }
-            return EngineController.Current.Database.MediaInUse(this, serverMedia);
+            return DatabaseProvider.Database.MediaInUse(this, serverMedia);
         }
 
         public IEnumerable<IEvent> GetRootEvents() { lock (_rootEvents.SyncRoot) return _rootEvents.Cast<IEvent>().ToList(); }
@@ -759,7 +759,7 @@ namespace TAS.Server
         {
             if (!CurrentUser.IsAdmin)
                 return;
-            EngineController.Current.Database.SearchMissing(this);
+            DatabaseProvider.Database.SearchMissing(this);
         }
 
         #region  IPersistent properties
@@ -1137,7 +1137,7 @@ namespace TAS.Server
             NotifyEngineOperation(aEvent, TEngineOperation.Play);
             if (aEvent.Layer == VideoLayer.Program
                 && (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live))
-                Task.Run(() => EngineController.Current.Database.AsRunLogWrite(Id, aEvent));
+                Task.Run(() => DatabaseProvider.Database.AsRunLogWrite(Id, aEvent));
         }
 
         private void _startLoaded()
@@ -1476,7 +1476,7 @@ namespace TAS.Server
                 if (_rights.IsValueCreated)
                     _rights.Value.ForEach(r => ((EngineAclRight)r).Saved -= AclRight_Saved);
             }
-            EngineController.Current.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
+            DatabaseProvider.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
             CGElementsController?.Dispose();
             Router?.Dispose();
             Remote?.Dispose();
@@ -1501,7 +1501,7 @@ namespace TAS.Server
             CurrentTime = AlignDateTime(DateTime.UtcNow + TimeSpan.FromMilliseconds(_timeCorrection));
             _currentTicks = CurrentTime.Ticks;
 
-            var playingEvents = EngineController.Current.Database.SearchPlaying(this).Cast<Event>().ToArray();
+            var playingEvents = DatabaseProvider.Database.SearchPlaying(this).Cast<Event>().ToArray();
             var playing = playingEvents.FirstOrDefault(e => e.Layer == VideoLayer.Program && (e.EventType == TEventType.Live || e.EventType == TEventType.Movie));
             if (playing != null)
             {

@@ -12,7 +12,7 @@ namespace TAS.Server.Media
         private bool _doNotArchive;
 
         [DtoMember]
-        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ServerMediaFieldLengths;
+        public override IDictionary<string, int> FieldLengths { get; } = DatabaseProvider.Database.ServerMediaFieldLengths;
 
         [DtoMember]
         public bool DoNotArchive
@@ -30,39 +30,26 @@ namespace TAS.Server.Media
 
         public override void Save()
         {
-            var saved = false;
             try
             {
-                var directory = Directory as ServerDirectory;
-                if (MediaStatus != TMediaStatus.Unknown)
+                if (!(MediaStatus != TMediaStatus.Unknown && MediaStatus != TMediaStatus.Deleted && Directory is ServerDirectory directory))
+                    return;
+                if (IdPersistentMedia == 0)
                 {
-                    if (MediaStatus == TMediaStatus.Deleted)
-                    {
-                        if (IdPersistentMedia != 0)
-                            saved = EngineController.Current.Database.DeleteMedia(this);
-                    }
-                    else
-                    {
-                        if (directory != null)
-                        {
-                            if (IdPersistentMedia == 0)
-                                saved = EngineController.Current.Database.InsertMedia(this, directory.Server.Id);
-                            else if (IsModified)
-                            {
-                                EngineController.Current.Database.UpdateMedia(this, directory.Server.Id);
-                                saved = true;
-                            }
-                        }
-                    }
+                    DatabaseProvider.Database.InsertMedia(this, directory.Server.Id);
+                    directory.OnMediaSaved(this);
                 }
-                if (saved)
-                    directory?.OnMediaSaved(this);
+                else
+                {
+                    DatabaseProvider.Database.UpdateMedia(this, directory.Server.Id);
+                    directory.OnMediaSaved(this);
+                }
             }
             catch (Exception e)
             {
                 Logger.Error(e, "Error saving {0}", MediaName);
             }
-            base.Save();
+            IsModified = false;
         }
 
         }

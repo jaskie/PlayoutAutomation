@@ -35,7 +35,7 @@ namespace TAS.Server.Media
         {
             if (IsInitialized)
                 return;
-            EngineController.Current.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
+            DatabaseProvider.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
             IsInitialized = true;
             BeginWatch(IsRecursive);
             Debug.WriteLine(this, "Directory initialized");
@@ -45,10 +45,8 @@ namespace TAS.Server.Media
         {
             if (!(media is ServerMedia sm))
                 throw new ArgumentException(nameof(media));
-            sm.MediaStatus = TMediaStatus.Deleted;
-            sm.IsVerified = false;
-            sm.Save();
             base.RemoveMedia(sm);
+            DatabaseProvider.Database.DeleteMedia(sm);
         }
 
         public override void SweepStaleMedia()
@@ -140,7 +138,7 @@ namespace TAS.Server.Media
             var mediaType = FileUtils.VideoFileTypes.Contains(Path.GetExtension(fullPath).ToLowerInvariant()) ? TMediaType.Movie : TMediaType.Still;
             newMedia = new ServerMedia
             {
-                MediaName = FileUtils.GetFileNameWithoutExtension(fullPath, mediaType).ToUpper(),
+                MediaName = FileUtils.GetFileNameWithoutExtension(fullPath, mediaType),
                 LastUpdated = lastUpdated,
                 MediaType = mediaType,
                 MediaGuid = Guid.NewGuid(),

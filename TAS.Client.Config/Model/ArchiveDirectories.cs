@@ -12,7 +12,7 @@ namespace TAS.Client.Config.Model
         public ArchiveDirectories(IDatabase db)
         {
             _db = db;
-            Directories = db.LoadArchiveDirectories<ArchiveDirectory>();
+            Directories = db.LoadArchiveDirectories<ArchiveDirectory>().ToList();
             Directories.ForEach(d => d.IsModified = false);
         }
 

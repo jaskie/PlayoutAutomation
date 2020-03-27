@@ -36,36 +36,30 @@ namespace TAS.Server.Media
         public TStartType StartType { get => _startType; set => SetField(ref _startType, value); }
 
         [DtoMember]
-        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ServerMediaFieldLengths;
+        public override IDictionary<string, int> FieldLengths { get; } = DatabaseProvider.Database.ServerMediaFieldLengths;
 
         public override void Save()
         {
-            var saved = false;
             try
             {
-                if (Directory is AnimationDirectory directory)
+                if (!(MediaStatus != TMediaStatus.Unknown && MediaStatus != TMediaStatus.Deleted && Directory is AnimationDirectory directory))
+                    return;
+                if (IdPersistentMedia == 0)
                 {
-                    if (MediaStatus == TMediaStatus.Deleted)
-                    {
-                        if (IdPersistentMedia != 0)
-                            saved = EngineController.Current.Database.DeleteMedia(this);
-                    }
-                    else if (IdPersistentMedia == 0)
-                        saved = EngineController.Current.Database.InsertMedia(this, directory.Server.Id);
-                    else if (IsModified)
-                    {
-                        EngineController.Current.Database.UpdateMedia(this, directory.Server.Id);
-                        saved = true;
-                    }
-                    if (saved)
-                        directory.OnMediaSaved(this);
+                    DatabaseProvider.Database.InsertMedia(this, directory.Server.Id);
+                    directory.OnMediaSaved(this);
+                }
+                else
+                {
+                    DatabaseProvider.Database.UpdateMedia(this, directory.Server.Id);
+                    directory.OnMediaSaved(this);
                 }
             }
             catch (Exception e)
             {
                 Logger.Error(e, "Error saving {0}", MediaName);
             }
-            base.Save();
+            IsModified = false;
         }
 
         internal override void CloneMediaProperties(IMediaProperties fromMedia)

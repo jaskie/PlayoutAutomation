@@ -5,6 +5,7 @@ using TAS.Common.Database.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Common.Interfaces.Security;
 using System.Configuration;
+using System.Collections.ObjectModel;
 
 namespace TAS.Common.Database.Interfaces
 {
@@ -34,15 +35,15 @@ namespace TAS.Common.Database.Interfaces
         bool InsertEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent;
         bool InsertEvent(IEventPersistent aEvent);
         bool InsertEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent;
-        bool InsertMedia(IAnimatedMedia animatedMedia, ulong serverId);
-        bool InsertMedia(IArchiveMedia archiveMedia, ulong serverid);
-        bool InsertMedia(IServerMedia serverMedia, ulong serverId);
+        void InsertMedia(IAnimatedMedia animatedMedia, ulong serverId);
+        void InsertMedia(IArchiveMedia archiveMedia, ulong serverid);
+        void InsertMedia(IServerMedia serverMedia, ulong serverId);
         void InsertSecurityObject(ISecurityObject aco);
         void InsertServer(IPlayoutServerProperties server);
-        List<T> Load<T>() where T : ISecurityObject;
-        List<T> LoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new();
-        List<T> LoadEngines<T>(ulong? instance = null) where T : IEnginePersistent;
-        List<T> LoadServers<T>() where T : IPlayoutServerProperties;
+        List<T> LoadSecurityObject<T>() where T : ISecurityObject;
+        ReadOnlyCollection<T> LoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new();
+        ReadOnlyCollection<T> LoadEngines<T>(ulong? instance = null) where T : IEnginePersistent;
+        ReadOnlyCollection<T> LoadServers<T>() where T : IPlayoutServerProperties;
         bool ArchiveContainsMedia(IArchiveDirectoryProperties dir, Guid mediaGuid);
         T ArchiveMediaFind<T>(IArchiveDirectoryServerSide dir, Guid mediaGuid) where T : IArchiveMedia, new();
         MediaDeleteResult MediaInUse(IEngine engine, IServerMedia serverMedia);
@@ -69,7 +70,6 @@ namespace TAS.Common.Database.Interfaces
         void UpdateServer(IPlayoutServerProperties server);
         void LoadAnimationDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IAnimatedMedia, new();
         void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IServerMedia, new();
-        T LoadArchiveDirectory<T>(ulong idArchive) where T : IArchiveDirectoryServerSide, new();
         IDictionary<string, int> ServerMediaFieldLengths { get; }
         IDictionary<string, int> ArchiveMediaFieldLengths { get; }
         IDictionary<string, int> EventFieldLengths { get; }

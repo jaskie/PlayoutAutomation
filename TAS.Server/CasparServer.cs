@@ -33,7 +33,7 @@ namespace TAS.Server
         [DtoMember]
         public ulong Id { get; set; }
 
-        public IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ServerFieldLengths;
+        public IDictionary<string, int> FieldLengths { get; } = DatabaseProvider.Database.ServerFieldLengths;
 
         public void Save()
         {

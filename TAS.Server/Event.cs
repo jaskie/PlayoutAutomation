@@ -138,7 +138,7 @@ namespace TAS.Server
                  var result = new SynchronizedCollection<Event>();
                  if (Id == 0)
                      return result;
-                 var seList = EngineController.Current.Database.ReadSubEvents(_engine, this);
+                 var seList = DatabaseProvider.Database.ReadSubEvents(_engine, this);
                  foreach (Event e in seList)
                  {
                      e.Parent = this;
@@ -149,7 +149,7 @@ namespace TAS.Server
 
             _next = new Lazy<Event>(() =>
             {
-                var next = (Event)EngineController.Current.Database.ReadNext(_engine, this);
+                var next = (Event)DatabaseProvider.Database.ReadNext(_engine, this);
                 if (next != null)
                     next.Prior = this;
                 return next;
@@ -159,7 +159,7 @@ namespace TAS.Server
             {
                 Event prior = null;
                 if (startType == TStartType.After && IdEventBinding > 0)
-                    prior = (Event)EngineController.Current.Database.ReadEvent(_engine, IdEventBinding);
+                    prior = (Event)DatabaseProvider.Database.ReadEvent(_engine, IdEventBinding);
                 if (prior != null)
                     prior.Next = this;
                 return prior;
@@ -168,20 +168,20 @@ namespace TAS.Server
             _parent = new Lazy<Event>(() =>
             {
                 if ((startType == TStartType.WithParent || startType == TStartType.WithParentFromEnd) && IdEventBinding > 0)
-                    return (Event)EngineController.Current.Database.ReadEvent(_engine, IdEventBinding);
+                    return (Event)DatabaseProvider.Database.ReadEvent(_engine, IdEventBinding);
                 return null;
             });
 
             _rights = new Lazy<List<IAclRight>>(() =>
             {
-                var rights = EngineController.Current.Database.ReadEventAclList<EventAclRight>(this, _engine.AuthenticationService as IAuthenticationServicePersitency);
+                var rights = DatabaseProvider.Database.ReadEventAclList<EventAclRight>(this, _engine.AuthenticationService as IAuthenticationServicePersitency);
                 rights.ForEach(r => ((EventAclRight)r).Saved += AclEvent_Saved);
                 return rights;
             });
             _routerPort = routerPort;
             _recordingInfo = recordingInfo;
 
-        FieldLengths = EngineController.Current.Database.EventFieldLengths;
+        FieldLengths = DatabaseProvider.Database.EventFieldLengths;
         }
         #endregion //Constructor
 
@@ -1002,9 +1002,9 @@ namespace TAS.Server
             try
             {
                 if (Id == 0)
-                    EngineController.Current.Database.InsertEvent(this);
+                    DatabaseProvider.Database.InsertEvent(this);
                 else
-                    EngineController.Current.Database.UpdateEvent(this);
+                    DatabaseProvider.Database.UpdateEvent(this);
                 IsModified = false;
                 Debug.WriteLine(this, "Event saved");
             }
@@ -1144,7 +1144,7 @@ namespace TAS.Server
             }
             Remove();
             IsDeleted = true;
-            EngineController.Current.Database.DeleteEvent(this);
+            DatabaseProvider.Database.DeleteEvent(this);
             _engine.RemoveEvent(this);
             _engine.NotifyEventDeleted(this);
             _isModified = false;

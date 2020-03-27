@@ -15,7 +15,7 @@ namespace TAS.Client.Config.Model
         {
             _db = DatabaseProviderLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
             _db.Open(connectionStringSettingsCollection);
-            Servers = _db.LoadServers<CasparServer>();
+            Servers = _db.LoadServers<CasparServer>().ToList();
             Servers.ForEach(s =>
                 {
                     s.IsNew = false;

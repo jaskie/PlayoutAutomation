@@ -21,7 +21,9 @@ namespace TAS.Client.Config
             : base(engine)
         {
             Channels = new List<object> { Common.Properties.Resources._none_ };
-            Model.Servers.ForEach(s => s.Channels.ForEach(c => Channels.Add(c)));
+            foreach(var s in Model.Servers)
+                foreach (var c in s.Channels)
+                    Channels.Add(c);
             _channelPRI = Channels.FirstOrDefault(c => c is CasparServerChannel
                                                         && ((CasparServerChannel)c).Id == Model.ServerChannelPRI
                                                         && ((CasparServer)((CasparServerChannel)c).Owner).Id == Model.IdServerPRI);

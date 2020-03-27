@@ -4,16 +4,16 @@
     {
         public override void Save()
         {
-            if (Id == default(ulong))
-                EngineController.Current.Database.InsertEventAcl(this);
+            if (Id == default)
+                DatabaseProvider.Database.InsertEventAcl(this);
             else
-                EngineController.Current.Database.UpdateEventAcl(this);
+                DatabaseProvider.Database.UpdateEventAcl(this);
             base.Save();
         }
 
         public override void Delete()
         {
-            EngineController.Current.Database.DeleteEventAcl(this);
+            DatabaseProvider.Database.DeleteEventAcl(this);
             Dispose();
         }
     }

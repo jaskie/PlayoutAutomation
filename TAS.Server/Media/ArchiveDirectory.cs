@@ -14,19 +14,19 @@ namespace TAS.Server.Media
 
         public IArchiveMedia Find(Guid mediaGuid)
         {
-            return EngineController.Current.Database.ArchiveMediaFind<ArchiveMedia>(this, mediaGuid);
+            return DatabaseProvider.Database.ArchiveMediaFind<ArchiveMedia>(this, mediaGuid);
         }
 
         public bool ContainsMedia(Guid mediaGuid)
         {
-            return EngineController.Current.Database.ArchiveContainsMedia(this, mediaGuid);
+            return DatabaseProvider.Database.ArchiveContainsMedia(this, mediaGuid);
         }
 
         public event EventHandler<MediaIsArchivedEventArgs> MediaIsArchived;
 
         internal void ArchiveSave(ServerMedia media, bool deleteAfterSuccess)
         {
-            var archived = EngineController.Current.Database.ArchiveMediaFind<ArchiveMedia>(this, media.MediaGuid);
+            var archived = DatabaseProvider.Database.ArchiveMediaFind<ArchiveMedia>(this, media.MediaGuid);
             if (archived != null)
                 archived.Directory = this;
 
@@ -50,12 +50,12 @@ namespace TAS.Server.Media
 
         public override IMediaSearchProvider Search(TMediaCategory? category, string searchString)
         {
-            return new MediaSearchProvider(EngineController.Current.Database.ArchiveMediaSearch<ArchiveMedia>(this, category, searchString));
+            return new MediaSearchProvider(DatabaseProvider.Database.ArchiveMediaSearch<ArchiveMedia>(this, category, searchString));
         }
 
         public void SweepStaleMedia()
         {
-            IEnumerable<IMedia> staleMediaList = EngineController.Current.Database.FindArchivedStaleMedia<ArchiveMedia>(this);
+            IEnumerable<IMedia> staleMediaList = DatabaseProvider.Database.FindArchivedStaleMedia<ArchiveMedia>(this);
             foreach (var m in staleMediaList)
                 m.Delete();
         }
@@ -64,11 +64,9 @@ namespace TAS.Server.Media
         {
             if (!(media is ArchiveMedia am))
                 throw new ApplicationException("Media provided to RemoveMedia is not ArchiveMedia");
-            am.MediaStatus = TMediaStatus.Deleted;
-            am.IsVerified = false;
-            am.Save();
             base.RemoveMedia(media);
             MediaIsArchived?.Invoke(this, new MediaIsArchivedEventArgs(media, false));
+            DatabaseProvider.Database.DeleteMedia(am);
         }
 
         internal override IMedia CreateMedia(IMediaProperties media)

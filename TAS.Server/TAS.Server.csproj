@@ -60,6 +60,7 @@
     <Compile Include="CasparServer.cs" />
     <Compile Include="CasparServerChannel.cs" />
     <Compile Include="CommandScriptEvent.cs" />
+    <Compile Include="DatabaseProvider.cs" />
     <Compile Include="MediaOperation\DeleteOperation.cs" />
     <Compile Include="MediaOperation\MoveOperation.cs" />
     <Compile Include="MediaOperation\FileOperationBase.cs" />

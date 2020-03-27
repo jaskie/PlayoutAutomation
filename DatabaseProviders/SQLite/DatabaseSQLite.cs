@@ -6,7 +6,6 @@ using System.IO;
 using System.Reflection;
 using TAS.Common;
 using TAS.Common.Database.Interfaces;
-using System.Data.Common;
 
 namespace TAS.Database.SQLite
 {

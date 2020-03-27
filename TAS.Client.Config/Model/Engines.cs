@@ -10,7 +10,7 @@ namespace TAS.Client.Config.Model
 {
     public class Engines : IDisposable
     {
-        internal readonly List<CasparServer> Servers;
+        internal readonly IReadOnlyCollection<CasparServer> Servers;
         internal readonly ArchiveDirectories ArchiveDirectories;
         private readonly IDatabase _db;
 
@@ -19,19 +19,19 @@ namespace TAS.Client.Config.Model
             _db = DatabaseProviderLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
             _db.Open(connectionStringSettingsCollection);
             ArchiveDirectories = new ArchiveDirectories(_db);
-            EngineList = _db.LoadEngines<Engine>();
+            EngineList = _db.LoadEngines<Engine>().ToList();
             Servers = _db.LoadServers<CasparServer>();
-            Servers.ForEach(s =>
+            foreach (var s in Servers)
             {
                 s.Channels.ForEach(c => c.Owner = s);
                 s.Recorders.ForEach(r => r.Owner = s);
-            });
-            EngineList.ForEach(e =>
+            }
+            foreach (var e in EngineList)
             {
                 e.IsNew = false;
                 e.Servers = Servers;
                 e.ArchiveDirectories = ArchiveDirectories;
-            });
+            }
         }
 
         public void Save()

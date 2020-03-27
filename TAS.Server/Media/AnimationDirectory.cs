@@ -22,7 +22,7 @@ namespace TAS.Server.Media
         {
             if (IsInitialized)
                 return;
-            EngineController.Current.Database.LoadAnimationDirectory<AnimatedMedia>(this, Server.Id);
+            DatabaseProvider.Database.LoadAnimationDirectory<AnimatedMedia>(this, Server.Id);
             BeginWatch(false);
             IsInitialized = true;
             Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
@@ -54,10 +54,8 @@ namespace TAS.Server.Media
         {
             if (!(media is AnimatedMedia am))
                 throw new ArgumentException(nameof(media));
-            am.MediaStatus = TMediaStatus.Deleted;
-            am.IsVerified = false;
-            am.Save();
             base.RemoveMedia(am);
+            DatabaseProvider.Database.DeleteMedia(am);
         }
 
         public override void SweepStaleMedia() { }

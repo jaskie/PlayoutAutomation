@@ -14,8 +14,8 @@ namespace TAS.Server.Security
 
         private AuthenticationService()
         {
-            var users = EngineController.Current.Database.Load<User>();
-            var groups = EngineController.Current.Database.Load<Group>();
+            var users = DatabaseProvider.Database.LoadSecurityObject<User>();
+            var groups = DatabaseProvider.Database.LoadSecurityObject<Group>();
             users.ForEach(u =>
             {
                 u.AuthenticationService = this;

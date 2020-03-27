@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using TAS.Client.Views;
+using TAS.Common.Database;
 using TAS.Server;
 
 namespace TAS.Client
@@ -19,8 +20,7 @@ namespace TAS.Client
                 try
                 {
                     SplashScreenView.Current?.Notify("Initializing database...");
-                    EngineController.Current.LoadDbProvider();
-                    var database = EngineController.Current.Database ?? throw new ApplicationException("No database provider loaded");
+                    var database = DatabaseProvider.Database ?? throw new ApplicationException("No database provider loaded");
                     if (database.UpdateRequired())
                     {
                         if (MessageBox.Show(Common.Properties.Resources._message_DatabaseUpdateRequired,

@@ -17,7 +17,7 @@ namespace TAS.Server.Media
         }
 
         [DtoMember]
-        public override IDictionary<string, int> FieldLengths { get; } = EngineController.Current.Database.ArchiveMediaFieldLengths;
+        public override IDictionary<string, int> FieldLengths { get; } = DatabaseProvider.Database.ArchiveMediaFieldLengths;
 
 
         public TIngestStatus GetIngestStatus(IServerDirectory directory)
@@ -39,29 +39,18 @@ namespace TAS.Server.Media
         {
             try
             {
-                var directory = Directory as ArchiveDirectory ?? throw new ApplicationException("Media directory not set on Save");
-                if (MediaStatus != TMediaStatus.Unknown)
-                {
-                    if (MediaStatus == TMediaStatus.Deleted)
-                    {
-                        if (IdPersistentMedia != 0)
-                            EngineController.Current.Database.DeleteMedia(this);
-                    }
-                    else
-                    {
-                        if (IdPersistentMedia == 0)
-                            EngineController.Current.Database.InsertMedia(this, directory.IdArchive);
-                        else if (IsModified)
-                            EngineController.Current.Database.UpdateMedia(this, directory.IdArchive);
-                    }
-
-                }
+                if (!(MediaStatus != TMediaStatus.Unknown && MediaStatus != TMediaStatus.Deleted && Directory is ArchiveDirectory directory))
+                    throw new ApplicationException("Media directory not set on Save");
+                if (IdPersistentMedia == 0)
+                    DatabaseProvider.Database.InsertMedia(this, directory.IdArchive);
+                else 
+                    DatabaseProvider.Database.UpdateMedia(this, directory.IdArchive);
             }
             catch (Exception e)
             {
                 Logger.Error(e, "Error saving {0}", MediaName);
             }
-            base.Save();
+            IsModified = false;
         }
     }
 }

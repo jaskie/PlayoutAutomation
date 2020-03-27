@@ -155,6 +155,7 @@ namespace TAS.Server.Media
             if (oldTask != null && oldTask.Status != TaskStatus.RanToCompletion)
                 return;
             var watcherTaskCancelationTokenSource = new CancellationTokenSource();
+            EnumerateFiles(Folder, includeSubdirectories, watcherTaskCancelationTokenSource.Token);
             _watcherSetupTask = Task.Run(
                 () =>
                 {
@@ -166,7 +167,6 @@ namespace TAS.Server.Media
                             if (Directory.Exists(Folder))
                             {
                                 RefreshVolumeInfo();
-                                EnumerateFiles(Folder, includeSubdirectories, watcherTaskCancelationTokenSource.Token);
                                 _watcher = new FileSystemWatcher()
                                 {
                                     Path = Folder,
@@ -328,9 +328,9 @@ namespace TAS.Server.Media
                         Task.Run(() =>
                         {
                             if (prevMedia is Common.Database.Interfaces.Media.IAnimatedMedia am)
-                                EngineController.Current.Database.DeleteMedia(am);
+                                DatabaseProvider.Database.DeleteMedia(am);
                             if (prevMedia is Common.Database.Interfaces.Media.IServerMedia sm)
-                                EngineController.Current.Database.DeleteMedia(sm);
+                                DatabaseProvider.Database.DeleteMedia(sm);
                             Logger.Error("Media {0} replaced in dictionary. Previous media deleted in database.",
                                 prevMedia);
                             Debug.WriteLine(prevMedia, "Media replaced in dictionary");

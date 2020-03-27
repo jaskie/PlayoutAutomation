@@ -507,7 +507,7 @@ namespace TAS.Server
             if (!(MediaDirectoryPRI is ServerDirectory pri) || !(MediaDirectorySEC is ServerDirectory sec) ||
                 pri == sec || !pri.IsInitialized || !sec.IsInitialized)
                 return;
-            if (Interlocked.Exchange(ref _isInitialMediaSecToPriSynchronized, 1) != default(int))
+            if (Interlocked.Exchange(ref _isInitialMediaSecToPriSynchronized, 1) != default)
                 return;
             try
             {
@@ -532,8 +532,7 @@ namespace TAS.Server
                     continue;
                 if (secMedia == null)
                     secMedia = (ServerMedia) sec.FindMediaFirst(m =>
-                        m.FileExists()
-                        && m.FileSize == pRImedia.FileSize
+                        m.FileSize == pRImedia.FileSize
                         && m.FileName == pRImedia.FileName
                         && m.LastUpdated.DateTimeEqualToDays(pRImedia.LastUpdated)
                         && (!pri.IsRecursive || !sec.IsRecursive || string.Equals(pRImedia.Folder, m.Folder, StringComparison.OrdinalIgnoreCase))
