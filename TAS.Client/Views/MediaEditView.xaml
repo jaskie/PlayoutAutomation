@@ -8,6 +8,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance {x:Type vm:MediaEditViewmodel}}"
              d:DesignWidth="300"
              >
     <UserControl.InputBindings>
@@ -70,7 +71,7 @@
                     <Label Content="{Resx _ingestTime}" />
                     <TextBox IsReadOnly="True" Text="{Binding LastUpdated, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}" />
                 </DockPanel>
-                <DockPanel>
+                <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                     <Label Content="{Resx _videoFormat}" />
                     <ComboBox  ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding VideoFormat}" />
                 </DockPanel>

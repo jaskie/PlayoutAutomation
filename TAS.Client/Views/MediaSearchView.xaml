@@ -171,8 +171,8 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTextColumn x:Name="folderColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Folder}" Width="Auto" Binding="{Binding Folder, Mode=OneWay}" Visibility="{Binding Data.IsRecursive, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}"/>
-                        <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" Width="Auto" />
-                        <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="DurationPlay" Width="*">
+                        <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" Width="120" />
+                        <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="DurationPlay" Width="75">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <controls:TimecodeTextBlock Timecode="{Binding DurationPlay}" VideoFormat="{Binding VideoFormat}"/>
