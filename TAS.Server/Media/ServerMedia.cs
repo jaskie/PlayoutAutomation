@@ -37,11 +37,13 @@ namespace TAS.Server.Media
                 if (IdPersistentMedia == 0)
                 {
                     DatabaseProvider.Database.InsertMedia(this, directory.Server.Id);
+                    IsModified = false;
                     directory.OnMediaSaved(this);
                 }
                 else
                 {
                     DatabaseProvider.Database.UpdateMedia(this, directory.Server.Id);
+                    IsModified = false;
                     directory.OnMediaSaved(this);
                 }
             }
@@ -49,7 +51,6 @@ namespace TAS.Server.Media
             {
                 Logger.Error(e, "Error saving {0}", MediaName);
             }
-            IsModified = false;
         }
 
         }

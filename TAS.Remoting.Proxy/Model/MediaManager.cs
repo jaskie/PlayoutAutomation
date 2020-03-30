@@ -88,7 +88,7 @@ namespace TAS.Remoting.Model
             Invoke();
         }
 
-        public void SynchronizeAnimationsSecToPri()
+        public void SynchronizeAnimationsPropertiesSecToPri()
         {
             Invoke();
         }

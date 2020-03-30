@@ -91,7 +91,7 @@ namespace TAS.Client.ViewModels
             CommandGetLoudness = new UiCommand(GetLoudness, o => IsSomethingSelected() && engine.HaveRight(EngineRight.MediaEdit));
             CommandExport = new UiCommand(Export, CanExport);
             CommandRefresh = new UiCommand(ob => ReloadFiles(), CanRefresh);
-            CommandSyncPriToSec = new UiCommand(SyncSecToPri, o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
+            CommandSyncPriToSec = new UiCommand(SyncSecToPri, o => (_selectedDirectory.IsServerDirectory || _selectedDirectory.IsAnimationDirectory) && CurrentUser.IsAdmin);
             CommandCloneAnimation = new UiCommand(CloneAnimation, CanCloneAnimation);
             CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
             CommandVerifyAllMedia = new UiCommand(VerifyAllMedia, o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
@@ -647,10 +647,12 @@ namespace TAS.Client.ViewModels
         }
 
 
-        private async void SyncSecToPri(object o)
+        private void SyncSecToPri(object o)
         {
             if (_selectedDirectory?.Directory is IServerDirectory)
-                await Task.Run(() => _mediaManager.SynchronizeMediaSecToPri());
+                _mediaManager.SynchronizeMediaSecToPri();
+            if (_selectedDirectory?.Directory is IAnimationDirectory)
+                _mediaManager.SynchronizeAnimationsPropertiesSecToPri();
         }
 
         private async void VerifyAllMedia(object o)

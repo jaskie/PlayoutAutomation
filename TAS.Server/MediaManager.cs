@@ -27,7 +27,6 @@ namespace TAS.Server
         private readonly List<CasparRecorder> _recorders;
         private List<IngestDirectory> _ingestDirectories;
         private int _isInitialMediaSecToPriSynchronized;
-        private bool _isSynchronizedAnimationsSecToPri;
 
         public MediaManager(Engine engine)
         {
@@ -240,7 +239,7 @@ namespace TAS.Server
         }
 
 
-        public void SynchronizeAnimationsSecToPri()
+        public void SynchronizeAnimationsPropertiesSecToPri()
         {
             if (AnimationDirectoryPRI is AnimationDirectory pri
                 && AnimationDirectorySEC is AnimationDirectory sec
@@ -248,52 +247,45 @@ namespace TAS.Server
                 && pri.IsInitialized
                 && sec.IsInitialized)
             {
-                Task.Run(() =>
+                try
                 {
-                    if (_isSynchronizedAnimationsSecToPri)
-                        return;
-                    try
+                    Debug.WriteLine(this, "SynchronizeAnimationsSecToPri started");
+                    Logger.Debug("SynchronizeAnimationsSecToPri started");
+                    var priAnimations = pri.GetAllFiles();
+                    foreach (var priAnimation in priAnimations)
                     {
-                        Debug.WriteLine(this, "SynchronizeAnimationsSecToPri started");
-                        Logger.Debug("SynchronizeAnimationsSecToPri started");
-                        var priAnimations = pri.GetAllFiles();
-                        foreach (var priAnimation in priAnimations)
-                        {
-                            if (priAnimation.MediaStatus != TMediaStatus.Available)
+                        if (priAnimation.MediaStatus != TMediaStatus.Available)
+                            continue;
+                        AnimatedMedia sEcAnimation = null;
+                        if (sec.FindMediaByMediaGuid(priAnimation.MediaGuid) is AnimatedMedia animatedMedia)
+                            if (animatedMedia.FileExists())
                                 continue;
-                            AnimatedMedia sEcAnimation = null;
-                            if (sec.FindMediaByMediaGuid(priAnimation.MediaGuid) is AnimatedMedia animatedMedia)
-                                if (animatedMedia.FileExists())
-                                    continue;
-                                else
-                                    sEcAnimation = animatedMedia;
-                            if (sEcAnimation == null)
-                                sEcAnimation = (AnimatedMedia) sec.FindMediaFirst(m =>
-                                    m.Folder == priAnimation.Folder && m.FileName == priAnimation.FileName &&
-                                    priAnimations.All(a => a.MediaGuid != m.MediaGuid));
-                            if (sEcAnimation != null)
-                            {
-                                sEcAnimation.CloneMediaProperties(priAnimation);
-                                sec.UpdateMediaGuid(sEcAnimation, priAnimation.MediaGuid);
-                                sEcAnimation.Save();
-                                Debug.WriteLine(sEcAnimation, "Updated");
-                            }
                             else
-                            {
-                                var secFileName = Path.Combine(sec.Folder, priAnimation.Folder, priAnimation.FileName);
-                                if (File.Exists(secFileName))
-                                    sec.CloneMedia((IAnimatedMedia) priAnimation, priAnimation.MediaGuid);
-                            }
+                                sEcAnimation = animatedMedia;
+                        if (sEcAnimation == null)
+                            sEcAnimation = (AnimatedMedia)sec.FindMediaFirst(m =>
+                               m.Folder == priAnimation.Folder && m.FileName == priAnimation.FileName &&
+                               priAnimations.All(a => a.MediaGuid != m.MediaGuid));
+                        if (sEcAnimation != null)
+                        {
+                            sEcAnimation.CloneMediaProperties(priAnimation);
+                            sec.UpdateMediaGuid(sEcAnimation, priAnimation.MediaGuid);
+                            sEcAnimation.Save();
+                            Logger.Trace("Animation {0} updated", sec);
                         }
-                        _isSynchronizedAnimationsSecToPri = true;
-                        Logger.Debug("SynchronizeAnimationsSecToPri finished");
+                        else
+                        {
+                            var secFileName = Path.Combine(sec.Folder, priAnimation.Folder, priAnimation.FileName);
+                            if (File.Exists(secFileName))
+                                sec.CloneMedia((IAnimatedMedia)priAnimation, priAnimation.MediaGuid);
+                        }
                     }
-                    catch (Exception e)
-                    {
-                        Logger.Error(e, "SynchronizeAnimationsSecToPri exception");
-                    }
-
-                });
+                    Logger.Debug("SynchronizeAnimationsSecToPri finished");
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "SynchronizeAnimationsSecToPri exception");
+                }
             }
         }
 
@@ -359,13 +351,13 @@ namespace TAS.Server
         private void _animationDirectoryPropertyChanged(object dir, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IAnimationDirectory.IsInitialized))
-                SynchronizeAnimationsSecToPri();
+                SynchronizeAnimationsPropertiesSecToPri();
         }
 
         private void _animationDirectoryMediaSaved(object sender, MediaEventArgs e)
         {
-            if (!(e.Media is AnimatedMedia priMedia))
-                throw new ApplicationException("Invalid media type provided");
+            var priMedia = e.Media as AnimatedMedia ??
+                throw new ArgumentException("Invalid media type provided");
             if (priMedia.MediaStatus == TMediaStatus.Deleted)
                 return;
             if (!(AnimationDirectoryPRI is AnimationDirectory pri)
@@ -384,8 +376,8 @@ namespace TAS.Server
 
         private void _animationDirectoryMediaPropertyChanged(object o, MediaPropertyChangedEventArgs e)
         {
-            if (!(e.Media is AnimatedMedia media
-                 && AnimationDirectoryPRI is AnimationDirectory adirPri
+            var media = e.Media as AnimatedMedia ?? throw new ArgumentException("Invalid media type provided");
+            if (!( AnimationDirectoryPRI is AnimationDirectory adirPri
                  && AnimationDirectorySEC is AnimationDirectory adirSec 
                  && adirPri != adirSec 
                  && (e.PropertyName == nameof(IAnimatedMedia.MediaName) 
@@ -394,6 +386,7 @@ namespace TAS.Server
                     || e.PropertyName == nameof(IAnimatedMedia.TemplateLayer) 
                     || e.PropertyName == nameof(IAnimatedMedia.ScheduledDelay)
                     || e.PropertyName == nameof(IAnimatedMedia.StartType)
+                    || e.PropertyName == nameof(IAnimatedMedia.MediaEmphasis)
                     )))
                 return;
             if (!(adirSec.FindMediaByMediaGuid(media.MediaGuid) is AnimatedMedia compMedia))
@@ -512,6 +505,7 @@ namespace TAS.Server
             try
             {
                 await Task.Run(() => CopyMissingMediaPriToSec(pri, sec));
+                await Task.Run(() => SynchronizeAnimationsPropertiesSecToPri());
             }
             catch (Exception e)
             {
