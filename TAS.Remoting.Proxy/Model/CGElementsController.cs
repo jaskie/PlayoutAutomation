@@ -6,7 +6,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public class CGElementsController : ProxyObjectBase, ICGElementsController
+    public class CgElementsController : ProxyObjectBase, ICGElementsController
 
     {
         #pragma warning disable CS0649 

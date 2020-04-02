@@ -79,10 +79,12 @@ namespace TVPlayClient
         {
             try
             {
-                _client = new RemoteClient()
-                {
-                    Binder = ClientTypeNameBinder.Current
-                };
+                _client = new RemoteClient();
+                _client.DefaultBinder.AddProxyAssembly("TAS.Remoting.Proxy");               
+                _client.DefaultBinder.AddProxyTypeAssignment("TAS.Server.CasparServer", typeof(PlayoutServer));
+                _client.DefaultBinder.AddProxyTypeAssignment("TAS.Server.CasparServerChannel", typeof(PlayoutServerChannel));
+                _client.DefaultBinder.AddProxyTypeAssignment("TAS.Server.RouterController", typeof(Router));
+
                 _client.Disconnected += ClientDisconnected;
                 await _client.Connect(_channelConfiguration.Address);
 

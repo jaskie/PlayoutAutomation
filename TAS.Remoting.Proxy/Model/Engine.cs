@@ -30,7 +30,7 @@ namespace TAS.Remoting.Model
         private IEvent _forcedNext;
 
         [DtoMember(nameof(IEngine.CGElementsController))]
-        private CGElementsController _cGElementsController;
+        private CgElementsController _cGElementsController;
 
         [DtoMember(nameof(IEngine.Router))]
         private Router _router;

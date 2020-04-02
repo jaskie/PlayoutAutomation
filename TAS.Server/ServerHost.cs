@@ -10,7 +10,7 @@ namespace TAS.Server
 
         [XmlAttribute, Hibernate]
         public ushort ListenPort { get; set; }
-        public int ClientCount => _serverHost?.ClientCount ?? 0;
+        public int ClientCount => _serverHost?.ClientCount ?? 0;       
 
         public void Dispose()
         {
@@ -19,8 +19,8 @@ namespace TAS.Server
 
         internal void Initialize(Engine engine, jNet.RPC.Server.IPrincipalProvider principalProvider)
         {
-            _serverHost = new jNet.RPC.Server.ServerHost { ListenPort = ListenPort };
-            _serverHost.Initialize(engine, principalProvider);
+            _serverHost = new jNet.RPC.Server.ServerHost(ListenPort, engine, principalProvider);
+            _serverHost.Start();
         }
 
         internal void UnInitialize()

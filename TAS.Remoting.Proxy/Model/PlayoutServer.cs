@@ -17,7 +17,7 @@ namespace TAS.Remoting.Model
         private List<PlayoutServerChannel> _channels;
 
         [DtoMember(nameof(IPlayoutServer.Recorders))]
-        private List<Recorder> _recorders;
+        private List<CasparRecorder> _recorders;
 
         [DtoMember(nameof(IPlayoutServer.IsConnected))]
         private bool _isConnected;

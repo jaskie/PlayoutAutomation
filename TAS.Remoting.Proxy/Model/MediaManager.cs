@@ -33,7 +33,7 @@ namespace TAS.Remoting.Model
         private ArchiveDirectory _archiveDirectory;
 
         [DtoMember(nameof(IMediaManager.Recorders))]
-        private List<Recorder> _recorders;
+        private List<CasparRecorder> _recorders;
 
         [DtoMember(nameof(IMediaManager.MediaDirectorySEC))]
         private ServerDirectory _mediaDirectorySec;
@@ -45,7 +45,7 @@ namespace TAS.Remoting.Model
         private ServerDirectory _mediaDirectoryPrv;
 
         [DtoMember(nameof(IEngine.CGElementsController))]
-        private CGElementsController _cgElementsController;
+        private CgElementsController _cgElementsController;
 
         #pragma warning restore
 
