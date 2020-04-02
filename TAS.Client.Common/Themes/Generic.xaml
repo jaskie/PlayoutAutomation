@@ -1,8 +1,7 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mwt="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Classic"
-	xmlns:local="clr-namespace:TAS.Client.Common.Controls"
+    xmlns:local="clr-namespace:TAS.Client.Common.Controls"
     >
 
     <Style x:Key="NoChromeButton" TargetType="{x:Type Button}">
@@ -49,7 +48,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <mwt:ClassicBorderDecorator x:Name="Bd" Grid.ColumnSpan="2" Background="{TemplateBinding Panel.Background}" BorderBrush="{TemplateBinding Border.BorderBrush}" BorderThickness="{TemplateBinding Border.BorderThickness}" BorderStyle="Sunken" VerticalAlignment="Center" >
+                        <Border x:Name="Bd" Grid.ColumnSpan="2" Background="{TemplateBinding Panel.Background}" BorderBrush="{TemplateBinding Border.BorderBrush}" BorderThickness="{TemplateBinding Border.BorderThickness}" VerticalAlignment="Center" >
                             <Grid>
                                 <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
                                 <Border Padding="2,0" VerticalAlignment="Center">
@@ -63,7 +62,7 @@
 										  Visibility="Collapsed"/>
                                 </Border>
                             </Grid>
-                        </mwt:ClassicBorderDecorator>
+                        </Border>
                         <Button x:Name="PART_SearchButtonHost" Grid.Column="1" Height="{Binding ActualHeight, ElementName=Bd}">
                             <Grid>
                                 <local:AutoGreyableImage Stretch="None" Source="/TAS.Client.Common;component/Images/Actions/search_glyph.png"/>
@@ -84,7 +83,6 @@
                         </MultiTrigger>
                         <Trigger Property="UIElement.IsEnabled" Value="False">
                             <Setter TargetName="Bd" Property="Panel.Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
-                            <Setter TargetName="PART_SearchButtonHost" Property="Style" Value="{StaticResource NoChromeButton}"/>
                             <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
                         </Trigger>
                         <Trigger Property="IsSearching" Value="True">
