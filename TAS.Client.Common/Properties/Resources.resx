@@ -185,11 +185,6 @@ Use TVPlay.config program to configure the system.</value>
     <value>Delete selected items ({0})?
 {1}</value>
   </data>
-  <data name="_query_DeleteSelectedContainers" xml:space="preserve">
-    <value>You are deleting following {0} container(s):
-{1}
-Are you sure?</value>
-  </data>
   <data name="_query_DeleteSelectedFiles" xml:space="preserve">
     <value>Files to delete:
 {0}

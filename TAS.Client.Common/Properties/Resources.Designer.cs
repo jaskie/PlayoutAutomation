@@ -395,17 +395,6 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You are deleting following {0} container(s):
-        ///{1}
-        ///Are you sure?.
-        /// </summary>
-        public static string _query_DeleteSelectedContainers {
-            get {
-                return ResourceManager.GetString("_query_DeleteSelectedContainers", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Files to delete:
         ///{0}
         ///

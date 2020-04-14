@@ -626,37 +626,33 @@ namespace TAS.Client.ViewModels
         private async void _deleteSelected(object ob)
         {
             var evmList = _multiSelectedEvents.ToList();
-            var containerList = evmList.Where(evm => evm is EventPanelContainerViewmodel).ToList();
-            if (evmList.Count > 0
-                && MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count, evmList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
-                && (containerList.Count == 0
-                    || MessageBox.Show(string.Format(resources._query_DeleteSelectedContainers, containerList.Count, containerList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
-            {
-                var firstEvent = evmList.First().Event;
-                await EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.Prior : firstEvent.Parent);
-                await Task.Run(
-                    () =>
+            if (evmList.Count == 0
+                || MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count, evmList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
+                return;
+            var firstEvent = evmList.First().Event;
+            await EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.Prior : firstEvent.Parent);
+            await Task.Run(
+                () =>
+                {
+                    try
                     {
-                        try
+                        foreach (var evm in evmList)
                         {
-                            foreach (var evm in evmList)
-                            {
-                                if (evm.Event != null
-                                    && (evm.Event.PlayState == TPlayState.Scheduled || evm.Event.PlayState == TPlayState.Played || evm.Event.PlayState == TPlayState.Aborted))
-                                    evm.Event.Delete();
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            OnUiThread(() =>
-                            {
-                                MessageBox.Show(string.Format(resources._message_CommandFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
-                            });
+                            if (evm.Event != null
+                                && (evm.Event.PlayState == TPlayState.Scheduled || evm.Event.PlayState == TPlayState.Played || evm.Event.PlayState == TPlayState.Aborted))
+                                evm.Event.Delete();
                         }
                     }
-                );
-                _multiSelectedEvents.Clear();
-            }
+                    catch (Exception e)
+                    {
+                        OnUiThread(() =>
+                        {
+                            MessageBox.Show(string.Format(resources._message_CommandFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+                        });
+                    }
+                }
+            );
+            _multiSelectedEvents.Clear();
         }
 
         private void _debugShow(object o)
