@@ -10,6 +10,7 @@ using jNet.RPC;
 
 namespace TAS.Server
 {
+    [DtoClass(nameof(IRouter))]
     public class RouterController : ServerObjectBase, IRouter
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

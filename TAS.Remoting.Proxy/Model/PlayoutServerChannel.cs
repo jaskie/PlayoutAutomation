@@ -5,6 +5,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
+    [DtoClass(nameof(IPlayoutServerChannel))]
     public class PlayoutServerChannel : ProxyObjectBase, IPlayoutServerChannel
     {
 #pragma warning disable CS0649

@@ -5,6 +5,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
+    [DtoClass(nameof(IRouter))]
     public class Router : ProxyObjectBase, IRouter
     {
 #pragma warning disable CS0649 

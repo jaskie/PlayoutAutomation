@@ -7,6 +7,7 @@ using TAS.Remoting.Model.Media;
 
 namespace TAS.Remoting.Model
 {
+    [DtoClass(nameof(IPlayoutServer))]
     public class PlayoutServer : ProxyObjectBase, IPlayoutServer
     {
         #pragma warning disable CS0649

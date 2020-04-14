@@ -20,6 +20,7 @@ namespace TAS.Server
 
     public delegate void CommandNotifier(DateTime when, string command, Event sender);
 
+    [DtoClass(nameof(IPlayoutServer))]
     public class CasparServer : ServerObjectBase, IPlayoutServer, IPlayoutServerProperties
     {
         private bool _isConnected;
