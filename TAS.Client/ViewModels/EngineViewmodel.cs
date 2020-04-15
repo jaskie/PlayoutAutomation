@@ -749,6 +749,7 @@ namespace TAS.Client.ViewModels
             }
             if (newEvent != null)
             {
+                LastAddedEvent = newEvent;
                 if (insertUnder)
                 {
                     if (baseEvent.EventType == TEventType.Container)
@@ -757,7 +758,6 @@ namespace TAS.Client.ViewModels
                 }
                 else
                     baseEvent.InsertAfter(newEvent);
-                LastAddedEvent = newEvent;
             }
         }
 
@@ -1243,6 +1243,7 @@ namespace TAS.Client.ViewModels
 
             }
             newEvent.Media = e.Media;
+            LastAddedEvent = newEvent;
             switch (mediaSearchVm.NewEventStartType)
             {
                 case TStartType.After:
@@ -1254,7 +1255,6 @@ namespace TAS.Client.ViewModels
             }
             mediaSearchVm.NewEventStartType = TStartType.After;
             mediaSearchVm.BaseEvent = newEvent;
-            LastAddedEvent = newEvent;
         }
 
         private void _cGElementsController_PropertyChanged(object sender, PropertyChangedEventArgs e)

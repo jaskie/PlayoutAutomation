@@ -168,7 +168,7 @@ namespace TAS.Client.ViewModels
             if (!IsExpanded)
                 return;
             Childrens.Remove(item);
-            if (Childrens.Count == 0)
+            if (!(this is EventPanelRootViewmodel) && Childrens.Count == 0)
                 IsExpanded = false;
         }
 
