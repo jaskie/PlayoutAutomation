@@ -74,7 +74,7 @@ namespace TAS.Client.ViewModels
             if (Event != null)
             {
                 Event.PropertyChanged -= OnEventPropertyChanged;
-                EngineViewmodel?.RemoveMultiSelected(this);
+                EngineViewmodel.RemoveEventPanel(this);
                 IsMultiSelected = false;
             }
             Debug.WriteLine(this, "EventPanelViewmodel Disposed");

@@ -871,7 +871,6 @@ namespace TAS.Client.ViewModels
                         return;
                     }
                 }
-                SelectedEventEditViewmodel?.Dispose();
                 _selectedEventPanel = value;
                 SelectedEvent = value?.Event;
                 if (value is EventPanelRundownElementViewmodelBase re && _mediaSearchViewModel != null)
@@ -899,12 +898,23 @@ namespace TAS.Client.ViewModels
                     value.PropertyChanged += _onSelectedEventPropertyChanged;
                     SelectedEventEditViewmodel = new EventEditViewmodel(value, this);
                 }
+                else
+                    SelectedEventEditViewmodel = null;
                 if (_preview != null)
                     _preview.SelectedEvent = value;
             }
         }
 
-        public EventEditViewmodel SelectedEventEditViewmodel { get => _selectedEventEditViewmodel; set => SetField(ref _selectedEventEditViewmodel, value); }
+        public EventEditViewmodel SelectedEventEditViewmodel
+        {
+            get => _selectedEventEditViewmodel; set
+            {
+                var oldSelectedEventEditViewModel = _selectedEventEditViewmodel;
+                if (!SetField(ref _selectedEventEditViewmodel, value))
+                    return;
+                oldSelectedEventEditViewModel?.Dispose();
+            }
+        }
 
         public bool Pst2Prv
         {
@@ -1050,10 +1060,12 @@ namespace TAS.Client.ViewModels
             _multiSelectedEvents.Clear();
         }
 
-        public void RemoveMultiSelected(EventPanelViewmodelBase evm)
+        public void RemoveEventPanel(EventPanelViewmodelBase evm)
         {
             if (_multiSelectedEvents.Contains(evm))
                 _multiSelectedEvents.Remove(evm);
+            if (SelectedEventPanel == evm)
+                SelectedEvent = null;
         }
 
         public void _searchMissingEvents(object o)
