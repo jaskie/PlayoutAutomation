@@ -184,12 +184,12 @@ namespace Svt.Caspar
                 Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} CLEAR", Id, videoLayer));
         }
 
-        public void Volume(float volume, int duration, Easing easing)
+        public void Volume(double volume, int duration, Easing easing)
         {
             Volume(-1, volume, duration, easing);
         }
 
-        public void Volume(int videoLayer, float volume, int duration, Easing easing)
+        public void Volume(int videoLayer, double volume, int duration, Easing easing)
         {
             if (videoLayer == -1)
                 Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0} VOLUME {1} {2} {3}", Id, volume, duration, easing.ToString().ToUpperInvariant()));
@@ -197,7 +197,7 @@ namespace Svt.Caspar
                 Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} VOLUME {2} {3} {4}", Id, videoLayer, volume, duration, easing.ToString().ToUpperInvariant()));
         }
 
-        public void MasterVolume(float volume)
+        public void MasterVolume(double volume)
         {
             Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0} MASTERVOLUME {1:F3}", Id, volume));
         }

@@ -183,7 +183,7 @@ namespace TAS.Client.Config
 
         private void _addChannel(object o)
         {
-            var newChannelVm = new PlayoutServerChannelViewmodel(new Model.CasparServerChannel());
+            var newChannelVm = new PlayoutServerChannelViewmodel(new Model.CasparServerChannel { Id = PlayoutServerChannels.Any() ? PlayoutServerChannels.Max(c => c.Id) + 1 : 1 });
             PlayoutServerChannels.Add(newChannelVm);
             SelectedPlayoutServerChannel = newChannelVm;
         }

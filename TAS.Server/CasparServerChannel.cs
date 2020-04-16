@@ -392,7 +392,7 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (CheckConnected(channel))
             {
-                channel.Volume((int)videolayer, (float)volume, transitionDuration, Easing.Linear);
+                channel.Volume((int)videolayer, volume, transitionDuration, Easing.Linear);
                 VolumeChanged?.Invoke(this, new VolumeChangedEventArgs(videolayer, volume));
             }
         }
@@ -576,7 +576,7 @@ namespace TAS.Server
             if (Owner?.IsConnected != true)
                 return;
             ClearMixer();
-            casparChannel.MasterVolume((float) MasterVolume);
+            casparChannel.MasterVolume(Math.Pow(10, MasterVolume / 20));
         }
 
         #region Utilites
