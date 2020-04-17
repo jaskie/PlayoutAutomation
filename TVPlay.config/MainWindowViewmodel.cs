@@ -1,9 +1,13 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
+using TAS.Client.Config.ViewModels.ConfigFile;
+using TAS.Client.Config.ViewModels.Engines;
+using TAS.Client.Config.ViewModels.IngestDirectories;
+using TAS.Client.Config.ViewModels.Playout;
+using TAS.Client.Config.ViewModels.Plugins;
 
 namespace TAS.Client.Config
 {

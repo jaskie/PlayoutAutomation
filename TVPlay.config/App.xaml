@@ -1,12 +1,13 @@
 ﻿<Application x:Class="TAS.Client.Setup.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:config="clr-namespace:TAS.Client.Config;assembly=TAS.Client.Config"
+             xmlns:pluginsView="clr-namespace:TAS.Client.Config.Views.Plugins;assembly=TAS.Client.Config"
+             xmlns:pluginsVm="clr-namespace:TAS.Client.Config.ViewModels.Plugins;assembly=TAS.Client.Config"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <DataTemplate DataType="{x:Type config:PluginsViewModel}">
-                <config:PluginsView />
+            <DataTemplate DataType="{x:Type pluginsVm:PluginsViewModel}">
+                <pluginsView:PluginsView />
             </DataTemplate>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/TAS.Client.Common;component/Styles/Styles.xaml"/>

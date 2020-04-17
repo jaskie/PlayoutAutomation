@@ -1,0 +1,51 @@
+﻿<UserControl x:Class="TAS.Client.Config.Views.Playout.PlayoutServersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.Playout"
+             xmlns:view="clr-namespace:TAS.Client.Config.Views.Playout"
+             d:DataContext="{x:Type vm:PlayoutServersViewmodel}"
+             mc:Ignorable="d" 
+             MinHeight="400"
+             >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="3"/>
+                    <Setter Property="Padding" Value="3"/>
+                </Style>
+            </StackPanel.Resources>
+            <Button Command="{Binding CommandAdd}" ToolTip="Add new server">
+                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"/>
+            </Button>
+            <Button Command="{Binding CommandDelete}" ToolTip="Delete selected server">
+                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-delete.png"/>
+            </Button>
+        </StackPanel>
+        <DataGrid Grid.Row="1" ItemsSource="{Binding PlayoutServers}" SelectedItem="{Binding SelectedServer}" AutoGenerateColumns="False" IsReadOnly="True" MinWidth="200">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Address" Binding="{Binding ServerAddress}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <ContentControl Grid.Column="1" Grid.RowSpan="2" Content="{Binding SelectedServer}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type vm:PlayoutServerViewmodel}">
+                    <view:PlayoutServerView/>
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
+    </Grid>
+</UserControl>
+

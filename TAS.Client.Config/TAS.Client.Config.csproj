@@ -94,41 +94,41 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CgElementsControllerPluginManager.cs" />
-    <Compile Include="CgElementsControllerPluginManagerView.xaml.cs">
+    <Compile Include="ViewModels\Plugins\CgElementsController\CgElementsControllerPluginManager.cs" />
+    <Compile Include="Views\Plugins\CgElementsController\CgElementsControllerPluginManagerView.xaml.cs">
       <DependentUpon>CgElementsControllerPluginManagerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CgElementsControllerView.xaml.cs">
+    <Compile Include="Views\Plugins\CgElementsController\CgElementsControllerView.xaml.cs">
       <DependentUpon>CgElementsControllerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CgElementsControllerViewModel.cs" />
-    <Compile Include="ConfigFileView.xaml.cs">
+    <Compile Include="ViewModels\Plugins\CgElementsController\CgElementsControllerViewModel.cs" />
+    <Compile Include="Views\ConfigFile\ConfigFileView.xaml.cs">
       <DependentUpon>ConfigFileView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ConfigFileViewmodel.cs" />
-    <Compile Include="EnginesView.xaml.cs">
+    <Compile Include="ViewModels\ConfigFile\ConfigFileViewmodel.cs" />
+    <Compile Include="Views\Engines\EnginesView.xaml.cs">
       <DependentUpon>EnginesView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="EnginesViewmodel.cs" />
-    <Compile Include="EngineView.xaml.cs">
+    <Compile Include="ViewModels\Engines\EnginesViewmodel.cs" />
+    <Compile Include="Views\Engines\EngineView.xaml.cs">
       <DependentUpon>EngineView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="EngineViewmodel.cs" />
-    <Compile Include="ArchiveDirectoriesViewmodel.cs" />
-    <Compile Include="ArchiveDirectoriesView.xaml.cs">
+    <Compile Include="ViewModels\Engines\EngineViewmodel.cs" />
+    <Compile Include="ViewModels\ArchiveDirectories\ArchiveDirectoriesViewmodel.cs" />
+    <Compile Include="Views\ArchiveDirectories\ArchiveDirectoriesView.xaml.cs">
       <DependentUpon>ArchiveDirectoriesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\ArchiveDirectories.cs" />
     <Compile Include="Model\ArchiveDirectory.cs" />
     <Compile Include="Model\CasparRecorder.cs" />
-    <Compile Include="IngestDirectoriesView.xaml.cs">
+    <Compile Include="Views\IngestDirectories\IngestDirectoriesView.xaml.cs">
       <DependentUpon>IngestDirectoriesView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="IngestDirectoriesViewmodel.cs" />
-    <Compile Include="IngestDirectoryView.xaml.cs">
+    <Compile Include="ViewModels\IngestDirectories\IngestDirectoriesViewmodel.cs" />
+    <Compile Include="Views\IngestDirectories\IngestDirectoryView.xaml.cs">
       <DependentUpon>IngestDirectoryView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="IngestDirectoryViewmodel.cs" />
+    <Compile Include="ViewModels\IngestDirectories\IngestDirectoryViewmodel.cs" />
     <Compile Include="Model\CgElementsController.cs" />
     <Compile Include="Model\ConfigFile.cs" />
     <Compile Include="Model\Engine.cs" />
@@ -140,71 +140,71 @@
     <Compile Include="Model\IPluginManager.cs" />
     <Compile Include="Model\PlayoutServers.cs" />
     <Compile Include="Model\RemoteHost.cs" />
-    <Compile Include="PlayoutRecorderViewmodel.cs" />
-    <Compile Include="PlayoutServerChannelView.xaml.cs">
+    <Compile Include="ViewModels\Playout\PlayoutRecorderViewmodel.cs" />
+    <Compile Include="Views\Playout\PlayoutServerChannelView.xaml.cs">
       <DependentUpon>PlayoutServerChannelView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PlayoutServerChannelViewmodel.cs" />
-    <Compile Include="PlayoutServerView.xaml.cs">
+    <Compile Include="ViewModels\Playout\PlayoutServerChannelViewmodel.cs" />
+    <Compile Include="Views\Playout\PlayoutServerView.xaml.cs">
       <DependentUpon>PlayoutServerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PlayoutServerViewmodel.cs" />
-    <Compile Include="PluginsView.xaml.cs">
+    <Compile Include="ViewModels\Playout\PlayoutServerViewmodel.cs" />
+    <Compile Include="Views\Plugins\PluginsView.xaml.cs">
       <DependentUpon>PluginsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PluginsViewModel.cs" />
+    <Compile Include="ViewModels\Plugins\PluginsViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PlayoutServersView.xaml.cs">
+    <Compile Include="Views\Playout\PlayoutServersView.xaml.cs">
       <DependentUpon>PlayoutServersView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PlayoutServersViewmodel.cs" />
+    <Compile Include="ViewModels\Playout\PlayoutServersViewmodel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="CgElementsControllerPluginManagerView.xaml">
+    <Page Include="Views\Plugins\CgElementsController\CgElementsControllerPluginManagerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CgElementsControllerView.xaml">
+    <Page Include="Views\Plugins\CgElementsController\CgElementsControllerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ConfigFileView.xaml">
+    <Page Include="Views\ConfigFile\ConfigFileView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="EnginesView.xaml">
+    <Page Include="Views\Engines\EnginesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="EngineView.xaml">
+    <Page Include="Views\Engines\EngineView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ArchiveDirectoriesView.xaml">
+    <Page Include="Views\ArchiveDirectories\ArchiveDirectoriesView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="IngestDirectoriesView.xaml">
+    <Page Include="Views\IngestDirectories\IngestDirectoriesView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="IngestDirectoryView.xaml">
+    <Page Include="Views\IngestDirectories\IngestDirectoryView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="PlayoutServerChannelView.xaml">
+    <Page Include="Views\Playout\PlayoutServerChannelView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PlayoutServersView.xaml">
+    <Page Include="Views\Playout\PlayoutServersView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PlayoutServerView.xaml">
+    <Page Include="Views\Playout\PlayoutServerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PluginsView.xaml">
+    <Page Include="Views\Plugins\PluginsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -231,6 +231,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
