@@ -1,5 +1,7 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.IO;
+using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 
@@ -18,14 +20,15 @@ namespace TAS.Client.Config
             CommandConfigFileSelect = new UiCommand(_configFileSelect, _canShowDialog);
             CommandPlayoutServersSetup = new UiCommand(_serversSetup, _canShowDialog);
             CommandEnginesSetup = new UiCommand(_enginesSetup, _canShowDialog);
-        }
+            CommandPluginsSetup = new UiCommand(_pluginsSetup, _canShowDialog);
+        }       
 
         public ICommand CommandIngestFoldersSetup { get; }
         public ICommand CommandConfigFileEdit { get; }
         public ICommand CommandConfigFileSelect { get; }
         public ICommand CommandPlayoutServersSetup { get; }
         public ICommand CommandEnginesSetup { get; }
-
+        public ICommand CommandPluginsSetup { get; }
         public Model.ConfigFile ConfigFile
         {
             get => _configFile;
@@ -74,5 +77,21 @@ namespace TAS.Client.Config
             vm.ShowDialog();
         }
 
+        private void _pluginsSetup(object obj)
+        {
+            PluginsViewModel vm = new PluginsViewModel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings);
+            Window window = new Window
+            {
+                Width=300,
+                Height=400,
+                Content = vm,
+                ResizeMode = ResizeMode.NoResize,
+                ShowInTaskbar = false,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = Application.Current.MainWindow,
+                SizeToContent = SizeToContent.WidthAndHeight
+            };
+            window.ShowDialog();
+        }
     }
 }

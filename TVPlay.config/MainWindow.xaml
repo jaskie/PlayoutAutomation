@@ -45,6 +45,12 @@
                     <Image Source="/TAS.Client.Common;component/Images/Config/playlist-config.png"/>
                 </StackPanel>
             </Button>
+            <Button Command="{Binding CommandPluginsSetup}">
+                <StackPanel Margin="15,0">
+                    <Label Content="Plugins" HorizontalAlignment="Center" />
+                    <Image Width="48" Source="/TAS.Client.Common;component/Images/Config/plugins_config.png"/>
+                </StackPanel>
+            </Button>
         </ToolBar>
     </StackPanel>
 </Window>

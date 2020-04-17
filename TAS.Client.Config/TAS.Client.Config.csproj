@@ -94,6 +94,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CgElementsControllerPluginManager.cs" />
+    <Compile Include="CgElementsControllerPluginManagerView.xaml.cs">
+      <DependentUpon>CgElementsControllerPluginManagerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CgElementsControllerView.xaml.cs">
+      <DependentUpon>CgElementsControllerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CgElementsControllerViewModel.cs" />
     <Compile Include="ConfigFileView.xaml.cs">
       <DependentUpon>ConfigFileView.xaml</DependentUpon>
     </Compile>
@@ -121,12 +129,15 @@
       <DependentUpon>IngestDirectoryView.xaml</DependentUpon>
     </Compile>
     <Compile Include="IngestDirectoryViewmodel.cs" />
+    <Compile Include="Model\CgElementsController.cs" />
     <Compile Include="Model\ConfigFile.cs" />
     <Compile Include="Model\Engine.cs" />
     <Compile Include="Model\Engines.cs" />
+    <Compile Include="Model\CgElement.cs" />
     <Compile Include="Model\IngestDirectory.cs" />
     <Compile Include="Model\CasparServer.cs" />
     <Compile Include="Model\CasparServerChannel.cs" />
+    <Compile Include="Model\IPluginManager.cs" />
     <Compile Include="Model\PlayoutServers.cs" />
     <Compile Include="Model\RemoteHost.cs" />
     <Compile Include="PlayoutRecorderViewmodel.cs" />
@@ -138,6 +149,10 @@
       <DependentUpon>PlayoutServerView.xaml</DependentUpon>
     </Compile>
     <Compile Include="PlayoutServerViewmodel.cs" />
+    <Compile Include="PluginsView.xaml.cs">
+      <DependentUpon>PluginsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PluginsViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PlayoutServersView.xaml.cs">
       <DependentUpon>PlayoutServersView.xaml</DependentUpon>
@@ -145,6 +160,14 @@
     <Compile Include="PlayoutServersViewmodel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="CgElementsControllerPluginManagerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CgElementsControllerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ConfigFileView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -178,6 +201,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="PlayoutServerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PluginsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
