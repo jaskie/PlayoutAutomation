@@ -10,14 +10,13 @@ using TAS.Client.Config.Views.IngestDirectories;
 
 namespace TAS.Client.Config.ViewModels.IngestDirectories
 {
-    public class IngestDirectoriesViewmodel: OkCancelViewmodelBase<IEnumerable<IngestDirectory>>
+    public class IngestDirectoriesViewmodel: EditViewmodelBase<IEnumerable<IngestDirectory>>, IOkCancelViewModel
     {
         private readonly string _fileName;
         private IngestDirectoryViewmodel _selectedDirectory;
 
 
-        public IngestDirectoriesViewmodel(string fileName) : base(Deserialize(fileName), typeof(IngestDirectoriesView),
-            $"Ingest directories ({System.IO.Path.GetFullPath(fileName)})") 
+        public IngestDirectoriesViewmodel(string fileName) : base(Deserialize(fileName)) 
         {
             foreach (var item in Model.Select(d => new IngestDirectoryViewmodel(d, this)))
             {
@@ -184,5 +183,25 @@ namespace TAS.Client.Config.ViewModels.IngestDirectories
             }
         }
 
+        public bool Ok(object obj)
+        {
+            Update();
+            return true;
+        }
+
+        public void Cancel(object obj)
+        {
+            
+        }
+
+        public bool CanOk(object obj)
+        {
+            return IsModified;
+        }
+
+        public bool CanCancel(object obj)
+        {
+            return true;
+        }
     }
 }

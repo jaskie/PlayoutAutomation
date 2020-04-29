@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="TAS.Client.Config.View.Engines.EnginesView"
+﻿<UserControl x:Class="TAS.Client.Config.Views.Engines.EnginesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -6,7 +6,7 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.Engines"
-             xmlns:view="clr-namespace:TAS.Client.Config.View.Engines"
+             xmlns:view="clr-namespace:TAS.Client.Config.Views.Engines"
              d:DataContext="{x:Type vm:EnginesViewmodel}"
              mc:Ignorable="d" 
              >

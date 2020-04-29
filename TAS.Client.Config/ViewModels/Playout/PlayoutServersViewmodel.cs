@@ -4,18 +4,16 @@ using System.Configuration;
 using System.Linq;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Client.Config.Views.Playout;
 using TAS.Common;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
-    public class PlayoutServersViewmodel: OkCancelViewmodelBase<Model.PlayoutServers>
+    public class PlayoutServersViewmodel: EditViewmodelBase<Model.PlayoutServers>, IOkCancelViewModel
     {
         private bool _isCollectionChanged;
         private PlayoutServerViewmodel _selectedServer;
 
-        public PlayoutServersViewmodel(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
-            : base(new Model.PlayoutServers(databaseType, connectionStringSettingsCollection), typeof(PlayoutServersView), "Playout servers")
+        public PlayoutServersViewmodel(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection) : base(new Model.PlayoutServers(databaseType, connectionStringSettingsCollection))
         {
             PlayoutServers = new ObservableCollection<PlayoutServerViewmodel>(Model.Servers.Select(s => new PlayoutServerViewmodel(s)));
             PlayoutServers.CollectionChanged += PlayoutServers_CollectionChanged;
@@ -80,5 +78,22 @@ namespace TAS.Client.Config.ViewModels.Playout
             SelectedServer = newPlayoutServerViewmodel;            
         }
 
+        public bool Ok(object obj)
+        {
+            Update();
+            return true;
+        }
+
+        public void Cancel(object obj) { }
+
+        public bool CanOk(object obj)
+        {
+            return IsModified;
+        }
+
+        public bool CanCancel(object obj)
+        {
+            return true;
+        }
     }
 }

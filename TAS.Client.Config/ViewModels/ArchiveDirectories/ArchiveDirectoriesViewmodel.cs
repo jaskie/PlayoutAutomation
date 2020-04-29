@@ -7,10 +7,9 @@ using TAS.Client.Config.Views.ArchiveDirectories;
 
 namespace TAS.Client.Config.ViewModels.ArchiveDirectories
 {
-    public class ArchiveDirectoriesViewmodel: OkCancelViewmodelBase<Model.ArchiveDirectories>
-    {
-       
-        public ArchiveDirectoriesViewmodel(Model.ArchiveDirectories directories) : base(directories, typeof(ArchiveDirectoriesView), "Archive directories")
+    public class ArchiveDirectoriesViewmodel: EditViewmodelBase<Model.ArchiveDirectories>, IOkCancelViewModel
+    {       
+        public ArchiveDirectoriesViewmodel(Model.ArchiveDirectories directories) : base(directories)
         {
             Directories = new ObservableCollection<ArchiveDirectory>(Model.Directories);
             _createCommands();
@@ -72,5 +71,25 @@ namespace TAS.Client.Config.ViewModels.ArchiveDirectories
             Model.Save();
         }
 
+        public bool Ok(object obj)
+        {
+            Update();
+            return true;
+        }
+
+        public void Cancel(object obj)
+        {
+            
+        }
+
+        public bool CanOk(object obj)
+        {
+            return IsModified;
+        }
+
+        public bool CanCancel(object obj)
+        {
+            return true;
+        }
     }
 }

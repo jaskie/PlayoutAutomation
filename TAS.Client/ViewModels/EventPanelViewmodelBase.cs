@@ -360,7 +360,7 @@ namespace TAS.Client.ViewModels
 
         protected void LoadChildrens()
         {
-            UiServices.SetBusyState();
+            UiServices.UiStateManager.SetBusyState();
             foreach (var se in Event.SubEvents)
             {
                 Childrens.Add(CreateChildEventPanelViewmodelForEvent(se));
@@ -379,7 +379,7 @@ namespace TAS.Client.ViewModels
                 return;
             if (HasDummyChild)
                 return;
-            UiServices.SetBusyState();
+            UiServices.UiStateManager.SetBusyState();
             foreach (var c in Childrens.ToList())
                 c.Dispose();
             Childrens.Clear();

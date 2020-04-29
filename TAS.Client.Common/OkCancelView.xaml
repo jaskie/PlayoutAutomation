@@ -1,22 +1,18 @@
-﻿<Window x:Class="TAS.Client.Config.OkCancelView"
+﻿<UserControl x:Class="TAS.Client.Common.OkCancelView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-        xmlns:common="clr-namespace:TAS.Client.Common"
-        xmlns:controls="clr-namespace:TAS.Client.Common.Controls"
-        mc:Ignorable="d"
-        d:DataContext="{x:Type common:OkCancelViewmodelBase`1}"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"                       
+        mc:Ignorable="d" 
+        d:DataContext="{Binding OkCancelVM}"
         MinHeight="100"
-        MinWidth="180"
-        Title="{Binding Title}"
-        SizeToContent="WidthAndHeight"
-        >
+        MinWidth="180">
+    
     <DockPanel>
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="37" HorizontalAlignment="Right">
-            <Button IsCancel="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandCancel}" Style="{StaticResource CancelButtonStyle}" ToolTip="{x:Null}"/>
-            <Button IsDefault="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandOk}" Style="{StaticResource OkButtonStyle}" ToolTip="{x:Null}"/>
+            <Button IsCancel="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandCancel}" Style="{StaticResource CancelButtonStyle}" />
+            <Button IsDefault="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandOk}" Style="{StaticResource OkButtonStyle}" />
         </StackPanel>
-        <ContentControl Content="{Binding Editor}"/>
+        <ContentControl Content="{Binding OkCancelVM}" />
     </DockPanel>
-</Window>
+</UserControl>

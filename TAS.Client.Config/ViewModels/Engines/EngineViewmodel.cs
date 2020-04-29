@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TAS.Client.Common;
 using TAS.Client.Config.Model;
 using TAS.Client.Config.ViewModels.ArchiveDirectories;
 using TAS.Common;
@@ -9,7 +10,7 @@ using TAS.Common.Interfaces;
 namespace TAS.Client.Config.ViewModels.Engines
 {
     public class EngineViewmodel : Common.EditViewmodelBase<Engine>, IEngineProperties
-    {
+    {        
         private TAspectRatioControl _aspectRatioControl;
         private string _engineName;
         private int _timeCorrection;
@@ -18,9 +19,8 @@ namespace TAS.Client.Config.ViewModels.Engines
         private TCrawlEnableBehavior _crawlEnableBehavior;
         private int _cgStartDelay;
         private ulong _instance;
-        public EngineViewmodel(Engine engine)
-            : base(engine)
-        {
+        public EngineViewmodel(Engine engine) : base(engine)
+        {            
             Channels = new List<object> { Common.Properties.Resources._none_ };
             foreach(var s in Model.Servers)
                 foreach (var c in s.Channels)
@@ -51,14 +51,14 @@ namespace TAS.Client.Config.ViewModels.Engines
 
         private void _manageArchiveDirectories(object obj)
         {
-            using (var dialog = new ArchiveDirectoriesViewmodel(Model.ArchiveDirectories))
+            using (var vm = new ArchiveDirectoriesViewmodel(Model.ArchiveDirectories))
             {
-                if (dialog.ShowDialog() != true)
+                if (UiServices.WindowManager.ShowDialog(vm, "Archive") != true)
                     return;
                 ArchiveDirectories = new List<object> { Common.Properties.Resources._none_ };
                 ArchiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
                 NotifyPropertyChanged(nameof(ArchiveDirectories));
-                ArchiveDirectory = dialog.SelectedDirectory;
+                ArchiveDirectory = vm.SelectedDirectory;
             }
         }
 

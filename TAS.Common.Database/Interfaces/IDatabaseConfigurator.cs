@@ -6,8 +6,7 @@ namespace TAS.Common.Database.Interfaces
 {
     public interface IDatabaseConfigurator
     {
-        DatabaseType DatabaseType { get; }
-        UserControl View { get; }
+        DatabaseType DatabaseType { get; }        
         void Open(Configuration configuration);
         void Save();
         event EventHandler Modified;

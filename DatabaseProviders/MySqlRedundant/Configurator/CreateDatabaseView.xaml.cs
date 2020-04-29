@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TAS.Client.Config
+namespace TAS.Database.MySqlRedundant.Configurator
 {
     /// <summary>
     /// Interaction logic for CreateDatabaseView.xaml

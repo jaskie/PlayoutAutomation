@@ -4,20 +4,17 @@ using System.Configuration;
 using System.Linq;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Client.Config.View.Engines;
 using TAS.Common;
 
 namespace TAS.Client.Config.ViewModels.Engines
 {
-    public class EnginesViewmodel: OkCancelViewmodelBase<Model.Engines>
-    {
-
+    public class EnginesViewmodel: EditViewmodelBase<Model.Engines>, IOkCancelViewModel
+    {        
         private EngineViewmodel _selectedEngine;
         private bool _isCollectionCanged;
         
-        public EnginesViewmodel(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
-            : base(new Model.Engines(databaseType, connectionStringSettingsCollection), typeof(EnginesView), "Engines")
-        {
+        public EnginesViewmodel(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection) : base(new Model.Engines(databaseType, connectionStringSettingsCollection))
+        {            
             Engines = new ObservableCollection<EngineViewmodel>(Model.EngineList.Select(e => new EngineViewmodel(e)));
             Engines.CollectionChanged += _engines_CollectionChanged;
             CommandAdd = new UiCommand(_add);
@@ -88,5 +85,25 @@ namespace TAS.Client.Config.ViewModels.Engines
             SelectedEngine = newPlayoutServerViewmodel;            
         }
 
+        public bool Ok(object obj)
+        {
+            Update();
+            return true;
+        }
+
+        public void Cancel(object obj)
+        {
+            
+        }
+
+        public bool CanOk(object obj)
+        {
+            return IsModified;
+        }
+
+        public bool CanCancel(object obj)
+        {
+            return true;
+        }
     }
 }

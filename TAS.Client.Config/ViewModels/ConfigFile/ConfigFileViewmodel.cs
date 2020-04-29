@@ -2,14 +2,14 @@
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using TAS.Client.Config.Views.ConfigFile;
+using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Database;
 using TAS.Common.Database.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.ConfigFile
 {
-    public class ConfigFileViewmodel : OkCancelViewmodelBase<Model.ConfigFile>
+    public class ConfigFileViewmodel : EditViewmodelBase<Model.ConfigFile>, IOkCancelViewModel
     {
         private string _ingestFolders;
         private string _tempDirectory;
@@ -21,8 +21,7 @@ namespace TAS.Client.Config.ViewModels.ConfigFile
         private readonly List<IDatabase> _dbs;
 
         protected override void OnDispose() { }
-        public ConfigFileViewmodel(Model.ConfigFile configFile)
-            : base(configFile, typeof(ConfigFileView), $"Config file ({configFile.FileName})")
+        public ConfigFileViewmodel(Model.ConfigFile configFile) : base(configFile)
         {
             _dbs = DatabaseProviderLoader.LoadDatabaseProviders().ToList();
             DatabaseTypes = _dbs.Select(db => db.DatabaseType).ToArray();
@@ -88,5 +87,24 @@ namespace TAS.Client.Config.ViewModels.ConfigFile
             IsModified = true;
         }
 
+        public bool Ok(object obj)
+        {
+            Update();
+            return true;
+        }
+
+        public void Cancel(object obj)
+        {           
+        }
+
+        public bool CanOk(object obj)
+        {
+            return IsModified;
+        }
+
+        public bool CanCancel(object obj)
+        {
+            return true;
+        }
     }
 }

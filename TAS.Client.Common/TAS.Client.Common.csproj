@@ -89,6 +89,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttachedProperties\FocusProperty.cs" />
     <Compile Include="Behaviors\TreeViewTwoWaySelectedItem.cs" />
     <Compile Include="Controls\AutoGreyableImage.cs" />
     <Compile Include="Behaviors\BindableSelectedItems.cs" />
@@ -99,6 +100,8 @@
     <Compile Include="Controls\WrapPanelFill.cs" />
     <Compile Include="DispatcherHelper.cs" />
     <Compile Include="IgnoreOnUpdateAttribute.cs" />
+    <Compile Include="IUiStateManager.cs" />
+    <Compile Include="IWindowManager.cs" />
     <Compile Include="MediaDirectoryExtensions.cs" />
     <Compile Include="ModifyableViewModelBase.cs" />
     <Compile Include="EditViewModelBase.cs" />
@@ -111,7 +114,8 @@
     <Compile Include="OkCancelView.xaml.cs">
       <DependentUpon>OkCancelView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OkCancelViewmodelBase.cs" />
+    <Compile Include="OkCancelViewModel.cs" />
+    <Compile Include="IOkCancelViewModel.cs" />
     <Compile Include="Plugin\IUiEngine.cs" />
     <Compile Include="Plugin\IUiPluginContext.cs" />
     <Compile Include="Plugin\IUiPreview.cs" />
@@ -157,6 +161,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="DataTemplates.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="OkCancelView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
