@@ -3,7 +3,6 @@ using System.Configuration;
 using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Client.Config;
 
 namespace TAS.Database.MySqlRedundant.Configurator
 {
@@ -171,7 +170,7 @@ namespace TAS.Database.MySqlRedundant.Configurator
         {
             using (var vm = new CreateDatabaseViewmodel(_db) { ConnectionString = ConnectionStringPrimary })
             {
-                if (vm.ShowDialog() != true)
+                if (UiServices.WindowManager.ShowDialog(vm, "Create database") != true)
                     return;
                 if (vm.ConnectionString == ConnectionStringPrimary)
                     MessageBox.Show(Window, "Database created successfully", "Create database", MessageBoxButton.OK,
@@ -187,7 +186,7 @@ namespace TAS.Database.MySqlRedundant.Configurator
         {
             using (var vm = new ConnectionStringViewmodel(_connectionStringPrimary))
             {
-                if (vm.ShowDialog() == true)
+                if (UiServices.WindowManager.ShowDialog(vm, "Edit connection parameters") == true)
                     ConnectionStringPrimary = vm.Model.ConnectionString;
             }
         }
@@ -196,7 +195,7 @@ namespace TAS.Database.MySqlRedundant.Configurator
         {
             using (var vm = new ConnectionStringViewmodel(_connectionStringSecondary))
             {
-                if (vm.ShowDialog() == true)
+                if (UiServices.WindowManager.ShowDialog(vm, "Edit connection parameters") == true)
                     ConnectionStringSecondary = vm.Model.ConnectionString;
             }
         }

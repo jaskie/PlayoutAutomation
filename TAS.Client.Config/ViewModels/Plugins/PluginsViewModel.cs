@@ -4,9 +4,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Windows;
 using System.Windows.Data;
-using System.Xml.Serialization;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
 using TAS.Client.Config.Model.Plugins;
@@ -58,6 +56,6 @@ namespace TAS.Client.Config.ViewModels.Plugins
         protected override void OnDispose()
         {
             //
-        }
+        }        
     }
 }

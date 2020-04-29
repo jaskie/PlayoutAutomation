@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
-using TAS.Client.Config;
+using TAS.Client.Common;
 
 namespace TAS.Database.MySqlRedundant.Configurator
 {
-    public class ConnectionStringViewmodel : OkCancelViewmodelBase<MySqlConnectionStringBuilder>
+    public class ConnectionStringViewmodel : EditViewmodelBase<MySqlConnectionStringBuilder>, IOkCancelViewModel
     {
         private string _database;
         private uint _port;
@@ -15,9 +15,30 @@ namespace TAS.Database.MySqlRedundant.Configurator
         private string _characterSet;
         private MySqlSslMode _sslMode;
 
-        public ConnectionStringViewmodel(string connectionString) : base(new MySqlConnectionStringBuilder { ConnectionString = connectionString }, typeof(ConnectionStringView), "Edit connection parameters") { }
+        public ConnectionStringViewmodel(string connectionString) : base(new MySqlConnectionStringBuilder { ConnectionString = connectionString }) { }
 
         protected override void OnDispose() { }
+
+        public bool Ok(object obj)
+        {
+            Update();
+            return true;
+        }
+
+        public void Cancel(object obj)
+        {
+            
+        }
+
+        public bool CanOk(object obj)
+        {
+            return IsModified;
+        }
+
+        public bool CanCancel(object obj)
+        {
+            return true;
+        }
 
         public string ConnectionString => Model.ConnectionString;
 

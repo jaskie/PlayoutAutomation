@@ -1,6 +1,5 @@
 ﻿using System.Configuration;
 using System.IO;
-using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Client.Config.ViewModels.ConfigFile;
@@ -14,9 +13,9 @@ namespace TAS.Client.Config
     public class MainWindowViewmodel: ViewModelBase
     {
         private Model.ConfigFile _configFile;
-
+        
         public MainWindowViewmodel()
-        {
+        {            
             if (File.Exists("TVPlay.exe"))
                 ConfigFile = new Model.ConfigFile(ConfigurationManager.OpenExeConfiguration("TVPlay.exe"));
             CommandIngestFoldersSetup = new UiCommand(_ingestFoldersSetup, _canShowDialog);
@@ -50,7 +49,7 @@ namespace TAS.Client.Config
         {
             using (var vm = new EnginesViewmodel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
             {
-                vm.ShowDialog();
+                UiServices.WindowManager.ShowWindow(vm, "Engines");
             }
         }
         
@@ -58,7 +57,7 @@ namespace TAS.Client.Config
         {
             using (var vm = new PlayoutServersViewmodel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
             {
-                vm.ShowDialog();
+                UiServices.WindowManager.ShowWindow(vm, "Playout Servers");
             }
         }
                 
@@ -72,30 +71,19 @@ namespace TAS.Client.Config
         private void _configFileEdit(object obj)
         {
             ConfigFileViewmodel vm = new ConfigFileViewmodel(_configFile);
-            vm.ShowDialog();
+            UiServices.WindowManager.ShowWindow(vm, $"Config file ({_configFile.FileName})");
         }
 
         private void _ingestFoldersSetup(object obj)
         {
             IngestDirectoriesViewmodel vm = new IngestDirectoriesViewmodel(_configFile.AppSettings.IngestFolders);
-            vm.ShowDialog();
+            UiServices.WindowManager.ShowWindow(vm, $"Ingest directories ({System.IO.Path.GetFullPath(_configFile.AppSettings.IngestFolders)})");
         }
 
         private void _pluginsSetup(object obj)
         {
             PluginsViewModel vm = new PluginsViewModel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings);
-            Window window = new Window
-            {
-                Width=300,
-                Height=400,
-                Content = vm,
-                ResizeMode = ResizeMode.NoResize,
-                ShowInTaskbar = false,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Owner = Application.Current.MainWindow,
-                SizeToContent = SizeToContent.WidthAndHeight
-            };
-            window.ShowDialog();
+            UiServices.WindowManager.ShowWindow(vm, "Plugins");
         }
     }
 }

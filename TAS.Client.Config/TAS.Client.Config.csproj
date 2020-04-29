@@ -95,6 +95,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ViewModels\Plugins\CgElementsController\CgElementsControllerPluginManager.cs" />
+    <Compile Include="ViewModels\Plugins\CgElementsController\CgElementViewModel.cs" />
     <Compile Include="Views\Plugins\CgElementsController\CgElementsControllerPluginManagerView.xaml.cs">
       <DependentUpon>CgElementsControllerPluginManagerView.xaml</DependentUpon>
     </Compile>
@@ -149,6 +150,9 @@
       <DependentUpon>PlayoutServerView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\Playout\PlayoutServerViewmodel.cs" />
+    <Compile Include="Views\Plugins\CgElementsController\CgElementView.xaml.cs">
+      <DependentUpon>CgElementView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Plugins\PluginsView.xaml.cs">
       <DependentUpon>PluginsView.xaml</DependentUpon>
     </Compile>
@@ -201,6 +205,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Playout\PlayoutServerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Plugins\CgElementsController\CgElementView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

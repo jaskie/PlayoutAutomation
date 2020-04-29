@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TAS.Client.Config.View.Engines
+namespace TAS.Client.Config.Views.Engines
 {
     /// <summary>
     /// Interaction logic for EnginesView.xaml

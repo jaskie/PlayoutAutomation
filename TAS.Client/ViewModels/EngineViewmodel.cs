@@ -33,9 +33,7 @@ namespace TAS.Client.ViewModels
         private MediaSearchViewmodel _mediaSearchViewModel;
         private readonly ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
         private readonly ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
-        private readonly ObservableCollection<EventPanelViewmodelBase> _multiSelectedEvents;
-
-        internal Views.EngineView View;
+        private readonly ObservableCollection<EventPanelViewmodelBase> _multiSelectedEvents;        
 
         public EngineViewmodel(IEngine engine, IPreview preview)
         {
@@ -230,6 +228,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandPreviewTrimSource => _preview?.CommandTrimSource;
         #endregion
 
+        public bool IsTreeViewFocused { get; set; }
         public bool IsDebugBuild
         {
             get
@@ -282,7 +281,7 @@ namespace TAS.Client.ViewModels
 
         public void Focus()
         {
-            View?.RundownTreeView.Focus();
+            IsTreeViewFocused = true;
         }
 
 
@@ -389,7 +388,7 @@ namespace TAS.Client.ViewModels
             };
             if (dlg.ShowDialog() != true)
                 return;
-            UiServices.SetBusyState();
+            UiServices.UiStateManager.SetBusyState();
             await Task.Run(() =>
             {
                 using (var reader = File.OpenText(dlg.FileName))

@@ -1,15 +1,14 @@
 ﻿using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Client.Config;
 
 namespace TAS.Database.MySqlRedundant.Configurator
 {
-    public class CreateDatabaseViewmodel: OkCancelViewmodelBase<Model.CreateDatabase>
+    public class CreateDatabaseViewmodel: EditViewmodelBase<Model.CreateDatabase>, IOkCancelViewModel
     {
         private string _connectionString;
         private string _collation;
 
-        public CreateDatabaseViewmodel(DatabaseMySqlRedundant db) : base(new Model.CreateDatabase(db), typeof(CreateDatabaseView), "Create database") 
+        public CreateDatabaseViewmodel(DatabaseMySqlRedundant db) : base(new Model.CreateDatabase(db)) 
         {
             CommandEditConnectionString = new UiCommand(_editConnectionString);
         }
@@ -30,22 +29,38 @@ namespace TAS.Database.MySqlRedundant.Configurator
 
         public ICommand CommandEditConnectionString { get; }
 
-        protected override void OnDispose() { }
-
-        protected override void Ok(object o)
-        {
-            Update();
-            if (Model.CreateEmptyDatabase())
-                base.Ok(o);
-        }
+        protected override void OnDispose() { }        
 
         private void _editConnectionString(object obj)
         {
             using (var vm = new ConnectionStringViewmodel(ConnectionString))
             {
-                if (vm.ShowDialog() == true)
+                if (UiServices.WindowManager.ShowDialog(vm, "Edit connection parameters") == true)
                     ConnectionString = vm.Model.ConnectionString;
             }
+        }
+
+        public bool Ok(object obj)
+        {
+            Update();
+            if (Model.CreateEmptyDatabase())
+                return true;
+            
+            return false;
+        }
+
+        public void Cancel(object obj)
+        {            
+        }
+
+        public bool CanOk(object obj)
+        {
+            return IsModified;
+        }
+
+        public bool CanCancel(object obj)
+        {
+            return true;
         }
     }
 }

@@ -67,7 +67,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                 if (!SetField(ref _selectedEngine, value))
                     return;
 
-                CgElementsControllerVM = new CgElementsControllerViewModel(_cgElementsControllers.FirstOrDefault(cg => cg.EngineName == value.EngineName));
+                CgElementsControllerVM = new CgElementsControllerViewModel(_cgElementsControllers.FirstOrDefault(cg => cg.EngineName == value.EngineName) ?? new Model.CgElementsController());
             }
         }
 

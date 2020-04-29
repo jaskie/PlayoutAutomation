@@ -55,7 +55,7 @@ namespace TAS.Client.Common
                 return;
             if (ExecuteDelegate != null)
             {
-                UiServices.SetBusyState();
+                UiServices.UiStateManager.SetBusyState();
                 if (HandleExceptions)
                     try
                     {
