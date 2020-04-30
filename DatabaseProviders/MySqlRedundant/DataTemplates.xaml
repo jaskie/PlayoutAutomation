@@ -4,7 +4,7 @@
              xmlns:configurator="clr-namespace:TAS.Database.MySqlRedundant.Configurator">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary>
-            <DataTemplate DataType="{x:Type configurator:ConfiguratorViewModel}">
+            <!--<DataTemplate DataType="{x:Type configurator:ConfiguratorViewModel}">
                 <configurator:ConfiguratorView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type configurator:ConnectionStringViewmodel}">
@@ -12,7 +12,7 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type configurator:CreateDatabaseViewmodel}">
                 <configurator:CreateDatabaseView />
-            </DataTemplate>
+            </DataTemplate>-->
         </ResourceDictionary>
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

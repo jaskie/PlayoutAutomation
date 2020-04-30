@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Configuration;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
+using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Database.Interfaces;
 using TAS.Common.Database.Interfaces.Media;
 using TAS.Common.Interfaces;
+using TAS.Database.MySqlRedundant.Configurator;
 
 namespace TAS.Database.MySqlRedundant
 {
@@ -17,6 +18,11 @@ namespace TAS.Database.MySqlRedundant
     public class DatabaseMySqlRedundant : DatabaseBase
     {
         private Dictionary<string, Dictionary<string, int>> _tablesStringFieldsLenghts;
+        private readonly static IUiTemplatesManager _uiTemplatesManager = new DataTemplateManager();
+        public DatabaseMySqlRedundant()
+        {
+            _uiTemplatesManager.LoadDataTemplates();
+        }
 
         public override void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {

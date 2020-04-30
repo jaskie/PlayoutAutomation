@@ -94,6 +94,7 @@
     <Compile Include="Configurator\Model\CreateDatabase.cs" />
     <Compile Include="ConnectionStringsNames.cs" />
     <Compile Include="DatabaseMySqlRedundant.cs" />
+    <Compile Include="Configurator\DataTemplateManager.cs" />
     <Compile Include="DbCommandRedundant.cs" />
     <Compile Include="DbConnectionRedundant.cs" />
     <Compile Include="DbDataReaderRedundant.cs" />
