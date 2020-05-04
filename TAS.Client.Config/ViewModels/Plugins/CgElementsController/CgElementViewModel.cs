@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,13 +9,15 @@ using TAS.Client.Config.Model;
 
 namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 {
-    public class CgElementViewModel : EditViewmodelBase<CgElement>
+    public class CgElementViewModel : EditViewmodelBase<CgElement>, IOkCancelViewModel
     {
         private string _name = String.Empty;
         private string _command = String.Empty;
         private string _imageFile = String.Empty;
-        private string _elementClientPath = String.Empty; //used only with parentals
-        private string _elementServerPath = String.Empty;
+        private string _clientImagePath = String.Empty; //used only with parentals
+        private string _serverImagePath = String.Empty;
+        private string _clientPath = String.Empty; //used only with parentals
+        private string _serverPath = String.Empty;
         public CgElementViewModel(CgElement cgElement) : base(cgElement)
         {
             if (cgElement != null)
@@ -27,9 +30,41 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         public string Name { get => _name; set => SetField(ref _name, value); }
         public string Command { get => _command; set => SetField(ref _command, value); }
-        public string ElementClientPath { get => _elementClientPath; set => SetField(ref _elementClientPath, value); }
-        public string ElementServerPath { get => _elementServerPath; set => SetField(ref _elementServerPath, value); }
+        public string ClientImagePath { get => _clientImagePath; set => SetField(ref _clientImagePath, value); }
+        public string ServerImagePath { get => _serverImagePath; set => SetField(ref _serverImagePath, value); }
         public string ImageFile { get => _imageFile; set => _imageFile = value; }
+
+        public bool CanCancel(object obj)
+        {
+            return true;
+        }
+
+        public void Cancel(object obj)
+        {
+            //
+        }
+
+        public bool CanOk(object obj)
+        {
+            return IsModified;            
+        }
+
+        public bool Ok(object obj)
+        {
+            try
+            {
+                File.Copy(_serverImagePath, _serverPath);
+                if (_clientImagePath.Length > 0)
+                    File.Copy(_clientImagePath, _clientPath);
+
+                Update();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         protected override void OnDispose()
         {
