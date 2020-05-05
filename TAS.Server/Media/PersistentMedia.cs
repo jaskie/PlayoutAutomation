@@ -7,7 +7,7 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {
-    public abstract class PersistentMedia: MediaBase, Common.Database.Interfaces.Media.IPersistentMedia
+    public abstract class PersistentMedia: MediaBase, Database.Common.Interfaces.Media.IPersistentMedia
     {
 
         private DateTime? _killDate;

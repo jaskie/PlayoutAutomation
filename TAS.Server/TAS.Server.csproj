@@ -139,9 +139,9 @@
       <Project>{e963b766-56bf-4966-8917-88c1ee69d61a}</Project>
       <Name>System.Net.FtpClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TAS.Common.Database\TAS.Common.Database.csproj">
+    <ProjectReference Include="..\TAS.Database.Common\TAS.Database.Common.csproj">
       <Project>{f73445a5-2375-49ea-bd4f-8c6778d8736d}</Project>
-      <Name>TAS.Common.Database</Name>
+      <Name>TAS.Database.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.FFMpegUtils\FFMpegUtils.vcxproj">
       <Project>{aaa90fdf-4e13-490e-a4a4-9b83f522f6c4}</Project>

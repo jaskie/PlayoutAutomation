@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using TAS.Client.Config.Views.ConfigFile;
 using TAS.Common;
-using TAS.Common.Database;
-using TAS.Common.Database.Interfaces;
+using TAS.Database.Common;
+using TAS.Database.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.ConfigFile
 {
@@ -24,7 +24,7 @@ namespace TAS.Client.Config.ViewModels.ConfigFile
         public ConfigFileViewmodel(Model.ConfigFile configFile)
             : base(configFile, typeof(ConfigFileView), $"Config file ({configFile.FileName})")
         {
-            _dbs = DatabaseProviderLoader.LoadDatabaseProviders().ToList();
+            _dbs = DatabaseLoader.LoadDatabaseProviders().ToList();
             DatabaseTypes = _dbs.Select(db => db.DatabaseType).ToArray();
             Load(Model.AppSettings);
         }
@@ -44,7 +44,7 @@ namespace TAS.Client.Config.ViewModels.ConfigFile
                 var oldConfigurator = DatabaseConfigurator;
                 if (!SetField(ref _databaseType, value))
                     return;
-                DatabaseConfigurator = value == null ? null : DatabaseConfiguratorLoader.LoadDatabaseConfigurator(value.Value);
+                DatabaseConfigurator = value == null ? null : DatabaseLoader.LoadDatabaseConfigurator(value.Value);
                 if (DatabaseConfigurator != null)
                 {
                     DatabaseConfigurator.Open(Model.Configuration);

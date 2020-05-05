@@ -10,7 +10,7 @@ using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
-using TAS.Common.Database;
+using TAS.Database.Common;
 using jNet.RPC;
 
 namespace TAS.Server

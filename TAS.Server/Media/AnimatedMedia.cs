@@ -6,7 +6,7 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {
-    public class AnimatedMedia : PersistentMedia, Common.Database.Interfaces.Media.IAnimatedMedia
+    public class AnimatedMedia : PersistentMedia, Database.Common.Interfaces.Media.IAnimatedMedia
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 

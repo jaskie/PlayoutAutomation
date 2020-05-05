@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
-using TAS.Common;
-using TAS.Common.Database;
+using TAS.Database.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
@@ -13,8 +12,8 @@ namespace TAS.Client.Config.Model
         [Hibernate]
         public string ChannelName { get; set; }
 
-        [DefaultValue(1.0), Hibernate]
-        public double MasterVolume { get; set; } = 1;
+        [Hibernate]
+        public double MasterVolume { get; set; }
 
         [Hibernate]
         public string LiveDevice { get; set; }

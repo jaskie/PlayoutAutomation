@@ -626,37 +626,33 @@ namespace TAS.Client.ViewModels
         private async void _deleteSelected(object ob)
         {
             var evmList = _multiSelectedEvents.ToList();
-            var containerList = evmList.Where(evm => evm is EventPanelContainerViewmodel).ToList();
-            if (evmList.Count > 0
-                && MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count, evmList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
-                && (containerList.Count == 0
-                    || MessageBox.Show(string.Format(resources._query_DeleteSelectedContainers, containerList.Count, containerList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
-            {
-                var firstEvent = evmList.First().Event;
-                await EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.Prior : firstEvent.Parent);
-                await Task.Run(
-                    () =>
+            if (evmList.Count == 0
+                || MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count, evmList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
+                return;
+            var firstEvent = evmList.First().Event;
+            await EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.Prior : firstEvent.Parent);
+            await Task.Run(
+                () =>
+                {
+                    try
                     {
-                        try
+                        foreach (var evm in evmList)
                         {
-                            foreach (var evm in evmList)
-                            {
-                                if (evm.Event != null
-                                    && (evm.Event.PlayState == TPlayState.Scheduled || evm.Event.PlayState == TPlayState.Played || evm.Event.PlayState == TPlayState.Aborted))
-                                    evm.Event.Delete();
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            OnUiThread(() =>
-                            {
-                                MessageBox.Show(string.Format(resources._message_CommandFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
-                            });
+                            if (evm.Event != null
+                                && (evm.Event.PlayState == TPlayState.Scheduled || evm.Event.PlayState == TPlayState.Played || evm.Event.PlayState == TPlayState.Aborted))
+                                evm.Event.Delete();
                         }
                     }
-                );
-                _multiSelectedEvents.Clear();
-            }
+                    catch (Exception e)
+                    {
+                        OnUiThread(() =>
+                        {
+                            MessageBox.Show(string.Format(resources._message_CommandFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+                        });
+                    }
+                }
+            );
+            _multiSelectedEvents.Clear();
         }
 
         private void _debugShow(object o)
@@ -753,6 +749,7 @@ namespace TAS.Client.ViewModels
             }
             if (newEvent != null)
             {
+                LastAddedEvent = newEvent;
                 if (insertUnder)
                 {
                     if (baseEvent.EventType == TEventType.Container)
@@ -761,7 +758,6 @@ namespace TAS.Client.ViewModels
                 }
                 else
                     baseEvent.InsertAfter(newEvent);
-                LastAddedEvent = newEvent;
             }
         }
 
@@ -875,7 +871,6 @@ namespace TAS.Client.ViewModels
                         return;
                     }
                 }
-                SelectedEventEditViewmodel?.Dispose();
                 _selectedEventPanel = value;
                 SelectedEvent = value?.Event;
                 if (value is EventPanelRundownElementViewmodelBase re && _mediaSearchViewModel != null)
@@ -903,12 +898,23 @@ namespace TAS.Client.ViewModels
                     value.PropertyChanged += _onSelectedEventPropertyChanged;
                     SelectedEventEditViewmodel = new EventEditViewmodel(value, this);
                 }
+                else
+                    SelectedEventEditViewmodel = null;
                 if (_preview != null)
                     _preview.SelectedEvent = value;
             }
         }
 
-        public EventEditViewmodel SelectedEventEditViewmodel { get => _selectedEventEditViewmodel; set => SetField(ref _selectedEventEditViewmodel, value); }
+        public EventEditViewmodel SelectedEventEditViewmodel
+        {
+            get => _selectedEventEditViewmodel; set
+            {
+                var oldSelectedEventEditViewModel = _selectedEventEditViewmodel;
+                if (!SetField(ref _selectedEventEditViewmodel, value))
+                    return;
+                oldSelectedEventEditViewModel?.Dispose();
+            }
+        }
 
         public bool Pst2Prv
         {
@@ -1054,10 +1060,12 @@ namespace TAS.Client.ViewModels
             _multiSelectedEvents.Clear();
         }
 
-        public void RemoveMultiSelected(EventPanelViewmodelBase evm)
+        public void RemoveEventPanel(EventPanelViewmodelBase evm)
         {
             if (_multiSelectedEvents.Contains(evm))
                 _multiSelectedEvents.Remove(evm);
+            if (SelectedEventPanel == evm)
+                SelectedEvent = null;
         }
 
         public void _searchMissingEvents(object o)
@@ -1247,6 +1255,7 @@ namespace TAS.Client.ViewModels
 
             }
             newEvent.Media = e.Media;
+            LastAddedEvent = newEvent;
             switch (mediaSearchVm.NewEventStartType)
             {
                 case TStartType.After:
@@ -1258,7 +1267,6 @@ namespace TAS.Client.ViewModels
             }
             mediaSearchVm.NewEventStartType = TStartType.After;
             mediaSearchVm.BaseEvent = newEvent;
-            LastAddedEvent = newEvent;
         }
 
         private void _cGElementsController_PropertyChanged(object sender, PropertyChangedEventArgs e)

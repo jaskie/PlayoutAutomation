@@ -74,7 +74,7 @@ namespace TAS.Client.ViewModels
             if (Event != null)
             {
                 Event.PropertyChanged -= OnEventPropertyChanged;
-                EngineViewmodel?.RemoveMultiSelected(this);
+                EngineViewmodel.RemoveEventPanel(this);
                 IsMultiSelected = false;
             }
             Debug.WriteLine(this, "EventPanelViewmodel Disposed");
@@ -168,7 +168,7 @@ namespace TAS.Client.ViewModels
             if (!IsExpanded)
                 return;
             Childrens.Remove(item);
-            if (Childrens.Count == 0)
+            if (!(this is EventPanelRootViewmodel) && Childrens.Count == 0)
                 IsExpanded = false;
         }
 

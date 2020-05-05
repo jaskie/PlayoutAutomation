@@ -9,11 +9,12 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TAS.Database.SQLite</RootNamespace>
     <AssemblyName>TAS.Database.SQLite</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,7 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\TAS.Common.Database\DatabaseBase.cs">
+    <Compile Include="..\DatabaseBase.cs">
       <Link>DatabaseBase.cs</Link>
     </Compile>
     <Compile Include="DatabaseSQLite.cs" />
@@ -67,13 +68,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TAS.Common.Database\TAS.Common.Database.csproj">
-      <Project>{F73445A5-2375-49EA-BD4F-8C6778D8736D}</Project>
-      <Name>TAS.Common.Database</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj">
       <Project>{9ACA6AE7-49ED-4599-91AC-927680CF9623}</Project>
       <Name>TAS.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TAS.Database.Common\TAS.Database.Common.csproj">
+      <Project>{f73445a5-2375-49ea-bd4f-8c6778d8736d}</Project>
+      <Name>TAS.Database.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

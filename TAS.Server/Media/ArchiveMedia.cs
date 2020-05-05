@@ -7,7 +7,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Server.Media
 {
-    public class ArchiveMedia : PersistentMedia, Common.Database.Interfaces.Media.IArchiveMedia
+    public class ArchiveMedia : PersistentMedia, Database.Common.Interfaces.Media.IArchiveMedia
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 

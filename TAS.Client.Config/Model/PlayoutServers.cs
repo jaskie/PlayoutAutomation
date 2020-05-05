@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using TAS.Common;
-using TAS.Common.Database;
-using TAS.Common.Database.Interfaces;
+using TAS.Database.Common;
+using TAS.Database.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
@@ -13,7 +13,7 @@ namespace TAS.Client.Config.Model
         readonly IDatabase _db;
         public PlayoutServers(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {
-            _db = DatabaseProviderLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
+            _db = DatabaseLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
             _db.Open(connectionStringSettingsCollection);
             Servers = _db.LoadServers<CasparServer>().ToList();
             Servers.ForEach(s =>

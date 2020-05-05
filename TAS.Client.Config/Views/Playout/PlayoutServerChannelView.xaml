@@ -24,10 +24,10 @@
             <TextBox Text="{Binding Id, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Channel name"/>
             <TextBox Text="{Binding ChannelName, UpdateSourceTrigger=PropertyChanged}"/>
-            <Label Content="Master volume"/>
-            <TextBox Text="{Binding MasterVolume}"/>
+            <Label Content="Master volume (dB)"/>
+            <TextBox Text="{Binding MasterVolume, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Audio channel count"/>
-            <TextBox Text="{Binding AudioChannelCount}"/>
+            <TextBox Text="{Binding AudioChannelCount, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Live device name"/>
             <TextBox Text="{Binding LiveDevice, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Preview URL"/>

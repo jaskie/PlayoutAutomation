@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using TAS.Client.Views;
-using TAS.Common.Database;
+using TAS.Database.Common;
 using TAS.Server;
 
 namespace TAS.Client

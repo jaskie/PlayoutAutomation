@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Configuration;
 using System.Windows.Controls;
+using TAS.Common;
 
-namespace TAS.Common.Database.Interfaces
+namespace TAS.Database.Common.Interfaces
 {
     public interface IDatabaseConfigurator
     {
