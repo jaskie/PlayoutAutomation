@@ -76,7 +76,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\TAS.Database.Common\DatabaseBase.cs">
+    <Compile Include="..\DatabaseBase.cs">
       <Link>DatabaseBase.cs</Link>
     </Compile>
     <Compile Include="Configurator\ConfiguratorView.xaml.cs">

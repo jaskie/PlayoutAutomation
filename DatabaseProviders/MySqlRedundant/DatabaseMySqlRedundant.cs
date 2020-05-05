@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Configuration;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
 using TAS.Common;
 using TAS.Database.Common.Interfaces;

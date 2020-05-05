@@ -53,7 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\TAS.Database.Common\DatabaseBase.cs">
+    <Compile Include="..\DatabaseBase.cs">
       <Link>DatabaseBase.cs</Link>
     </Compile>
     <Compile Include="DatabaseSQLite.cs" />
