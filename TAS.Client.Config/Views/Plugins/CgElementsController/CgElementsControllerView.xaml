@@ -2,58 +2,83 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TAS.Client.Config"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
              xmlns:viewCg="clr-namespace:TAS.Client.Config.Views.Plugins.CgElementsController"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="33*" />
-            <ColumnDefinition Width="33*" />
-            <ColumnDefinition Width="33*" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0">
+        <StackPanel Grid.ColumnSpan="3">
+            <CheckBox Content="Is Plugin Enabled" IsChecked="{Binding IsEnabled}" Margin="10,10,0,0" />
+            <Rectangle Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="10" Fill="LightGray" />
+        </StackPanel>
+        
+        <Grid Grid.Row="1" Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
                 <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <StackPanel>
-                <CheckBox Content="Is Enabled" IsChecked="{Binding IsEnabled}" Margin="5" />
-                <DataGrid Margin="5" ItemsSource="{Binding Crawls}" SelectionMode="Single" SelectedItem="{Binding SelectedCrawl}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
-                    <DataGrid.Columns>
-                        <DataGridTemplateColumn Header="Nazwa">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="Command">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Command}" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <StackPanel>
-                                        <Button Content="Edit" Command="{Binding EditCrawlCommand}" CommandParameter="{Binding}" />
-                                        <Button Content="Delete" Command="{Binding DeleteCrawlCommand}" CommandParameter="{Binding}"  />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
+            <ComboBox MinWidth="90" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" SelectedItem="{Binding SelectedElementType}">
+                <ComboBoxItem>
+                    <TextBlock Text="Crawls" />
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <TextBlock Text="Logos" />
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <TextBlock Text="Parentals" />
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <TextBlock Text="Auxes" />
+                </ComboBoxItem>
+            </ComboBox>
+            <StackPanel Grid.Row="1">
+                <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Content="Add" Command="{Binding AddCgElementCommand}" />
             </StackPanel>
+            <DataGrid Grid.Row="2" Margin="5" ItemsSource="{Binding CgElements}" SelectionMode="Single" SelectedItem="{Binding SelectedElement}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Nazwa">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Command">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Command}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <Button Content="Edit" Command="{Binding EditElementCommand}" CommandParameter="{Binding}" />
+                                    <Button Content="Delete" Command="{Binding DeleteElementCommand}" CommandParameter="{Binding}"  />
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+        <Grid Grid.Column="1" Grid.Row="1">
             <ContentControl Content="{Binding CurrentViewModel}">
                 <ContentControl.Resources>
-                    <DataTemplate DataType="{x:Type viewCg:CgElementView}" /> <!--There has to be mroeee-->
+                    <DataTemplate DataType="{x:Type viewCg:CgElementView}" />
                 </ContentControl.Resources>
             </ContentControl>
         </Grid>
+        
     </Grid>
 </UserControl>

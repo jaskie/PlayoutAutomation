@@ -1,6 +1,8 @@
 ﻿<Application x:Class="TAS.Client.Setup.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cgView="clr-namespace:TAS.Client.Config.Views.Plugins.CgElementsController;assembly=TAS.Client.Config"
+             xmlns:cgVm="clr-namespace:TAS.Client.Config.ViewModels.Plugins.CgElementsController;assembly=TAS.Client.Config"
              xmlns:pluginsView="clr-namespace:TAS.Client.Config.Views.Plugins;assembly=TAS.Client.Config"
              xmlns:pluginsVm="clr-namespace:TAS.Client.Config.ViewModels.Plugins;assembly=TAS.Client.Config"
              xmlns:enginesView="clr-namespace:TAS.Client.Config.Views.Engines;assembly=TAS.Client.Config"
@@ -14,6 +16,15 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
+            <DataTemplate DataType="{x:Type cgVm:CgElementViewModel}">
+                <cgView:CgElementView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type cgVm:CgElementsControllerViewModel}">
+                <cgView:CgElementsControllerView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type cgVm:CgElementsControllerPluginManager}">
+                <cgView:CgElementsControllerPluginManagerView />
+            </DataTemplate>
             <DataTemplate DataType="{x:Type pluginsVm:PluginsViewModel}">
                 <pluginsView:PluginsView />
             </DataTemplate>

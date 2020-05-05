@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
-using System.Xml;
 using System.Xml.Serialization;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
@@ -15,7 +14,8 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 {
     public class CgElementsControllerPluginManager : ViewModelBase, IPluginManager
     {
-        public CgElementsControllerViewModel CgElementsControllerVM { get; private set; }
+        private CgElementsControllerViewModel _cgElementsControllerVm;
+        
         private readonly List<Engine> _engines;
         private Engine _selectedEngine;  
         
@@ -59,6 +59,8 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         public ICollectionView Engines { get; }
         public string PluginName => "CgElementsController";
+
+        public CgElementsControllerViewModel CgElementsControllerVm { get => _cgElementsControllerVm; private set => SetField(ref _cgElementsControllerVm, value); }
         public Engine SelectedEngine 
         { 
             get => _selectedEngine;
@@ -67,7 +69,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                 if (!SetField(ref _selectedEngine, value))
                     return;
 
-                CgElementsControllerVM = new CgElementsControllerViewModel(_cgElementsControllers.FirstOrDefault(cg => cg.EngineName == value.EngineName) ?? new Model.CgElementsController());
+                CgElementsControllerVm = new CgElementsControllerViewModel(_cgElementsControllers.FirstOrDefault(cg => cg.EngineName == value.EngineName) ?? new Model.CgElementsController());
             }
         }
 

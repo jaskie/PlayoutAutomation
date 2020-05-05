@@ -15,6 +15,6 @@
             <Label Content="Engine: " />
             <ComboBox ItemsSource="{Binding Engines}" DisplayMemberPath="EngineName" SelectedItem="{Binding SelectedEngine}" MinWidth="150" />
         </StackPanel>
-        <ContentControl Grid.Row="1" Content="{Binding CgElementsControllerVM}" />
+        <ContentControl Grid.Row="1" Content="{Binding CgElementsControllerVm}" />
     </Grid>
 </UserControl>

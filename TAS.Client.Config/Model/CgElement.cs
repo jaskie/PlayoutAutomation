@@ -6,6 +6,13 @@ namespace TAS.Client.Config.Model
 {
     public class CgElement : ICGElement
     {
+        public enum Type
+        {
+            Crawl,
+            Logo,
+            Parental,
+            Aux
+        };
         [XmlAttribute]
         public byte Id { get; set; }
         [XmlAttribute]
