@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using TAS.Common.Database.Interfaces;
+using TAS.Database.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {

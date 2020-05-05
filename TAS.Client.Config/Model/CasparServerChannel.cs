@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using TAS.Common.Database;
+using TAS.Database.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model

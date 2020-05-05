@@ -15,7 +15,7 @@ using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.Security;
 using TAS.Server.Media;
 using TAS.Server.Security;
-using TAS.Common.Database;
+using TAS.Database.Common;
 using jNet.RPC;
 
 namespace TAS.Server

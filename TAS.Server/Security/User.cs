@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Xml.Serialization;
 using TAS.Common;
-using TAS.Common.Database;
+using TAS.Database.Common;
 using TAS.Common.Interfaces.Security;
 
 namespace TAS.Server.Security

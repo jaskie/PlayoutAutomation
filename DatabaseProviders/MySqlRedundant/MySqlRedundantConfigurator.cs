@@ -3,7 +3,7 @@ using System.ComponentModel.Composition;
 using System.Configuration;
 using System.Windows.Controls;
 using TAS.Common;
-using TAS.Common.Database.Interfaces;
+using TAS.Database.Common.Interfaces;
 using TAS.Database.MySqlRedundant.Configurator;
 
 namespace TAS.Database.MySqlRedundant

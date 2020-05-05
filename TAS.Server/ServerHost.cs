@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Xml.Serialization;
-using TAS.Common.Database;
+using TAS.Database.Common;
 
 namespace TAS.Server
 {

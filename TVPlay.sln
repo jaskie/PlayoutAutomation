@@ -89,7 +89,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DatabaseProviders", "Databa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup", "dependencies\MySqlBackup\MySqlBackup.csproj", "{2625A6B7-505A-43F7-9282-24AFE5A3DB64}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Common.Database", "TAS.Common.Database\TAS.Common.Database.csproj", "{F73445A5-2375-49EA-BD4F-8C6778D8736D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Database.Common", "TAS.Database.Common\TAS.Database.Common.csproj", "{F73445A5-2375-49EA-BD4F-8C6778D8736D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.XKeys", "Plugins\TAS.Client.XKeys\TAS.Client.XKeys.csproj", "{296D2876-8284-4E2A-8273-BC88CE854392}"
 EndProject
