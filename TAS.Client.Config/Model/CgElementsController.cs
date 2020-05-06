@@ -29,7 +29,10 @@ namespace TAS.Client.Config.Model
 
         public CgElementsController()
         {
-
+            Crawls = new List<CgElement>();
+            Logos = new List<CgElement>();
+            Parentals = new List<CgElement>();
+            Auxes = new List<CgElement>();
         }
     }
 }

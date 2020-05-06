@@ -157,8 +157,10 @@ namespace TAS.Client.Common
         /// <param name="dialogResult">Dialogresult if closed from code</param>
         public void CloseWindow(object content)
         {
-            var window = _windows.FirstOrDefault(p => p.Content == content);            
-            window.Close();           
+            var window = _windows.FirstOrDefault(p => p.Content == content);     
+            
+            if (window != null)
+                window.Close();           
         }
         /// <summary>
         /// Close Dialog

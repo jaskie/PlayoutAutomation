@@ -10,12 +10,13 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         private string _name = String.Empty;
         private string _command = String.Empty;
         private string _imageFile = String.Empty;
-        private string _clientImagePath = String.Empty; //used only with parentals
+        private string _clientImagePath = String.Empty;
         private string _serverImagePath = String.Empty;
-        private string _clientPath = String.Empty; //used only with parentals
+        private string _clientPath = String.Empty; 
         private string _serverPath = String.Empty;
         public CgElementViewModel(CgElement cgElement, bool isParental) : base(cgElement)
         {
+            LoadCommands();
             IsClientImageVisible = isParental;
             if (cgElement != null)
             {
@@ -25,12 +26,31 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             }
         }
 
+        private void LoadCommands()
+        {
+            UploadServerImageCommand = new UiCommand(UploadServerImage);
+            UploadClientImageCommand = new UiCommand(UploadClientImage);
+        }
+
+        private void UploadClientImage(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void UploadServerImage(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
         public string Name { get => _name; set => SetField(ref _name, value); }
         public string Command { get => _command; set => SetField(ref _command, value); }
         public string ClientImagePath { get => _clientImagePath; set => SetField(ref _clientImagePath, value); }
         public string ServerImagePath { get => _serverImagePath; set => SetField(ref _serverImagePath, value); }
         public string ImageFile { get => _imageFile; set => _imageFile = value; }
         public bool IsClientImageVisible { get; }
+
+        public UiCommand UploadServerImageCommand { get; private set; }
+        public UiCommand UploadClientImageCommand { get; private set; }
 
         public bool CanCancel(object obj)
         {
@@ -51,7 +71,9 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         {
             try
             {
-                File.Copy(_serverImagePath, _serverPath);
+                if (_serverImagePath.Length>0)
+                    File.Copy(_serverImagePath, _serverPath);
+                
                 if (_clientImagePath.Length > 0)
                     File.Copy(_clientImagePath, _clientPath);
 

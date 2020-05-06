@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Windows.Input;
 
 namespace TAS.Client.Common
 {
@@ -27,6 +28,7 @@ namespace TAS.Client.Common
                 return;
 
             DialogResult = true;
+            Closing?.Invoke(this, EventArgs.Empty);
             UiServices.WindowManager.CloseWindow(this);
         }
 
@@ -34,6 +36,7 @@ namespace TAS.Client.Common
         {
             OkCancelVM.Cancel(obj);
             DialogResult = false;
+            Closing?.Invoke(this, EventArgs.Empty);
             UiServices.WindowManager.CloseWindow(this);
         }
 
@@ -41,6 +44,8 @@ namespace TAS.Client.Common
         {
             //
         }
+
+        public event EventHandler Closing;
 
         public ICommand CommandCancel { get; protected set; }
         public ICommand CommandOk { get; protected set; }        

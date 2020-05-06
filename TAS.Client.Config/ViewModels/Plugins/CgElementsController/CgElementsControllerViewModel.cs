@@ -1,46 +1,135 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
-using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 {
     public class CgElementsControllerViewModel : EditViewmodelBase<Model.CgElementsController>
     {
         private List<CgElement> _cgElements;
-        private List<CgElement> _crawls = new List<CgElement>();
-        private List<CgElement> _logos = new List<CgElement>();
-        private List<CgElement> _auxes = new List<CgElement>();
-        private List<CgElement> _parentals = new List<CgElement>();
+        private List<CgElement> _crawls;
+        private List<CgElement> _logos;
+        private List<CgElement> _auxes;
+        private List<CgElement> _parentals;
         private CgElement _selectedElement;
         private CgElement.Type _selectedElementType;
         private OkCancelViewModel _currentViewModel;
+        private List<string> _elementTypes;
+
+        private CgElement _newElement;
+
         public CgElementsControllerViewModel(Model.CgElementsController cgElementsController) : base(cgElementsController)
         {
-            AddCgElementCommand = new UiCommand(AddCgElement);
-            if (cgElementsController != null)
-            {
-                _crawls = new List<CgElement>(Model.Crawls);
-                _logos = new List<CgElement>(Model.Logos);
-                _auxes = new List<CgElement>(Model.Auxes); 
-                _parentals = new List<CgElement>(Model.Parentals);
-            }
+            LoadCommands();
+
+            _crawls = new List<CgElement>(Model.Crawls);
+            _logos = new List<CgElement>(Model.Logos);
+            _auxes = new List<CgElement>(Model.Auxes);
+            _parentals = new List<CgElement>(Model.Parentals);
+            _elementTypes = Enum.GetNames(typeof(CgElement.Type)).ToList();
+
+            ElementTypes = CollectionViewSource.GetDefaultView(_elementTypes);
+            SelectedElementType = _elementTypes.LastOrDefault();
+        }        
+
+        private void LoadCommands()
+        {
+            AddCgElementCommand = new UiCommand(AddCgElement, CanAddCgElement);
+            MoveCgElementUpCommand = new UiCommand(MoveCgElementUp, CanMoveCgElementUp);
+            MoveCgElementDownCommand = new UiCommand(MoveCgElementDown, CanMoveCgElementDown);
+            EditElementCommand = new UiCommand(EditElement);
+            DeleteElementCommand = new UiCommand(DeleteElement);
+        }
+
+        private void DeleteElement(object obj)
+        {
+            if (!(obj is CgElement element))
+                return;
+
+            _cgElements.Remove(element);
+            CgElements.Refresh();
+        }
+
+        private void EditElement(object obj)
+        {
+            if (!(obj is CgElement element))
+                return;
+
+            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(element, _selectedElementType == CgElement.Type.Parental ? true : false));
+        }
+
+        private bool CanMoveCgElementDown(object obj)
+        {
+            if (_selectedElement != null && _cgElements.LastOrDefault() != _selectedElement)
+                return true;
             
-            CgElements = CollectionViewSource.GetDefaultView(_cgElements);
-        }      
+            return false;
+        }
+
+        private void MoveCgElementDown(object obj)
+        {
+            var index = _cgElements.IndexOf(_selectedElement);
+            var temp = _cgElements[index];
+
+            _cgElements[index] = _cgElements[index + 1];
+            _cgElements[index + 1] = temp;
+            CgElements.Refresh();
+        }
+
+        private bool CanMoveCgElementUp(object obj)
+        {
+            if (_selectedElement != null && _cgElements.FirstOrDefault() != _selectedElement)
+                return true;
+
+            return false;
+        }
+
+        private void MoveCgElementUp(object obj)
+        {
+            var index = _cgElements.IndexOf(_selectedElement);
+            var temp = _cgElements[index];
+
+            _cgElements[index] = _cgElements[index - 1];
+            _cgElements[index - 1] = temp;
+            CgElements.Refresh();
+        }
+
+        private bool CanAddCgElement(object obj)
+        {
+            if (_newElement == null)
+                return true;
+
+            return false;
+        }
 
         private void AddCgElement(object obj)
         {
-            var element = new CgElement();
-            _cgElements.Add(element);
+            _newElement = new CgElement();            
+            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(_newElement, _selectedElementType == CgElement.Type.Parental ? true : false));                                                               
+        }
 
-            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(element, _selectedElementType == CgElement.Type.Parental ? true : false));                                                               
+        private void OkCancelClosed(object sender, EventArgs e)
+        {
+            if (!(sender is OkCancelViewModel okCancelVm))
+                return;
+
+            if (okCancelVm.DialogResult)
+            {
+                if (_newElement != null)
+                {
+                    _cgElements.Add(_newElement);                    
+                    _newElement = null;
+                }
+                
+                Update();
+            }
+            CurrentViewModel = null;
+            CgElements.Refresh();
         }
 
         protected override void OnDispose()
@@ -48,8 +137,25 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             //
         }
 
-        public ICollectionView CgElements { get; }
-        public OkCancelViewModel CurrentViewModel { get => _currentViewModel; set => SetField(ref _currentViewModel, value); }
+        public ICollectionView CgElements { get; private set; }
+        public ICollectionView ElementTypes { get; }
+        public OkCancelViewModel CurrentViewModel 
+        { 
+            get => _currentViewModel;
+            set
+            {
+                var old = _currentViewModel;                
+
+                if (!SetField(ref _currentViewModel, value))
+                    return;                
+
+                if (old != null)                
+                    old.Closing -= OkCancelClosed;
+                
+                if (value != null)
+                    _currentViewModel.Closing += OkCancelClosed;
+            }
+        }        
 
         public string SelectedElementType
         {
@@ -60,26 +166,29 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                 if (temp == _selectedElementType)
                     return;
 
+                _newElement = null;
+                CurrentViewModel = null;
+
                 _selectedElementType = temp;
                 switch(_selectedElementType)
                 {
                     case CgElement.Type.Crawl:
-                        _cgElements = _crawls;
-                        CgElements.Refresh();
+                        _cgElements = _crawls;                       
                         break;
                     case CgElement.Type.Logo:
-                        _cgElements = _logos;
-                        CgElements.Refresh();
+                        _cgElements = _logos;                       
                         break;
                     case CgElement.Type.Aux:
-                        _cgElements = _auxes;
-                        CgElements.Refresh();
+                        _cgElements = _auxes;                       
                         break;
                     case CgElement.Type.Parental:
-                        _cgElements = _parentals;
-                        CgElements.Refresh();
+                        _cgElements = _parentals;                        
                         break;
-                }    
+                }
+
+                CgElements = CollectionViewSource.GetDefaultView(_cgElements);              
+
+                NotifyPropertyChanged(nameof(CgElements));
                 NotifyPropertyChanged(nameof(SelectedElementType));                
             }
         }
@@ -91,11 +200,15 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                 if (!SetField(ref _selectedElement, value))
                     return;
 
-                CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(value, _selectedElementType == CgElement.Type.Parental ? true : false));
-                    
+                _newElement = null;                                                    
             }
         }
 
         public UiCommand AddCgElementCommand { get; private set; }
+        public UiCommand MoveCgElementUpCommand { get; private set; }
+        public UiCommand MoveCgElementDownCommand { get; private set; }
+
+        public UiCommand EditElementCommand { get; private set; }
+        public UiCommand DeleteElementCommand { get; private set; }
     }
 }
