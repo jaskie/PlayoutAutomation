@@ -15,11 +15,20 @@ namespace TAS.Client.Common
         /// 
         /// </summary>
         /// <param name="contentViewModel">ViewModel that will be main content of a window</param>
-        public OkCancelViewModel(IOkCancelViewModel contentViewModel)
+        /// <param name="okButtonContent">Ok button content</param>
+        /// <param name="cancelButtonContent">Cancel button content</param>
+        public OkCancelViewModel(IOkCancelViewModel contentViewModel, string okButtonContent = "Ok", string cancelButtonContent = "Cancel")
         {
             OkCancelVM = contentViewModel;
             CommandCancel = new UiCommand(Cancel, OkCancelVM.CanCancel);
-            CommandOk = new UiCommand (Ok, OkCancelVM.CanOk);                     
+            CommandOk = new UiCommand (Ok, OkCancelVM.CanOk);
+
+
+            OkButtonContent = okButtonContent;
+            //NotifyPropertyChanged(nameof(OkButtonContent));
+
+            CancelButtonContent = cancelButtonContent;
+            //NotifyPropertyChanged(nameof(CancelButtonContent));
         }
 
         private void Ok(object obj)
@@ -48,6 +57,9 @@ namespace TAS.Client.Common
         public event EventHandler Closing;
 
         public ICommand CommandCancel { get; protected set; }
-        public ICommand CommandOk { get; protected set; }        
+        public ICommand CommandOk { get; protected set; }
+
+        public string OkButtonContent { get; }
+        public string CancelButtonContent { get; }
     }
 }

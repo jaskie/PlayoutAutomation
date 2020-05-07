@@ -9,9 +9,7 @@ namespace TAS.Client.Common
     public interface IWindowManager
     {
         void ShowWindow(object content, string title);
-        bool? ShowDialog(object content, string title);
-        //void ShowOkCancelWindow(object content, string title = null);
-        //bool? ShowOkCancelDialog(object content, string title = null);
+        bool? ShowDialog(object content, string title);        
         void CloseWindow(object content);
     }
 }

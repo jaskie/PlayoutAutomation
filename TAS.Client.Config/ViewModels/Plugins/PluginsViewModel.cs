@@ -30,7 +30,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
             Engines = CollectionViewSource.GetDefaultView(_engines.EngineList);            
         }        
 
-        //Add available plugins based on added to Plugins folder
+        //Add available plugins based on Plugins folder
         private List<IPluginManager> GetPlugins()
         {
             var plugins = new List<IPluginManager>();

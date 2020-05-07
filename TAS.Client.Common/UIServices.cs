@@ -85,58 +85,7 @@ namespace TAS.Client.Common
                 return okCancelVM.DialogResult;
 
             return _window.DialogResult;
-        }        
-
-        //public void ShowOkCancelWindow(object content, string title = null)
-        //{
-        //    if (!content.GetType().IsGenericType || (content.GetType().GetGenericTypeDefinition() != typeof(OkCancelViewmodelBase<>)))
-        //        return;
-
-        //    var _window = _windows.FirstOrDefault(p => p.Content.GetType() == content.GetType());
-        //    if (_window != null)
-        //    {
-        //        _window.Activate();
-        //        return;
-        //    }
-
-        //    _window = new OkCancelView()
-        //    {
-        //        Title = title,
-        //        SizeToContent = SizeToContent.WidthAndHeight,
-        //        Content = content,
-        //        ResizeMode = ResizeMode.NoResize,
-        //        ShowInTaskbar = false,
-        //        WindowStartupLocation = WindowStartupLocation.CenterOwner,
-        //        Owner = Application.Current.MainWindow
-        //    };
-
-        //    _window.Closed += Window_Closed;
-        //    _windows.Add(_window);
-
-        //    _window.Show();
-        //}
-        //public bool? ShowOkCancelDialog(object content, string title = null)
-        //{
-        //    if (!content.GetType().IsGenericType || (content.GetType().GetGenericTypeDefinition() != typeof(OkCancelViewmodelBase<>)))
-        //        return false;
-
-        //    var _window = new OkCancelView()
-        //    {
-        //        Title = title,
-        //        SizeToContent = SizeToContent.WidthAndHeight,
-        //        Content = content,
-        //        ResizeMode = ResizeMode.NoResize,
-        //        ShowInTaskbar = false,
-        //        WindowStartupLocation = WindowStartupLocation.CenterOwner,
-        //        Owner = Application.Current.MainWindow
-        //    };
-
-        //    _window.Closed += Window_Closed;
-        //    _windows.Add(_window);
-
-        //    _window.ShowDialog();
-        //    return _window.DialogResult;
-        //}
+        }               
 
         //Fires when window is closed not matter how (only for windows created by this class)
         private void Window_Closed(object sender, EventArgs e)
@@ -272,15 +221,9 @@ namespace TAS.Client.Common
             context.XmlnsDictionary.Add("v", "v");
 
             var template = (DataTemplate)XamlReader.Parse(xaml, context);
-            try
-            {
+
+            if (!Application.Current.Resources.Contains(template.DataTemplateKey))
                 Application.Current.Resources.Add(template.DataTemplateKey, template);
-            }
-            catch
-            {
-                //ArgumentException                   
-            }
-            
         }
     }
 }

@@ -9,18 +9,35 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.ColumnSpan="3">
-            <CheckBox Content="Is Plugin Enabled" IsChecked="{Binding IsEnabled}" Margin="10,10,0,0" />
-            <Rectangle Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="10" Fill="LightGray" />
+        <StackPanel Grid.ColumnSpan="3" Orientation="Horizontal">
+            <CheckBox Content="Is Plugin Enabled" IsChecked="{Binding IsEnabled}" Margin="10,10,10,0" />
+            <Button Command="{Binding SaveCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,5,10,0" Padding="5,2">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Margin="5,0" Padding="0" Content="Save" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                        <Image Source="/TAS.Client.Common;component/Images/Actions/apply.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button Command="{Binding UndoCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,5,10,0" Padding="5,2">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Margin="5,0" Padding="0" Content="Undo" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                        <Image Source="/TAS.Client.Common;component/Images/Actions/undo.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
         </StackPanel>
         
-        <Grid Grid.Row="1" Grid.Column="0">
+        <Rectangle Grid.Row="1" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="10" Fill="LightGray" />
+        <Grid Grid.Row="2" Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
@@ -85,7 +102,7 @@
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
-        <Grid Grid.Column="1" Grid.Row="1">
+        <Grid Grid.Column="1" Grid.Row="2">
             <ContentControl Content="{Binding CurrentViewModel}">
                 <ContentControl.Resources>
                     <DataTemplate DataType="{x:Type viewCg:CgElementView}" />

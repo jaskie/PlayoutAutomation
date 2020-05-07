@@ -26,7 +26,11 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         public CgElementsControllerViewModel(Model.CgElementsController cgElementsController) : base(cgElementsController)
         {
             LoadCommands();
+            Init();
+        }        
 
+        private void Init()
+        {
             _crawls = new List<CgElement>(Model.Crawls);
             _logos = new List<CgElement>(Model.Logos);
             _auxes = new List<CgElement>(Model.Auxes);
@@ -35,7 +39,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
             ElementTypes = CollectionViewSource.GetDefaultView(_elementTypes);
             SelectedElementType = _elementTypes.LastOrDefault();
-        }        
+        }
 
         private void LoadCommands()
         {
@@ -44,6 +48,31 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             MoveCgElementDownCommand = new UiCommand(MoveCgElementDown, CanMoveCgElementDown);
             EditElementCommand = new UiCommand(EditElement);
             DeleteElementCommand = new UiCommand(DeleteElement);
+            SaveCommand = new UiCommand(Save, CanSave);
+            UndoCommand = new UiCommand(Undo, CanUndo);
+        }
+
+        private bool CanUndo(object obj)
+        {
+            return IsModified;
+        }
+
+        private void Undo(object obj)
+        {
+            _newElement = null;
+            CurrentViewModel = null;
+            base.Load();
+            Init();            
+        }
+
+        private bool CanSave(object obj)
+        {
+            return IsModified;
+        }
+
+        private void Save(object obj)
+        {
+            base.Update();
         }
 
         private void DeleteElement(object obj)
@@ -60,7 +89,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             if (!(obj is CgElement element))
                 return;
 
-            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(element, _selectedElementType == CgElement.Type.Parental ? true : false));
+            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(element, _selectedElementType == CgElement.Type.Parental ? true : false), "Edit");
         }
 
         private bool CanMoveCgElementDown(object obj)
@@ -110,7 +139,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         private void AddCgElement(object obj)
         {
             _newElement = new CgElement();            
-            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(_newElement, _selectedElementType == CgElement.Type.Parental ? true : false));                                                               
+            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(_newElement, _selectedElementType == CgElement.Type.Parental ? true : false), "Add");                                                               
         }
 
         private void OkCancelClosed(object sender, EventArgs e)
@@ -138,7 +167,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         }
 
         public ICollectionView CgElements { get; private set; }
-        public ICollectionView ElementTypes { get; }
+        public ICollectionView ElementTypes { get; private set; }
         public OkCancelViewModel CurrentViewModel 
         { 
             get => _currentViewModel;
@@ -207,8 +236,9 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         public UiCommand AddCgElementCommand { get; private set; }
         public UiCommand MoveCgElementUpCommand { get; private set; }
         public UiCommand MoveCgElementDownCommand { get; private set; }
-
         public UiCommand EditElementCommand { get; private set; }
         public UiCommand DeleteElementCommand { get; private set; }
+        public UiCommand SaveCommand { get; private set; }
+        public UiCommand UndoCommand { get; private set; }
     }
 }
