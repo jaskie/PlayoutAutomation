@@ -37,7 +37,7 @@
         </StackPanel>
         
         <Rectangle Grid.Row="1" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="10" Fill="LightGray" />
-        <Grid Grid.Row="2" Grid.Column="0">
+        <Grid IsEnabled="{Binding IsEnabled}" Grid.Row="2" Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
@@ -102,7 +102,7 @@
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
-        <Grid Grid.Column="1" Grid.Row="2">
+        <Grid IsEnabled="{Binding IsEnabled}" Grid.Column="1" Grid.Row="2">
             <ContentControl Content="{Binding CurrentViewModel}">
                 <ContentControl.Resources>
                     <DataTemplate DataType="{x:Type viewCg:CgElementView}" />

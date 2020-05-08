@@ -23,12 +23,8 @@ namespace TAS.Client.Common
             CommandCancel = new UiCommand(Cancel, OkCancelVM.CanCancel);
             CommandOk = new UiCommand (Ok, OkCancelVM.CanOk);
 
-
-            OkButtonContent = okButtonContent;
-            //NotifyPropertyChanged(nameof(OkButtonContent));
-
-            CancelButtonContent = cancelButtonContent;
-            //NotifyPropertyChanged(nameof(CancelButtonContent));
+            OkButtonContent = okButtonContent;            
+            CancelButtonContent = cancelButtonContent;            
         }
 
         private void Ok(object obj)

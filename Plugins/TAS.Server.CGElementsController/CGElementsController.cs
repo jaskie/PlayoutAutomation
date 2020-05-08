@@ -11,7 +11,7 @@ namespace TAS.Server
     public class CgElementsController : ServerObjectBase, ICGElementsController, IEnginePlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
+        
         private IEngine _engine;
         internal IEngine Engine
         {
@@ -139,7 +139,8 @@ namespace TAS.Server
                 Logger.Error(e);
             }
         }
-
+        [XmlAttribute]
+        public bool IsEnabled { get; }
         public void Clear()
         {
             try

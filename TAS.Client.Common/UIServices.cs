@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Markup;
 using System.Windows.Threading;
 
@@ -81,7 +80,7 @@ namespace TAS.Client.Common
 
             _window.ShowDialog();
 
-            if (content is OkCancelViewModel okCancelVM)
+            if (_window.Content is OkCancelViewModel okCancelVM)
                 return okCancelVM.DialogResult;
 
             return _window.DialogResult;

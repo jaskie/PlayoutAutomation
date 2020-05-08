@@ -2,8 +2,9 @@
 
 namespace TAS.Common.Interfaces
 {
-    public interface IEnginePlugin: IDisposable
+    public interface IEnginePlugin : IDisposable
     {
+        bool IsEnabled { get; }
         string EngineName { get; }
     }
 }

@@ -31,6 +31,18 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             Engines = CollectionViewSource.GetDefaultView(_engines);
         }
 
+        private void CgElementsControllerUpdated(object sender, EventArgs e)
+        {                    
+            using (StreamWriter writer = new StreamWriter("Configuration\\CgElementsControllers.xml"))
+            {
+                XmlRootAttribute xRoot = new XmlRootAttribute();
+                xRoot.ElementName = "CgElementsControllers";
+
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Model.CgElementsController>), xRoot);
+                xmlSerializer.Serialize(writer, _cgElementsControllers);
+            }
+        }
+
         private void LoadConfiguration()
         {
             try
@@ -60,7 +72,23 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         public ICollectionView Engines { get; }
         public string PluginName => "CgElementsController";
 
-        public CgElementsControllerViewModel CgElementsControllerVm { get => _cgElementsControllerVm; private set => SetField(ref _cgElementsControllerVm, value); }
+        public CgElementsControllerViewModel CgElementsControllerVm
+        {
+            get => _cgElementsControllerVm;
+            private set
+            {
+                var old = _cgElementsControllerVm;
+                if (!SetField(ref _cgElementsControllerVm, value))
+                    return;
+                
+                if (old != null)
+                    old.DataUpdated -= CgElementsControllerUpdated;
+                if (value != null)
+                    _cgElementsControllerVm.DataUpdated += CgElementsControllerUpdated;
+
+            }
+        }        
+
         public Engine SelectedEngine 
         { 
             get => _selectedEngine;
@@ -69,7 +97,14 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                 if (!SetField(ref _selectedEngine, value))
                     return;
 
-                CgElementsControllerVm = new CgElementsControllerViewModel(_cgElementsControllers.FirstOrDefault(cg => cg.EngineName == value.EngineName) ?? new Model.CgElementsController());
+                var cgElementContoller = _cgElementsControllers.FirstOrDefault(cg => cg.EngineName.Replace("_Disabled", "") == value.EngineName);
+                if (cgElementContoller == null)
+                {
+                    cgElementContoller = new Model.CgElementsController { EngineName = value.EngineName };
+                    _cgElementsControllers.Add(cgElementContoller);
+                }
+
+                CgElementsControllerVm = new CgElementsControllerViewModel(cgElementContoller);
             }
         }
 

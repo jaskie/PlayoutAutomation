@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Data;
@@ -20,6 +19,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         private CgElement.Type _selectedElementType;
         private OkCancelViewModel _currentViewModel;
         private List<string> _elementTypes;
+        private bool _isEnabled;
 
         private CgElement _newElement;
 
@@ -36,6 +36,8 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             _auxes = new List<CgElement>(Model.Auxes);
             _parentals = new List<CgElement>(Model.Parentals);
             _elementTypes = Enum.GetNames(typeof(CgElement.Type)).ToList();
+            
+            IsEnabled = Model.EngineName.Contains("_Disabled") ? false : true;            
 
             ElementTypes = CollectionViewSource.GetDefaultView(_elementTypes);
             SelectedElementType = _elementTypes.LastOrDefault();
@@ -60,7 +62,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         private void Undo(object obj)
         {
             _newElement = null;
-            CurrentViewModel = null;
+            CurrentViewModel = null;            
             base.Load();
             Init();            
         }
@@ -73,6 +75,20 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         private void Save(object obj)
         {
             base.Update();
+            Model.Auxes = _auxes;
+            Model.Crawls = _crawls;
+            Model.Logos = _logos;
+            Model.Parentals = _parentals;
+
+            if (!_isEnabled)
+            {
+                if (!Model.EngineName.Contains("_Disabled"))
+                    Model.EngineName += "_Disabled";
+            }
+            else
+                Model.EngineName = Model.EngineName.Replace("_Disabled", "");
+
+            DataUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         private void DeleteElement(object obj)
@@ -94,25 +110,25 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         private bool CanMoveCgElementDown(object obj)
         {
-            if (_selectedElement != null && _cgElements.LastOrDefault() != _selectedElement)
+            if (_selectedElement != null && _selectedElement.Id < (_cgElements.Count()-1))
                 return true;
             
             return false;
         }
 
         private void MoveCgElementDown(object obj)
-        {
-            var index = _cgElements.IndexOf(_selectedElement);
-            var temp = _cgElements[index];
+        {            
+            var swapElement = _cgElements.FirstOrDefault(c => c.Id == _selectedElement.Id+1);
 
-            _cgElements[index] = _cgElements[index + 1];
-            _cgElements[index + 1] = temp;
+            swapElement.Id = _selectedElement.Id;
+            _selectedElement.Id += 1;
+            
             CgElements.Refresh();
         }
 
         private bool CanMoveCgElementUp(object obj)
         {
-            if (_selectedElement != null && _cgElements.FirstOrDefault() != _selectedElement)
+            if (_selectedElement != null && _selectedElement.Id > 0)
                 return true;
 
             return false;
@@ -120,11 +136,10 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         private void MoveCgElementUp(object obj)
         {
-            var index = _cgElements.IndexOf(_selectedElement);
-            var temp = _cgElements[index];
+            var swapElement = _cgElements.FirstOrDefault(c => c.Id == _selectedElement.Id - 1);
 
-            _cgElements[index] = _cgElements[index - 1];
-            _cgElements[index - 1] = temp;
+            swapElement.Id = _selectedElement.Id;
+            _selectedElement.Id -= 1;
             CgElements.Refresh();
         }
 
@@ -142,7 +157,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(_newElement, _selectedElementType == CgElement.Type.Parental ? true : false), "Add");                                                               
         }
 
-        private void OkCancelClosed(object sender, EventArgs e)
+        private void CgElementWizardClosed(object sender, EventArgs e)
         {
             if (!(sender is OkCancelViewModel okCancelVm))
                 return;
@@ -151,12 +166,12 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             {
                 if (_newElement != null)
                 {
+                    _newElement.Id = (byte)_cgElements.Count();
                     _cgElements.Add(_newElement);                    
                     _newElement = null;
-                }
-                
-                Update();
+                }                                
             }
+
             CurrentViewModel = null;
             CgElements.Refresh();
         }
@@ -179,10 +194,10 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                     return;                
 
                 if (old != null)                
-                    old.Closing -= OkCancelClosed;
+                    old.Closing -= CgElementWizardClosed;
                 
                 if (value != null)
-                    _currentViewModel.Closing += OkCancelClosed;
+                    _currentViewModel.Closing += CgElementWizardClosed;
             }
         }        
 
@@ -215,12 +230,14 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                         break;
                 }
 
-                CgElements = CollectionViewSource.GetDefaultView(_cgElements);              
+                CgElements = CollectionViewSource.GetDefaultView(_cgElements);
+                CgElements.SortDescriptions.Add(new SortDescription(nameof(CgElement.Id), ListSortDirection.Ascending));
 
                 NotifyPropertyChanged(nameof(CgElements));
                 NotifyPropertyChanged(nameof(SelectedElementType));                
             }
         }
+
         public CgElement SelectedElement
         {
             get => _selectedElement;
@@ -240,5 +257,12 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         public UiCommand DeleteElementCommand { get; private set; }
         public UiCommand SaveCommand { get; private set; }
         public UiCommand UndoCommand { get; private set; }
+
+        public event EventHandler DataUpdated;
+        public bool IsEnabled 
+        {
+            get => _isEnabled; 
+            set => SetField(ref _isEnabled, value); 
+        }
     }
 }
