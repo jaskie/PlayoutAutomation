@@ -17,17 +17,18 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         private CgElementsControllerViewModel _cgElementsControllerVm;
         
         private readonly List<Engine> _engines;
+        private readonly List<CasparServer> _casparServers;
         private Engine _selectedEngine;  
         
         [XmlArray("CgElementsControllers")]
         [XmlArrayItem("CgElementsController")]
         private List<Model.CgElementsController> _cgElementsControllers;
 
-        public CgElementsControllerPluginManager(Model.Engines engines)
+        public CgElementsControllerPluginManager(Model.Engines engines, Model.PlayoutServers playoutServers)
         {
             LoadConfiguration();
             _engines = engines.EngineList;
-                        
+            _casparServers = playoutServers.Servers;            
             Engines = CollectionViewSource.GetDefaultView(_engines);
         }
 
@@ -97,14 +98,17 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                 if (!SetField(ref _selectedEngine, value))
                     return;
 
-                var cgElementContoller = _cgElementsControllers.FirstOrDefault(cg => cg.EngineName.Replace("_Disabled", "") == value.EngineName);
+                var cgElementContoller = _cgElementsControllers.FirstOrDefault(cg => cg.EngineName == value.EngineName);
                 if (cgElementContoller == null)
                 {
                     cgElementContoller = new Model.CgElementsController { EngineName = value.EngineName };
                     _cgElementsControllers.Add(cgElementContoller);
                 }
 
-                CgElementsControllerVm = new CgElementsControllerViewModel(cgElementContoller);
+                CgElementsControllerVm = new CgElementsControllerViewModel(cgElementContoller, _casparServers.Where(server => server.Id == value.IdServerPRI || 
+                                                                                                                    server.Id == value.IdServerSEC || 
+                                                                                                                    server.Id == value.IdServerPRV)                                                                                                             
+                                                                                                             .ToList());
             }
         }
 

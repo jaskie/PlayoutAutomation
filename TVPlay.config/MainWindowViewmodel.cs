@@ -49,7 +49,7 @@ namespace TAS.Client.Config
         {
             using (var vm = new EnginesViewmodel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
             {
-                UiServices.WindowManager.ShowWindow(vm, "Engines");
+                UiServices.WindowManager.ShowDialog(vm, "Engines");
             }
         }
         
@@ -57,7 +57,7 @@ namespace TAS.Client.Config
         {
             using (var vm = new PlayoutServersViewmodel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
             {
-                UiServices.WindowManager.ShowWindow(vm, "Playout Servers");
+                UiServices.WindowManager.ShowDialog(vm, "Playout Servers");
             }
         }
                 
@@ -70,20 +70,27 @@ namespace TAS.Client.Config
 
         private void _configFileEdit(object obj)
         {
-            ConfigFileViewmodel vm = new ConfigFileViewmodel(_configFile);
-            UiServices.WindowManager.ShowWindow(vm, $"Config file ({_configFile.FileName})");
+            using (var vm = new ConfigFileViewmodel(_configFile))
+            {
+                UiServices.WindowManager.ShowDialog(vm, $"Config file ({_configFile.FileName})");
+            }                
         }
 
         private void _ingestFoldersSetup(object obj)
         {
-            IngestDirectoriesViewmodel vm = new IngestDirectoriesViewmodel(_configFile.AppSettings.IngestFolders);
-            UiServices.WindowManager.ShowWindow(vm, $"Ingest directories ({System.IO.Path.GetFullPath(_configFile.AppSettings.IngestFolders)})");
+            using (var vm = new IngestDirectoriesViewmodel(_configFile.AppSettings.IngestFolders))
+            {
+                UiServices.WindowManager.ShowDialog(vm, $"Ingest directories ({System.IO.Path.GetFullPath(_configFile.AppSettings.IngestFolders)})");
+            }
+                
         }
 
         private void _pluginsSetup(object obj)
         {
-            PluginsViewModel vm = new PluginsViewModel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings);
-            UiServices.WindowManager.ShowWindow(vm, "Plugins");
+            using (var vm = new PluginsViewModel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
+            {
+                UiServices.WindowManager.ShowDialog(vm, "Plugins");
+            }                
         }
     }
 }

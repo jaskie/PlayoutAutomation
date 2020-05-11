@@ -99,6 +99,7 @@
     <Compile Include="Controls\TimecodeTextBlock.cs" />
     <Compile Include="Controls\WrapPanelFill.cs" />
     <Compile Include="DispatcherHelper.cs" />
+    <Compile Include="ICommonDialogManager.cs" />
     <Compile Include="IgnoreOnUpdateAttribute.cs" />
     <Compile Include="IUiStateManager.cs" />
     <Compile Include="IUiTemplatesManager.cs" />

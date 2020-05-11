@@ -13,6 +13,8 @@ namespace TAS.Client.Config.Model
             Parental,
             Aux
         };
+        [XmlIgnore]
+        public Type CgType { get; set; }
         [XmlAttribute]
         public byte Id { get; set; }
         [XmlAttribute]

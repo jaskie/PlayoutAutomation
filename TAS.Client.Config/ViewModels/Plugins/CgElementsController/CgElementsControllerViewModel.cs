@@ -20,24 +20,36 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         private OkCancelViewModel _currentViewModel;
         private List<string> _elementTypes;
         private bool _isEnabled;
+        private readonly List<CasparServer> _casparServers;
 
         private CgElement _newElement;
 
-        public CgElementsControllerViewModel(Model.CgElementsController cgElementsController) : base(cgElementsController)
-        {
+        public CgElementsControllerViewModel(Model.CgElementsController cgElementsController, List<CasparServer> casparServers) : base(cgElementsController)
+        {            
             LoadCommands();
+            _casparServers = casparServers;
             Init();
         }        
 
         private void Init()
         {
-            _crawls = new List<CgElement>(Model.Crawls);
+            _crawls = new List<CgElement>(Model.Crawls);            
             _logos = new List<CgElement>(Model.Logos);
             _auxes = new List<CgElement>(Model.Auxes);
             _parentals = new List<CgElement>(Model.Parentals);
             _elementTypes = Enum.GetNames(typeof(CgElement.Type)).ToList();
-            
-            IsEnabled = Model.EngineName.Contains("_Disabled") ? false : true;            
+
+            foreach (var crawl in _crawls)
+                crawl.CgType = CgElement.Type.Crawl;
+
+            foreach (var logo in _logos)
+                logo.CgType = CgElement.Type.Logo;
+
+            foreach (var aux in _auxes)
+                aux.CgType = CgElement.Type.Aux;
+
+            foreach (var parental in _parentals)
+                parental.CgType = CgElement.Type.Parental;
 
             ElementTypes = CollectionViewSource.GetDefaultView(_elementTypes);
             SelectedElementType = _elementTypes.LastOrDefault();
@@ -78,15 +90,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             Model.Auxes = _auxes;
             Model.Crawls = _crawls;
             Model.Logos = _logos;
-            Model.Parentals = _parentals;
-
-            if (!_isEnabled)
-            {
-                if (!Model.EngineName.Contains("_Disabled"))
-                    Model.EngineName += "_Disabled";
-            }
-            else
-                Model.EngineName = Model.EngineName.Replace("_Disabled", "");
+            Model.Parentals = _parentals;            
 
             DataUpdated?.Invoke(this, EventArgs.Empty);
         }
@@ -105,7 +109,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             if (!(obj is CgElement element))
                 return;
 
-            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(element, _selectedElementType == CgElement.Type.Parental ? true : false), "Edit");
+            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(element, _casparServers.Select(server => server.MediaFolder).ToList()), "Edit");
         }
 
         private bool CanMoveCgElementDown(object obj)
@@ -153,8 +157,10 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         private void AddCgElement(object obj)
         {
-            _newElement = new CgElement();            
-            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(_newElement, _selectedElementType == CgElement.Type.Parental ? true : false), "Add");                                                               
+            _newElement = new CgElement();
+            _newElement.CgType = _selectedElementType;
+
+            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(_newElement, _casparServers.Select(server => server.MediaFolder).ToList()), "Add");                                                               
         }
 
         private void CgElementWizardClosed(object sender, EventArgs e)

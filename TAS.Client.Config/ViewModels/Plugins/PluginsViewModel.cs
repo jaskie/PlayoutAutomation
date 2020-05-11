@@ -19,11 +19,14 @@ namespace TAS.Client.Config.ViewModels.Plugins
         private IPluginManager _selectedPlugin;
 
         private Model.Engines _engines;
+        private Model.PlayoutServers _playoutServers;
         private Engine _selectedEngine;
 
         public PluginsViewModel(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {           
             _engines = new Model.Engines(databaseType, connectionStringSettingsCollection);
+            _playoutServers = new Model.PlayoutServers(databaseType, connectionStringSettingsCollection);
+
             _plugins = GetPlugins();
             
             Plugins = CollectionViewSource.GetDefaultView(_plugins);
@@ -41,7 +44,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
                 switch(name)
                 {
                     case "TAS.Server.CgElementsController":
-                        plugins.Add(new CgElementsControllerPluginManager(_engines));
+                        plugins.Add(new CgElementsControllerPluginManager(_engines, _playoutServers));
                         break;
                 }
             }

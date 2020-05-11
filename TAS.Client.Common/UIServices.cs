@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -11,15 +12,15 @@ namespace TAS.Client.Common
     /// <summary>
     ///   Contains helper methods for UI
     /// </summary>
-    public class UiServices : IWindowManager, IUiStateManager
+    public class UiServices : IWindowManager, IUiStateManager, ICommonDialogManager
     {
         public static IWindowManager WindowManager { get; private set; } = new UiServices();
         public static IUiStateManager UiStateManager { get; private set; } = new UiServices();
+        public static ICommonDialogManager CommonDialogManager { get; private set; } = new UiServices();
         /// <summary>
         /// Collection containing existing windows
         /// </summary>
-        private static readonly HashSet<Window> _windows = new HashSet<Window>();
-        
+        private static readonly HashSet<Window> _windows = new HashSet<Window>();        
         /// <summary>
         ///   A value indicating whether the UI is currently busy
         /// </summary>
@@ -30,7 +31,7 @@ namespace TAS.Client.Common
         /// </summary>
         /// <param name="content">ViewModel which will be assigned as content</param>
         /// <param name="isDialog">Show window as dialog</param>        
-        /// <returns>True if window was created or already found, false if window was not created correctly</returns>
+        /// <returns>True if window was created or already found, false if window was not created correctly</returns>         
         public void ShowWindow(object content, string title)
         {
             if (!(content is ViewModelBase))
@@ -85,6 +86,16 @@ namespace TAS.Client.Common
 
             return _window.DialogResult;
         }               
+
+        public string OpenFileDialog()
+        {
+            var dialog = new OpenFileDialog();                     
+            var result = dialog.ShowDialog();
+            
+            if (result == true)
+                return dialog.FileName;
+            return null;
+        }
 
         //Fires when window is closed not matter how (only for windows created by this class)
         private void Window_Closed(object sender, EventArgs e)
