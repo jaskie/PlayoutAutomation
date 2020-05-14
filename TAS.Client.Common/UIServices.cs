@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Markup;
@@ -32,60 +33,46 @@ namespace TAS.Client.Common
         /// <param name="content">ViewModel which will be assigned as content</param>
         /// <param name="isDialog">Show window as dialog</param>        
         /// <returns>True if window was created or already found, false if window was not created correctly</returns>         
-        public void ShowWindow(object content, string title)
-        {
-            if (!(content is ViewModelBase))
-                return;
-
-            var _window = _windows.FirstOrDefault(p => p.Content.GetType() == content.GetType());
-            if (_window != null)
-            {
-                _window.Activate();
-                return;
-            }
-
-            _window = new Window
-            {
-                Title = title,
-                SizeToContent = SizeToContent.WidthAndHeight,
-                Content = content is IOkCancelViewModel ? new OkCancelViewModel(content as IOkCancelViewModel) : content,
-                ResizeMode = ResizeMode.NoResize,
-                ShowInTaskbar = false,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Owner = Application.Current.MainWindow
-            };
-            
-            _window.Closed += Window_Closed;
-            _windows.Add(_window);
-            
-            _window.Show();            
+        public void ShowWindow(ViewModelBase viewModel, string title)
+        {                                   
+            // 
         }
-        public bool? ShowDialog(object content, string title)
+        public bool? ShowDialog(ViewModelBase viewModel, string title)
         {
-            if (!(content is ViewModelBase))
-                return false;           
+            Window window = null;
+
+            if (!Application.Current.Resources.Contains(new DataTemplateKey(viewModel.GetType())))
+                window = FindView(viewModel);
             
-            var _window = new Window
-            {
-                Title = title,
-                SizeToContent = SizeToContent.WidthAndHeight,
-                Content = content is IOkCancelViewModel ? new OkCancelViewModel(content as IOkCancelViewModel) : content,
-                ResizeMode = ResizeMode.NoResize,
-                ShowInTaskbar = false,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Owner = Application.Current.MainWindow
-            };
+            window.Title = title;
 
-            _window.Closed += Window_Closed;
-            _windows.Add(_window);
 
-            _window.ShowDialog();
+            window.Closed += Window_Closed;
+            _windows.Add(window);
 
-            if (_window.Content is OkCancelViewModel okCancelVM)
+            window.ShowDialog();
+
+            if (window.Content is DialogViewModel okCancelVM)
                 return okCancelVM.DialogResult;
 
-            return _window.DialogResult;
-        }               
+            return window.DialogResult;
+        }
+
+        private Window FindView(ViewModelBase viewModel)
+        {
+            var modelType = viewModel.GetType();
+            var viewTypeName = modelType.Name.Replace("ViewModel", "View");            
+            var viewTypes = modelType.Assembly.GetTypes().Where(t => t.IsClass && t.Name == viewTypeName);
+
+            var window = new Window();          
+            window.SizeToContent = SizeToContent.WidthAndHeight;
+            window.Content = viewModel;
+            window.ResizeMode = ResizeMode.NoResize;
+            window.ShowInTaskbar = false;
+            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            window.Owner = Application.Current.MainWindow;
+            return window;
+        }
 
         public string OpenFileDialog()
         {
@@ -114,7 +101,7 @@ namespace TAS.Client.Common
         /// </summary>
         /// <param name="content">ViewModel which is assigned as content of opened window</param>
         /// <param name="dialogResult">Dialogresult if closed from code</param>
-        public void CloseWindow(object content)
+        public void CloseWindow(ViewModelBase content)
         {
             var window = _windows.FirstOrDefault(p => p.Content == content);     
             
@@ -234,6 +221,16 @@ namespace TAS.Client.Common
 
             if (!Application.Current.Resources.Contains(template.DataTemplateKey))
                 Application.Current.Resources.Add(template.DataTemplateKey, template);
+        }
+
+        public void ShowWindow(ViewModelBase content, WindowInfo windowInfo = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool? ShowDialog(ViewModelBase content, WindowInfo windowInfo = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -98,11 +98,13 @@
     <Compile Include="Controls\FrameEdit.cs" />
     <Compile Include="Controls\TimecodeTextBlock.cs" />
     <Compile Include="Controls\WrapPanelFill.cs" />
+    <Compile Include="DialogViewModel.cs" />
     <Compile Include="DispatcherHelper.cs" />
     <Compile Include="ICommonDialogManager.cs" />
     <Compile Include="IgnoreOnUpdateAttribute.cs" />
     <Compile Include="IUiStateManager.cs" />
     <Compile Include="IUiTemplatesManager.cs" />
+    <Compile Include="IWindow.cs" />
     <Compile Include="IWindowManager.cs" />
     <Compile Include="MediaDirectoryExtensions.cs" />
     <Compile Include="ModifyableViewModelBase.cs" />
@@ -150,6 +152,7 @@
     <Compile Include="UiServices.cs" />
     <Compile Include="ValueConverters.cs" />
     <Compile Include="ViewModelBase.cs" />
+    <Compile Include="WindowInfo.cs" />
     <Compile Include="WpfHacks.cs" />
   </ItemGroup>
   <ItemGroup>

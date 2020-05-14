@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Windows.Input;
+using System.Windows.Navigation;
 
 namespace TAS.Client.Common
 {
-    public class OkCancelViewModel : ViewModelBase
+    public abstract class OkCancelViewModel : DialogViewModel
     {
-        private IOkCancelViewModel _okCancelViewModel;
-
-        public bool DialogResult { get; private set; }
+        private OkCancelViewModel _okCancelViewModel;        
         public bool OkCancelButtonsActivateViaKeyboard { get; set; } = true;
-        public IOkCancelViewModel OkCancelVM { get => _okCancelViewModel; private set => SetField(ref _okCancelViewModel, value); }
+        public OkCancelViewModel OkCancelVM { get => _okCancelViewModel; private set => SetField(ref _okCancelViewModel, value); }
 
         /// <summary>
         /// 
@@ -17,40 +16,31 @@ namespace TAS.Client.Common
         /// <param name="contentViewModel">ViewModel that will be main content of a window</param>
         /// <param name="okButtonContent">Ok button content</param>
         /// <param name="cancelButtonContent">Cancel button content</param>
-        public OkCancelViewModel(IOkCancelViewModel contentViewModel, string okButtonContent = "Ok", string cancelButtonContent = "Cancel")
+        public OkCancelViewModel(string okButtonContent = "Ok", string cancelButtonContent = "Cancel")
         {
-            OkCancelVM = contentViewModel;
-            CommandCancel = new UiCommand(Cancel, OkCancelVM.CanCancel);
-            CommandOk = new UiCommand (Ok, OkCancelVM.CanOk);
+            OkCancelVM = this;
+            CommandCancel = new UiCommand(OkCancelVM.Cancel, OkCancelVM.CanCancel);
+            CommandOk = new UiCommand((obj) => Ok(obj), OkCancelVM.CanOk);
 
             OkButtonContent = okButtonContent;            
             CancelButtonContent = cancelButtonContent;            
-        }
+        }        
 
-        private void Ok(object obj)
+        protected virtual bool Ok(object obj)
         {
-            if (!OkCancelVM.Ok(obj))
-                return;
-
-            DialogResult = true;
-            Closing?.Invoke(this, EventArgs.Empty);
-            UiServices.WindowManager.CloseWindow(this);
+            DialogConfirm();
+            return true;
         }
-
-        private void Cancel(object obj)
+        protected abstract bool CanOk(object obj);
+        protected virtual bool CanCancel(object obj)
         {
-            OkCancelVM.Cancel(obj);
-            DialogResult = false;
-            Closing?.Invoke(this, EventArgs.Empty);
-            UiServices.WindowManager.CloseWindow(this);
+            return true;
         }
 
-        protected override void OnDispose()
-        {
-            //
-        }
-
-        public event EventHandler Closing;
+        protected virtual void Cancel(object obj)
+        {            
+            DialogClose();
+        }            
 
         public ICommand CommandCancel { get; protected set; }
         public ICommand CommandOk { get; protected set; }

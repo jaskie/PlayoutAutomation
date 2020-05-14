@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TAS.Client.Common
+﻿namespace TAS.Client.Common
 {
     public interface IWindowManager
     {
-        void ShowWindow(object content, string title);
-        bool? ShowDialog(object content, string title);        
-        void CloseWindow(object content);
+        void ShowWindow(ViewModelBase content, WindowInfo windowInfo = null);
+        bool? ShowDialog(ViewModelBase content, WindowInfo windowInfo = null);
+        void ShowWindow(ViewModelBase content, string title);
+        bool? ShowDialog(ViewModelBase content, string title);
+        void CloseWindow(ViewModelBase content);
     }
 }
