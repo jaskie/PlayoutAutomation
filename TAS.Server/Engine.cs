@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using System.ComponentModel;
-using System.Xml.Serialization;
 using TAS.Common;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
@@ -104,29 +103,20 @@ namespace TAS.Server
 
         #region IEngineProperties
 
-        // xml-ignored properties are readed from table's fields, rest is from xml ("Config" field)
-        [XmlIgnore]
         public ulong Instance { get; set; }
 
-        [XmlIgnore]
         public ulong IdArchive { get; set; }
 
-        [XmlIgnore]
         public ulong IdServerPRI { get; set; }
 
-        [XmlIgnore]
         public int ServerChannelPRI { get; set; }
 
-        [XmlIgnore]
         public ulong IdServerSEC { get; set; }
 
-        [XmlIgnore]
         public int ServerChannelSEC { get; set; }
 
-        [XmlIgnore]
         public ulong IdServerPRV { get; set; }
 
-        [XmlIgnore]
         public int ServerChannelPRV { get; set; }
 
         [DtoMember, Hibernate]
@@ -148,17 +138,13 @@ namespace TAS.Server
 
         public TArchivePolicyType ArchivePolicy { get; set; } = TArchivePolicyType.NoArchive;
 
-        [XmlIgnore]
         public IPreview Preview => _preview;
 
-        [XmlIgnore]
         public IMediaManager MediaManager => _mediaManager;
 
-        [XmlIgnore]
         [DtoMember]
         public ICGElementsController CGElementsController { get; private set; }
 
-        [XmlIgnore]
         [DtoMember]
         public IRouter Router { get; private set; }
 
@@ -175,7 +161,6 @@ namespace TAS.Server
             set => SetField(ref _timeCorrection, value);
         }
 
-        [XmlIgnore]
         public DateTime CurrentTime { get; private set; }
 
         public DateTime AlignDateTime(DateTime dt)
@@ -188,19 +173,14 @@ namespace TAS.Server
             return new TimeSpan((ts.Ticks / FrameTicks) * FrameTicks);
         }
 
-        [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelPRI => _playoutChannelPRI;
 
-        [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelSEC => _playoutChannelSEC;
 
-        [XmlIgnore]
         public long FrameTicks { get; private set; } = VideoFormatDescription.Descriptions[default].FrameTicks;
 
-        [XmlIgnore]
         public RationalNumber FrameRate => FormatDescription.FrameRate;
 
-        [XmlIgnore]
         public VideoFormatDescription FormatDescription { get; private set; } = VideoFormatDescription.Descriptions[default];
 
         [DtoMember, Hibernate]
@@ -216,7 +196,6 @@ namespace TAS.Server
             }
         }
 
-        [XmlIgnore]
         [DtoMember]
         public TEngineState EngineState
         {
@@ -248,7 +227,6 @@ namespace TAS.Server
             }
         }
 
-        [XmlIgnore]
         [DtoMember]
         public bool FieldOrderInverted
         {
@@ -263,7 +241,6 @@ namespace TAS.Server
             }
         }
 
-        [XmlIgnore]
         [DtoMember]
         public double ProgramAudioVolume
         {
@@ -356,7 +333,6 @@ namespace TAS.Server
         [DtoMember]
         public ConnectionStateRedundant DatabaseConnectionState { get => _databaseConnectionState; set => SetField(ref _databaseConnectionState, value); }
 
-        [XmlIgnore]
         public List<IEvent> FixedTimeEvents
         {
             get
@@ -365,7 +341,6 @@ namespace TAS.Server
             }
         }
 
-        [XmlIgnore]
         public ICollection<IEventPersistent> VisibleEvents
         {
             get
@@ -377,7 +352,6 @@ namespace TAS.Server
             }
         }
 
-        [XmlIgnore]
         [DtoMember]
         public IEvent Playing
         {
@@ -427,7 +401,7 @@ namespace TAS.Server
             return e;
         }
 
-        [DtoMember, XmlIgnore]
+        [DtoMember]
         public IEvent ForcedNext
         {
             get => _forcedNext;
@@ -450,7 +424,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoMember, XmlIgnore]
+        [DtoMember]
         public bool IsWideScreen
         {
             get { return _isWideScreen; }
@@ -465,7 +439,7 @@ namespace TAS.Server
             }
         }
 
-        [DtoMember, XmlIgnore]
+        [DtoMember]
         public bool Pst2Prv
         {
             get => _pst2Prv;
@@ -763,10 +737,8 @@ namespace TAS.Server
         }
 
         #region  IPersistent properties
-        [XmlIgnore]
         public ulong Id { get; set; }
 
-        [XmlIgnore]
         public IAuthenticationService AuthenticationService => _authenticationService;
 
         [DtoMember]
