@@ -4,8 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:controls="clr-namespace:TAS.Client.Common.Controls"
-        mc:Ignorable="d" 
-        d:DataContext="{Binding OkCancelViewModel}"
+        mc:Ignorable="d"         
         MinHeight="100"
         MinWidth="180">
 

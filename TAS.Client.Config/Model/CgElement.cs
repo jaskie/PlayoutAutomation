@@ -1,10 +1,9 @@
 ﻿using System.Drawing;
 using System.Xml.Serialization;
-using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
-    public class CgElement : ICGElement
+    public class CgElement
     {
         public enum Type
         {
@@ -20,10 +19,14 @@ namespace TAS.Client.Config.Model
         [XmlAttribute]
         public string Name { get; set; }
         [XmlAttribute]
-        public string ImageFile { get; set; }
+        public string ClientImagePath { get; set; }
         [XmlAttribute]
-        public string Command { get; set; }
-        [XmlIgnore]
-        public Bitmap Image { get; set; }
+        public string ServerImagePath { get; set; }
+        [XmlAttribute]
+        public string UploadClientImagePath { get; set; }
+        [XmlAttribute]
+        public string UploadServerImagePath { get; set; }
+        [XmlAttribute]
+        public string Command { get; set; }       
     }
 }

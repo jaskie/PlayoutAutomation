@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
+using TAS.Common;
 
 namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 {
-    public class CgElementsControllerViewModel : EditViewmodelBase<Model.CgElementsController>
+    public class CgElementsControllerViewModel : ModifyableViewModelBase
     {
         private List<CgElement> _cgElements;
         private List<CgElement> _crawls;
@@ -17,15 +19,16 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         private List<CgElement> _parentals;
         private CgElement _selectedElement;
         private CgElement.Type _selectedElementType;
-        private OkCancelViewModel _currentViewModel;
+        private OkCancelViewModelBase _currentViewModel;
         private List<string> _elementTypes;
         private bool _isEnabled;
         private readonly List<CasparServer> _casparServers;
 
         private CgElement _newElement;
-
-        public CgElementsControllerViewModel(Model.CgElementsController cgElementsController, List<CasparServer> casparServers) : base(cgElementsController)
-        {            
+        private Model.CgElementsController _cgElementsController;
+        public CgElementsControllerViewModel(Model.CgElementsController cgElementsController, List<CasparServer> casparServers)
+        {
+            _cgElementsController = cgElementsController;
             LoadCommands();
             _casparServers = casparServers;
             Init();
@@ -33,10 +36,10 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         private void Init()
         {
-            _crawls = new List<CgElement>(Model.Crawls);            
-            _logos = new List<CgElement>(Model.Logos);
-            _auxes = new List<CgElement>(Model.Auxes);
-            _parentals = new List<CgElement>(Model.Parentals);
+            _crawls = new List<CgElement>(_cgElementsController.Crawls);            
+            _logos = new List<CgElement>(_cgElementsController.Logos);
+            _auxes = new List<CgElement>(_cgElementsController.Auxes);
+            _parentals = new List<CgElement>(_cgElementsController.Parentals);
             _elementTypes = Enum.GetNames(typeof(CgElement.Type)).ToList();
 
             foreach (var crawl in _crawls)
@@ -74,8 +77,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         private void Undo(object obj)
         {
             _newElement = null;
-            CurrentViewModel = null;            
-            base.Load();
+            CurrentViewModel = null;                      
             Init();            
         }
 
@@ -86,12 +88,51 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         private void Save(object obj)
         {
-            base.Update();
-            Model.Auxes = _auxes;
-            Model.Crawls = _crawls;
-            Model.Logos = _logos;
-            Model.Parentals = _parentals;            
+            _cgElementsController.Auxes = _auxes;
+            _cgElementsController.Crawls = _crawls;
+            _cgElementsController.Logos = _logos;
+            _cgElementsController.Parentals = _parentals;
 
+            var cgElements = _auxes.Concat(_crawls).Concat(_logos).Concat(_parentals);
+            foreach(var cgElement in cgElements)
+            {
+                if (cgElement.UploadServerImagePath != null && cgElement.UploadServerImagePath.Length > 0)
+                {
+                    foreach (var path in _casparServers.Select(server => server.MediaFolder))
+                    {
+                        File.Copy(cgElement.UploadServerImagePath, Path.Combine(path, Path.GetFileName(cgElement.UploadServerImagePath)), true);
+                    }
+                }
+
+                if (cgElement.UploadClientImagePath != null && cgElement.UploadClientImagePath.Length > 0)
+                {
+                    string configPath = FileUtils.ConfigurationPath;
+                    switch (cgElement.CgType)
+                    {
+                        case CgElement.Type.Parental:
+                            configPath = Path.Combine(configPath, "Parentals");
+                            break;
+
+                        case CgElement.Type.Aux:
+                            configPath = Path.Combine(configPath, "Auxes");
+                            break;
+
+                        case CgElement.Type.Crawl:
+                            configPath = Path.Combine(configPath, "Crawls");
+                            break;
+
+                        case CgElement.Type.Logo:
+                            configPath = Path.Combine(configPath, "Logos");
+                            break;
+                    }
+
+                    if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), configPath)))
+                        Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), configPath));
+
+                    var clientPath = Path.Combine(Directory.GetCurrentDirectory(), configPath, Path.GetFileName(cgElement.UploadClientImagePath));
+                    File.Copy(cgElement.UploadClientImagePath, clientPath, true);
+                }
+            }
             DataUpdated?.Invoke(this, EventArgs.Empty);
         }
 
@@ -109,7 +150,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             if (!(obj is CgElement element))
                 return;
 
-            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(element, _casparServers.Select(server => server.MediaFolder).ToList()), "Edit");
+            CurrentViewModel = new CgElementViewModel(element);
         }
 
         private bool CanMoveCgElementDown(object obj)
@@ -160,12 +201,12 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             _newElement = new CgElement();
             _newElement.CgType = _selectedElementType;
 
-            CurrentViewModel = new OkCancelViewModel(new CgElementViewModel(_newElement, _casparServers.Select(server => server.MediaFolder).ToList()), "Add");                                                               
+            CurrentViewModel = new CgElementViewModel(_newElement);                                                               
         }
 
         private void CgElementWizardClosed(object sender, EventArgs e)
         {
-            if (!(sender is OkCancelViewModel okCancelVm))
+            if (!(sender is OkCancelViewModelBase okCancelVm))
                 return;
 
             if (okCancelVm.DialogResult)
@@ -189,7 +230,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         public ICollectionView CgElements { get; private set; }
         public ICollectionView ElementTypes { get; private set; }
-        public OkCancelViewModel CurrentViewModel 
+        public OkCancelViewModelBase CurrentViewModel 
         { 
             get => _currentViewModel;
             set

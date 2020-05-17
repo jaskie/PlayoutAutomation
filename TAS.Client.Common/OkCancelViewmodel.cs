@@ -1,51 +1,54 @@
-﻿using System;
+﻿using System.Diagnostics;
 using System.Windows.Input;
-using System.Windows.Navigation;
 
 namespace TAS.Client.Common
 {
-    public abstract class OkCancelViewModel : DialogViewModel
+    public abstract class OkCancelViewModelBase : DialogViewModel
     {
-        private OkCancelViewModel _okCancelViewModel;        
+        private ViewModelBase _content;        
         public bool OkCancelButtonsActivateViaKeyboard { get; set; } = true;
-        public OkCancelViewModel OkCancelVM { get => _okCancelViewModel; private set => SetField(ref _okCancelViewModel, value); }
+        public ViewModelBase Content { get => _content; private set => SetField(ref _content, value); }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="contentViewModel">ViewModel that will be main content of a window</param>
+        /// OkCancelViewModelBase will provide basic support for Ok/Cancel concept dialog
+        /// </summary>        
         /// <param name="okButtonContent">Ok button content</param>
         /// <param name="cancelButtonContent">Cancel button content</param>
-        public OkCancelViewModel(string okButtonContent = "Ok", string cancelButtonContent = "Cancel")
+        public OkCancelViewModelBase(string okButtonContent = "Ok", string cancelButtonContent = "Cancel")
         {
-            OkCancelVM = this;
-            CommandCancel = new UiCommand(OkCancelVM.Cancel, OkCancelVM.CanCancel);
-            CommandOk = new UiCommand((obj) => Ok(obj), OkCancelVM.CanOk);
-
+            Debug.WriteLine("Firing ctor");
+            Content = this;
+            LoadCommands();
+           
             OkButtonContent = okButtonContent;            
-            CancelButtonContent = cancelButtonContent;            
-        }        
-
-        protected virtual bool Ok(object obj)
-        {
-            DialogConfirm();
-            return true;
-        }
-        protected abstract bool CanOk(object obj);
-        protected virtual bool CanCancel(object obj)
-        {
-            return true;
+            CancelButtonContent = cancelButtonContent;
+            Debug.WriteLine("Ending ctor");
         }
 
-        protected virtual void Cancel(object obj)
-        {            
-            DialogClose();
-        }            
+        private void LoadCommands()
+        {
+            CommandOk = new UiCommand((obj) =>
+            {
+                if (Ok(obj))
+                    base.DialogConfirm();
+            }, CanOk);
+
+            CommandCancel = new UiCommand((obj) => 
+            {
+                Cancel(obj);
+                base.DialogClose();  
+            }, CanCancel);            
+        }
+
+        public virtual bool Ok(object obj) { return true; }
+        public virtual bool CanOk(object obj) { return IsModified; }
+        public virtual bool CanCancel(object obj) { return true; }
+        public virtual void Cancel(object obj) { } 
 
         public ICommand CommandCancel { get; protected set; }
         public ICommand CommandOk { get; protected set; }
 
-        public string OkButtonContent { get; }
-        public string CancelButtonContent { get; }
+        public string OkButtonContent { get; set; }
+        public string CancelButtonContent { get; set; }
     }
 }

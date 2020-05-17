@@ -31,49 +31,171 @@ namespace TAS.Client.Common
         /// Create or find existing window
         /// </summary>
         /// <param name="content">ViewModel which will be assigned as content</param>
-        /// <param name="isDialog">Show window as dialog</param>        
-        /// <returns>True if window was created or already found, false if window was not created correctly</returns>         
-        public void ShowWindow(ViewModelBase viewModel, string title)
-        {                                   
-            // 
-        }
-        public bool? ShowDialog(ViewModelBase viewModel, string title)
+        /// <param name="title">Title of window</param>                         
+        public void ShowWindow(ViewModelBase content, string title)
         {
-            Window window = null;
+            if (!FindView(content))            
+                throw new ViewNotFoundException(content);
 
-            if (!Application.Current.Resources.Contains(new DataTemplateKey(viewModel.GetType())))
-                window = FindView(viewModel);
-            
-            window.Title = title;
+            var window = _windows.FirstOrDefault(w => w.Content == content);
+            if (window != null)
+            {
+                window.Activate();
+                return;
+            }
+                
+            window = CreateWindow(title, content);
+            window.Show();            
+        }
 
+        /// <summary>
+        /// Create window dialog
+        /// </summary>
+        /// <param name="content">ViewModel which will be assigned as content</param>
+        /// <param name="title">Title of window</param>  
+        /// <returns>Window's DialogResult</returns>
+        public bool? ShowDialog(ViewModelBase content, string title)
+        {
+            if (!FindView(content))
+                throw new ViewNotFoundException(content);
 
-            window.Closed += Window_Closed;
-            _windows.Add(window);
-
+            var window = CreateWindow(title, content);
             window.ShowDialog();
 
-            if (window.Content is DialogViewModel okCancelVM)
-                return okCancelVM.DialogResult;
+            if (window.Content is DialogViewModel dialogVm)
+                return dialogVm.DialogResult;
 
             return window.DialogResult;
         }
 
-        private Window FindView(ViewModelBase viewModel)
+        /// <summary>
+        /// Create or find existing window
+        /// </summary>
+        /// <param name="content">ViewModel which will be assigned as content</param>
+        /// <param name="windowInfo">Window parameters</param>      
+        public void ShowWindow(ViewModelBase content, WindowInfo windowInfo = null)
         {
-            var modelType = viewModel.GetType();
-            var viewTypeName = modelType.Name.Replace("ViewModel", "View");            
-            var viewTypes = modelType.Assembly.GetTypes().Where(t => t.IsClass && t.Name == viewTypeName);
+            if (!FindView(content))
+                throw new ViewNotFoundException(content);
 
-            var window = new Window();          
+            var window = _windows.FirstOrDefault(w => w.Content == content);
+            if (window != null)
+            {
+                window.Activate();
+                return;
+            }
+
+            window = CreateWindow(windowInfo, content);
+            window.Show();
+        }
+
+        /// <summary>
+        /// Create window dialog
+        /// </summary>
+        /// <param name="content">ViewModel which will be assigned as content</param>
+        /// <param name="windowInfo">Window parameters</param>
+        /// <returns>Window's DialogResult</returns>
+        public bool? ShowDialog(ViewModelBase content, WindowInfo windowInfo = null)
+        {
+            if (!FindView(content))
+                throw new ViewNotFoundException(content);
+
+            var window = CreateWindow(windowInfo, content);
+            window.ShowDialog();
+
+            if (window.Content is DialogViewModel dialogVm)
+                return dialogVm.DialogResult;
+
+            return window.DialogResult;
+        }
+        
+        private Window CreateWindow(string title, ViewModelBase content)
+        {
+            var window = new Window();
+            window.Title = title;
             window.SizeToContent = SizeToContent.WidthAndHeight;
-            window.Content = viewModel;
+            window.Content = content;
             window.ResizeMode = ResizeMode.NoResize;
             window.ShowInTaskbar = false;
             window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             window.Owner = Application.Current.MainWindow;
+
+            window.Closed += Window_Closed;
+            _windows.Add(window);
+            return window;
+        }
+        private Window CreateWindow(WindowInfo windowInfo, ViewModelBase content)
+        {
+            var window = new Window();
+            window.Title = windowInfo?.Title ?? content.GetType().Name.Replace("ViewModel","");
+            window.SizeToContent = windowInfo?.SizeToContent ?? SizeToContent.WidthAndHeight;
+            window.Content = content;
+            window.ResizeMode = windowInfo?.ResizeMode ?? ResizeMode.NoResize;
+            window.ShowInTaskbar = windowInfo?.ShowInTaskbar ?? false;
+            window.WindowStartupLocation = windowInfo?.WindowStartupLocation ?? WindowStartupLocation.CenterOwner;
+            window.Owner = windowInfo?.Owner ?? Application.Current.MainWindow;
+
+            window.Closed += Window_Closed;
+            _windows.Add(window);
             return window;
         }
 
+        private Type FindAccurateType(Type targetType, IEnumerable<Type> types)
+        {
+            string[] targetNamespaces = targetType.Namespace.Split(',');
+
+            Type accurateType = types.FirstOrDefault();            
+            byte accuracy = 0;
+
+            foreach (var type in types)
+            {
+                var typeNamespaces = type.Namespace.Split(',');
+                byte localAccuracy = 0;
+
+                for (int i = targetNamespaces.Count(), j = typeNamespaces.Count(); i <= 0 && j <= 0; --i, --j)
+                {
+                    if (targetNamespaces[i] == typeNamespaces[j])
+                        ++localAccuracy;
+                    else
+                        break;
+                }
+
+                if (localAccuracy > accuracy)
+                {
+                    accurateType = type;                   
+                    accuracy = localAccuracy;
+                }
+            }
+            return accurateType;
+        }
+        private bool FindView(ViewModelBase viewModel)
+        {
+            if (Application.Current.Resources.Contains(new DataTemplateKey(viewModel.GetType())))
+                return true;
+
+            var vmType = viewModel.GetType();
+            var viewTypeName = vmType.Name.Replace("ViewModel", "View");
+            var viewTypes = vmType.Assembly.GetTypes().Where(t => (t.IsClass && t.Name == viewTypeName) 
+                                                            || t.GetCustomAttribute<DataContextAttribute>(false) != null);
+
+            if (viewTypes.Count() == 0)
+                return false;
+
+            if (!Application.Current.Resources.Contains(new DataTemplateKey(viewModel.GetType())))
+            {
+                if (viewTypes.Count() == 1)
+                {
+                    AddDataTemplate(viewModel.GetType(), viewTypes.FirstOrDefault());
+                }
+                else
+                {
+                    
+                    AddDataTemplate(viewModel.GetType(), FindAccurateType(vmType, viewTypes));
+                }                
+            }
+            return true;                        
+        }
+        
         public string OpenFileDialog()
         {
             var dialog = new OpenFileDialog();                     
@@ -89,10 +211,7 @@ namespace TAS.Client.Common
         {
             if (!(sender is Window window))
                 return;
-
-            //if (window.Content is ViewModelBase vm)
-            //    vm.Dispose();
-
+            
             _windows.Remove(window);                                        
         }                
 
@@ -221,16 +340,6 @@ namespace TAS.Client.Common
 
             if (!Application.Current.Resources.Contains(template.DataTemplateKey))
                 Application.Current.Resources.Add(template.DataTemplateKey, template);
-        }
-
-        public void ShowWindow(ViewModelBase content, WindowInfo windowInfo = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool? ShowDialog(ViewModelBase content, WindowInfo windowInfo = null)
-        {
-            throw new NotImplementedException();
-        }
+        }       
     }
 }

@@ -98,6 +98,7 @@
     <Compile Include="Controls\FrameEdit.cs" />
     <Compile Include="Controls\TimecodeTextBlock.cs" />
     <Compile Include="Controls\WrapPanelFill.cs" />
+    <Compile Include="DataContextAttribute.cs" />
     <Compile Include="DialogViewModel.cs" />
     <Compile Include="DispatcherHelper.cs" />
     <Compile Include="ICommonDialogManager.cs" />
@@ -152,6 +153,7 @@
     <Compile Include="UiServices.cs" />
     <Compile Include="ValueConverters.cs" />
     <Compile Include="ViewModelBase.cs" />
+    <Compile Include="ViewNotFoundException.cs" />
     <Compile Include="WindowInfo.cs" />
     <Compile Include="WpfHacks.cs" />
   </ItemGroup>

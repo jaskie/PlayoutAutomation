@@ -6,7 +6,7 @@
         <local:OkCancelView />
     </DataTemplate>
     <local:GenericDataTemplateSelector x:Key="GenericDataTemplateSelector" OkCancel="{StaticResource OkCancelTemplate}" />-->
-    <DataTemplate DataType="{x:Type local:OkCancelViewModel}">
+    <DataTemplate DataType="{x:Type local:OkCancelViewModelBase}">
         <local:OkCancelView />
     </DataTemplate>
 </ResourceDictionary>

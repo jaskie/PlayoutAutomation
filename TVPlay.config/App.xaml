@@ -16,19 +16,7 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <DataTemplate DataType="{x:Type cgVm:CgElementViewModel}">
-                <cgView:CgElementView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type cgVm:CgElementsControllerViewModel}">
-                <cgView:CgElementsControllerView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type cgVm:CgElementsControllerPluginManager}">
-                <cgView:CgElementsControllerPluginManagerView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type pluginsVm:PluginsViewModel}">
-                <pluginsView:PluginsView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type enginesVm:EnginesViewmodel}">
+            <!--<DataTemplate DataType="{x:Type enginesVm:EnginesViewmodel}">
                 <enginesView:EnginesView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type configFileVm:ConfigFileViewmodel}">
@@ -39,7 +27,7 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type ingestVm:IngestDirectoriesViewmodel}">
                 <ingestView:IngestDirectoriesView />
-            </DataTemplate>
+            </DataTemplate>-->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/TAS.Client.Common;component/Styles/Styles.xaml"/>
                 <ResourceDictionary Source="/TAS.Client.Common;component/DataTemplates.xaml"/>
