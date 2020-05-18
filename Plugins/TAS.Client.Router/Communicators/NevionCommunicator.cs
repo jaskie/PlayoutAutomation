@@ -6,9 +6,9 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Server.Model;
+using TAS.Server.Router.Model;
 
-namespace TAS.Server.RouterCommunicators
+namespace TAS.Server.Router.Communicators
 {
     internal class NevionCommunicator : IRouterCommunicator
     {
@@ -17,7 +17,7 @@ namespace TAS.Server.RouterCommunicators
         private TcpClient _tcpClient;
 
         private NetworkStream _stream;
-        private readonly RouterDevice _device;
+        private readonly Router _router;
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
         private ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>> _responsesQueue =new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
@@ -33,9 +33,9 @@ namespace TAS.Server.RouterCommunicators
         private string _response;
         private int _disposed;
 
-        public NevionCommunicator(RouterDevice device)
+        public NevionCommunicator(Router device)
         {
-            _device = device;               
+            _router = device;               
         }
 
         public async Task<bool> Connect()
@@ -52,7 +52,7 @@ namespace TAS.Server.RouterCommunicators
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    var connectTask = _tcpClient.ConnectAsync(_device.IpAddress, _device.Port);
+                    var connectTask = _tcpClient.ConnectAsync(_router.IpAddress, _router.Port);
                     await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
 
                     if (_tcpClient.Client?.Connected != true)
@@ -76,7 +76,7 @@ namespace TAS.Server.RouterCommunicators
 
                     Logger.Info("Nevion router connected and ready!");
 
-                    AddToRequestQueue($"login {_device.Login} {_device.Password}");
+                    AddToRequestQueue($"login {_router.Login} {_router.Password}");
                     return true;
                 }
                 
@@ -98,7 +98,7 @@ namespace TAS.Server.RouterCommunicators
 
         public void SelectInput(int inPort)
         {
-           AddToRequestQueue($"x l{_device.Level} {inPort} {string.Join(",", _device.OutputPorts.Select(param => param.ToString()))}");            
+           AddToRequestQueue($"x l{_router.Level} {inPort} {string.Join(",", _router.OutputPorts.Select(param => param.ToString()))}");            
         }                
 
         public void Disconnect()
@@ -125,7 +125,7 @@ namespace TAS.Server.RouterCommunicators
             if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
                 return null;
 
-            AddToRequestQueue($"inlist l{_device.Level}");
+            AddToRequestQueue($"inlist l{_router.Level}");
             while (_disposed == default(int))
             {
                 try
@@ -161,7 +161,7 @@ namespace TAS.Server.RouterCommunicators
             if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
                 return null;
 
-            AddToRequestQueue($"si l{_device.Level} {string.Join(",", _device.OutputPorts)}");
+            AddToRequestQueue($"si l{_router.Level} {string.Join(",", _router.OutputPorts)}");
             while (_disposed == default(int))
             {
                 try
@@ -179,8 +179,8 @@ namespace TAS.Server.RouterCommunicators
                     {
                         var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         if (lineParams.Length >= 4 && lineParams[0] == "x" &&
-                            lineParams[1] == $"l{_device.Level}" &&
-                            lineParams[3] == _device.OutputPorts[0].ToString() &&
+                            lineParams[1] == $"l{_router.Level}" &&
+                            lineParams[3] == _router.OutputPorts[0].ToString() &&
                             short.TryParse(lineParams[2], out var inPort) &&
                             short.TryParse(lineParams[3], out var outPort))
                             return new CrosspointInfo(inPort, outPort);
@@ -306,7 +306,7 @@ namespace TAS.Server.RouterCommunicators
             if (!_semaphores.TryGetValue(ListTypeEnum.SignalPresence, out var semaphore))
                 return;
 
-            AddToRequestQueue($"sspi l{_device.Level}");
+            AddToRequestQueue($"sspi l{_router.Level}");
             
             while (_disposed == default(int))
             {
@@ -329,7 +329,7 @@ namespace TAS.Server.RouterCommunicators
                     OnRouterPortsStatesReceived?.Invoke(this, new EventArgs<PortState[]>(portsSignal));
 
                     await Task.Delay(3000);
-                    AddToRequestQueue($"sspi l{_device.Level}");
+                    AddToRequestQueue($"sspi l{_router.Level}");
                 }
                 catch (Exception ex)
                 {
@@ -364,8 +364,8 @@ namespace TAS.Server.RouterCommunicators
                     {
                         var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         if (lineParams.Length >= 4 && lineParams[0] == "x" &&
-                            lineParams[1] == $"l{_device.Level}" &&
-                            lineParams[3] == _device.OutputPorts[0].ToString() &&
+                            lineParams[1] == $"l{_router.Level}" &&
+                            lineParams[3] == _router.OutputPorts[0].ToString() &&
                             short.TryParse(lineParams[2], out var inPort) &&
                             short.TryParse(lineParams[3], out var outPort))
                             return new CrosspointInfo(inPort, outPort);
@@ -409,7 +409,7 @@ namespace TAS.Server.RouterCommunicators
                 return;
             var trimmedLines = lines.Skip(1).Where(param => !string.IsNullOrEmpty(param)).ToArray();
 
-            if (lines[0].Contains($"inlist l{_device.Level}"))
+            if (lines[0].Contains($"inlist l{_router.Level}"))
             {
                 if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
                     return;
@@ -421,7 +421,7 @@ namespace TAS.Server.RouterCommunicators
 
             }                
 
-            else if (lines[0].Contains("si") && lines[0].Contains($"l{_device.Level}"))
+            else if (lines[0].Contains("si") && lines[0].Contains($"l{_router.Level}"))
             {
                 if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
                     return;
@@ -432,7 +432,7 @@ namespace TAS.Server.RouterCommunicators
                     semaphore.Release();
             }
                                 
-            else if (lines[0].Contains($"sspi l{_device.Level}"))
+            else if (lines[0].Contains($"sspi l{_router.Level}"))
             {
                 if (!_semaphores.TryGetValue(ListTypeEnum.SignalPresence, out var semaphore))
                     return;
@@ -443,7 +443,7 @@ namespace TAS.Server.RouterCommunicators
                     semaphore.Release();                
             }
 
-            else if (lines.Length>1 && lines[0].StartsWith("%") && lines[1].Contains($"x l{_device.Level}"))
+            else if (lines.Length>1 && lines[0].StartsWith("%") && lines[1].Contains($"x l{_router.Level}"))
             {
                 if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointChange, out var semaphore))
                     return;

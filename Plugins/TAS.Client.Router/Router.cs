@@ -4,40 +4,60 @@ using TAS.Common;
 using TAS.Common.Interfaces;
 using System.Linq;
 using jNet.RPC.Server;
-using TAS.Server.Model;
-using TAS.Server.RouterCommunicators;
+using TAS.Server.Router.Model;
+using TAS.Server.Router.Communicators;
 using jNet.RPC;
+using TAS.Database.Common;
 
-namespace TAS.Server
+namespace TAS.Server.Router
 {
-    public class RouterController : ServerObjectBase, IRouter
+    public class Router : ServerObjectBase, IRouter, IEnginePlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        private readonly IRouterCommunicator _routerCommunicator;
-        private readonly RouterDevice _device;
+        private IRouterCommunicator _routerCommunicator;
         private IRouterPort _selectedInputPort;
         private bool _isConnected;
 
-        public RouterController(RouterDevice device)
+        public void Initialize()
         {
-            _device = device;
-            switch (_device.Type)
+            switch (Type)
             {
                 case RouterTypeEnum.Nevion:
-                    _routerCommunicator = new NevionCommunicator(_device);
+                    _routerCommunicator = new NevionCommunicator(this);
                     break;
                 case RouterTypeEnum.BlackmagicSmartVideoHub:
-                    _routerCommunicator = new BlackmagicSmartVideoHubCommunicator(_device);
+                    _routerCommunicator = new BlackmagicSmartVideoHubCommunicator(this);
                     break;
                 default:
                     return;
-            }
-            
+            }            
             _routerCommunicator.OnInputPortChangeReceived += Communicator_OnInputPortChangeReceived;
             _routerCommunicator.OnRouterPortsStatesReceived += Communicator_OnRouterPortStateReceived;
             _routerCommunicator.OnRouterConnectionStateChanged += Communicator_OnRouterConnectionStateChanged;
-            Init();
+            Connect();
         }
+
+        #region Configuration
+        
+        [Hibernate]
+        public bool IsEnabled { get; set; }
+
+        [Hibernate]
+        public string IpAddress { get; set; }
+        [Hibernate]
+        public int Port { get; set; }
+        [Hibernate]
+        public RouterTypeEnum Type { get; set; }
+        [Hibernate]
+        public int Level { get; set; }
+        [Hibernate]
+        public string Login { get; set; }
+        [Hibernate]
+        public string Password { get; set; }
+        [Hibernate]
+        public short[] OutputPorts { get; set; }
+
+        #endregion
 
         [DtoMember]
         public IRouterPort SelectedInputPort
@@ -61,7 +81,7 @@ namespace TAS.Server
              _routerCommunicator.SelectInput(inPort);
         }
 
-        private async void Init()
+        private async void Connect()
         {
             if (_routerCommunicator == null)
                 return;
@@ -108,7 +128,7 @@ namespace TAS.Server
             if (e.Value)
                 return;            
 
-            Init();           
+            Connect();           
         }        
 
         private void Communicator_OnRouterPortStateReceived(object sender, EventArgs<PortState[]> e)
@@ -119,9 +139,9 @@ namespace TAS.Server
 
         private void Communicator_OnInputPortChangeReceived(object sender, EventArgs<CrosspointInfo> e)
         {
-            if (_device.OutputPorts.Length == 0)
+            if (OutputPorts.Length == 0)
                 return;
-            var port = _device.OutputPorts[0];
+            var port = OutputPorts[0];
             var changedIn = e.Value.OutPort == port ? e.Value : null;
             if (changedIn == null)
                 return;

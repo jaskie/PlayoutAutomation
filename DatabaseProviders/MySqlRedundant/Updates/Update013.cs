@@ -197,7 +197,7 @@ namespace _Update013
             }
         }
 
-        public class Engine : TAS.Common.Interfaces.IEngineProperties
+        public class Engine
         {
             [XmlIgnore, JsonIgnore]
             public ulong Id { get; set; }

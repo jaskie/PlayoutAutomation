@@ -7,7 +7,7 @@
     <ProjectGuid>{AD45E333-FBC5-42EE-BA3F-66DA6B2C8C1C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TAS.Server</RootNamespace>
+    <RootNamespace>TAS.Server.Router</RootNamespace>
     <AssemblyName>TAS.Server.Router</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -54,19 +54,24 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers\DataStore.cs" />
+    <Compile Include="Configurator\RouterConfiguratorView.xaml.cs">
+      <DependentUpon>RouterConfiguratorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Configurator\RouterConfiguratorViewModel.cs" />
     <Compile Include="Model\CrosspointInfo.cs" />
     <Compile Include="Model\PortInfo.cs" />
     <Compile Include="Model\PortState.cs" />
-    <Compile Include="Model\RouterDevice.cs" />
     <Compile Include="Model\ListTypeEnum.cs" />
     <Compile Include="Model\IRouterCommunicator.cs" />
-    <Compile Include="RouterCommunicators\BlackmagicSmartVideoHubCommunicator.cs" />
+    <Compile Include="PluginTypeBinder.cs" />
+    <Compile Include="Resources.xaml.cs">
+      <DependentUpon>Resources.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Communicators\BlackmagicSmartVideoHubCommunicator.cs" />
     <Compile Include="RouterPort.cs" />
     <Compile Include="Model\RouterTypeEnum.cs" />
-    <Compile Include="RouterCommunicators\NevionCommunicator.cs" />
-    <Compile Include="RouterControllerFactory.cs" />
-    <Compile Include="RouterController.cs" />
+    <Compile Include="Communicators\NevionCommunicator.cs" />
+    <Compile Include="Router.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -82,9 +87,23 @@
       <Project>{9ACA6AE7-49ED-4599-91AC-927680CF9623}</Project>
       <Name>TAS.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\TAS.Database.Common\TAS.Database.Common.csproj">
+      <Project>{F73445A5-2375-49EA-BD4F-8C6778D8736D}</Project>
+      <Name>TAS.Database.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Configurator\RouterConfiguratorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

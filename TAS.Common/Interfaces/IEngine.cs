@@ -79,7 +79,6 @@ namespace TAS.Common.Interfaces
         void Execute(string command);
         DateTime CurrentTime { get; }
         ICGElementsController CGElementsController { get; }
-        IRouter Router { get; }
         void SearchMissingEvents();
         IEvent Playing { get; }
         IEvent NextToPlay { get; }
@@ -108,6 +107,7 @@ namespace TAS.Common.Interfaces
         bool StudioMode { get; set; }
         int TimeCorrection { get; set; }
         int CGStartDelay { get; set; }
+        IRouter Router { get; }
     }
 
     public interface IEnginePersistent : IEngineProperties, IPersistent

@@ -145,8 +145,8 @@ namespace TAS.Server
         [DtoMember]
         public ICGElementsController CGElementsController { get; private set; }
 
-        [DtoMember]
-        public IRouter Router { get; private set; }
+        [DtoMember, Hibernate]
+        public IRouter Router { get; set; }
 
         [Hibernate]
         public ServerHost Remote { get; set; }
