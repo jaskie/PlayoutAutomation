@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"     
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"             
              xmlns:cgVM="clr-namespace:TAS.Client.Config.ViewModels.Plugins.CgElementsController"
+             xmlns:cgView="clr-namespace:TAS.Client.Config.Views.Plugins.CgElementsController"
              mc:Ignorable="d"              
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -107,7 +108,13 @@
                 </DataGrid>
             </Grid>
             <Grid IsEnabled="{Binding IsEnabled}" Grid.Column="1">
-                <ContentControl Content="{Binding CurrentViewModel}" />
+                <ContentControl Content="{Binding CurrentViewModel}" Template="{x:Reference cgView:OkCancelView}">
+                    <ContentControl.Resources>
+                        <DataTemplate DataType="{x:Type cgVM:CgElementViewModel}">
+                            <cgView:CgElementView />
+                        </DataTemplate>
+                    </ContentControl.Resources>
+                </ContentControl>
             </Grid>
         </Grid>
     </Grid>

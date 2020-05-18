@@ -7,7 +7,7 @@ using Xceed.Wpf.AvalonDock;
 
 namespace TAS.Client.Common
 {
-    public abstract class DialogViewModel : ModifyableViewModelBase, IWindow
+    public abstract class DialogViewModelBase : ModifyableViewModelBase, IWindow
     {
         public event EventHandler Closing;
         public bool DialogResult { get; private set; }

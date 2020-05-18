@@ -62,7 +62,7 @@ namespace TAS.Client.Common
             var window = CreateWindow(title, content);
             window.ShowDialog();
 
-            if (window.Content is DialogViewModel dialogVm)
+            if (window.DataContext is DialogViewModelBase dialogVm)
                 return dialogVm.DialogResult;
 
             return window.DialogResult;
@@ -103,18 +103,19 @@ namespace TAS.Client.Common
             var window = CreateWindow(windowInfo, content);
             window.ShowDialog();
 
-            if (window.Content is DialogViewModel dialogVm)
+            if (window.DataContext is DialogViewModelBase dialogVm)
                 return dialogVm.DialogResult;
 
             return window.DialogResult;
         }
         
-        private Window CreateWindow(string title, ViewModelBase content)
+        private Window CreateWindow(string title, ViewModelBase viewModel)
         {
             var window = new Window();
             window.Title = title;
             window.SizeToContent = SizeToContent.WidthAndHeight;
-            window.Content = content;
+            window.Content = new OkCancelView();
+            window.DataContext = viewModel;
             window.ResizeMode = ResizeMode.NoResize;
             window.ShowInTaskbar = false;
             window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -124,17 +125,17 @@ namespace TAS.Client.Common
             _windows.Add(window);
             return window;
         }
-        private Window CreateWindow(WindowInfo windowInfo, ViewModelBase content)
+        private Window CreateWindow(WindowInfo windowInfo, ViewModelBase viewModel)
         {
             var window = new Window();
-            window.Title = windowInfo?.Title ?? content.GetType().Name.Replace("ViewModel","");
+            window.Title = windowInfo?.Title ?? viewModel.GetType().Name.Replace("ViewModel","");
             window.SizeToContent = windowInfo?.SizeToContent ?? SizeToContent.WidthAndHeight;
-            window.Content = content;
+            window.Content = new OkCancelView();
+            window.DataContext = viewModel;
             window.ResizeMode = windowInfo?.ResizeMode ?? ResizeMode.NoResize;
             window.ShowInTaskbar = windowInfo?.ShowInTaskbar ?? false;
             window.WindowStartupLocation = windowInfo?.WindowStartupLocation ?? WindowStartupLocation.CenterOwner;
-            window.Owner = windowInfo?.Owner ?? Application.Current.MainWindow;
-
+            window.Owner = windowInfo?.Owner ?? Application.Current.MainWindow;            
             window.Closed += Window_Closed;
             _windows.Add(window);
             return window;
@@ -168,12 +169,21 @@ namespace TAS.Client.Common
             }
             return accurateType;
         }
+        //private Window GetView(Type viewModelType)
+        //{
+        //    if (viewModelType.IsSubclassOf(OkCancelViewModelBase))
+        //        return OkCancelView;
+        //}
         private bool FindView(ViewModelBase viewModel)
         {
             if (Application.Current.Resources.Contains(new DataTemplateKey(viewModel.GetType())))
                 return true;
 
             var vmType = viewModel.GetType();
+
+            //if (vmType.IsSubclassOf(typeof(OkCancelViewModelBase)))            
+            //    return true;
+            
             var viewTypeName = vmType.Name.Replace("ViewModel", "View");
             var viewTypes = vmType.Assembly.GetTypes().Where(t => (t.IsClass && t.Name == viewTypeName) 
                                                             || t.GetCustomAttribute<DataContextAttribute>(false) != null);
@@ -222,7 +232,7 @@ namespace TAS.Client.Common
         /// <param name="dialogResult">Dialogresult if closed from code</param>
         public void CloseWindow(ViewModelBase content)
         {
-            var window = _windows.FirstOrDefault(p => p.Content == content);     
+            var window = _windows.FirstOrDefault(p => p.DataContext == content);     
             
             if (window != null)
                 window.Close();           

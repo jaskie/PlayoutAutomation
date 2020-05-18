@@ -34,6 +34,6 @@
                 </DockPanel>
             </Button>
         </StackPanel>
-        <ContentControl Content="{Binding OkCancelVM}" />
+        <ContentControl Content="{Binding Content}" />
     </DockPanel>
 </UserControl>

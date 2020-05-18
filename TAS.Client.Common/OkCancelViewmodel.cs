@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 namespace TAS.Client.Common
 {
-    public abstract class OkCancelViewModelBase : DialogViewModel
+    public abstract class OkCancelViewModelBase : DialogViewModelBase
     {
         private ViewModelBase _content;        
         public bool OkCancelButtonsActivateViaKeyboard { get; set; } = true;

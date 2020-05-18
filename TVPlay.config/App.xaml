@@ -1,33 +1,9 @@
 ﻿<Application x:Class="TAS.Client.Setup.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:cgView="clr-namespace:TAS.Client.Config.Views.Plugins.CgElementsController;assembly=TAS.Client.Config"
-             xmlns:cgVm="clr-namespace:TAS.Client.Config.ViewModels.Plugins.CgElementsController;assembly=TAS.Client.Config"
-             xmlns:pluginsView="clr-namespace:TAS.Client.Config.Views.Plugins;assembly=TAS.Client.Config"
-             xmlns:pluginsVm="clr-namespace:TAS.Client.Config.ViewModels.Plugins;assembly=TAS.Client.Config"
-             xmlns:enginesView="clr-namespace:TAS.Client.Config.Views.Engines;assembly=TAS.Client.Config"
-             xmlns:enginesVm="clr-namespace:TAS.Client.Config.ViewModels.Engines;assembly=TAS.Client.Config"
-             xmlns:configFileView="clr-namespace:TAS.Client.Config.Views.ConfigFile;assembly=TAS.Client.Config"
-             xmlns:configFileVm="clr-namespace:TAS.Client.Config.ViewModels.ConfigFile;assembly=TAS.Client.Config"
-             xmlns:ingestView="clr-namespace:TAS.Client.Config.Views.IngestDirectories;assembly=TAS.Client.Config"
-             xmlns:ingestVm="clr-namespace:TAS.Client.Config.ViewModels.IngestDirectories;assembly=TAS.Client.Config"   
-             xmlns:playoutView="clr-namespace:TAS.Client.Config.Views.Playout;assembly=TAS.Client.Config"
-             xmlns:playoutVm="clr-namespace:TAS.Client.Config.ViewModels.Playout;assembly=TAS.Client.Config" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"             
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <!--<DataTemplate DataType="{x:Type enginesVm:EnginesViewmodel}">
-                <enginesView:EnginesView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type configFileVm:ConfigFileViewmodel}">
-                <configFileView:ConfigFileView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type playoutVm:PlayoutServersViewmodel}">
-                <playoutView:PlayoutServersView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type ingestVm:IngestDirectoriesViewmodel}">
-                <ingestView:IngestDirectoriesView />
-            </DataTemplate>-->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/TAS.Client.Common;component/Styles/Styles.xaml"/>
                 <ResourceDictionary Source="/TAS.Client.Common;component/DataTemplates.xaml"/>

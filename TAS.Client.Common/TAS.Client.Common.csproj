@@ -99,7 +99,7 @@
     <Compile Include="Controls\TimecodeTextBlock.cs" />
     <Compile Include="Controls\WrapPanelFill.cs" />
     <Compile Include="DataContextAttribute.cs" />
-    <Compile Include="DialogViewModel.cs" />
+    <Compile Include="DialogViewModelBase.cs" />
     <Compile Include="DispatcherHelper.cs" />
     <Compile Include="ICommonDialogManager.cs" />
     <Compile Include="IgnoreOnUpdateAttribute.cs" />

@@ -106,7 +106,7 @@
     <Compile Include="Views\ConfigFile\ConfigFileView.xaml.cs">
       <DependentUpon>ConfigFileView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\ConfigFile\ConfigFileViewmodel.cs" />
+    <Compile Include="ViewModels\ConfigFile\ConfigFileViewModel.cs" />
     <Compile Include="Views\Engines\EnginesView.xaml.cs">
       <DependentUpon>EnginesView.xaml</DependentUpon>
     </Compile>

@@ -9,7 +9,7 @@ using TAS.Database.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.ConfigFile
 {
-    public class ConfigFileViewmodel : EditViewmodelBase<Model.ConfigFile>, IOkCancelViewModel
+    public class ConfigFileViewModel : OkCancelViewModelBase
     {
         private string _ingestFolders;
         private string _tempDirectory;
@@ -20,12 +20,38 @@ namespace TAS.Client.Config.ViewModels.ConfigFile
         private DatabaseType? _databaseType;
         private readonly List<IDatabase> _dbs;
 
+        private Model.ConfigFile _configFile;
+
         protected override void OnDispose() { }
-        public ConfigFileViewmodel(Model.ConfigFile configFile) : base(configFile)
+        public ConfigFileViewModel(Model.ConfigFile configFile)
         {
+            _configFile = configFile;
             _dbs = DatabaseLoader.LoadDatabaseProviders().ToList();
             DatabaseTypes = _dbs.Select(db => db.DatabaseType).ToArray();
-            Load(Model.AppSettings);
+            Init();
+        }
+
+        public void Init()
+        {
+            IngestFolders = _configFile.AppSettings.IngestFolders;
+            ReferenceLoudnessLevel = _configFile.AppSettings.ReferenceLoudnessLevel;
+            TempDirectory = _configFile.AppSettings.TempDirectory;
+            DatabaseType = _configFile.AppSettings.DatabaseType;
+            Instance = _configFile.AppSettings.Instance;
+            UiLanguage = _configFile.AppSettings.UiLanguage;
+            IsBackupInstance = _configFile.AppSettings.IsBackupInstance;
+        }
+
+        public void Save()
+        {
+            DatabaseConfigurator?.Save();
+            _configFile.AppSettings.IngestFolders = IngestFolders;
+            _configFile.AppSettings.ReferenceLoudnessLevel = ReferenceLoudnessLevel;
+            _configFile.AppSettings.TempDirectory = TempDirectory;
+            _configFile.AppSettings.DatabaseType = DatabaseType ?? TAS.Common.DatabaseType.MySQL;
+            _configFile.AppSettings.Instance = Instance;
+            _configFile.AppSettings.UiLanguage = UiLanguage;
+            _configFile.AppSettings.IsBackupInstance = IsBackupInstance;
         }
 
         public string IngestFolders { get => _ingestFolders; set => SetField(ref _ingestFolders, value); }
@@ -46,7 +72,7 @@ namespace TAS.Client.Config.ViewModels.ConfigFile
                 DatabaseConfigurator = value == null ? null : DatabaseLoader.LoadDatabaseConfigurator(value.Value);
                 if (DatabaseConfigurator != null)
                 {
-                    DatabaseConfigurator.Open(Model.Configuration);
+                    DatabaseConfigurator.Open(_configFile.Configuration);
                     DatabaseConfigurator.Modified += DatabaseConfigurator_Modified;
                 }
                 if (oldConfigurator != null)
@@ -71,40 +97,13 @@ namespace TAS.Client.Config.ViewModels.ConfigFile
             set => SetField(ref _uiLanguage, value);
         }
 
-        public string ExeDirectory => Path.GetDirectoryName(Model.FileName);
-                       
-        protected override void Update(object destObject = null)
-        {
-            base.Update(Model.AppSettings);
-            DatabaseConfigurator?.Save();
-            Model.Save();
-        }
+        public string ExeDirectory => Path.GetDirectoryName(_configFile.FileName);                               
 
         public List<CultureInfo> SupportedLanguages { get; } = new List<CultureInfo> { CultureInfo.InvariantCulture, new CultureInfo("en"), new CultureInfo("pl") };
 
         private void DatabaseConfigurator_Modified(object sender, System.EventArgs e)
         {
             IsModified = true;
-        }
-
-        public bool Ok(object obj)
-        {
-            Update();
-            return true;
-        }
-
-        public void Cancel(object obj)
-        {           
-        }
-
-        public bool CanOk(object obj)
-        {
-            return IsModified;
-        }
-
-        public bool CanCancel(object obj)
-        {
-            return true;
-        }
+        }       
     }
 }

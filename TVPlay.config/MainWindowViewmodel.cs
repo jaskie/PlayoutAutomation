@@ -70,7 +70,7 @@ namespace TAS.Client.Config
 
         private void _configFileEdit(object obj)
         {
-            using (var vm = new ConfigFileViewmodel(_configFile))
+            using (var vm = new ConfigFileViewModel(_configFile))
             {
                 UiServices.WindowManager.ShowDialog(vm, $"Config file ({_configFile.FileName})");
             }                
