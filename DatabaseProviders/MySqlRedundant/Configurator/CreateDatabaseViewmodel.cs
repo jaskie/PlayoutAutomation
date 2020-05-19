@@ -3,14 +3,22 @@ using TAS.Client.Common;
 
 namespace TAS.Database.MySqlRedundant.Configurator
 {
-    public class CreateDatabaseViewmodel: EditViewmodelBase<Model.CreateDatabase>, IOkCancelViewModel
+    public class CreateDatabaseViewModel: OkCancelViewModelBase
     {
         private string _connectionString;
         private string _collation;
+        private Model.CreateDatabase _createDatabase;
 
-        public CreateDatabaseViewmodel(DatabaseMySqlRedundant db) : base(new Model.CreateDatabase(db)) 
+        public CreateDatabaseViewModel(DatabaseMySqlRedundant db) 
         {
+            _createDatabase = new Model.CreateDatabase(db);
             CommandEditConnectionString = new UiCommand(_editConnectionString);
+        }
+
+        private void Init()
+        {
+            ConnectionString = _createDatabase.ConnectionString;
+            Collation = _createDatabase.Collation;
         }
 
         public string ConnectionString
@@ -33,34 +41,21 @@ namespace TAS.Database.MySqlRedundant.Configurator
 
         private void _editConnectionString(object obj)
         {
-            using (var vm = new ConnectionStringViewmodel(ConnectionString))
+            using (var vm = new ConnectionStringViewModel(ConnectionString))
             {
                 if (UiServices.WindowManager.ShowDialog(vm, "Edit connection parameters") == true)
-                    ConnectionString = vm.Model.ConnectionString;
+                    ConnectionString = vm.ConnectionString;
             }
         }
 
-        public bool Ok(object obj)
+        public override bool Ok(object obj)
         {
-            Update();
-            if (Model.CreateEmptyDatabase())
+            _createDatabase.ConnectionString = ConnectionString;
+            _createDatabase.Collation = Collation;
+            if (_createDatabase.CreateEmptyDatabase())
                 return true;
             
             return false;
-        }
-
-        public void Cancel(object obj)
-        {            
-        }
-
-        public bool CanOk(object obj)
-        {
-            return IsModified;
-        }
-
-        public bool CanCancel(object obj)
-        {
-            return true;
-        }
+        }        
     }
 }

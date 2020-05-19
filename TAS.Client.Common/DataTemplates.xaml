@@ -2,11 +2,19 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"                          
              xmlns:local="clr-namespace:TAS.Client.Common">
-    <!--<DataTemplate x:Key="OkCancelTemplate">
-        <local:OkCancelView />
-    </DataTemplate>
-    <local:GenericDataTemplateSelector x:Key="GenericDataTemplateSelector" OkCancel="{StaticResource OkCancelTemplate}" />-->
-    <DataTemplate DataType="{x:Type local:OkCancelViewModelBase}">
-        <local:OkCancelView />
+   
+    <DataTemplate x:Key="OkCancelBase" DataType="{x:Type local:OkCancelViewModelBase}">
+        <local:OkCancelView>
+            <local:OkCancelView.Style>
+                <Style TargetType="local:OkCancelView">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                        <Trigger Property="DataContext" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Hidden" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </local:OkCancelView.Style>
+        </local:OkCancelView>
     </DataTemplate>
 </ResourceDictionary>

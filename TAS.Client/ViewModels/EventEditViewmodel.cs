@@ -13,7 +13,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventEditViewmodel : EditViewmodelBase<IEvent>, IDataErrorInfo
+    public class EventEditViewmodel : EditViewModelBase<IEvent>, IDataErrorInfo
     {
         private readonly EngineViewmodel _engineViewModel;
         private IMedia _media;

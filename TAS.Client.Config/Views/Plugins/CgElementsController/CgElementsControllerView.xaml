@@ -107,15 +107,15 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
-            <Grid IsEnabled="{Binding IsEnabled}" Grid.Column="1">
-                <ContentControl Content="{Binding CurrentViewModel}" Template="{x:Reference cgView:OkCancelView}">
-                    <ContentControl.Resources>
-                        <DataTemplate DataType="{x:Type cgVM:CgElementViewModel}">
-                            <cgView:CgElementView />
-                        </DataTemplate>
-                    </ContentControl.Resources>
-                </ContentControl>
-            </Grid>
+
+            <ContentControl IsEnabled="{Binding IsEnabled}" Grid.Column="1" Content="{Binding CurrentViewModel}" ContentTemplate="{StaticResource OkCancelBase}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type cgVM:CgElementViewModel}">
+                        <cgView:CgElementView />
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
+                       
         </Grid>
     </Grid>
 </UserControl>

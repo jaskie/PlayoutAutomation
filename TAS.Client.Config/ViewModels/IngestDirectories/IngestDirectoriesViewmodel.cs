@@ -10,7 +10,7 @@ using TAS.Client.Config.Views.IngestDirectories;
 
 namespace TAS.Client.Config.ViewModels.IngestDirectories
 {
-    public class IngestDirectoriesViewmodel: EditViewmodelBase<IEnumerable<IngestDirectory>>, IOkCancelViewModel
+    public class IngestDirectoriesViewmodel: EditViewModelBase<IEnumerable<IngestDirectory>>, IOkCancelViewModel
     {
         private readonly string _fileName;
         private IngestDirectoryViewmodel _selectedDirectory;

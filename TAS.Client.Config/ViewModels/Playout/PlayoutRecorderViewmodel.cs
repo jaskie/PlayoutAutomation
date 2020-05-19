@@ -4,7 +4,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
-    public class PlayoutRecorderViewmodel: EditViewmodelBase<CasparRecorder>, IRecorderProperties
+    public class PlayoutRecorderViewmodel: EditViewModelBase<CasparRecorder>, IRecorderProperties
     {
         private int _id;
         private string _recorderName;

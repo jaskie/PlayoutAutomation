@@ -7,7 +7,7 @@ using TAS.Client.Config.Views.ArchiveDirectories;
 
 namespace TAS.Client.Config.ViewModels.ArchiveDirectories
 {
-    public class ArchiveDirectoriesViewmodel: EditViewmodelBase<Model.ArchiveDirectories>, IOkCancelViewModel
+    public class ArchiveDirectoriesViewmodel: EditViewModelBase<Model.ArchiveDirectories>, IOkCancelViewModel
     {       
         public ArchiveDirectoriesViewmodel(Model.ArchiveDirectories directories) : base(directories)
         {

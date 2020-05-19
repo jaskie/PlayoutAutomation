@@ -8,7 +8,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class TemplatedEditViewmodel : EditViewmodelBase<ITemplated>
+    public class TemplatedEditViewmodel : EditViewModelBase<ITemplated>
     {
         private int _templateLayer;
         private TemplateMethod _method;

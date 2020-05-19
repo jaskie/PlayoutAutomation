@@ -9,7 +9,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Engines
 {
-    public class EngineViewmodel : Common.EditViewmodelBase<Engine>, IEngineProperties
+    public class EngineViewmodel : Common.EditViewModelBase<Engine>, IEngineProperties
     {        
         private TAspectRatioControl _aspectRatioControl;
         private string _engineName;

@@ -4,7 +4,7 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Client.ViewModels
 {
-    public class GroupViewmodel: EditViewmodelBase<IGroup>
+    public class GroupViewmodel: EditViewModelBase<IGroup>
     {
         private string _name;
 

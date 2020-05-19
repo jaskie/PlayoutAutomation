@@ -109,12 +109,39 @@ namespace TAS.Client.Common
             return window.DialogResult;
         }
         
+        private object GetDialogView(ViewModelBase viewModel)
+        {
+            DataTemplate dataTemplate = null;
+            if ((dataTemplate = (DataTemplate)Application.Current.TryFindResource(new DataTemplateKey(viewModel.GetType().BaseType))) != null)
+            {
+                return dataTemplate.LoadContent();
+            }
+
+            var dialogVmType = viewModel.GetType().BaseType;            
+            var viewTypeName = dialogVmType.Name.Replace("ViewModelBase", "View");
+            var viewTypes = dialogVmType.Assembly.GetTypes().Where(t => (t.IsClass && t.Name == viewTypeName));
+
+            if (viewTypes.Count() == 0)
+                return null;
+
+            if (viewTypes.Count() == 1)
+            {
+                AddDataTemplate(dialogVmType, viewTypes.FirstOrDefault());                
+            }
+            else
+            {
+                AddDataTemplate(viewModel.GetType().BaseType, FindAccurateType(viewModel.GetType().BaseType, viewTypes));                
+            }
+
+            dataTemplate = (DataTemplate)Application.Current.TryFindResource(new DataTemplateKey(dialogVmType));
+            return dataTemplate.LoadContent();
+        }
         private Window CreateWindow(string title, ViewModelBase viewModel)
         {
             var window = new Window();
             window.Title = title;
             window.SizeToContent = SizeToContent.WidthAndHeight;
-            window.Content = new OkCancelView();
+            window.Content = GetDialogView(viewModel) ?? viewModel;
             window.DataContext = viewModel;
             window.ResizeMode = ResizeMode.NoResize;
             window.ShowInTaskbar = false;
@@ -130,7 +157,7 @@ namespace TAS.Client.Common
             var window = new Window();
             window.Title = windowInfo?.Title ?? viewModel.GetType().Name.Replace("ViewModel","");
             window.SizeToContent = windowInfo?.SizeToContent ?? SizeToContent.WidthAndHeight;
-            window.Content = new OkCancelView();
+            window.Content = GetDialogView(viewModel) ?? viewModel;
             window.DataContext = viewModel;
             window.ResizeMode = windowInfo?.ResizeMode ?? ResizeMode.NoResize;
             window.ShowInTaskbar = windowInfo?.ShowInTaskbar ?? false;
@@ -169,20 +196,13 @@ namespace TAS.Client.Common
             }
             return accurateType;
         }
-        //private Window GetView(Type viewModelType)
-        //{
-        //    if (viewModelType.IsSubclassOf(OkCancelViewModelBase))
-        //        return OkCancelView;
-        //}
+        
         private bool FindView(ViewModelBase viewModel)
         {
             if (Application.Current.Resources.Contains(new DataTemplateKey(viewModel.GetType())))
                 return true;
 
-            var vmType = viewModel.GetType();
-
-            //if (vmType.IsSubclassOf(typeof(OkCancelViewModelBase)))            
-            //    return true;
+            var vmType = viewModel.GetType();            
             
             var viewTypeName = vmType.Name.Replace("ViewModel", "View");
             var viewTypes = vmType.Assembly.GetTypes().Where(t => (t.IsClass && t.Name == viewTypeName) 
@@ -191,18 +211,16 @@ namespace TAS.Client.Common
             if (viewTypes.Count() == 0)
                 return false;
 
-            if (!Application.Current.Resources.Contains(new DataTemplateKey(viewModel.GetType())))
+
+            if (viewTypes.Count() == 1)
             {
-                if (viewTypes.Count() == 1)
-                {
-                    AddDataTemplate(viewModel.GetType(), viewTypes.FirstOrDefault());
-                }
-                else
-                {
-                    
-                    AddDataTemplate(viewModel.GetType(), FindAccurateType(vmType, viewTypes));
-                }                
+                AddDataTemplate(viewModel.GetType(), viewTypes.FirstOrDefault());
             }
+            else
+            {
+                AddDataTemplate(viewModel.GetType(), FindAccurateType(vmType, viewTypes));
+            }
+
             return true;                        
         }
         

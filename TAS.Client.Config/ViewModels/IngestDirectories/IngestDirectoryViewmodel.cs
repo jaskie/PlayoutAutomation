@@ -10,7 +10,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.Config.ViewModels.IngestDirectories
 {
-    public class IngestDirectoryViewmodel: EditViewmodelBase<IngestDirectory>, IIngestDirectoryProperties
+    public class IngestDirectoryViewmodel: EditViewModelBase<IngestDirectory>, IIngestDirectoryProperties
     {
 
         private string _directoryName;

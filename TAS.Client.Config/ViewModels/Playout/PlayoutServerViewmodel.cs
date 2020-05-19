@@ -8,7 +8,7 @@ using TAS.Common;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
-    public class PlayoutServerViewmodel : EditViewmodelBase<Model.CasparServer>
+    public class PlayoutServerViewmodel : EditViewModelBase<Model.CasparServer>
     {
         private string _serverAddress;
         private int _oscPort = 6250;

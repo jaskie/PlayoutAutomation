@@ -8,7 +8,7 @@ using TAS.Common;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
-    public class PlayoutServersViewmodel: EditViewmodelBase<Model.PlayoutServers>, IOkCancelViewModel
+    public class PlayoutServersViewmodel: EditViewModelBase<Model.PlayoutServers>, IOkCancelViewModel
     {
         private bool _isCollectionChanged;
         private PlayoutServerViewmodel _selectedServer;

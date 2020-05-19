@@ -104,7 +104,6 @@
     <Compile Include="ICommonDialogManager.cs" />
     <Compile Include="IgnoreOnUpdateAttribute.cs" />
     <Compile Include="IUiStateManager.cs" />
-    <Compile Include="IUiTemplatesManager.cs" />
     <Compile Include="IWindow.cs" />
     <Compile Include="IWindowManager.cs" />
     <Compile Include="MediaDirectoryExtensions.cs" />
@@ -119,7 +118,7 @@
     <Compile Include="OkCancelView.xaml.cs">
       <DependentUpon>OkCancelView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OkCancelViewModel.cs" />
+    <Compile Include="OkCancelViewModelBase.cs" />
     <Compile Include="IOkCancelViewModel.cs" />
     <Compile Include="Plugin\IUiEngine.cs" />
     <Compile Include="Plugin\IUiPluginContext.cs" />

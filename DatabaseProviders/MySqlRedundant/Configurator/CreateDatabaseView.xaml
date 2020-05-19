@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:TAS.Database.MySqlRedundant.Configurator"             
-             d:DataContext="{x:Type vm:CreateDatabaseViewmodel}"
+             d:DataContext="{x:Type vm:CreateDatabaseViewModel}"
              mc:Ignorable="d">
     
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">

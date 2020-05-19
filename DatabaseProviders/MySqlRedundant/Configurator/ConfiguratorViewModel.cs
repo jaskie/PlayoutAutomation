@@ -168,7 +168,7 @@ namespace TAS.Database.MySqlRedundant.Configurator
 
         private void CreateDatabase(object obj)
         {
-            using (var vm = new CreateDatabaseViewmodel(_db) { ConnectionString = ConnectionStringPrimary })
+            using (var vm = new CreateDatabaseViewModel(_db) { ConnectionString = ConnectionStringPrimary })
             {
                 if (UiServices.WindowManager.ShowDialog(vm, "Create database") != true)
                     return;
@@ -184,19 +184,19 @@ namespace TAS.Database.MySqlRedundant.Configurator
 
         private void EditConnectionString(object obj)
         {
-            using (var vm = new ConnectionStringViewmodel(_connectionStringPrimary))
+            using (var vm = new ConnectionStringViewModel(_connectionStringPrimary))
             {
                 if (UiServices.WindowManager.ShowDialog(vm, "Edit connection parameters") == true)
-                    ConnectionStringPrimary = vm.Model.ConnectionString;
+                    ConnectionStringPrimary = vm.ConnectionString;
             }
         }
 
         private void EditConnectionStringSecondary(object obj)
         {
-            using (var vm = new ConnectionStringViewmodel(_connectionStringSecondary))
+            using (var vm = new ConnectionStringViewModel(_connectionStringSecondary))
             {
                 if (UiServices.WindowManager.ShowDialog(vm, "Edit connection parameters") == true)
-                    ConnectionStringSecondary = vm.Model.ConnectionString;
+                    ConnectionStringSecondary = vm.ConnectionString;
             }
         }
 

@@ -17,12 +17,7 @@ namespace TAS.Database.MySqlRedundant
     [Export(typeof(IDatabase))]
     public class DatabaseMySqlRedundant : DatabaseBase
     {
-        private Dictionary<string, Dictionary<string, int>> _tablesStringFieldsLenghts;
-        private readonly static IUiTemplatesManager _uiTemplatesManager = new DataTemplateManager();
-        public DatabaseMySqlRedundant()
-        {
-            _uiTemplatesManager.LoadDataTemplates();
-        }
+        private Dictionary<string, Dictionary<string, int>> _tablesStringFieldsLenghts;                
 
         public override void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {

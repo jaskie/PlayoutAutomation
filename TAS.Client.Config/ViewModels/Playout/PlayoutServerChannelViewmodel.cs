@@ -4,7 +4,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
-    public class PlayoutServerChannelViewmodel : EditViewmodelBase<CasparServerChannel>, IPlayoutServerChannelProperties
+    public class PlayoutServerChannelViewmodel : EditViewModelBase<CasparServerChannel>, IPlayoutServerChannelProperties
     {
         private string _channelName;
         private int _id;
