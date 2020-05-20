@@ -10,7 +10,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.Config.ViewModels.IngestDirectories
 {
-    public class IngestDirectoryViewmodel: EditViewModelBase<IngestDirectory>, IIngestDirectoryProperties
+    public class IngestDirectoryViewModel : OkCancelViewModelBase
     {
 
         private string _directoryName;
@@ -41,12 +41,14 @@ namespace TAS.Client.Config.ViewModels.IngestDirectories
         private double _videoBitrateRatio;
         private double _audioBitrateRatio;
         private TVideoFormat _exportVideoFormat;
+        private IngestDirectory _ingestDirectory;
         
-        public IngestDirectoryViewmodel(IngestDirectory model, ModifyableViewModelBase owner):base(model)
+        public IngestDirectoryViewModel(IngestDirectory model, ModifyableViewModelBase owner)
         {
+            _ingestDirectory = model;
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             Owner = owner;
-            SubDirectoriesVM = new ObservableCollection<IngestDirectoryViewmodel>(model.SubDirectoriesSerialized.Select(s => new IngestDirectoryViewmodel(s, this)));
+            SubDirectoriesVM = new ObservableCollection<IngestDirectoryViewModel>(model.SubDirectoriesSerialized.Select(s => new IngestDirectoryViewModel(s, this)));
         }
         
         #region Enumerations
@@ -251,7 +253,7 @@ namespace TAS.Client.Config.ViewModels.IngestDirectories
             set => SetField(ref _audioBitrateRatio, value);
         }
 
-        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return SubDirectoriesVM.Select(vm => vm.Model); } }
+        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return SubDirectoriesVM.Select(vm => vm.IngestDirectory); } }
 
         #endregion // IIngestDirectoryProperties
 
@@ -263,12 +265,46 @@ namespace TAS.Client.Config.ViewModels.IngestDirectories
 
         public bool AudioDoNotEncode => _audioCodec == TAudioCodec.copy;
 
-        protected override void Update(object destObject = null)
+        public IngestDirectory IngestDirectory => _ingestDirectory;
+
+        public override bool Ok(object destObject = null)
         {
-            base.Update();
+            _ingestDirectory.AspectConversion = AspectConversion;
+            _ingestDirectory.AudioBitrateRatio = AudioBitrateRatio;
+            _ingestDirectory.AudioCodec = AudioCodec;
+            _ingestDirectory.AudioVolume = AudioVolume;
+            _ingestDirectory.DeleteSource = DeleteSource;
+            _ingestDirectory.DirectoryName = DirectoryName;
+            _ingestDirectory.DoNotEncode = AudioDoNotEncode;
+            _ingestDirectory.MediaDoNotArchive = MediaDoNotArchive;
+            _ingestDirectory.EncodeParams = EncodeParams;
+            _ingestDirectory.ExportContainerFormat = ExportContainerFormat;
+            _ingestDirectory.ExportParams = ExportParams;
+            _ingestDirectory.ExportVideoFormat = ExportVideoFormat;
+            _ingestDirectory.Extensions = Extensions;
+            _ingestDirectory.Folder = Folder;
+            _ingestDirectory.IsExport = IsExport;
+            _ingestDirectory.IsImport = IsImport;
+            _ingestDirectory.IsRecursive = IsRecursive;
+            _ingestDirectory.IsWAN = IsWAN;
+            _ingestDirectory.Kind = Kind;
+            _ingestDirectory.MediaCategory = MediaCategory;
+            _ingestDirectory.MediaLoudnessCheckAfterIngest = MediaLoudnessCheckAfterIngest;
+            _ingestDirectory.MediaRetnentionDays = MediaRetnentionDays;
+            _ingestDirectory.MXFAudioExportFormat = MXFAudioExportFormat;
+            _ingestDirectory.MXFVideoExportFormat = MXFVideoExportFormat;
+            _ingestDirectory.Password = Password;
+            _ingestDirectory.SourceFieldOrder = SourceFieldOrder;
+            _ingestDirectory.SubDirectories = SubDirectories;
+            _ingestDirectory.Username = Username;
+            _ingestDirectory.VideoBitrateRatio = VideoBitrateRatio;
+            _ingestDirectory.VideoCodec = VideoCodec;
+
             foreach (var vm in SubDirectoriesVM)
-                vm.Update();
-            Model.SubDirectories = SubDirectoriesVM.Select(vm => vm.Model);
+                vm.Ok();
+            _ingestDirectory.SubDirectories = SubDirectoriesVM.Select(vm => vm.IngestDirectory);
+
+            return true;
         }
 
         public override bool IsModified
@@ -285,12 +321,12 @@ namespace TAS.Client.Config.ViewModels.IngestDirectories
             return $"{DirectoryName} ({Folder})";
         }
 
-        public ObservableCollection<IngestDirectoryViewmodel> SubDirectoriesVM { get; }
+        public ObservableCollection<IngestDirectoryViewModel> SubDirectoriesVM { get; }
 
-        public IngestDirectoryViewmodel AddSubdirectory()
+        public IngestDirectoryViewModel AddSubdirectory()
         {
             var dir = new IngestDirectory { DirectoryName = Common.Properties.Resources._title_NewDirectory };
-            var dirVm = new IngestDirectoryViewmodel(dir, this);
+            var dirVm = new IngestDirectoryViewModel(dir, this);
             SubDirectoriesVM.Add(dirVm);
             IsModified = true;
             return dirVm;
@@ -298,15 +334,15 @@ namespace TAS.Client.Config.ViewModels.IngestDirectories
 
         internal ModifyableViewModelBase Owner { get; }
 
-        internal ObservableCollection<IngestDirectoryViewmodel> OwnerCollection => Owner is IngestDirectoriesViewmodel root
+        internal ObservableCollection<IngestDirectoryViewModel> OwnerCollection => Owner is IngestDirectoriesViewModel root
             ? root.Directories
-            : ((IngestDirectoryViewmodel) Owner).SubDirectoriesVM;
+            : ((IngestDirectoryViewModel) Owner).SubDirectoriesVM;
 
         protected override void OnDispose() { }
 
         public void SaveToModel()
         {
-            Update(Model);
+            Ok();
         }
     }
 }

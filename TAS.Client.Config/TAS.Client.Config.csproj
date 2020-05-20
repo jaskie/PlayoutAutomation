@@ -114,7 +114,7 @@
     <Compile Include="Views\Engines\EngineView.xaml.cs">
       <DependentUpon>EngineView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\Engines\EngineViewmodel.cs" />
+    <Compile Include="ViewModels\Engines\EngineViewModel.cs" />
     <Compile Include="ViewModels\ArchiveDirectories\ArchiveDirectoriesViewmodel.cs" />
     <Compile Include="Views\ArchiveDirectories\ArchiveDirectoriesView.xaml.cs">
       <DependentUpon>ArchiveDirectoriesView.xaml</DependentUpon>
@@ -125,11 +125,11 @@
     <Compile Include="Views\IngestDirectories\IngestDirectoriesView.xaml.cs">
       <DependentUpon>IngestDirectoriesView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\IngestDirectories\IngestDirectoriesViewmodel.cs" />
+    <Compile Include="ViewModels\IngestDirectories\IngestDirectoriesViewModel.cs" />
     <Compile Include="Views\IngestDirectories\IngestDirectoryView.xaml.cs">
       <DependentUpon>IngestDirectoryView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\IngestDirectories\IngestDirectoryViewmodel.cs" />
+    <Compile Include="ViewModels\IngestDirectories\IngestDirectoryViewModel.cs" />
     <Compile Include="Model\CgElementsController.cs" />
     <Compile Include="Model\ConfigFile.cs" />
     <Compile Include="Model\Engine.cs" />

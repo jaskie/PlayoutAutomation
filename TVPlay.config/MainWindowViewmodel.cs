@@ -47,7 +47,7 @@ namespace TAS.Client.Config
         
         private void _enginesSetup(object obj)
         {
-            using (var vm = new EnginesViewmodel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
+            using (var vm = new EnginesViewModel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
             {
                 UiServices.WindowManager.ShowDialog(vm, "Engines");
             }
@@ -78,7 +78,7 @@ namespace TAS.Client.Config
 
         private void _ingestFoldersSetup(object obj)
         {
-            using (var vm = new IngestDirectoriesViewmodel(_configFile.AppSettings.IngestFolders))
+            using (var vm = new IngestDirectoriesViewModel(_configFile.AppSettings.IngestFolders))
             {
                 UiServices.WindowManager.ShowDialog(vm, $"Ingest directories ({System.IO.Path.GetFullPath(_configFile.AppSettings.IngestFolders)})");
             }

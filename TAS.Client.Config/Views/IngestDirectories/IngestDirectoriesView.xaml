@@ -8,7 +8,7 @@
              xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.IngestDirectories"
              xmlns:view="clr-namespace:TAS.Client.Config.Views.IngestDirectories"
-             d:DataContext="{x:Type vm:IngestDirectoriesViewmodel}"
+             d:DataContext="{x:Type vm:IngestDirectoriesViewModel}"
              mc:Ignorable="d" 
              MinHeight="400"
              >
@@ -49,14 +49,14 @@
                 <behaviors:TreeViewTwoWaySelectedItem SelectedItem="{Binding SelectedDirectory}"/>
             </i:Interaction.Behaviors>
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type vm:IngestDirectoryViewmodel}" ItemsSource="{Binding SubDirectoriesVM}">
+                <HierarchicalDataTemplate DataType="{x:Type vm:IngestDirectoryViewModel}" ItemsSource="{Binding SubDirectoriesVM}">
                     <TextBlock Text="{Binding DirectoryName}"/>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
         <ContentControl Grid.Column="1" Grid.RowSpan="2" Margin="5" Content="{Binding SelectedDirectory}">
             <ContentControl.Resources>
-                <DataTemplate DataType="{x:Type vm:IngestDirectoryViewmodel}">
+                <DataTemplate DataType="{x:Type vm:IngestDirectoryViewModel}">
                     <view:IngestDirectoryView/>
                 </DataTemplate>
             </ContentControl.Resources>

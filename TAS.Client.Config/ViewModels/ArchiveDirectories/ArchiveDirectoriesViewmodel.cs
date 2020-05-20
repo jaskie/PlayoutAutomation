@@ -3,15 +3,16 @@ using System.Linq;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
-using TAS.Client.Config.Views.ArchiveDirectories;
 
 namespace TAS.Client.Config.ViewModels.ArchiveDirectories
 {
-    public class ArchiveDirectoriesViewmodel: EditViewModelBase<Model.ArchiveDirectories>, IOkCancelViewModel
-    {       
-        public ArchiveDirectoriesViewmodel(Model.ArchiveDirectories directories) : base(directories)
+    public class ArchiveDirectoriesViewmodel : OkCancelViewModelBase
+    {
+        private Model.ArchiveDirectories _archiveDirectories;
+        public ArchiveDirectoriesViewmodel(Model.ArchiveDirectories directories)
         {
-            Directories = new ObservableCollection<ArchiveDirectory>(Model.Directories);
+            _archiveDirectories = directories;
+            Directories = new ObservableCollection<ArchiveDirectory>(_archiveDirectories.Directories);
             _createCommands();
         }
 
@@ -40,7 +41,7 @@ namespace TAS.Client.Config.ViewModels.ArchiveDirectories
         {
             var newDir = new ArchiveDirectory();
             Directories.Add(newDir);
-            Model.Directories.Add(newDir);
+            _archiveDirectories.Directories.Add(newDir);
             SelectedDirectory = newDir;
         }
 
@@ -58,38 +59,8 @@ namespace TAS.Client.Config.ViewModels.ArchiveDirectories
                 _selectedDirectory = value;
                 NotifyPropertyChanged();
             }
-        }
+        }                        
         
-        protected override void OnDispose()
-        {
-        }
-        
-        public override bool IsModified { get { return Model.Directories.Any(d => d.IsModified || d.IsDeleted | d.IsNew); } }
-
-        protected override void Update(object parameter = null)
-        {
-            Model.Save();
-        }
-
-        public bool Ok(object obj)
-        {
-            Update();
-            return true;
-        }
-
-        public void Cancel(object obj)
-        {
-            
-        }
-
-        public bool CanOk(object obj)
-        {
-            return IsModified;
-        }
-
-        public bool CanCancel(object obj)
-        {
-            return true;
-        }
+        public override bool IsModified { get { return _archiveDirectories.Directories.Any(d => d.IsModified || d.IsDeleted | d.IsNew); } }                       
     }
 }

@@ -40,7 +40,7 @@
         </DataGrid>
         <ContentControl Grid.Column="1" Grid.RowSpan="2" Content="{Binding SelectedEngine}">
             <ContentControl.Resources>
-                <DataTemplate DataType="{x:Type vm:EngineViewmodel}">
+                <DataTemplate DataType="{x:Type vm:EngineViewModel}">
                     <view:EngineView/>
                 </DataTemplate>
             </ContentControl.Resources>

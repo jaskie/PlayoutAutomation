@@ -8,26 +8,29 @@ using TAS.Common;
 
 namespace TAS.Client.Config.ViewModels.Engines
 {
-    public class EnginesViewmodel: EditViewModelBase<Model.Engines>, IOkCancelViewModel
+    public class EnginesViewModel: OkCancelViewModelBase
     {        
-        private EngineViewmodel _selectedEngine;
+        private EngineViewModel _selectedEngine;
         private bool _isCollectionCanged;
+
+        private Model.Engines _engines;
         
-        public EnginesViewmodel(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection) : base(new Model.Engines(databaseType, connectionStringSettingsCollection))
-        {            
-            Engines = new ObservableCollection<EngineViewmodel>(Model.EngineList.Select(e => new EngineViewmodel(e)));
+        public EnginesViewModel(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
+        {
+            _engines = new Model.Engines(databaseType, connectionStringSettingsCollection);
+            Engines = new ObservableCollection<EngineViewModel>(_engines.EngineList.Select(e => new EngineViewModel(e)));
             Engines.CollectionChanged += _engines_CollectionChanged;
             CommandAdd = new UiCommand(_add);
             CommandDelete = new UiCommand(o => Engines.Remove(_selectedEngine), o => _selectedEngine != null);
-        }
+        }        
         
         public ICommand CommandAdd { get; }
 
         public ICommand CommandDelete { get; }
 
-        public ObservableCollection<EngineViewmodel> Engines { get; }
+        public ObservableCollection<EngineViewModel> Engines { get; }
 
-        public EngineViewmodel SelectedEngine
+        public EngineViewModel SelectedEngine
         {
             get => _selectedEngine;
             set
@@ -39,12 +42,12 @@ namespace TAS.Client.Config.ViewModels.Engines
             }
         }
 
-        protected override void Update(object destObject = null)
+        private void Update()
         {
             foreach (var e in Engines)
                 e.Save();
-            Model.Save();
-            base.Update(destObject);
+
+            _engines.Save();            
         }
 
         public override bool IsModified
@@ -59,51 +62,36 @@ namespace TAS.Client.Config.ViewModels.Engines
         protected override void OnDispose()
         {
             Engines.CollectionChanged -= _engines_CollectionChanged;
-            Model.Dispose();
+            _engines.Dispose();
         }
 
         private void _engines_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                Model.EngineList.Add(((EngineViewmodel)e.NewItems[0]).Model);
+                _engines.EngineList.Add(((EngineViewModel)e.NewItems[0]).Engine);
             }
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-                Model.EngineList.Remove(((EngineViewmodel)e.OldItems[0]).Model);
-                Model.DeletedEngines.Add(((EngineViewmodel)e.OldItems[0]).Model);
+                _engines.EngineList.Remove(((EngineViewModel)e.OldItems[0]).Engine);
+                _engines.DeletedEngines.Add(((EngineViewModel)e.OldItems[0]).Engine);
             }
             _isCollectionCanged = true;
         }
 
         private void _add(object obj)
         {
-            var newEngine = new Model.Engine() { Servers = Model.Servers, ArchiveDirectories = Model.ArchiveDirectories };
-            Model.EngineList.Add(newEngine);
-            var newPlayoutServerViewmodel = new EngineViewmodel(newEngine);
+            var newEngine = new Model.Engine() { Servers = _engines.Servers, ArchiveDirectories = _engines.ArchiveDirectories };
+            _engines.EngineList.Add(newEngine);
+            var newPlayoutServerViewmodel = new EngineViewModel(newEngine);
             Engines.Add(newPlayoutServerViewmodel);
             SelectedEngine = newPlayoutServerViewmodel;            
         }
 
-        public bool Ok(object obj)
+        public override bool Ok(object obj)
         {
             Update();
             return true;
-        }
-
-        public void Cancel(object obj)
-        {
-            
-        }
-
-        public bool CanOk(object obj)
-        {
-            return IsModified;
-        }
-
-        public bool CanCancel(object obj)
-        {
-            return true;
-        }
+        }        
     }
 }

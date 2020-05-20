@@ -6,19 +6,20 @@ using System.Windows.Input;
 using System.Xml.Serialization;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
-using TAS.Client.Config.Views.IngestDirectories;
 
 namespace TAS.Client.Config.ViewModels.IngestDirectories
 {
-    public class IngestDirectoriesViewmodel: EditViewModelBase<IEnumerable<IngestDirectory>>, IOkCancelViewModel
+    public class IngestDirectoriesViewModel: OkCancelViewModelBase
     {
         private readonly string _fileName;
-        private IngestDirectoryViewmodel _selectedDirectory;
+        private IngestDirectoryViewModel _selectedDirectory;
 
+        private IEnumerable<IngestDirectory> _ingestDirectories;
 
-        public IngestDirectoriesViewmodel(string fileName) : base(Deserialize(fileName)) 
+        public IngestDirectoriesViewModel(string fileName)
         {
-            foreach (var item in Model.Select(d => new IngestDirectoryViewmodel(d, this)))
+            _ingestDirectories = Deserialize(fileName);
+            foreach (var item in _ingestDirectories.Select(d => new IngestDirectoryViewModel(d, this)))
             {
                 Directories.Add(item);
             }
@@ -36,9 +37,9 @@ namespace TAS.Client.Config.ViewModels.IngestDirectories
 
         public ICommand CommandAddSub { get; private set; }
 
-        public ObservableCollection<IngestDirectoryViewmodel> Directories { get; } = new ObservableCollection<IngestDirectoryViewmodel>();
+        public ObservableCollection<IngestDirectoryViewModel> Directories { get; } = new ObservableCollection<IngestDirectoryViewModel>();
         
-        public IngestDirectoryViewmodel SelectedDirectory
+        public IngestDirectoryViewModel SelectedDirectory
         {
             get => _selectedDirectory;
             set
@@ -53,20 +54,17 @@ namespace TAS.Client.Config.ViewModels.IngestDirectories
         
         public override bool IsModified { get { return base.IsModified || Directories.Any(d => d.IsModified); } }
 
-        protected override void Update(object parameter = null)
+        public override bool Ok(object obj = null)
         {
             Directories.ToList().ForEach(d => d.SaveToModel());
             var writer = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(_fileName))
             {
-                writer.Serialize(file, Directories.Select(d => d.Model).ToList());
+                writer.Serialize(file, Directories.Select(d => d.IngestDirectory).ToList());
             }
-        }
 
-        protected override void OnDispose()
-        {
-
-        }
+            return true;
+        }        
 
         private void _createCommands()
         {
@@ -95,7 +93,7 @@ namespace TAS.Client.Config.ViewModels.IngestDirectories
             SelectedDirectory = Directories.FirstOrDefault();
         }
 
-        private bool _deleteDirectory(IngestDirectoryViewmodel item)
+        private bool _deleteDirectory(IngestDirectoryViewModel item)
         {
             var collection = item.OwnerCollection;
             if (!collection.Contains(item))
@@ -111,7 +109,7 @@ namespace TAS.Client.Config.ViewModels.IngestDirectories
 
         private void _add(object obj)
         {
-            var newDir = new IngestDirectoryViewmodel(new IngestDirectory(), this) { DirectoryName = Common.Properties.Resources._title_NewDirectory };
+            var newDir = new IngestDirectoryViewModel(new IngestDirectory(), this) { DirectoryName = Common.Properties.Resources._title_NewDirectory };
             Directories.Add(newDir);
             IsModified = true;
             SelectedDirectory = newDir;
@@ -181,27 +179,6 @@ namespace TAS.Client.Config.ViewModels.IngestDirectories
             {
                 return new List<IngestDirectory>();
             }
-        }
-
-        public bool Ok(object obj)
-        {
-            Update();
-            return true;
-        }
-
-        public void Cancel(object obj)
-        {
-            
-        }
-
-        public bool CanOk(object obj)
-        {
-            return IsModified;
-        }
-
-        public bool CanCancel(object obj)
-        {
-            return true;
-        }
+        }       
     }
 }
