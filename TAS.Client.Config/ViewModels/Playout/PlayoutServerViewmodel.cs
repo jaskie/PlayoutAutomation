@@ -9,7 +9,7 @@ using TAS.Common;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
-    public class PlayoutServerViewmodel : OkCancelViewModelBase
+    public class PlayoutServerViewModel : OkCancelViewModelBase
     {
         private string _serverAddress;
         private int _oscPort = 6250;
@@ -17,35 +17,47 @@ namespace TAS.Client.Config.ViewModels.Playout
         private string _animationFolder;
         private TServerType _serverType;
 
-        private PlayoutServerChannelViewmodel _selectedPlayoutServerChannel;
-        private PlayoutRecorderViewmodel _selectedPlayoutRecorder;
+        private PlayoutServerChannelViewModel _selectedPlayoutServerChannel;
+        private PlayoutRecorderViewModel _selectedPlayoutRecorder;
         private bool _isAnyChildChanged;
         private TMovieContainerFormat _movieContainerFormat;
         private bool _isMediaFolderRecursive;
         private Model.CasparServer _playoutServer;
 
-        public PlayoutServerViewmodel(Model.CasparServer playoutServer)
+        public PlayoutServerViewModel(Model.CasparServer playoutServer)
         {
             _playoutServer = playoutServer;
-            PlayoutServerChannels = new ObservableCollection<PlayoutServerChannelViewmodel>(playoutServer.Channels.Select(p =>
+            PlayoutServerChannels = new ObservableCollection<PlayoutServerChannelViewModel>(playoutServer.Channels.Select(p =>
                 {
-                    var newVm = new PlayoutServerChannelViewmodel(p);
+                    var newVm = new PlayoutServerChannelViewModel(p);
                     return newVm;
                 }));
             PlayoutServerChannels.CollectionChanged += _playoutServerChannels_CollectionChanged;
             CommandAddChannel = new UiCommand(_addChannel);
             CommandDeleteChannel = new UiCommand(_removeChannel, o => _selectedPlayoutServerChannel != null);
 
-            PlayoutServerRecorders = new ObservableCollection<PlayoutRecorderViewmodel>(playoutServer.Recorders.Select(r =>
+            PlayoutServerRecorders = new ObservableCollection<PlayoutRecorderViewModel>(playoutServer.Recorders.Select(r =>
             {
-                var newVm = new PlayoutRecorderViewmodel(r);
+                var newVm = new PlayoutRecorderViewModel(r);
                 return newVm;
             }));
             PlayoutServerRecorders.CollectionChanged += _playoutRecorders_CollectionChanged;
             CommandAddRecorder = new UiCommand(_addRecorder);
             CommandDeleteRecorder = new UiCommand(_removeRecorder, o => _selectedPlayoutRecorder != null);
+            Init();
         }
 
+        private void Init()
+        {
+            ServerAddress = _playoutServer.ServerAddress;
+            OscPort = _playoutServer.OscPort;
+            MediaFolder = _playoutServer.MediaFolder;
+            IsMediaFolderRecursive = _playoutServer.IsMediaFolderRecursive;
+            AnimationFolder = _playoutServer.AnimationFolder;
+            ServerType = _playoutServer.ServerType;
+            MovieContainerFormat = _playoutServer.MovieContainerFormat;
+            IsModified = false;
+        }
 
         public ICommand CommandAddChannel { get; }
 
@@ -105,7 +117,7 @@ namespace TAS.Client.Config.ViewModels.Playout
 
         public Array MovieContainerFormats { get; } = Enum.GetValues(typeof(TMovieContainerFormat));
 
-        public PlayoutServerChannelViewmodel SelectedPlayoutServerChannel
+        public PlayoutServerChannelViewModel SelectedPlayoutServerChannel
         {
             get => _selectedPlayoutServerChannel;
             set
@@ -117,11 +129,11 @@ namespace TAS.Client.Config.ViewModels.Playout
             }
         }
 
-        public ObservableCollection<PlayoutServerChannelViewmodel> PlayoutServerChannels { get; }
+        public ObservableCollection<PlayoutServerChannelViewModel> PlayoutServerChannels { get; }
 
-        public ObservableCollection<PlayoutRecorderViewmodel> PlayoutServerRecorders { get; }
+        public ObservableCollection<PlayoutRecorderViewModel> PlayoutServerRecorders { get; }
 
-        public PlayoutRecorderViewmodel SelectedPlayoutRecorder
+        public PlayoutRecorderViewModel SelectedPlayoutRecorder
         {
             get => _selectedPlayoutRecorder;
             set
@@ -147,18 +159,18 @@ namespace TAS.Client.Config.ViewModels.Playout
 
         private void _addRecorder(object obj)
         {
-            PlayoutServerRecorders.Add(new PlayoutRecorderViewmodel(new Model.CasparRecorder { RecorderName = "New recorder" }));
+            PlayoutServerRecorders.Add(new PlayoutRecorderViewModel(new Model.CasparRecorder { RecorderName = "New recorder" }));
         }
 
         private void _playoutRecorders_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                _playoutServer.Recorders.Add(((PlayoutRecorderViewmodel)e.NewItems[0]).CasparRecorder);
+                _playoutServer.Recorders.Add(((PlayoutRecorderViewModel)e.NewItems[0]).CasparRecorder);
             }
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-                _playoutServer.Recorders.Remove(((PlayoutRecorderViewmodel)e.OldItems[0]).CasparRecorder);
+                _playoutServer.Recorders.Remove(((PlayoutRecorderViewModel)e.OldItems[0]).CasparRecorder);
             }
             _isAnyChildChanged = true;
         }
@@ -167,18 +179,18 @@ namespace TAS.Client.Config.ViewModels.Playout
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                _playoutServer.Channels.Add(((PlayoutServerChannelViewmodel)e.NewItems[0]).CasparServerChannel);
+                _playoutServer.Channels.Add(((PlayoutServerChannelViewModel)e.NewItems[0]).CasparServerChannel);
             }
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-                _playoutServer.Channels.Remove(((PlayoutServerChannelViewmodel)e.OldItems[0]).CasparServerChannel);
+                _playoutServer.Channels.Remove(((PlayoutServerChannelViewModel)e.OldItems[0]).CasparServerChannel);
             }
             _isAnyChildChanged = true;
         }
 
         private void _addChannel(object o)
         {
-            var newChannelVm = new PlayoutServerChannelViewmodel(new Model.CasparServerChannel { Id = PlayoutServerChannels.Any() ? PlayoutServerChannels.Max(c => c.Id) + 1 : 1 });
+            var newChannelVm = new PlayoutServerChannelViewModel(new Model.CasparServerChannel { Id = PlayoutServerChannels.Any() ? PlayoutServerChannels.Max(c => c.Id) + 1 : 1 });
             PlayoutServerChannels.Add(newChannelVm);
             SelectedPlayoutServerChannel = newChannelVm;
         }

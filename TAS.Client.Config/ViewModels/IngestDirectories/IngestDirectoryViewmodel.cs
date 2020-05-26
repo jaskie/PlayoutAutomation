@@ -46,11 +46,46 @@ namespace TAS.Client.Config.ViewModels.IngestDirectories
         public IngestDirectoryViewModel(IngestDirectory model, ModifyableViewModelBase owner)
         {
             _ingestDirectory = model;
+            
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             Owner = owner;
             SubDirectoriesVM = new ObservableCollection<IngestDirectoryViewModel>(model.SubDirectoriesSerialized.Select(s => new IngestDirectoryViewModel(s, this)));
+            Init();
         }
-        
+
+        private void Init()
+        {
+            AspectConversion = _ingestDirectory.AspectConversion;
+            AudioBitrateRatio = _ingestDirectory.AudioBitrateRatio;
+            AudioCodec = _ingestDirectory.AudioCodec;
+            AudioVolume = _ingestDirectory.AudioVolume;
+            DeleteSource = _ingestDirectory.DeleteSource;
+            DirectoryName = _ingestDirectory.DirectoryName;
+            MediaDoNotArchive = _ingestDirectory.MediaDoNotArchive;
+            EncodeParams = _ingestDirectory.EncodeParams;
+            ExportContainerFormat = _ingestDirectory.ExportContainerFormat;
+            ExportParams = _ingestDirectory.ExportParams;
+            ExportVideoFormat = _ingestDirectory.ExportVideoFormat;
+            Extensions = _ingestDirectory.Extensions;
+            Folder = _ingestDirectory.Folder;
+            IsExport = _ingestDirectory.IsExport;
+            IsImport = _ingestDirectory.IsImport;
+            IsRecursive = _ingestDirectory.IsRecursive;
+            IsWAN = _ingestDirectory.IsWAN;
+            Kind = _ingestDirectory.Kind;
+            MediaCategory = _ingestDirectory.MediaCategory;
+            MediaLoudnessCheckAfterIngest = _ingestDirectory.MediaLoudnessCheckAfterIngest;
+            MediaRetnentionDays = _ingestDirectory.MediaRetnentionDays;
+            MXFAudioExportFormat = _ingestDirectory.MXFAudioExportFormat;
+            MXFVideoExportFormat = _ingestDirectory.MXFVideoExportFormat;
+            Password = _ingestDirectory.Password;
+            SourceFieldOrder = _ingestDirectory.SourceFieldOrder;            
+            Username = _ingestDirectory.Username;
+            VideoBitrateRatio = _ingestDirectory.VideoBitrateRatio;
+            VideoCodec = _ingestDirectory.VideoCodec;
+            IsModified = false;
+        }
+
         #region Enumerations
         public Array AspectConversions { get; } = Enum.GetValues(typeof(TAspectConversion));
         public Array AspectConversionsEnforce { get; } = new TAspectConversion[3];

@@ -1,17 +1,16 @@
 ﻿using TAS.Client.Common;
 using TAS.Client.Config.Model;
-using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
-    public class PlayoutRecorderViewmodel : OkCancelViewModelBase
+    public class PlayoutRecorderViewModel : OkCancelViewModelBase
     {
         private int _id;
         private string _recorderName;
         private int _defaultChannel;
         private CasparRecorder _casparRecorder;
 
-        public PlayoutRecorderViewmodel(CasparRecorder r)
+        public PlayoutRecorderViewModel(CasparRecorder r)
         {
             _casparRecorder = r;
             _id = r.Id;

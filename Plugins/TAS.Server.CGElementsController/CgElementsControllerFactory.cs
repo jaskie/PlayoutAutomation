@@ -7,7 +7,7 @@ using NLog;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.CgElementsController
 {
     [Export(typeof(IEnginePluginFactory))]
     public class CgElementsControllerFactory : IEnginePluginFactory

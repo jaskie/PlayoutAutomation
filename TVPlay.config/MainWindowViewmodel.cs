@@ -22,8 +22,7 @@ namespace TAS.Client.Config
             CommandConfigFileEdit = new UiCommand(_configFileEdit, _canShowDialog);
             CommandConfigFileSelect = new UiCommand(_configFileSelect, _canShowDialog);
             CommandPlayoutServersSetup = new UiCommand(_serversSetup, _canShowDialog);
-            CommandEnginesSetup = new UiCommand(_enginesSetup, _canShowDialog);
-            CommandPluginsSetup = new UiCommand(_pluginsSetup, _canShowDialog);
+            CommandEnginesSetup = new UiCommand(_enginesSetup, _canShowDialog);            
         }       
 
         public ICommand CommandIngestFoldersSetup { get; }
@@ -55,7 +54,7 @@ namespace TAS.Client.Config
         
         private void _serversSetup(object obj)
         {
-            using (var vm = new PlayoutServersViewmodel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
+            using (var vm = new PlayoutServersViewModel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
             {
                 UiServices.WindowManager.ShowDialog(vm, "Playout Servers");
             }
@@ -83,14 +82,6 @@ namespace TAS.Client.Config
                 UiServices.WindowManager.ShowDialog(vm, $"Ingest directories ({System.IO.Path.GetFullPath(_configFile.AppSettings.IngestFolders)})");
             }
                 
-        }
-
-        private void _pluginsSetup(object obj)
-        {
-            using (var vm = new PluginsViewModel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
-            {
-                UiServices.WindowManager.ShowDialog(vm, "Plugins");
-            }                
-        }
+        }        
     }
 }

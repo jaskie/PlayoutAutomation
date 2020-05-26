@@ -6,7 +6,7 @@ using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using jNet.RPC;
 
-namespace TAS.Server
+namespace TAS.Server.CgElementsController
 {
     public class CgElementsController : ServerObjectBase, ICGElementsController, IEnginePlugin
     {

@@ -1,29 +1,16 @@
 ﻿using System.Collections.Generic;
-using System.Xml.Serialization;
 
 namespace TAS.Client.Config.Model
 {
     public class CgElementsController
-    {       
-        [XmlAttribute]
-        public string EngineName { get; set; }
-        [XmlArray]
-        [XmlArrayItem("Command")]
-        public List<string> Startup { get; set; }        
-        [XmlArray]
-        [XmlArrayItem("Crawl")]
-        public List<CgElement> Crawls { get; set; }
-        [XmlArray]
-        [XmlArrayItem("Logo")]
-        public List<CgElement> Logos { get; set; }
-        [XmlArray]
-        [XmlArrayItem("Parental")]
-        public List<CgElement> Parentals { get; set; }
-        [XmlArray]
-        [XmlArrayItem("Aux")]
+    {               
+        public string EngineName { get; set; }        
+        public List<string> Startup { get; set; }               
+        public List<CgElement> Crawls { get; set; }        
+        public List<CgElement> Logos { get; set; }        
+        public List<CgElement> Parentals { get; set; }        
         public List<CgElement> Auxes { get; set; }
-
-
+        public bool IsEnabled { get; set; }
         public CgElementsController()
         {
             Crawls = new List<CgElement>();

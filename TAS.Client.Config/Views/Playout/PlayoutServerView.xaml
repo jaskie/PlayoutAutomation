@@ -7,7 +7,7 @@
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.Playout"
              xmlns:view="clr-namespace:TAS.Client.Config.Views.Playout"
-             d:DataContext="{d:DesignInstance vm:PlayoutServerViewmodel}"
+             d:DataContext="{d:DesignInstance vm:PlayoutServerViewModel}"
              mc:Ignorable="d" 
             >
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
@@ -95,7 +95,7 @@
             </DockPanel>
             <ContentControl Margin="5, 0, 0, 0" Grid.Column="1" Content="{Binding SelectedPlayoutServerChannel}">
                 <ContentControl.Resources>
-                    <DataTemplate DataType="{x:Type vm:PlayoutServerChannelViewmodel}">
+                    <DataTemplate DataType="{x:Type vm:PlayoutServerChannelViewModel}">
                         <view:PlayoutServerChannelView/>
                     </DataTemplate>
                 </ContentControl.Resources>

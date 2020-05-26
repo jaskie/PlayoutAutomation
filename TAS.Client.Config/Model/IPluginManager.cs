@@ -9,6 +9,7 @@ namespace TAS.Client.Config.Model.Plugins
 {
     public interface IPluginManager
     {
-        string PluginName { get; }           
+        string PluginName { get; }       
+        void Save();
     }
 }

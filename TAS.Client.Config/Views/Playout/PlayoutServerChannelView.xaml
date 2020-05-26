@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.Playout"
-             d:DataContext="{d:DesignInstance vm:PlayoutServerChannelViewmodel}"
+             d:DataContext="{d:DesignInstance vm:PlayoutServerChannelViewModel}"
              mc:Ignorable="d" 
             >
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">

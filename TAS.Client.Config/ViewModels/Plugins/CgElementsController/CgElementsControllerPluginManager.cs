@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Windows.Controls;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
@@ -14,6 +15,8 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
     public class CgElementsControllerPluginManager : ModifyableViewModelBase, IPluginManager
     {                
         private readonly Engine _engine;
+        private readonly Model.CgElementsController _cgElementsController = new Model.CgElementsController();
+
         private List<CgElement> _cgElements;
         private List<CgElement> _crawls;
         private List<CgElement> _logos;
@@ -28,10 +31,11 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         public CgElementsControllerPluginManager(Engine engine)
         {
-            _engine = engine;
+            _engine = engine;                         
             LoadCommands();
             Init();
         }
+
         private void LoadCommands()
         {
             AddCgElementCommand = new UiCommand(AddCgElement, CanAddCgElement);
@@ -39,29 +43,46 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             MoveCgElementDownCommand = new UiCommand(MoveCgElementDown, CanMoveCgElementDown);
             EditElementCommand = new UiCommand(EditElement);
             DeleteElementCommand = new UiCommand(DeleteElement);
-            SaveCommand = new UiCommand(Save, CanSave);
+            SaveCommand = new UiCommand(LocalSave, CanSave);
             UndoCommand = new UiCommand(Undo, CanUndo);
         }
 
         private void Init()
         {
-            _crawls = new List<CgElement>(_engine.CgElementsController.Crawls);
-            _logos = new List<CgElement>(_engine.CgElementsController.Logos);
-            _auxes = new List<CgElement>(_engine.CgElementsController.Auxes);
-            _parentals = new List<CgElement>(_engine.CgElementsController.Parentals);
-            _elementTypes = Enum.GetNames(typeof(CgElement.Type)).ToList();
+            if (_engine.CgElementsController != null)
+            {
+                _crawls = new List<CgElement>(_engine.CgElementsController.Crawls);
+                _logos = new List<CgElement>(_engine.CgElementsController.Logos);
+                _auxes = new List<CgElement>(_engine.CgElementsController.Auxes);
+                _parentals = new List<CgElement>(_engine.CgElementsController.Parentals);
+                _cgElementsController.Startup = _engine.CgElementsController.Startup;
+                _cgElementsController.IsEnabled = _engine.CgElementsController.IsEnabled;
+                _isEnabled = _engine.CgElementsController.IsEnabled;
 
-            foreach (var crawl in _crawls)
-                crawl.CgType = CgElement.Type.Crawl;
+                foreach (var crawl in _crawls)
+                    crawl.CgType = CgElement.Type.Crawl;
 
-            foreach (var logo in _logos)
-                logo.CgType = CgElement.Type.Logo;
+                foreach (var logo in _logos)
+                    logo.CgType = CgElement.Type.Logo;
 
-            foreach (var aux in _auxes)
-                aux.CgType = CgElement.Type.Aux;
+                foreach (var aux in _auxes)
+                    aux.CgType = CgElement.Type.Aux;
 
-            foreach (var parental in _parentals)
-                parental.CgType = CgElement.Type.Parental;
+                foreach (var parental in _parentals)
+                    parental.CgType = CgElement.Type.Parental;
+            }
+            else
+            {
+                _crawls = new List<CgElement>();
+                _logos = new List<CgElement>();
+                _auxes = new List<CgElement>();
+                _parentals = new List<CgElement>();
+                _cgElementsController.Startup = new List<string>();
+                _cgElementsController.IsEnabled = false;
+                _isEnabled = _cgElementsController.IsEnabled;
+            }
+
+            _elementTypes = Enum.GetNames(typeof(CgElement.Type)).ToList();            
 
             ElementTypes = CollectionViewSource.GetDefaultView(_elementTypes);
             SelectedElementType = _elementTypes.LastOrDefault();
@@ -152,12 +173,10 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             CgElementViewModel = new CgElementViewModel(_newElement);
         }
 
-        private void Save(object obj)
+        public void Save()
         {
-            _engine.CgElementsController.Auxes = _auxes;
-            _engine.CgElementsController.Crawls = _crawls;
-            _engine.CgElementsController.Logos = _logos;
-            _engine.CgElementsController.Parentals = _parentals;
+            if (IsModified)
+                _engine.CgElementsController = _cgElementsController;
 
             var cgElements = _auxes.Concat(_crawls).Concat(_logos).Concat(_parentals);
             foreach (var cgElement in cgElements)
@@ -198,7 +217,15 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                     var clientPath = Path.Combine(Directory.GetCurrentDirectory(), configPath, Path.GetFileName(cgElement.UploadClientImagePath));
                     File.Copy(cgElement.UploadClientImagePath, clientPath, true);
                 }
-            }           
+            }
+        }
+
+        private void LocalSave(object obj)
+        {
+            _cgElementsController.Auxes = _auxes;
+            _cgElementsController.Crawls = _crawls;
+            _cgElementsController.Logos = _logos;
+            _cgElementsController.Parentals = _parentals;            
         }
 
         private void CgElementWizardClosed(object sender, EventArgs e)
@@ -213,6 +240,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                     _newElement.Id = (byte)_cgElements.Count();
                     _cgElements.Add(_newElement);
                     _newElement = null;
+                    IsModified = true;
                 }
             }
 
@@ -227,14 +255,17 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             {
                 var old = _currentViewModel;
 
-                if (!SetField(ref _currentViewModel, value))
+                if (_currentViewModel == value)
                     return;
+                _currentViewModel = value;
 
                 if (old != null)
                     old.Closing -= CgElementWizardClosed;
 
                 if (value != null)
                     _currentViewModel.Closing += CgElementWizardClosed;
+
+                NotifyPropertyChanged();
             }
         }
 
@@ -271,7 +302,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                 CgElements.SortDescriptions.Add(new SortDescription(nameof(CgElement.Id), ListSortDirection.Ascending));
 
                 NotifyPropertyChanged(nameof(CgElements));
-                NotifyPropertyChanged(nameof(SelectedElementType));
+                NotifyPropertyChanged();
             }
         }
 
@@ -280,10 +311,13 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             get => _selectedElement;
             set
             {
-                if (!SetField(ref _selectedElement, value))
+                if (value == _selectedElement)
                     return;
 
+                _selectedElement = value;
                 _newElement = null;
+
+                NotifyPropertyChanged();
             }
         }
 

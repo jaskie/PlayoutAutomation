@@ -137,15 +137,15 @@
     <Compile Include="Model\IPluginManager.cs" />
     <Compile Include="Model\PlayoutServers.cs" />
     <Compile Include="Model\RemoteHost.cs" />
-    <Compile Include="ViewModels\Playout\PlayoutRecorderViewmodel.cs" />
+    <Compile Include="ViewModels\Playout\PlayoutRecorderViewModel.cs" />
     <Compile Include="Views\Playout\PlayoutServerChannelView.xaml.cs">
       <DependentUpon>PlayoutServerChannelView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\Playout\PlayoutServerChannelViewmodel.cs" />
+    <Compile Include="ViewModels\Playout\PlayoutServerChannelViewModel.cs" />
     <Compile Include="Views\Playout\PlayoutServerView.xaml.cs">
       <DependentUpon>PlayoutServerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\Playout\PlayoutServerViewmodel.cs" />
+    <Compile Include="ViewModels\Playout\PlayoutServerViewModel.cs" />
     <Compile Include="Views\Plugins\CgElementsController\CgElementView.xaml.cs">
       <DependentUpon>CgElementView.xaml</DependentUpon>
     </Compile>
@@ -157,7 +157,7 @@
     <Compile Include="Views\Playout\PlayoutServersView.xaml.cs">
       <DependentUpon>PlayoutServersView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\Playout\PlayoutServersViewmodel.cs" />
+    <Compile Include="ViewModels\Playout\PlayoutServersViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\Plugins\CgElementsController\CgElementsControllerPluginManagerView.xaml">

@@ -81,7 +81,7 @@
                 <Button VerticalAlignment="Center" HorizontalAlignment="Right" Padding="5,2,5,2" Margin="5" Command="{Binding PluginManagerCommand}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/TAS.Client.Common;component/Images/Config/plugins_config.png" Width="25" />
-                        <Label Content="Plugin Manager >" VerticalAlignment="Center" />
+                        <Label Content="Plugin Manager" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
             </StackPanel>

@@ -7,7 +7,7 @@
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.Playout"
              xmlns:view="clr-namespace:TAS.Client.Config.Views.Playout"
-             d:DataContext="{x:Type vm:PlayoutServersViewmodel}"
+             d:DataContext="{x:Type vm:PlayoutServersViewModel}"
              mc:Ignorable="d" 
              MinHeight="400"
              >
@@ -41,7 +41,7 @@
         </DataGrid>
         <ContentControl Grid.Column="1" Grid.RowSpan="2" Content="{Binding SelectedServer}">
             <ContentControl.Resources>
-                <DataTemplate DataType="{x:Type vm:PlayoutServerViewmodel}">
+                <DataTemplate DataType="{x:Type vm:PlayoutServerViewModel}">
                     <view:PlayoutServerView/>
                 </DataTemplate>
             </ContentControl.Resources>

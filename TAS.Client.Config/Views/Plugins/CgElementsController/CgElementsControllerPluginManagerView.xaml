@@ -108,7 +108,7 @@
                 </DataGrid>
             </Grid>
 
-            <ContentControl IsEnabled="{Binding IsEnabled}" Grid.Column="1" Content="{Binding CgElementViewModel}" ContentTemplate="{StaticResource OkCancelBase}">
+            <ContentControl VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}" Grid.Column="1" Content="{Binding CgElementViewModel}" ContentTemplate="{StaticResource OkCancelBase}">
                 <ContentControl.Resources>
                     <DataTemplate DataType="{x:Type cgVM:CgElementViewModel}">
                         <cgView:CgElementView />

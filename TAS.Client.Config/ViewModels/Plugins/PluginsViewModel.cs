@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Windows.Data;
@@ -9,7 +7,6 @@ using TAS.Client.Common;
 using TAS.Client.Config.Model;
 using TAS.Client.Config.Model.Plugins;
 using TAS.Client.Config.ViewModels.Plugins.CgElementsController;
-using TAS.Common;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {
@@ -22,8 +19,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
 
         public PluginsViewModel(Engine engine)
         {
-            _engine = engine;
-            
+            _engine = engine;            
             _plugins = GetPlugins();
             
             Plugins = CollectionViewSource.GetDefaultView(_plugins);                       
@@ -48,10 +44,18 @@ namespace TAS.Client.Config.ViewModels.Plugins
             return plugins;
         }              
         public ICollectionView Plugins { get; }
-        public IPluginManager SelectedPlugin { get => _selectedPlugin; set => SetField(ref _selectedPlugin, value); }        
+        public IPluginManager SelectedPlugin { get => _selectedPlugin; set => SetField(ref _selectedPlugin, value); }
+
+        public bool HasPlugins => _plugins.Count > 0 ? true : false;
+        public void Save()
+        {
+            foreach (var plugin in _plugins)                
+                plugin.Save();
+        }
+
         protected override void OnDispose()
         {
             //
-        }        
+        }             
     }
 }

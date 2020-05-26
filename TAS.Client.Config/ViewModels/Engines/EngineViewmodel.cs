@@ -21,10 +21,12 @@ namespace TAS.Client.Config.ViewModels.Engines
         private int _cgStartDelay;
         private ulong _instance;
         private Engine _engine;
-        private PluginsViewModel _pluginViewModel;
+        private PluginsViewModel _pluginsViewModel;
+
         public EngineViewModel(Engine engine)
         {
-            _engine = engine;            
+            _engine = engine;
+            _pluginsViewModel = new PluginsViewModel(_engine);
             CommandManageArchiveDirectories = new Common.UiCommand(_manageArchiveDirectories);
             PluginManagerCommand = new UiCommand(OpenPluginManager, CanOpenPluginManager);
             Init();
@@ -72,12 +74,15 @@ namespace TAS.Client.Config.ViewModels.Engines
 
         private bool CanOpenPluginManager(object obj)
         {
-            throw new NotImplementedException();
+            return _pluginsViewModel.HasPlugins;
         }
 
         private void OpenPluginManager(object obj)
         {
-            PluginsViewModel = new PluginsViewModel(_engine); //ended here. Need to operate on CgElementsController instance, not on _engine.
+            if (_pluginsViewModel == null)
+                _pluginsViewModel = new PluginsViewModel(_engine);
+                        
+            UiServices.WindowManager.ShowDialog(_pluginsViewModel);                        
         }
 
         private void _manageArchiveDirectories(object obj)
@@ -102,9 +107,7 @@ namespace TAS.Client.Config.ViewModels.Engines
         public Array CrawlEnableBehaviors { get; } = Enum.GetValues(typeof(TCrawlEnableBehavior));
 
         public Engine Engine => _engine;
-
         
-
         public string EngineName
         {
             get => _engineName;
@@ -200,8 +203,7 @@ namespace TAS.Client.Config.ViewModels.Engines
         }
 
         public Common.UiCommand CommandManageArchiveDirectories { get; }
-        public UiCommand PluginManagerCommand { get; }
-        public PluginsViewModel PluginsViewModel { get => _pluginViewModel; set => SetField(ref _pluginViewModel, value); }
+        public UiCommand PluginManagerCommand { get; }        
 
         public override bool Ok(object obj = null)
         {
