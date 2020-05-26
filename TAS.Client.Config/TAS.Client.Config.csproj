@@ -99,10 +99,6 @@
     <Compile Include="Views\Plugins\CgElementsController\CgElementsControllerPluginManagerView.xaml.cs">
       <DependentUpon>CgElementsControllerPluginManagerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Plugins\CgElementsController\CgElementsControllerView.xaml.cs">
-      <DependentUpon>CgElementsControllerView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ViewModels\Plugins\CgElementsController\CgElementsControllerViewModel.cs" />
     <Compile Include="Views\ConfigFile\ConfigFileView.xaml.cs">
       <DependentUpon>ConfigFileView.xaml</DependentUpon>
     </Compile>
@@ -165,10 +161,6 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\Plugins\CgElementsController\CgElementsControllerPluginManagerView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Plugins\CgElementsController\CgElementsControllerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -4,7 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
              xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.Engines"
-             d:DataContext="{d:DesignInstance vm:EngineViewmodel}"
+             xmlns:pluginView="clr-namespace:TAS.Client.Config.Views.Plugins"
+             xmlns:pluginVm="clr-namespace:TAS.Client.Config.ViewModels.Plugins"
+             d:DataContext="{d:DesignInstance vm:EngineViewModel}"
              mc:Ignorable="d" 
              >
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
@@ -19,57 +21,78 @@
                 <Setter Property="Margin" Value="5"/>
             </Style>
         </ScrollViewer.Resources>
-        <StackPanel MinHeight="480" MinWidth="250" Margin="0, 0, 0, 5">
-            <Label Content="Engine name"/>
-            <TextBox Text="{Binding EngineName, UpdateSourceTrigger=PropertyChanged}"/>
-            <Label Content="Video format"/>
-            <ComboBox SelectedItem="{Binding VideoFormat}" ItemsSource="{Binding VideoFormats}"/>
-            <Label Content="Aspect ratio control"/>
-            <ComboBox SelectedItem="{Binding AspectRatioControl}" ItemsSource="{Binding AspectRatioControls}"/>
-            <Label Content="Time correction (ms, relative to system time)"/>
-            <TextBox Text="{Binding TimeCorrection, UpdateSourceTrigger=PropertyChanged}"/>
-            <Label Content="Instance binding"/>
-            <TextBox Text="{Binding Instance, UpdateSourceTrigger=PropertyChanged}"/>
-            <Label Content="Primary program channel"/>
-            <ComboBox SelectedItem="{Binding ChannelPRI}" ItemsSource="{Binding Channels}"/>
-            <Label Content="Backup program channel"/>
-            <ComboBox SelectedItem="{Binding ChannelSEC}" ItemsSource="{Binding Channels}"/>
-            <Label Content="Preview channel"/>
-            <ComboBox SelectedItem="{Binding ChannelPRV}" ItemsSource="{Binding Channels}"/>
-            <Label Content="Archive directory"/>
-            <DockPanel>
-                <Button DockPanel.Dock="Right" ToolTip="Manage archive directories" Margin="0 0 5 0" Command="{Binding CommandManageArchiveDirectories}">
-                    <Image Source="/TAS.Client.Common;component/Images/Config/config.png"/>
-                </Button>
-                <ComboBox ItemsSource="{Binding ArchiveDirectories}" SelectedItem="{Binding ArchiveDirectory}"/>
-            </DockPanel>
-            <CheckBox IsChecked="{Binding StudioMode}">Studio mode (hold added rundown items)</CheckBox>
-            <Separator Margin="5"/>
-            <Expander>
-                <HeaderedContentControl.Header>
-                    <Label Content="CG graphics properties"/>
-                </HeaderedContentControl.Header>
-                <StackPanel>
-                    <CheckBox IsChecked="{Binding EnableCGElementsForNewEvents}" Content="Enable CG elements for new events by default"/>
-                    <Label Content="Crawl enable behavior"/>
-                    <ComboBox ItemsSource="{Binding CrawlEnableBehaviors }" SelectedItem="{Binding CrawlEnableBehavior}"/>
-                    <Label Content="CG start delay (negative if ahead)"/>
-                    <TextBox Text="{Binding CGStartDelay, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>
-            </Expander>
-            <Separator/>
-            <Expander>
-                <HeaderedContentControl.Header>
-                    <Label Content="Remote control interface"/>
-                </HeaderedContentControl.Header>
-                <StackPanel>
-                    <CheckBox IsChecked="{Binding RemoteHostEnabled}" Content="Enabled"/>
-                    <StackPanel Visibility="{Binding RemoteHostEnabled, Converter={StaticResource BoolToVis}}">
-                        <Label Content="Endpoint port (free TCP port 1024 - 65535)"/>
-                        <TextBox Text="{Binding RemoteHostListenPort, UpdateSourceTrigger=PropertyChanged}"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel MinHeight="480" MinWidth="250" Margin="0, 0, 0, 5">
+                <Label Content="Engine name"/>
+                <TextBox Text="{Binding EngineName, UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Content="Video format"/>
+                <ComboBox SelectedItem="{Binding VideoFormat}" ItemsSource="{Binding VideoFormats}"/>
+                <Label Content="Aspect ratio control"/>
+                <ComboBox SelectedItem="{Binding AspectRatioControl}" ItemsSource="{Binding AspectRatioControls}"/>
+                <Label Content="Time correction (ms, relative to system time)"/>
+                <TextBox Text="{Binding TimeCorrection, UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Content="Instance binding"/>
+                <TextBox Text="{Binding Instance, UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Content="Primary program channel"/>
+                <ComboBox SelectedItem="{Binding ChannelPRI}" ItemsSource="{Binding Channels}"/>
+                <Label Content="Backup program channel"/>
+                <ComboBox SelectedItem="{Binding ChannelSEC}" ItemsSource="{Binding Channels}"/>
+                <Label Content="Preview channel"/>
+                <ComboBox SelectedItem="{Binding ChannelPRV}" ItemsSource="{Binding Channels}"/>
+                <Label Content="Archive directory"/>
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" ToolTip="Manage archive directories" Margin="0 0 5 0" Command="{Binding CommandManageArchiveDirectories}">
+                        <Image Source="/TAS.Client.Common;component/Images/Config/config.png"/>
+                    </Button>
+                    <ComboBox ItemsSource="{Binding ArchiveDirectories}" SelectedItem="{Binding ArchiveDirectory}"/>
+                </DockPanel>
+                <CheckBox IsChecked="{Binding StudioMode}">Studio mode (hold added rundown items)</CheckBox>
+                <Separator Margin="5"/>
+                <Expander>
+                    <HeaderedContentControl.Header>
+                        <Label Content="CG graphics properties"/>
+                    </HeaderedContentControl.Header>
+                    <StackPanel>
+                        <CheckBox IsChecked="{Binding EnableCGElementsForNewEvents}" Content="Enable CG elements for new events by default"/>
+                        <Label Content="Crawl enable behavior"/>
+                        <ComboBox ItemsSource="{Binding CrawlEnableBehaviors }" SelectedItem="{Binding CrawlEnableBehavior}"/>
+                        <Label Content="CG start delay (negative if ahead)"/>
+                        <TextBox Text="{Binding CGStartDelay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
-                </StackPanel>
-            </Expander>
-        </StackPanel>
+                </Expander>
+                <Separator/>
+                <Expander>
+                    <HeaderedContentControl.Header>
+                        <Label Content="Remote control interface"/>
+                    </HeaderedContentControl.Header>
+                    <StackPanel>
+                        <CheckBox IsChecked="{Binding RemoteHostEnabled}" Content="Enabled"/>
+                        <StackPanel Visibility="{Binding RemoteHostEnabled, Converter={StaticResource BoolToVis}}">
+                            <Label Content="Endpoint port (free TCP port 1024 - 65535)"/>
+                            <TextBox Text="{Binding RemoteHostListenPort, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Expander>
+                <Separator />
+                <Button VerticalAlignment="Center" HorizontalAlignment="Right" Padding="5,2,5,2" Margin="5" Command="{Binding PluginManagerCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/TAS.Client.Common;component/Images/Config/plugins_config.png" Width="25" />
+                        <Label Content="Plugin Manager >" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+            <ContentControl Grid.Column="1" Content="{Binding PluginsViewModel}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type pluginVm:PluginsViewModel}">
+                        <pluginView:PluginsView />
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
+        </Grid>
+        
     </ScrollViewer>
 </UserControl>

@@ -4,11 +4,12 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Input;
 using TAS.Client.Common;
+using TAS.Client.Config.Model;
 using TAS.Common;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
-    public class PlayoutServerViewmodel : EditViewModelBase<Model.CasparServer>
+    public class PlayoutServerViewmodel : OkCancelViewModelBase
     {
         private string _serverAddress;
         private int _oscPort = 6250;
@@ -21,9 +22,11 @@ namespace TAS.Client.Config.ViewModels.Playout
         private bool _isAnyChildChanged;
         private TMovieContainerFormat _movieContainerFormat;
         private bool _isMediaFolderRecursive;
+        private Model.CasparServer _playoutServer;
 
-        public PlayoutServerViewmodel(Model.CasparServer playoutServer) : base(playoutServer)
+        public PlayoutServerViewmodel(Model.CasparServer playoutServer)
         {
+            _playoutServer = playoutServer;
             PlayoutServerChannels = new ObservableCollection<PlayoutServerChannelViewmodel>(playoutServer.Channels.Select(p =>
                 {
                     var newVm = new PlayoutServerChannelViewmodel(p);
@@ -54,6 +57,7 @@ namespace TAS.Client.Config.ViewModels.Playout
 
         public bool IsRecordersVisible => _serverType == TServerType.CasparTVP;
 
+        public CasparServer PlayoutServer => _playoutServer;
         public string ServerAddress
         {
             get => _serverAddress;
@@ -127,16 +131,7 @@ namespace TAS.Client.Config.ViewModels.Playout
                 _selectedPlayoutRecorder = value;
                 NotifyPropertyChanged();
             }
-        }
-
-        protected override void Update(object destObject = null)
-        {
-            foreach (var ch in PlayoutServerChannels)
-                ch.Save();
-            foreach (var r in PlayoutServerRecorders)
-                r.Save();
-            base.Update(destObject);
-        }
+        }       
 
         public override bool IsModified { get { return base.IsModified || _isAnyChildChanged || PlayoutServerChannels.Any(c => c.IsModified) || PlayoutServerRecorders.Any(r => r.IsModified); } }
 
@@ -159,11 +154,11 @@ namespace TAS.Client.Config.ViewModels.Playout
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                Model.Recorders.Add(((PlayoutRecorderViewmodel)e.NewItems[0]).Model);
+                _playoutServer.Recorders.Add(((PlayoutRecorderViewmodel)e.NewItems[0]).CasparRecorder);
             }
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-                Model.Recorders.Remove(((PlayoutRecorderViewmodel)e.OldItems[0]).Model);
+                _playoutServer.Recorders.Remove(((PlayoutRecorderViewmodel)e.OldItems[0]).CasparRecorder);
             }
             _isAnyChildChanged = true;
         }
@@ -172,11 +167,11 @@ namespace TAS.Client.Config.ViewModels.Playout
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                Model.Channels.Add(((PlayoutServerChannelViewmodel)e.NewItems[0]).Model);
+                _playoutServer.Channels.Add(((PlayoutServerChannelViewmodel)e.NewItems[0]).CasparServerChannel);
             }
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-                Model.Channels.Remove(((PlayoutServerChannelViewmodel)e.OldItems[0]).Model);
+                _playoutServer.Channels.Remove(((PlayoutServerChannelViewmodel)e.OldItems[0]).CasparServerChannel);
             }
             _isAnyChildChanged = true;
         }
@@ -193,10 +188,26 @@ namespace TAS.Client.Config.ViewModels.Playout
             PlayoutServerChannels.Remove(_selectedPlayoutServerChannel);
         }
 
+        public override bool Ok(object obj = null)
+        {
+            foreach (var ch in PlayoutServerChannels)
+                ch.Save();
+            foreach (var r in PlayoutServerRecorders)
+                r.Save();
+
+            _playoutServer.AnimationFolder = AnimationFolder;
+            _playoutServer.IsMediaFolderRecursive = IsMediaFolderRecursive;
+            _playoutServer.MediaFolder = MediaFolder;
+            _playoutServer.MovieContainerFormat = MovieContainerFormat;
+            _playoutServer.OscPort = OscPort;
+            _playoutServer.ServerAddress = ServerAddress;
+            _playoutServer.ServerType = ServerType;            
+            return true;
+        }
 
         public void Save()
         {
-            Update(Model);
+            Ok();
         }
     }
 }

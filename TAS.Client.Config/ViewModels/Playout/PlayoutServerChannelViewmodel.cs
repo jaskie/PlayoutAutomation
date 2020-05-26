@@ -1,10 +1,9 @@
 ﻿using TAS.Client.Common;
 using TAS.Client.Config.Model;
-using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
-    public class PlayoutServerChannelViewmodel : EditViewModelBase<CasparServerChannel>, IPlayoutServerChannelProperties
+    public class PlayoutServerChannelViewmodel : OkCancelViewModelBase
     {
         private string _channelName;
         private int _id;
@@ -12,10 +11,14 @@ namespace TAS.Client.Config.ViewModels.Playout
         private string _liveDevice;
         private string _previewUrl;
         private int _audioChannelCount;
+        private CasparServerChannel _casparServerChannel;
 
-        public PlayoutServerChannelViewmodel(CasparServerChannel channel) : base(channel)
+        public PlayoutServerChannelViewmodel(CasparServerChannel channel)
         {
+            _casparServerChannel = channel;
         }
+
+        public CasparServerChannel CasparServerChannel => _casparServerChannel;
 
         public string ChannelName
         {
@@ -55,9 +58,20 @@ namespace TAS.Client.Config.ViewModels.Playout
 
         protected override void OnDispose() { }
 
+        public override bool Ok(object obj = null)
+        {
+            _casparServerChannel.AudioChannelCount = AudioChannelCount;
+            _casparServerChannel.ChannelName = ChannelName;
+            _casparServerChannel.Id = Id;
+            _casparServerChannel.LiveDevice = LiveDevice;
+            _casparServerChannel.MasterVolume = MasterVolume;
+            _casparServerChannel.PreviewUrl = PreviewUrl;            
+            return true;
+        }
+
         public void Save()
         {
-            Update(Model);
+            Ok();
         }
     }
 }

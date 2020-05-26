@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace TAS.Client.Config.Model
 {
@@ -27,6 +26,6 @@ namespace TAS.Client.Config.Model
         [XmlAttribute]
         public string UploadServerImagePath { get; set; }
         [XmlAttribute]
-        public string Command { get; set; }       
+        public string Command { get; set; }        
     }
 }

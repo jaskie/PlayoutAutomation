@@ -8,7 +8,7 @@ using TAS.Common;
 
 namespace TAS.Client.Config.ViewModels.Engines
 {
-    public class EnginesViewModel: OkCancelViewModelBase
+    public class EnginesViewModel : OkCancelViewModelBase
     {        
         private EngineViewModel _selectedEngine;
         private bool _isCollectionCanged;

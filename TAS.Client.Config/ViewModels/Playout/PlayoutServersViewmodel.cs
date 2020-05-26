@@ -8,14 +8,15 @@ using TAS.Common;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
-    public class PlayoutServersViewmodel: EditViewModelBase<Model.PlayoutServers>, IOkCancelViewModel
+    public class PlayoutServersViewmodel : OkCancelViewModelBase
     {
         private bool _isCollectionChanged;
         private PlayoutServerViewmodel _selectedServer;
-
-        public PlayoutServersViewmodel(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection) : base(new Model.PlayoutServers(databaseType, connectionStringSettingsCollection))
+        private Model.PlayoutServers _playoutServers;
+        public PlayoutServersViewmodel(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {
-            PlayoutServers = new ObservableCollection<PlayoutServerViewmodel>(Model.Servers.Select(s => new PlayoutServerViewmodel(s)));
+            _playoutServers = new Model.PlayoutServers(databaseType, connectionStringSettingsCollection);
+            PlayoutServers = new ObservableCollection<PlayoutServerViewmodel>(_playoutServers.Servers.Select(s => new PlayoutServerViewmodel(s)));
             PlayoutServers.CollectionChanged += PlayoutServers_CollectionChanged;
             CommandAdd = new UiCommand(Add);
             CommandDelete = new UiCommand(o => PlayoutServers.Remove(_selectedServer), o => _selectedServer != null);
@@ -40,31 +41,23 @@ namespace TAS.Client.Config.ViewModels.Playout
         }
 
         public ObservableCollection<PlayoutServerViewmodel> PlayoutServers { get; }
-
-        protected override void Update(object destObject = null)
-        {
-            foreach (PlayoutServerViewmodel s in PlayoutServers)
-                s.Save();
-            Model.Save();
-            base.Update(destObject);
-        }
-
+        
         protected override void OnDispose()
         {
             PlayoutServers.CollectionChanged -= PlayoutServers_CollectionChanged;
-            Model.Dispose();
+            _playoutServers.Dispose();
         }
 
         private void PlayoutServers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                Model.Servers.Add(((PlayoutServerViewmodel)e.NewItems[0]).Model);
+                _playoutServers.Servers.Add(((PlayoutServerViewmodel)e.NewItems[0]).PlayoutServer);
             }
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-                Model.Servers.Remove(((PlayoutServerViewmodel)e.OldItems[0]).Model);
-                Model.DeletedServers.Add(((PlayoutServerViewmodel)e.OldItems[0]).Model);
+                _playoutServers.Servers.Remove(((PlayoutServerViewmodel)e.OldItems[0]).PlayoutServer);
+                _playoutServers.DeletedServers.Add(((PlayoutServerViewmodel)e.OldItems[0]).PlayoutServer);
             }
             _isCollectionChanged = true;
         }
@@ -72,28 +65,18 @@ namespace TAS.Client.Config.ViewModels.Playout
         private void Add(object obj)
         {
             var newPlayoutServer = new Model.CasparServer();
-            Model.Servers.Add(newPlayoutServer);
+            _playoutServers.Servers.Add(newPlayoutServer);
             var newPlayoutServerViewmodel = new PlayoutServerViewmodel(newPlayoutServer);
             PlayoutServers.Add(newPlayoutServerViewmodel);
             SelectedServer = newPlayoutServerViewmodel;            
         }
 
-        public bool Ok(object obj)
+        public override bool Ok(object obj = null)
         {
-            Update();
+            foreach (PlayoutServerViewmodel s in PlayoutServers)
+                s.Save();
+            _playoutServers.Save();
             return true;
-        }
-
-        public void Cancel(object obj) { }
-
-        public bool CanOk(object obj)
-        {
-            return IsModified;
-        }
-
-        public bool CanCancel(object obj)
-        {
-            return true;
-        }
+        }       
     }
 }

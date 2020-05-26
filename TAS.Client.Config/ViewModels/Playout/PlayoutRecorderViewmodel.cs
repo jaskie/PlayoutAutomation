@@ -4,14 +4,16 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
-    public class PlayoutRecorderViewmodel: EditViewModelBase<CasparRecorder>, IRecorderProperties
+    public class PlayoutRecorderViewmodel : OkCancelViewModelBase
     {
         private int _id;
         private string _recorderName;
         private int _defaultChannel;
+        private CasparRecorder _casparRecorder;
 
-        public PlayoutRecorderViewmodel(CasparRecorder r): base(r)
+        public PlayoutRecorderViewmodel(CasparRecorder r)
         {
+            _casparRecorder = r;
             _id = r.Id;
             _recorderName = r.RecorderName;
         }
@@ -34,14 +36,19 @@ namespace TAS.Client.Config.ViewModels.Playout
             set => SetField(ref _defaultChannel, value);
         }
 
-        protected override void OnDispose()
+        public CasparRecorder CasparRecorder => _casparRecorder;
+
+        public override bool Ok(object obj = null)
         {
-            
+            _casparRecorder.DefaultChannel = DefaultChannel;
+            _casparRecorder.Id = Id;
+            _casparRecorder.RecorderName = RecorderName;
+            return true;
         }
 
         public void Save()
         {
-            Update(Model);
+            Ok();   
         }
     }
 }

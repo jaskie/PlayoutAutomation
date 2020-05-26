@@ -4,6 +4,7 @@ using System.Linq;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
 using TAS.Client.Config.ViewModels.ArchiveDirectories;
+using TAS.Client.Config.ViewModels.Plugins;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -20,14 +21,15 @@ namespace TAS.Client.Config.ViewModels.Engines
         private int _cgStartDelay;
         private ulong _instance;
         private Engine _engine;
+        private PluginsViewModel _pluginViewModel;
         public EngineViewModel(Engine engine)
         {
             _engine = engine;            
             CommandManageArchiveDirectories = new Common.UiCommand(_manageArchiveDirectories);
-
+            PluginManagerCommand = new UiCommand(OpenPluginManager, CanOpenPluginManager);
             Init();
         }
-
+        
         public void Init()
         {
             Channels = new List<object> { Common.Properties.Resources._none_ };
@@ -68,6 +70,16 @@ namespace TAS.Client.Config.ViewModels.Engines
             IsModified = false;
         }
 
+        private bool CanOpenPluginManager(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OpenPluginManager(object obj)
+        {
+            PluginsViewModel = new PluginsViewModel(_engine); //ended here. Need to operate on CgElementsController instance, not on _engine.
+        }
+
         private void _manageArchiveDirectories(object obj)
         {
             using (var vm = new ArchiveDirectoriesViewmodel(_engine.ArchiveDirectories))
@@ -90,6 +102,8 @@ namespace TAS.Client.Config.ViewModels.Engines
         public Array CrawlEnableBehaviors { get; } = Enum.GetValues(typeof(TCrawlEnableBehavior));
 
         public Engine Engine => _engine;
+
+        
 
         public string EngineName
         {
@@ -186,6 +200,8 @@ namespace TAS.Client.Config.ViewModels.Engines
         }
 
         public Common.UiCommand CommandManageArchiveDirectories { get; }
+        public UiCommand PluginManagerCommand { get; }
+        public PluginsViewModel PluginsViewModel { get => _pluginViewModel; set => SetField(ref _pluginViewModel, value); }
 
         public override bool Ok(object obj = null)
         {

@@ -17,20 +17,16 @@ namespace TAS.Client.Config.ViewModels.Plugins
     {        
         private List<IPluginManager> _plugins;
         private IPluginManager _selectedPlugin;
+        
+        private Engine _engine;
 
-        private Model.Engines _engines;
-        private Model.PlayoutServers _playoutServers;
-        private Engine _selectedEngine;
-
-        public PluginsViewModel(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
-        {           
-            _engines = new Model.Engines(databaseType, connectionStringSettingsCollection);
-            _playoutServers = new Model.PlayoutServers(databaseType, connectionStringSettingsCollection);
-
+        public PluginsViewModel(Engine engine)
+        {
+            _engine = engine;
+            
             _plugins = GetPlugins();
             
-            Plugins = CollectionViewSource.GetDefaultView(_plugins);
-            Engines = CollectionViewSource.GetDefaultView(_engines.EngineList);            
+            Plugins = CollectionViewSource.GetDefaultView(_plugins);                       
         }        
 
         //Add available plugins based on Plugins folder
@@ -44,18 +40,15 @@ namespace TAS.Client.Config.ViewModels.Plugins
                 switch(name)
                 {
                     case "TAS.Server.CgElementsController":
-                        plugins.Add(new CgElementsControllerPluginManager(_engines, _playoutServers));
+                        plugins.Add(new CgElementsControllerPluginManager(_engine));
                         break;
                 }
             }
 
             return plugins;
-        }
-        
-        public ICollectionView Engines { get; }
+        }              
         public ICollectionView Plugins { get; }
-        public IPluginManager SelectedPlugin { get => _selectedPlugin; set => SetField(ref _selectedPlugin, value); }
-        public Engine SelectedEngine { get => _selectedEngine; set => SetField(ref _selectedEngine, value); }
+        public IPluginManager SelectedPlugin { get => _selectedPlugin; set => SetField(ref _selectedPlugin, value); }        
         protected override void OnDispose()
         {
             //

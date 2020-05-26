@@ -56,6 +56,7 @@ namespace TAS.Client.Config.Model
         public bool IsModified = false;
 
         public bool IsNew = true;
+        public CgElementsController CgElementsController;
 
         public IDictionary<string, int> FieldLengths { get; set; }
 

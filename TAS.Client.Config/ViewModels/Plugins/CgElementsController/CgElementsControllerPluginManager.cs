@@ -3,115 +3,310 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Windows;
 using System.Windows.Data;
-using System.Xml.Serialization;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
 using TAS.Client.Config.Model.Plugins;
+using TAS.Common;
 
 namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 {
-    public class CgElementsControllerPluginManager : ViewModelBase, IPluginManager
-    {
-        private CgElementsControllerViewModel _cgElementsControllerVm;
-        
-        private readonly List<Engine> _engines;
-        private readonly List<CasparServer> _casparServers;
-        private Engine _selectedEngine;  
-        
-        [XmlArray("CgElementsControllers")]
-        [XmlArrayItem("CgElementsController")]
-        private List<Model.CgElementsController> _cgElementsControllers;
+    public class CgElementsControllerPluginManager : ModifyableViewModelBase, IPluginManager
+    {                
+        private readonly Engine _engine;
+        private List<CgElement> _cgElements;
+        private List<CgElement> _crawls;
+        private List<CgElement> _logos;
+        private List<CgElement> _auxes;
+        private List<CgElement> _parentals;
+        private CgElement _selectedElement;
+        private CgElement.Type _selectedElementType;
+        private OkCancelViewModelBase _currentViewModel;
+        private List<string> _elementTypes;
+        private bool _isEnabled;        
+        private CgElement _newElement;
 
-        public CgElementsControllerPluginManager(Model.Engines engines, Model.PlayoutServers playoutServers)
+        public CgElementsControllerPluginManager(Engine engine)
         {
-            LoadConfiguration();
-            _engines = engines.EngineList;
-            _casparServers = playoutServers.Servers;            
-            Engines = CollectionViewSource.GetDefaultView(_engines);
+            _engine = engine;
+            LoadCommands();
+            Init();
+        }
+        private void LoadCommands()
+        {
+            AddCgElementCommand = new UiCommand(AddCgElement, CanAddCgElement);
+            MoveCgElementUpCommand = new UiCommand(MoveCgElementUp, CanMoveCgElementUp);
+            MoveCgElementDownCommand = new UiCommand(MoveCgElementDown, CanMoveCgElementDown);
+            EditElementCommand = new UiCommand(EditElement);
+            DeleteElementCommand = new UiCommand(DeleteElement);
+            SaveCommand = new UiCommand(Save, CanSave);
+            UndoCommand = new UiCommand(Undo, CanUndo);
         }
 
-        private void CgElementsControllerUpdated(object sender, EventArgs e)
-        {                    
-            using (StreamWriter writer = new StreamWriter("Configuration\\CgElementsControllers.xml"))
-            {
-                XmlRootAttribute xRoot = new XmlRootAttribute();
-                xRoot.ElementName = "CgElementsControllers";
+        private void Init()
+        {
+            _crawls = new List<CgElement>(_engine.CgElementsController.Crawls);
+            _logos = new List<CgElement>(_engine.CgElementsController.Logos);
+            _auxes = new List<CgElement>(_engine.CgElementsController.Auxes);
+            _parentals = new List<CgElement>(_engine.CgElementsController.Parentals);
+            _elementTypes = Enum.GetNames(typeof(CgElement.Type)).ToList();
 
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Model.CgElementsController>), xRoot);
-                xmlSerializer.Serialize(writer, _cgElementsControllers);
-            }
+            foreach (var crawl in _crawls)
+                crawl.CgType = CgElement.Type.Crawl;
+
+            foreach (var logo in _logos)
+                logo.CgType = CgElement.Type.Logo;
+
+            foreach (var aux in _auxes)
+                aux.CgType = CgElement.Type.Aux;
+
+            foreach (var parental in _parentals)
+                parental.CgType = CgElement.Type.Parental;
+
+            ElementTypes = CollectionViewSource.GetDefaultView(_elementTypes);
+            SelectedElementType = _elementTypes.LastOrDefault();
         }
 
-        private void LoadConfiguration()
+        private bool CanUndo(object obj)
         {
-            try
+            return IsModified;
+        }
+
+        private void Undo(object obj)
+        {
+            _newElement = null;
+            CgElementViewModel = null;
+            Init();
+        }
+
+        private bool CanSave(object obj)
+        {
+            return IsModified;
+        }
+
+        private void DeleteElement(object obj)
+        {
+            if (!(obj is CgElement element))
+                return;
+
+            _cgElements.Remove(element);
+            CgElements.Refresh();
+        }
+
+        private void EditElement(object obj)
+        {
+            if (!(obj is CgElement element))
+                return;
+
+            CgElementViewModel = new CgElementViewModel(element);
+        }
+
+        private bool CanMoveCgElementDown(object obj)
+        {
+            if (_selectedElement != null && _selectedElement.Id < (_cgElements.Count() - 1))
+                return true;
+
+            return false;
+        }
+
+        private void MoveCgElementDown(object obj)
+        {
+            var swapElement = _cgElements.FirstOrDefault(c => c.Id == _selectedElement.Id + 1);
+
+            swapElement.Id = _selectedElement.Id;
+            _selectedElement.Id += 1;
+
+            CgElements.Refresh();
+        }
+
+        private bool CanMoveCgElementUp(object obj)
+        {
+            if (_selectedElement != null && _selectedElement.Id > 0)
+                return true;
+
+            return false;
+        }
+
+        private void MoveCgElementUp(object obj)
+        {
+            var swapElement = _cgElements.FirstOrDefault(c => c.Id == _selectedElement.Id - 1);
+
+            swapElement.Id = _selectedElement.Id;
+            _selectedElement.Id -= 1;
+            CgElements.Refresh();
+        }
+
+        private bool CanAddCgElement(object obj)
+        {
+            if (_newElement == null)
+                return true;
+
+            return false;
+        }
+
+        private void AddCgElement(object obj)
+        {
+            _newElement = new CgElement();
+            _newElement.CgType = _selectedElementType;
+
+            CgElementViewModel = new CgElementViewModel(_newElement);
+        }
+
+        private void Save(object obj)
+        {
+            _engine.CgElementsController.Auxes = _auxes;
+            _engine.CgElementsController.Crawls = _crawls;
+            _engine.CgElementsController.Logos = _logos;
+            _engine.CgElementsController.Parentals = _parentals;
+
+            var cgElements = _auxes.Concat(_crawls).Concat(_logos).Concat(_parentals);
+            foreach (var cgElement in cgElements)
             {
-                using (StreamReader reader = new StreamReader("Configuration\\CgElementsControllers.xml"))
+                if (cgElement.UploadServerImagePath != null && cgElement.UploadServerImagePath.Length > 0)
                 {
-                    XmlRootAttribute xRoot = new XmlRootAttribute();
-                    xRoot.ElementName = "CgElementsControllers";
+                    foreach (var path in _engine.Servers.Select(server => server.MediaFolder))
+                    {
+                        File.Copy(cgElement.UploadServerImagePath, Path.Combine(path, Path.GetFileName(cgElement.UploadServerImagePath)), true);
+                    }
+                }
 
-                    XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Model.CgElementsController>), xRoot);
-                    _cgElementsControllers = (List<Model.CgElementsController>)xmlSerializer.Deserialize(reader);
+                if (cgElement.UploadClientImagePath != null && cgElement.UploadClientImagePath.Length > 0)
+                {
+                    string configPath = FileUtils.ConfigurationPath;
+                    switch (cgElement.CgType)
+                    {
+                        case CgElement.Type.Parental:
+                            configPath = Path.Combine(configPath, "Parentals");
+                            break;
+
+                        case CgElement.Type.Aux:
+                            configPath = Path.Combine(configPath, "Auxes");
+                            break;
+
+                        case CgElement.Type.Crawl:
+                            configPath = Path.Combine(configPath, "Crawls");
+                            break;
+
+                        case CgElement.Type.Logo:
+                            configPath = Path.Combine(configPath, "Logos");
+                            break;
+                    }
+
+                    if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), configPath)))
+                        Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), configPath));
+
+                    var clientPath = Path.Combine(Directory.GetCurrentDirectory(), configPath, Path.GetFileName(cgElement.UploadClientImagePath));
+                    File.Copy(cgElement.UploadClientImagePath, clientPath, true);
+                }
+            }           
+        }
+
+        private void CgElementWizardClosed(object sender, EventArgs e)
+        {
+            if (!(sender is OkCancelViewModelBase okCancelVm))
+                return;
+
+            if (okCancelVm.DialogResult)
+            {
+                if (_newElement != null)
+                {
+                    _newElement.Id = (byte)_cgElements.Count();
+                    _cgElements.Add(_newElement);
+                    _newElement = null;
                 }
             }
-            catch (Exception ex)
-            {
-                _cgElementsControllers = new List<Model.CgElementsController>();
-                if (ex is InvalidOperationException xmlException)
-                    MessageBox.Show("Error while reading configuration file!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                using (StreamWriter reader = new StreamWriter("Configuration\\Test.xml"))
-                {
-                    XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Model.CgElementsController>));
-                    xmlSerializer.Serialize(reader, _cgElementsControllers);
-                }
-            }
+
+            CgElementViewModel = null;
+            CgElements.Refresh();
         }
 
-        public ICollectionView Engines { get; }
-        public string PluginName => "CgElementsController";
-
-        public CgElementsControllerViewModel CgElementsControllerVm
+        public OkCancelViewModelBase CgElementViewModel
         {
-            get => _cgElementsControllerVm;
-            private set
-            {
-                var old = _cgElementsControllerVm;
-                if (!SetField(ref _cgElementsControllerVm, value))
-                    return;
-                
-                if (old != null)
-                    old.DataUpdated -= CgElementsControllerUpdated;
-                if (value != null)
-                    _cgElementsControllerVm.DataUpdated += CgElementsControllerUpdated;
-
-            }
-        }        
-
-        public Engine SelectedEngine 
-        { 
-            get => _selectedEngine;
+            get => _currentViewModel;
             set
             {
-                if (!SetField(ref _selectedEngine, value))
+                var old = _currentViewModel;
+
+                if (!SetField(ref _currentViewModel, value))
                     return;
 
-                var cgElementContoller = _cgElementsControllers.FirstOrDefault(cg => cg.EngineName == value.EngineName);
-                if (cgElementContoller == null)
-                {
-                    cgElementContoller = new Model.CgElementsController { EngineName = value.EngineName };
-                    _cgElementsControllers.Add(cgElementContoller);
-                }
+                if (old != null)
+                    old.Closing -= CgElementWizardClosed;
 
-                CgElementsControllerVm = new CgElementsControllerViewModel(cgElementContoller, _casparServers.Where(server => server.Id == value.IdServerPRI || 
-                                                                                                                    server.Id == value.IdServerSEC || 
-                                                                                                                    server.Id == value.IdServerPRV)                                                                                                             
-                                                                                                             .ToList());
+                if (value != null)
+                    _currentViewModel.Closing += CgElementWizardClosed;
             }
         }
 
+        public string SelectedElementType
+        {
+            get => Enum.GetName(typeof(CgElement.Type), _selectedElementType);
+            set
+            {
+                var temp = (CgElement.Type)Enum.Parse(typeof(CgElement.Type), value);
+                if (temp == _selectedElementType)
+                    return;
+
+                _newElement = null;
+                CgElementViewModel = null;
+
+                _selectedElementType = temp;
+                switch (_selectedElementType)
+                {
+                    case CgElement.Type.Crawl:
+                        _cgElements = _crawls;
+                        break;
+                    case CgElement.Type.Logo:
+                        _cgElements = _logos;
+                        break;
+                    case CgElement.Type.Aux:
+                        _cgElements = _auxes;
+                        break;
+                    case CgElement.Type.Parental:
+                        _cgElements = _parentals;
+                        break;
+                }
+
+                CgElements = CollectionViewSource.GetDefaultView(_cgElements);
+                CgElements.SortDescriptions.Add(new SortDescription(nameof(CgElement.Id), ListSortDirection.Ascending));
+
+                NotifyPropertyChanged(nameof(CgElements));
+                NotifyPropertyChanged(nameof(SelectedElementType));
+            }
+        }
+
+        public CgElement SelectedElement
+        {
+            get => _selectedElement;
+            set
+            {
+                if (!SetField(ref _selectedElement, value))
+                    return;
+
+                _newElement = null;
+            }
+        }
+
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set => SetField(ref _isEnabled, value);
+        }
+
+        public UiCommand AddCgElementCommand { get; private set; }
+        public UiCommand MoveCgElementUpCommand { get; private set; }
+        public UiCommand MoveCgElementDownCommand { get; private set; }
+        public UiCommand EditElementCommand { get; private set; }
+        public UiCommand DeleteElementCommand { get; private set; }
+        public UiCommand SaveCommand { get; private set; }
+        public UiCommand UndoCommand { get; private set; }
+
+        public ICollectionView CgElements { get; private set; }
+        public ICollectionView ElementTypes { get; private set; }
+
+        public string PluginName => "CgElementsController";
+
+               
         protected override void OnDispose()
         {
             //
