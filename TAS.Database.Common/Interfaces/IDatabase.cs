@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using TAS.Common.Interfaces;
-using TAS.Common.Database.Interfaces.Media;
+using TAS.Database.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Common.Interfaces.Security;
 using System.Configuration;
 using System.Collections.ObjectModel;
+using TAS.Common;
 
-namespace TAS.Common.Database.Interfaces
+namespace TAS.Database.Common.Interfaces
 {
     public interface IDatabase
     {

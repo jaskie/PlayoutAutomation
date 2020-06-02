@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Configuration;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
 using TAS.Common;
-using TAS.Common.Database.Interfaces;
-using TAS.Common.Database.Interfaces.Media;
+using TAS.Database.Common.Interfaces;
+using TAS.Database.Common.Interfaces.Media;
 using TAS.Common.Interfaces;
 
 namespace TAS.Database.MySqlRedundant

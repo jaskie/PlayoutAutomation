@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using TAS.Common;
-using TAS.Common.Database;
-using TAS.Common.Database.Interfaces;
+using TAS.Database.Common;
+using TAS.Database.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
@@ -16,7 +16,7 @@ namespace TAS.Client.Config.Model
 
         public Engines(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {
-            _db = DatabaseProviderLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
+            _db = DatabaseLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
             _db.Open(connectionStringSettingsCollection);
             ArchiveDirectories = new ArchiveDirectories(_db);
             EngineList = _db.LoadEngines<Engine>().ToList();

@@ -107,6 +107,7 @@ namespace TAS.Client.NDIVideoPreview
             CommandShowPopup = new UiCommand(o => DisplayPopup = true);
             CommandHidePopup = new UiCommand(o => DisplayPopup = false);
             SourceRefreshed += OnSourceRefreshed;
+            RefreshAudioDevices();
             View = new VideoPreviewView { DataContext = this };
         }
 
@@ -257,21 +258,26 @@ namespace TAS.Client.NDIVideoPreview
         {
             try
             {
+                RefreshAudioDevices();
                 await Task.Run(() =>
                 {
                     RefreshSources();
                 });
-                AudioDevices = AudioDevice.EnumerateDevices();
-                var previousAudioDevice = SelectedAudioDevice;
-                SelectedAudioDevice = previousAudioDevice == null
-                    ? AudioDevices.FirstOrDefault()
-                    : AudioDevices.FirstOrDefault(d => d.DeviceName.Equals(previousAudioDevice.DeviceName)) ??
-                      AudioDevices.FirstOrDefault();
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e);
             }
+        }
+
+        private void RefreshAudioDevices()
+        {
+            AudioDevices = AudioDevice.EnumerateDevices();
+            var previousAudioDevice = SelectedAudioDevice;
+            SelectedAudioDevice = previousAudioDevice == null
+                ? AudioDevices.FirstOrDefault()
+                : AudioDevices.FirstOrDefault(d => d.DeviceName.Equals(previousAudioDevice.DeviceName)) ??
+                  AudioDevices.FirstOrDefault();
         }
 
 

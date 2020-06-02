@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 using jNet.RPC;
 using jNet.RPC.Server;
 using TAS.Common;
-using TAS.Common.Database;
+using TAS.Database.Common;
 using TAS.Common.Interfaces.Security;
 
 namespace TAS.Server.Security

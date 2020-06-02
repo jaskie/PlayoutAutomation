@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TAS.Common.Database
+namespace TAS.Database.Common
 {
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class HibernateAttribute: Attribute

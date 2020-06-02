@@ -155,7 +155,7 @@ namespace TAS.Database.MySqlRedundant.Updates
 namespace _Update013
     {
 
-        public class CasparServerChannel : Common.Interfaces.IPlayoutServerChannelProperties
+        public class CasparServerChannel : TAS.Common.Interfaces.IPlayoutServerChannelProperties
         {
             public ulong Id { get; set; }
             public string ChannelName { get; set; }
@@ -165,14 +165,14 @@ namespace _Update013
             public int AudioChannelCount { get; set; }
         }
 
-        public class CasparRecorder : Common.Interfaces.IRecorderProperties
+        public class CasparRecorder : TAS.Common.Interfaces.IRecorderProperties
         {
             public int Id { get; set; }
             public string RecorderName { get; set; }
             public int DefaultChannel { get; set; }
         }
 
-        public class CasparServer : Common.Interfaces.IPlayoutServerProperties
+        public class CasparServer : TAS.Common.Interfaces.IPlayoutServerProperties
         {
             [XmlIgnore, JsonIgnore]
             public ulong Id { get; set; }
@@ -197,7 +197,7 @@ namespace _Update013
             }
         }
 
-        public class Engine : Common.Interfaces.IEngineProperties
+        public class Engine : TAS.Common.Interfaces.IEngineProperties
         {
             [XmlIgnore, JsonIgnore]
             public ulong Id { get; set; }

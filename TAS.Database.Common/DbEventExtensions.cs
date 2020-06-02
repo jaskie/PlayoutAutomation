@@ -1,6 +1,7 @@
-﻿using TAS.Common.Interfaces;
+﻿using TAS.Common;
+using TAS.Common.Interfaces;
 
-namespace TAS.Common.Database
+namespace TAS.Database.Common
 {
     public static class DbEventExtensions
     {

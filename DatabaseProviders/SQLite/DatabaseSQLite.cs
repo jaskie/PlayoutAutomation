@@ -5,7 +5,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Reflection;
 using TAS.Common;
-using TAS.Common.Database.Interfaces;
+using TAS.Database.Common.Interfaces;
 
 namespace TAS.Database.SQLite
 {

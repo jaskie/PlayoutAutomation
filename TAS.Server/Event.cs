@@ -1016,6 +1016,8 @@ namespace TAS.Server
 
         public bool AllowDelete()
         {
+            if (!HaveRight(EventRight.Delete))
+                return false;
             if ((_playState == TPlayState.Fading || _playState == TPlayState.Paused || _playState == TPlayState.Playing) &&
                 (_eventType == TEventType.Live || _eventType == TEventType.Movie || _eventType == TEventType.Rundown))
                 return false;

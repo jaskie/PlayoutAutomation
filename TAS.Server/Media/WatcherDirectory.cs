@@ -327,9 +327,9 @@ namespace TAS.Server.Media
                         prevMedia.PropertyChanged -= _media_PropertyChanged;
                         Task.Run(() =>
                         {
-                            if (prevMedia is Common.Database.Interfaces.Media.IAnimatedMedia am)
+                            if (prevMedia is Database.Common.Interfaces.Media.IAnimatedMedia am)
                                 DatabaseProvider.Database.DeleteMedia(am);
-                            if (prevMedia is Common.Database.Interfaces.Media.IServerMedia sm)
+                            if (prevMedia is Database.Common.Interfaces.Media.IServerMedia sm)
                                 DatabaseProvider.Database.DeleteMedia(sm);
                             Logger.Error("Media {0} replaced in dictionary. Previous media deleted in database.",
                                 prevMedia);

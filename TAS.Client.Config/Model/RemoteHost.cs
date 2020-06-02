@@ -1,5 +1,5 @@
 ﻿using jNet.RPC;
-using TAS.Common.Database;
+using TAS.Database.Common;
 
 namespace TAS.Client.Config.Model
 {
