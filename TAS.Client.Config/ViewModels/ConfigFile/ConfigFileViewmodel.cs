@@ -42,9 +42,10 @@ namespace TAS.Client.Config.ViewModels.ConfigFile
             IsBackupInstance = _configFile.AppSettings.IsBackupInstance;
         }
 
-        public void Save()
+        public override bool Ok(object obj)
         {
             DatabaseConfigurator?.Save();
+            _configFile.Save();
             _configFile.AppSettings.IngestFolders = IngestFolders;
             _configFile.AppSettings.ReferenceLoudnessLevel = ReferenceLoudnessLevel;
             _configFile.AppSettings.TempDirectory = TempDirectory;
@@ -52,6 +53,7 @@ namespace TAS.Client.Config.ViewModels.ConfigFile
             _configFile.AppSettings.Instance = Instance;
             _configFile.AppSettings.UiLanguage = UiLanguage;
             _configFile.AppSettings.IsBackupInstance = IsBackupInstance;
+            return true;
         }
 
         public string IngestFolders { get => _ingestFolders; set => SetField(ref _ingestFolders, value); }

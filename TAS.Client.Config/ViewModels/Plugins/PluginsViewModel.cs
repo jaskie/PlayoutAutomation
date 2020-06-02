@@ -11,7 +11,9 @@ using TAS.Client.Config.ViewModels.Plugins.CgElementsController;
 namespace TAS.Client.Config.ViewModels.Plugins
 {
     public class PluginsViewModel : ViewModelBase
-    {        
+    {
+        private const string FileNameSearchPattern = "TAS.Server.*.dll";
+
         private List<IPluginManager> _plugins;
         private IPluginManager _selectedPlugin;
         
@@ -29,9 +31,9 @@ namespace TAS.Client.Config.ViewModels.Plugins
         private List<IPluginManager> GetPlugins()
         {
             var plugins = new List<IPluginManager>();
-            var pluginNames = Directory.GetFiles("Plugins/", "TAS.Server.*.dll").Select(p => Path.GetFileNameWithoutExtension(p)).ToList();
-            
-            foreach(var name in pluginNames)
+            var pluginNames = Directory.GetFiles("Plugins/", FileNameSearchPattern).Select(p => Path.GetFileNameWithoutExtension(p)).ToList();                         
+
+            foreach (var name in pluginNames)
             {
                 switch(name)
                 {
@@ -47,6 +49,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
         public IPluginManager SelectedPlugin { get => _selectedPlugin; set => SetField(ref _selectedPlugin, value); }
 
         public bool HasPlugins => _plugins.Count > 0 ? true : false;
+
         public void Save()
         {
             foreach (var plugin in _plugins)                

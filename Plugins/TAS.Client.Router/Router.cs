@@ -77,6 +77,8 @@ namespace TAS.Server.Router
             private set => SetField(ref _isConnected, value);
         }
 
+        public string EngineName { get; set; }
+
         public void SelectInput(int inPort)
         {            
              _routerCommunicator.SelectInput(inPort);

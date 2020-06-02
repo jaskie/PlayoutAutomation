@@ -46,7 +46,7 @@ namespace TAS.Client.Config.ViewModels.Engines
         {
             foreach (var e in Engines)
                 e.Save();
-
+            
             _engines.Save();            
         }
 

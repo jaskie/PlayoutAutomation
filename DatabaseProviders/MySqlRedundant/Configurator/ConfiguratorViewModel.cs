@@ -57,7 +57,7 @@ namespace TAS.Database.MySqlRedundant.Configurator
                 var cs = section.ConnectionStrings[ConnectionStringsNames.Secondary];
                 if (cs != null)
                     section.ConnectionStrings.Remove(cs);
-            }
+            }            
         }
 
         public bool IsSConnectionStringSecondary

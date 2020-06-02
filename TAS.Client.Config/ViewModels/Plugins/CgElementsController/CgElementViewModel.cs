@@ -12,17 +12,11 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         private string _uploadServerImagePath;        
         private CgElement _cgElement;
 
-        public CgElementViewModel(CgElement cgElement) : base("Add", "Cancel")
+        public CgElementViewModel(CgElement cgElement, string ConfirmButtonText = "Add") : base(ConfirmButtonText, "Cancel")
         {
-            LoadCommands();           
-
-            if (cgElement != null)
-            {
-                _cgElement = cgElement;
-                OkButtonContent = "Edit";
-
-                LoadData();                                
-            }
+            LoadCommands();
+            _cgElement = cgElement;
+            LoadData();
         }
 
         private void LoadData()
@@ -31,6 +25,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             _command = _cgElement.Command;
             ClientImagePath = _cgElement.ClientImagePath;
             ServerImagePath = _cgElement.ServerImagePath;
+            IsModified = false;
         }        
 
         private void LoadCommands()
@@ -67,9 +62,15 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         {
             try
             {
-                
-                
-                
+                _cgElement.Name = _name;
+                _cgElement.Command = _command;
+                _cgElement.ClientImagePath = _cgElement.ClientImagePath;
+                _cgElement.ServerImagePath = _cgElement.ServerImagePath;
+
+                if (_uploadClientImagePath?.Length>0)
+                    _cgElement.UploadClientImagePath = _cgElement.ClientImagePath;
+                if (_uploadServerImagePath?.Length>0)
+                    _cgElement.UploadServerImagePath = _cgElement.ServerImagePath;
                 return true;
             }
             catch(Exception ex)

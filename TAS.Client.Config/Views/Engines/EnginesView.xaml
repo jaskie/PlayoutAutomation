@@ -7,7 +7,7 @@
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.Engines"
              xmlns:view="clr-namespace:TAS.Client.Config.Views.Engines"
-             d:DataContext="{x:Type vm:EnginesViewmodel}"
+             d:DataContext="{x:Type vm:EnginesViewModel}"
              mc:Ignorable="d" 
              >
     <Grid>

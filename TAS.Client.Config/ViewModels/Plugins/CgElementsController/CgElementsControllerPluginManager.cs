@@ -86,6 +86,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
             ElementTypes = CollectionViewSource.GetDefaultView(_elementTypes);
             SelectedElementType = _elementTypes.LastOrDefault();
+            IsModified = false;
         }
 
         private bool CanUndo(object obj)
@@ -119,7 +120,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             if (!(obj is CgElement element))
                 return;
 
-            CgElementViewModel = new CgElementViewModel(element);
+            CgElementViewModel = new CgElementViewModel(element, "Edit");
         }
 
         private bool CanMoveCgElementDown(object obj)
@@ -217,7 +218,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                     var clientPath = Path.Combine(Directory.GetCurrentDirectory(), configPath, Path.GetFileName(cgElement.UploadClientImagePath));
                     File.Copy(cgElement.UploadClientImagePath, clientPath, true);
                 }
-            }
+            }            
         }
 
         private void LocalSave(object obj)
@@ -225,7 +226,8 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             _cgElementsController.Auxes = _auxes;
             _cgElementsController.Crawls = _crawls;
             _cgElementsController.Logos = _logos;
-            _cgElementsController.Parentals = _parentals;            
+            _cgElementsController.Parentals = _parentals;
+            IsModified = false;
         }
 
         private void CgElementWizardClosed(object sender, EventArgs e)

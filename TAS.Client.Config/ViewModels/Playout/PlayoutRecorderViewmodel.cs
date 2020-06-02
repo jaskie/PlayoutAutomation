@@ -15,6 +15,7 @@ namespace TAS.Client.Config.ViewModels.Playout
             _casparRecorder = r;
             _id = r.Id;
             _recorderName = r.RecorderName;
+            _defaultChannel = r.DefaultChannel;
         }
 
         public int Id

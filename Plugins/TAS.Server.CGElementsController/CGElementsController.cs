@@ -29,8 +29,7 @@ namespace TAS.Server.CgElementsController
         private byte _crawl;
         private byte _parental;
         private bool _isStartupExecuted = false;
-
-        [XmlAttribute]
+        
         public string EngineName { get; set; }
 
         [DtoMember]
@@ -43,8 +42,7 @@ namespace TAS.Server.CgElementsController
         public virtual bool IsConnected => true;
 
 
-        [DtoMember]
-        [XmlIgnore]
+        [DtoMember]        
         public bool IsCGEnabled
         {
             get => _isCgEnabled;
@@ -55,15 +53,13 @@ namespace TAS.Server.CgElementsController
         public bool IsMaster => true;
 
         [DtoMember]
-        [XmlIgnore]
         public bool IsWideScreen
         {
             get => _isWideScreen;
             set => SetField(ref _isWideScreen, value);
         }
 
-        [DtoMember]
-        [XmlIgnore]
+        [DtoMember]        
         public byte Crawl
         {
             get => _crawl;
@@ -75,14 +71,12 @@ namespace TAS.Server.CgElementsController
             }
         }
 
-        [DtoMember(nameof(Crawls))]
-        [XmlArray(nameof(Crawls)), XmlArrayItem(nameof(Crawl))]
+        [DtoMember(nameof(Crawls))]        
         public CGElement[] _crawls { get; set; } = new CGElement[0];
 
         public IEnumerable<ICGElement> Crawls => _crawls;
 
-        [DtoMember]
-        [XmlIgnore]
+        [DtoMember]        
         public byte Logo
         {
             get => _logo;
@@ -94,14 +88,12 @@ namespace TAS.Server.CgElementsController
             }
         }
 
-        [DtoMember(nameof(Logos))]
-        [XmlArray(nameof(Logos)), XmlArrayItem(nameof(Logo))]
+        [DtoMember(nameof(Logos))]        
         public CGElement[] _logos { get; set; } = new CGElement[0];
 
         public IEnumerable<ICGElement> Logos => _logos;
 
-        [DtoMember]
-        [XmlIgnore]
+        [DtoMember]        
         public byte Parental
         {
             get => _parental;
@@ -113,13 +105,11 @@ namespace TAS.Server.CgElementsController
             }
         }
 
-        [DtoMember(nameof(Parentals))]
-        [XmlArray(nameof(Parentals)), XmlArrayItem(nameof(Parental))]
+        [DtoMember(nameof(Parentals))]        
         public CGElement[] _parentals { get; set; } = new CGElement[0];
 
         public IEnumerable<ICGElement> Parentals => _parentals;
-
-        [XmlArray("Startup"), XmlArrayItem("Command")]
+        
         public string[] _startup { get; set; } = new string[0];
 
         public event EventHandler Started;
@@ -138,9 +128,9 @@ namespace TAS.Server.CgElementsController
             {
                 Logger.Error(e);
             }
-        }
-        [XmlAttribute]
-        public bool IsEnabled { get; }
+        }        
+        public bool IsEnabled { get; set; }
+        
         public void Clear()
         {
             try
@@ -190,6 +180,9 @@ namespace TAS.Server.CgElementsController
             }
         }
 
-
+        public void Initialize()
+        {
+            
+        }
     }
 }

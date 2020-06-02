@@ -6,11 +6,10 @@ using TAS.Client.Config.Model;
 using TAS.Client.Config.ViewModels.ArchiveDirectories;
 using TAS.Client.Config.ViewModels.Plugins;
 using TAS.Common;
-using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Engines
 {
-    public class EngineViewModel : OkCancelViewModelBase, IEngineProperties
+    public class EngineViewModel : ModifyableViewModelBase
     {        
         private TAspectRatioControl _aspectRatioControl;
         private string _engineName;
@@ -70,6 +69,7 @@ namespace TAS.Client.Config.ViewModels.Engines
             AspectRatioControl = _engine.AspectRatioControl;
             EngineName = _engine.EngineName;
             IsModified = false;
+            _engine.IsModified = false;
         }
 
         private bool CanOpenPluginManager(object obj)
@@ -205,8 +205,10 @@ namespace TAS.Client.Config.ViewModels.Engines
         public Common.UiCommand CommandManageArchiveDirectories { get; }
         public UiCommand PluginManagerCommand { get; }        
 
-        public override bool Ok(object obj = null)
+        public void Save()
         {
+            _pluginsViewModel.Save();
+
             if (IsModified)
             {
                 var playoutServerChannelPRI = _channelPRI as CasparServerChannel;
@@ -230,12 +232,7 @@ namespace TAS.Client.Config.ViewModels.Engines
             _engine.TimeCorrection = TimeCorrection;
             _engine.AspectRatioControl = AspectRatioControl;
             _engine.EngineName = EngineName;
-            return true;
-        }        
-
-        public void Save()
-        {
-            Ok();
-        }
+            _engine.IsModified = true;            
+        }               
     }
 }

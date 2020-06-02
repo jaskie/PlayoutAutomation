@@ -27,14 +27,12 @@ namespace TAS.Database.SQLite
 {
     public abstract class DatabaseBase : IDatabase
     {
-
         public void SetSerializationTypeBinder(IEnumerable<IPluginTypeBinder> pluginTypeResolvers)
         {
             HibernationSerializerSettings.SerializationBinder = new HibernationSerializationBinder(pluginTypeResolvers);
         }
 
 #if MYSQL
-
         private static readonly DateTime MinMySqlDate = new DateTime(1000, 01, 01);
         private static readonly DateTime MaxMySqlDate = new DateTime(9999, 12, 31, 23, 59, 59);
 

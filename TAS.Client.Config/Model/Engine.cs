@@ -53,13 +53,15 @@ namespace TAS.Client.Config.Model
         [Hibernate]
         public int CGStartDelay { get; set; }
 
+        //note for JJ, what is it?
         public bool IsModified = false;
 
         public bool IsNew = true;
-        public CgElementsController CgElementsController;
+        [Hibernate]
+        public CgElementsController CgElementsController { get; set; }
 
         public IDictionary<string, int> FieldLengths { get; set; }
-
+        
         public IRouter Router { get; set; }
 
         public void Save()
