@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Server.Model;
+using TAS.Server.Router.Model;
 
-namespace TAS.Server.RouterCommunicators
+namespace TAS.Server.Router.Communicators
 {
     internal class BlackmagicSmartVideoHubCommunicator : IRouterCommunicator
     {
@@ -23,7 +22,7 @@ namespace TAS.Server.RouterCommunicators
         private TcpClient _tcpClient;
 
         private NetworkStream _stream;
-        private readonly RouterDevice _device;
+        private readonly Router _router;
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
         private ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>> _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
@@ -40,9 +39,9 @@ namespace TAS.Server.RouterCommunicators
         private string _response;
         private int _disposed;
 
-        public BlackmagicSmartVideoHubCommunicator(RouterDevice device)
+        public BlackmagicSmartVideoHubCommunicator(Router device)
         {
-            _device = device;
+            _router = device;
         }
 
         public async Task<bool> Connect()
@@ -60,7 +59,7 @@ namespace TAS.Server.RouterCommunicators
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    var connectTask = _tcpClient.ConnectAsync(_device.IpAddress, _device.Port);
+                    var connectTask = _tcpClient.ConnectAsync(_router.IpAddress, _router.Port);
                     await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
 
                     if (!_tcpClient.Connected)
@@ -103,7 +102,7 @@ namespace TAS.Server.RouterCommunicators
 
         public void SelectInput(int inPort)
         {
-            AddToRequestQueue(_device.OutputPorts.Aggregate("VIDEO OUTPUT ROUTING:\n", (current, outPort) => current + string.Concat(outPort, " ", inPort, "\n")));
+            AddToRequestQueue(_router.OutputPorts.Aggregate("VIDEO OUTPUT ROUTING:\n", (current, outPort) => current + string.Concat(outPort, " ", inPort, "\n")));
         }
 
         public void Disconnect()
@@ -189,7 +188,7 @@ namespace TAS.Server.RouterCommunicators
                         var lineParams = line.Split(new[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
                         if (lineParams.Length >= 2 &&
                             short.TryParse(lineParams[0], out var outPort) &&
-                            outPort == _device.OutputPorts[0] &&
+                            outPort == _router.OutputPorts[0] &&
                             short.TryParse(lineParams[1], out var inPort))
                             return new CrosspointInfo(inPort, outPort);
 
@@ -355,7 +354,7 @@ namespace TAS.Server.RouterCommunicators
                         var lineParams = line.Split(new[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
                         if (lineParams.Length >= 2 &&
                             short.TryParse(lineParams[0], out var outPort) &&
-                            outPort == _device.OutputPorts[0] &&
+                            outPort == _router.OutputPorts[0] &&
                             short.TryParse(lineParams[1], out var inPort))
                             return new CrosspointInfo(inPort, outPort);
 

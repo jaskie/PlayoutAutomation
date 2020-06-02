@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using TAS.Common;
 
-namespace TAS.Server.Model
+namespace TAS.Server.Router.Model
 {
     internal interface IRouterCommunicator : IDisposable
     {

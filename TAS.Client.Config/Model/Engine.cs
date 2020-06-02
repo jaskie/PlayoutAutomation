@@ -60,6 +60,8 @@ namespace TAS.Client.Config.Model
 
         public IDictionary<string, int> FieldLengths { get; set; }
 
+        public IRouter Router { get; set; }
+
         public void Save()
         {
             throw new NotImplementedException();

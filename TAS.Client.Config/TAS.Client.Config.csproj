@@ -60,6 +60,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -103,9 +104,10 @@
       <DependentUpon>ConfigFileView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\ConfigFile\ConfigFileViewModel.cs" />
-    <Compile Include="Views\Engines\EnginesView.xaml.cs">
+    <Compile Include="Views\Engines\EnginesView.xaml.cs">         
       <DependentUpon>EnginesView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ConfigurationPluginManager.cs" />
     <Compile Include="ViewModels\Engines\EnginesViewmodel.cs" />
     <Compile Include="Views\Engines\EngineView.xaml.cs">
       <DependentUpon>EngineView.xaml</DependentUpon>

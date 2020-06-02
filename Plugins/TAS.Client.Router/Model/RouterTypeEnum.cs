@@ -1,4 +1,4 @@
-﻿namespace TAS.Server.Model
+﻿namespace TAS.Server.Router.Model
 {
     public enum RouterTypeEnum
     {
