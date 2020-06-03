@@ -2,7 +2,7 @@
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
 
-namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
+namespace TAS.Server.CgElementsController.Configurator
 {    
     public class CgElementViewModel : OkCancelViewModelBase
     {
@@ -10,9 +10,9 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         private string _command = String.Empty;        
         private string _uploadClientImagePath;
         private string _uploadServerImagePath;        
-        private CgElement _cgElement;
+        private Model.CgElement _cgElement;
 
-        public CgElementViewModel(CgElement cgElement, string ConfirmButtonText = "Add") : base(ConfirmButtonText, "Cancel")
+        public CgElementViewModel(Configurator.Model.CgElement cgElement, string ConfirmButtonText = "Add") : base(ConfirmButtonText, "Cancel")
         {
             LoadCommands();
             _cgElement = cgElement;

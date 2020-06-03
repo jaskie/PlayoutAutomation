@@ -7,7 +7,7 @@ using jNet.RPC;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 
-namespace TAS.Server.CgElementsController
+namespace TAS.Server.CgElementsController.Model
 {
     [DebuggerDisplay("{Id}:{Name}")]
     public class CGElement : ServerObjectBase, ICGElement

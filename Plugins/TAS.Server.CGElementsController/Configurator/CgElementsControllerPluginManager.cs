@@ -3,33 +3,32 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Windows.Controls;
 using System.Windows.Data;
 using TAS.Client.Common;
-using TAS.Client.Config.Model;
-using TAS.Client.Config.Model.Plugins;
 using TAS.Common;
+using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 
-namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
+namespace TAS.Server.CgElementsController.Configurator
 {
     public class CgElementsControllerPluginManager : ModifyableViewModelBase, IPluginManager
     {                
-        private readonly Engine _engine;
-        private readonly Model.CgElementsController _cgElementsController = new Model.CgElementsController();
+        private readonly IConfigEngine _engine;
+        private readonly Configurator.Model.CgElementsController _cgElementsController = new Configurator.Model.CgElementsController();
 
-        private List<CgElement> _cgElements;
-        private List<CgElement> _crawls;
-        private List<CgElement> _logos;
-        private List<CgElement> _auxes;
-        private List<CgElement> _parentals;
-        private CgElement _selectedElement;
-        private CgElement.Type _selectedElementType;
+        private List<Model.CgElement> _cgElements;
+        private List<Model.CgElement> _crawls;
+        private List<Model.CgElement> _logos;
+        private List<Model.CgElement> _auxes;
+        private List<Model.CgElement> _parentals;
+        private Model.CgElement _selectedElement;
+        private Model.CgElement.Type _selectedElementType;
         private OkCancelViewModelBase _currentViewModel;
         private List<string> _elementTypes;
         private bool _isEnabled;        
-        private CgElement _newElement;
+        private Configurator.Model.CgElement _newElement;
 
-        public CgElementsControllerPluginManager(Engine engine)
+        public CgElementsControllerPluginManager(IConfigEngine engine)
         {
             _engine = engine;                         
             LoadCommands();
@@ -49,40 +48,48 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         private void Init()
         {
-            if (_engine.CgElementsController != null)
+            if (_engine.CGElementsController != null)
             {
-                _crawls = new List<CgElement>(_engine.CgElementsController.Crawls);
-                _logos = new List<CgElement>(_engine.CgElementsController.Logos);
-                _auxes = new List<CgElement>(_engine.CgElementsController.Auxes);
-                _parentals = new List<CgElement>(_engine.CgElementsController.Parentals);
-                _cgElementsController.Startup = _engine.CgElementsController.Startup;
-                _cgElementsController.IsEnabled = _engine.CgElementsController.IsEnabled;
-                _isEnabled = _engine.CgElementsController.IsEnabled;
-
-                foreach (var crawl in _crawls)
-                    crawl.CgType = CgElement.Type.Crawl;
-
-                foreach (var logo in _logos)
-                    logo.CgType = CgElement.Type.Logo;
-
-                foreach (var aux in _auxes)
-                    aux.CgType = CgElement.Type.Aux;
-
-                foreach (var parental in _parentals)
-                    parental.CgType = CgElement.Type.Parental;
+                foreach (var crawl in _engine.CGElementsController.Crawls)
+                {
+                    var cgElement = crawl as Model.CgElement;
+                    cgElement.CgType = Model.CgElement.Type.Crawl;
+                    _crawls.Add(cgElement);
+                }
+                foreach (var logo in _engine.CGElementsController.Logos)
+                {
+                    var cgElement = logo as Model.CgElement;
+                    cgElement.CgType = Model.CgElement.Type.Logo;
+                    _logos.Add(cgElement);
+                }
+                foreach (var aux in _engine.CGElementsController.Auxes)
+                {
+                    var cgElement = aux as Model.CgElement;
+                    cgElement.CgType = Model.CgElement.Type.Aux;
+                    _auxes.Add(cgElement);
+                }
+                foreach (var parental in _engine.CGElementsController.Parentals)
+                {
+                    var cgElement = parental as Model.CgElement;
+                    cgElement.CgType = Model.CgElement.Type.Parental;
+                    _parentals.Add(cgElement);
+                }                
+                _cgElementsController.Startup = ((Model.CgElementsController)_engine.CGElementsController).Startup;
+                _cgElementsController.IsEnabled = _engine.CGElementsController.IsEnabled;
+                _isEnabled = _engine.CGElementsController.IsEnabled;                
             }
             else
             {
-                _crawls = new List<CgElement>();
-                _logos = new List<CgElement>();
-                _auxes = new List<CgElement>();
-                _parentals = new List<CgElement>();
+                _crawls = new List<Model.CgElement>();
+                _logos = new List<Model.CgElement>();
+                _auxes = new List<Model.CgElement>();
+                _parentals = new List<Model.CgElement>();
                 _cgElementsController.Startup = new List<string>();
                 _cgElementsController.IsEnabled = false;
                 _isEnabled = _cgElementsController.IsEnabled;
             }
 
-            _elementTypes = Enum.GetNames(typeof(CgElement.Type)).ToList();            
+            _elementTypes = Enum.GetNames(typeof(Configurator.Model.CgElement.Type)).ToList();            
 
             ElementTypes = CollectionViewSource.GetDefaultView(_elementTypes);
             SelectedElementType = _elementTypes.LastOrDefault();
@@ -108,7 +115,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         private void DeleteElement(object obj)
         {
-            if (!(obj is CgElement element))
+            if (!(obj is Configurator.Model.CgElement element))
                 return;
 
             _cgElements.Remove(element);
@@ -117,7 +124,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         private void EditElement(object obj)
         {
-            if (!(obj is CgElement element))
+            if (!(obj is Configurator.Model.CgElement element))
                 return;
 
             CgElementViewModel = new CgElementViewModel(element, "Edit");
@@ -168,7 +175,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         private void AddCgElement(object obj)
         {
-            _newElement = new CgElement();
+            _newElement = new Model.CgElement();
             _newElement.CgType = _selectedElementType;
 
             CgElementViewModel = new CgElementViewModel(_newElement);
@@ -177,7 +184,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
         public void Save()
         {
             if (IsModified)
-                _engine.CgElementsController = _cgElementsController;
+                _engine.CGElementsController = _cgElementsController;
 
             var cgElements = _auxes.Concat(_crawls).Concat(_logos).Concat(_parentals);
             foreach (var cgElement in cgElements)
@@ -195,19 +202,19 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                     string configPath = FileUtils.ConfigurationPath;
                     switch (cgElement.CgType)
                     {
-                        case CgElement.Type.Parental:
+                        case Model.CgElement.Type.Parental:
                             configPath = Path.Combine(configPath, "Parentals");
                             break;
 
-                        case CgElement.Type.Aux:
+                        case Model.CgElement.Type.Aux:
                             configPath = Path.Combine(configPath, "Auxes");
                             break;
 
-                        case CgElement.Type.Crawl:
+                        case Model.CgElement.Type.Crawl:
                             configPath = Path.Combine(configPath, "Crawls");
                             break;
 
-                        case CgElement.Type.Logo:
+                        case Model.CgElement.Type.Logo:
                             configPath = Path.Combine(configPath, "Logos");
                             break;
                     }
@@ -226,8 +233,7 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
             _cgElementsController.Auxes = _auxes;
             _cgElementsController.Crawls = _crawls;
             _cgElementsController.Logos = _logos;
-            _cgElementsController.Parentals = _parentals;
-            IsModified = false;
+            _cgElementsController.Parentals = _parentals;           
         }
 
         private void CgElementWizardClosed(object sender, EventArgs e)
@@ -273,10 +279,10 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
 
         public string SelectedElementType
         {
-            get => Enum.GetName(typeof(CgElement.Type), _selectedElementType);
+            get => Enum.GetName(typeof(Model.CgElement.Type), _selectedElementType);
             set
             {
-                var temp = (CgElement.Type)Enum.Parse(typeof(CgElement.Type), value);
+                var temp = (Model.CgElement.Type)Enum.Parse(typeof(Model.CgElement.Type), value);
                 if (temp == _selectedElementType)
                     return;
 
@@ -286,29 +292,29 @@ namespace TAS.Client.Config.ViewModels.Plugins.CgElementsController
                 _selectedElementType = temp;
                 switch (_selectedElementType)
                 {
-                    case CgElement.Type.Crawl:
+                    case Model.CgElement.Type.Crawl:
                         _cgElements = _crawls;
                         break;
-                    case CgElement.Type.Logo:
+                    case Model.CgElement.Type.Logo:
                         _cgElements = _logos;
                         break;
-                    case CgElement.Type.Aux:
+                    case Model.CgElement.Type.Aux:
                         _cgElements = _auxes;
                         break;
-                    case CgElement.Type.Parental:
+                    case Model.CgElement.Type.Parental:
                         _cgElements = _parentals;
                         break;
                 }
 
                 CgElements = CollectionViewSource.GetDefaultView(_cgElements);
-                CgElements.SortDescriptions.Add(new SortDescription(nameof(CgElement.Id), ListSortDirection.Ascending));
+                CgElements.SortDescriptions.Add(new SortDescription(nameof(Model.CgElement.Id), ListSortDirection.Ascending));
 
                 NotifyPropertyChanged(nameof(CgElements));
                 NotifyPropertyChanged();
             }
         }
 
-        public CgElement SelectedElement
+        public Model.CgElement SelectedElement
         {
             get => _selectedElement;
             set

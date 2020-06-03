@@ -68,6 +68,16 @@
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
     <Compile Include="EventArgs.cs" />
+    <Compile Include="Interfaces\Configurator\IConfigArchiveDirectories.cs" />
+    <Compile Include="Interfaces\Configurator\IConfigArchiveDirectory.cs" />
+    <Compile Include="Interfaces\Configurator\IConfigCasparChannel.cs" />
+    <Compile Include="Interfaces\Configurator\IConfigCasparServer.cs" />
+    <Compile Include="Interfaces\Configurator\IConfigEngine.cs" />
+    <Compile Include="Interfaces\Configurator\IConfigRecorder.cs" />
+    <Compile Include="Interfaces\IConfiguratorPlugin.cs" />
+    <Compile Include="Interfaces\IEnginePluginParameter.cs" />
+    <Compile Include="Interfaces\IParamEnginePlugin.cs" />
+    <Compile Include="Interfaces\IPluginManager.cs" />
     <Compile Include="Interfaces\IRouter.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
     <Compile Include="Interfaces\IRouterPort.cs" />

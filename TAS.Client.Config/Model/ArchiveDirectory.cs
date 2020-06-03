@@ -3,7 +3,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.Config.Model
 {
-    public class ArchiveDirectory: IArchiveDirectoryProperties
+    public class ArchiveDirectory : IArchiveDirectoryProperties
     {
         ulong _idArchive;
         string _folder;

@@ -4,11 +4,12 @@ using System.ComponentModel;
 
 namespace TAS.Common.Interfaces
 {
-    public interface ICGElementsController: ICGElementsState, INotifyPropertyChanged, IGpi, IDisposable
+    public interface ICGElementsController: ICGElementsState, INotifyPropertyChanged, IGpi, IEnginePlugin, IDisposable
     {
         IEnumerable<ICGElement> Crawls { get; }
         IEnumerable<ICGElement> Logos { get; }
-        IEnumerable<ICGElement> Parentals { get; }
+        IEnumerable<ICGElement> Parentals { get; }  
+        IEnumerable<ICGElement> Auxes { get; }
         void SetState(ICGElementsState state);
         byte DefaultCrawl { get; }
         byte DefaultLogo { get; }

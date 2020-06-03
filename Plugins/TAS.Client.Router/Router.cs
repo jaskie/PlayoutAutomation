@@ -158,5 +158,10 @@ namespace TAS.Server.Router
             _routerCommunicator.OnRouterConnectionStateChanged -= Communicator_OnRouterConnectionStateChanged;
             _routerCommunicator.Dispose();
         }
+
+        public object LoadConfigurator(IEngine engine)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

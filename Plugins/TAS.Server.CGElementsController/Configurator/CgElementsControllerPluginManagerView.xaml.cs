@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TAS.Client.Config.Views.Plugins.CgElementsController
+namespace TAS.Server.CgElementsController.Configurator
 {
     /// <summary>
-    /// Interaction logic for CgElementView.xaml
+    /// Interaction logic for CgElementsControllerPluginManagerView.xaml
     /// </summary>
-    public partial class CgElementView : UserControl
+    public partial class CgElementsControllerPluginManagerView : UserControl
     {
-        public CgElementView()
+        public CgElementsControllerPluginManagerView()
         {
             InitializeComponent();
         }

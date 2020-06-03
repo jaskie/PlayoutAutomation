@@ -95,16 +95,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ViewModels\Plugins\CgElementsController\CgElementsControllerPluginManager.cs" />
-    <Compile Include="ViewModels\Plugins\CgElementsController\CgElementViewModel.cs" />
-    <Compile Include="Views\Plugins\CgElementsController\CgElementsControllerPluginManagerView.xaml.cs">
-      <DependentUpon>CgElementsControllerPluginManagerView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\ConfigFile\ConfigFileView.xaml.cs">
       <DependentUpon>ConfigFileView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\ConfigFile\ConfigFileViewModel.cs" />
-    <Compile Include="Views\Engines\EnginesView.xaml.cs">         
+    <Compile Include="Views\Engines\EnginesView.xaml.cs">
       <DependentUpon>EnginesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ConfigurationPluginManager.cs" />
@@ -128,15 +123,12 @@
       <DependentUpon>IngestDirectoryView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\IngestDirectories\IngestDirectoryViewModel.cs" />
-    <Compile Include="Model\CgElementsController.cs" />
     <Compile Include="Model\ConfigFile.cs" />
     <Compile Include="Model\Engine.cs" />
     <Compile Include="Model\Engines.cs" />
-    <Compile Include="Model\CgElement.cs" />
     <Compile Include="Model\IngestDirectory.cs" />
     <Compile Include="Model\CasparServer.cs" />
     <Compile Include="Model\CasparServerChannel.cs" />
-    <Compile Include="Model\IPluginManager.cs" />
     <Compile Include="Model\PlayoutServers.cs" />
     <Compile Include="Model\RemoteHost.cs" />
     <Compile Include="ViewModels\Playout\PlayoutRecorderViewModel.cs" />
@@ -148,9 +140,6 @@
       <DependentUpon>PlayoutServerView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\Playout\PlayoutServerViewModel.cs" />
-    <Compile Include="Views\Plugins\CgElementsController\CgElementView.xaml.cs">
-      <DependentUpon>CgElementView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Plugins\PluginsView.xaml.cs">
       <DependentUpon>PluginsView.xaml</DependentUpon>
     </Compile>
@@ -162,10 +151,6 @@
     <Compile Include="ViewModels\Playout\PlayoutServersViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Views\Plugins\CgElementsController\CgElementsControllerPluginManagerView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\ConfigFile\ConfigFileView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -199,10 +184,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Playout\PlayoutServerView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Plugins\CgElementsController\CgElementView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

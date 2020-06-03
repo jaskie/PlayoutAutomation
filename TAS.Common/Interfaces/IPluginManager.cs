@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TAS.Client.Common;
 
-namespace TAS.Client.Config.Model.Plugins
+namespace TAS.Common.Interfaces
 {
     public interface IPluginManager
     {
-        string PluginName { get; }       
+        string PluginName { get; }
         void Save();
     }
 }

@@ -77,8 +77,7 @@ namespace TAS.Common.Interfaces
         void Restart();
         void ForceNext(IEvent aEvent);
         void Execute(string command);
-        DateTime CurrentTime { get; }
-        ICGElementsController CGElementsController { get; }
+        DateTime CurrentTime { get; }        
         void SearchMissingEvents();
         IEvent Playing { get; }
         IEvent NextToPlay { get; }
@@ -107,7 +106,8 @@ namespace TAS.Common.Interfaces
         bool StudioMode { get; set; }
         int TimeCorrection { get; set; }
         int CGStartDelay { get; set; }
-        IRouter Router { get; }
+        IRouter Router { get; set; }
+        ICGElementsController CGElementsController { get; set; }
     }
 
     public interface IEnginePersistent : IEngineProperties, IPersistent
@@ -119,6 +119,6 @@ namespace TAS.Common.Interfaces
         int ServerChannelSEC { get; set; }
         ulong IdServerPRV { get; set; }
         int ServerChannelPRV { get; set; }
-        ulong IdArchive { get; set; }
+        ulong IdArchive { get; set; }        
     }
 }

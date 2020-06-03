@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using TAS.Common;
 using TAS.Database.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.Model
 {
-    public class Engine: IEnginePersistent
+    public class Engine : IEnginePersistent, IConfigEngine
     {
         public ulong Id { get; set; }
 
@@ -58,11 +59,15 @@ namespace TAS.Client.Config.Model
 
         public bool IsNew = true;
         [Hibernate]
-        public CgElementsController CgElementsController { get; set; }
+        public ICGElementsController CGElementsController { get; set; }
 
         public IDictionary<string, int> FieldLengths { get; set; }
-        
-        public IRouter Router { get; set; }
+        [Hibernate]
+        public IRouter Router { get; set; }       
+
+        public IReadOnlyCollection<IConfigCasparServer> Servers { get; set; }
+
+        public ArchiveDirectories ArchiveDirectories;
 
         public void Save()
         {
@@ -73,10 +78,5 @@ namespace TAS.Client.Config.Model
         {
             throw new NotImplementedException();
         }
-
-        internal IReadOnlyCollection<CasparServer> Servers;
-
-        internal ArchiveDirectories ArchiveDirectories;
-
     }
 }

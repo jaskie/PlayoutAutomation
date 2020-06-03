@@ -143,7 +143,7 @@ namespace TAS.Server
         public IMediaManager MediaManager => _mediaManager;
 
         [DtoMember]
-        public ICGElementsController CGElementsController { get; private set; }
+        public ICGElementsController CGElementsController { get; set; }
 
         [DtoMember, Hibernate]
         public IRouter Router { get; set; }

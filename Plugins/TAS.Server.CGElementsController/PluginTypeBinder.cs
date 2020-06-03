@@ -10,7 +10,7 @@ namespace TAS.Server
         public bool BindToName(Type type, out string assemblyName, out string typeName)
         {
             var controllerType = typeof(TAS.Server.CgElementsController.CgElementsController);
-            var configurationModelType = typeof(TAS.Client.Config.Model.CgElementsController); // can be type of model
+            var configurationModelType = typeof(TAS.Server.CgElementsController.Configurator.Model.CgElementsController); // can be type of model
             if (configurationModelType == type)
             {
                 assemblyName = configurationModelType.AssemblyQualifiedName;

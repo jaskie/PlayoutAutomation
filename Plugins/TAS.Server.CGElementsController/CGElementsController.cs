@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Serialization;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using jNet.RPC;
+using TAS.Client.Common;
+using TAS.Server.CgElementsController.Configurator;
+using System.ComponentModel.Composition;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Server.CgElementsController
 {
-    public class CgElementsController : ServerObjectBase, ICGElementsController, IEnginePlugin
+    [Export(typeof(IEnginePlugin))]
+    [Export(typeof(IConfiguratorPlugin))]
+    public class CgElementsController : ServerObjectBase, ICGElementsController, IEnginePlugin, IConfiguratorPlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         
@@ -29,8 +34,10 @@ namespace TAS.Server.CgElementsController
         private byte _crawl;
         private byte _parental;
         private bool _isStartupExecuted = false;
-        
+
         public string EngineName { get; set; }
+
+        public bool IsEnabled { get; set; }
 
         [DtoMember]
         public byte DefaultCrawl { get; set; } = 1;
@@ -72,7 +79,7 @@ namespace TAS.Server.CgElementsController
         }
 
         [DtoMember(nameof(Crawls))]        
-        public CGElement[] _crawls { get; set; } = new CGElement[0];
+        public Model.CGElement[] _crawls { get; set; } = new Model.CGElement[0];
 
         public IEnumerable<ICGElement> Crawls => _crawls;
 
@@ -89,7 +96,7 @@ namespace TAS.Server.CgElementsController
         }
 
         [DtoMember(nameof(Logos))]        
-        public CGElement[] _logos { get; set; } = new CGElement[0];
+        public Model.CGElement[] _logos { get; set; } = new Model.CGElement[0];
 
         public IEnumerable<ICGElement> Logos => _logos;
 
@@ -106,11 +113,13 @@ namespace TAS.Server.CgElementsController
         }
 
         [DtoMember(nameof(Parentals))]        
-        public CGElement[] _parentals { get; set; } = new CGElement[0];
+        public Model.CGElement[] _parentals { get; set; } = new Model.CGElement[0];
 
         public IEnumerable<ICGElement> Parentals => _parentals;
         
         public string[] _startup { get; set; } = new string[0];
+
+        public IEnumerable<ICGElement> Auxes { get; }
 
         public event EventHandler Started;
 
@@ -128,8 +137,7 @@ namespace TAS.Server.CgElementsController
             {
                 Logger.Error(e);
             }
-        }        
-        public bool IsEnabled { get; set; }
+        }                
         
         public void Clear()
         {
@@ -165,7 +173,6 @@ namespace TAS.Server.CgElementsController
                 if (!_isCgEnabled)
                     return;
 
-
                 Logger.Debug("Executing startup items");
                 foreach (var command in _startup)
                 {
@@ -180,9 +187,19 @@ namespace TAS.Server.CgElementsController
             }
         }
 
-        public void Initialize()
+        public void Initialize(object param)
         {
-            
+            if (param is IEngine engine)
+                _engine = engine;
         }
+
+        public object LoadConfigurator(object param)
+        {
+            if (!(param is IConfigEngine engine))
+                return null;
+
+            UiServices.AddDataTemplate(typeof(CgElementsControllerPluginManager), typeof(CgElementsControllerPluginManagerView));
+            return new CgElementsControllerPluginManager(engine);
+        }        
     }
 }

@@ -5,8 +5,7 @@ using System.Linq;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
-using TAS.Client.Config.Model.Plugins;
-using TAS.Client.Config.ViewModels.Plugins.CgElementsController;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {
@@ -37,9 +36,9 @@ namespace TAS.Client.Config.ViewModels.Plugins
             {
                 switch(name)
                 {
-                    case "TAS.Server.CgElementsController":
-                        plugins.Add(new CgElementsControllerPluginManager(_engine));
-                        break;
+                    //case "TAS.Server.CgElementsController":
+                    //    plugins.Add(new CgElementsControllerPluginManager(_engine));
+                    //    break;
                 }
             }
 
