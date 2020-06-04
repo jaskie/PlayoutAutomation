@@ -20,6 +20,13 @@
         </Grid.ColumnDefinitions>
         <DataGrid ItemsSource="{Binding Plugins}" SelectedItem="{Binding SelectedPlugin}" SelectionMode="Single" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
             <DataGrid.Columns>
+                <DataGridTemplateColumn Header="IsEnabled">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" IsChecked="{Binding IsEnabled, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTemplateColumn Header="Plugin Name">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

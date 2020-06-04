@@ -49,6 +49,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConcreteListConverter.cs" />
+    <Compile Include="ConcreteTypeConverter.cs" />
     <Compile Include="DatabaseLoader.cs" />
     <Compile Include="DbEventExtensions.cs" />
     <Compile Include="HibernationContractResolver.cs" />

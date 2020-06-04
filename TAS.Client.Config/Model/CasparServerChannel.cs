@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
 using TAS.Database.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.Model
 {
-    public class CasparServerChannel: IPlayoutServerChannelProperties
+    public class CasparServerChannel: IConfigCasparChannel
     {
         [Hibernate]
         public int Id { get; set; }
@@ -24,7 +24,7 @@ namespace TAS.Client.Config.Model
         [DefaultValue(2), Hibernate]
         public int AudioChannelCount { get; set; } = 2;
 
-        internal object Owner;
+        public object Owner { get; set; }
 
         public override string ToString()
         {

@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using TAS.Common;
 using TAS.Database.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
+using Newtonsoft.Json;
 
 namespace TAS.Client.Config.Model
 {
-    public class CasparServer: IPlayoutServerProperties
+    public class CasparServer : IConfigCasparServer
     {
         public bool IsNew = true;
         [Hibernate]
@@ -24,10 +25,14 @@ namespace TAS.Client.Config.Model
         public TServerType ServerType { get; set; }
         [Hibernate]
         public TMovieContainerFormat MovieContainerFormat { get; set; }
+        
         [Hibernate]
-        public List<CasparServerChannel> Channels { get; set; } = new List<CasparServerChannel>();
-        [Hibernate]
-        public List<CasparRecorder> Recorders { get; set; } = new List<CasparRecorder>();
+        [JsonConverter(typeof(ConcreteListConverter<IConfigCasparChannel, CasparServerChannel>))]
+        public List<IConfigCasparChannel> Channels { get; set; } = new List<IConfigCasparChannel>();
+        
+        [Hibernate]        
+        [JsonConverter(typeof(ConcreteListConverter<IConfigRecorder, CasparRecorder>))]        
+        public List<IConfigRecorder> Recorders { get; set; } = new List<IConfigRecorder>();
         public override string ToString()
         {
             return ServerAddress;

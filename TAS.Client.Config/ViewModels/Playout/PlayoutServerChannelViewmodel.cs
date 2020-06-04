@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
@@ -13,9 +14,9 @@ namespace TAS.Client.Config.ViewModels.Playout
         private string _liveDevice;
         private string _previewUrl;
         private int _audioChannelCount;
-        private CasparServerChannel _casparServerChannel;
+        private IConfigCasparChannel _casparServerChannel;
 
-        public PlayoutServerChannelViewModel(CasparServerChannel channel)
+        public PlayoutServerChannelViewModel(IConfigCasparChannel channel)
         {
             _casparServerChannel = channel;
             Init();
@@ -32,7 +33,7 @@ namespace TAS.Client.Config.ViewModels.Playout
             IsModified = false;
         }
 
-        public CasparServerChannel CasparServerChannel => _casparServerChannel;
+        public IConfigCasparChannel CasparServerChannel => _casparServerChannel;
 
         public string ChannelName
         {

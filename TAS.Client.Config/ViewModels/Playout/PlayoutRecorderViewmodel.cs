@@ -1,5 +1,6 @@
 ﻿using TAS.Client.Common;
 using TAS.Client.Config.Model;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.ViewModels.Playout
 {
@@ -8,9 +9,9 @@ namespace TAS.Client.Config.ViewModels.Playout
         private int _id;
         private string _recorderName;
         private int _defaultChannel;
-        private CasparRecorder _casparRecorder;
+        private IConfigRecorder _casparRecorder;
 
-        public PlayoutRecorderViewModel(CasparRecorder r)
+        public PlayoutRecorderViewModel(IConfigRecorder r)
         {
             _casparRecorder = r;
             _id = r.Id;
@@ -36,7 +37,7 @@ namespace TAS.Client.Config.ViewModels.Playout
             set => SetField(ref _defaultChannel, value);
         }
 
-        public CasparRecorder CasparRecorder => _casparRecorder;
+        public IConfigRecorder CasparRecorder => _casparRecorder;
 
         public override bool Ok(object obj = null)
         {

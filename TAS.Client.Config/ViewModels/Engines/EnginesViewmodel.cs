@@ -1,10 +1,14 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Linq;
+using System.Windows.Documents;
 using System.Windows.Input;
 using TAS.Client.Common;
+using TAS.Client.Config.Model;
 using TAS.Common;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.ViewModels.Engines
 {
@@ -81,7 +85,17 @@ namespace TAS.Client.Config.ViewModels.Engines
 
         private void _add(object obj)
         {
-            var newEngine = new Model.Engine() { Servers = _engines.Servers, ArchiveDirectories = _engines.ArchiveDirectories };
+            //var serversList = new List<IConfigCasparServer>();
+            //foreach(var server in _engines.Servers)
+            //{
+            //    serversList.Add(server);
+            //}
+
+            var newEngine = new Model.Engine() 
+            {                 
+                Servers = (List<IConfigCasparServer>)_engines.Servers, 
+                ArchiveDirectories = _engines.ArchiveDirectories 
+            };
             _engines.EngineList.Add(newEngine);
             var newPlayoutServerViewmodel = new EngineViewModel(newEngine);
             Engines.Add(newPlayoutServerViewmodel);

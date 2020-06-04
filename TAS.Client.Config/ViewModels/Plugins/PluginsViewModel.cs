@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Linq;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {
@@ -13,10 +16,12 @@ namespace TAS.Client.Config.ViewModels.Plugins
     {
         private const string FileNameSearchPattern = "TAS.Server.*.dll";
 
-        private List<IPluginManager> _plugins;
-        private IPluginManager _selectedPlugin;
+        [ImportMany(typeof(IPluginConfigurator))]
+        private List<IPluginConfigurator> _plugins;
+
+        private IPluginConfigurator _selectedPlugin;
         
-        private Engine _engine;
+        private IConfigEngine _engine;
 
         public PluginsViewModel(Engine engine)
         {
@@ -27,25 +32,28 @@ namespace TAS.Client.Config.ViewModels.Plugins
         }        
 
         //Add available plugins based on Plugins folder
-        private List<IPluginManager> GetPlugins()
+        private List<IPluginConfigurator> GetPlugins()
         {
-            var plugins = new List<IPluginManager>();
-            var pluginNames = Directory.GetFiles("Plugins/", FileNameSearchPattern).Select(p => Path.GetFileNameWithoutExtension(p)).ToList();                         
+            var plugins = new List<IPluginConfigurator>();            
 
-            foreach (var name in pluginNames)
+            using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), FileNameSearchPattern))
             {
-                switch(name)
+                using (var container = new CompositionContainer(catalog))
                 {
-                    //case "TAS.Server.CgElementsController":
-                    //    plugins.Add(new CgElementsControllerPluginManager(_engine));
-                    //    break;
+                    container.ComposeExportedValue("Engine", _engine);
+                    plugins = container.GetExportedValues<IPluginConfigurator>().ToList();
+
+                    foreach(var plugin in plugins)
+                    {
+                        plugin.RegisterUiTemplates();
+                    }
                 }
             }
-
+                        
             return plugins;
         }              
         public ICollectionView Plugins { get; }
-        public IPluginManager SelectedPlugin { get => _selectedPlugin; set => SetField(ref _selectedPlugin, value); }
+        public IPluginConfigurator SelectedPlugin { get => _selectedPlugin; set => SetField(ref _selectedPlugin, value); }
 
         public bool HasPlugins => _plugins.Count > 0 ? true : false;
 

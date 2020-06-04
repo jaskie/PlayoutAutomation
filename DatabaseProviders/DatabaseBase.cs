@@ -30,6 +30,7 @@ namespace TAS.Database.SQLite
         public void SetSerializationTypeBinder(IEnumerable<IPluginTypeBinder> pluginTypeResolvers)
         {
             HibernationSerializerSettings.SerializationBinder = new HibernationSerializationBinder(pluginTypeResolvers);
+            HibernationSerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
         }
 
 #if MYSQL

@@ -8,6 +8,7 @@ namespace TAS.Common.Interfaces.Configurator
 {
     public interface IConfigCasparChannel : IPlayoutServerChannelProperties
     {
+        int Id { get; set; }
         object Owner { get; set; }
     }
 }

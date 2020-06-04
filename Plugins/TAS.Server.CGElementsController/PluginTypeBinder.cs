@@ -2,7 +2,7 @@
 using System.ComponentModel.Composition;
 using TAS.Database.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.CgElementsController
 {
     [Export(typeof(IPluginTypeBinder))]
     public class PluginTypeBinder : IPluginTypeBinder

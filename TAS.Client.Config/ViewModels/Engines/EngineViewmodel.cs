@@ -78,10 +78,7 @@ namespace TAS.Client.Config.ViewModels.Engines
         }
 
         private void OpenPluginManager(object obj)
-        {
-            if (_pluginsViewModel == null)
-                _pluginsViewModel = new PluginsViewModel(_engine);
-                        
+        {                                   
             UiServices.WindowManager.ShowDialog(_pluginsViewModel);                        
         }
 

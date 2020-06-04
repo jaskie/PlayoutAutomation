@@ -3,119 +3,113 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
-             xmlns:cgVM="clr-namespace:TAS.Client.Config.ViewModels.Plugins.CgElementsController"
-             xmlns:cgView="clr-namespace:TAS.Client.Config.Views.Plugins.CgElementsController"
+             xmlns:cg="clr-namespace:TAS.Server.CgElementsController.Configurator"             
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
+    
+        
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <StackPanel Margin="0,5,0,0" Grid.ColumnSpan="3" Orientation="Horizontal">
-            <CheckBox Content="Is Plugin Enabled" IsChecked="{Binding IsEnabled}" Margin="10,10,10,0" />
-            <Button Command="{Binding SaveCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,5,10,0" Padding="5,2">
-                <Button.Content>
+        <Grid IsEnabled="{Binding IsEnabled}" Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
                     <StackPanel Orientation="Horizontal">
-                        <Label Margin="5,0" Padding="0" Content="Save" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                        <Image Source="/TAS.Client.Common;component/Images/Actions/apply.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        <Label Content="CgElement Type: " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
+                        <ComboBox MinWidth="90" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" ItemsSource="{Binding ElementTypes}" SelectedItem="{Binding SelectedElementType}" />
                     </StackPanel>
-                </Button.Content>
-            </Button>
-            <Button Command="{Binding UndoCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,5,10,0" Padding="5,2">
-                <Button.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Margin="5,0" Padding="0" Content="Undo" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                        <Image Source="/TAS.Client.Common;component/Images/Actions/undo.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                        <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding AddCgElementCommand}">
+                            <Button.Content>
+                                <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                            </Button.Content>
+                        </Button>
+                        <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveCgElementUpCommand}">
+                            <Button.Content>
+                                <Image Source="/TAS.Client.Common;component/Images/Actions/go-up.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                            </Button.Content>
+                        </Button>
+                        <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveCgElementDownCommand}">
+                            <Button.Content>
+                                <Image Source="/TAS.Client.Common;component/Images/Actions/go-down.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                            </Button.Content>
+                        </Button>
                     </StackPanel>
-                </Button.Content>
-            </Button>
-        </StackPanel>
+                    <DataGrid Grid.Row="2" Margin="5" ItemsSource="{Binding CgElements}" SelectionMode="Single" SelectedItem="{Binding SelectedElement}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Nazwa">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Command">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding Command}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Margin="1,2" Command="{Binding DataContext.EditElementCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
+                                                <Button.Content>
+                                                    <Image Source="/TAS.Client.Common;component/Images/Actions/edit.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                                </Button.Content>
+                                            </Button>
+                                            <Button Margin="1,2" Command="{Binding DataContext.DeleteElementCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
+                                                <Button.Content>
+                                                    <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                                </Button.Content>
+                                            </Button>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
 
-        <Rectangle Grid.Row="1" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="10" Fill="LightGray" />
-        <Grid Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <Grid IsEnabled="{Binding IsEnabled}" Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="CgElement Type: " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" />
-                    <ComboBox MinWidth="90" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" ItemsSource="{Binding ElementTypes}" SelectedItem="{Binding SelectedElementType}" />
-                </StackPanel>
-
-                <StackPanel Grid.Row="1" Orientation="Horizontal">
-                    <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding AddCgElementCommand}">
-                        <Button.Content>
-                            <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        </Button.Content>
-                    </Button>
-                    <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveCgElementUpCommand}">
-                        <Button.Content>
-                            <Image Source="/TAS.Client.Common;component/Images/Actions/go-up.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        </Button.Content>
-                    </Button>
-                    <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveCgElementDownCommand}">
-                        <Button.Content>
-                            <Image Source="/TAS.Client.Common;component/Images/Actions/go-down.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        </Button.Content>
-                    </Button>
-                </StackPanel>
-                <DataGrid Grid.Row="2" Margin="5" ItemsSource="{Binding CgElements}" SelectionMode="Single" SelectedItem="{Binding SelectedElement}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
-                    <DataGrid.Columns>
-                        <DataGridTemplateColumn Header="Nazwa">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="Command">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock VerticalAlignment="Center" Text="{Binding Command}" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn>
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Margin="1,2" Command="{Binding DataContext.EditElementCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
-                                            <Button.Content>
-                                                <Image Source="/TAS.Client.Common;component/Images/Actions/edit.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                            </Button.Content>
-                                        </Button>
-                                        <Button Margin="1,2" Command="{Binding DataContext.DeleteElementCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
-                                            <Button.Content>
-                                                <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                            </Button.Content>
-                                        </Button>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
+        <ContentControl VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}" Grid.Column="1" Content="{Binding CgElementViewModel}" ContentTemplate="{StaticResource OkCancelBase}">
+                    <ContentControl.Resources>
+                        <DataTemplate DataType="{x:Type cg:CgElementViewModel}">
+                            <cg:CgElementView />
+                        </DataTemplate>
+                    </ContentControl.Resources>
+                </ContentControl>
+            <Grid Grid.Row="1" Margin="5">
+                <Button Command="{Binding SaveCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,5,10,0" Padding="10,5,10,5">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Margin="5,0" Padding="0" Content="Save" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                            <Image Source="/TAS.Client.Common;component/Images/Actions/apply.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            <Button Command="{Binding UndoCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,5,10,0" Padding="10,5,10,5">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Margin="5,0" Padding="0" Content="Undo" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                            <Image Source="/TAS.Client.Common;component/Images/Actions/undo.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
             </Grid>
-
-            <ContentControl VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}" Grid.Column="1" Content="{Binding CgElementViewModel}" ContentTemplate="{StaticResource OkCancelBase}">
-                <ContentControl.Resources>
-                    <DataTemplate DataType="{x:Type cgVM:CgElementViewModel}">
-                        <cgView:CgElementView />
-                    </DataTemplate>
-                </ContentControl.Resources>
-            </ContentControl>
-
         </Grid>
-    </Grid>
+        
 </UserControl>

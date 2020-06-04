@@ -4,16 +4,10 @@ using System.Linq;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using jNet.RPC;
-using TAS.Client.Common;
-using TAS.Server.CgElementsController.Configurator;
-using System.ComponentModel.Composition;
-using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Server.CgElementsController
-{
-    [Export(typeof(IEnginePlugin))]
-    [Export(typeof(IConfiguratorPlugin))]
-    public class CgElementsController : ServerObjectBase, ICGElementsController, IEnginePlugin, IConfiguratorPlugin
+{        
+    public class CgElementsController : ServerObjectBase, ICGElementsController, IEnginePlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         
@@ -33,9 +27,7 @@ namespace TAS.Server.CgElementsController
         private byte _logo;
         private byte _crawl;
         private byte _parental;
-        private bool _isStartupExecuted = false;
-
-        public string EngineName { get; set; }
+        private bool _isStartupExecuted = false;       
 
         public bool IsEnabled { get; set; }
 
@@ -185,21 +177,6 @@ namespace TAS.Server.CgElementsController
             {
                 Logger.Error(e);
             }
-        }
-
-        public void Initialize(object param)
-        {
-            if (param is IEngine engine)
-                _engine = engine;
-        }
-
-        public object LoadConfigurator(object param)
-        {
-            if (!(param is IConfigEngine engine))
-                return null;
-
-            UiServices.AddDataTemplate(typeof(CgElementsControllerPluginManager), typeof(CgElementsControllerPluginManagerView));
-            return new CgElementsControllerPluginManager(engine);
-        }        
+        }                  
     }
 }

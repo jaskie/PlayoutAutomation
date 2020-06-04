@@ -1,18 +1,29 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TAS.Common.Interfaces;
+using TAS.Database.Common;
 
 namespace TAS.Server.CgElementsController.Configurator.Model
 {
     public class CgElementsController : ICGElementsController
-    {
-        public string EngineName { get; set; }
+    {   
+        [Hibernate]
         public List<string> Startup { get; set; }
+        [Hibernate]
+        [JsonConverter(typeof(ConcreteListConverter<ICGElement, CgElement>))]
         public IEnumerable<ICGElement> Logos { get; set; }
+        [Hibernate]
+        [JsonConverter(typeof(ConcreteListConverter<ICGElement, CgElement>))]
         public IEnumerable<ICGElement> Parentals { get; set; }
+        [Hibernate]
+        [JsonConverter(typeof(ConcreteListConverter<ICGElement, CgElement>))]
         public IEnumerable<ICGElement> Crawls { get; set; }
+        [Hibernate]
+        [JsonConverter(typeof(ConcreteListConverter<ICGElement, CgElement>))]
         public IEnumerable<ICGElement> Auxes { get; set; }
+        [Hibernate]
         public bool IsEnabled { get; set; }
 
         #region ICGElementsController
@@ -51,6 +62,7 @@ namespace TAS.Server.CgElementsController.Configurator.Model
             Logos = new List<CgElement>();
             Parentals = new List<CgElement>();
             Auxes = new List<CgElement>();
+            Startup = new List<string>();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

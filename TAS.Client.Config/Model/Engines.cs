@@ -22,7 +22,7 @@ namespace TAS.Client.Config.Model
             _db.SetSerializationTypeBinder(ConfigurationPluginManager.Current.PluginTypeBinders);
             ArchiveDirectories = new ArchiveDirectories(_db);
             EngineList = _db.LoadEngines<Engine>().ToList();
-            Servers = _db.LoadServers<CasparServer>().Cast<IConfigCasparServer>().ToList();
+            Servers = _db.LoadServers<CasparServer>();
             foreach (var s in Servers)
             {
                 s.Channels.ForEach(c => c.Owner = s);
@@ -31,7 +31,7 @@ namespace TAS.Client.Config.Model
             foreach (var e in EngineList)
             {
                 e.IsNew = false;
-                e.Servers = Servers;
+                e.Servers = Servers.ToList();                
                 e.ArchiveDirectories = ArchiveDirectories;
             }
         }

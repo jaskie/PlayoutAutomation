@@ -1,11 +1,11 @@
 ﻿using TAS.Database.Common;
-using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.Model
 {
-    public class CasparRecorder: IRecorderProperties
+    public class CasparRecorder : IConfigRecorder
     {
-        internal object Owner;
+        public object Owner { get; set; }
         
         [Hibernate]
         public int Id { get; set; }

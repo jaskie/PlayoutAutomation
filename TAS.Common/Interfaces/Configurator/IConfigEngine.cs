@@ -4,6 +4,6 @@ namespace TAS.Common.Interfaces.Configurator
 {
     public interface IConfigEngine : IEnginePersistent
     {       
-        IReadOnlyCollection<IConfigCasparServer> Servers { get; }
+        List<IConfigCasparServer> Servers { get; set; }
     }
 }
