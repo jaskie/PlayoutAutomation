@@ -93,7 +93,7 @@ namespace TAS.Client.Config.ViewModels.Engines
 
             var newEngine = new Model.Engine() 
             {                 
-                Servers = (List<IConfigCasparServer>)_engines.Servers, 
+                Servers = _engines.Servers.ToList(), 
                 ArchiveDirectories = _engines.ArchiveDirectories 
             };
             _engines.EngineList.Add(newEngine);

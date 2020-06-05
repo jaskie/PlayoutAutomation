@@ -3,9 +3,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Database.Common
 {
@@ -18,7 +15,7 @@ namespace TAS.Database.Common
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            if (objectType.GetGenericTypeDefinition() == typeof(List<>))
+            if (typeof(IEnumerable<TInterface>).IsAssignableFrom(objectType) || objectType.GetType() == typeof(IEnumerable<TInterface>))
             {                
                 var list = serializer.Deserialize<List<TImplementation>>(reader);
                 var interfaceList = (List<TInterface>)Activator.CreateInstance(typeof(List<TInterface>));

@@ -59,8 +59,9 @@ namespace TAS.Client.Config.Model
         public bool IsModified = false;
 
         public bool IsNew = true;
-        [Hibernate]        
+        [Hibernate(modelType:DataType.Configuration)]             
         public ICGElementsController CGElementsController { get; set; }
+        
 
         public IDictionary<string, int> FieldLengths { get; set; }
         [Hibernate]

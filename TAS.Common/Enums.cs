@@ -565,4 +565,10 @@ namespace TAS.Common
         SQLite,
         MySQL
     }
+
+    public enum DataType
+    {
+        Main,
+        Configuration
+    }
 }

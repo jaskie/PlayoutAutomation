@@ -21,5 +21,10 @@ namespace TAS.Server.Router
             typeName = null;
             return false;
         }
+
+        public Type BindToType(string assemblyName, string typeName)
+        {
+            return Type.GetType(typeName);
+        }
     }
 }

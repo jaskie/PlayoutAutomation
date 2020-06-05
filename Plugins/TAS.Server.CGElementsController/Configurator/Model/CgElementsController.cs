@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Database.Common;
 
 namespace TAS.Server.CgElementsController.Configurator.Model
 {
+    [Hibernate(modelType: DataType.Configuration)]
     public class CgElementsController : ICGElementsController
     {   
         [Hibernate]

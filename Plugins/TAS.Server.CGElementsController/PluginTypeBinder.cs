@@ -13,13 +13,18 @@ namespace TAS.Server.CgElementsController
             var configurationModelType = typeof(TAS.Server.CgElementsController.Configurator.Model.CgElementsController); // can be type of model
             if (configurationModelType == type)
             {
-                assemblyName = configurationModelType.AssemblyQualifiedName;
+                assemblyName = configurationModelType.Assembly.FullName;
                 typeName = configurationModelType.FullName;
                 return true;
             }
-            assemblyName = controllerType.AssemblyQualifiedName;
+            assemblyName = controllerType.Assembly.FullName;
             typeName = controllerType.FullName;
             return false;
+        }
+
+        public Type BindToType(string assemblyName, string typeName)
+        {
+            return Type.GetType(typeName);
         }
     }
 }

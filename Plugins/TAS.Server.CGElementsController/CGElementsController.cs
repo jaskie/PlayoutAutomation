@@ -4,9 +4,12 @@ using System.Linq;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using jNet.RPC;
+using TAS.Database.Common;
+using TAS.Common;
 
 namespace TAS.Server.CgElementsController
-{        
+{
+    [Hibernate]
     public class CgElementsController : ServerObjectBase, ICGElementsController, IEnginePlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

@@ -18,13 +18,20 @@ namespace TAS.Database.Common
             foreach (var resolver in _pluginTypeResolvers)
                 if (resolver.BindToName(serializedType, out assemblyName, out typeName))
                     return;
-            assemblyName = serializedType.AssemblyQualifiedName;
+            assemblyName = serializedType.Assembly.FullName;
             typeName = serializedType.FullName;
         }
 
         public Type BindToType(string assemblyName, string typeName)
         {
-            return Type.GetType(typeName);
+            foreach (var resolver in _pluginTypeResolvers)
+            {
+                var resolvedType = resolver.BindToType(assemblyName, typeName);
+                if (resolvedType != null)
+                    return resolvedType;
+            }
+                
+            return Type.GetType($"{typeName},{assemblyName}", true);
         }
     }
 }

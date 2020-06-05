@@ -18,6 +18,26 @@ namespace TAS.Database.Common
         {
             var property = base.CreateProperty(member, memberSerialization);
             property.Ignored = false;
+
+            //if (member.PropertyType.IsInterface)
+            //{
+            //    IEnumerable<Type> modelTypes = null;
+
+            //    if (objectType.GetCustomAttribute<DataModel>(false).ModelType == DataModel.DataType.Configuration)
+            //    {
+            //        modelTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetCustomAttribute<DataModel>(false)?.ModelType == DataModel.DataType.Configuration && objectType.IsAssignableFrom(t));
+            //    }
+            //    else
+            //    {
+            //        modelTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetCustomAttribute<DataModel>(false)?.ModelType == DataModel.DataType.Main && objectType.IsAssignableFrom(t));
+            //    }
+            //    contract = base.CreateObjectContract(modelTypes.FirstOrDefault());
+            //}
+            //else
+            //{
+            //    contract = base.CreateObjectContract(objectType);
+            //}
+
             var name = member.GetCustomAttribute<HibernateAttribute>()?.PropertyName;
             if (name != null)
                 property.PropertyName = name;
@@ -26,7 +46,9 @@ namespace TAS.Database.Common
 
         protected override JsonObjectContract CreateObjectContract(Type objectType)
         {
-            var contract = base.CreateObjectContract(objectType);
+            JsonObjectContract contract = base.CreateObjectContract(objectType);
+
+
             contract.IsReference = false;
             return contract;
         }

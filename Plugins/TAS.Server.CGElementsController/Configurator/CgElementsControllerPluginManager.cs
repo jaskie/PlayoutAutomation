@@ -52,6 +52,12 @@ namespace TAS.Server.CgElementsController.Configurator
 
         private void Init()
         {
+            _crawls = new List<Model.CgElement>();
+            _logos = new List<Model.CgElement>();
+            _auxes = new List<Model.CgElement>();
+            _parentals = new List<Model.CgElement>();
+            _startup = new List<string>();
+
             if (_engine.CGElementsController != null)
             {
                 foreach (var crawl in _engine.CGElementsController.Crawls)
@@ -82,12 +88,7 @@ namespace TAS.Server.CgElementsController.Configurator
                 _isEnabled = _engine.CGElementsController.IsEnabled;                
             }
             else
-            {
-                _crawls = new List<Model.CgElement>();
-                _logos = new List<Model.CgElement>();
-                _auxes = new List<Model.CgElement>();
-                _parentals = new List<Model.CgElement>();
-                _startup = new List<string>();
+            {               
                 _isEnabled = false;
             }
 
