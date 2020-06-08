@@ -3,22 +3,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"         
-             xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.Plugins"            
+             xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.Plugins"   
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d"                     
              d:DataContext="{d:DesignInstance vm:PluginsViewModel}"             
              d:DesignHeight="350" d:DesignWidth="400"
              MinHeight="400">
-    
-    <UserControl.Resources>
-        
-    </UserControl.Resources>
-    
+      
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
-        <DataGrid ItemsSource="{Binding Plugins}" SelectedItem="{Binding SelectedPlugin}" SelectionMode="Single" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
+        <DataGrid ItemsSource="{Binding PluginConfigurators}" SelectedItem="{Binding SelectedPluginConfigurator}" SelectionMode="Single" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="IsEnabled">
                     <DataGridTemplateColumn.CellTemplate>
@@ -36,6 +33,12 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <ContentControl Grid.Column="1" Content="{Binding SelectedPlugin}" />
+        <ContentControl Grid.Column="1" Content="{Binding SelectedPluginConfigurator}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type common:ViewModelBase}">
+                    <TextBlock Text="Plugin does not provide any configurator." FontSize="24" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
     </Grid>
 </UserControl>

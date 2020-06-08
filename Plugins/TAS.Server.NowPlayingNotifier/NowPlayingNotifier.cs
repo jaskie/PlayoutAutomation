@@ -9,7 +9,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
-    public class NowPlayingNotifier: IEnginePlugin
+    public class NowPlayingNotifier: IPlugin
     {
         private bool _disposed;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();

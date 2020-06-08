@@ -4,13 +4,12 @@ using System.Linq;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using jNet.RPC;
-using TAS.Database.Common;
-using TAS.Common;
+using System.ComponentModel.Composition;
 
 namespace TAS.Server.CgElementsController
-{
-    [Hibernate]
-    public class CgElementsController : ServerObjectBase, ICGElementsController, IEnginePlugin
+{    
+    [Export(typeof(IPlugin))]
+    public class CgElementsController : ServerObjectBase, ICGElementsController, IPlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         
@@ -30,7 +29,7 @@ namespace TAS.Server.CgElementsController
         private byte _logo;
         private byte _crawl;
         private byte _parental;
-        private bool _isStartupExecuted = false;       
+        private bool _isStartupExecuted = false;        
 
         public bool IsEnabled { get; set; }
 

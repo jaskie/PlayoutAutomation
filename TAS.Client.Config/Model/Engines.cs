@@ -19,7 +19,7 @@ namespace TAS.Client.Config.Model
         {
             _db = DatabaseLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
             _db.Open(connectionStringSettingsCollection);
-            _db.SetSerializationTypeBinder(ConfigurationPluginManager.Current.PluginTypeBinders);
+            _db.SetSerializerSettings(ConfigurationPluginManager.Current.PluginTypeBinders);            
             ArchiveDirectories = new ArchiveDirectories(_db);
             EngineList = _db.LoadEngines<Engine>().ToList();
             Servers = _db.LoadServers<CasparServer>();

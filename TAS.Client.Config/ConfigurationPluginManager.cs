@@ -8,9 +8,8 @@ namespace TAS.Client.Config
 {
     public class ConfigurationPluginManager
     {
-
         private const string FileNameSearchPattern = "TAS.Server.*.dll";
-        private ConfigurationPluginManager() 
+        private ConfigurationPluginManager()
         {
             using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), FileNameSearchPattern))
             using (var container = new CompositionContainer(catalog))

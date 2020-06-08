@@ -8,11 +8,13 @@ using TAS.Server.Router.Model;
 using TAS.Server.Router.Communicators;
 using jNet.RPC;
 using TAS.Database.Common;
+using System.ComponentModel.Composition;
 
 namespace TAS.Server.Router
 {
 	[DtoClass(nameof(IRouter))]
-    public class Router : ServerObjectBase, IRouter, IEnginePlugin
+    [Export(typeof(IPlugin))]
+    public class Router : ServerObjectBase, IRouter, IPlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private IRouterCommunicator _routerCommunicator;
@@ -75,9 +77,7 @@ namespace TAS.Server.Router
         {
             get => _isConnected;
             private set => SetField(ref _isConnected, value);
-        }
-
-        public string EngineName { get; set; }
+        }              
 
         public void SelectInput(int inPort)
         {            
@@ -157,11 +157,6 @@ namespace TAS.Server.Router
             _routerCommunicator.OnRouterPortsStatesReceived -= Communicator_OnRouterPortStateReceived;
             _routerCommunicator.OnRouterConnectionStateChanged -= Communicator_OnRouterConnectionStateChanged;
             _routerCommunicator.Dispose();
-        }
-
-        public object LoadConfigurator(IEngine engine)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 }

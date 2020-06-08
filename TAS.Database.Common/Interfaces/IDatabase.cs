@@ -13,7 +13,7 @@ namespace TAS.Database.Common.Interfaces
     public interface IDatabase
     {
         DatabaseType DatabaseType { get; }
-        void SetSerializationTypeBinder(IEnumerable<IPluginTypeBinder> pluginTypeResolvers);
+        void SetSerializerSettings(IEnumerable<IPluginTypeBinder> pluginTypeResolvers);        
         ConnectionStateRedundant ConnectionState { get; }
         event EventHandler<RedundantConnectionStateEventArgs> ConnectionStateChanged;
         void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection);

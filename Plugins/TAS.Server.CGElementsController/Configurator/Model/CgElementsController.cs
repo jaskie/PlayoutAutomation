@@ -7,8 +7,7 @@ using TAS.Common.Interfaces;
 using TAS.Database.Common;
 
 namespace TAS.Server.CgElementsController.Configurator.Model
-{
-    [Hibernate(modelType: DataType.Configuration)]
+{    
     public class CgElementsController : ICGElementsController
     {   
         [Hibernate]
@@ -27,12 +26,19 @@ namespace TAS.Server.CgElementsController.Configurator.Model
         public IEnumerable<ICGElement> Auxes { get; set; }
         [Hibernate]
         public bool IsEnabled { get; set; }
+        public byte DefaultCrawl { get; set; }
+        public byte DefaultLogo { get; set; }        
+
+        public CgElementsController()
+        {
+            Crawls = new List<ICGElement>();
+            Logos = new List<ICGElement>();
+            Parentals = new List<ICGElement>();
+            Auxes = new List<ICGElement>();
+            Startup = new List<string>();
+        }
 
         #region ICGElementsController
-        public byte DefaultCrawl => throw new NotImplementedException();
-
-        public byte DefaultLogo => throw new NotImplementedException();
-
         public bool IsMaster => throw new NotImplementedException();
 
         public bool IsConnected => throw new NotImplementedException();
@@ -42,6 +48,10 @@ namespace TAS.Server.CgElementsController.Configurator.Model
         public byte Logo { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public byte Parental { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool IsWideScreen { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler Started;
+
         public void SetState(ICGElementsState state)
         {
             throw new NotImplementedException();
@@ -57,17 +67,5 @@ namespace TAS.Server.CgElementsController.Configurator.Model
             throw new NotImplementedException();
         }
         #endregion
-
-        public CgElementsController()
-        {
-            Crawls = new List<CgElement>();
-            Logos = new List<CgElement>();
-            Parentals = new List<CgElement>();
-            Auxes = new List<CgElement>();
-            Startup = new List<string>();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public event EventHandler Started;
     }
 }

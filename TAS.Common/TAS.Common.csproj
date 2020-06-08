@@ -82,7 +82,7 @@
     <Compile Include="Interfaces\ISearchProvider.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaDirectory.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaSearchProvider.cs" />
-    <Compile Include="Interfaces\IEnginePlugin.cs" />
+    <Compile Include="Interfaces\IPlugin.cs" />
     <Compile Include="Interfaces\IEnginePluginFactory.cs" />
     <Compile Include="EventEventArgs.cs" />
     <Compile Include="Interfaces\MediaDirectory\IAnimationDirectory.cs" />

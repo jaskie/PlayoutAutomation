@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
@@ -15,52 +16,50 @@ namespace TAS.Client.Config.ViewModels.Plugins
     public class PluginsViewModel : ViewModelBase
     {
         private const string FileNameSearchPattern = "TAS.Server.*.dll";
-
+        
         [ImportMany(typeof(IPluginConfigurator))]
-        private List<IPluginConfigurator> _plugins;
+        private List<IPluginConfigurator> _pluginConfigurators;
 
-        private IPluginConfigurator _selectedPlugin;
+        private IPluginConfigurator _selectedPluginConfigurator;
         
         private IConfigEngine _engine;
 
         public PluginsViewModel(Engine engine)
         {
-            _engine = engine;            
-            _plugins = GetPlugins();
+            _engine = engine;
+            Init();
             
-            Plugins = CollectionViewSource.GetDefaultView(_plugins);                       
-        }        
+            PluginConfigurators = CollectionViewSource.GetDefaultView(_pluginConfigurators);                       
+        }
 
         //Add available plugins based on Plugins folder
-        private List<IPluginConfigurator> GetPlugins()
-        {
-            var plugins = new List<IPluginConfigurator>();            
-
+        private void Init()
+        {            
             using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), FileNameSearchPattern))
             {
                 using (var container = new CompositionContainer(catalog))
                 {
-                    container.ComposeExportedValue("Engine", _engine);
-                    plugins = container.GetExportedValues<IPluginConfigurator>().ToList();
+                    container.ComposeExportedValue("Engine", _engine);                    
+                    _pluginConfigurators = container.GetExportedValues<IPluginConfigurator>().ToList();
 
-                    foreach(var plugin in plugins)
+                    foreach (var pluginConfigurator in _pluginConfigurators)
                     {
-                        plugin.RegisterUiTemplates();
+                        pluginConfigurator.Initialize();
                     }
                 }
             }
-                        
-            return plugins;
-        }              
-        public ICollectionView Plugins { get; }
-        public IPluginConfigurator SelectedPlugin { get => _selectedPlugin; set => SetField(ref _selectedPlugin, value); }
+        }
+                
+        public ICollectionView PluginConfigurators { get; }
+        
+        public IPluginConfigurator SelectedPluginConfigurator { get => _selectedPluginConfigurator; set => SetField(ref _selectedPluginConfigurator, value); }
 
-        public bool HasPlugins => _plugins.Count > 0 ? true : false;
+        public bool HasPlugins => _pluginConfigurators.Count > 0 ? true : false;
 
         public void Save()
         {
-            foreach (var plugin in _plugins)                
-                plugin.Save();
+            foreach (var pluginConfigurator in _pluginConfigurators)                
+                pluginConfigurator.Save();
         }
 
         protected override void OnDispose()

@@ -56,7 +56,7 @@ namespace TAS.Server
         private Event _playing;
         private Event _forcedNext;
         private List<IGpi> _localGpis;
-        private List<IEnginePlugin> _plugins;
+        private List<IPlugin> _plugins;
         private int _timeCorrection;
         private bool _isWideScreen;
         private TEngineState _engineState;
@@ -142,7 +142,7 @@ namespace TAS.Server
 
         public IMediaManager MediaManager => _mediaManager;
 
-        [DtoMember]
+        [DtoMember, Hibernate(modelType:DataType.Main)]
         public ICGElementsController CGElementsController { get; set; }
 
         [DtoMember, Hibernate]
@@ -282,8 +282,8 @@ namespace TAS.Server
             _mediaManager.SetRecorders(recorders);
 
             _localGpis = this.ComposeParts<IGpi>();
-            _plugins = this.ComposeParts<IEnginePlugin>();
-            CGElementsController = this.ComposePart<ICGElementsController>();
+            _plugins = this.ComposeParts<IPlugin>();
+            //CGElementsController = this.ComposePart<ICGElementsController>();
             Router = this.ComposePart<IRouter>();
             _isWideScreen = FormatDescription.IsWideScreen;
             var chPRI = PlayoutChannelPRI as CasparServerChannel;

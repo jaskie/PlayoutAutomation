@@ -4,7 +4,6 @@ using TAS.Common;
 using TAS.Database.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
-using Newtonsoft.Json;
 
 namespace TAS.Client.Config.Model
 {
@@ -59,13 +58,11 @@ namespace TAS.Client.Config.Model
         public bool IsModified = false;
 
         public bool IsNew = true;
-        [Hibernate(modelType:DataType.Configuration)]             
-        public ICGElementsController CGElementsController { get; set; }
-        
-
-        public IDictionary<string, int> FieldLengths { get; set; }
+        [Hibernate]        
+        public ICGElementsController CGElementsController { get; set; }       
         [Hibernate]
-        public IRouter Router { get; set; }       
+        public IEnumerable<IPlugin> Plugins { get; set; }
+        public IDictionary<string, int> FieldLengths { get; set; }          
 
         public List<IConfigCasparServer> Servers { get; set; }
 

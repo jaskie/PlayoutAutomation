@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using TAS.Database.Common.Interfaces;
 
@@ -7,24 +8,28 @@ namespace TAS.Server.Router
     [Export(typeof(IPluginTypeBinder))]
     public class PluginTypeBinder : IPluginTypeBinder
     {
-        public bool BindToName(Type type, out string assemblyName, out string typeName)
+        private readonly List<Tuple<Type, Type>> _types = new List<Tuple<Type, Type>>()
         {
-            var routerType = typeof(Router);
-            var configurationModelType = typeof(Router); // can be type of model
-            if (configurationModelType == type)
-            {
-                assemblyName = routerType.AssemblyQualifiedName;
-                typeName = routerType.FullName;
-                return true;
-            }
-            assemblyName = null;
-            typeName = null;
-            return false;
+            new Tuple<Type, Type>(typeof(Router), typeof(Router))            
+        };
+
+        public Type GetBindedType(Type type)
+        {
+            foreach (var typePair in _types)
+                if (typePair.Item1 == type)
+                    return typePair.Item2;
+
+            //uncomment in case of diffrent classes pair in _types
+            //foreach (var typePair in _types)
+            //    if (typePair.Item2 == type)
+            //        return typePair.Item2;
+
+            return null;
         }
 
         public Type BindToType(string assemblyName, string typeName)
         {
             return Type.GetType(typeName);
-        }
+        }              
     }
 }

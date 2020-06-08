@@ -16,8 +16,15 @@ namespace TAS.Database.Common
         public void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
             foreach (var resolver in _pluginTypeResolvers)
-                if (resolver.BindToName(serializedType, out assemblyName, out typeName))
+            {
+                var resolvedType = resolver.GetBindedType(serializedType);
+                if (resolvedType != null)
+                {
+                    assemblyName = resolvedType.Assembly.FullName;
+                    typeName = resolvedType.FullName;
                     return;
+                }
+            }
             assemblyName = serializedType.Assembly.FullName;
             typeName = serializedType.FullName;
         }
@@ -27,10 +34,10 @@ namespace TAS.Database.Common
             foreach (var resolver in _pluginTypeResolvers)
             {
                 var resolvedType = resolver.BindToType(assemblyName, typeName);
-                if (resolvedType != null)
-                    return resolvedType;
+                if (resolvedType != null)               
+                    return resolver.GetBindedType(resolvedType);                                    
             }
-                
+
             return Type.GetType($"{typeName},{assemblyName}", true);
         }
     }

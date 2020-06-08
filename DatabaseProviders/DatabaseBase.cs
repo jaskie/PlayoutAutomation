@@ -27,11 +27,10 @@ namespace TAS.Database.SQLite
 {
     public abstract class DatabaseBase : IDatabase
     {
-        public void SetSerializationTypeBinder(IEnumerable<IPluginTypeBinder> pluginTypeResolvers)
-        {
+        public void SetSerializerSettings(IEnumerable<IPluginTypeBinder> pluginTypeResolvers)
+        {            
             HibernationSerializerSettings.SerializationBinder = new HibernationSerializationBinder(pluginTypeResolvers);
-            HibernationSerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
-        }
+        }        
 
 #if MYSQL
         private static readonly DateTime MinMySqlDate = new DateTime(1000, 01, 01);
@@ -55,9 +54,9 @@ namespace TAS.Database.SQLite
 
         private static readonly Newtonsoft.Json.JsonSerializerSettings HibernationSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
         {
-            ContractResolver = new HibernationContractResolver(),
+            ContractResolver = new HibernationContractResolver(),            
             NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
-        };
+        };      
 
         public abstract void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection);
 

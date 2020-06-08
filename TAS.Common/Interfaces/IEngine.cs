@@ -94,6 +94,8 @@ namespace TAS.Common.Interfaces
         event EventHandler<EventEventArgs> VisibleEventAdded;
         event EventHandler<EventEventArgs> VisibleEventRemoved;
         event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
+        IRouter Router { get; set; }
+        ICGElementsController CGElementsController { get; set; }
     }
 
     public interface IEngineProperties
@@ -105,9 +107,7 @@ namespace TAS.Common.Interfaces
         TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
         bool StudioMode { get; set; }
         int TimeCorrection { get; set; }
-        int CGStartDelay { get; set; }
-        IRouter Router { get; set; }
-        ICGElementsController CGElementsController { get; set; }
+        int CGStartDelay { get; set; }        
     }
 
     public interface IEnginePersistent : IEngineProperties, IPersistent

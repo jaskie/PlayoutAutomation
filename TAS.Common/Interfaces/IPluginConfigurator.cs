@@ -1,9 +1,9 @@
 ﻿namespace TAS.Common.Interfaces
 {
-    public interface IPluginConfigurator : IEnginePlugin
+    public interface IPluginConfigurator : IPlugin
     {
-        void RegisterUiTemplates();
         string PluginName { get; }
-        void Save();
+        void Initialize();        
+        void Save();        
     }
 }

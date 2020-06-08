@@ -1,8 +1,11 @@
 ﻿using System.Drawing;
+using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Database.Common;
 
 namespace TAS.Server.CgElementsController.Configurator.Model
 {
+    [Hibernate(modelType:DataType.Configuration)]
     public class CgElement : ICGElement
     {
         public enum Type
@@ -13,25 +16,23 @@ namespace TAS.Server.CgElementsController.Configurator.Model
             Aux
         }
         public Type CgType { get; set; }
-
+        [Hibernate]
         public byte Id { get; set; }
-
+        [Hibernate]
         public string Name { get; set; }
-
+        [Hibernate]
         public string ClientImagePath { get; set; }
-
+        [Hibernate]
         public string ServerImagePath { get; set; }
 
         public string UploadClientImagePath { get; set; }
 
         public string UploadServerImagePath { get; set; }
-
+        [Hibernate]
         public string Command { get; set; }
+        [Hibernate]
+        public string ImageFile { get; set; }
 
-        #region ICGElement
-        public string ImageFile => throw new System.NotImplementedException();
-
-        public Bitmap Image => throw new System.NotImplementedException();
-        #endregion
+        public Bitmap Image { get; }
     }
 }

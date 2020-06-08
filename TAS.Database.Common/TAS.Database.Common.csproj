@@ -53,8 +53,8 @@
     <Compile Include="ConcreteTypeConverter.cs" />
     <Compile Include="DatabaseLoader.cs" />
     <Compile Include="DbEventExtensions.cs" />
-    <Compile Include="HibernationContractResolver.cs" />
     <Compile Include="HibernationSerializationBinder.cs" />
+    <Compile Include="HibernationContractResolver.cs" />
     <Compile Include="Interfaces\IDatabase.cs" />
     <Compile Include="Interfaces\IDatabaseConfigurator.cs" />
     <Compile Include="Interfaces\IPluginTypeBinder.cs" />

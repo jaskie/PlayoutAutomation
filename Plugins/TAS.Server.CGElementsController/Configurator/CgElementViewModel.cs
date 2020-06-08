@@ -1,6 +1,5 @@
 ﻿using System;
 using TAS.Client.Common;
-using TAS.Client.Config.Model;
 
 namespace TAS.Server.CgElementsController.Configurator
 {    

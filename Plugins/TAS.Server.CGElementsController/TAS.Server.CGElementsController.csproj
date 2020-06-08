@@ -7,7 +7,7 @@
     <ProjectGuid>{7970C290-A9E8-4ED3-83BC-9E8654ECD8D6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TAS.Server</RootNamespace>
+    <RootNamespace>TAS.Server.CgElementsController</RootNamespace>
     <AssemblyName>TAS.Server.CgElementsController</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

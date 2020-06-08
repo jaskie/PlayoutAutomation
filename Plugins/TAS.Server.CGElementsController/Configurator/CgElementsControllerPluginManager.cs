@@ -60,32 +60,33 @@ namespace TAS.Server.CgElementsController.Configurator
 
             if (_engine.CGElementsController != null)
             {
-                foreach (var crawl in _engine.CGElementsController.Crawls)
+                var cgElementsController = _engine.CGElementsController as Model.CgElementsController;
+                foreach (var crawl in cgElementsController.Crawls)
                 {
                     var cgElement = crawl as Model.CgElement;
                     cgElement.CgType = Model.CgElement.Type.Crawl;
                     _crawls.Add(cgElement);
                 }
-                foreach (var logo in _engine.CGElementsController.Logos)
+                foreach (var logo in cgElementsController.Logos)
                 {
                     var cgElement = logo as Model.CgElement;
                     cgElement.CgType = Model.CgElement.Type.Logo;
                     _logos.Add(cgElement);
                 }
-                foreach (var aux in _engine.CGElementsController.Auxes)
+                foreach (var aux in cgElementsController.Auxes)
                 {
                     var cgElement = aux as Model.CgElement;
                     cgElement.CgType = Model.CgElement.Type.Aux;
                     _auxes.Add(cgElement);
                 }
-                foreach (var parental in _engine.CGElementsController.Parentals)
+                foreach (var parental in cgElementsController.Parentals)
                 {
                     var cgElement = parental as Model.CgElement;
                     cgElement.CgType = Model.CgElement.Type.Parental;
                     _parentals.Add(cgElement);
                 }                
                 _startup = ((Model.CgElementsController)_engine.CGElementsController).Startup;                
-                _isEnabled = _engine.CGElementsController.IsEnabled;                
+                _isEnabled = cgElementsController.IsEnabled;                
             }
             else
             {               
@@ -360,15 +361,15 @@ namespace TAS.Server.CgElementsController.Configurator
         public string PluginName => "CgElementsController";
 
         public List<string> Startup { get => _startup; set => SetField(ref _startup, value); }
-
-        public void RegisterUiTemplates()
-        {         
-            UiServices.AddDataTemplate(typeof(CgElementsControllerPluginManager), typeof(CgElementsControllerPluginManagerView));         
-        }
-
+        
         protected override void OnDispose()
         {
             //
         }
+
+        public void Initialize()
+        {
+            UiServices.AddDataTemplate(typeof(CgElementsControllerPluginManager), typeof(CgElementsControllerPluginManagerView));
+        }        
     }
 }

@@ -8,7 +8,7 @@ using System.Reflection;
 namespace TAS.Database.Common
 {
     public class HibernationContractResolver: DefaultContractResolver
-    {
+    {               
         protected override List<MemberInfo> GetSerializableMembers(Type objectType)
         {
             return objectType.GetMembers().Where(p => p.GetCustomAttribute<HibernateAttribute>() != null).ToList();
@@ -18,38 +18,23 @@ namespace TAS.Database.Common
         {
             var property = base.CreateProperty(member, memberSerialization);
             property.Ignored = false;
+            
+            var propertyAttribute = member.GetCustomAttribute<HibernateAttribute>();
 
-            //if (member.PropertyType.IsInterface)
-            //{
-            //    IEnumerable<Type> modelTypes = null;
+            if (property.PropertyType.IsInterface)            
+                property.TypeNameHandling = TypeNameHandling.Objects;                
+                       
 
-            //    if (objectType.GetCustomAttribute<DataModel>(false).ModelType == DataModel.DataType.Configuration)
-            //    {
-            //        modelTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetCustomAttribute<DataModel>(false)?.ModelType == DataModel.DataType.Configuration && objectType.IsAssignableFrom(t));
-            //    }
-            //    else
-            //    {
-            //        modelTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetCustomAttribute<DataModel>(false)?.ModelType == DataModel.DataType.Main && objectType.IsAssignableFrom(t));
-            //    }
-            //    contract = base.CreateObjectContract(modelTypes.FirstOrDefault());
-            //}
-            //else
-            //{
-            //    contract = base.CreateObjectContract(objectType);
-            //}
+            if (propertyAttribute?.PropertyName != null)
+                property.PropertyName = propertyAttribute.PropertyName;
 
-            var name = member.GetCustomAttribute<HibernateAttribute>()?.PropertyName;
-            if (name != null)
-                property.PropertyName = name;
             return property;
         }
 
         protected override JsonObjectContract CreateObjectContract(Type objectType)
         {
             JsonObjectContract contract = base.CreateObjectContract(objectType);
-
-
-            contract.IsReference = false;
+            contract.IsReference = false;            
             return contract;
         }
     }

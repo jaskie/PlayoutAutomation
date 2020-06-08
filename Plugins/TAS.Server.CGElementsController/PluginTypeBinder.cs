@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using TAS.Database.Common.Interfaces;
 
@@ -7,24 +8,28 @@ namespace TAS.Server.CgElementsController
     [Export(typeof(IPluginTypeBinder))]
     public class PluginTypeBinder : IPluginTypeBinder
     {
-        public bool BindToName(Type type, out string assemblyName, out string typeName)
+        private readonly List<Tuple<Type, Type>> _types = new List<Tuple<Type, Type>>()
         {
-            var controllerType = typeof(TAS.Server.CgElementsController.CgElementsController);
-            var configurationModelType = typeof(TAS.Server.CgElementsController.Configurator.Model.CgElementsController); // can be type of model
-            if (configurationModelType == type)
-            {
-                assemblyName = configurationModelType.Assembly.FullName;
-                typeName = configurationModelType.FullName;
-                return true;
-            }
-            assemblyName = controllerType.Assembly.FullName;
-            typeName = controllerType.FullName;
-            return false;
+            new Tuple<Type, Type>(typeof(Configurator.Model.CgElementsController), typeof(CgElementsController)),
+            new Tuple<Type, Type>(typeof(Configurator.Model.CgElement), typeof(Model.CGElement))
+        };
+        public Type GetBindedType(Type type)
+        {          
+            foreach(var typePair in _types)            
+                if (typePair.Item1 == type)
+                    return typePair.Item2;
+            
+
+            foreach (var typePair in _types)            
+                if (typePair.Item2 == type)
+                    return typePair.Item1;
+            
+            return null;
         }
 
         public Type BindToType(string assemblyName, string typeName)
         {
             return Type.GetType(typeName);
-        }
+        }        
     }
 }
