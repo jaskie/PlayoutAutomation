@@ -121,6 +121,7 @@ namespace TAS.Client.ViewModels
             CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
             CommandFocusEventName = new UiCommand(_focusEventName, o => IsPropertiesPanelVisible && SelectedEventEditViewmodel != null);
             CommandFocusRundown = new UiCommand(_focusRundown);
+            CommandToggleCg = new UiCommand(_toggleCg, _canToggleCg);
 
             CommandSearchDo = new UiCommand(_search, _canSearch);
             CommandSearchShowPanel = new UiCommand(_showSearchPanel);
@@ -205,6 +206,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandToggleLayer { get; }
         public ICommand CommandMoveUp { get; }
         public ICommand CommandMoveDown { get; }
+        public ICommand CommandToggleCg { get; }
         #endregion // Single selected commands
         #region Editor commands
         public ICommand CommandSaveEdit { get; }
@@ -470,6 +472,23 @@ namespace TAS.Client.ViewModels
 
         private bool _canAddAnimation(object obj) => SelectedEventPanel is EventPanelRundownElementViewmodelBase ep && ep.CommandAddAnimation.CanExecute(obj);
 
+        private void _toggleCg(object _)
+        {
+            if (SelectedEvent == null)
+                return;
+            SelectedEvent.IsCGEnabled = !SelectedEvent.IsCGEnabled;
+            SelectedEvent.Save();
+        }
+
+        private bool _canToggleCg(object _)
+        {
+            return Engine.CGElementsController?.IsConnected == true
+            && SelectedEvent != null
+            && SelectedEvent.PlayState == TPlayState.Scheduled
+            && (SelectedEvent.EventType == TEventType.Movie || SelectedEvent.EventType == TEventType.Live)
+            && SelectedEvent.HaveRight(EventRight.Modify);
+        }
+        
         private void _addSubRundown(object obj)
         {
             (SelectedEventPanel as EventPanelRundownViewmodel)?.CommandAddSubRundown.Execute(obj);
@@ -1146,7 +1165,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(nameof(ServerConnectedPRI));
                 if (sender == Engine.PlayoutChannelSEC)
                     NotifyPropertyChanged(nameof(ServerConnectedSEC));
-                if (sender == Engine.Preview.Channel)
+                if (sender == Engine.Preview?.Channel)
                     NotifyPropertyChanged(nameof(ServerConnectedPRV));
                 NotifyPropertyChanged(nameof(NoAlarms));
             }

@@ -195,6 +195,9 @@
   <data name="_inputPort" xml:space="preserve">
     <value>Źródło</value>
   </data>
+  <data name="_isCgEnabled.ToolTip" xml:space="preserve">
+    <value>Natychmiastowa zmiana - Ctrl+G</value>
+  </data>
   <data name="_isRecordingScheduled" xml:space="preserve">
     <value>Nagrywaj</value>
   </data>

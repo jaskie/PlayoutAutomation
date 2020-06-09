@@ -379,7 +379,7 @@
                                     <ColumnDefinition Width="Auto" SharedSizeGroup="Labels" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <CheckBox Content="CG" IsChecked="{Binding IsCGEnabled}" VerticalAlignment="Top" Margin="10,5,0,0" />
+                                <CheckBox Content="CG" IsChecked="{Binding IsCGEnabled}" VerticalAlignment="Top" Margin="10,5,0,0" ToolTip="{Resx _isCgEnabled.ToolTip}" />
                                 <UniformGrid Grid.Column="1" Columns="2" Visibility="{Binding IsCGEnabled, Converter={StaticResource BoolToVis}}">
                                     <Grid Visibility="{Binding Logos.Length, Converter={StaticResource NonZeroToVisibilityConverter}}" >
                                         <Grid.ColumnDefinitions>

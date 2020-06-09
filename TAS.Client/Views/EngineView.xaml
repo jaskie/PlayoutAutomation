@@ -62,6 +62,7 @@
         <KeyBinding Command="{Binding CommandMoveDown}" Gesture="Alt+Down"/>
         <KeyBinding Command="{Binding CommandSearchShowPanel}" Gesture="Ctrl+F"/>
         <KeyBinding Command="{Binding CommandTogglePropertiesPanel}" Gesture="F11"/>
+        <KeyBinding Command="{Binding CommandToggleCg}" Gesture="Ctrl+G"/>
 
         <KeyBinding Command="{Binding CommandPreviewCue}" Gesture="Ctrl+Alt+Space"/>
         <KeyBinding Command="{Binding CommandPreviewTogglePlay}" Gesture="Ctrl+Space"/>

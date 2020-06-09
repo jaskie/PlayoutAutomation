@@ -44,5 +44,6 @@ namespace TAS.Client.Common.Plugin
         ICommand CommandToggleLayer { get; }
         ICommand CommandMoveUp { get; }
         ICommand CommandMoveDown { get; }
+        ICommand CommandToggleCg { get; }
     }
 }
