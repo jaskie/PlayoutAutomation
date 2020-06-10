@@ -13,7 +13,7 @@ using TAS.Common.Interfaces.Configurator;
 namespace TAS.Server.CgElementsController.Configurator
 {    
     [Export(typeof(IPluginConfigurator))]
-    public class CgElementsControllerPluginManager : ModifyableViewModelBase, IPluginConfigurator
+    public class CgElementsControllerViewModel : ModifyableViewModelBase, IPluginConfigurator
     {                
         private readonly IConfigEngine _engine;
         private Configurator.Model.CgElementsController _cgElementsController;
@@ -32,7 +32,7 @@ namespace TAS.Server.CgElementsController.Configurator
         private Configurator.Model.CgElement _newElement;
 
         [ImportingConstructor]
-        public CgElementsControllerPluginManager([Import("Engine")]IConfigEngine engine)
+        public CgElementsControllerViewModel([Import("Engine")]IConfigEngine engine)
         {
             _engine = engine;                         
             LoadCommands();
@@ -369,7 +369,7 @@ namespace TAS.Server.CgElementsController.Configurator
 
         public void Initialize()
         {
-            UiServices.AddDataTemplate(typeof(CgElementsControllerPluginManager), typeof(CgElementsControllerPluginManagerView));
+            UiServices.AddDataTemplate(typeof(CgElementsControllerViewModel), typeof(CgElementsControllerPluginManagerView));
         }        
     }
 }

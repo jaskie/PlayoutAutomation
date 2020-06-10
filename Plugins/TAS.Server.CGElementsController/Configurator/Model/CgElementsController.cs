@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
+using TAS.Client.Config;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Database.Common;
@@ -21,7 +23,7 @@ namespace TAS.Server.CgElementsController.Configurator.Model
         [Hibernate]
         [JsonConverter(typeof(ConcreteListConverter<ICGElement, CgElement>))]
         public IEnumerable<ICGElement> Crawls { get; set; }
-        [Hibernate]
+        [Hibernate]        
         [JsonConverter(typeof(ConcreteListConverter<ICGElement, CgElement>))]
         public IEnumerable<ICGElement> Auxes { get; set; }
         [Hibernate]

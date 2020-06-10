@@ -4,8 +4,7 @@ using TAS.Common.Interfaces;
 using TAS.Database.Common;
 
 namespace TAS.Server.CgElementsController.Configurator.Model
-{
-    [Hibernate(modelType:DataType.Configuration)]
+{    
     public class CgElement : ICGElement
     {
         public enum Type
@@ -34,5 +33,9 @@ namespace TAS.Server.CgElementsController.Configurator.Model
         public string ImageFile { get; set; }
 
         public Bitmap Image { get; }
+        public CgElement()
+        {
+
+        }
     }
 }

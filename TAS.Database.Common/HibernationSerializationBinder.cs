@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Serialization;
+﻿using Microsoft.CSharp.RuntimeBinder;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using TAS.Database.Common.Interfaces;
@@ -34,8 +35,13 @@ namespace TAS.Database.Common
             foreach (var resolver in _pluginTypeResolvers)
             {
                 var resolvedType = resolver.BindToType(assemblyName, typeName);
-                if (resolvedType != null)               
-                    return resolver.GetBindedType(resolvedType);                                    
+                if (resolvedType != null)
+                {
+                    var bindedType = resolver.GetBindedType(resolvedType);
+                    if (bindedType != null)
+                        return bindedType;
+                }
+                    
             }
 
             return Type.GetType($"{typeName},{assemblyName}", true);

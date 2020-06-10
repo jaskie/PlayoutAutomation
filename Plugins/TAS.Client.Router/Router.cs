@@ -14,12 +14,17 @@ namespace TAS.Server.Router
 {
 	[DtoClass(nameof(IRouter))]
     [Export(typeof(IPlugin))]
-    public class Router : ServerObjectBase, IRouter, IPlugin
+    public class Router : ServerObjectBase, IRouter
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private IRouterCommunicator _routerCommunicator;
         private IRouterPort _selectedInputPort;
         private bool _isConnected;
+
+        public Router()
+        {
+
+        }
 
         public void Initialize()
         {

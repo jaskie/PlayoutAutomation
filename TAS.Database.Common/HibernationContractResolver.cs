@@ -21,9 +21,10 @@ namespace TAS.Database.Common
             
             var propertyAttribute = member.GetCustomAttribute<HibernateAttribute>();
 
-            if (property.PropertyType.IsInterface)            
-                property.TypeNameHandling = TypeNameHandling.Objects;                
-                       
+            if (property.PropertyType.IsInterface && !property.PropertyType.IsGenericType)
+                property.TypeNameHandling = TypeNameHandling.Objects;
+            else if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(IEnumerable<>)))                            
+                property.ItemTypeNameHandling = TypeNameHandling.Objects;                        
 
             if (propertyAttribute?.PropertyName != null)
                 property.PropertyName = propertyAttribute.PropertyName;
@@ -35,6 +36,7 @@ namespace TAS.Database.Common
         {
             JsonObjectContract contract = base.CreateObjectContract(objectType);
             contract.IsReference = false;            
+
             return contract;
         }
     }

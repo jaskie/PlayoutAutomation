@@ -3,7 +3,7 @@ using TAS.Common;
 
 namespace TAS.Database.Common
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Property)]
     public sealed class HibernateAttribute: Attribute
     {       
         public HibernateAttribute(string propertyName = null, DataType modelType = DataType.Main)

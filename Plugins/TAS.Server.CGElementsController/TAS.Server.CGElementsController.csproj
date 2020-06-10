@@ -73,7 +73,7 @@
   <ItemGroup>
     <Compile Include="Model\CgElement.cs" />
     <Compile Include="CgElementsController.cs" />
-    <Compile Include="Configurator\CgElementsControllerPluginManager.cs" />
+    <Compile Include="Configurator\CgElementsControllerViewModel.cs" />
     <Compile Include="Configurator\CgElementsControllerPluginManagerView.xaml.cs">
       <DependentUpon>CgElementsControllerPluginManagerView.xaml</DependentUpon>
     </Compile>

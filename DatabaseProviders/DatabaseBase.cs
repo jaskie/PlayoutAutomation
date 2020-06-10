@@ -54,8 +54,10 @@ namespace TAS.Database.SQLite
 
         private static readonly Newtonsoft.Json.JsonSerializerSettings HibernationSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
         {
-            ContractResolver = new HibernationContractResolver(),            
+            ContractResolver = new HibernationContractResolver(),
             NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
+            TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Objects
+            //PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.All
         };      
 
         public abstract void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection);
