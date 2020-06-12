@@ -14,17 +14,13 @@ namespace TAS.Server.CgElementsController.Configurator.Model
     {   
         [Hibernate]
         public List<string> Startup { get; set; }
-        [Hibernate]
-        [JsonConverter(typeof(ConcreteListConverter<ICGElement, CgElement>))]
-        public IEnumerable<ICGElement> Logos { get; set; }
-        [Hibernate]
-        [JsonConverter(typeof(ConcreteListConverter<ICGElement, CgElement>))]
-        public IEnumerable<ICGElement> Parentals { get; set; }
-        [Hibernate]
-        [JsonConverter(typeof(ConcreteListConverter<ICGElement, CgElement>))]
-        public IEnumerable<ICGElement> Crawls { get; set; }
         [Hibernate]        
-        [JsonConverter(typeof(ConcreteListConverter<ICGElement, CgElement>))]
+        public IEnumerable<ICGElement> Logos { get; set; }
+        [Hibernate]        
+        public IEnumerable<ICGElement> Parentals { get; set; }
+        [Hibernate]        
+        public IEnumerable<ICGElement> Crawls { get; set; }
+        [Hibernate]                
         public IEnumerable<ICGElement> Auxes { get; set; }
         [Hibernate]
         public bool IsEnabled { get; set; }

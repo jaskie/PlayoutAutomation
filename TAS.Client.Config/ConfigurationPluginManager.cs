@@ -18,7 +18,7 @@ namespace TAS.Client.Config
             }
         }
 
-        [ImportMany]
+        [ImportMany(typeof(IPluginTypeBinder))]
         public IEnumerable<IPluginTypeBinder> PluginTypeBinders { get; }
 
 

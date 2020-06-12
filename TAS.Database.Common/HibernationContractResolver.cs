@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -14,6 +15,10 @@ namespace TAS.Database.Common
             return objectType.GetMembers().Where(p => p.GetCustomAttribute<HibernateAttribute>() != null).ToList();
         }
 
+        public override JsonContract ResolveContract(Type type)
+        {
+            return base.ResolveContract(type);
+        }
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
             var property = base.CreateProperty(member, memberSerialization);
@@ -21,9 +26,14 @@ namespace TAS.Database.Common
             
             var propertyAttribute = member.GetCustomAttribute<HibernateAttribute>();
 
-            if (property.PropertyType.IsInterface && !property.PropertyType.IsGenericType)
-                property.TypeNameHandling = TypeNameHandling.Objects;
-            else if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(IEnumerable<>)))                            
+            if (property.PropertyType.IsInterface)
+            {
+                property.TypeNameHandling = TypeNameHandling.Objects;                
+                if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
+                    property.ItemTypeNameHandling = TypeNameHandling.Objects;
+            }
+                
+            else if (property.PropertyType.IsGenericType && typeof(IEnumerable).IsAssignableFrom(property.PropertyType))                            
                 property.ItemTypeNameHandling = TypeNameHandling.Objects;                        
 
             if (propertyAttribute?.PropertyName != null)

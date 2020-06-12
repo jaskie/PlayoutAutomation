@@ -14,6 +14,8 @@ namespace TAS.Database.Common
         {
             _pluginTypeResolvers = pluginTypeResolvers;
         }
+        
+
         public void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
             foreach (var resolver in _pluginTypeResolvers)
