@@ -7,12 +7,14 @@ using TAS.Common.Interfaces.Security;
 using System.Configuration;
 using System.Collections.ObjectModel;
 using TAS.Common;
+using Newtonsoft.Json;
 
 namespace TAS.Database.Common.Interfaces
 {
     public interface IDatabase
     {
         DatabaseType DatabaseType { get; }
+        void EnablePluginConverter();
         void SetSerializerSettings(IEnumerable<IPluginTypeBinder> pluginTypeResolvers);        
         ConnectionStateRedundant ConnectionState { get; }
         event EventHandler<RedundantConnectionStateEventArgs> ConnectionStateChanged;

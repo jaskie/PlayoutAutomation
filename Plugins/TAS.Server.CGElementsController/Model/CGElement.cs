@@ -6,6 +6,7 @@ using System.Drawing;
 using jNet.RPC;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
+using TAS.Database.Common;
 
 namespace TAS.Server.CgElementsController.Model
 {
@@ -14,14 +15,15 @@ namespace TAS.Server.CgElementsController.Model
     {
         private readonly object _imageLock = new object();
         
-        [XmlAttribute]
+        [Hibernate]
         [DtoMember]
         public byte Id { get; set; }
-        [XmlAttribute]
+
+        [Hibernate]
         [DtoMember]
         public string Name { get; set; }
         private string _imageFile;
-        [XmlAttribute]
+        [Hibernate]
         public string ImageFile
         {
             get => _imageFile;
@@ -46,7 +48,7 @@ namespace TAS.Server.CgElementsController.Model
             }
         }
 
-        [XmlAttribute]
+        [Hibernate]
         public string Command { get; set; }
 
     }

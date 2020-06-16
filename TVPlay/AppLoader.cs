@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using TAS.Client.Views;
-using TAS.Database.Common;
 using TAS.Server;
 
 namespace TAS.Client

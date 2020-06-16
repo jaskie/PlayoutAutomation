@@ -24,5 +24,13 @@ namespace TAS.Client.Config.Views.Plugins
         {
             InitializeComponent();
         }
+
+        private void DataGrid_LostFocus(object sender, RoutedEventArgs e)
+        {
+            //if (!(sender is DataGrid dataGrid))
+            //    return;
+
+            //dataGrid.SelectedItem = null;
+        }
     }
 }

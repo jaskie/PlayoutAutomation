@@ -15,7 +15,37 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
-        <DataGrid ItemsSource="{Binding PluginConfigurators}" SelectedItem="{Binding SelectedPluginConfigurator}" SelectionMode="Single" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40px" />
+                <RowDefinition Height="40px" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <CheckBox IsChecked="{Binding IsCgElementsControllerEnabled}" IsEnabled="{Binding HasCgControllers}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" />
+            <Label IsEnabled="{Binding IsCgElementsControllerEnabled}" Grid.Column="1" Content="CgElementsController" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <ComboBox IsEnabled="{Binding IsCgElementsControllerEnabled}" Grid.Column="2" DisplayMemberPath="PluginName" SelectedItem="{Binding SelectedCgElementsControllerConfigurator}" ItemsSource="{Binding CgElementsControllerConfigurators}" MinWidth="100" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <Button IsEnabled="{Binding IsCgElementsControllerEnabled}" Margin="5,0,0,0" Width="25" Grid.Column="3" Command="{Binding EditCgElementsControllerCommand}" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Image Source="/TAS.Client.Common;component/Images/Config/document-edit.png" />
+            </Button>
+
+            <CheckBox Grid.Row="1" IsChecked="{Binding IsRouterEnabled}" IsEnabled="{Binding HasRouters}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" />
+            <Label IsEnabled="{Binding IsRouterEnabled}" Grid.Row="1" Grid.Column="1" Content="Router" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <ComboBox IsEnabled="{Binding IsRouterEnabled}" Grid.Row="1" Grid.Column="2" DisplayMemberPath="PluginName" SelectedItem="{Binding SelectedRouterConfigurator}" ItemsSource="{Binding RouterConfigurators}" MinWidth="100" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <Button IsEnabled="{Binding IsRouterEnabled}" Grid.Row="1" Margin="5,0,0,0" Width="25" Grid.Column="3" Command="{Binding EditRouterCommand}" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Image Source="/TAS.Client.Common;component/Images/Config/document-edit.png" />
+            </Button>
+        </Grid>
+        <DataGrid IsSynchronizedWithCurrentItem="True" Grid.Row="1" ItemsSource="{Binding PluginConfigurators}" SelectedItem="{Binding SelectedPluginConfigurator, Mode=TwoWay}" SelectionMode="Single" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="IsEnabled">
                     <DataGridTemplateColumn.CellTemplate>
@@ -33,7 +63,7 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <ContentControl Grid.Column="1" Content="{Binding SelectedPluginConfigurator}">
+        <ContentControl Margin="10,0,0,0" Grid.RowSpan="2" Grid.Column="1" Content="{Binding SelectedPluginConfigurator}">
             <ContentControl.Resources>
                 <DataTemplate DataType="{x:Type common:ViewModelBase}">
                     <TextBlock Text="Plugin does not provide any configurator." FontSize="24" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" />

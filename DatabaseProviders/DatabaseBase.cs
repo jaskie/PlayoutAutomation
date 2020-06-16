@@ -18,6 +18,7 @@ using TAS.Database.Common.Interfaces.Media;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Common.Interfaces.Security;
+using Newtonsoft.Json;
 
 #if MYSQL
 namespace TAS.Database.MySqlRedundant
@@ -29,8 +30,13 @@ namespace TAS.Database.SQLite
     {
         public void SetSerializerSettings(IEnumerable<IPluginTypeBinder> pluginTypeResolvers)
         {            
-            HibernationSerializerSettings.SerializationBinder = new HibernationSerializationBinder(pluginTypeResolvers);
+            HibernationSerializerSettings.SerializationBinder = new HibernationSerializationBinder(pluginTypeResolvers);            
         }        
+
+        public void EnablePluginConverter()
+        {
+            //HibernationSerializerSettings.Converters.Add(new PluginConverter());
+        }
 
 #if MYSQL
         private static readonly DateTime MinMySqlDate = new DateTime(1000, 01, 01);
@@ -52,10 +58,11 @@ namespace TAS.Database.SQLite
 
         protected readonly object SyncRoot = new object();
 
-        private static readonly Newtonsoft.Json.JsonSerializerSettings HibernationSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
+        private static readonly JsonSerializerSettings HibernationSerializerSettings = new JsonSerializerSettings
         {
             ContractResolver = new HibernationContractResolver(),
             NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,            
+            MetadataPropertyHandling = MetadataPropertyHandling.ReadAhead            
         };      
 
         public abstract void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection);

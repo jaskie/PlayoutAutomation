@@ -61,8 +61,10 @@
     <Compile Include="Interfaces\Media\IArchiveMedia.cs" />
     <Compile Include="Interfaces\Media\IPersistentMedia.cs" />
     <Compile Include="Interfaces\Media\IServerMedia.cs" />
+    <Compile Include="PluginConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HibernateAttribute.cs" />
+    <Compile Include="TestConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TAS.Common\TAS.Common.csproj">

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using TAS.Common;
@@ -16,7 +15,8 @@ namespace TAS.Server
                 throw new ApplicationException("Database type not configured");
             Database = DatabaseLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType) ??
                 throw new ApplicationException($"Database provider {databaseType} not available");
-            Database.Open(ConfigurationManager.ConnectionStrings);            
+            Database.Open(ConfigurationManager.ConnectionStrings);
+            //Database.EnablePluginConverter();
             Database.InitializeFieldLengths();                        
         }
 

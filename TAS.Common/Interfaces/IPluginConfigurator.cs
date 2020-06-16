@@ -2,8 +2,9 @@
 {
     public interface IPluginConfigurator : IPlugin
     {
+        object GetModel();
         string PluginName { get; }
-        void Initialize();        
+        void Initialize(object model);        
         void Save();        
     }
 }

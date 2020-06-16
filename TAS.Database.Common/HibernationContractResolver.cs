@@ -14,11 +14,7 @@ namespace TAS.Database.Common
         {
             return objectType.GetMembers().Where(p => p.GetCustomAttribute<HibernateAttribute>() != null).ToList();
         }
-
-        public override JsonContract ResolveContract(Type type)
-        {
-            return base.ResolveContract(type);
-        }
+        
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
             var property = base.CreateProperty(member, memberSerialization);

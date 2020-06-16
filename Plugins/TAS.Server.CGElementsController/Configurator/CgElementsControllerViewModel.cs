@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common;
@@ -16,7 +17,7 @@ namespace TAS.Server.CgElementsController.Configurator
     public class CgElementsControllerViewModel : ModifyableViewModelBase, IPluginConfigurator
     {                
         private readonly IConfigEngine _engine;
-        private Configurator.Model.CgElementsController _cgElementsController;
+        private Configurator.Model.CgElementsController _cgElementsController = new Model.CgElementsController();
 
         private List<Model.CgElement> _cgElements;
         private List<Model.CgElement> _crawls;
@@ -29,14 +30,17 @@ namespace TAS.Server.CgElementsController.Configurator
         private List<string> _elementTypes;
         private List<string> _startup;
         private bool _isEnabled;        
-        private Configurator.Model.CgElement _newElement;
-
+        private Model.CgElement _newElement;
+        
+       
         [ImportingConstructor]
         public CgElementsControllerViewModel([Import("Engine")]IConfigEngine engine)
         {
-            _engine = engine;                         
+            _engine = engine;
             LoadCommands();
-            Init();
+
+            _elementTypes = Enum.GetNames(typeof(Configurator.Model.CgElement.Type)).ToList();
+            ElementTypes = CollectionViewSource.GetDefaultView(_elementTypes);            
         }
 
         private void LoadCommands()
@@ -52,52 +56,49 @@ namespace TAS.Server.CgElementsController.Configurator
 
         private void Init()
         {
+            _cgElements = new List<Model.CgElement>();            
             _crawls = new List<Model.CgElement>();
             _logos = new List<Model.CgElement>();
             _auxes = new List<Model.CgElement>();
             _parentals = new List<Model.CgElement>();
             _startup = new List<string>();
 
-            if (_engine.CGElementsController != null)
-            {
-                var cgElementsController = _engine.CGElementsController as Model.CgElementsController;
-                foreach (var crawl in cgElementsController.Crawls)
-                {
-                    var cgElement = crawl as Model.CgElement;
-                    cgElement.CgType = Model.CgElement.Type.Crawl;
-                    _crawls.Add(cgElement);
-                }
-                foreach (var logo in cgElementsController.Logos)
-                {
-                    var cgElement = logo as Model.CgElement;
-                    cgElement.CgType = Model.CgElement.Type.Logo;
-                    _logos.Add(cgElement);
-                }
-                foreach (var aux in cgElementsController.Auxes)
-                {
-                    var cgElement = aux as Model.CgElement;
-                    cgElement.CgType = Model.CgElement.Type.Aux;
-                    _auxes.Add(cgElement);
-                }
-                foreach (var parental in cgElementsController.Parentals)
-                {
-                    var cgElement = parental as Model.CgElement;
-                    cgElement.CgType = Model.CgElement.Type.Parental;
-                    _parentals.Add(cgElement);
-                }                
-                _startup = ((Model.CgElementsController)_engine.CGElementsController).Startup;                
-                _isEnabled = cgElementsController.IsEnabled;                
-            }
-            else
-            {               
-                _isEnabled = false;
-            }
-
-            _elementTypes = Enum.GetNames(typeof(Configurator.Model.CgElement.Type)).ToList();            
-
-            ElementTypes = CollectionViewSource.GetDefaultView(_elementTypes);
-            SelectedElementType = _elementTypes.LastOrDefault();
+            CgElements = CollectionViewSource.GetDefaultView(_cgElements);
             IsModified = false;
+
+            if (_cgElementsController == null)
+                return;
+
+            foreach (var crawl in _cgElementsController.Crawls)
+            {
+                var cgElement = crawl as Model.CgElement;
+                cgElement.CgType = Model.CgElement.Type.Crawl;
+                _crawls.Add(cgElement);
+            }
+            foreach (var logo in _cgElementsController.Logos)
+            {
+                var cgElement = logo as Model.CgElement;
+                cgElement.CgType = Model.CgElement.Type.Logo;
+                _logos.Add(cgElement);
+            }
+            foreach (var aux in _cgElementsController.Auxes)
+            {
+                var cgElement = aux as Model.CgElement;
+                cgElement.CgType = Model.CgElement.Type.Aux;
+                _auxes.Add(cgElement);
+            }
+            foreach (var parental in _cgElementsController.Parentals)
+            {
+                var cgElement = parental as Model.CgElement;
+                cgElement.CgType = Model.CgElement.Type.Parental;
+                _parentals.Add(cgElement);
+            }
+
+            _startup = _cgElementsController.Startup;
+            _isEnabled = _cgElementsController.IsEnabled;
+
+            SelectedElementType = _elementTypes.LastOrDefault();
+            
         }
 
         private bool CanUndo(object obj)
@@ -186,12 +187,7 @@ namespace TAS.Server.CgElementsController.Configurator
         }
 
         public void Save()
-        {
-            if (_cgElementsController == null)
-                return;
-
-            _engine.CGElementsController = _cgElementsController;
-
+        {           
             var cgElements = _auxes.Concat(_crawls).Concat(_logos).Concat(_parentals);
             foreach (var cgElement in cgElements)
             {
@@ -238,6 +234,10 @@ namespace TAS.Server.CgElementsController.Configurator
         {
             if (_cgElementsController == null)
                 _cgElementsController = new Model.CgElementsController();
+
+            _auxes.Insert(0, new Model.CgElement());
+            _crawls.Insert(0, new Model.CgElement());
+            _logos.Insert(0, new Model.CgElement());           
 
             _cgElementsController.Auxes = _auxes;
             _cgElementsController.Crawls = _crawls;
@@ -299,7 +299,7 @@ namespace TAS.Server.CgElementsController.Configurator
                     return;
 
                 _newElement = null;
-                CgElementViewModel = null;
+                _currentViewModel = null;
 
                 _selectedElementType = temp;
                 switch (_selectedElementType)
@@ -317,12 +317,13 @@ namespace TAS.Server.CgElementsController.Configurator
                         _cgElements = _parentals;
                         break;
                 }
-
+                //CgElements.Refresh();
                 CgElements = CollectionViewSource.GetDefaultView(_cgElements);
                 CgElements.SortDescriptions.Add(new SortDescription(nameof(Model.CgElement.Id), ListSortDirection.Ascending));
-
-                NotifyPropertyChanged(nameof(CgElements));
+                
                 NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(CgElements));
+                NotifyPropertyChanged(nameof(CgElementViewModel));
             }
         }
 
@@ -344,7 +345,13 @@ namespace TAS.Server.CgElementsController.Configurator
         public bool IsEnabled
         {
             get => _isEnabled;
-            set => SetField(ref _isEnabled, value);
+            set
+            {
+                if (!SetField(ref _isEnabled, value))
+                    return;
+
+                _cgElementsController.IsEnabled = value;
+            }
         }
 
         public UiCommand AddCgElementCommand { get; private set; }
@@ -367,9 +374,17 @@ namespace TAS.Server.CgElementsController.Configurator
             //
         }
 
-        public void Initialize()
-        {
+        public void Initialize(object model)
+        {           
+            _cgElementsController = (ICGElementsController)model as Model.CgElementsController;
+
             UiServices.AddDataTemplate(typeof(CgElementsControllerViewModel), typeof(CgElementsControllerPluginManagerView));
-        }        
+            Init();
+        }
+
+        public object GetModel()
+        {
+            return _cgElementsController;
+        }
     }
 }

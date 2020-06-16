@@ -16,6 +16,7 @@ using TAS.Server.Media;
 using TAS.Server.Security;
 using TAS.Database.Common;
 using jNet.RPC;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
@@ -142,7 +143,7 @@ namespace TAS.Server
 
         public IMediaManager MediaManager => _mediaManager;
 
-        [DtoMember, Hibernate(modelType:DataType.Main)]
+        [DtoMember, Hibernate, JsonConverter(typeof(PluginConverter))]
         public ICGElementsController CGElementsController { get; set; }
 
         [DtoMember, Hibernate]

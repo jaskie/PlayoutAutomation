@@ -18,9 +18,14 @@ namespace TAS.Server.Router.Configurator
         }
         public string PluginName => "Router";
 
-        public bool IsEnabled { get; set; }        
+        public bool IsEnabled { get; set; }
 
-        public void Initialize()
+        public object GetModel()
+        {
+            return _router;
+        }
+
+        public void Initialize(object parameter)
         {
             
         }

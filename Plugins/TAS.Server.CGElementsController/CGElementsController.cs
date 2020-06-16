@@ -5,6 +5,7 @@ using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using jNet.RPC;
 using System.ComponentModel.Composition;
+using TAS.Database.Common;
 
 namespace TAS.Server.CgElementsController
 {    
@@ -31,6 +32,7 @@ namespace TAS.Server.CgElementsController
         private byte _parental;
         private bool _isStartupExecuted = false;        
 
+        [Hibernate]
         public bool IsEnabled { get; set; }
 
         [DtoMember]
@@ -72,9 +74,9 @@ namespace TAS.Server.CgElementsController
             }
         }
 
-        [DtoMember(nameof(Crawls))]        
-        public Model.CGElement[] _crawls { get; set; } = new Model.CGElement[0];
-
+        [DtoMember(nameof(Crawls)), Hibernate("Crawls")]        
+        public Model.CGElement[] _crawls { get; set; }
+       
         public IEnumerable<ICGElement> Crawls => _crawls;
 
         [DtoMember]        
@@ -90,8 +92,9 @@ namespace TAS.Server.CgElementsController
         }
 
         [DtoMember(nameof(Logos))]        
-        public Model.CGElement[] _logos { get; set; } = new Model.CGElement[0];
+        public Model.CGElement[] _logos { get; set; }
 
+        
         public IEnumerable<ICGElement> Logos => _logos;
 
         [DtoMember]        
@@ -107,13 +110,18 @@ namespace TAS.Server.CgElementsController
         }
 
         [DtoMember(nameof(Parentals))]        
-        public Model.CGElement[] _parentals { get; set; } = new Model.CGElement[0];
-
+        public Model.CGElement[] _parentals { get; set; }
+        
+        [Hibernate]
         public IEnumerable<ICGElement> Parentals => _parentals;
         
         public string[] _startup { get; set; } = new string[0];
-
+        
+        [Hibernate]
         public IEnumerable<ICGElement> Auxes { get; }
+        
+        [Hibernate]
+        public IEnumerable<string> Startup { get; }
 
         public event EventHandler Started;
 

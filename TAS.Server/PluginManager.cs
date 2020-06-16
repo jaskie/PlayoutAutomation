@@ -15,8 +15,7 @@ namespace TAS.Server
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private static readonly IEnumerable<IEnginePluginFactory> EnginePlugins;
-        private static readonly string FileNameSearchPattern = "TAS.Server.*.dll";
-
+        private static readonly string FileNameSearchPattern = "TAS.Server.*.dll";                               
 
         static PluginManager()
         {
@@ -26,7 +25,7 @@ namespace TAS.Server
                 return;
             using (var catalog = new DirectoryCatalog(pluginPath, FileNameSearchPattern))
             using (var container = new CompositionContainer(catalog))
-            {
+            {                
                 container.ComposeExportedValue("AppSettings", ConfigurationManager.AppSettings);
                 try
                 {
@@ -41,7 +40,7 @@ namespace TAS.Server
                 {
                     Logger.Error(e, "Plugin load failed: {0}", e);
                 }
-            }
+            }            
         }
 
         public static T ComposePart<T>(this IEngine engine) 
