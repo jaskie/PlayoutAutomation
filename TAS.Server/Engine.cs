@@ -547,9 +547,6 @@ namespace TAS.Server
             Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this);
             lock (_tickLock)
             {
-                if (_recordingManager.Recorder != null)
-                    _recordingManager.Stop();
-
                 _clearRunning();
                 lock (((IList)_visibleEvents).SyncRoot)
                     _visibleEvents.Clear();

@@ -366,7 +366,8 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (CheckConnected(channel))
             {
-                channel.Clear();
+                foreach (var vl in _visible.Keys)
+                    channel.Clear((int)vl);
                 channel.ClearMixer((int)VideoLayer.Program);
                 _outputAspectNarrow[VideoLayer.Program] = false;
                 _visible.Clear();
