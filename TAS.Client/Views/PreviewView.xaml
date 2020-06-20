@@ -40,7 +40,7 @@
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
 
-                <Button Command="{Binding CommandCue}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPause.ToolTip}">
+                <Button Command="{Binding CommandCue}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonCue.ToolTip}">
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-cue.png"  />
                 </Button>
                 <Button Grid.Column="1" Command="{Binding CommandTogglePlay}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlay.ToolTip}">
