@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:controls="clr-namespace:TAS.Client.Common.Controls"
         mc:Ignorable="d"         
-        MinHeight="100"
-        MinWidth="180">
+        d:DesignHeight="100"
+        d:DesignWidth="180">
 
     <UserControl.Resources>
         <Style x:Key="OkButtonStyle" TargetType="Button">

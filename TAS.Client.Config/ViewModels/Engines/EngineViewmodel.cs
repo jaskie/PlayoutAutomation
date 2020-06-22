@@ -26,11 +26,17 @@ namespace TAS.Client.Config.ViewModels.Engines
         {
             _engine = engine;
             _pluginsViewModel = new PluginsViewModel(_engine);
+            _pluginsViewModel.PluginChanged += PluginsViewModel_PluginChanged;
             CommandManageArchiveDirectories = new Common.UiCommand(_manageArchiveDirectories);
             PluginManagerCommand = new UiCommand(OpenPluginManager, CanOpenPluginManager);
             Init();
         }
-        
+
+        private void PluginsViewModel_PluginChanged(object sender, EventArgs e)
+        {
+            IsModified = true;
+        }
+
         public void Init()
         {
             Channels = new List<object> { Common.Properties.Resources._none_ };

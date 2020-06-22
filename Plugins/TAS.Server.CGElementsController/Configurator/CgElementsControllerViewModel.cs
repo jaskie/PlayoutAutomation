@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
-using System.Windows;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common;
@@ -31,8 +30,9 @@ namespace TAS.Server.CgElementsController.Configurator
         private List<string> _startup;
         private bool _isEnabled;        
         private Model.CgElement _newElement;
-        
-       
+
+        public event EventHandler PluginChanged;
+
         [ImportingConstructor]
         public CgElementsControllerViewModel([Import("Engine")]IConfigEngine engine)
         {
@@ -64,41 +64,39 @@ namespace TAS.Server.CgElementsController.Configurator
             _startup = new List<string>();
 
             CgElements = CollectionViewSource.GetDefaultView(_cgElements);
-            IsModified = false;
-
+            
             if (_cgElementsController == null)
-                return;
+                return;            
 
-            foreach (var crawl in _cgElementsController.Crawls)
+            foreach (var crawl in _cgElementsController.Crawls.ToList().Skip(1))
             {
                 var cgElement = crawl as Model.CgElement;
                 cgElement.CgType = Model.CgElement.Type.Crawl;
                 _crawls.Add(cgElement);
             }
-            foreach (var logo in _cgElementsController.Logos)
+            foreach (var logo in _cgElementsController.Logos.ToList().Skip(1))
             {
                 var cgElement = logo as Model.CgElement;
                 cgElement.CgType = Model.CgElement.Type.Logo;
                 _logos.Add(cgElement);
             }
-            foreach (var aux in _cgElementsController.Auxes)
+            foreach (var aux in _cgElementsController.Auxes.ToList().Skip(1))
             {
                 var cgElement = aux as Model.CgElement;
                 cgElement.CgType = Model.CgElement.Type.Aux;
                 _auxes.Add(cgElement);
             }
-            foreach (var parental in _cgElementsController.Parentals)
+            foreach (var parental in _cgElementsController.Parentals.ToList().Skip(1))
             {
                 var cgElement = parental as Model.CgElement;
                 cgElement.CgType = Model.CgElement.Type.Parental;
                 _parentals.Add(cgElement);
             }
 
-            _startup = _cgElementsController.Startup;
-            _isEnabled = _cgElementsController.IsEnabled;
-
+            Startup = _cgElementsController.Startup;
+            IsEnabled = _cgElementsController.IsEnabled;
             SelectedElementType = _elementTypes.LastOrDefault();
-            
+            IsModified = false;
         }
 
         private bool CanUndo(object obj)
@@ -129,7 +127,7 @@ namespace TAS.Server.CgElementsController.Configurator
 
         private void EditElement(object obj)
         {
-            if (!(obj is Configurator.Model.CgElement element))
+            if (!(obj is Model.CgElement element))
                 return;
 
             CgElementViewModel = new CgElementViewModel(element, "Edit");
@@ -137,7 +135,7 @@ namespace TAS.Server.CgElementsController.Configurator
 
         private bool CanMoveCgElementDown(object obj)
         {
-            if (_selectedElement != null && _selectedElement.Id < (_cgElements.Count() - 1))
+            if (_selectedElement != null && _selectedElement.Id < (_cgElements.Count()-1))
                 return true;
 
             return false;
@@ -233,11 +231,7 @@ namespace TAS.Server.CgElementsController.Configurator
         private void LocalSave(object obj)
         {
             if (_cgElementsController == null)
-                _cgElementsController = new Model.CgElementsController();
-
-            _auxes.Insert(0, new Model.CgElement());
-            _crawls.Insert(0, new Model.CgElement());
-            _logos.Insert(0, new Model.CgElement());           
+                _cgElementsController = new Model.CgElementsController();            
 
             _cgElementsController.Auxes = _auxes;
             _cgElementsController.Crawls = _crawls;
@@ -246,6 +240,8 @@ namespace TAS.Server.CgElementsController.Configurator
             _cgElementsController.IsEnabled = _isEnabled;
             _cgElementsController.Startup = _startup;
             IsModified = false;
+
+            PluginChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void CgElementWizardClosed(object sender, EventArgs e)
@@ -350,7 +346,10 @@ namespace TAS.Server.CgElementsController.Configurator
                 if (!SetField(ref _isEnabled, value))
                     return;
 
-                _cgElementsController.IsEnabled = value;
+                if (_cgElementsController != null)                     
+                    _cgElementsController.IsEnabled = value;
+
+                PluginChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 

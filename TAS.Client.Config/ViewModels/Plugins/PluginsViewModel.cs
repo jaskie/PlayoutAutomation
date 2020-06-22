@@ -1,5 +1,4 @@
-﻿using MySqlX.XDevAPI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -17,6 +16,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
     public class PluginsViewModel : ViewModelBase
     {
         private const string FileNameSearchPattern = "TAS.Server.*.dll";
+        public event EventHandler PluginChanged;
                 
         private List<IPluginConfigurator> _pluginConfigurators = new List<IPluginConfigurator>();
         private List<IPluginConfigurator> _cgElementsControllerConfigurators = new List<IPluginConfigurator>();
@@ -85,7 +85,8 @@ namespace TAS.Client.Config.ViewModels.Plugins
                     var pluginConfigurators = container.GetExportedValues<IPluginConfigurator>().ToList();
 
                     foreach (var pluginConfigurator in pluginConfigurators)
-                    {                        
+                    {
+                        pluginConfigurator.PluginChanged += PluginConfigurator_PluginChanged;
                         if (pluginConfigurator.GetModel() is ICGElementsController)
                         {
                             pluginConfigurator.Initialize(_engine.CGElementsController);
@@ -104,20 +105,18 @@ namespace TAS.Client.Config.ViewModels.Plugins
                             _pluginConfigurators.Add(pluginConfigurator);
                         }                                                    
                     }
-
-                    //set cg and router comboboxes/checkboxes
-                    SelectedCgElementsControllerConfigurator = _cgElementsControllerConfigurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.CGElementsController?.GetType());                    
-                    IsCgElementsControllerEnabled = _engine.CGElementsController?.IsEnabled ?? false;
-
-                    SelectedRouterConfigurator = _routerConfigurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.CGElementsController?.GetType());
-                    if (_selectedPluginConfigurator != null)
-                        IsRouterEnabled = _selectedRouterConfigurator.IsEnabled;
-                    else
-                        IsRouterEnabled = false;
+                  
+                    SelectedCgElementsControllerConfigurator = _cgElementsControllerConfigurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.CGElementsController?.GetType());                                        
+                    SelectedRouterConfigurator = _routerConfigurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.CGElementsController?.GetType());                   
                 }
             }
         }
-                
+
+        private void PluginConfigurator_PluginChanged(object sender, EventArgs e)
+        {
+            PluginChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         public ICollectionView PluginConfigurators { get; }
         public ICollectionView CgElementsControllerConfigurators { get; }
         public ICollectionView RouterConfigurators { get; }        
@@ -133,8 +132,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
                     return;                                
             }
         }
-
-        public bool HasPlugins => _pluginConfigurators.Count > 0 ? true : false;
+                                    
 
         public IPluginConfigurator SelectedCgElementsControllerConfigurator 
         { 
@@ -144,14 +142,20 @@ namespace TAS.Client.Config.ViewModels.Plugins
                 if (!SetField(ref _selectedCgElementsControllerConfigurator, value))
                     return;
 
-                _selectedCgElementsControllerConfigurator.IsEnabled = _isCgElementsControllerEnabled ?? false;
+                _isCgElementsControllerEnabled = _engine.CGElementsController?.IsEnabled ?? false;
+                NotifyPropertyChanged(nameof(IsCgElementsControllerEnabled));
             }
         }
 
         public IPluginConfigurator SelectedRouterConfigurator 
         { 
-            get => _selectedRouterConfigurator; 
-            set => SetField(ref _selectedRouterConfigurator, value); 
+            get => _selectedRouterConfigurator;
+            set
+            {
+                if (!SetField(ref _selectedRouterConfigurator, value))
+                    return;
+                //
+            }
         }
         public bool? IsCgElementsControllerEnabled 
         { 
@@ -171,12 +175,13 @@ namespace TAS.Client.Config.ViewModels.Plugins
         public bool? IsRouterEnabled { get => _isRouterEnabled; set => SetField(ref _isRouterEnabled, value); }
         public bool HasCgControllers => _cgElementsControllerConfigurators.Count > 0 ? true : false;
         public bool HasRouters => _routerConfigurators.Count > 0 ? true : false;
-
+        public bool HasPlugins => _pluginConfigurators.Count > 0 || _cgElementsControllerConfigurators.Count > 0 || _routerConfigurators.Count > 0 ? true : false;
         public void Save()
         {
             foreach (var pluginConfigurator in _pluginConfigurators)
             {
                 pluginConfigurator.Save();
+                _engine.Plugins.Remove(_engine.Plugins.FirstOrDefault(p => p.GetType() == pluginConfigurator.GetModel().GetType()));
                 _engine.Plugins.Add((IPlugin)pluginConfigurator.GetModel());
             }
 

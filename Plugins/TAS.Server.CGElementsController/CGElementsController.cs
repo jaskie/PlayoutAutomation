@@ -91,7 +91,7 @@ namespace TAS.Server.CgElementsController
             }
         }
 
-        [DtoMember(nameof(Logos))]        
+        [DtoMember(nameof(Logos)), Hibernate(nameof(Logos))]        
         public Model.CGElement[] _logos { get; set; }
 
         
@@ -109,10 +109,9 @@ namespace TAS.Server.CgElementsController
             }
         }
 
-        [DtoMember(nameof(Parentals))]        
+        [DtoMember(nameof(Parentals)), Hibernate(nameof(Parentals))]        
         public Model.CGElement[] _parentals { get; set; }
-        
-        [Hibernate]
+               
         public IEnumerable<ICGElement> Parentals => _parentals;
         
         public string[] _startup { get; set; } = new string[0];

@@ -61,7 +61,7 @@ namespace TAS.Client.Config.Model
         public bool IsNew = true;
         [Hibernate]        
         public ICGElementsController CGElementsController { get; set; }
-        //[Hibernate]
+        [Hibernate]
         public List<IPlugin> Plugins { get; set; }
         public IDictionary<string, int> FieldLengths { get; set; }          
 

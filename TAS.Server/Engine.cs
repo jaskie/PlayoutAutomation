@@ -56,8 +56,7 @@ namespace TAS.Server
 
         private Event _playing;
         private Event _forcedNext;
-        private List<IGpi> _localGpis;
-        private List<IPlugin> _plugins;
+        private List<IGpi> _localGpis;        
         private int _timeCorrection;
         private bool _isWideScreen;
         private TEngineState _engineState;
@@ -145,6 +144,9 @@ namespace TAS.Server
 
         [DtoMember, Hibernate, JsonConverter(typeof(PluginConverter))]
         public ICGElementsController CGElementsController { get; set; }
+
+        [Hibernate, JsonConverter(typeof(PluginConverter))]
+        public List<IPlugin> Plugins { get; set; }
 
         [DtoMember, Hibernate]
         public IRouter Router { get; set; }
@@ -283,7 +285,7 @@ namespace TAS.Server
             _mediaManager.SetRecorders(recorders);
 
             _localGpis = this.ComposeParts<IGpi>();
-            _plugins = this.ComposeParts<IPlugin>();
+            //_plugins = this.ComposeParts<IPlugin>();
             //CGElementsController = this.ComposePart<ICGElementsController>();
             Router = this.ComposePart<IRouter>();
             _isWideScreen = FormatDescription.IsWideScreen;
@@ -351,7 +353,7 @@ namespace TAS.Server
                     return _visibleEvents.Cast<IEventPersistent>().ToList();
                 }
             }
-        }
+        }        
 
         [DtoMember]
         public IEvent Playing
@@ -1455,8 +1457,8 @@ namespace TAS.Server
             Remote?.Dispose();
             _preview?.Dispose();
             _mediaManager.Dispose();
-            if (_plugins != null)
-                foreach (var plugin in _plugins)
+            if (Plugins != null)
+                foreach (var plugin in Plugins)
                     plugin.Dispose();
             base.DoDispose();
         }

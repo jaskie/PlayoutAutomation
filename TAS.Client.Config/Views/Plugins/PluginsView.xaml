@@ -63,7 +63,7 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <ContentControl Margin="10,0,0,0" Grid.RowSpan="2" Grid.Column="1" Content="{Binding SelectedPluginConfigurator}">
+        <ContentControl Padding="10,0,0,0" Grid.RowSpan="2" Grid.Column="1" Content="{Binding SelectedPluginConfigurator}">
             <ContentControl.Resources>
                 <DataTemplate DataType="{x:Type common:ViewModelBase}">
                     <TextBlock Text="Plugin does not provide any configurator." FontSize="24" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" />

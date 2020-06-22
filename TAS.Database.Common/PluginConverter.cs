@@ -10,7 +10,7 @@ using TAS.Database.Common.Interfaces;
 
 namespace TAS.Database.Common
 {
-    public class PluginConverter : JsonConverter<IPlugin>
+    public class PluginConverter : JsonConverter
     {
         [ImportMany(typeof(IPluginTypeBinder))]        
         public static IEnumerable<IPluginTypeBinder> PluginBinders { get; }
@@ -27,37 +27,53 @@ namespace TAS.Database.Common
             }
         }
 
-        public override IPlugin ReadJson(JsonReader reader, Type objectType, IPlugin existingValue, bool hasExistingValue, JsonSerializer serializer)
+        private IPlugin CreateInstance(JToken container, JsonSerializer serializer)
         {
-            //IPlugin plugin = (IPlugin)reader.Value;
-            //if (plugin != null && plugin.IsEnabled)            
-            //    return (IPlugin)reader.Value;
-            //return null;            
-            var jobject = JObject.Load(reader);
-            var typeMeta = jobject.GetValue("$type").ToObject<string>().Split(',');
+            var jObject = JObject.Load(container.CreateReader());            
+            var typeMeta = jObject.GetValue("$type").ToObject<string>().Split(',');
 
             Type type = null;
             foreach (var binder in PluginBinders)
                 if ((type = binder.BindToType(typeMeta[1], typeMeta[0])) != null)
                     break;
-            
-            var isEnabled = jobject.GetValue("IsEnabled").ToObject<bool>();
+
+            var isEnabled = jObject.GetValue("IsEnabled").ToObject<bool>();
+
             if (isEnabled)
-            {
-                var obj = Activator.CreateInstance(type);
-                serializer.Populate(jobject.CreateReader(), obj);
-                return (IPlugin)obj;
-            }
-                
-                                           
+                return (IPlugin)serializer.Deserialize(jObject.CreateReader(), type);
+            
             return null;
-        
         }
+        
 
-
-        public override void WriteJson(JsonWriter writer, IPlugin value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             writer.WriteValue(value);
+        }
+        
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.StartArray)
+            {
+                var jArray = JArray.Load(reader);
+                List<IPlugin> plugins = new List<IPlugin>();
+                foreach (var child in jArray.Children())
+                {
+                    var item = CreateInstance(child, serializer);
+                    if (item != null)
+                        plugins.Add(item);
+                }
+                return plugins;
+            }
+            else
+            {
+                return CreateInstance(JObject.Load(reader), serializer);
+            }
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return true;
         }
     }
 }
