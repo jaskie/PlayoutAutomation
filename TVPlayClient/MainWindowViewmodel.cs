@@ -20,6 +20,9 @@ namespace TVPlayClient
         {
             if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
                 return;
+#if DEBUG
+            System.Threading.Thread.Sleep(2000); // wait for server startup
+#endif
             Application.Current.Dispatcher.ShutdownStarted += _dispatcher_ShutdownStarted;
             _configurationFile = Path.Combine(FileUtils.LocalApplicationDataPath, ConfigurationFileName);
             _loadTabs();
