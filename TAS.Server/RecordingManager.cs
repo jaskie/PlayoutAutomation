@@ -28,7 +28,7 @@ namespace TAS.Server
                 if (recorder == null || recorder.RecordingMedia != null)
                     return;
                 var name = String.Concat(@event.EventName, '_', DateTime.Now.ToString("yyyy-MM-dd hh_mm_ss"));
-                recorder.Capture(recorder.Channels.FirstOrDefault(c => c.Id == @event.RecordingInfo.ChannelId), @event.Duration>new TimeSpan(2, 0, 0) ? @event.Duration : new TimeSpan(2, 0, 0), _engine.FormatDescription.IsWideScreen, name, String.Concat(name, '.', server.MovieContainerFormat), null);
+                recorder.Capture(recorder.Channels.FirstOrDefault(c => c.Id == @event.RecordingInfo.ChannelId), @event.Duration>new TimeSpan(2, 0, 0) ? @event.Duration : new TimeSpan(2, 0, 0), _engine.FormatDescription.IsWideScreen, name, string.Concat(name, '.', server.MovieContainerFormat), null);
                 Recorder = recorder;
                 Recorded = @event;
             }

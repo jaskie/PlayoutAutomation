@@ -138,21 +138,17 @@ namespace TAS.Server
 
         public void SetTimeLimit(TimeSpan value)
         {
-            var media = RecordingMedia;
-            if (media != null)
-                _recorder?.SetTimeLimit(value.ToSmpteFrames(media.VideoFormat));
+            _recorder?.SetTimeLimit(value.ToSmpteFrames(_tcFormat));
         }
 
         public void Finish()
         {
             _recorder?.Finish();
-            RecordingMedia = null;
         }
         
         public void Abort()
         {
             _recorder?.Abort();
-            RecordingMedia = null;
         }
 
         public void DeckPlay()
@@ -162,7 +158,6 @@ namespace TAS.Server
         public void DeckStop()
         {
             _recorder?.Stop();
-            RecordingMedia = null;
         }
 
         public void DeckFastForward()
