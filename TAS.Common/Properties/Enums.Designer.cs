@@ -295,7 +295,7 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tracks 1 i 2 -&gt; Mono.
+        ///   Looks up a localized string similar to Tracks 1 &amp; 2 -&gt; Mono.
         /// </summary>
         public static string TAudioChannelMappingConversion_Combine1Plus2 {
             get {
@@ -304,7 +304,7 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tracks 3 i 4 -&gt; Mono.
+        ///   Looks up a localized string similar to Tracks 3 &amp; 4 -&gt; Mono.
         /// </summary>
         public static string TAudioChannelMappingConversion_Combine3Plus4 {
             get {
@@ -331,11 +331,29 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tracks 1 i 2 -&gt; Stereo.
+        ///   Looks up a localized string similar to Tracks 1 &amp; 2 -&gt; Stereo.
         /// </summary>
         public static string TAudioChannelMappingConversion_FirstTwoChannels {
             get {
                 return ResourceManager.GetString("TAudioChannelMappingConversion_FirstTwoChannels", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tracks 7 &amp; 8 -&gt; Stereo.
+        /// </summary>
+        public static string TAudioChannelMappingConversion_FourthTwoChannels {
+            get {
+                return ResourceManager.GetString("TAudioChannelMappingConversion_FourthTwoChannels", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Merge all channels.
+        /// </summary>
+        public static string TAudioChannelMappingConversion_MergeAllChannels {
+            get {
+                return ResourceManager.GetString("TAudioChannelMappingConversion_MergeAllChannels", resourceCulture);
             }
         }
         
@@ -349,11 +367,20 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tracks 3 i 4 -&gt; Stereo.
+        ///   Looks up a localized string similar to Tracks 3 &amp; 4 -&gt; Stereo.
         /// </summary>
         public static string TAudioChannelMappingConversion_SecondTwoChannels {
             get {
                 return ResourceManager.GetString("TAudioChannelMappingConversion_SecondTwoChannels", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tracks 5 &amp; 6 -&gt; Stereo.
+        /// </summary>
+        public static string TAudioChannelMappingConversion_ThirdTwoChannels {
+            get {
+                return ResourceManager.GetString("TAudioChannelMappingConversion_ThirdTwoChannels", resourceCulture);
             }
         }
         

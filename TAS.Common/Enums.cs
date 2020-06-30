@@ -181,10 +181,13 @@ namespace TAS.Common
         Default,
         FirstTwoChannels,
         SecondTwoChannels,
+        ThirdTwoChannels,
+        FourthTwoChannels,
         FirstChannelOnly,
         SecondChannelOnly,
         Combine1Plus2,
-        Combine3Plus4
+        Combine3Plus4,
+        MergeAllChannels
     }
 
     class TAudioChannelMappingConversionEnumConverter : ResourceEnumConverter

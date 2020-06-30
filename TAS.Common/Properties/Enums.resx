@@ -319,10 +319,10 @@
     <value>Tilt&amp;Scan(4:3-&gt;16:9)</value>
   </data>
   <data name="TAudioChannelMappingConversion_Combine1Plus2" xml:space="preserve">
-    <value>Tracks 1 i 2 -&gt; Mono</value>
+    <value>Tracks 1 &amp; 2 -&gt; Mono</value>
   </data>
   <data name="TAudioChannelMappingConversion_Combine3Plus4" xml:space="preserve">
-    <value>Tracks 3 i 4 -&gt; Mono</value>
+    <value>Tracks 3 &amp; 4 -&gt; Mono</value>
   </data>
   <data name="TAudioChannelMappingConversion_Default" xml:space="preserve">
     <value>Default (possible downmix)</value>
@@ -331,13 +331,13 @@
     <value>Track 1 -&gt; Mono</value>
   </data>
   <data name="TAudioChannelMappingConversion_FirstTwoChannels" xml:space="preserve">
-    <value>Tracks 1 i 2 -&gt; Stereo</value>
+    <value>Tracks 1 &amp; 2 -&gt; Stereo</value>
   </data>
   <data name="TAudioChannelMappingConversion_SecondChannelOnly" xml:space="preserve">
     <value>Track 2 -&gt; Mono</value>
   </data>
   <data name="TAudioChannelMappingConversion_SecondTwoChannels" xml:space="preserve">
-    <value>Tracks 3 i 4 -&gt; Stereo</value>
+    <value>Tracks 3 &amp; 4 -&gt; Stereo</value>
   </data>
   <data name="TAspectConversion_Force16_9" xml:space="preserve">
     <value>None, enforce 16:9</value>
@@ -455,5 +455,14 @@
   </data>
   <data name="TMediaErrorInfo_Expired" xml:space="preserve">
     <value>Clip expired</value>
+  </data>
+  <data name="TAudioChannelMappingConversion_MergeAllChannels" xml:space="preserve">
+    <value>Merge all channels</value>
+  </data>
+  <data name="TAudioChannelMappingConversion_FourthTwoChannels" xml:space="preserve">
+    <value>Tracks 7 &amp; 8 -&gt; Stereo</value>
+  </data>
+  <data name="TAudioChannelMappingConversion_ThirdTwoChannels" xml:space="preserve">
+    <value>Tracks 5 &amp; 6 -&gt; Stereo</value>
   </data>
 </root>

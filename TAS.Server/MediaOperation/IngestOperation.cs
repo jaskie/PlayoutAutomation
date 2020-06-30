@@ -291,10 +291,10 @@ namespace TAS.Server.MediaOperation
                 if (sourceDir.AudioCodec != TAudioCodec.copy)
                 {
                     ep.AppendFormat(" -b:a {0}k", (int)(2 * 128 * sourceDir.AudioBitrateRatio));
-                    var audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
+                    var audioChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
                     //                    int inputTotalChannels = audioStreams.Sum(s => s.ChannelCount);
                     int requiredOutputChannels;
-                    switch ((TAudioChannelMappingConversion)audiChannelMappingConversion.OutputFormat)
+                    switch ((TAudioChannelMappingConversion)audioChannelMappingConversion.Conversion)
                     {
                         case TAudioChannelMappingConversion.FirstTwoChannels:
                         case TAudioChannelMappingConversion.SecondChannelOnly:
@@ -307,6 +307,15 @@ namespace TAS.Server.MediaOperation
                             break;
                         case TAudioChannelMappingConversion.FirstChannelOnly:
                             requiredOutputChannels = 1;
+                            break;
+                        case TAudioChannelMappingConversion.ThirdTwoChannels:
+                            requiredOutputChannels = 6;
+                            break;
+                        case TAudioChannelMappingConversion.FourthTwoChannels:
+                            requiredOutputChannels = 8;
+                            break;
+                        case TAudioChannelMappingConversion.MergeAllChannels:
+                            requiredOutputChannels = audioStreams.Sum(s => s.ChannelCount);
                             break;
                         default:
                             requiredOutputChannels = 0;
@@ -323,8 +332,14 @@ namespace TAS.Server.MediaOperation
                         }
                         audioFilters.Add($"{pf}amerge=inputs={audioStreams.Length}");
                     }
-                    AddConversion(audiChannelMappingConversion, audioFilters);
-                    ep.Append(" -ac 2");
+                    AddConversion(audioChannelMappingConversion, audioFilters);
+                    switch (audioChannelMappingConversion.Conversion)
+                    {
+                        case TAudioChannelMapping.Mono:
+                        case TAudioChannelMapping.Stereo:
+                            ep.Append(" -ac 2");
+                            break;
+                    }
                     if (Math.Abs(AudioVolume) > double.Epsilon)
                         AddConversion(new MediaConversion(AudioVolume), audioFilters);
                     ep.Append(" -ar 48000");

@@ -456,4 +456,13 @@
   <data name="TMediaErrorInfo_Expired" xml:space="preserve">
     <value>Minęła data ważności klipu</value>
   </data>
+  <data name="TAudioChannelMappingConversion_MergeAllChannels" xml:space="preserve">
+    <value>Połącz wszystkie ścieżki</value>
+  </data>
+  <data name="TAudioChannelMappingConversion_FourthTwoChannels" xml:space="preserve">
+    <value>Ścieżki 7 i 8 -&gt; Stereo</value>
+  </data>
+  <data name="TAudioChannelMappingConversion_ThirdTwoChannels" xml:space="preserve">
+    <value>Ścieżki 5 i 6 -&gt; Stereo</value>
+  </data>
 </root>

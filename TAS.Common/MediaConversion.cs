@@ -53,6 +53,14 @@ namespace TAS.Common
                     OutputFormat = TAudioChannelMapping.Stereo;
                     FFMpegFilter = "pan=stereo|c0=c2|c1=c3";
                     break;
+                case TAudioChannelMappingConversion.ThirdTwoChannels:
+                    OutputFormat = TAudioChannelMapping.Stereo;
+                    FFMpegFilter = "pan=stereo|c0=c4|c1=c5";
+                    break;
+                case TAudioChannelMappingConversion.FourthTwoChannels:
+                    OutputFormat = TAudioChannelMapping.Stereo;
+                    FFMpegFilter = "pan=stereo|c0=c6|c1=c7";
+                    break;
                 case TAudioChannelMappingConversion.FirstChannelOnly:
                     OutputFormat = TAudioChannelMapping.Stereo;
                     FFMpegFilter = "pan=stereo|c0=c0|c1=c0";
@@ -68,6 +76,9 @@ namespace TAS.Common
                 case TAudioChannelMappingConversion.Combine3Plus4:
                     OutputFormat = TAudioChannelMapping.Stereo;
                     FFMpegFilter = "pan=stereo|c0=0.5*c2+0.5*c3|c1=0.5*c2+0.5*c3";
+                    break;
+                case TAudioChannelMappingConversion.MergeAllChannels:
+                    OutputFormat = TAudioChannelMapping.Unknown;
                     break;
             }
         }
@@ -115,10 +126,13 @@ namespace TAS.Common
             {TAudioChannelMappingConversion.Default, new MediaConversion(TAudioChannelMappingConversion.Default)},
             {TAudioChannelMappingConversion.FirstTwoChannels, new MediaConversion(TAudioChannelMappingConversion.FirstTwoChannels)},
             {TAudioChannelMappingConversion.SecondTwoChannels, new MediaConversion(TAudioChannelMappingConversion.SecondTwoChannels)},
+            {TAudioChannelMappingConversion.ThirdTwoChannels, new MediaConversion(TAudioChannelMappingConversion.ThirdTwoChannels)},
+            {TAudioChannelMappingConversion.FourthTwoChannels, new MediaConversion(TAudioChannelMappingConversion.FourthTwoChannels)},
             {TAudioChannelMappingConversion.FirstChannelOnly, new MediaConversion(TAudioChannelMappingConversion.FirstChannelOnly)},
             {TAudioChannelMappingConversion.SecondChannelOnly, new MediaConversion(TAudioChannelMappingConversion.SecondChannelOnly)},
             {TAudioChannelMappingConversion.Combine1Plus2, new MediaConversion(TAudioChannelMappingConversion.Combine1Plus2)},
-            {TAudioChannelMappingConversion.Combine3Plus4, new MediaConversion(TAudioChannelMappingConversion.Combine3Plus4)}
+            {TAudioChannelMappingConversion.Combine3Plus4, new MediaConversion(TAudioChannelMappingConversion.Combine3Plus4)},
+            {TAudioChannelMappingConversion.MergeAllChannels, new MediaConversion(TAudioChannelMappingConversion.MergeAllChannels)}
         };
 
         public static Dictionary<TFieldOrder, MediaConversion> SourceFieldOrderEnforceConversions = new Dictionary<TFieldOrder, MediaConversion>() 
