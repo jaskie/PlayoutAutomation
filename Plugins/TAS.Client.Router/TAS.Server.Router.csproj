@@ -69,7 +69,6 @@
     </Compile>
     <Compile Include="Communicators\BlackmagicSmartVideoHubCommunicator.cs" />
     <Compile Include="RouterPort.cs" />
-    <Compile Include="Model\RouterTypeEnum.cs" />
     <Compile Include="Communicators\NevionCommunicator.cs" />
     <Compile Include="Router.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

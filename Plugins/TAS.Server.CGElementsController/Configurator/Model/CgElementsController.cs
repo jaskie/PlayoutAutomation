@@ -24,7 +24,9 @@ namespace TAS.Server.CgElementsController.Configurator.Model
         public IEnumerable<ICGElement> Auxes { get; set; }
         [Hibernate]
         public bool IsEnabled { get; set; }
+        [Hibernate]
         public byte DefaultCrawl { get; set; }
+        [Hibernate]
         public byte DefaultLogo { get; set; }        
 
         public CgElementsController()

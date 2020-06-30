@@ -14,48 +14,40 @@ namespace TAS.Server.Router
 {
 	[DtoClass(nameof(IRouter))]
     [Export(typeof(IPlugin))]
-    public class Router : ServerObjectBase, IRouter
+    public class Router : ServerObjectBase, IRouter, IPlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private IRouterCommunicator _routerCommunicator;
         private IRouterPort _selectedInputPort;
         private bool _isConnected;
 
-        public Router()
+        public Router(RouterType type = RouterType.Unknown)
         {
-
-        }
-
-        public void Initialize()
-        {
-            switch (Type)
+            switch (type)
             {
-                case RouterTypeEnum.Nevion:
+                case RouterType.Nevion:
                     _routerCommunicator = new NevionCommunicator(this);
                     break;
-                case RouterTypeEnum.BlackmagicSmartVideoHub:
+                case RouterType.BlackmagicSmartVideoHub:
                     _routerCommunicator = new BlackmagicSmartVideoHubCommunicator(this);
                     break;
                 default:
                     return;
-            }            
+            }
             _routerCommunicator.OnInputPortChangeReceived += Communicator_OnInputPortChangeReceived;
             _routerCommunicator.OnRouterPortsStatesReceived += Communicator_OnRouterPortStateReceived;
-            _routerCommunicator.OnRouterConnectionStateChanged += Communicator_OnRouterConnectionStateChanged;
-            Connect();
+            _routerCommunicator.OnRouterConnectionStateChanged += Communicator_OnRouterConnectionStateChanged;            
         }
-
+       
         #region Configuration
         
         [Hibernate]
         public bool IsEnabled { get; set; }
 
         [Hibernate]
-        public string IpAddress { get; set; }
+        public string IpAddress { get; set; }        
         [Hibernate]
-        public int Port { get; set; }
-        [Hibernate]
-        public RouterTypeEnum Type { get; set; }
+        public RouterType Type { get; set; }
         [Hibernate]
         public int Level { get; set; }
         [Hibernate]
@@ -89,7 +81,7 @@ namespace TAS.Server.Router
              _routerCommunicator.SelectInput(inPort);
         }
 
-        private async void Connect()
+        public async void Connect()
         {
             if (_routerCommunicator == null)
                 return;
@@ -118,11 +110,12 @@ namespace TAS.Server.Router
                 else if (InputPorts.All(inPort => inPort.PortId != port.Id))
                     InputPorts.Add(new RouterPort(port.Id, port.Name));
             }
+            NotifyPropertyChanged(nameof(InputPorts));
             var selectedInput = await _routerCommunicator.GetCurrentInputPort();
 
             if (selectedInput == null)
             {
-                ParseInputMeta(ports);
+                //ParseInputMeta(ports);
                 return;
             }                
 

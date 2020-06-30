@@ -10,7 +10,7 @@
                     <Setter Property="Visibility" Value="Visible" />
                     <Style.Triggers>
                         <Trigger Property="DataContext" Value="{x:Null}">
-                            <Setter Property="Visibility" Value="Hidden" />
+                            <Setter Property="Visibility" Value="Collapsed" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>

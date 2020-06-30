@@ -14,6 +14,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
@@ -63,7 +64,19 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <ContentControl Padding="10,0,0,0" Grid.RowSpan="2" Grid.Column="1" Content="{Binding SelectedPluginConfigurator}">
+        <Rectangle Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="1" Margin="5" Fill="Gray" Grid.RowSpan="2">
+            <Rectangle.Style>
+                <Style TargetType="Rectangle">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Content, ElementName=PluginContent}"  Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Rectangle.Style>
+        </Rectangle>
+        <ContentControl x:Name="PluginContent" Grid.RowSpan="2" Grid.Column="2" Content="{Binding SelectedPluginConfigurator}">
             <ContentControl.Resources>
                 <DataTemplate DataType="{x:Type common:ViewModelBase}">
                     <TextBlock Text="Plugin does not provide any configurator." FontSize="24" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" />

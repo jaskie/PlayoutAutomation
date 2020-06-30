@@ -16,7 +16,7 @@ namespace TAS.Server.CgElementsController.Configurator
     public class CgElementsControllerViewModel : ModifyableViewModelBase, IPluginConfigurator
     {                
         private readonly IConfigEngine _engine;
-        private Configurator.Model.CgElementsController _cgElementsController = new Model.CgElementsController();
+        private Model.CgElementsController _cgElementsController = new Model.CgElementsController();
 
         private List<Model.CgElement> _cgElements;
         private List<Model.CgElement> _crawls;
@@ -25,9 +25,12 @@ namespace TAS.Server.CgElementsController.Configurator
         private List<Model.CgElement> _parentals;
         private Model.CgElement _selectedElement;
         private Model.CgElement.Type _selectedElementType;
+        private Model.CgElement _selectedDefaultCrawl;
+        private Model.CgElement _selectedDefaultLogo;
+        private int _selectedStartupId;
         private OkCancelViewModelBase _currentViewModel;
         private List<string> _elementTypes;
-        private List<string> _startup;
+        private List<Model.CgElement> _startups;
         private bool _isEnabled;        
         private Model.CgElement _newElement;
 
@@ -39,8 +42,9 @@ namespace TAS.Server.CgElementsController.Configurator
             _engine = engine;
             LoadCommands();
 
-            _elementTypes = Enum.GetNames(typeof(Configurator.Model.CgElement.Type)).ToList();
+            _elementTypes = Enum.GetNames(typeof(Model.CgElement.Type)).ToList();
             ElementTypes = CollectionViewSource.GetDefaultView(_elementTypes);            
+            CgElements = CollectionViewSource.GetDefaultView(_cgElements);           
         }
 
         private void LoadCommands()
@@ -50,8 +54,66 @@ namespace TAS.Server.CgElementsController.Configurator
             MoveCgElementDownCommand = new UiCommand(MoveCgElementDown, CanMoveCgElementDown);
             EditElementCommand = new UiCommand(EditElement);
             DeleteElementCommand = new UiCommand(DeleteElement);
+            AddStartupCommand = new UiCommand(AddStartup);
+            MoveStartupUpCommand = new UiCommand(MoveStartupUp, CanMoveStartupUp);
+            MoveStartupDownCommand = new UiCommand(MoveStartupDown, CanMoveStartupDown);            
+            DeleteStartupCommand = new UiCommand(DeleteStartup);
             SaveCommand = new UiCommand(LocalSave, CanSave);
             UndoCommand = new UiCommand(Undo, CanUndo);
+        }
+
+        private void DeleteStartup(object obj)
+        {
+            if (!(obj is Model.CgElement command))
+                return;
+
+            _startups.Remove(command);
+        }
+
+        private bool CanMoveStartupDown(object obj)
+        {
+            if (_selectedStartupId > -1 &&  _selectedStartupId < (_startups.Count() - 1))
+                return true;
+
+            return false;
+        }
+
+        private void MoveStartupDown(object obj)
+        {
+            ((IEditableCollectionView)Startups).CommitEdit();
+            var swapElement = _startups[_selectedStartupId];
+            _startups[_selectedStartupId] = _startups[_selectedStartupId + 1];
+            _startups[_selectedStartupId + 1] = swapElement;
+
+            Startups.Refresh();
+            IsModified = true;
+        }
+
+        private bool CanMoveStartupUp(object obj)
+        {
+            if (_selectedStartupId > 0)
+                return true;
+
+            return false;
+        }
+
+        private void MoveStartupUp(object obj)
+        {
+            ((IEditableCollectionView)Startups).CommitEdit();
+            var swapElement = _startups[_selectedStartupId];
+            _startups[_selectedStartupId] = _startups[_selectedStartupId - 1];
+            _startups[_selectedStartupId - 1] = swapElement;
+
+            Startups.Refresh();
+            IsModified = true;
+        }
+
+        private void AddStartup(object obj)
+        {
+            ((IEditableCollectionView)Startups).CommitEdit();
+            _startups.Add(new Model.CgElement());
+            Startups.Refresh();
+            IsModified = true;
         }
 
         private void Init()
@@ -61,41 +123,55 @@ namespace TAS.Server.CgElementsController.Configurator
             _logos = new List<Model.CgElement>();
             _auxes = new List<Model.CgElement>();
             _parentals = new List<Model.CgElement>();
-            _startup = new List<string>();
+            _startups = new List<Model.CgElement>();
 
-            CgElements = CollectionViewSource.GetDefaultView(_cgElements);
-            
+            Logos = CollectionViewSource.GetDefaultView(_logos);
+            Crawls = CollectionViewSource.GetDefaultView(_crawls);
+            Startups = CollectionViewSource.GetDefaultView(_startups);
+
+            SelectedElementType = _elementTypes.LastOrDefault();
+
             if (_cgElementsController == null)
-                return;            
+            {
+                _crawls.Add(new Model.CgElement { Id = 0, Name = "Off", Command = "PLAY CG3 EMPTY MIX 25" });
+                _logos.Add(new Model.CgElement { Id = 0, Name = "None", Command = "PLAY CG4 EMPTY MIX 25" });
+                _parentals.Add(new Model.CgElement { Id = 0, Name = "None", Command = "PLAY CG5 EMPTY MIX 25" });
+                return;
+            }
+                
 
-            foreach (var crawl in _cgElementsController.Crawls.ToList().Skip(1))
+            foreach (var crawl in _cgElementsController.Crawls.ToList())
             {
                 var cgElement = crawl as Model.CgElement;
                 cgElement.CgType = Model.CgElement.Type.Crawl;
                 _crawls.Add(cgElement);
             }
-            foreach (var logo in _cgElementsController.Logos.ToList().Skip(1))
+            foreach (var logo in _cgElementsController.Logos.ToList())
             {
                 var cgElement = logo as Model.CgElement;
                 cgElement.CgType = Model.CgElement.Type.Logo;
                 _logos.Add(cgElement);
             }
-            foreach (var aux in _cgElementsController.Auxes.ToList().Skip(1))
+            foreach (var aux in _cgElementsController.Auxes.ToList())
             {
                 var cgElement = aux as Model.CgElement;
                 cgElement.CgType = Model.CgElement.Type.Aux;
                 _auxes.Add(cgElement);
             }
-            foreach (var parental in _cgElementsController.Parentals.ToList().Skip(1))
+            foreach (var parental in _cgElementsController.Parentals.ToList())
             {
                 var cgElement = parental as Model.CgElement;
                 cgElement.CgType = Model.CgElement.Type.Parental;
                 _parentals.Add(cgElement);
             }
 
-            Startup = _cgElementsController.Startup;
-            IsEnabled = _cgElementsController.IsEnabled;
-            SelectedElementType = _elementTypes.LastOrDefault();
+            foreach (var startup in _cgElementsController.Startup)
+                _startups.Add(new Model.CgElement { Command = startup });
+
+            SelectedDefaultCrawl = _crawls.FirstOrDefault(c => c.Id == _cgElementsController.DefaultCrawl);
+            SelectedDefaultLogo = _logos.FirstOrDefault(c => c.Id == _cgElementsController.DefaultLogo);
+            Startups = CollectionViewSource.GetDefaultView(_startups);
+            IsEnabled = _cgElementsController.IsEnabled;            
             IsModified = false;
         }
 
@@ -118,7 +194,7 @@ namespace TAS.Server.CgElementsController.Configurator
 
         private void DeleteElement(object obj)
         {
-            if (!(obj is Configurator.Model.CgElement element))
+            if (!(obj is Model.CgElement element))
                 return;
 
             _cgElements.Remove(element);
@@ -149,6 +225,7 @@ namespace TAS.Server.CgElementsController.Configurator
             _selectedElement.Id += 1;
 
             CgElements.Refresh();
+            IsModified = true;
         }
 
         private bool CanMoveCgElementUp(object obj)
@@ -166,6 +243,7 @@ namespace TAS.Server.CgElementsController.Configurator
             swapElement.Id = _selectedElement.Id;
             _selectedElement.Id -= 1;
             CgElements.Refresh();
+            IsModified = true;
         }
 
         private bool CanAddCgElement(object obj)
@@ -238,7 +316,9 @@ namespace TAS.Server.CgElementsController.Configurator
             _cgElementsController.Logos = _logos;
             _cgElementsController.Parentals = _parentals;
             _cgElementsController.IsEnabled = _isEnabled;
-            _cgElementsController.Startup = _startup;
+            _cgElementsController.Startup = _startups.Select(s => s.Command).ToList();
+            _cgElementsController.DefaultCrawl = SelectedDefaultCrawl?.Id ?? 1;
+            _cgElementsController.DefaultLogo = SelectedDefaultLogo?.Id ?? 1;
             IsModified = false;
 
             PluginChanged?.Invoke(this, EventArgs.Empty);
@@ -255,6 +335,10 @@ namespace TAS.Server.CgElementsController.Configurator
                 {
                     _newElement.Id = (byte)_cgElements.Count();
                     _cgElements.Add(_newElement);
+                    if (_newElement.CgType == Model.CgElement.Type.Crawl)
+                        Crawls.Refresh();
+                    else if (_newElement.CgType == Model.CgElement.Type.Logo)
+                        Logos.Refresh();
                     _newElement = null;
                     IsModified = true;
                 }
@@ -358,16 +442,26 @@ namespace TAS.Server.CgElementsController.Configurator
         public UiCommand MoveCgElementDownCommand { get; private set; }
         public UiCommand EditElementCommand { get; private set; }
         public UiCommand DeleteElementCommand { get; private set; }
+        public UiCommand AddStartupCommand { get; private set; }
+        public UiCommand MoveStartupUpCommand { get; private set; }
+        public UiCommand MoveStartupDownCommand { get; private set; }        
+        public UiCommand DeleteStartupCommand { get; private set; }
         public UiCommand SaveCommand { get; private set; }
         public UiCommand UndoCommand { get; private set; }
 
         public ICollectionView CgElements { get; private set; }
         public ICollectionView ElementTypes { get; private set; }
+        public ICollectionView Logos { get; private set; }
+        public ICollectionView Crawls { get; private set; }
 
         public string PluginName => "CgElementsController";
 
-        public List<string> Startup { get => _startup; set => SetField(ref _startup, value); }
+        public ICollectionView Startups { get; private set; }
+        public int SelectedStartupId { get => _selectedStartupId; set => SetField(ref _selectedStartupId, value); }
+        public Model.CgElement SelectedDefaultCrawl { get => _selectedDefaultCrawl; set => SetField(ref _selectedDefaultCrawl, value); }
+        public Model.CgElement SelectedDefaultLogo { get => _selectedDefaultLogo; set => SetField(ref _selectedDefaultLogo, value); }
         
+
         protected override void OnDispose()
         {
             //

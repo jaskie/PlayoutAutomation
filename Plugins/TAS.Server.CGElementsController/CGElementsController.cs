@@ -36,14 +36,13 @@ namespace TAS.Server.CgElementsController
         public bool IsEnabled { get; set; }
 
         [DtoMember]
-        public byte DefaultCrawl { get; set; } = 1;
+        public byte DefaultCrawl { get; set; }
 
         [DtoMember]
-        public byte DefaultLogo { get; set; } = 1;
+        public byte DefaultLogo { get; set; }
 
         [DtoMember]
         public virtual bool IsConnected => true;
-
 
         [DtoMember]        
         public bool IsCGEnabled
@@ -70,14 +69,12 @@ namespace TAS.Server.CgElementsController
             {
                 if (!SetField(ref _crawl, value))
                     return;
-                Engine.Execute(_crawls.ElementAtOrDefault(value)?.Command);
+                Engine.Execute(((Model.CGElement)Crawls.ElementAtOrDefault(value))?.Command);
             }
         }
 
-        [DtoMember(nameof(Crawls)), Hibernate("Crawls")]        
-        public Model.CGElement[] _crawls { get; set; }
-       
-        public IEnumerable<ICGElement> Crawls => _crawls;
+        [DtoMember, Hibernate]        
+        public IEnumerable<ICGElement> Crawls { get; set; }               
 
         [DtoMember]        
         public byte Logo
@@ -87,15 +84,12 @@ namespace TAS.Server.CgElementsController
             {
                 if (!SetField(ref _logo, value))
                     return;
-                Engine.Execute(_logos.ElementAtOrDefault(value)?.Command);
+                Engine.Execute(((Model.CGElement)Logos.ElementAtOrDefault(value))?.Command);
             }
         }
 
-        [DtoMember(nameof(Logos)), Hibernate(nameof(Logos))]        
-        public Model.CGElement[] _logos { get; set; }
-
-        
-        public IEnumerable<ICGElement> Logos => _logos;
+        [DtoMember, Hibernate]        
+        public IEnumerable<ICGElement> Logos { get; set; }                
 
         [DtoMember]        
         public byte Parental
@@ -105,15 +99,13 @@ namespace TAS.Server.CgElementsController
             {
                 if (!SetField(ref _parental, value))
                     return;
-                Engine.Execute(_parentals.ElementAtOrDefault(value)?.Command);
+                Engine.Execute(((Model.CGElement)Parentals.ElementAtOrDefault(value))?.Command);
             }
         }
 
-        [DtoMember(nameof(Parentals)), Hibernate(nameof(Parentals))]        
-        public Model.CGElement[] _parentals { get; set; }
-               
-        public IEnumerable<ICGElement> Parentals => _parentals;
-        
+        [DtoMember, Hibernate]        
+        public IEnumerable<ICGElement> Parentals { get; set; }
+                               
         public string[] _startup { get; set; } = new string[0];
         
         [Hibernate]
