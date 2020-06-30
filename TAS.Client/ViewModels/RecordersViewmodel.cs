@@ -277,6 +277,8 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(null);
             if (e.PropertyName == nameof(IRecorder.TimeLimit))
                 OnUiThread(() => RecorderTimeLeft = ((IRecorder)sender).TimeLimit);
+            if (e.PropertyName == nameof(IRecorder.RecordingMedia))
+                RecordingMedia = ((IRecorder)sender).RecordingMedia;
         }
 
         private void RecordMedia_PropertyChanged(object sender, PropertyChangedEventArgs e)

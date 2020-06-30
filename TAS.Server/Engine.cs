@@ -262,9 +262,7 @@ namespace TAS.Server
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Initializing engine {0}", this);
             _authenticationService = Security.AuthenticationService.Current;
-            _recordingManager = new RecordingManager(this, servers);
             var recorders = new List<CasparRecorder>();
-
             var sPRI = servers.FirstOrDefault(s => s.Id == IdServerPRI);
             _playoutChannelPRI = (CasparServerChannel)sPRI?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRI);
             if (sPRI != null)
@@ -280,6 +278,7 @@ namespace TAS.Server
             if (previewChannel != null)
                 _preview = new Preview(this, previewChannel);
             _mediaManager.SetRecorders(recorders);
+            _recordingManager = new RecordingManager(this, servers);
 
             _localGpis = this.ComposeParts<IGpi>();
             _plugins = this.ComposeParts<IEnginePlugin>();
@@ -547,6 +546,7 @@ namespace TAS.Server
             Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this);
             lock (_tickLock)
             {
+                _recordingManager.EndCapture(Playing);
                 _clearRunning();
                 lock (((IList)_visibleEvents).SyncRoot)
                     _visibleEvents.Clear();
@@ -1052,11 +1052,10 @@ namespace TAS.Server
                 aEvent.Position = 0;
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
-                if (_recordingManager.Recorder != null && _recordingManager.Recorded == Playing)
-                    _recordingManager.Stop();
+                _recordingManager.EndCapture(Playing);
 
                 if (aEvent.RecordingInfo != null)
-                    _recordingManager.Capture(aEvent);
+                    _recordingManager.StartCapture(aEvent);
 
                 if (Router != null && eventType == TEventType.Live && _playing?.EventType == TEventType.Live)
                     Router.SelectInput(aEvent.RouterPort);
@@ -1162,9 +1161,6 @@ namespace TAS.Server
 
         private void _stop(Event aEvent)
         {
-            if (_recordingManager.Recorder != null && _recordingManager.Recorded == aEvent)
-                _recordingManager.Stop();
-
             aEvent.PlayState = aEvent.Position == 0 ? TPlayState.Scheduled : aEvent.IsFinished() ? TPlayState.Played : TPlayState.Aborted;
             aEvent.SaveDelayed();
             lock (((IList)_visibleEvents).SyncRoot)
@@ -1342,7 +1338,10 @@ namespace TAS.Server
                         }
                     }
                     if (_runningEvents.Count == 0)
+                    {
+                        _recordingManager.EndCapture(Playing);
                         EngineState = TEngineState.Idle;
+                    }
                 }
 
                 _executeAutoStartEvents();
