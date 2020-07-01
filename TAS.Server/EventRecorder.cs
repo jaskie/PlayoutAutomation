@@ -5,7 +5,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
-    internal class RecordingManager
+    internal class EventRecorder
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -13,7 +13,7 @@ namespace TAS.Server
         private IEngine _engine;
         public IRecorder Recorder { get; private set; }
         public IEvent Recording { get; private set; }
-        public RecordingManager(IEngine engine, IList<CasparServer> servers)
+        public EventRecorder(IEngine engine, IList<CasparServer> servers)
         {
             _servers = servers;
             _engine = engine;

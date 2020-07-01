@@ -97,7 +97,7 @@
     <Compile Include="Media\AnimatedMedia.cs" />
     <Compile Include="Media\TempMedia.cs" />
     <Compile Include="Preview.cs" />
-    <Compile Include="RecordingManager.cs" />
+    <Compile Include="EventRecorder.cs" />
     <Compile Include="SearchProvider.cs" />
     <Compile Include="Security\AclRightBase.cs" />
     <Compile Include="Security\EngineAclRight.cs" />

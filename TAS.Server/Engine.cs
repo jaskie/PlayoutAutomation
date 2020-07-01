@@ -62,7 +62,7 @@ namespace TAS.Server
         private TEngineState _engineState;
         private double _programAudioVolume = 1;
         private bool _fieldOrderInverted;
-        private RecordingManager _recordingManager;
+        private EventRecorder _eventRecorder;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
@@ -278,7 +278,7 @@ namespace TAS.Server
             if (previewChannel != null)
                 _preview = new Preview(this, previewChannel);
             _mediaManager.SetRecorders(recorders);
-            _recordingManager = new RecordingManager(this, servers);
+            _eventRecorder = new EventRecorder(this, servers);
 
             _localGpis = this.ComposeParts<IGpi>();
             _plugins = this.ComposeParts<IEnginePlugin>();
@@ -546,7 +546,7 @@ namespace TAS.Server
             Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this);
             lock (_tickLock)
             {
-                _recordingManager.EndCapture(Playing);
+                _eventRecorder.EndCapture(Playing);
                 _clearRunning();
                 lock (((IList)_visibleEvents).SyncRoot)
                     _visibleEvents.Clear();
@@ -1052,10 +1052,10 @@ namespace TAS.Server
                 aEvent.Position = 0;
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
-                _recordingManager.EndCapture(Playing);
+                _eventRecorder.EndCapture(Playing);
 
                 if (aEvent.RecordingInfo != null)
-                    _recordingManager.StartCapture(aEvent);
+                    _eventRecorder.StartCapture(aEvent);
 
                 if (Router != null && eventType == TEventType.Live && _playing?.EventType == TEventType.Live)
                     Router.SelectInput(aEvent.RouterPort);
@@ -1339,7 +1339,7 @@ namespace TAS.Server
                     }
                     if (_runningEvents.Count == 0)
                     {
-                        _recordingManager.EndCapture(Playing);
+                        _eventRecorder.EndCapture(Playing);
                         EngineState = TEngineState.Idle;
                     }
                 }
