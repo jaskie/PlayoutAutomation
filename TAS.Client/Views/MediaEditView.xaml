@@ -71,7 +71,7 @@
                     <Label Content="{Resx _ingestTime}" />
                     <TextBox IsReadOnly="True" Text="{Binding LastUpdated, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}" />
                 </DockPanel>
-                <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
+                <DockPanel Visibility="{Binding IsMovieOrStill, Converter={StaticResource BoolToVis}}">
                     <Label Content="{Resx _videoFormat}" />
                     <ComboBox  ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding VideoFormat}" />
                 </DockPanel>

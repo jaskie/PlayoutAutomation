@@ -280,6 +280,8 @@ namespace TAS.Client.ViewModels
 
         public bool IsMovie => Model.MediaType == TMediaType.Movie;
 
+        public bool IsMovieOrStill => Model.MediaType == TMediaType.Movie || Model.MediaType == TMediaType.Still;
+
         public bool IsInterlaced
         {
             get
