@@ -33,9 +33,9 @@ namespace TAS.Remoting
                 case "TAS.Server.Media.MediaSearchProvider":
                     return typeof(Model.Media.MediaSearchProvider);
                 case "TAS.Server.Media.MediaSegment":
-                    return typeof(Model.MediaSegment);
+                    return typeof(Model.Media.MediaSegment);
                 case "TAS.Server.Media.MediaSegments":
-                    return typeof(Model.MediaSegments);
+                    return typeof(Model.Media.MediaSegments);
                 case "TAS.Server.FileManager":
                     return typeof(Model.FileManager);
                 case "TAS.Server.CasparRecorder":

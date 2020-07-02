@@ -4,7 +4,7 @@ using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common.Interfaces;
 
-namespace TAS.Remoting.Model
+namespace TAS.Remoting.Model.Media
 {
     public class MediaSegment : ProxyObjectBase, IMediaSegment
     {
