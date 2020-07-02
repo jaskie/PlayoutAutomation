@@ -92,13 +92,13 @@ namespace TAS.Client.Config.ViewModels.Plugins
                             pluginConfigurator.Initialize(_engine.CGElementsController);
                             _cgElementsControllerConfigurators.Add(pluginConfigurator);
                         }
-                            
-                        //else if (pluginConfigurator.GetModel() is IRouter)
-                        //{
-                        //    pluginConfigurator.Initialize(_engine.Router);
-                        //    _routerConfigurators.Add(pluginConfigurator);
-                        //}
-                            
+
+                        else if (pluginConfigurator.GetModel() is IRouter)
+                        {
+                            pluginConfigurator.Initialize(_engine.Router);
+                            _routerConfigurators.Add(pluginConfigurator);
+                        }
+
                         else
                         {
                             pluginConfigurator.Initialize(_engine.Plugins.FirstOrDefault(p => p.GetType() == pluginConfigurator.GetModel().GetType()));
@@ -107,7 +107,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
                     }
                   
                     SelectedCgElementsControllerConfigurator = _cgElementsControllerConfigurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.CGElementsController?.GetType());                                        
-                    SelectedRouterConfigurator = _routerConfigurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.CGElementsController?.GetType());                   
+                    SelectedRouterConfigurator = _routerConfigurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.Router?.GetType());                   
                 }
             }
         }
@@ -154,7 +154,9 @@ namespace TAS.Client.Config.ViewModels.Plugins
             {
                 if (!SetField(ref _selectedRouterConfigurator, value))
                     return;
-                //
+
+                _isRouterEnabled = _engine.Router?.IsEnabled ?? false;
+                NotifyPropertyChanged(nameof(IsRouterEnabled));
             }
         }
         public bool? IsCgElementsControllerEnabled 
@@ -172,7 +174,21 @@ namespace TAS.Client.Config.ViewModels.Plugins
                     _selectedCgElementsControllerConfigurator.IsEnabled = (bool)value;
             }
         }
-        public bool? IsRouterEnabled { get => _isRouterEnabled; set => SetField(ref _isRouterEnabled, value); }
+        public bool? IsRouterEnabled 
+        { 
+            get => _isRouterEnabled;
+            set
+            {
+                if (!SetField(ref _isRouterEnabled, value))
+                    return;
+
+                if (value == null)
+                    return;
+
+                if (_selectedRouterConfigurator != null)
+                    _selectedRouterConfigurator.IsEnabled = (bool)value;
+            }
+        }
         public bool HasCgControllers => _cgElementsControllerConfigurators.Count > 0 ? true : false;
         public bool HasRouters => _routerConfigurators.Count > 0 ? true : false;
         public bool HasPlugins => _pluginConfigurators.Count > 0 || _cgElementsControllerConfigurators.Count > 0 || _routerConfigurators.Count > 0 ? true : false;
@@ -186,7 +202,10 @@ namespace TAS.Client.Config.ViewModels.Plugins
             }
 
             _selectedCgElementsControllerConfigurator.Save();
-            _engine.CGElementsController = (ICGElementsController)_selectedCgElementsControllerConfigurator.GetModel();            
+            _engine.CGElementsController = (ICGElementsController)_selectedCgElementsControllerConfigurator.GetModel();
+
+            _selectedRouterConfigurator.Save();
+            _engine.Router = (IRouter)_selectedRouterConfigurator.GetModel();
         }
 
         protected override void OnDispose()

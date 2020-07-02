@@ -6,6 +6,7 @@ namespace TAS.Common.Interfaces.Configurator
     {       
         List<IPlugin> Plugins { get; set; }
         ICGElementsController CGElementsController { get; set; }
+        IRouter Router { get; set; }
         List<IConfigCasparServer> Servers { get; set; }
     }
 }

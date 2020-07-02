@@ -11,8 +11,7 @@ namespace TAS.Common.Interfaces
         short[] OutputPorts { get; }
         void SelectInput(int inputId);       
         IRouterPort SelectedInputPort { get; }
-        bool IsConnected { get; }
-        RouterType Type { get; }
+        bool IsConnected { get; }        
         string IpAddress { get; }
         string Login { get; }
         string Password { get; }

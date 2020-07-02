@@ -148,7 +148,7 @@ namespace TAS.Server
         [Hibernate, JsonConverter(typeof(PluginConverter))]
         public List<IPlugin> Plugins { get; set; }
 
-        [DtoMember, Hibernate]
+        [DtoMember, Hibernate, JsonConverter(typeof(PluginConverter))]
         public IRouter Router { get; set; }
 
         [Hibernate]
@@ -287,7 +287,7 @@ namespace TAS.Server
             _localGpis = this.ComposeParts<IGpi>();
             //_plugins = this.ComposeParts<IPlugin>();
             //CGElementsController = this.ComposePart<ICGElementsController>();
-            Router = this.ComposePart<IRouter>();
+            //Router = this.ComposePart<IRouter>();
             _isWideScreen = FormatDescription.IsWideScreen;
             var chPRI = PlayoutChannelPRI as CasparServerChannel;
             var chSEC = PlayoutChannelSEC as CasparServerChannel;

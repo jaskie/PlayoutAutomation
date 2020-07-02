@@ -570,11 +570,5 @@ namespace TAS.Common
     {
         Main,
         Configuration
-    }
-    public enum RouterType
-    {
-        Nevion,
-        BlackmagicSmartVideoHub,
-        Unknown
-    }
+    }    
 }

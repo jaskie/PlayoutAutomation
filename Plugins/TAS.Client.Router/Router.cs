@@ -9,6 +9,8 @@ using TAS.Server.Router.Communicators;
 using jNet.RPC;
 using TAS.Database.Common;
 using System.ComponentModel.Composition;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace TAS.Server.Router
 {
@@ -20,9 +22,10 @@ namespace TAS.Server.Router
         private IRouterCommunicator _routerCommunicator;
         private IRouterPort _selectedInputPort;
         private bool _isConnected;
-
+        
         public Router(RouterType type = RouterType.Unknown)
         {
+            Type = type;
             switch (type)
             {
                 case RouterType.Nevion:
@@ -155,6 +158,14 @@ namespace TAS.Server.Router
             _routerCommunicator.OnRouterPortsStatesReceived -= Communicator_OnRouterPortStateReceived;
             _routerCommunicator.OnRouterConnectionStateChanged -= Communicator_OnRouterConnectionStateChanged;
             _routerCommunicator.Dispose();
-        }        
+        }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum RouterType
+        {
+            Nevion,
+            BlackmagicSmartVideoHub,
+            Unknown
+        }
     }
 }

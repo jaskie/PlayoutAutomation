@@ -48,13 +48,13 @@
         <TextBlock Grid.Row="1" Margin="5" Text="Type: " VerticalAlignment="Center" HorizontalAlignment="Left" />
         <ComboBox Grid.Row="1" Margin="5" Grid.Column="1" MinWidth="100" ItemsSource="{Binding RouterTypes}" SelectedItem="{Binding SelectedRouterType}" HorizontalAlignment="Left" VerticalAlignment="Center" />
         <TextBlock Margin="5" Grid.Row="2" Text="Hostname [IP:port]: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <TextBox Margin="5" Grid.Row="2" Grid.Column="1" MinWidth="100" Text="{Binding IpAddress}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBox Margin="5" Grid.Row="2" Grid.Column="1" MinWidth="100" Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
         <TextBlock Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="3" Text="Login: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="3" Grid.Column="1" MinWidth="100" Text="{Binding Login}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="3" Grid.Column="1" MinWidth="100" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
         <TextBlock Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="4" Text="Password: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="4" Grid.Column="1" MinWidth="100" Text="{Binding Password}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="4" Grid.Column="1" MinWidth="100" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
         <TextBlock Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="5" Text="Level: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="5" Grid.Column="1" MinWidth="100" Text="{Binding Level}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="5" Grid.Column="1" MinWidth="100" Text="{Binding Level, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
         <Rectangle Margin="5" Grid.Column="2" Grid.Row="1" Grid.RowSpan="5" Width="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" Fill="LightGray" />
         <GroupBox Margin="5" Grid.Column="3" Grid.Row="1" Grid.RowSpan="5" Header="Test connection">
             <Grid Margin="5">

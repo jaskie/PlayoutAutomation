@@ -5,7 +5,6 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Windows.Data;
 using TAS.Client.Common;
-using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
 using TAS.Server.Router.Model;
@@ -25,7 +24,7 @@ namespace TAS.Server.Router.Configurator
         private string _login;
         private string _password;
         private int _level;        
-        private RouterType? _selectedRouterType;
+        private Router.RouterType? _selectedRouterType;
         private List<PortInfo> _outputPorts;        
         
         [ImportingConstructor]
@@ -53,12 +52,13 @@ namespace TAS.Server.Router.Configurator
         {
             _router = new Router
             {
-                Type = _selectedRouterType ?? RouterType.Unknown,
+                Type = _selectedRouterType ?? Router.RouterType.Unknown,
                 IpAddress = _ipAddress,
                 Login = _login,
                 Password = _password,
                 Level = _level,
-                OutputPorts = _outputPorts.Select(p => p.Id).ToArray()
+                OutputPorts = _outputPorts.Select(p => p.Id).ToArray(),
+                IsEnabled = _isEnabled
             };
 
             PluginChanged?.Invoke(this, EventArgs.Empty);
@@ -67,12 +67,12 @@ namespace TAS.Server.Router.Configurator
 
         private bool CanSave(object obj)
         {
-            if (_selectedRouterType == RouterType.Nevion)
+            if (_selectedRouterType == Router.RouterType.Nevion)
             {
                 if (_ipAddress.Length > 0 && _login.Length > 0 && _password.Length > 0 && IsModified)
                     return true;
             }
-            else if (_selectedRouterType == RouterType.BlackmagicSmartVideoHub)
+            else if (_selectedRouterType == Router.RouterType.BlackmagicSmartVideoHub)
             {
                 if (_ipAddress.Length > 0 && IsModified)
                     return true;
@@ -109,12 +109,12 @@ namespace TAS.Server.Router.Configurator
 
         private bool CanConnect(object obj)
         {
-            if (_selectedRouterType == RouterType.Nevion)
+            if (_selectedRouterType == Router.RouterType.Nevion)
             {
                 if (_testRouter == null && _ipAddress.Length > 0 && _login.Length > 0 && _password.Length > 0 && _outputPorts.Count > 0)
                     return true;
             }
-            else if (_testRouter == null && _outputPorts?.Count > 0 && _selectedRouterType == RouterType.BlackmagicSmartVideoHub)
+            else if (_testRouter == null && _outputPorts?.Count > 0 && _selectedRouterType == Router.RouterType.BlackmagicSmartVideoHub)
             {
                 if (_ipAddress.Length > 0)
                     return true;
@@ -125,9 +125,9 @@ namespace TAS.Server.Router.Configurator
 
         private void Connect(object obj)
         {
-            _testRouter = new Router(_selectedRouterType ?? RouterType.Unknown)
+            _testRouter = new Router(_selectedRouterType ?? Router.RouterType.Unknown)
             {
-                Type = _selectedRouterType ?? RouterType.Unknown,
+                Type = _selectedRouterType ?? Router.RouterType.Unknown,
                 IpAddress = _ipAddress,
                 Login = _login,
                 Password = _password,
@@ -169,10 +169,11 @@ namespace TAS.Server.Router.Configurator
                 return;
 
             IpAddress = _router.IpAddress;
-            SelectedRouterType = _router.Type;
+            SelectedRouterType = RouterTypes.FirstOrDefault(r => r == ((Router)_router).Type);
             Login = _router.Login;
             Password = _router.Password;
             Level = _router.Level;
+            IsEnabled = _router.IsEnabled;
 
             if (_router.OutputPorts != null)
                 foreach (var outputPort in _router.OutputPorts)
@@ -191,7 +192,8 @@ namespace TAS.Server.Router.Configurator
                 if (!SetField(ref _isEnabled, value))
                     return;
                 
-                _router.IsEnabled = value;
+                if (_router != null)
+                    _router.IsEnabled = value;
                 PluginChanged?.Invoke(this, EventArgs.Empty);
             }
         }
@@ -214,11 +216,11 @@ namespace TAS.Server.Router.Configurator
         public IList<IRouterPort> InputPorts => _testRouter?.InputPorts;
         public event EventHandler PluginChanged;
         public ICollectionView OutputPorts { get; private set; }        
-        public Array RouterTypes { get; set; } = Enum.GetValues(typeof(RouterType));
+        public List<Router.RouterType> RouterTypes { get; set; } = Enum.GetValues(typeof(Router.RouterType)).Cast<Router.RouterType>().ToList();
         public string Login { get => _login; set => SetField(ref _login, value); }
         public string Password { get => _password; set => SetField(ref _password, value); }
         public int Level { get => _level; set => SetField(ref _level, value); }
-        public RouterType? SelectedRouterType 
+        public Router.RouterType? SelectedRouterType 
         { 
             get => _selectedRouterType;
             set
@@ -226,7 +228,7 @@ namespace TAS.Server.Router.Configurator
                 if (!SetField(ref _selectedRouterType, value))
                     return;
 
-                if (value == RouterType.Nevion)
+                if (value == Router.RouterType.Nevion)
                     IsExtendedType = true;
                 else
                     IsExtendedType = false;

@@ -9,6 +9,7 @@ namespace TAS.Client.ViewModels
         public EngineRouterViewModel(IRouter router)
         {
             Router = router;
+            Router.Connect();
             Router.PropertyChanged += Router_PropertyChanged;
         }
 
