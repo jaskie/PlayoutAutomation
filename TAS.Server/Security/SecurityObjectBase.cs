@@ -42,5 +42,10 @@ namespace TAS.Server.Security
 
         public abstract void Delete();
 
+        public override string ToString()
+        {
+            return $"{SecurityObjectTypeType} {Name}";
+        }
+
     }
 }

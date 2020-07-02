@@ -94,7 +94,7 @@ namespace TVPlayClient
                 }
                 OnUiThread(() => SetupChannel(engine));
             }
-            catch (SocketException)
+            catch (OperationCanceledException)
             {
                 await Task.Delay(1000);
             }
