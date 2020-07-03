@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using jNet.RPC.Client;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
@@ -51,8 +52,11 @@ namespace TVPlayClient
         protected override void OnDispose()
         {
             _channel?.Dispose();
-            _client?.Dispose();
-            Debug.WriteLine(this, "Disposed");
+            if (_client != null)
+            {
+                _client.Disconnected -= ClientDisconnected;
+                _client.Dispose();
+            }
         }
 
         private void ClientDisconnected(object sender, EventArgs e)
