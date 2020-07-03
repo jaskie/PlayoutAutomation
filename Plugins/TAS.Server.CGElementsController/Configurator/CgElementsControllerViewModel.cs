@@ -52,8 +52,8 @@ namespace TAS.Server.CgElementsController.Configurator
             AddCgElementCommand = new UiCommand(AddCgElement, CanAddCgElement);
             MoveCgElementUpCommand = new UiCommand(MoveCgElementUp, CanMoveCgElementUp);
             MoveCgElementDownCommand = new UiCommand(MoveCgElementDown, CanMoveCgElementDown);
-            EditElementCommand = new UiCommand(EditElement);
-            DeleteElementCommand = new UiCommand(DeleteElement);
+            EditCgElementCommand = new UiCommand(EditElement);
+            DeleteCgElementCommand = new UiCommand(DeleteElement);
             AddStartupCommand = new UiCommand(AddStartup);
             MoveStartupUpCommand = new UiCommand(MoveStartupUp, CanMoveStartupUp);
             MoveStartupDownCommand = new UiCommand(MoveStartupDown, CanMoveStartupDown);            
@@ -68,6 +68,8 @@ namespace TAS.Server.CgElementsController.Configurator
                 return;
 
             _startups.Remove(command);
+            IsModified = true;
+            Startups.Refresh();
         }
 
         private bool CanMoveStartupDown(object obj)
@@ -198,7 +200,8 @@ namespace TAS.Server.CgElementsController.Configurator
                 return;
 
             _cgElements.Remove(element);
-            CgElements.Refresh();
+            IsModified = true;
+            CgElements.Refresh();            
         }
 
         private void EditElement(object obj)
@@ -440,8 +443,8 @@ namespace TAS.Server.CgElementsController.Configurator
         public UiCommand AddCgElementCommand { get; private set; }
         public UiCommand MoveCgElementUpCommand { get; private set; }
         public UiCommand MoveCgElementDownCommand { get; private set; }
-        public UiCommand EditElementCommand { get; private set; }
-        public UiCommand DeleteElementCommand { get; private set; }
+        public UiCommand EditCgElementCommand { get; private set; }
+        public UiCommand DeleteCgElementCommand { get; private set; }
         public UiCommand AddStartupCommand { get; private set; }
         public UiCommand MoveStartupUpCommand { get; private set; }
         public UiCommand MoveStartupDownCommand { get; private set; }        

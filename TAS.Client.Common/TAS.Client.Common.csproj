@@ -147,6 +147,7 @@
       <DependentUpon>StatusIndicator.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\TimecodeEdit.cs" />
+    <Compile Include="RootDispatcher.cs" />
     <Compile Include="TreeViewExtensions.cs" />
     <Compile Include="UiCommand.cs" />
     <Compile Include="UiServices.cs" />

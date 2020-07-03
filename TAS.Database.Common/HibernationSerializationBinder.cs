@@ -1,5 +1,4 @@
-﻿using Microsoft.CSharp.RuntimeBinder;
-using Newtonsoft.Json.Serialization;
+﻿using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using TAS.Database.Common.Interfaces;
@@ -45,7 +44,7 @@ namespace TAS.Database.Common
                     
             }
 
-            return Type.GetType($"{typeName},{assemblyName}", true);
+            return Type.GetType($"{typeName},{assemblyName}");
         }
     }
 }

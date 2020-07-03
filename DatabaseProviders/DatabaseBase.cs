@@ -19,6 +19,8 @@ using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Common.Interfaces.Security;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using NLog;
 
 #if MYSQL
 namespace TAS.Database.MySqlRedundant
@@ -28,9 +30,20 @@ namespace TAS.Database.SQLite
 {
     public abstract class DatabaseBase : IDatabase
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public void SetSerializerSettings(IEnumerable<IPluginTypeBinder> pluginTypeResolvers)
         {            
-            HibernationSerializerSettings.SerializationBinder = new HibernationSerializationBinder(pluginTypeResolvers);            
+            HibernationSerializerSettings.SerializationBinder = new HibernationSerializationBinder(pluginTypeResolvers);
+            HibernationSerializerSettings.Error = (sender, args) =>
+            {
+                if (args.ErrorContext.Error.GetType() == typeof(JsonSerializationException))
+                {
+                    Logger.Warn("Could not deserialize object {0}: {1}", args.ErrorContext.Member?.ToString(), args.ErrorContext.Error.Message);
+                    args.ErrorContext.Handled = true;
+                }
+                    
+            };
         }        
 
         public void EnablePluginConverter()

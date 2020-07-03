@@ -27,34 +27,16 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid Margin="5" Grid.ColumnSpan="2">
-            <Button Command="{Binding SaveCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,5,10,0" Padding="10,5,10,5">
-                <Button.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Margin="5,0" Padding="0" Content="Save" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                        <Image Source="/TAS.Client.Common;component/Images/Actions/apply.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-            <Button Command="{Binding UndoCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,5,10,0" Padding="10,5,10,5">
-                <Button.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Margin="5,0" Padding="0" Content="Undo" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                        <Image Source="/TAS.Client.Common;component/Images/Actions/undo.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-        </Grid>
-        <TextBlock Grid.Row="1" Margin="5" Text="Type: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <ComboBox Grid.Row="1" Margin="5" Grid.Column="1" MinWidth="100" ItemsSource="{Binding RouterTypes}" SelectedItem="{Binding SelectedRouterType}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        <TextBlock Margin="5" Grid.Row="2" Text="Hostname [IP:port]: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <TextBox Margin="5" Grid.Row="2" Grid.Column="1" MinWidth="100" Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        <TextBlock Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="3" Text="Login: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="3" Grid.Column="1" MinWidth="100" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        <TextBlock Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="4" Text="Password: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="4" Grid.Column="1" MinWidth="100" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        <TextBlock Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="5" Text="Level: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="5" Grid.Column="1" MinWidth="100" Text="{Binding Level, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBlock Margin="5" Text="Type: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <ComboBox Margin="5" Grid.Column="1" MinWidth="100" ItemsSource="{Binding RouterTypes}" SelectedItem="{Binding SelectedRouterType}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBlock Margin="5" Grid.Row="1" Text="Hostname [IP:port]: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <TextBox Margin="5" Grid.Row="1" Grid.Column="1" MinWidth="100" Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBlock Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="2" Text="Login: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="2" Grid.Column="1" MinWidth="100" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBlock Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="3" Text="Password: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="3" Grid.Column="1" MinWidth="100" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBlock Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="4" Text="Level: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="4" Grid.Column="1" MinWidth="100" Text="{Binding Level, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
         <Rectangle Margin="5" Grid.Column="2" Grid.Row="1" Grid.RowSpan="5" Width="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" Fill="LightGray" />
         <GroupBox Margin="5" Grid.Column="3" Grid.Row="1" Grid.RowSpan="5" Header="Test connection">
             <Grid Margin="5">
@@ -103,12 +85,12 @@
         </GroupBox>
        
 
-        <Button Grid.Row="6"  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding AddOutputPortCommand}">
+        <Button Grid.Row="5"  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding AddOutputPortCommand}">
             <Button.Content>
                 <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
             </Button.Content>
         </Button>
-        <DataGrid Margin="5" Grid.Row="7" Grid.ColumnSpan="2" ItemsSource="{Binding OutputPorts}" CanUserAddRows="False" AutoGenerateColumns="False" CanUserDeleteRows="False">
+        <DataGrid Margin="5" Grid.Row="6" Grid.ColumnSpan="2" ItemsSource="{Binding OutputPorts}" CanUserAddRows="False" AutoGenerateColumns="False" CanUserDeleteRows="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Id}" Header="Output Ports" />
                 <DataGridTemplateColumn>
@@ -124,5 +106,23 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
+        <Grid Grid.Row="7" Margin="5" Grid.ColumnSpan="2">
+            <Button Command="{Binding SaveCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,5,10,0" Padding="10,5,10,5">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Margin="5,0" Padding="0" Content="Save" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                        <Image Source="/TAS.Client.Common;component/Images/Actions/apply.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button Command="{Binding UndoCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,5,10,0" Padding="10,5,10,5">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Margin="5,0" Padding="0" Content="Undo" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                        <Image Source="/TAS.Client.Common;component/Images/Actions/undo.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </Grid>
     </Grid>
 </UserControl>
