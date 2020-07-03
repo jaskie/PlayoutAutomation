@@ -291,6 +291,10 @@ namespace TAS.Common
                 frameRate == Descriptions[TVideoFormat.PAL].FrameRate &&
                 imageSize.Width == 768)
                 return interlaced ? Descriptions[TVideoFormat.PAL] : Descriptions[TVideoFormat.PAL_P];
+            if (imageSize.Height == Descriptions[TVideoFormat.PAL].ImageSize.Height && imageSize.Width == Descriptions[TVideoFormat.PAL].ImageSize.Width &&
+                frameRate == Descriptions[TVideoFormat.PAL].FrameRate &&
+                sar.Equals(new RationalNumber(59, 54)))
+                return interlaced ? Descriptions[TVideoFormat.PAL] : Descriptions[TVideoFormat.PAL_P];
             if (imageSize.Height == Descriptions[TVideoFormat.PAL_FHA].ImageSize.Height &&
                 frameRate == Descriptions[TVideoFormat.PAL_FHA].FrameRate &&
                 (imageSize.Width == 1024 || imageSize.Width == 1050))
