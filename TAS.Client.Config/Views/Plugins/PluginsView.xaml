@@ -34,14 +34,14 @@
 
             <CheckBox IsChecked="{Binding IsCgElementsControllerEnabled}" IsEnabled="{Binding HasCgControllers}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" />
             <Label IsEnabled="{Binding IsCgElementsControllerEnabled}" Grid.Column="1" Content="CgElementsController" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <ComboBox IsEnabled="{Binding IsCgElementsControllerEnabled}" Grid.Column="2" DisplayMemberPath="PluginName" SelectedItem="{Binding SelectedCgElementsControllerConfigurator}" ItemsSource="{Binding CgElementsControllerConfigurators}" MinWidth="100" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <ComboBox Grid.Column="2" DisplayMemberPath="PluginName" SelectedItem="{Binding SelectedCgElementsControllerConfigurator}" ItemsSource="{Binding CgElementsControllerConfigurators}" MinWidth="100" HorizontalAlignment="Left" VerticalAlignment="Center" />
             <Button IsEnabled="{Binding IsCgElementsControllerEnabled}" Margin="5,0,0,0" Width="25" Grid.Column="3" Command="{Binding EditCgElementsControllerCommand}" HorizontalAlignment="Left" VerticalAlignment="Center">
                 <Image Source="/TAS.Client.Common;component/Images/Config/document-edit.png" />
             </Button>
 
             <CheckBox Grid.Row="1" IsChecked="{Binding IsRouterEnabled}" IsEnabled="{Binding HasRouters}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" />
             <Label IsEnabled="{Binding IsRouterEnabled}" Grid.Row="1" Grid.Column="1" Content="Router" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <ComboBox IsEnabled="{Binding IsRouterEnabled}" Grid.Row="1" Grid.Column="2" DisplayMemberPath="PluginName" SelectedItem="{Binding SelectedRouterConfigurator}" ItemsSource="{Binding RouterConfigurators}" MinWidth="100" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <ComboBox Grid.Row="1" Grid.Column="2" DisplayMemberPath="PluginName" SelectedItem="{Binding SelectedRouterConfigurator}" ItemsSource="{Binding RouterConfigurators}" MinWidth="100" HorizontalAlignment="Left" VerticalAlignment="Center" />
             <Button IsEnabled="{Binding IsRouterEnabled}" Grid.Row="1" Margin="5,0,0,0" Width="25" Grid.Column="3" Command="{Binding EditRouterCommand}" HorizontalAlignment="Left" VerticalAlignment="Center">
                 <Image Source="/TAS.Client.Common;component/Images/Config/document-edit.png" />
             </Button>

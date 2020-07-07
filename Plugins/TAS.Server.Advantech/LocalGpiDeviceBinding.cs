@@ -1,39 +1,30 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Xml.Serialization;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
+using TAS.Database.Common;
 
 namespace TAS.Server
 {
-    public class LocalGpiDeviceBinding : ServerObjectBase, IGpi, IEnginePlugin
+    public class LocalGpiDeviceBinding : ServerObjectBase, IGpi, IPlugin
     {
-
         public class GPIPin
         {
-            [XmlAttribute]
-            public int Param;
-            [XmlAttribute]
-            public byte DeviceId;
-            [XmlAttribute]
-            public int PortNumber;
-            [XmlAttribute]
-            public byte PinNumber;
+            [Hibernate]
+            public int Param { get; set; }
+            [Hibernate]
+            public byte DeviceId { get; set; }
+            [Hibernate]
+            public int PortNumber { get; set; }
+            [Hibernate]
+            public byte PinNumber { get; set; }
         }
 
-        internal LocalDevices Owner;
-
-        internal IEngine Engine;
-
-        [XmlAttribute]
-        public string EngineName { get; set; }
+        internal LocalDevices Owner;      
 
         public event EventHandler Started;
 
-        public GPIPin Start;
-        public GPIPin[] Logos;
-        public GPIPin[] Crawls;
-        public GPIPin[] Parentals;
+        public GPIPin Start;        
         public GPIPin WideScreen;
 
         private void _actionCheckAndExecute(EventHandler handler, GPIPin pin, byte deviceId, byte port, byte bit)
@@ -65,6 +56,8 @@ namespace TAS.Server
                     Owner.SetPortState(pin.DeviceId, pin.PortNumber, pin.PinNumber, value);
             }
         }
+        [Hibernate]
+        public bool IsEnabled { get; set; }
 
         public void ShowAux(int auxNr) { }
         public void HideAux(int auxNr) { }

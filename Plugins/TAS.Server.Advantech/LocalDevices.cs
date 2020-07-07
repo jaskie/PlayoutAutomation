@@ -11,9 +11,8 @@ using System.Collections.Specialized;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server
-{
-    [Export(typeof(IEnginePluginFactory))]
-    public class LocalDevices : IEnginePluginFactory
+{   
+    public class LocalDevices
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -26,13 +25,13 @@ namespace TAS.Server
 
         public Type Type { get; } = typeof(LocalGpiDeviceBinding);
 
-        public object CreateEnginePlugin(IEngine engine)
-        {
-            var plugin = EngineBindings.FirstOrDefault(b => b.EngineName == engine.EngineName);
-            if (plugin != null)
-                plugin.Engine = engine;
-            return plugin;
-        }
+        //public object CreateEnginePlugin(IEngine engine)
+        //{
+        //    var plugin = EngineBindings.FirstOrDefault(b => b.EngineName == engine.EngineName);
+        //    if (plugin != null)
+        //        plugin.Engine = engine;
+        //    return plugin;
+        //}
 
         public void DeserializeElements(string settingsFileName)
         {

@@ -142,7 +142,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
                 if (!SetField(ref _selectedCgElementsControllerConfigurator, value))
                     return;
 
-                _isCgElementsControllerEnabled = _engine.CGElementsController?.IsEnabled ?? false;
+                _isCgElementsControllerEnabled = _selectedCgElementsControllerConfigurator?.IsEnabled ?? false;
                 NotifyPropertyChanged(nameof(IsCgElementsControllerEnabled));
             }
         }
@@ -155,7 +155,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
                 if (!SetField(ref _selectedRouterConfigurator, value))
                     return;
 
-                _isRouterEnabled = _engine.Router?.IsEnabled ?? false;
+                _isRouterEnabled = _selectedRouterConfigurator?.IsEnabled ?? false;
                 NotifyPropertyChanged(nameof(IsRouterEnabled));
             }
         }
