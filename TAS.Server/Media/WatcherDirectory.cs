@@ -155,8 +155,7 @@ namespace TAS.Server.Media
             if (oldTask != null && oldTask.Status != TaskStatus.RanToCompletion)
                 return;
             var watcherTaskCancelationTokenSource = new CancellationTokenSource();
-            EnumerateFiles(Folder, includeSubdirectories, watcherTaskCancelationTokenSource.Token);
-            _watcherSetupTask = Task.Run(
+            _watcherSetupTask = Task.Factory.StartNew(
                 () =>
                 {
                     _watcherIncludeSubdirectories = includeSubdirectories;
@@ -167,6 +166,7 @@ namespace TAS.Server.Media
                             if (Directory.Exists(Folder))
                             {
                                 RefreshVolumeInfo();
+                                EnumerateFiles(Folder, includeSubdirectories, watcherTaskCancelationTokenSource.Token);
                                 _watcher = new FileSystemWatcher()
                                 {
                                     Path = Folder,
@@ -182,6 +182,7 @@ namespace TAS.Server.Media
                                 _watcher.Renamed += OnFileRenamed;
                                 _watcher.Changed += OnFileChanged;
                                 _watcher.Error += OnError;
+                                IsInitialized = true;
                                 break;
                             }
                         }
@@ -202,7 +203,7 @@ namespace TAS.Server.Media
                         Debug.WriteLine("Watcher setup canceled");
                         Logger.Debug("Directory {0} watcher setup error", Folder);
                     }
-                }, watcherTaskCancelationTokenSource.Token);
+                }, watcherTaskCancelationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             _watcherTaskCancelationTokenSource = watcherTaskCancelationTokenSource;
         }
 
