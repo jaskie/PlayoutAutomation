@@ -20,9 +20,8 @@ namespace TAS.Server.Media
     { 
         private FileSystemWatcher _watcher;
         private bool _isInitialized;
-        private bool _watcherIncludeSubdirectories;
+        private bool _includeSubdirectories;
         private CancellationTokenSource _watcherTaskCancelationTokenSource;
-        private Task _watcherSetupTask;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         protected readonly Dictionary<Guid, MediaBase> Files = new Dictionary<Guid, MediaBase>();
@@ -151,14 +150,11 @@ namespace TAS.Server.Media
 
         protected void BeginWatch(bool includeSubdirectories)
         {
-            var oldTask = _watcherSetupTask;
-            if (oldTask != null && oldTask.Status != TaskStatus.RanToCompletion)
-                return;
             var watcherTaskCancelationTokenSource = new CancellationTokenSource();
-            _watcherSetupTask = Task.Factory.StartNew(
+            _includeSubdirectories = includeSubdirectories;
+            Task.Factory.StartNew(
                 () =>
                 {
-                    _watcherIncludeSubdirectories = includeSubdirectories;
                     while (_watcher?.EnableRaisingEvents != true && !watcherTaskCancelationTokenSource.IsCancellationRequested)
                     {
                         try
@@ -203,20 +199,16 @@ namespace TAS.Server.Media
                         Debug.WriteLine("Watcher setup canceled");
                         Logger.Debug("Directory {0} watcher setup error", Folder);
                     }
+                    _watcherTaskCancelationTokenSource = null;
                 }, watcherTaskCancelationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             _watcherTaskCancelationTokenSource = watcherTaskCancelationTokenSource;
         }
 
         protected virtual void CancelBeginWatch()
         {
-            var watcherTask = _watcherSetupTask;
-            if (watcherTask != null && watcherTask.Status == TaskStatus.Running)
-            {
-                _watcherTaskCancelationTokenSource.Cancel();
-                watcherTask.Wait();
-                Debug.WriteLine($"MediaDirectory: BeginWatch for {Folder} canceled.");
-                Logger.Debug("BeginWatch for {0} canceled.", Folder, null);
-            }
+            _watcherTaskCancelationTokenSource?.Cancel();
+            Debug.WriteLine($"MediaDirectory: BeginWatch for {Folder} canceled.");
+            Logger.Debug("BeginWatch for {0} canceled.", Folder, null);
         }
 
         protected virtual void FileRemoved(string fullPath)
@@ -304,7 +296,7 @@ namespace TAS.Server.Media
             if (source is FileSystemWatcher watcher)
                 DisposeWatcher(watcher);
             _watcher = null;
-            BeginWatch(_watcherIncludeSubdirectories);
+            BeginWatch(_includeSubdirectories);
         }
 
         protected MediaBase FindMediaFirstByFullPath(string fullPath)

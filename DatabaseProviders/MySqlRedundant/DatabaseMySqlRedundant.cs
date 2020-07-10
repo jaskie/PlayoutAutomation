@@ -90,7 +90,6 @@ namespace TAS.Database.MySqlRedundant
                 return;
             Connection.StateRedundantChange -= Connection_StateRedundantChange;
             Connection.Close();
-            Connection = null;
         }
 
         public string ConnectionStringPrimary { get; private set; }
