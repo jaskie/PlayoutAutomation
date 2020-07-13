@@ -67,6 +67,8 @@ namespace TAS.Client.Config.Model
         public IDictionary<string, int> FieldLengths { get; set; }          
 
         public List<IConfigCasparServer> Servers { get; set; }
+        [Hibernate]
+        public IGpi Gpi { get; set; }
 
         public ArchiveDirectories ArchiveDirectories;
 

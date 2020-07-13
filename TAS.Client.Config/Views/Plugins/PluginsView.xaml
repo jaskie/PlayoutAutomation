@@ -46,7 +46,7 @@
                 <Image Source="/TAS.Client.Common;component/Images/Config/document-edit.png" />
             </Button>
         </Grid>
-        <DataGrid IsSynchronizedWithCurrentItem="True" Grid.Row="1" ItemsSource="{Binding PluginConfigurators}" SelectedItem="{Binding SelectedPluginConfigurator, Mode=TwoWay}" SelectionMode="Single" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
+        <DataGrid Margin="5" IsSynchronizedWithCurrentItem="True" Grid.Row="1" ItemsSource="{Binding PluginConfigurators}" SelectedItem="{Binding SelectedPluginConfigurator, Mode=TwoWay}" SelectionMode="Single" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="IsEnabled">
                     <DataGridTemplateColumn.CellTemplate>

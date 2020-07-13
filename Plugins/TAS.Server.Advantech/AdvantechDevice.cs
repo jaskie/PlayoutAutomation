@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading;
 using Automation.BDaq;
-using System.Xml.Serialization;
-
 
 namespace TAS.Server
 {
@@ -15,32 +13,28 @@ namespace TAS.Server
         private InstantDoCtrl _do;
         private int _disposed;
         private readonly object _writeLock = new object();
-
-        [XmlIgnore]
-        public byte[] InputPortState;
-
-        [XmlAttribute]
-        public byte DeviceId;
+        
+        public byte[] InputPortState;        
 
         internal int InputPortCount;
         internal int OutputPortCount;
 
-        public void Initialize()
+        public AdvantechDevice(byte deviceId)
         {
             try
             {
-            _deviceInformation = new DeviceInformation(DeviceId);
-            _di = new InstantDiCtrl {SelectedDevice = _deviceInformation};
-            InputPortCount = _di.Features.PortCount;
-            InputPortState = new byte[InputPortCount];
-            _do = new InstantDoCtrl {SelectedDevice = _deviceInformation};
-            OutputPortCount = _do.Features.PortCount;
+                _deviceInformation = new DeviceInformation(deviceId);
+                _di = new InstantDiCtrl { SelectedDevice = _deviceInformation };
+                InputPortCount = _di.Features.PortCount;
+                InputPortState = new byte[InputPortCount];
+                _do = new InstantDoCtrl { SelectedDevice = _deviceInformation };
+                OutputPortCount = _do.Features.PortCount;
             }
             catch (Exception e)
             {
                 Logger.Error(e);
             }
-        }
+        }                      
 
         public bool Read(int port, out byte currentData, out byte oldData)
         {

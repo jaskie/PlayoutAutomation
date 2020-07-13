@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="TAS.Server.Advantech.Configurator.GpiBindingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="150">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Text="Device Id" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
+        <TextBlock Grid.Row="1" Text="Port Number" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
+        <TextBlock Grid.Row="2" Text="Pin Number" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" />
+
+        <TextBox Grid.Column="1" Text="{Binding DeviceId, UpdateSourceTrigger=PropertyChanged}" MinWidth="50" VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding PortNumber, UpdateSourceTrigger=PropertyChanged}" MinWidth="50" VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding PinNumber, UpdateSourceTrigger=PropertyChanged}" MinWidth="50" VerticalAlignment="Center" HorizontalAlignment="Left" />
+    </Grid>
+</UserControl>

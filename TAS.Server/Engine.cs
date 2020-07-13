@@ -305,11 +305,7 @@ namespace TAS.Server
             Debug.WriteLine(this, "Reading Root Events");
             DatabaseProvider.Database.ReadRootEvents(this);
 
-            EngineState = TEngineState.Idle;
-            if (CGElementsController != null)
-            {
-                CGElementsController.Started += _gpiStartLoaded;
-            }
+            EngineState = TEngineState.Idle;            
 
             if (Remote != null)
             {
@@ -868,8 +864,7 @@ namespace TAS.Server
             var cgElementsController = CGElementsController;
             if (cgElementsController != null)
             {
-                Debug.WriteLine(this, "Uninitializing CGElementsController");
-                cgElementsController.Started -= _gpiStartLoaded;
+                Debug.WriteLine(this, "Uninitializing CGElementsController");                
                 cgElementsController.Dispose();
             }
 
@@ -1148,13 +1143,7 @@ namespace TAS.Server
                 return;
             var media = aEvent.Media;
             var narrow = media != null && (!media.VideoFormat.IsWideScreen());
-            IsWideScreen = !narrow;
-            if (AspectRatioControl != TAspectRatioControl.GPI &&
-                AspectRatioControl != TAspectRatioControl.GPIandImageResize)
-                return;
-            if (_localGpis != null)
-                foreach (var gpi in _localGpis)
-                    gpi.IsWideScreen = !narrow;
+            IsWideScreen = !narrow;                      
         }
 
         private void _run(Event aEvent)

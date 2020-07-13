@@ -232,6 +232,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="NLog\NLog_Release.config" />
     <None Include="Plugins\FolderInfo.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -272,10 +273,9 @@
     <Content Include="Configuration\Parentals\BO.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="NLog.config">
+    <None Include="NLog\NLog_Debug.config">
       <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -354,7 +354,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /d /y "$(SolutionDir)ffmpeg\x64\bin\*.*" "$(TargetDir)"
-</PostBuildEvent>
+copy /y "$(ProjectDir)NLog\NLog_$(ConfigurationName).config" "$(TargetDir)NLog.config"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -368,6 +368,12 @@
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
-  </Target>
+  </Target>    
   -->
+  <!--<UsingTask TaskName="TransformXml" AssemblyFile="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v12.0\Web\Microsoft.Web.Publishing.Tasks.dll" />
+  <Target Name="AfterBuild">
+    <TransformXml Source="Config\App.config"
+                  Transform="Config\App.$(Configuration).config"
+                  Destination="$(OutputPath)\$(AssemblyName).$(OutputType).config" />-->
+  <!--</Target>-->
 </Project>

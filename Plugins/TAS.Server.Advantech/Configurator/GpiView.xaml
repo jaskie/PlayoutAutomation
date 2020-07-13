@@ -1,0 +1,90 @@
+﻿<UserControl x:Class="TAS.Server.Advantech.Configurator.GpiView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:configurator="clr-namespace:TAS.Server.Advantech.Configurator"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding AddGpiBindingCommand}">
+            <Button.Content>
+                <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Button.Content>
+        </Button>
+        <DataGrid Grid.Row="1" Margin="5" ItemsSource="{Binding GpiBindings}" SelectionMode="Single" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="DeviceID" Binding="{Binding DeviceId}" />
+                <DataGridTextColumn Header="PinNumber" Binding="{Binding PinNumber}" />
+                <DataGridTextColumn Header="PortNumber" Binding="{Binding PortNumber}" />
+                <DataGridTemplateColumn Header="State">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Ellipse HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="Red" />
+                                        <Setter Property="Width" Value="5" />
+                                        <Setter Property="Height" Value="5" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsTriggered}" Value="True">
+                                                <Setter Property="Fill" Value="Green" />
+                                                <Setter Property="Width" Value="15" />
+                                                <Setter Property="Height" Value="15" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Margin="1,2" Command="{Binding DataContext.DeleteGpiBindingCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
+                                <Button.Content>
+                                    <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                </Button.Content>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Grid.Row="2" Margin="5">
+            <Button Command="{Binding SaveCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,5,10,0" Padding="10,5,10,5">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Margin="5,0" Padding="0" Content="Save" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                        <Image Source="/TAS.Client.Common;component/Images/Actions/apply.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button Command="{Binding UndoCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,5,10,0" Padding="10,5,10,5">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Margin="5,0" Padding="0" Content="Undo" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                        <Image Source="/TAS.Client.Common;component/Images/Actions/undo.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </Grid>
+        <ContentControl Grid.Column="1" Grid.RowSpan="2" Content="{Binding GpiBindingViewModel}" ContentTemplate="{StaticResource OkCancelBase}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type configurator:GpiBindingViewModel}">
+                    <configurator:GpiBindingView />
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
+    </Grid>
+</UserControl>
