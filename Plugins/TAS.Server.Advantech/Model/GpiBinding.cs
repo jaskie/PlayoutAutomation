@@ -3,9 +3,9 @@ using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using TAS.Database.Common;
 
-namespace TAS.Server.Advantech
+namespace TAS.Server.Advantech.Model
 {
-    public class GpiBinding : ServerObjectBase, IGpi, IPlugin
+    public class GpiBinding : ServerObjectBase, IPlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();        
         

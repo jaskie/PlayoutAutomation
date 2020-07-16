@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"         
              xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.Plugins"   
-             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:pluginsVm="clr-namespace:TAS.Client.Config.ViewModels.Plugins"
+             xmlns:pluginsView="clr-namespace:TAS.Client.Config.Views.Plugins"
              mc:Ignorable="d"                     
              d:DataContext="{d:DesignInstance vm:PluginsViewModel}"             
              d:DesignHeight="350" d:DesignWidth="400"
@@ -12,76 +13,29 @@
       
     <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid Margin="5">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="40px" />
-                <RowDefinition Height="40px" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <CheckBox IsChecked="{Binding IsCgElementsControllerEnabled}" IsEnabled="{Binding HasCgControllers}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" />
-            <Label IsEnabled="{Binding IsCgElementsControllerEnabled}" Grid.Column="1" Content="CgElementsController" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <ComboBox Grid.Column="2" DisplayMemberPath="PluginName" SelectedItem="{Binding SelectedCgElementsControllerConfigurator}" ItemsSource="{Binding CgElementsControllerConfigurators}" MinWidth="100" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <Button IsEnabled="{Binding IsCgElementsControllerEnabled}" Margin="5,0,0,0" Width="25" Grid.Column="3" Command="{Binding EditCgElementsControllerCommand}" HorizontalAlignment="Left" VerticalAlignment="Center">
-                <Image Source="/TAS.Client.Common;component/Images/Config/document-edit.png" />
-            </Button>
-
-            <CheckBox Grid.Row="1" IsChecked="{Binding IsRouterEnabled}" IsEnabled="{Binding HasRouters}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" />
-            <Label IsEnabled="{Binding IsRouterEnabled}" Grid.Row="1" Grid.Column="1" Content="Router" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <ComboBox Grid.Row="1" Grid.Column="2" DisplayMemberPath="PluginName" SelectedItem="{Binding SelectedRouterConfigurator}" ItemsSource="{Binding RouterConfigurators}" MinWidth="100" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <Button IsEnabled="{Binding IsRouterEnabled}" Grid.Row="1" Margin="5,0,0,0" Width="25" Grid.Column="3" Command="{Binding EditRouterCommand}" HorizontalAlignment="Left" VerticalAlignment="Center">
-                <Image Source="/TAS.Client.Common;component/Images/Config/document-edit.png" />
-            </Button>
-        </Grid>
-        <DataGrid Margin="5" IsSynchronizedWithCurrentItem="True" Grid.Row="1" ItemsSource="{Binding PluginConfigurators}" SelectedItem="{Binding SelectedPluginConfigurator, Mode=TwoWay}" SelectionMode="Single" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
+        <DataGrid MinWidth="200" MinHeight="350" ItemsSource="{Binding Plugins}" SelectionMode="Single" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectedItem="{Binding SelectedPlugin}">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="IsEnabled">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" IsChecked="{Binding IsEnabled, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Plugin Name">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Margin="5" Text="{Binding PluginName}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                <DataGridCheckBoxColumn Binding="{Binding IsEnabled, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Plugin" MinWidth="170" Binding="{Binding Name}" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
-        <Rectangle Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="1" Margin="5" Fill="Gray" Grid.RowSpan="2">
-            <Rectangle.Style>
-                <Style TargetType="Rectangle">
-                    <Setter Property="Visibility" Value="Visible" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Content, ElementName=PluginContent}"  Value="{x:Null}">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Rectangle.Style>
-        </Rectangle>
-        <ContentControl x:Name="PluginContent" Grid.RowSpan="2" Grid.Column="2" Content="{Binding SelectedPluginConfigurator}">
+
+        <ContentControl Grid.Column="1" Content="{Binding SelectedPlugin}">
             <ContentControl.Resources>
-                <DataTemplate DataType="{x:Type common:ViewModelBase}">
-                    <TextBlock Text="Plugin does not provide any configurator." FontSize="24" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <DataTemplate DataType="{x:Type pluginsVm:CgElementsControllersViewModel}">
+                    <pluginsView:CgElementsControllersView />
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type pluginsVm:GpisViewModel}">
+                    <pluginsView:GpisView />
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type pluginsVm:RoutersViewModel}">
+                    <pluginsView:RoutersView />
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>
+
     </Grid>
 </UserControl>

@@ -61,22 +61,15 @@ namespace TAS.Client.Config.Model
         [Hibernate]        
         public ICGElementsController CGElementsController { get; set; }
         [Hibernate]
-        public IRouter Router { get; set; }
-        [Hibernate]
-        public List<IPlugin> Plugins { get; set; }
+        public IRouter Router { get; set; }        
+        
         public IDictionary<string, int> FieldLengths { get; set; }          
 
         public List<IConfigCasparServer> Servers { get; set; }
         [Hibernate]
-        public IGpi Gpi { get; set; }
+        public List<IGpi> Gpis { get; set; }
 
-        public ArchiveDirectories ArchiveDirectories;
-
-        public Engine()
-        {
-            if (Plugins == null)
-                Plugins = new List<IPlugin>();
-        }
+        public ArchiveDirectories ArchiveDirectories;       
 
         public void Save()
         {

@@ -55,8 +55,7 @@ namespace TAS.Server
         private readonly Lazy<List<IAclRight>> _rights;
 
         private Event _playing;
-        private Event _forcedNext;
-        private List<IGpi> _localGpis;        
+        private Event _forcedNext;        
         private int _timeCorrection;
         private bool _isWideScreen;
         private TEngineState _engineState;
@@ -143,16 +142,16 @@ namespace TAS.Server
         public IMediaManager MediaManager => _mediaManager;
 
         [DtoMember, Hibernate, JsonConverter(typeof(PluginConverter))]
-        public ICGElementsController CGElementsController { get; set; }
-
-        [Hibernate, JsonConverter(typeof(PluginConverter))]
-        public List<IPlugin> Plugins { get; set; }
+        public ICGElementsController CGElementsController { get; set; }        
 
         [DtoMember, Hibernate, JsonConverter(typeof(PluginConverter))]
         public IRouter Router { get; set; }
 
         [Hibernate]
         public ServerHost Remote { get; set; }
+
+        [Hibernate, JsonConverter(typeof(PluginConverter))]
+        public List<IGpi> Gpis { get; set; }
 
         [DtoMember, Hibernate]
         public TAspectRatioControl AspectRatioControl { get; set; }
@@ -284,7 +283,7 @@ namespace TAS.Server
                 _preview = new Preview(this, previewChannel);
             _mediaManager.SetRecorders(recorders);
 
-            _localGpis = this.ComposeParts<IGpi>();
+            //Gpis = this.ComposeParts<IGpi>();
             //_plugins = this.ComposeParts<IPlugin>();
             //CGElementsController = this.ComposePart<ICGElementsController>();
             //Router = this.ComposePart<IRouter>();
@@ -313,8 +312,8 @@ namespace TAS.Server
                 Remote.Initialize(this, new Security.PrincipalProvider(_authenticationService));
             }
 
-            if (_localGpis != null)
-                foreach (var gpi in _localGpis)
+            if (Gpis != null)
+                foreach (var gpi in Gpis)
                     gpi.Started += _gpiStartLoaded;
 
             Debug.WriteLine(this, "Creating engine thread");
@@ -857,8 +856,8 @@ namespace TAS.Server
                 Debug.WriteLine(this, "UnInitializing Remote interface");
                 Remote.UnInitialize();
             }
-            if (_localGpis != null)
-                foreach (var gpi in _localGpis)
+            if (Gpis != null)
+                foreach (var gpi in Gpis)
                     gpi.Started -= _gpiStartLoaded;
 
             var cgElementsController = CGElementsController;
@@ -1446,9 +1445,7 @@ namespace TAS.Server
             Remote?.Dispose();
             _preview?.Dispose();
             _mediaManager.Dispose();
-            if (Plugins != null)
-                foreach (var plugin in Plugins)
-                    plugin.Dispose();
+            
             base.DoDispose();
         }
 

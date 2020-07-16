@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="TAS.Client.Config.Views.Plugins.GpisView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="200">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <DataGrid MinWidth="200" MinHeight="350" HorizontalAlignment="Left" ItemsSource="{Binding Configurators}" SelectedItem="{Binding SelectedConfigurator}" CanUserAddRows="False" AutoGenerateColumns="False" CanUserDeleteRows="False">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Binding="{Binding IsEnabled}" />
+                <DataGridTextColumn Header="Name" MinWidth="170" Binding="{Binding PluginName}" IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <ContentControl Grid.Column="1" Content="{Binding SelectedConfigurator}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type common:ViewModelBase}">
+                    <TextBlock Text="Plugin does not provide any configurator." FontSize="24" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
+    </Grid>
+</UserControl>

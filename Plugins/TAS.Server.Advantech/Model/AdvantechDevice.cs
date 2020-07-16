@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading;
+using System.Windows;
 using Automation.BDaq;
 
-namespace TAS.Server
+namespace TAS.Server.Advantech.Model
 {
     public class AdvantechDevice : IDisposable
     {
@@ -31,7 +32,7 @@ namespace TAS.Server
                 OutputPortCount = _do.Features.PortCount;
             }
             catch (Exception e)
-            {
+            {               
                 Logger.Error(e);
             }
         }                      
@@ -64,6 +65,7 @@ namespace TAS.Server
                 return;
             _di?.Dispose();
             _do?.Dispose();
+            Logger.Trace("Advantech device disposed {0}", _deviceInformation.DeviceNumber);
         }
     }
 }

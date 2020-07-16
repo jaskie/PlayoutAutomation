@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
-using System.Linq;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
@@ -15,65 +14,26 @@ namespace TAS.Client.Config.ViewModels.Plugins
 {
     public class PluginsViewModel : ViewModelBase
     {
-        private const string FileNameSearchPattern = "TAS.Server.*.dll";
-        public event EventHandler PluginChanged;
-                
-        private List<IPluginConfigurator> _pluginConfigurators = new List<IPluginConfigurator>();
-        private List<IPluginConfigurator> _cgElementsControllerConfigurators = new List<IPluginConfigurator>();
-        private List<IPluginConfigurator> _routerConfigurators = new List<IPluginConfigurator>();
-
-        private IPluginConfigurator _selectedPluginConfigurator;
-        private IPluginConfigurator _selectedCgElementsControllerConfigurator;
-        private IPluginConfigurator _selectedRouterConfigurator;
-
-        private bool? _isCgElementsControllerEnabled;
-        private bool? _isRouterEnabled;
-
+        public static string FileNameSearchPattern { get; } = "TAS.Server.*.dll";
         private IConfigEngine _engine;
+        public event EventHandler PluginChanged;
+
+        private CgElementsControllersViewModel _cgElementsControllersViewModel;
+        private RoutersViewModel _routersViewModel;
+        private GpisViewModel _gpisViewModel;
+                
+        private List<IPluginManager> _plugins = new List<IPluginManager>();
+
+
+        private IPluginManager _selectedPlugin;
 
         public PluginsViewModel(Engine engine)
         {
             _engine = engine;
-            LoadCommands();
-            Init();
-            
-            PluginConfigurators = CollectionViewSource.GetDefaultView(_pluginConfigurators);
-            CgElementsControllerConfigurators = CollectionViewSource.GetDefaultView(_cgElementsControllerConfigurators);
-            RouterConfigurators = CollectionViewSource.GetDefaultView(_routerConfigurators);
+            Plugins = CollectionViewSource.GetDefaultView(_plugins);            
+            Init();                                                
         }
-
-        private void LoadCommands()
-        {
-            EditRouterCommand = new UiCommand(EditRouterSettings, CanEditRouterSettings);
-            EditCgElementsControllerCommand = new UiCommand(EditCgElementsController, CanEditCgElementsController);
-        }
-
-        private bool CanEditCgElementsController(object obj)
-        {
-            if (_selectedCgElementsControllerConfigurator != null)
-                return true;
-            return false;
-        }
-
-        private bool CanEditRouterSettings(object obj)
-        {
-            if (_selectedRouterConfigurator != null)
-                return true;
-            return false;
-        }
-
-        private void EditCgElementsController(object obj)
-        {
-            SelectedPluginConfigurator = null; //this will deselect datagrid
-            SelectedPluginConfigurator = _selectedCgElementsControllerConfigurator;
-        }
-
-        private void EditRouterSettings(object obj)
-        {
-            SelectedPluginConfigurator = null; //this will deselect datagrid
-            SelectedPluginConfigurator = _selectedRouterConfigurator;
-        }
-
+        
         //Add available plugins based on Plugins folder
         private void Init()
         {            
@@ -82,130 +42,68 @@ namespace TAS.Client.Config.ViewModels.Plugins
                 using (var container = new CompositionContainer(catalog))
                 {
                     container.ComposeExportedValue("Engine", _engine);                    
-                    var pluginConfigurators = container.GetExportedValues<IPluginConfigurator>().ToList();
-
+                    var pluginConfigurators = container.GetExportedValues<IPluginConfigurator>();                    
+                    
                     foreach (var pluginConfigurator in pluginConfigurators)
                     {
-                        pluginConfigurator.PluginChanged += PluginConfigurator_PluginChanged;
-                        if (pluginConfigurator.GetModel() is ICGElementsController)
+                        if (pluginConfigurator.GetModel() is ICGElementsController && _cgElementsControllersViewModel == null)
                         {
-                            pluginConfigurator.Initialize(_engine.CGElementsController);
-                            _cgElementsControllerConfigurators.Add(pluginConfigurator);
+                            _cgElementsControllersViewModel = new CgElementsControllersViewModel(_engine);
+                            _plugins.Add(_cgElementsControllersViewModel);
                         }
 
-                        else if (pluginConfigurator.GetModel() is IRouter)
+                        else if (pluginConfigurator.GetModel() is IRouter && _routersViewModel == null)
                         {
-                            pluginConfigurator.Initialize(_engine.Router);
-                            _routerConfigurators.Add(pluginConfigurator);
+                            _routersViewModel = new RoutersViewModel(_engine);
+                            _plugins.Add(_routersViewModel);
                         }
 
-                        else
+                        else if (pluginConfigurator.GetModel() is IGpi && _gpisViewModel == null)
                         {
-                            pluginConfigurator.Initialize(_engine.Plugins.FirstOrDefault(p => p.GetType() == pluginConfigurator.GetModel().GetType()));
-                            _pluginConfigurators.Add(pluginConfigurator);
-                        }                                                    
-                    }
-                  
-                    SelectedCgElementsControllerConfigurator = _cgElementsControllerConfigurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.CGElementsController?.GetType());                                        
-                    SelectedRouterConfigurator = _routerConfigurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.Router?.GetType());                   
+                            _gpisViewModel = new GpisViewModel(_engine);
+                            _plugins.Add(_gpisViewModel);
+                        }                            
+                    }                                                      
                 }
             }
+            Plugins.Refresh();
         }
 
-        private void PluginConfigurator_PluginChanged(object sender, EventArgs e)
-        {
-            PluginChanged?.Invoke(this, EventArgs.Empty);
-        }
 
-        public ICollectionView PluginConfigurators { get; }
-        public ICollectionView CgElementsControllerConfigurators { get; }
-        public ICollectionView RouterConfigurators { get; }        
-        public UiCommand EditRouterCommand { get; private set; }
-        public UiCommand EditCgElementsControllerCommand { get; private set; }
+        public bool HasPlugins => _plugins.Count > 0;
+        public ICollectionView Plugins { get; }
+                               
 
-        public IPluginConfigurator SelectedPluginConfigurator
+        public IPluginManager SelectedPlugin
         {
-            get => _selectedPluginConfigurator;
+            get => _selectedPlugin;
             set
             {
-                if (!SetField(ref _selectedPluginConfigurator, value))
+                if (!SetField(ref _selectedPlugin, value))
                     return;                                
             }
         }
-                                    
-
-        public IPluginConfigurator SelectedCgElementsControllerConfigurator 
-        { 
-            get => _selectedCgElementsControllerConfigurator;
-            set
-            {
-                if (!SetField(ref _selectedCgElementsControllerConfigurator, value))
-                    return;
-
-                _isCgElementsControllerEnabled = _selectedCgElementsControllerConfigurator?.IsEnabled ?? false;
-                NotifyPropertyChanged(nameof(IsCgElementsControllerEnabled));
-            }
-        }
-
-        public IPluginConfigurator SelectedRouterConfigurator 
-        { 
-            get => _selectedRouterConfigurator;
-            set
-            {
-                if (!SetField(ref _selectedRouterConfigurator, value))
-                    return;
-
-                _isRouterEnabled = _selectedRouterConfigurator?.IsEnabled ?? false;
-                NotifyPropertyChanged(nameof(IsRouterEnabled));
-            }
-        }
-        public bool? IsCgElementsControllerEnabled 
-        { 
-            get => _isCgElementsControllerEnabled;
-            set
-            {
-                if (!SetField(ref _isCgElementsControllerEnabled, value))
-                    return;
-
-                if (value == null)
-                    return;
-
-                if (_selectedCgElementsControllerConfigurator != null)
-                    _selectedCgElementsControllerConfigurator.IsEnabled = (bool)value;
-            }
-        }
-        public bool? IsRouterEnabled 
-        { 
-            get => _isRouterEnabled;
-            set
-            {
-                if (!SetField(ref _isRouterEnabled, value))
-                    return;
-
-                if (value == null)
-                    return;
-
-                if (_selectedRouterConfigurator != null)
-                    _selectedRouterConfigurator.IsEnabled = (bool)value;
-            }
-        }
-        public bool HasCgControllers => _cgElementsControllerConfigurators.Count > 0 ? true : false;
-        public bool HasRouters => _routerConfigurators.Count > 0 ? true : false;
-        public bool HasPlugins => _pluginConfigurators.Count > 0 || _cgElementsControllerConfigurators.Count > 0 || _routerConfigurators.Count > 0 ? true : false;
+                                                           
         public void Save()
-        {
-            foreach (var pluginConfigurator in _pluginConfigurators)
+        {         
+            if (_cgElementsControllersViewModel != null)
             {
-                pluginConfigurator.Save();
-                _engine.Plugins.Remove(_engine.Plugins.FirstOrDefault(p => p.GetType() == pluginConfigurator.GetModel().GetType()));
-                _engine.Plugins.Add((IPlugin)pluginConfigurator.GetModel());
+                _cgElementsControllersViewModel.Save();
+                _engine.CGElementsController = _cgElementsControllersViewModel.CgElementsController;
             }
-
-            _selectedCgElementsControllerConfigurator.Save();
-            _engine.CGElementsController = (ICGElementsController)_selectedCgElementsControllerConfigurator.GetModel();
-
-            _selectedRouterConfigurator.Save();
-            _engine.Router = (IRouter)_selectedRouterConfigurator.GetModel();
+            
+            if (_routersViewModel != null)
+            {
+                _routersViewModel.Save();
+                _engine.Router = _routersViewModel?.Router;
+            }
+            
+            if (_gpisViewModel != null)
+            {
+                _gpisViewModel.Save();
+                _engine.Gpis = _gpisViewModel.Gpis;
+            }
+            
         }
 
         protected override void OnDispose()

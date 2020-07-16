@@ -67,7 +67,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdvantechDevice.cs" />
+    <Compile Include="Model\AdvantechDevice.cs" />
     <Compile Include="Configurator\GpiBindingView.xaml.cs">
       <DependentUpon>GpiBindingView.xaml</DependentUpon>
     </Compile>
@@ -79,8 +79,10 @@
     <Compile Include="Configurator\Model\Gpi.cs" />
     <Compile Include="Configurator\Model\GpiBinding.cs" />
     <Compile Include="Gpi.cs" />
-    <Compile Include="GpiBinding.cs" />
-    <Compile Include="GpiPin.cs" />
+    <Compile Include="Model\GpiBase.cs" />
+    <Compile Include="Model\GpiBinding.cs" />
+    <Compile Include="Model\GpiPin.cs" />
+    <Compile Include="Model\Args\GpiStateChangedEventArgs.cs" />
     <Compile Include="PluginTypeBinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

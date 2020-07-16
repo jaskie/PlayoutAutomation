@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -11,6 +12,7 @@ namespace TAS.Server.Advantech.Configurator
     [Export(typeof(IPluginConfigurator))]
     public class GpiViewModel : ModifyableViewModelBase, IPluginConfigurator
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private Model.Gpi _gpi = new Model.Gpi();
         private Model.Gpi _testGpi = new Model.Gpi();
         private ObservableCollection<Model.GpiBinding> _gpiBindings = new ObservableCollection<Model.GpiBinding>();
@@ -24,7 +26,7 @@ namespace TAS.Server.Advantech.Configurator
             SaveCommand = new UiCommand(LocalSave, CanLocalSave);
             UndoCommand = new UiCommand(Undo, CanUndo);
             GpiBindings = CollectionViewSource.GetDefaultView(_gpiBindings);
-        }
+        }        
 
         private bool CanAddGpiBinding(object obj)
         {
@@ -47,15 +49,21 @@ namespace TAS.Server.Advantech.Configurator
         {
             return IsModified;
         }
-
+        
         private void Init()
         {            
             if (_gpi == null)
                 return;
-
+            
             _gpiBindings = _gpi.Bindings;
             GpiBindings = CollectionViewSource.GetDefaultView(_gpiBindings);
             IsEnabled = _gpi.IsEnabled;
+            
+            if (_testGpi != null)
+            {
+                _testGpi.Dispose();
+                _testGpi = new Model.Gpi();
+            }
 
             IsModified = false;
         }
@@ -64,6 +72,7 @@ namespace TAS.Server.Advantech.Configurator
         {
             if (!(obj is Model.GpiBinding gpiBinding))
                 return;
+
             _gpiBindings.Remove(gpiBinding);
             _testGpi.Bindings.Remove(gpiBinding);
             GpiBindings.Refresh();
@@ -102,12 +111,7 @@ namespace TAS.Server.Advantech.Configurator
             _gpi.Bindings = _gpiBindings;
             _gpi.IsEnabled = _isEnabled;
             IsModified = false;
-        }
-
-        protected override void OnDispose()
-        {
-            
-        }
+        }     
 
         public ICollectionView GpiBindings { get; private set; }
         public UiCommand AddGpiBindingCommand { get; }
@@ -168,6 +172,11 @@ namespace TAS.Server.Advantech.Configurator
             
             gpiBindingVm.Dispose();
             GpiBindingViewModel = null;
+        }
+
+        protected override void OnDispose()
+        {
+            
         }
     }
 }

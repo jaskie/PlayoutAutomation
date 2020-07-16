@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using TAS.Database.Common.Interfaces;
+using TAS.Server.Advantech.Model;
 
 namespace TAS.Server.Advantech
 {

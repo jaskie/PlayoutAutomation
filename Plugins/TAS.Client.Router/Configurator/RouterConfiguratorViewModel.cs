@@ -32,12 +32,17 @@ namespace TAS.Server.Router.Configurator
         {
             _engine = engine;            
 
-            AddOutputPortCommand = new UiCommand(AddOutputPort);
+            AddOutputPortCommand = new UiCommand(AddOutputPort, CanAddOutputPort);
             ConnectCommand = new UiCommand(Connect, CanConnect);
             DisconnectCommand = new UiCommand(Disconnect, CanDisconnect);
             SaveCommand = new UiCommand(Save, CanSave);
             UndoCommand = new UiCommand(Undo, CanUndo);
             DeleteOutputPortCommand = new UiCommand(Delete);
+        }
+
+        private bool CanAddOutputPort(object obj)
+        {
+            return _isEnabled;
         }
 
         private void Delete(object obj)

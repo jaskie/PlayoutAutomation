@@ -6,7 +6,6 @@ using TAS.Client.Config.ViewModels.ConfigFile;
 using TAS.Client.Config.ViewModels.Engines;
 using TAS.Client.Config.ViewModels.IngestDirectories;
 using TAS.Client.Config.ViewModels.Playout;
-using TAS.Client.Config.ViewModels.Plugins;
 
 namespace TAS.Client.Config
 {

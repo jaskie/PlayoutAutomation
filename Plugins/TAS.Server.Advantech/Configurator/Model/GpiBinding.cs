@@ -1,15 +1,12 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using jNet.RPC.Server;
 using TAS.Client.Common;
-using TAS.Common.Interfaces;
 using TAS.Database.Common;
 
 namespace TAS.Server.Advantech.Configurator.Model
 {
-    public class GpiBinding : ServerObjectBase, IGpi, IPlugin
+    public class GpiBinding : ServerObjectBase
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private bool _isTriggered;
@@ -34,7 +31,7 @@ namespace TAS.Server.Advantech.Configurator.Model
                 Task.Run(async() => 
                 {
                     await Task.Delay(250);
-                    IsTriggered = false;
+                    RootDispatcher.Dispatcher.Invoke((Action)(() => IsTriggered = false));                    
                     Logger.Trace("Realeasing trigger");
                 });                
             }
@@ -55,15 +52,13 @@ namespace TAS.Server.Advantech.Configurator.Model
             if (deviceId != DeviceId || port != PortNumber || pin != PinNumber)
                 return;
 
-            IsTriggered = true;
+            RootDispatcher.Dispatcher.Invoke((Action)(() => IsTriggered = true));
             Logger.Trace("Advantech pin triggered");
 
             Logger.Debug("Advantech device {0} notification port {1} bit {2}", deviceId, port, pin);
             Started?.Invoke(this, EventArgs.Empty);            
         }
-                       
-        [Hibernate]
-        public bool IsEnabled { get; set; }
+                               
         public event EventHandler Started;
     }
 }

@@ -99,6 +99,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\IPluginManager.cs" />
+    <Compile Include="ViewModels\Plugins\CgElementsControllersViewModel.cs" />
+    <Compile Include="ViewModels\Plugins\GpisViewModel.cs" />
+    <Compile Include="ViewModels\Plugins\RoutersViewModel.cs" />
     <Compile Include="Views\ConfigFile\ConfigFileView.xaml.cs">
       <DependentUpon>ConfigFileView.xaml</DependentUpon>
     </Compile>
@@ -144,6 +148,12 @@
       <DependentUpon>PlayoutServerView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\Playout\PlayoutServerViewModel.cs" />
+    <Compile Include="Views\Plugins\CgElementsControllersView.xaml.cs">
+      <DependentUpon>CgElementsControllersView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Plugins\GpisView.xaml.cs">
+      <DependentUpon>GpisView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Plugins\PluginsView.xaml.cs">
       <DependentUpon>PluginsView.xaml</DependentUpon>
     </Compile>
@@ -153,6 +163,9 @@
       <DependentUpon>PlayoutServersView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\Playout\PlayoutServersViewModel.cs" />
+    <Compile Include="Views\Plugins\RoutersView.xaml.cs">
+      <DependentUpon>RoutersView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\ConfigFile\ConfigFileView.xaml">
@@ -191,7 +204,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Plugins\CgElementsControllersView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Plugins\GpisView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Plugins\PluginsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Plugins\RoutersView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

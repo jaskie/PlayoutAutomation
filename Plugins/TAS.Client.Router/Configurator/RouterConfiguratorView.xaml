@@ -6,13 +6,12 @@
              xmlns:local="clr-namespace:TAS.Server.Router.Configurator"             
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance local:RouterConfiguratorViewModel}"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="300" d:DesignWidth="420">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
@@ -27,18 +26,18 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Margin="5" Text="Type: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <ComboBox Margin="5" Grid.Column="1" MinWidth="100" ItemsSource="{Binding RouterTypes}" SelectedItem="{Binding SelectedRouterType}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        <TextBlock Margin="5" Grid.Row="1" Text="Hostname [IP:port]: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <TextBox Margin="5" Grid.Row="1" Grid.Column="1" MinWidth="100" Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        <TextBlock Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="2" Text="Login: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="2" Grid.Column="1" MinWidth="100" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        <TextBlock Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="3" Text="Password: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="3" Grid.Column="1" MinWidth="100" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        <TextBlock Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="4" Text="Level: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <TextBox Margin="5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="4" Grid.Column="1" MinWidth="100" Text="{Binding Level, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        <Rectangle Margin="5" Grid.Column="2" Grid.Row="1" Grid.RowSpan="5" Width="1" HorizontalAlignment="Left" VerticalAlignment="Stretch" Fill="LightGray" />
-        <GroupBox Margin="5" Grid.Column="3" Grid.Row="1" Grid.RowSpan="5" Header="Test connection">
+        <TextBlock Margin="0,5" Text="Type: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <ComboBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Grid.Column="1" MinWidth="100" ItemsSource="{Binding RouterTypes}" SelectedItem="{Binding SelectedRouterType}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBlock Margin="0,5" Grid.Row="1" Text="Hostname [IP:port]: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <TextBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Grid.Row="1" Grid.Column="1" MinWidth="100" Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBlock Margin="0,5" IsEnabled="{Binding IsEnabled}" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="2" Text="Login: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <TextBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="2" Grid.Column="1" MinWidth="100" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBlock Margin="0,5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="3" Text="Password: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <TextBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="3" Grid.Column="1" MinWidth="100" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBlock Margin="0,5" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="4" Text="Level: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <TextBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Visibility="{Binding IsExtendedType, Converter={StaticResource BoolToVisConverter}}" Grid.Row="4" Grid.Column="1" MinWidth="100" Text="{Binding Level, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <Rectangle Margin="0,10" Grid.Row="5" Grid.ColumnSpan="2" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Fill="LightGray" />
+        <GroupBox Margin="5" Grid.Row="6" Header="Test connection" HorizontalAlignment="Center" Grid.ColumnSpan="2">
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
@@ -85,12 +84,12 @@
         </GroupBox>
        
 
-        <Button Grid.Row="5"  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding AddOutputPortCommand}">
+        <Button Grid.Row="2"  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,5" Command="{Binding AddOutputPortCommand}">
             <Button.Content>
                 <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
             </Button.Content>
         </Button>
-        <DataGrid Margin="5" Grid.Row="6" Grid.ColumnSpan="2" ItemsSource="{Binding OutputPorts}" CanUserAddRows="False" AutoGenerateColumns="False" CanUserDeleteRows="False">
+        <DataGrid Grid.Row="3" Grid.ColumnSpan="2" ItemsSource="{Binding OutputPorts}" CanUserAddRows="False" AutoGenerateColumns="False" CanUserDeleteRows="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Id}" Header="Output Ports" />
                 <DataGridTemplateColumn>
@@ -106,8 +105,8 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <Grid Grid.Row="7" Margin="5" Grid.ColumnSpan="2">
-            <Button Command="{Binding SaveCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,5,10,0" Padding="10,5,10,5">
+        <Grid Grid.Row="7" Margin="5" Grid.ColumnSpan="4">
+            <Button Command="{Binding SaveCommand}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Padding="10,5,10,5">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
                         <Label Margin="5,0" Padding="0" Content="Save" VerticalAlignment="Center" HorizontalAlignment="Left" />
@@ -115,7 +114,7 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button Command="{Binding UndoCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,5,10,0" Padding="10,5,10,5">
+            <Button Command="{Binding UndoCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="10,5,10,5">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
                         <Label Margin="5,0" Padding="0" Content="Undo" VerticalAlignment="Center" HorizontalAlignment="Left" />

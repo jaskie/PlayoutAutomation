@@ -1,6 +1,6 @@
 ﻿using TAS.Database.Common;
 
-namespace TAS.Server.Advantech
+namespace TAS.Server.Advantech.Model
 {
     public class GpiPin
     {
