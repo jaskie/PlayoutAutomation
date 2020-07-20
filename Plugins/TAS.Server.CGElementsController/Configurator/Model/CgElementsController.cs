@@ -1,10 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
-using TAS.Client.Config;
-using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Database.Common;
 

@@ -64,10 +64,10 @@ namespace TAS.Server.CgElementsController.Configurator
 
         private void DeleteStartup(object obj)
         {
-            if (!(obj is Model.CgElement command))
+            if (!(obj is Model.CgElement startup))
                 return;
 
-            _startups.Remove(command);
+            _startups.Remove(startup);
             IsModified = true;
             Startups.Refresh();
         }
@@ -200,6 +200,10 @@ namespace TAS.Server.CgElementsController.Configurator
                 return;
 
             _cgElements.Remove(element);
+
+            for (byte i = 0; i < _cgElements.Count; ++i)
+                _cgElements[i].Id = i;
+
             IsModified = true;
             CgElements.Refresh();            
         }

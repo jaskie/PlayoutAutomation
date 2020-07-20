@@ -27,3 +27,5 @@ Release
 /TVPlay/bin
 /TVPlayClient/bin
 /ffmpeg/4.02
+/Tests/Plugins/TAS.Server.CgElementsControllerTests/bin
+/Tests/Plugins/TAS.Server.CgElementsControllerTests/obj

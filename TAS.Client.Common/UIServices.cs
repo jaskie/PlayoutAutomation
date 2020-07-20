@@ -366,8 +366,8 @@ namespace TAS.Client.Common
 
             var template = (DataTemplate)XamlReader.Parse(xaml, context);
 
-            if (!Application.Current.Resources.Contains(template.DataTemplateKey))
-                Application.Current.Resources.Add(template.DataTemplateKey, template);
+            if (!Application.Current?.Resources.Contains(template.DataTemplateKey) == true)
+                Application.Current?.Resources.Add(template.DataTemplateKey, template);
         }       
     }
 }

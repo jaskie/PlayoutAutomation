@@ -50,7 +50,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configurator\CgElementsControllerViewModelTests.cs" />
+    <Compile Include="Configurator\CgElementsControllerViewModelTests_Delete.cs" />
+    <Compile Include="Configurator\CgElementsControllerViewModelTests_AddEdit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
