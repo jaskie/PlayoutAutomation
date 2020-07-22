@@ -10,24 +10,14 @@ using TAS.Server.CgElementsController.Configurator.Model;
 namespace TAS.Server.CgElementsControllerTests.Configurator
 {
     [TestClass]
-    public class CgElementsControllerViewModelTests_AddEdit
+    public class CgElementsControllerViewModelTests
     {
         public static IEnumerable<object[]> GetCgElementsController()
         {
-            yield return new object[] { null };
-            yield return new object[] { new CgElementsController.Configurator.Model.CgElementsController() };
-            yield return new object[]
-            {
-                new CgElementsController.Configurator.Model.CgElementsController()
-                {
-                    Crawls = new List<ICGElement>
-                    {
-                        new CgElement { Id = 100 }
-                    }
-                }
-            };
+            foreach (var cgElementsController in CgElementsControllerTestData.CgElementsControllers)
+                yield return new object[] { cgElementsController };            
         }
-                    
+
         private CgElementsControllerViewModel _cgElementsControllerViewModel = new CgElementsControllerViewModel(new Engine());
         
         public void Init(ICGElementsController cgElementsController)
@@ -100,6 +90,21 @@ namespace TAS.Server.CgElementsControllerTests.Configurator
             Assert.IsTrue(_cgElementsControllerViewModel.CgElementViewModel == null, "Wizard has not disposed");
         }
 
+        [TestMethod]
+        [DynamicData(nameof(GetCgElementsController), DynamicDataSourceType.Method)]
+        public void IsEnabled_Changed(ICGElementsController cgElementsController)
+        {
+            Init(cgElementsController);
+            if (cgElementsController == null)
+                return;
+
+            Assert.AreEqual(_cgElementsControllerViewModel.IsEnabled, cgElementsController.IsEnabled);
+            _cgElementsControllerViewModel.IsEnabled = true;
+            Assert.IsTrue(cgElementsController.IsEnabled);
+            _cgElementsControllerViewModel.IsEnabled = false;
+            Assert.IsFalse(cgElementsController.IsEnabled);
+        }
+
         /// <summary>
         /// Tests CgElement edit process. Test will load element to wizard, cancel it and read data.
         /// </summary>
@@ -154,6 +159,93 @@ namespace TAS.Server.CgElementsControllerTests.Configurator
 
             _cgElementsControllerViewModel.IsModified = false;
             _cgElementsControllerViewModel.SelectedDefaultLogo = cgElement;
+            Assert.IsTrue(_cgElementsControllerViewModel.IsModified);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetCgElementsController), DynamicDataSourceType.Method)]
+        public void DeleteCgElement_CgElement_Deleted(CgElementsController.Configurator.Model.CgElementsController cgElementsController)
+        {
+            Init(cgElementsController);
+            var initialCrawlsCount = cgElementsController?.Crawls?.Count();
+            var initialParentalsCount = cgElementsController?.Parentals?.Count();
+            var initialLogosCount = cgElementsController?.Logos?.Count();
+            var initialAuxesCount = cgElementsController?.Auxes?.Count();
+
+            CgElement[] cgElements = null;
+            foreach (var type in Enum.GetNames(typeof(CgElement.Type)))
+            {
+                _cgElementsControllerViewModel.SelectedElementType = type;
+
+                var enumerator = _cgElementsControllerViewModel.CgElements.SourceCollection.GetEnumerator();
+                if (!enumerator.MoveNext())
+                    return;
+
+                //delete element
+                _cgElementsControllerViewModel.DeleteCgElementCommand.Execute(enumerator.Current);
+
+                //check if IDs where recalculated
+                cgElements = _cgElementsControllerViewModel.CgElements.Cast<CgElement>().ToArray();
+                for (int i = 0; i < cgElements.Count(); ++i)
+                    Assert.IsTrue(cgElements[i].Id == i);
+            }
+
+            _cgElementsControllerViewModel.SaveCommand.Execute(null);
+
+            var result = (CgElementsController.Configurator.Model.CgElementsController)_cgElementsControllerViewModel.GetModel();
+
+            if (initialLogosCount > 0)
+                Assert.IsTrue(result.Logos.Count() < initialLogosCount);
+
+            if (initialParentalsCount > 0)
+                Assert.IsTrue(result.Parentals.Count() < initialParentalsCount);
+
+            if (initialCrawlsCount > 0)
+                Assert.IsTrue(result.Crawls.Count() < initialCrawlsCount);
+
+            if (initialAuxesCount > 0)
+                Assert.IsTrue(result.Auxes.Count() < initialAuxesCount);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetCgElementsController), DynamicDataSourceType.Method)]
+        public void DeleteStartup_Startup_Deleted(CgElementsController.Configurator.Model.CgElementsController cgElementsController)
+        {
+            Init(cgElementsController);
+            var initialStartupsCount = cgElementsController?.Startups?.Count;
+
+            var enumerator = _cgElementsControllerViewModel.Startups.SourceCollection.GetEnumerator();
+            if (!enumerator.MoveNext())
+                return;
+            _cgElementsControllerViewModel.DeleteStartupCommand.Execute(enumerator.Current);
+            _cgElementsControllerViewModel.SaveCommand.Execute(null);
+
+            var result = (CgElementsController.Configurator.Model.CgElementsController)_cgElementsControllerViewModel.GetModel();
+            Assert.IsTrue(result.Startups.Count < initialStartupsCount);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetCgElementsController), DynamicDataSourceType.Method)]
+        public void IsModified_Modify_True(CgElementsController.Configurator.Model.CgElementsController cgElementsController)
+        {
+            Init(cgElementsController);
+            foreach (var type in Enum.GetNames(typeof(CgElement.Type)))
+            {
+                _cgElementsControllerViewModel.SelectedElementType = type;
+                _cgElementsControllerViewModel.IsModified = false;
+
+                var typeEnumerator = _cgElementsControllerViewModel.CgElements.GetEnumerator();
+                if (!typeEnumerator.MoveNext())
+                    continue;
+                _cgElementsControllerViewModel.DeleteCgElementCommand.Execute(typeEnumerator.Current);
+                Assert.IsTrue(_cgElementsControllerViewModel.IsModified);
+            }
+
+            _cgElementsControllerViewModel.IsModified = false;
+            var enumerator = _cgElementsControllerViewModel.Startups.SourceCollection.GetEnumerator();
+            if (!enumerator.MoveNext())
+                return;
+            _cgElementsControllerViewModel.DeleteStartupCommand.Execute(enumerator.Current);
             Assert.IsTrue(_cgElementsControllerViewModel.IsModified);
         }
     }

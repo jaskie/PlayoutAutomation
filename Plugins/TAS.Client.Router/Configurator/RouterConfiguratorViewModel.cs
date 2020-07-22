@@ -157,6 +157,7 @@ namespace TAS.Server.Router.Configurator
         {
             var lastItem = _outputPorts.LastOrDefault();           
             _outputPorts.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id+1), String.Empty));
+            IsModified = true;
             OutputPorts.Refresh();
         }
 
@@ -165,9 +166,9 @@ namespace TAS.Server.Router.Configurator
             _outputPorts = new List<PortInfo>();
             OutputPorts = CollectionViewSource.GetDefaultView(_outputPorts);
             _level = 0;
-            _ipAddress = String.Empty;
-            _login = String.Empty;
-            _password = String.Empty;
+            _ipAddress = null;
+            _login = null;
+            _password = null;
             _selectedRouterType = null;
 
             if (_router == null)

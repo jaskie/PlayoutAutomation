@@ -81,7 +81,7 @@ namespace TAS.Server.Advantech.Configurator
 
         private void AddGpiBinding(object obj)
         {                        
-            GpiBindingViewModel = new GpiBindingViewModel();
+            GpiBindingViewModel = new GpiBindingViewModel();            
         }
 
         public event EventHandler PluginChanged;               
@@ -105,11 +105,13 @@ namespace TAS.Server.Advantech.Configurator
 
         private void LocalSave(object obj)
         {
-            if (_gpi == null)
-                _gpi = new Model.Gpi();
+            _gpi = new Model.Gpi()
+            {
+                Bindings = _gpiBindings,
+                IsEnabled = _isEnabled
+            };
 
-            _gpi.Bindings = _gpiBindings;
-            _gpi.IsEnabled = _isEnabled;
+            PluginChanged?.Invoke(this, EventArgs.Empty);
             IsModified = false;
         }     
 

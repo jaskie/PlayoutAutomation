@@ -9,7 +9,7 @@ namespace TAS.Server.CgElementsController.Configurator.Model
     public class CgElementsController : ICGElementsController
     {   
         [Hibernate]
-        public List<string> Startup { get; set; }
+        public List<string> Startups { get; set; }
         [Hibernate]        
         public IEnumerable<ICGElement> Logos { get; set; }
         [Hibernate]        
@@ -31,7 +31,7 @@ namespace TAS.Server.CgElementsController.Configurator.Model
             Logos = new List<ICGElement>();
             Parentals = new List<ICGElement>();
             Auxes = new List<ICGElement>();
-            Startup = new List<string>();
+            Startups = new List<string>();
         }
 
         #region ICGElementsController

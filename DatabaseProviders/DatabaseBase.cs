@@ -19,7 +19,6 @@ using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Common.Interfaces.Security;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using NLog;
 
 #if MYSQL

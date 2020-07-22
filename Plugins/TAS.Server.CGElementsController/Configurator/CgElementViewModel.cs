@@ -11,7 +11,7 @@ namespace TAS.Server.CgElementsController.Configurator
         private string _uploadServerImagePath;        
         private Model.CgElement _cgElement;
 
-        public CgElementViewModel(Configurator.Model.CgElement cgElement, string ConfirmButtonText = "Add") : base(ConfirmButtonText, "Cancel")
+        public CgElementViewModel(Model.CgElement cgElement, string ConfirmButtonText = "Add") : base(ConfirmButtonText, "Cancel")
         {
             LoadCommands();
             _cgElement = cgElement;
@@ -48,10 +48,7 @@ namespace TAS.Server.CgElementsController.Configurator
         public string UploadClientImagePath { get => _uploadClientImagePath; set => SetField(ref _uploadClientImagePath, value); }
         public string UploadServerImagePath { get => _uploadServerImagePath; set => SetField(ref _uploadServerImagePath, value); }
         public string ServerImagePath { get; private set; }
-        public string ClientImagePath { get; private set; }
-        
-        //probably obsolete... will see later
-        public bool IsClientImageVisible { get; } = true;
+        public string ClientImagePath { get; private set; }                
 
         public UiCommand UploadServerImageCommand { get; private set; }
         public UiCommand UploadClientImageCommand { get; private set; }
@@ -63,16 +60,14 @@ namespace TAS.Server.CgElementsController.Configurator
             {
                 _cgElement.Name = _name;
                 _cgElement.Command = _command;
-                _cgElement.ClientImagePath = _cgElement.ClientImagePath;
-                _cgElement.ServerImagePath = _cgElement.ServerImagePath;
-
-                if (_uploadClientImagePath?.Length>0)
-                    _cgElement.UploadClientImagePath = _cgElement.ClientImagePath;
-                if (_uploadServerImagePath?.Length>0)
-                    _cgElement.UploadServerImagePath = _cgElement.ServerImagePath;
+                _cgElement.ClientImagePath = ClientImagePath;
+                _cgElement.ServerImagePath = ServerImagePath;
+               
+                _cgElement.UploadClientImagePath = UploadClientImagePath;             
+                _cgElement.UploadServerImagePath = UploadServerImagePath;
                 return true;
             }
-            catch(Exception ex)
+            catch
             {
                 return false;
             }

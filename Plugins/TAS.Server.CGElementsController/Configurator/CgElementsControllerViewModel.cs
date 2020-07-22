@@ -167,7 +167,7 @@ namespace TAS.Server.CgElementsController.Configurator
                 _parentals.Add(cgElement);
             }
 
-            foreach (var startup in _cgElementsController.Startup)
+            foreach (var startup in _cgElementsController.Startups)
                 _startups.Add(new Model.CgElement { Command = startup });
 
             SelectedDefaultCrawl = _crawls.FirstOrDefault(c => c.Id == _cgElementsController.DefaultCrawl);
@@ -279,6 +279,7 @@ namespace TAS.Server.CgElementsController.Configurator
                     foreach (var path in _engine.Servers.Select(server => server.MediaFolder))
                     {
                         File.Copy(cgElement.UploadServerImagePath, Path.Combine(path, Path.GetFileName(cgElement.UploadServerImagePath)), true);
+                        cgElement.ServerImagePath = Path.Combine(path, Path.GetFileName(cgElement.UploadServerImagePath));
                     }
                 }
 
@@ -309,6 +310,7 @@ namespace TAS.Server.CgElementsController.Configurator
 
                     var clientPath = Path.Combine(Directory.GetCurrentDirectory(), configPath, Path.GetFileName(cgElement.UploadClientImagePath));
                     File.Copy(cgElement.UploadClientImagePath, clientPath, true);
+                    cgElement.ClientImagePath = clientPath;
                 }
             }            
         }
@@ -323,7 +325,7 @@ namespace TAS.Server.CgElementsController.Configurator
             _cgElementsController.Logos = _logos;
             _cgElementsController.Parentals = _parentals;
             _cgElementsController.IsEnabled = _isEnabled;
-            _cgElementsController.Startup = _startups.Select(s => s.Command).ToList();
+            _cgElementsController.Startups = _startups.Select(s => s.Command).ToList();
             _cgElementsController.DefaultCrawl = SelectedDefaultCrawl?.Id ?? 1;
             _cgElementsController.DefaultLogo = SelectedDefaultLogo?.Id ?? 1;
             IsModified = false;

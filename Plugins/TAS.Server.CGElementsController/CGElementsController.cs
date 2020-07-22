@@ -35,10 +35,10 @@ namespace TAS.Server.CgElementsController
         [Hibernate]
         public bool IsEnabled { get; set; }
 
-        [DtoMember]
+        [DtoMember, Hibernate]
         public byte DefaultCrawl { get; set; }
 
-        [DtoMember]
+        [DtoMember, Hibernate]
         public byte DefaultLogo { get; set; }
 
         [DtoMember]
@@ -104,15 +104,13 @@ namespace TAS.Server.CgElementsController
         }
 
         [DtoMember, Hibernate]        
-        public IEnumerable<ICGElement> Parentals { get; set; }
-                               
-        public string[] _startup { get; set; } = new string[0];
+        public IEnumerable<ICGElement> Parentals { get; set; }                                       
         
         [Hibernate]
         public IEnumerable<ICGElement> Auxes { get; }
         
         [Hibernate]
-        public IEnumerable<string> Startup { get; }
+        public IEnumerable<string> Startups { get; }
 
         public event EventHandler Started;
 
@@ -167,7 +165,7 @@ namespace TAS.Server.CgElementsController
                     return;
 
                 Logger.Debug("Executing startup items");
-                foreach (var command in _startup)
+                foreach (var command in Startups)
                 {
                     Logger.Trace("Executing startup command: {0}", command);
                     Engine.Execute(command);
