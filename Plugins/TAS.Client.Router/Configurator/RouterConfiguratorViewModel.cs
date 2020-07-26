@@ -74,12 +74,12 @@ namespace TAS.Server.Router.Configurator
         {
             if (_selectedRouterType == Router.RouterType.Nevion)
             {
-                if (_ipAddress.Length > 0 && _login.Length > 0 && _password.Length > 0 && IsModified)
+                if (_ipAddress?.Length > 0 && _login?.Length > 0 && _password?.Length > 0 && IsModified)
                     return true;
             }
             else if (_selectedRouterType == Router.RouterType.BlackmagicSmartVideoHub)
             {
-                if (_ipAddress.Length > 0 && IsModified)
+                if (_ipAddress?.Length > 0 && IsModified)
                     return true;
             }
             return false;
@@ -195,11 +195,14 @@ namespace TAS.Server.Router.Configurator
             get => _isEnabled;
             set
             {
-                if (!SetField(ref _isEnabled, value))
+                if (_isEnabled == value)
                     return;
+                _isEnabled = value;
                 
                 if (_router != null)
                     _router.IsEnabled = value;
+
+                NotifyPropertyChanged();
                 PluginChanged?.Invoke(this, EventArgs.Empty);
             }
         }

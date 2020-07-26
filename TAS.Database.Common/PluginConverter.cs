@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
@@ -13,7 +13,7 @@ namespace TAS.Database.Common
     public class PluginConverter : JsonConverter
     {
         [ImportMany(typeof(IPluginTypeBinder))]        
-        public static IEnumerable<IPluginTypeBinder> PluginBinders { get; }
+        public static System.Collections.Generic.IEnumerable<IPluginTypeBinder> PluginBinders { get; }
         private static readonly string FileNameSearchPattern = "TAS.Server.*.dll";
 
         static PluginConverter()
@@ -27,7 +27,7 @@ namespace TAS.Database.Common
             }
         }
 
-        private IPlugin CreateInstance(JToken container, JsonSerializer serializer)
+        private object CreateInstance(JToken container, JsonSerializer serializer)
         {
             var jObject = JObject.Load(container.CreateReader());            
             var typeMeta = jObject.GetValue("$type").ToObject<string>().Split(',');
@@ -40,7 +40,7 @@ namespace TAS.Database.Common
             var isEnabled = jObject.GetValue("IsEnabled").ToObject<bool>();
 
             if (isEnabled)
-                return (IPlugin)serializer.Deserialize(jObject.CreateReader(), type);
+                return serializer.Deserialize(jObject.CreateReader(), type);
             
             return null;
         }
@@ -56,7 +56,7 @@ namespace TAS.Database.Common
             if (reader.TokenType == JsonToken.StartArray)
             {
                 var jArray = JArray.Load(reader);
-                List<IPlugin> plugins = new List<IPlugin>();
+                var plugins = (IList)Activator.CreateInstance(objectType);
                 foreach (var child in jArray.Children())
                 {
                     var item = CreateInstance(child, serializer);

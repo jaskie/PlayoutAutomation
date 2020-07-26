@@ -9,12 +9,18 @@ namespace TAS.Remoting.Model
     public class CgElementsController : ProxyObjectBase, ICGElementsController
 
     {
-        #pragma warning disable CS0649 
+#pragma warning disable CS0649
+        [DtoMember(nameof(ICGElementsController.IsEnabled))]
+        private bool _isEnabled;
 
         [DtoMember(nameof(ICGElementsController.Crawls))]
         private List<CGElement> _crawls;
+
         [DtoMember(nameof(ICGElementsController.Logos))]
         private List<CGElement> _logos;
+
+        [DtoMember(nameof(ICGElementsController.Auxes))]
+        private List<CGElement> _auxes;
 
         [DtoMember(nameof(ICGElementsController.Parentals))]
         private List<CGElement> _parentals;
@@ -35,10 +41,7 @@ namespace TAS.Remoting.Model
         private bool _isConnected;
 
         [DtoMember(nameof(ICGElementsController.IsMaster))]
-        private bool _isMaster;
-
-        [DtoMember(nameof(ICGElementsController.IsWideScreen))]
-        private bool _isWideScreen;
+        private bool _isMaster;        
 
         [DtoMember(nameof(ICGElementsController.Logo))]
         private byte _logo;
@@ -47,11 +50,17 @@ namespace TAS.Remoting.Model
         private byte _parental;
 
 
-        #pragma warning restore
+#pragma warning restore
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set => Set(value);
+        }
 
         public IEnumerable<ICGElement> Crawls => _crawls;
 
         public IEnumerable<ICGElement> Logos => _logos;
+        public IEnumerable<ICGElement> Auxes => _auxes;
 
         public IEnumerable<ICGElement> Parentals => _parentals;
 
@@ -65,9 +74,7 @@ namespace TAS.Remoting.Model
 
         public bool IsConnected => _isConnected;
 
-        public bool IsMaster => _isMaster;
-
-        public bool IsWideScreen { get { return _isWideScreen; } set { Set(value); } }
+        public bool IsMaster => _isMaster;        
 
         public byte Logo { get { return _logo; } set { Set(value); } }
 

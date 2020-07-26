@@ -49,18 +49,21 @@ namespace TAS.Client.Config.ViewModels.Plugins
                         if (pluginConfigurator.GetModel() is ICGElementsController && _cgElementsControllersViewModel == null)
                         {
                             _cgElementsControllersViewModel = new CgElementsControllersViewModel(_engine);
+                            _cgElementsControllersViewModel.PluginChanged += OnPluginChanged;
                             _plugins.Add(_cgElementsControllersViewModel);
                         }
 
                         else if (pluginConfigurator.GetModel() is IRouter && _routersViewModel == null)
                         {
                             _routersViewModel = new RoutersViewModel(_engine);
+                            _routersViewModel.PluginChanged += OnPluginChanged;
                             _plugins.Add(_routersViewModel);
                         }
 
                         else if (pluginConfigurator.GetModel() is IGpi && _gpisViewModel == null)
                         {
                             _gpisViewModel = new GpisViewModel(_engine);
+                            _gpisViewModel.PluginChanged += OnPluginChanged;
                             _plugins.Add(_gpisViewModel);
                         }                            
                     }                                                      
@@ -69,6 +72,10 @@ namespace TAS.Client.Config.ViewModels.Plugins
             Plugins.Refresh();
         }
 
+        private void OnPluginChanged(object sender, EventArgs e)
+        {
+            PluginChanged?.Invoke(this, EventArgs.Empty);
+        }
 
         public bool HasPlugins => _plugins.Count > 0;
         public ICollectionView Plugins { get; }
@@ -108,7 +115,14 @@ namespace TAS.Client.Config.ViewModels.Plugins
 
         protected override void OnDispose()
         {
-            //
+            if (_gpisViewModel != null)
+                _gpisViewModel.PluginChanged -= OnPluginChanged;
+
+            if (_routersViewModel != null)
+                _routersViewModel.PluginChanged -= OnPluginChanged;
+
+            if (_cgElementsControllersViewModel != null)
+                _cgElementsControllersViewModel.PluginChanged -= OnPluginChanged;
         }             
     }
 }

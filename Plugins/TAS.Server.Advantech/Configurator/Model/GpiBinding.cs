@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using jNet.RPC.Server;
 using TAS.Client.Common;
 using TAS.Database.Common;
+using TAS.Server.Advantech.Model;
 
 namespace TAS.Server.Advantech.Configurator.Model
 {
@@ -12,10 +13,24 @@ namespace TAS.Server.Advantech.Configurator.Model
         private bool _isTriggered;
 
         [Hibernate]
+        public GpiPin Start
+        {
+            get => new GpiPin { DeviceId = DeviceId, PortNumber = PortNumber, PinNumber = PinNumber };
+            set
+            {
+                if (value == null)
+                    return;
+
+                DeviceId = value.DeviceId;
+                PortNumber = value.PortNumber;
+                PinNumber = value.PinNumber;
+            }
+        }
+       
         public byte DeviceId { get; set; }
-        [Hibernate]
+      
         public int PortNumber { get; set; }
-        [Hibernate]
+        
         public byte PinNumber { get; set; }
         public bool IsTriggered 
         {

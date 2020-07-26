@@ -436,12 +436,14 @@ namespace TAS.Server.CgElementsController.Configurator
             get => _isEnabled;
             set
             {
-                if (!SetField(ref _isEnabled, value))
+                if (_isEnabled == value)
                     return;
+                _isEnabled = value;
 
                 if (_cgElementsController != null)                     
                     _cgElementsController.IsEnabled = value;
 
+                NotifyPropertyChanged();
                 PluginChanged?.Invoke(this, EventArgs.Empty);
             }
         }

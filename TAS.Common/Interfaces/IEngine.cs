@@ -94,8 +94,8 @@ namespace TAS.Common.Interfaces
         event EventHandler<EventEventArgs> VisibleEventAdded;
         event EventHandler<EventEventArgs> VisibleEventRemoved;
         event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
-        IRouter Router { get; set; }
-        ICGElementsController CGElementsController { get; set; }
+        IRouter Router { get; }
+        ICGElementsController CGElementsController { get; }
     }
 
     public interface IEngineProperties

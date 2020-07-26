@@ -21,7 +21,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
         private List<IPluginConfigurator> _configurators = new List<IPluginConfigurator>();
         private IPluginConfigurator _selectedConfigurator;
 
-        private bool? _isEnabled;
+        private bool? _isEnabled = null;
 
         public GpisViewModel(IConfigEngine engine)
         {
@@ -37,16 +37,16 @@ namespace TAS.Client.Config.ViewModels.Plugins
                     
                     foreach (var pluginConfigurator in pluginConfigurators)
                     {                       
-                        pluginConfigurator.PluginChanged += PluginConfigurator_PluginChanged;
-                        pluginConfigurator.Initialize(_engine.Gpis);
+                        pluginConfigurator.PluginChanged += PluginConfigurator_PluginChanged;                        
+                        pluginConfigurator.Initialize(_engine.Gpis.FirstOrDefault(g => g.GetType() == pluginConfigurator.GetModel().GetType()));
                         _configurators.Add(pluginConfigurator);
                     }                    
                 }
-            }
+            }            
         }
 
         private void PluginConfigurator_PluginChanged(object sender, EventArgs e)
-        {
+        {            
             PluginChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -68,8 +68,8 @@ namespace TAS.Client.Config.ViewModels.Plugins
                 if (!SetField(ref _selectedConfigurator, value))
                     return;
 
-                _isEnabled = _selectedConfigurator?.IsEnabled ?? false;
-                NotifyPropertyChanged(nameof(IsEnabled));                
+                //_isEnabled = _selectedConfigurator?.IsEnabled ?? false;
+                //NotifyPropertyChanged(nameof(IsEnabled));                
             }
         }
 
@@ -78,14 +78,14 @@ namespace TAS.Client.Config.ViewModels.Plugins
             get => _isEnabled;
             set
             {
-                if (!SetField(ref _isEnabled, value))
-                    return;
+                //if (!SetField(ref _isEnabled, value))
+                //    return;
 
-                if (value == null)
-                    return;
+                //if (value == null)
+                //    return;
 
-                foreach (var configurator in _configurators)
-                    configurator.IsEnabled = (bool)value;
+                //foreach (var configurator in _configurators)
+                //    configurator.IsEnabled = (bool)value;
             }
         }
 

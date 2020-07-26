@@ -94,7 +94,7 @@ namespace TAS.Server.Advantech.Configurator
         public void Initialize(object model)
         {
             UiServices.AddDataTemplate(typeof(GpiViewModel), typeof(GpiView));
-            _gpi = model as Model.Gpi;
+            _gpi = (IGpi)model as Model.Gpi;
             Init();
         }
 
@@ -128,12 +128,15 @@ namespace TAS.Server.Advantech.Configurator
             get => _isEnabled;
             set
             {
-                if (!SetField(ref _isEnabled, value))
+                if (_isEnabled == value)
                     return;
+
+                _isEnabled = value;
 
                 if (_gpi != null)
                     _gpi.IsEnabled = value;
 
+                NotifyPropertyChanged();
                 PluginChanged?.Invoke(this, EventArgs.Empty);
             }
         }

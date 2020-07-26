@@ -31,6 +31,7 @@ namespace TAS.Server
         public DataItem[] Data { get; set; }
 
         public TMediaCategory? MediaCategory { get; set; }
+        public bool IsEnabled { get; set; }
 
         public void Dispose()
         {

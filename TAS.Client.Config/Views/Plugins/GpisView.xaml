@@ -13,7 +13,7 @@
         </Grid.ColumnDefinitions>
         <DataGrid MinWidth="200" MinHeight="350" HorizontalAlignment="Left" ItemsSource="{Binding Configurators}" SelectedItem="{Binding SelectedConfigurator}" CanUserAddRows="False" AutoGenerateColumns="False" CanUserDeleteRows="False">
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Binding="{Binding IsEnabled}" />
+                <DataGridCheckBoxColumn Binding="{Binding IsEnabled, UpdateSourceTrigger=PropertyChanged}" />
                 <DataGridTextColumn Header="Name" MinWidth="170" Binding="{Binding PluginName}" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>

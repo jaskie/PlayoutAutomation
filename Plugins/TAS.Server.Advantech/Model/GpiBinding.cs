@@ -8,8 +8,8 @@ namespace TAS.Server.Advantech.Model
     public class GpiBinding : ServerObjectBase, IPlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();        
-        
-        public GpiPin Start;               
+        [Hibernate]
+        public GpiPin Start { get; set; }               
 
         private void _actionCheckAndExecute(EventHandler handler, GpiPin pin, byte deviceId, byte port, byte bit)
         {
