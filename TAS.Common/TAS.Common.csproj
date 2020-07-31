@@ -40,14 +40,20 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -115,6 +121,7 @@
     <Compile Include="Interfaces\Security\ISecurityObject.cs" />
     <Compile Include="Interfaces\Security\IUser.cs" />
     <Compile Include="Interfaces\Security\IUserManager.cs" />
+    <Compile Include="LoggerConfig.cs" />
     <Compile Include="MediaIngestStatusEventArgs.cs" />
     <Compile Include="MediaIsArchivedEventArgs.cs" />
     <Compile Include="MediaOnLayerEventArgs.cs" />
@@ -184,6 +191,9 @@
       <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
       <Name>jNet.RPC</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

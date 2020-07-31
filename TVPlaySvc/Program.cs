@@ -41,6 +41,7 @@ namespace TVPlaySvc
 
         protected static void ExecuteApp()
         {
+            TAS.Common.LoggerConfig.AddDebuggerTarget();
             try
             {
                 StartUp();

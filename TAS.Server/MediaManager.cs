@@ -70,7 +70,6 @@ namespace TAS.Server
 
         public void Initialize(ArchiveDirectory archiveDirectory)
         {
-            Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Begin initializing");
             ArchiveDirectory = archiveDirectory;
             MediaDirectoryPRI = ((CasparServerChannel)_engine.PlayoutChannelPRI)?.Owner.MediaDirectory;
@@ -115,7 +114,6 @@ namespace TAS.Server
             if (adir != null)
                 adir.PropertyChanged += _animationDirectoryPropertyChanged;
             InitialMediaSynchronization();
-            Debug.WriteLine(this, "End initializing");
             Logger.Debug("End initializing");
         }
 

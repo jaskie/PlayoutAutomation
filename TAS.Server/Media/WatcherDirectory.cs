@@ -83,7 +83,6 @@ namespace TAS.Server.Media
                 catch (Exception e)
                 {
                     Logger.Error(e);
-                    Debug.WriteLine("MediaDirectory.DeleteMedia {0} failed with error {1}", media, e.Message);
                 }
             }
             else
@@ -193,7 +192,6 @@ namespace TAS.Server.Media
             else
             if (_beginWatchCancelationTokenSource?.IsCancellationRequested == true)
             {
-                Debug.WriteLine("Watcher setup canceled");
                 Logger.Debug("Directory {0} watcher setup error", Folder);
             }
             _beginWatchCancelationTokenSource = null;
@@ -205,7 +203,6 @@ namespace TAS.Server.Media
             if (cts == null)
                 return;
             cts.Cancel();
-            Debug.WriteLine($"MediaDirectory: BeginWatch for {Folder} canceled.");
             Logger.Debug("BeginWatch for {0} canceled.", Folder, null);
         }
 

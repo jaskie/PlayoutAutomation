@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using TAS.FFMpegUtils;
 using TAS.Common;
+using NLog;
 
 namespace TAS.Server.Media
 {
@@ -65,11 +66,7 @@ namespace TAS.Server.Media
                         ingestMedia.StreamInfo = ffmpeg.GetStreamInfo();
                     if (media is TempMedia tempMedia)
                         tempMedia.StreamInfo = ffmpeg.GetStreamInfo();
-#if DEBUG
-                    Debug.WriteLine("FFmpeg check of {0} finished. It took {1} milliseconds", media.FullPath,
-                        Environment.TickCount - startTickCunt);
-#endif
-
+                    Debug.WriteLine("FFmpeg check of {0} finished. It took {1} milliseconds", media.FullPath, Environment.TickCount - startTickCunt);
                     if (mediaDuration > TimeSpan.Zero)
                     {
                         media.MediaType = TMediaType.Movie;

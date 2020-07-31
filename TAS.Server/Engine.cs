@@ -259,7 +259,6 @@ namespace TAS.Server
 
         public void Initialize(IList<CasparServer> servers)
         {
-            Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Initializing engine {0}", this);
             _authenticationService = Security.AuthenticationService.Current;
             var recorders = new List<CasparRecorder>();
@@ -310,7 +309,7 @@ namespace TAS.Server
             if (Remote != null)
             {
                 Debug.WriteLine(this, "Initializing Remote interface");
-                Remote.Initialize(this, new Security.PrincipalProvider(_authenticationService));
+                Remote.Initialize(this, new PrincipalProvider(_authenticationService));
             }
 
             if (_localGpis != null)
@@ -325,7 +324,6 @@ namespace TAS.Server
                 IsBackground = true
             };
             _engineThread.Start();
-            Debug.WriteLine(this, "Engine initialized");
             Logger.Debug("Engine {0} initialized", this);
         }
 
@@ -515,7 +513,6 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Play))
                 return;
 
-            Debug.WriteLine(aVideoLayer, "Clear");
             Logger.Info("{0} {1}: Clear layer {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aVideoLayer);
             Event ev;
             lock (((IList)_visibleEvents).SyncRoot)
@@ -955,7 +952,6 @@ namespace TAS.Server
                 aEvent = aEvent.InternalGetSuccessor();
             if (aEvent == null)
                 return;
-            Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent);
             Logger.Info("{0} {1}: Load {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
             var eventType = aEvent.EventType;
 
@@ -989,8 +985,6 @@ namespace TAS.Server
             if ((eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage) &&
                 !(_preloadedEvents.TryGetValue(aEvent.Layer, out var preloaded) && preloaded == aEvent))
             {
-
-                Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent);
                 Logger.Info("{0} {1}: Preload {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
                 _preloadedEvents[aEvent.Layer] = aEvent;
                 _playoutChannelPRI?.LoadNext(aEvent);
@@ -1029,7 +1023,6 @@ namespace TAS.Server
             var eventType = aEvent.EventType;
             if (!aEvent.IsEnabled || (aEvent.Length == TimeSpan.Zero && eventType != TEventType.Animation && eventType != TEventType.CommandScript))
                 aEvent = aEvent.InternalGetSuccessor();
-            Debug.WriteLine("{0} Play: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent.EventName);
             Logger.Info("{0} {1}: Play {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent.EventName);
             eventType = aEvent.EventType;
             if (aEvent == _forcedNext)
@@ -1169,7 +1162,6 @@ namespace TAS.Server
                     var eventType = aEvent.EventType;
                     if (eventType != TEventType.Live && eventType != TEventType.CommandScript)
                     {
-                        Debug.WriteLine("{0} Stop: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent.EventName);
                         Logger.Info("{0} {1}: Stop {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent.EventName);
                         _playoutChannelPRI?.Stop(aEvent);
                         _playoutChannelSEC?.Stop(aEvent);
@@ -1185,7 +1177,6 @@ namespace TAS.Server
             lock (((IList)_visibleEvents).SyncRoot)
                 if (_visibleEvents.Contains(aEvent))
                 {
-                    Debug.WriteLine("{0} Pause: {1}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), aEvent.EventName);
                     Logger.Info("{0} {1}: Pause {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent.EventName);
                     if (aEvent.EventType != TEventType.Live && aEvent.EventType != TEventType.StillImage)
                     {
@@ -1464,7 +1455,6 @@ namespace TAS.Server
 
         private void ThreadProc()
         {
-            Debug.WriteLine(this, "Engine thread started");
             Logger.Debug("Started engine thread for {0}", this);
             CurrentTime = AlignDateTime(DateTime.UtcNow + TimeSpan.FromMilliseconds(_timeCorrection));
             _currentTicks = CurrentTime.Ticks;
@@ -1515,7 +1505,6 @@ namespace TAS.Server
                     EngineTick?.Invoke(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
                     if (nFrames > 1)
                     {
-                        Debug.WriteLine(nFrames, "LateFrame");
                         if (nFrames > 20)
                             Logger.Error("LateFrame: {0}", nFrames);
                         else
@@ -1525,8 +1514,7 @@ namespace TAS.Server
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine(e, "Exception in engine tick");
-                    Logger.Error($"{e}");
+                    Logger.Error($"Exception in Engine tick: {e}");
                 }
                 QueryUnbiasedInterruptTime(out currentTime);
                 var waitTime = (int)((prevTime + frameDuration - currentTime + 10000) / 10000);
@@ -1537,7 +1525,6 @@ namespace TAS.Server
                     Debug.WriteLine("Negative waitTime");
 #endif
             }
-            Debug.WriteLine(this, "Engine thread finished");
             Logger.Debug("Engine thread finished: {0}", this);
         }
 

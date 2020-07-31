@@ -25,6 +25,7 @@ namespace TAS.Client
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            TAS.Common.LoggerConfig.AddDebuggerTarget();
             var splash = MainWindow as SplashScreenView;
             MainWindow = new MainWindow();
             MainWindow.Show();

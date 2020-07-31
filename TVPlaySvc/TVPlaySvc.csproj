@@ -53,6 +53,10 @@
     <Compile Include="WindowsServiceInstaller.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TAS.Common\TAS.Common.csproj">
+      <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
+      <Name>TAS.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TAS.Database.Common\TAS.Database.Common.csproj">
       <Project>{F73445A5-2375-49EA-BD4F-8C6778D8736D}</Project>
       <Name>TAS.Common.Database</Name>
