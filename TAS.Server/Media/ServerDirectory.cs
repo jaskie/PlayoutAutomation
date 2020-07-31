@@ -119,9 +119,9 @@ namespace TAS.Server.Media
             base.OnMediaRenamed(media, newFullPath);
         }
 
-        protected override void EnumerateFiles(string directory, bool includeSubdirectories, CancellationToken cancelationToken)
+        protected override void EnumerateFiles(string directory, bool includeSubdirectories)
         {
-            base.EnumerateFiles(directory, includeSubdirectories, cancelationToken);
+            base.EnumerateFiles(directory, includeSubdirectories);
             var unverifiedFiles = FindMediaList(mf => ((ServerMedia)mf).IsVerified == false);
             unverifiedFiles.ForEach(media => media.Verify(true));
         }

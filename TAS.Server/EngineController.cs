@@ -49,10 +49,14 @@ namespace TAS.Server
             LoadArchiveDirectories();
             foreach (var e in Engines)
                 e.Initialize(Servers);
-            foreach (var e in Engines)
-                ((MediaManager) e.MediaManager).Initialize(
-                    ArchiveDirectories.FirstOrDefault(a => a.IdArchive == e.IdArchive));
             Logger.Debug("Engines initialized");
+            Task.Run(() =>
+            {
+                foreach (var e in Engines)
+                    ((MediaManager)e.MediaManager).Initialize(
+                        ArchiveDirectories.FirstOrDefault(a => a.IdArchive == e.IdArchive));
+                Logger.Debug("All media managers initialized");
+            });
         }
 
         private void LoadArchiveDirectories()

@@ -427,10 +427,9 @@ namespace TAS.Server.Media
                 m.IsVerified = false;
         }
 
-        protected override void EnumerateFiles(string directory, bool includeSubdirectories,
-            CancellationToken cancelationToken)
+        protected override void EnumerateFiles(string directory, bool includeSubdirectories)
         {
-            base.EnumerateFiles(directory, includeSubdirectories, cancelationToken);
+            base.EnumerateFiles(directory, includeSubdirectories);
             if (Kind == TIngestDirectoryKind.BmdMediaExpressWatchFolder)
                 lock (((IList) _bMdXmlFiles).SyncRoot)
                     foreach (string xml in _bMdXmlFiles)
