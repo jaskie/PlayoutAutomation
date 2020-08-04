@@ -223,16 +223,16 @@
                             </Style>
                         </StackPanel.Resources>
                         <Button Command="{Binding CommandStartSelected}" ToolTip="{Resx _toolbar.StartSelected}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/play.png" Stretch="None" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Playing.png" Stretch="None" />
                         </Button>
                         <Button Command="{Binding CommandLoadSelected}" ToolTip="{Resx _toolbar.Load}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/pause.png" Stretch="None" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Paused.png" Stretch="None" />
                         </Button>
                         <Button Command="{Binding CommandStartLoaded}" ToolTip="{Resx _toolbar.StartLoaded}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/play-pause.png" Stretch="None" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Cue.png" Stretch="None" />
                         </Button>
                         <ToggleButton Command="{Binding CommandForceNextSelected}" IsChecked="{Binding IsForcedNext, Mode=OneWay}" ToolTip="{Resx _toolbar.ForceNext}" Background="{Binding IsForcedNext, Converter={StaticResource BoolToBrush}, ConverterParameter=LightCoral}" Width="40" Height="40" Margin="8">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/force-next.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/ForceNext.png" />
                         </ToggleButton>
                         <Button Command="{Binding CommandRescheduleSelected}" ToolTip="{Resx _toolbar.Reschedule}">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png" Stretch="None" />
@@ -240,7 +240,7 @@
                         <ComboBox x:Name="ClearCombo" Margin="2" SelectedIndex="0" Padding="5" VerticalAlignment="Center" >
                             <ComboBoxItem ToolTip="{Resx _toolbar.ClearAll}" >
                                 <Button Command="{Binding CommandClearAll}" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
-                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/stop.png" />
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Aborted.png" />
                                 </Button>
                             </ComboBoxItem>
                             <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG1}" >

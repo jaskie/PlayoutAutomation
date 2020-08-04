@@ -391,16 +391,7 @@
     <Resource Include="Images\VideoFormats\HD.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\EventActions\pause.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\EventActions\play.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\EventActions\play-pause.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\EventActions\stop.png" />
+    <Resource Include="Images\PlayStates\Cue.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Indicators\on-air.png" />
@@ -438,7 +429,7 @@
     <Resource Include="Images\Indicators\warning-overlay.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\EventActions\force-next.png" />
+    <Resource Include="Images\PlayStates\ForceNext.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Actions\media-ingest.png" />
