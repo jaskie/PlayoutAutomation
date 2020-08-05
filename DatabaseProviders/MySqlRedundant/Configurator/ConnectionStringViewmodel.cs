@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
-using TAS.Client.Config;
+using TAS.Client.Common;
 
 namespace TAS.Database.MySqlRedundant.Configurator
 {

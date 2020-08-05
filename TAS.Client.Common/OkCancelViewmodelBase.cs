@@ -2,9 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using TAS.Client.Common;
 
-namespace TAS.Client.Config
+namespace TAS.Client.Common
 {
     public abstract class OkCancelViewmodelBase<TM> : EditViewmodelBase<TM>
     {
@@ -14,7 +13,7 @@ namespace TAS.Client.Config
         protected OkCancelViewmodelBase(TM model, Type editor, string windowTitle) : base(model)
         {
             CommandCancel = new UiCommand(Close, CanClose);
-            CommandOk = new UiCommand (Ok, CanOk );
+            CommandOk = new UiCommand(Ok, CanOk);
             Title = windowTitle;
             Editor = (UserControl)Activator.CreateInstance(editor);
         }
@@ -61,7 +60,7 @@ namespace TAS.Client.Config
         {
             _currentWindow.DialogResult = false;
         }
-        
+
         protected virtual bool CanClose(object parameter)
         {
             return true;

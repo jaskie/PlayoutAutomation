@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace TAS.Client.Config
+namespace TAS.Client.Common
 {
     /// <summary>
     /// Interaction logic for OkCancelView.xaml
