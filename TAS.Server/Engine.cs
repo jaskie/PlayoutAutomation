@@ -145,7 +145,7 @@ namespace TAS.Server
         public ICGElementsController CGElementsController { get; set; }        
 
         [DtoMember, Hibernate, JsonConverter(typeof(PluginConverter))]
-        public IRouter Router { get; set; }
+        public IVideoSwitch Router { get; set; }
 
         [Hibernate]
         public ServerHost Remote { get; set; }

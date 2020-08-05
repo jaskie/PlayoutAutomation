@@ -117,7 +117,7 @@ namespace TAS.Remoting.Model
 
         public ICGElementsController CGElementsController => _cGElementsController;
 
-        public IRouter Router => _router;
+        public IVideoSwitch Router => _router;
 
         public bool EnableCGElementsForNewEvents
         {

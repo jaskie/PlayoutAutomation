@@ -2,7 +2,7 @@
 
 namespace TAS.Common.Interfaces
 {
-    public interface IRouterPort : INotifyPropertyChanged
+    public interface IVideoSwitchPort : INotifyPropertyChanged
     {
         short PortId { get; }
         string PortName { get; }

@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TestData</RootNamespace>
     <AssemblyName>TestData</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +30,16 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Remote|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Remote\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -49,9 +60,9 @@
       <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
       <Name>jNet.RPC</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Plugins\TAS.Client.Router\TAS.Server.Router.csproj">
+    <ProjectReference Include="..\..\Plugins\TAS.Client.Router\TAS.Server.VideoSwitch.csproj">
       <Project>{AD45E333-FBC5-42EE-BA3F-66DA6B2C8C1C}</Project>
-      <Name>TAS.Server.Router</Name>
+      <Name>TAS.Server.VideoSwitch</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Plugins\TAS.Server.Advantech\TAS.Server.Advantech.csproj">
       <Project>{08504AA1-0378-4F07-94AE-F1A40911E1AD}</Project>

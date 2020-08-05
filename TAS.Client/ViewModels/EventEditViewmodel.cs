@@ -67,7 +67,7 @@ namespace TAS.Client.ViewModels
                 InputPorts.Add(string.Empty); //default value in ComboBox
                 foreach (var input in Router.InputPorts)
                     InputPorts.Add(input);
-                _selectedInputPort = InputPorts?.FirstOrDefault(param => param is IRouterPort routerPort && routerPort.PortId == _routerPort) ?? InputPorts?[0];
+                _selectedInputPort = InputPorts?.FirstOrDefault(param => param is IVideoSwitchPort routerPort && routerPort.PortId == _routerPort) ?? InputPorts?[0];
             }
                             
             if (@event.EventType == TEventType.Live && Model.Engine.MediaManager.Recorders.Count() > 0)
@@ -576,12 +576,12 @@ namespace TAS.Client.ViewModels
                     return;
 
                 _routerPort = value;
-                _selectedInputPort = InputPorts?.FirstOrDefault(p => p is IRouterPort routerPort && routerPort.PortId == value) ?? InputPorts?[0];
+                _selectedInputPort = InputPorts?.FirstOrDefault(p => p is IVideoSwitchPort routerPort && routerPort.PortId == value) ?? InputPorts?[0];
                 NotifyPropertyChanged(nameof(SelectedInputPort));
             }
         }
 
-        public IRouter Router { get; }
+        public IVideoSwitch Router { get; }
 
         public IList<object> InputPorts { get; }
 
@@ -593,7 +593,7 @@ namespace TAS.Client.ViewModels
                 if (!SetField(ref _selectedInputPort, value))
                     return;
 
-                if (!(value is IRouterPort routerPort))
+                if (!(value is IVideoSwitchPort routerPort))
                 {
                     RouterPort = -1;
                     return;

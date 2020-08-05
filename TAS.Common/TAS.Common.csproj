@@ -39,6 +39,16 @@
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Remote|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Remote\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -76,7 +86,7 @@
     <Compile Include="Interfaces\Configurator\IConfigRecorder.cs" />
     <Compile Include="Interfaces\IParamEnginePlugin.cs" />
     <Compile Include="Interfaces\IPluginConfigurator.cs" />
-    <Compile Include="Interfaces\IRouter.cs" />
+    <Compile Include="Interfaces\IVideoSwitch.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
     <Compile Include="Interfaces\IRouterPort.cs" />
     <Compile Include="Interfaces\ISearchProvider.cs" />

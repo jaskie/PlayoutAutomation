@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using TAS.Database.Common;
 
-namespace TAS.Server.RouterTests
+namespace TAS.Server.VideoSwitchTests
 {
     [TestClass]
     public class JsonTests
@@ -34,10 +34,10 @@ namespace TAS.Server.RouterTests
 
         [TestMethod]
         [DynamicData(nameof(GetRouter), DynamicDataSourceType.Method)]
-        public void SerializeAndDeserialize(Router.Router router)
+        public void SerializeAndDeserialize(VideoSwitch.VideoSwitch router)
         {
             var json = JsonConvert.SerializeObject(router, _jsonSerializerSettings);
-            var deserialized = JsonConvert.DeserializeObject<Router.Router>(json, _jsonSerializerSettings);
+            var deserialized = JsonConvert.DeserializeObject<VideoSwitch.VideoSwitch>(json, _jsonSerializerSettings);
 
             if (deserialized == null && router != null)
                 Assert.Fail("Failed to deserialize CgElementsController");

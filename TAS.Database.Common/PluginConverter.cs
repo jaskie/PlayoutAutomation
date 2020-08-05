@@ -29,20 +29,27 @@ namespace TAS.Database.Common
 
         private object CreateInstance(JToken container, JsonSerializer serializer)
         {
-            var jObject = JObject.Load(container.CreateReader());            
-            var typeMeta = jObject.GetValue("$type").ToObject<string>().Split(',');
+            try
+            {
+                var jObject = JObject.Load(container.CreateReader());
+                var typeMeta = jObject.GetValue("$type").ToObject<string>().Split(',');
 
-            Type type = null;
-            foreach (var binder in PluginBinders)
-                if ((type = binder.BindToType(typeMeta[1], typeMeta[0])) != null)
-                    break;
+                Type type = null;
+                foreach (var binder in PluginBinders)
+                    if ((type = binder.BindToType(typeMeta[1], typeMeta[0])) != null)
+                        break;
 
-            var isEnabled = jObject.GetValue("IsEnabled").ToObject<bool>();
+                var isEnabled = jObject.GetValue("IsEnabled").ToObject<bool>();
 
-            if (isEnabled)
-                return serializer.Deserialize(jObject.CreateReader(), type);
-            
-            return null;
+                if (isEnabled)
+                    return serializer.Deserialize(jObject.CreateReader(), type);
+
+                return null;
+            }
+            catch
+            {
+                return null;
+            }                        
         }
         
 

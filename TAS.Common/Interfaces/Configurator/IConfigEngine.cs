@@ -6,7 +6,7 @@ namespace TAS.Common.Interfaces.Configurator
     {       
         List<IGpi> Gpis { get; set; }        
         ICGElementsController CGElementsController { get; set; }
-        IRouter Router { get; set; }
+        IVideoSwitch Router { get; set; }
         List<IConfigCasparServer> Servers { get; set; }
     }
 }

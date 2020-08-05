@@ -63,7 +63,7 @@ namespace TAS.Server
         private Guid _mediaGuid;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private IRouterPort _inputPort;
+        private IVideoSwitchPort _inputPort;
 
         #region Constructor
         internal Event(
@@ -611,7 +611,7 @@ namespace TAS.Server
         }
 
         [DtoMember]
-        public IRouterPort InputPort
+        public IVideoSwitchPort InputPort
         {
             get => _inputPort;
             set => SetField(ref _inputPort, value);

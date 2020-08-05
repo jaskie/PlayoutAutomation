@@ -1,6 +1,6 @@
-﻿namespace TAS.Server.Router.Model
+﻿namespace TAS.Server.VideoSwitch.Model
 {
-    internal class CrosspointInfo
+    public class CrosspointInfo
     {
         public CrosspointInfo(short inPort, short outPort)
         {

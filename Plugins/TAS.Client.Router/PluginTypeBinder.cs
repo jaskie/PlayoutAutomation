@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using TAS.Database.Common.Interfaces;
 
-namespace TAS.Server.Router
+namespace TAS.Server.VideoSwitch
 {
     [Export(typeof(IPluginTypeBinder))]
     public class PluginTypeBinder : IPluginTypeBinder
     {
         private readonly List<Tuple<Type, Type>> _types = new List<Tuple<Type, Type>>()
         {
-            new Tuple<Type, Type>(typeof(Router), typeof(Router))            
+            new Tuple<Type, Type>(typeof(VideoSwitch), typeof(VideoSwitch))            
         };
 
         public Type GetBindedType(Type type)

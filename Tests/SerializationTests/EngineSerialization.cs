@@ -4,37 +4,17 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Configuration;
 using System.IO;
+using TAS.Client.Config;
 using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common;
 using TAS.Database.Common.Interfaces;
+using TAS.Server;
 using TestData;
 
 namespace SerializationTests
-{
-    public class ConfigurationPluginManager
-    {
-        private const string FileNameSearchPattern = "TAS.Server.*.dll";
-        private ConfigurationPluginManager()
-        {
-            string pluginsPath = "../../../../TVPlay/bin/Debug/Plugins";
-#if RELEASE
-            pluginsPath = "../../../../TVPlay/bin/Release/Plugins";
-#endif          
-            using (var catalog = new DirectoryCatalog(pluginsPath, FileNameSearchPattern))
-            using (var container = new CompositionContainer(catalog))
-            {
-                PluginTypeBinders = container.GetExportedValues<IPluginTypeBinder>();
-            }
-        }
-
-        [ImportMany(typeof(IPluginTypeBinder))]
-        public IEnumerable<IPluginTypeBinder> PluginTypeBinders { get; }
-
-
-        public static ConfigurationPluginManager Current { get; } = new ConfigurationPluginManager();
-    }
-
+{   
     [TestClass]
     public class EngineSerialization
     {
@@ -61,6 +41,23 @@ namespace SerializationTests
                 yield return new object[] { engine };
         }
 #endregion
+
+        [ClassInitialize]
+        public static void TestInitialize(TestContext testContext)
+        {
+            string pluginsPath = "../../../../TVPlay/bin/Debug/";
+#if RELEASE
+            pluginsPath = "../../../../TVPlay/bin/Release/";
+#endif
+
+            Directory.SetCurrentDirectory(pluginsPath);
+
+            //ConfigurationManager.AppSettings["DatabaseType"] = "MySQL";
+            //var section = (ConnectionStringsSection)ConfigurationManager.GetSection("connectionStrings");
+            ////var connectionSettings = new ConnectionStringSettingsCollection();
+            ////connectionSettings.Add(new ConnectionStringSettings("tasConnectionString", "server = localhost; database = tas2; user id = root; keepalive = 300; characterset = utf8; password = haslo; sslmode = Prefered; port = 3306"));
+            //section.ConnectionStrings.Add(new ConnectionStringSettings("tasConnectionString", "server = localhost; database = tas2; user id = root; keepalive = 300; characterset = utf8; password = haslo; sslmode = Prefered; port = 3306"));
+        }
 
         [TestMethod]
         [DynamicData(nameof(GetConfigEngine), DynamicDataSourceType.Method)]
@@ -90,7 +87,7 @@ namespace SerializationTests
             Assert.IsTrue(configEngine.CGElementsController?.IsEnabled ?? false ? deserialized.CGElementsController != null : deserialized.CGElementsController == null);
             Assert.IsTrue(configEngine.Router?.IsEnabled ?? false ? deserialized.Router != null : deserialized.Router == null);
 
-            Assert.AreEqual(configEngine.Gpis.Count, deserialized.Gpis.Count);
+            Assert.AreEqual(configEngine.Gpis?.Count, deserialized.Gpis?.Count, "Gpis did not deserialize properly");
             
         }
     }

@@ -6,11 +6,11 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Server.Router.Model;
+using TAS.Server.VideoSwitch.Model;
 
-namespace TAS.Server.Router.Communicators
+namespace TAS.Server.VideoSwitch.Communicators
 {
-    internal class BlackmagicSmartVideoHubCommunicator : IRouterCommunicator
+    internal class BlackmagicSmartVideoHubCommunicator : IVideoSwitchCommunicator
     {
         /// <summary>
         /// In Blackmagic CrosspointStatus and CrosspointChange responses have the same syntax. CrosspointStatus semaphore initial value is set to 1 to help notify ProcessCommand method
@@ -22,7 +22,7 @@ namespace TAS.Server.Router.Communicators
         private TcpClient _tcpClient;
 
         private NetworkStream _stream;
-        private readonly Router _router;
+        private readonly VideoSwitch _router;
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
         private ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>> _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
@@ -39,7 +39,7 @@ namespace TAS.Server.Router.Communicators
         private string _response;
         private int _disposed;
 
-        public BlackmagicSmartVideoHubCommunicator(Router device)
+        public BlackmagicSmartVideoHubCommunicator(VideoSwitch device)
         {
             _router = device;
         }

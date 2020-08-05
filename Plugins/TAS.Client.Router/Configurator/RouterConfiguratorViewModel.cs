@@ -7,16 +7,16 @@ using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
-using TAS.Server.Router.Model;
+using TAS.Server.VideoSwitch.Model;
 
-namespace TAS.Server.Router.Configurator
+namespace TAS.Server.VideoSwitch.Configurator
 {
     [Export(typeof(IPluginConfigurator))]
     public class RouterConfiguratorViewModel : ModifyableViewModelBase, IPluginConfigurator
     {
         private IConfigEngine _engine;
-        private IRouter _router = new Router();
-        private IRouter _testRouter;
+        private VideoSwitch _router = new VideoSwitch();
+        private IVideoSwitch _testRouter;
 
         private bool _isEnabled;
         private bool _isExtendedType;
@@ -24,7 +24,7 @@ namespace TAS.Server.Router.Configurator
         private string _login;
         private string _password;
         private int _level;        
-        private Router.RouterType? _selectedRouterType;
+        private VideoSwitch.VideoSwitchType? _selectedRouterType;
         private List<PortInfo> _outputPorts;        
         
         [ImportingConstructor]
@@ -55,9 +55,9 @@ namespace TAS.Server.Router.Configurator
 
         private void Save(object obj)
         {
-            _router = new Router
+            _router = new VideoSwitch
             {
-                Type = _selectedRouterType ?? Router.RouterType.Unknown,
+                Type = _selectedRouterType ?? VideoSwitch.VideoSwitchType.Unknown,
                 IpAddress = _ipAddress,
                 Login = _login,
                 Password = _password,
@@ -72,16 +72,20 @@ namespace TAS.Server.Router.Configurator
 
         private bool CanSave(object obj)
         {
-            if (_selectedRouterType == Router.RouterType.Nevion)
+            if (_ipAddress?.Length < 1 || !IsModified)
+                return false;
+
+            if (_selectedRouterType == VideoSwitch.VideoSwitchType.Nevion)
             {
-                if (_ipAddress?.Length > 0 && _login?.Length > 0 && _password?.Length > 0 && IsModified)
+                if (_login?.Length > 0 && _password?.Length > 0 && _outputPorts?.Count > 0)
                     return true;
             }
-            else if (_selectedRouterType == Router.RouterType.BlackmagicSmartVideoHub)
-            {
-                if (_ipAddress?.Length > 0 && IsModified)
-                    return true;
-            }
+            else if (_selectedRouterType == VideoSwitch.VideoSwitchType.Atem || _selectedRouterType == VideoSwitch.VideoSwitchType.Ross)
+                return true;
+
+            else if (_outputPorts?.Count > 0)
+                return true;
+
             return false;
         }
 
@@ -114,25 +118,28 @@ namespace TAS.Server.Router.Configurator
 
         private bool CanConnect(object obj)
         {
-            if (_selectedRouterType == Router.RouterType.Nevion)
+            if (_testRouter != null || _ipAddress?.Length<1)
+                return false;
+
+            if (_selectedRouterType == VideoSwitch.VideoSwitchType.Nevion)
             {
-                if (_testRouter == null && _ipAddress.Length > 0 && _login.Length > 0 && _password.Length > 0 && _outputPorts.Count > 0)
+                if (_login?.Length > 0 && _password?.Length > 0 && _outputPorts?.Count > 0)
                     return true;
             }
-            else if (_testRouter == null && _outputPorts?.Count > 0 && _selectedRouterType == Router.RouterType.BlackmagicSmartVideoHub)
-            {
-                if (_ipAddress.Length > 0)
-                    return true;
-            }
-            
+            else if (_selectedRouterType == VideoSwitch.VideoSwitchType.Atem || _selectedRouterType == VideoSwitch.VideoSwitchType.Ross)
+                return true;
+
+            else if (_outputPorts?.Count > 0)
+                return true;
+                        
             return false;
         }
 
         private void Connect(object obj)
         {
-            _testRouter = new Router(_selectedRouterType ?? Router.RouterType.Unknown)
+            _testRouter = new VideoSwitch(_selectedRouterType ?? VideoSwitch.VideoSwitchType.Unknown)
             {
-                Type = _selectedRouterType ?? Router.RouterType.Unknown,
+                Type = _selectedRouterType ?? VideoSwitch.VideoSwitchType.Unknown,
                 IpAddress = _ipAddress,
                 Login = _login,
                 Password = _password,
@@ -145,11 +152,11 @@ namespace TAS.Server.Router.Configurator
 
         private void TestRouter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IRouter.SelectedInputPort))
+            if (e.PropertyName == nameof(IVideoSwitch.SelectedInputPort))
                 NotifyPropertyChanged(nameof(SelectedInputPort));
-            else if (e.PropertyName == nameof(IRouter.InputPorts))                          
+            else if (e.PropertyName == nameof(IVideoSwitch.InputPorts))                          
                 NotifyPropertyChanged(nameof(InputPorts));                            
-            else if (e.PropertyName == nameof(IRouter.IsConnected))
+            else if (e.PropertyName == nameof(IVideoSwitch.IsConnected))
                 NotifyPropertyChanged(nameof(IsConnected));
         }
 
@@ -175,7 +182,7 @@ namespace TAS.Server.Router.Configurator
                 return;
 
             IpAddress = _router.IpAddress;
-            SelectedRouterType = RouterTypes.FirstOrDefault(r => r == ((Router)_router).Type);
+            SelectedRouterType = RouterTypes.FirstOrDefault(r => r == ((VideoSwitch)_router).Type);
             Login = _router.Login;
             Password = _router.Password;
             Level = _router.Level;
@@ -208,7 +215,7 @@ namespace TAS.Server.Router.Configurator
         }
 
         public bool IsConnected => _testRouter?.IsConnected ?? false;
-        public IRouterPort SelectedInputPort
+        public IVideoSwitchPort SelectedInputPort
         {
             get => _testRouter?.SelectedInputPort;
             set
@@ -222,14 +229,14 @@ namespace TAS.Server.Router.Configurator
                 _testRouter?.SelectInput(value.PortId);
             }
         }
-        public IList<IRouterPort> InputPorts => _testRouter?.InputPorts;
+        public IList<IVideoSwitchPort> InputPorts => _testRouter?.InputPorts;
         public event EventHandler PluginChanged;
         public ICollectionView OutputPorts { get; private set; }        
-        public List<Router.RouterType> RouterTypes { get; set; } = Enum.GetValues(typeof(Router.RouterType)).Cast<Router.RouterType>().ToList();
+        public List<VideoSwitch.VideoSwitchType> RouterTypes { get; set; } = Enum.GetValues(typeof(VideoSwitch.VideoSwitchType)).Cast<VideoSwitch.VideoSwitchType>().ToList();
         public string Login { get => _login; set => SetField(ref _login, value); }
         public string Password { get => _password; set => SetField(ref _password, value); }
         public int Level { get => _level; set => SetField(ref _level, value); }
-        public Router.RouterType? SelectedRouterType 
+        public VideoSwitch.VideoSwitchType? SelectedRouterType 
         { 
             get => _selectedRouterType;
             set
@@ -237,7 +244,7 @@ namespace TAS.Server.Router.Configurator
                 if (!SetField(ref _selectedRouterType, value))
                     return;
 
-                if (value == Router.RouterType.Nevion)
+                if (value == VideoSwitch.VideoSwitchType.Nevion)
                     IsExtendedType = true;
                 else
                     IsExtendedType = false;
@@ -260,7 +267,7 @@ namespace TAS.Server.Router.Configurator
         public void Initialize(object parameter)
         {
             UiServices.AddDataTemplate(typeof(RouterConfiguratorViewModel), typeof(RouterConfiguratorView));                     
-            _router = parameter is IRouter router ? router : null;
+            _router = parameter is VideoSwitch router ? router : null;
             Init();
         }
 

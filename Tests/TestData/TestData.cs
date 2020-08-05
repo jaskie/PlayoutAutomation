@@ -2,7 +2,8 @@
 using System.Collections.ObjectModel;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
-using TAS.Server.Router;
+using TAS.Server.VideoSwitch;
+
 
 /* example JSON from Mysql (without Plugins)
  * {
@@ -34,12 +35,12 @@ namespace TestData
 				StudioMode = false,
 				TimeCorrection = 0,
 				VideoFormat = TAS.Common.TVideoFormat.HD1080i5000
-            },
+			},
 			new TAS.Client.Config.Model.Engine
 			{
 				AspectRatioControl = TAS.Common.TAspectRatioControl.ImageResize,
 				CGElementsController = new TAS.Server.CgElementsController.Configurator.Model.CgElementsController()
-                {
+				{
 					IsEnabled = true,
 					Crawls = new List<ICGElement>
 					{
@@ -67,7 +68,7 @@ namespace TestData
 					{
 						"Start1",
 						"Start2"
-					}				
+					}
 				},
 
 				CGStartDelay = 0,
@@ -88,16 +89,16 @@ namespace TestData
 				StudioMode = false,
 				TimeCorrection = 0,
 				VideoFormat = TAS.Common.TVideoFormat.HD1080i5000,
-				Router = new Router
-                {
+				Router = new VideoSwitch
+				{
 					IpAddress = "127.0.0.1",
 					IsEnabled = true,
 					Login = "testLogin",
 					Password = "testPassword",
 					Level = 1,
-					Type = Router.RouterType.BlackmagicSmartVideoHub,
+					Type = VideoSwitch.VideoSwitchType.BlackmagicSmartVideoHub,
 					OutputPorts = new short[2] { 0,1 }
-                }
+				}
 			},
 			new TAS.Client.Config.Model.Engine
 			{
@@ -110,9 +111,10 @@ namespace TestData
 				TimeCorrection = 0,
 				VideoFormat = TAS.Common.TVideoFormat.HD1080i5000,
 				Gpis = new List<IGpi>
-                {
+				{
 					new TAS.Server.Advantech.Configurator.Model.Gpi
-                    {
+					{
+						IsEnabled = true,
 						Bindings = new ObservableCollection<TAS.Server.Advantech.Configurator.Model.GpiBinding>
 						{
 							new TAS.Server.Advantech.Configurator.Model.GpiBinding(1,1,3)                            

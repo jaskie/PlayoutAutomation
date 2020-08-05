@@ -33,7 +33,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
                 using (var container = new CompositionContainer(catalog))
                 {
                     container.ComposeExportedValue("Engine", _engine);
-                    var pluginConfigurators = container.GetExportedValues<IPluginConfigurator>().Where(configurator => configurator.GetModel() is IRouter);
+                    var pluginConfigurators = container.GetExportedValues<IPluginConfigurator>().Where(configurator => configurator.GetModel() is IVideoSwitch);
 
                     foreach (var pluginConfigurator in pluginConfigurators)
                     {
@@ -86,7 +86,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
 
         public string Name => _selectedConfigurator.PluginName;
 
-        public IRouter Router => (IRouter)_selectedConfigurator.GetModel();
+        public IVideoSwitch Router => (IVideoSwitch)_selectedConfigurator.GetModel();
 
         protected override void OnDispose()
         {

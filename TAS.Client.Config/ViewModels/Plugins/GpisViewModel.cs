@@ -38,7 +38,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
                     foreach (var pluginConfigurator in pluginConfigurators)
                     {                       
                         pluginConfigurator.PluginChanged += PluginConfigurator_PluginChanged;                        
-                        pluginConfigurator.Initialize(_engine.Gpis.FirstOrDefault(g => g.GetType() == pluginConfigurator.GetModel().GetType()));
+                        pluginConfigurator.Initialize(_engine.Gpis?.FirstOrDefault(g => g.GetType() == pluginConfigurator.GetModel().GetType()));
                         _configurators.Add(pluginConfigurator);
                     }                    
                 }

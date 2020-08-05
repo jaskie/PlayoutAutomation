@@ -6,18 +6,18 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Server.Router.Model;
+using TAS.Server.VideoSwitch.Model;
 
-namespace TAS.Server.Router.Communicators
+namespace TAS.Server.VideoSwitch.Communicators
 {
-    internal class NevionCommunicator : IRouterCommunicator
+    internal class NevionCommunicator : IVideoSwitchCommunicator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private TcpClient _tcpClient;
 
         private NetworkStream _stream;
-        private readonly Router _router;
+        private readonly VideoSwitch _router;
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
         private ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>> _responsesQueue =new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
@@ -33,7 +33,7 @@ namespace TAS.Server.Router.Communicators
         private string _response;
         private int _disposed;
 
-        public NevionCommunicator(Router device)
+        public NevionCommunicator(VideoSwitch device)
         {
             _router = device;               
         }

@@ -1,4 +1,4 @@
-﻿namespace TAS.Server.Router.Model
+﻿namespace TAS.Server.VideoSwitch.Model
 {
     public enum ListTypeEnum
     {

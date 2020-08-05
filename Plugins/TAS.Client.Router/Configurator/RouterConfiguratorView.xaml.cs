@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TAS.Server.Router.Configurator
+namespace TAS.Server.VideoSwitch.Configurator
 {
     /// <summary>
     /// Interaction logic for RouterConfiguratorView.xaml

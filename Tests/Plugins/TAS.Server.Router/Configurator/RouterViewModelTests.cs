@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TAS.Client.Config.Model;
-using TAS.Server.Router.Configurator;
+using TAS.Server.VideoSwitch.Configurator;
 
-namespace TAS.Server.RouterTests.Configurator
+namespace TAS.Server.VideoSwitchTests.Configurator
 {
     [TestClass]
     public class RouterViewModelTests
@@ -23,7 +23,7 @@ namespace TAS.Server.RouterTests.Configurator
 
         private RouterConfiguratorViewModel _routerViewModel = new RouterConfiguratorViewModel(new Engine());
 
-        public void Init(Router.Router router)
+        public void Init(VideoSwitch.VideoSwitch router)
         {
             _routerViewModel.Initialize(router);
             _routerViewModel.IsEnabled = true;
@@ -32,7 +32,7 @@ namespace TAS.Server.RouterTests.Configurator
        
         [TestMethod]
         [DynamicData(nameof(GetRouter), DynamicDataSourceType.Method)]
-        public void EditRouter_Confirm(Router.Router router)
+        public void EditRouter_Confirm(VideoSwitch.VideoSwitch router)
         {            
             Init(router);
 
@@ -40,23 +40,24 @@ namespace TAS.Server.RouterTests.Configurator
             _routerViewModel.Level = testLevel;
             _routerViewModel.Login = testLogin;
             _routerViewModel.Password = testPassword;
-            _routerViewModel.SelectedRouterType = Router.Router.RouterType.BlackmagicSmartVideoHub;
+            _routerViewModel.SelectedRouterType = VideoSwitch.VideoSwitch.VideoSwitchType.BlackmagicSmartVideoHub;
+            _routerViewModel.AddOutputPortCommand.Execute(null);
 
             _routerViewModel.SaveCommand.Execute(null);
 
-            var result = (Router.Router)_routerViewModel.GetModel();
+            var result = (VideoSwitch.VideoSwitch)_routerViewModel.GetModel();
             Assert.IsNotNull(result, "Object returned from VM is null");
 
             Assert.AreEqual(result.IpAddress, testIp);
             Assert.AreEqual(result.Level, testLevel);
             Assert.AreEqual(result.Login, testLogin);
             Assert.AreEqual(result.Password, testPassword);
-            Assert.AreEqual(result.Type, Router.Router.RouterType.BlackmagicSmartVideoHub);
+            Assert.AreEqual(result.Type, VideoSwitch.VideoSwitch.VideoSwitchType.BlackmagicSmartVideoHub);
         }
        
         [TestMethod]
         [DynamicData(nameof(GetRouter), DynamicDataSourceType.Method)]
-        public void EditRouter_Undo(Router.Router router)
+        public void EditRouter_Undo(VideoSwitch.VideoSwitch router)
         {
             Init(router);
 
@@ -77,7 +78,7 @@ namespace TAS.Server.RouterTests.Configurator
 
         [TestMethod]
         [DynamicData(nameof(GetRouter), DynamicDataSourceType.Method)]
-        public void IsEnabled_Changed(Router.Router router)
+        public void IsEnabled_Changed(VideoSwitch.VideoSwitch router)
         {
             Init(router);
             if (router == null)
@@ -92,7 +93,7 @@ namespace TAS.Server.RouterTests.Configurator
 
         [TestMethod]
         [DynamicData(nameof(GetRouter), DynamicDataSourceType.Method)]
-        public void IsModified_Modify_True(Router.Router router)
+        public void IsModified_Modify_True(VideoSwitch.VideoSwitch router)
         {
             Init(router);
 

@@ -53,7 +53,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
                             _plugins.Add(_cgElementsControllersViewModel);
                         }
 
-                        else if (pluginConfigurator.GetModel() is IRouter && _routersViewModel == null)
+                        else if (pluginConfigurator.GetModel() is IVideoSwitch && _routersViewModel == null)
                         {
                             _routersViewModel = new RoutersViewModel(_engine);
                             _routersViewModel.PluginChanged += OnPluginChanged;
@@ -102,7 +102,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
             if (_routersViewModel != null)
             {
                 _routersViewModel.Save();
-                _engine.Router = _routersViewModel?.Router;
+                _engine.Router = _routersViewModel.Router;
             }
             
             if (_gpisViewModel != null)
