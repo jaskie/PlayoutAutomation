@@ -18,7 +18,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <RemoteDebugEnabled>true</RemoteDebugEnabled>
+    <RemoteDebugEnabled>false</RemoteDebugEnabled>
     <AuthenticationMode>None</AuthenticationMode>
     <RemoteDebugMachine>192.168.1.3</RemoteDebugMachine>
     <StartWorkingDirectory>

@@ -41,9 +41,9 @@ namespace TAS.Server.VideoSwitchTests.Configurator
             _routerViewModel.Login = testLogin;
             _routerViewModel.Password = testPassword;
             _routerViewModel.SelectedRouterType = VideoSwitch.VideoSwitch.VideoSwitchType.BlackmagicSmartVideoHub;
-            _routerViewModel.AddOutputPortCommand.Execute(null);
+            _routerViewModel.CommandAddOutputPort.Execute(null);
 
-            _routerViewModel.SaveCommand.Execute(null);
+            _routerViewModel.CommandSave.Execute(null);
 
             var result = (VideoSwitch.VideoSwitch)_routerViewModel.GetModel();
             Assert.IsNotNull(result, "Object returned from VM is null");
@@ -67,7 +67,7 @@ namespace TAS.Server.VideoSwitchTests.Configurator
             _routerViewModel.Password = testPassword;
             _routerViewModel.SelectedRouterType = _routerViewModel.RouterTypes.LastOrDefault();
 
-            _routerViewModel.UndoCommand.Execute(null);            
+            _routerViewModel.CommandUndo.Execute(null);            
 
             Assert.AreEqual(_routerViewModel.IpAddress, router?.IpAddress);
             Assert.AreEqual(_routerViewModel.Level, router?.Level ?? 0);
@@ -103,7 +103,7 @@ namespace TAS.Server.VideoSwitchTests.Configurator
             Assert.IsFalse(_routerViewModel.IsModified);
            
             _routerViewModel.IsModified = false;
-            _routerViewModel.AddOutputPortCommand.Execute(null);
+            _routerViewModel.CommandAddOutputPort.Execute(null);
             Assert.IsTrue(_routerViewModel.IsModified);
 
             _routerViewModel.IsModified = false;

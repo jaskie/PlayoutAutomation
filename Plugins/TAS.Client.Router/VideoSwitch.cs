@@ -35,7 +35,7 @@ namespace TAS.Server.VideoSwitch
                     _routerCommunicator = new BlackmagicSmartVideoHubCommunicator(this);
                     break;
                 case VideoSwitchType.Atem:
-                    _routerCommunicator = new AtemCommunicator(IpAddress);
+                    _routerCommunicator = new AtemCommunicator(this);
                     break;
                 default:
                     return;

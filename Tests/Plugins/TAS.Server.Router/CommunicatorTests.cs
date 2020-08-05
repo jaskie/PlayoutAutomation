@@ -1,30 +1,50 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Threading;
 
 namespace TAS.Server.VideoSwitchTests
-{
+{    
     [TestClass]
     public class CommunicatorTests
     {
-        [TestMethod]
-        public void BMDApi64LoadTest()
+        Server.VideoSwitch.VideoSwitch videoSwitch;
+
+        [TestInitialize]
+        public void TestInitialize()
         {
-            try
-            {
-                string pluginsPath = "../../../../../TVPlay/bin/Debug/";
+            string pluginsPath = "../../../../../TVPlay/bin/Debug/";
 #if RELEASE
             pluginsPath = "../../../../../TVPlay/bin/Release/";
 #endif
 
-                Directory.SetCurrentDirectory(pluginsPath);
-                Server.VideoSwitch.VideoSwitch videoSwitch = new Server.VideoSwitch.VideoSwitch(VideoSwitch.VideoSwitch.VideoSwitchType.Atem);
+            Directory.SetCurrentDirectory(pluginsPath);
+
+            videoSwitch = new Server.VideoSwitch.VideoSwitch(VideoSwitch.VideoSwitch.VideoSwitchType.Atem);            
+        }
+        
+        [TestMethod]
+        public void AtemInputSwitching()
+        {
+            int interval = 500;
+            try
+            {                                
+                videoSwitch.Connect();                
+
+                videoSwitch.SelectInput(1);                
+                Thread.Sleep(interval);                
+                videoSwitch.SelectInput(2);
+                Thread.Sleep(interval);
+                videoSwitch.SelectInput(3);
+                Thread.Sleep(interval);
+                videoSwitch.SelectInput(4);
+                Thread.Sleep(interval);
+                videoSwitch.SelectInput(5);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Assert.Fail("Could not create ATEM videoswitch. {0}", ex.Message);
+                Assert.Fail("Error trying to switch inputs. {0}", ex.Message);
             }
-            
         }
     }
 }

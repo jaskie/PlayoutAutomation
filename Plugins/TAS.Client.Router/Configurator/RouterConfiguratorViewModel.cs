@@ -1,8 +1,12 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
@@ -18,26 +22,42 @@ namespace TAS.Server.VideoSwitch.Configurator
         private VideoSwitch _router = new VideoSwitch();
         private IVideoSwitch _testRouter;
 
-        private bool _isEnabled;
-        private bool _isExtendedType;
+        private bool _isEnabled;        
         private string _ipAddress;
         private string _login;
         private string _password;
         private int _level;        
         private VideoSwitch.VideoSwitchType? _selectedRouterType;
-        private List<PortInfo> _outputPorts;        
-        
+        private List<PortInfo> _outputPorts;
+        private bool _requiresAuthentication;
+        private bool _requiresLevel;
+        private bool _requiresOutputPorts;
+
         [ImportingConstructor]
         public RouterConfiguratorViewModel([Import("Engine")]IConfigEngine engine)
         {
             _engine = engine;            
 
-            AddOutputPortCommand = new UiCommand(AddOutputPort, CanAddOutputPort);
-            ConnectCommand = new UiCommand(Connect, CanConnect);
-            DisconnectCommand = new UiCommand(Disconnect, CanDisconnect);
-            SaveCommand = new UiCommand(Save, CanSave);
-            UndoCommand = new UiCommand(Undo, CanUndo);
-            DeleteOutputPortCommand = new UiCommand(Delete);
+            CommandAddOutputPort = new UiCommand(AddOutputPort, CanAddOutputPort);
+            CommandConnect = new UiCommand(Connect, CanConnect);
+            CommandDisconnect = new UiCommand(Disconnect, CanDisconnect);
+            CommandSave = new UiCommand(Save, CanSave);
+            CommandUndo = new UiCommand(Undo, CanUndo);
+            CommandDeleteOutputPort = new UiCommand(Delete);            
+        }
+
+        private bool CheckRequirements()
+        {
+            if (_requiresAuthentication && (_login == null || _password == null || _login.Length<1 || _password.Length<1))
+                return false;
+
+            if (_requiresLevel && _level < 0)
+                return false;
+
+            if (_requiresOutputPorts && _outputPorts?.Count < 1)
+                return false;
+
+            return true;
         }
 
         private bool CanAddOutputPort(object obj)
@@ -72,22 +92,11 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         private bool CanSave(object obj)
         {
-            if (_ipAddress?.Length < 1 || !IsModified)
+            if (!IsModified || _ipAddress?.Length < 1)
                 return false;
 
-            if (_selectedRouterType == VideoSwitch.VideoSwitchType.Nevion)
-            {
-                if (_login?.Length > 0 && _password?.Length > 0 && _outputPorts?.Count > 0)
-                    return true;
-            }
-            else if (_selectedRouterType == VideoSwitch.VideoSwitchType.Atem || _selectedRouterType == VideoSwitch.VideoSwitchType.Ross)
-                return true;
-
-            else if (_outputPorts?.Count > 0)
-                return true;
-
-            return false;
-        }
+            return CheckRequirements();
+        }        
 
         private bool CanUndo(object obj)
         {
@@ -97,6 +106,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         private void Undo(object obj)
         {
             Init();
+            IsModified = false;
         }
 
         private bool CanDisconnect(object obj)
@@ -119,20 +129,9 @@ namespace TAS.Server.VideoSwitch.Configurator
         private bool CanConnect(object obj)
         {
             if (_testRouter != null || _ipAddress?.Length<1)
-                return false;
+                return false;            
 
-            if (_selectedRouterType == VideoSwitch.VideoSwitchType.Nevion)
-            {
-                if (_login?.Length > 0 && _password?.Length > 0 && _outputPorts?.Count > 0)
-                    return true;
-            }
-            else if (_selectedRouterType == VideoSwitch.VideoSwitchType.Atem || _selectedRouterType == VideoSwitch.VideoSwitchType.Ross)
-                return true;
-
-            else if (_outputPorts?.Count > 0)
-                return true;
-                        
-            return false;
+            return CheckRequirements();            
         }
 
         private void Connect(object obj)
@@ -172,12 +171,14 @@ namespace TAS.Server.VideoSwitch.Configurator
         {
             _outputPorts = new List<PortInfo>();
             OutputPorts = CollectionViewSource.GetDefaultView(_outputPorts);
+            NotifyPropertyChanged(nameof(OutputPorts));
+
             _level = 0;
             _ipAddress = null;
             _login = null;
             _password = null;
             _selectedRouterType = null;
-
+           
             if (_router == null)
                 return;
 
@@ -188,14 +189,14 @@ namespace TAS.Server.VideoSwitch.Configurator
             Level = _router.Level;
             IsEnabled = _router.IsEnabled;
 
-            if (_router.OutputPorts != null)
+            if (_router.OutputPorts != null)            
                 foreach (var outputPort in _router.OutputPorts)
-                    _outputPorts.Add(new PortInfo(outputPort, null));
-
+                    _outputPorts.Add(new PortInfo(outputPort, null));                
+                           
             IsModified = false;            
         }
 
-        public string PluginName => "Router";
+        public string PluginName => "VideoSwitch";
 
         public bool IsEnabled 
         {
@@ -244,20 +245,43 @@ namespace TAS.Server.VideoSwitch.Configurator
                 if (!SetField(ref _selectedRouterType, value))
                     return;
 
-                if (value == VideoSwitch.VideoSwitchType.Nevion)
-                    IsExtendedType = true;
-                else
-                    IsExtendedType = false;
+                switch(value)
+                {
+                    case VideoSwitch.VideoSwitchType.Nevion:
+                        RequiresAuthentication = true;
+                        RequiresLevel = true;
+                        RequiresOutputPorts = true;
+                        break;
+                    case VideoSwitch.VideoSwitchType.BlackmagicSmartVideoHub:
+                    case VideoSwitch.VideoSwitchType.Unknown:
+                        RequiresAuthentication = false;
+                        RequiresLevel = false;
+                        RequiresOutputPorts = true;
+                        break;
+                    case VideoSwitch.VideoSwitchType.Atem:                    
+                        RequiresAuthentication = false;
+                        RequiresLevel = true;
+                        RequiresOutputPorts = false;
+                        break;
+                    case VideoSwitch.VideoSwitchType.Ross:
+                        RequiresAuthentication = false;
+                        RequiresLevel = false;
+                        RequiresOutputPorts = false;
+                        break;
+                }
             }
         }
-        public UiCommand AddOutputPortCommand { get; }
-        public UiCommand ConnectCommand { get; }
-        public UiCommand DisconnectCommand { get; }
-        public UiCommand SaveCommand { get; }
-        public UiCommand UndoCommand { get; }
-        public UiCommand DeleteOutputPortCommand { get; }
+        public UiCommand CommandAddOutputPort { get; }
+        public UiCommand CommandConnect { get; }
+        public UiCommand CommandDisconnect { get; }
+        public UiCommand CommandSave { get; }
+        public UiCommand CommandUndo { get; }
+        public UiCommand CommandDeleteOutputPort { get; }        
         public string IpAddress { get => _ipAddress; set => SetField(ref _ipAddress, value); }
-        public bool IsExtendedType { get => _isExtendedType; set => SetField(ref _isExtendedType, value); }
+        
+        public bool RequiresAuthentication { get => _requiresAuthentication; set => SetField(ref _requiresAuthentication, value); }
+        public bool RequiresLevel { get => _requiresLevel; set => SetField(ref _requiresLevel, value); }
+        public bool RequiresOutputPorts { get => _requiresOutputPorts; set => SetField(ref _requiresOutputPorts, value); }
 
         public object GetModel()
         {
