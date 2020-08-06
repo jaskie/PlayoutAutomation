@@ -246,7 +246,7 @@ namespace TAS.Client.ViewModels
 
         public IEngine Engine { get; }
 
-        public EventPanelViewmodelBase RootEventViewModel { get; }
+        public EventPanelRootViewmodel RootEventViewModel { get; }
 
         public IUiPreview Preview => _preview;
 
@@ -847,7 +847,7 @@ namespace TAS.Client.ViewModels
             if (found != null)
             {
                 var rootTrack = found.GetVisualRootTrack().ToArray();
-                var cl = RootEventViewModel;
+                EventPanelViewmodelBase cl = RootEventViewModel;
                 for (var i = rootTrack.Length - 1; i >= 0; i--)
                 {
                     cl = cl.Find(rootTrack[i], false);
@@ -1140,7 +1140,7 @@ namespace TAS.Client.ViewModels
         private void SetOnTopView(IEvent pe)
         {
             var rootTrack = pe.GetVisualRootTrack().ToArray();
-            var vm = RootEventViewModel;
+            EventPanelViewmodelBase vm = RootEventViewModel;
             for (var i = rootTrack.Length - 1; i >= 0; i--)
             {
                 vm = vm.Find(rootTrack[i], false);
@@ -1300,7 +1300,7 @@ namespace TAS.Client.ViewModels
             if (playing == null)
                 return;
             var rootTrack = playing.GetVisualRootTrack().ToArray();
-            var vm = RootEventViewModel;
+            EventPanelViewmodelBase vm = RootEventViewModel;
             for (var i = rootTrack.Length - 1; i >= 0; i--)
             {
                 vm = vm.Find(rootTrack[i], false);
