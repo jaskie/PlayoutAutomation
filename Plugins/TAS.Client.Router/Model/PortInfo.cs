@@ -1,6 +1,6 @@
-﻿namespace TAS.Server.Model
+﻿namespace TAS.Server.VideoSwitch.Model
 {
-    internal class PortInfo
+    public class PortInfo
     {
         public PortInfo(short id, string name)
         {

@@ -4,7 +4,7 @@ using System.Windows.Interactivity;
 
 namespace TAS.Client.Common.Behaviors
 {
-    public class Focus: Behavior<UIElement>
+    public class Focus : Behavior<UIElement>
     {
 
         public bool IsFocused

@@ -3,9 +3,9 @@ using System.Reflection;
 
 namespace TAS.Client.Common
 {
-    public abstract class EditViewmodelBase<TM> : ModifyableViewModelBase 
+    public abstract class EditViewModelBase<TM> : ModifyableViewModelBase 
     {
-        protected EditViewmodelBase(TM model)
+        protected EditViewModelBase(TM model)
         {
             Model = model;
             Load(model);

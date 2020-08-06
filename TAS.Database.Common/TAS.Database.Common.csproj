@@ -33,6 +33,16 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Remote|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Remote\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -49,15 +59,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConcreteListConverter.cs" />
     <Compile Include="DatabaseLoader.cs" />
     <Compile Include="DbEventExtensions.cs" />
+    <Compile Include="HibernationSerializationBinder.cs" />
     <Compile Include="HibernationContractResolver.cs" />
     <Compile Include="Interfaces\IDatabase.cs" />
     <Compile Include="Interfaces\IDatabaseConfigurator.cs" />
+    <Compile Include="Interfaces\IPluginTypeBinder.cs" />
     <Compile Include="Interfaces\Media\IAnimatedMedia.cs" />
     <Compile Include="Interfaces\Media\IArchiveMedia.cs" />
     <Compile Include="Interfaces\Media\IPersistentMedia.cs" />
     <Compile Include="Interfaces\Media\IServerMedia.cs" />
+    <Compile Include="PluginConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HibernateAttribute.cs" />
   </ItemGroup>

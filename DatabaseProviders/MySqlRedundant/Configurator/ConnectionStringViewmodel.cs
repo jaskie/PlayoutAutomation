@@ -5,7 +5,7 @@ using TAS.Client.Common;
 
 namespace TAS.Database.MySqlRedundant.Configurator
 {
-    public class ConnectionStringViewmodel : OkCancelViewmodelBase<MySqlConnectionStringBuilder>
+    public class ConnectionStringViewModel : OkCancelViewModelBase
     {
         private string _database;
         private uint _port;
@@ -14,12 +14,41 @@ namespace TAS.Database.MySqlRedundant.Configurator
         private string _password;
         private string _characterSet;
         private MySqlSslMode _sslMode;
+        private MySqlConnectionStringBuilder _mySqlConnectionStringBuilder;
 
-        public ConnectionStringViewmodel(string connectionString) : base(new MySqlConnectionStringBuilder { ConnectionString = connectionString }, typeof(ConnectionStringView), "Edit connection parameters") { }
+        public ConnectionStringViewModel(string connectionString)
+        {
+            _mySqlConnectionStringBuilder = new MySqlConnectionStringBuilder { ConnectionString = connectionString };
+            Init();
+        }
 
         protected override void OnDispose() { }
 
-        public string ConnectionString => Model.ConnectionString;
+        public void Init()
+        {
+            UserID = _mySqlConnectionStringBuilder.UserID;
+            Password = _mySqlConnectionStringBuilder.Password;
+            Database = _mySqlConnectionStringBuilder.Database;
+            SslMode = _mySqlConnectionStringBuilder.SslMode;
+            Server = _mySqlConnectionStringBuilder.Server;
+            Port = _mySqlConnectionStringBuilder.Port;
+            CharacterSet = _mySqlConnectionStringBuilder.CharacterSet;
+            IsModified = false;
+        }
+
+        public override bool Ok(object obj)
+        {
+            _mySqlConnectionStringBuilder.UserID = UserID;
+            _mySqlConnectionStringBuilder.Password = Password;
+            _mySqlConnectionStringBuilder.Database = Database;
+            _mySqlConnectionStringBuilder.SslMode = SslMode;
+            _mySqlConnectionStringBuilder.Server = Server;
+            _mySqlConnectionStringBuilder.Port = Port;
+            _mySqlConnectionStringBuilder.CharacterSet = CharacterSet;
+            return true;
+        }        
+
+        public string ConnectionString => _mySqlConnectionStringBuilder.ConnectionString;
 
         public string Server
         {

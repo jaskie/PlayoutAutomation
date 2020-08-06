@@ -16,7 +16,7 @@ namespace TAS.Server
             Database = DatabaseLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType) ??
                 throw new ApplicationException($"Database provider {databaseType} not available");
             Database.Open(ConfigurationManager.ConnectionStrings);
-            Database.InitializeFieldLengths();
+            Database.InitializeFieldLengths();                        
         }
 
         public static IDatabase Database { get; }

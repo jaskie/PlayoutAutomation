@@ -40,6 +40,16 @@
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Remote|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Remote\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
@@ -89,6 +99,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttachedProperties\FocusProperty.cs" />
     <Compile Include="Behaviors\TreeViewTwoWaySelectedItem.cs" />
     <Compile Include="Controls\AutoGreyableImage.cs" />
     <Compile Include="Behaviors\BindableSelectedItems.cs" />
@@ -97,8 +108,14 @@
     <Compile Include="Controls\FrameEdit.cs" />
     <Compile Include="Controls\TimecodeTextBlock.cs" />
     <Compile Include="Controls\WrapPanelFill.cs" />
+    <Compile Include="DataContextAttribute.cs" />
+    <Compile Include="DialogViewModelBase.cs" />
     <Compile Include="DispatcherHelper.cs" />
+    <Compile Include="ICommonDialogManager.cs" />
     <Compile Include="IgnoreOnUpdateAttribute.cs" />
+    <Compile Include="IUiStateManager.cs" />
+    <Compile Include="IWindow.cs" />
+    <Compile Include="IWindowManager.cs" />
     <Compile Include="MediaDirectoryExtensions.cs" />
     <Compile Include="ModifyableViewModelBase.cs" />
     <Compile Include="EditViewModelBase.cs" />
@@ -111,7 +128,7 @@
     <Compile Include="OkCancelView.xaml.cs">
       <DependentUpon>OkCancelView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OkCancelViewmodelBase.cs" />
+    <Compile Include="OkCancelViewModelBase.cs" />
     <Compile Include="Plugin\IUiEngine.cs" />
     <Compile Include="Plugin\IUiPluginContext.cs" />
     <Compile Include="Plugin\IUiPreview.cs" />
@@ -139,11 +156,14 @@
       <DependentUpon>StatusIndicator.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\TimecodeEdit.cs" />
+    <Compile Include="RootDispatcher.cs" />
     <Compile Include="TreeViewExtensions.cs" />
     <Compile Include="UiCommand.cs" />
     <Compile Include="UiServices.cs" />
     <Compile Include="ValueConverters.cs" />
     <Compile Include="ViewModelBase.cs" />
+    <Compile Include="ViewNotFoundException.cs" />
+    <Compile Include="WindowInfo.cs" />
     <Compile Include="WpfHacks.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -157,6 +177,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="DataTemplates.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="OkCancelView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -550,6 +574,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\MediaNavigation\media-playback-cue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Config\plugins_config.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

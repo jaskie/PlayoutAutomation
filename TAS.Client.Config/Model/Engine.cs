@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using TAS.Common;
 using TAS.Database.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.Model
 {
-    public class Engine: IEnginePersistent
+    public class Engine : IEnginePersistent, IConfigEngine
     {
         public ulong Id { get; set; }
 
@@ -53,11 +54,22 @@ namespace TAS.Client.Config.Model
         [Hibernate]
         public int CGStartDelay { get; set; }
 
+        //note for JJ, what is it?
         public bool IsModified = false;
 
         public bool IsNew = true;
+        [Hibernate]        
+        public ICGElementsController CGElementsController { get; set; }
+        [Hibernate]
+        public IVideoSwitch Router { get; set; }        
+        
+        public IDictionary<string, int> FieldLengths { get; set; }          
 
-        public IDictionary<string, int> FieldLengths { get; set; }
+        public List<IConfigCasparServer> Servers { get; set; }
+        [Hibernate]
+        public List<IGpi> Gpis { get; set; }
+
+        public ArchiveDirectories ArchiveDirectories;       
 
         public void Save()
         {
@@ -68,10 +80,5 @@ namespace TAS.Client.Config.Model
         {
             throw new NotImplementedException();
         }
-
-        internal IReadOnlyCollection<CasparServer> Servers;
-
-        internal ArchiveDirectories ArchiveDirectories;
-
     }
 }

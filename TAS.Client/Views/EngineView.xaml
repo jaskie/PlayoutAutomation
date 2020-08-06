@@ -10,12 +10,11 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
+             xmlns:properties="clr-namespace:TAS.Client.Common.AttachedProperties;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance vievmodels:EngineViewmodel}"
              d:DesignHeight="850" d:DesignWidth="1150" Focusable="True" 
-             FontSize="13"
-             DataContextChanged="EngineView_OnDataContextChanged"
-             >
+             FontSize="13">
     <UserControl.Resources>
         <Style x:Key="ControlPanelButtons" TargetType="Button" >
             <Setter Property="Padding" Value="4" />
@@ -530,9 +529,10 @@
                 </Grid>
                 <TreeView x:Name="RundownTreeView"
                       common:TreeViewExtensions.EnableMultiSelect="True" 
+                      properties:FocusProperty.IsFocused="{Binding IsTreeViewFocused}"                           
                       common:TreeViewExtensions.MultiSelectedItems="{Binding MultiSelectedEvents}" 
                       ItemsSource="{Binding RootEventViewModel.Childrens}" 
-                      Background="{x:Null}" 
+                      Background="{x:Null}"                       
                       BorderThickness="0"
                       >
                     <TreeView.ItemContainerStyle>

@@ -37,6 +37,16 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Remote|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Remote\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -62,7 +72,7 @@
     <Compile Include="Model\Media\ArchiveDirectory.cs" />
     <Compile Include="Model\Media\ArchiveMedia.cs" />
     <Compile Include="Model\CGElement.cs" />
-    <Compile Include="Model\CGElementsController.cs" />
+    <Compile Include="Model\CgElementsController.cs" />
     <Compile Include="Model\CommandScriptEvent.cs" />
     <Compile Include="Model\MediaOperation\DeleteOperation.cs" />
     <Compile Include="Model\MediaOperation\MoveOperation.cs" />
@@ -86,7 +96,7 @@
     <Compile Include="Model\PlayoutServer.cs" />
     <Compile Include="Model\PlayoutServerChannel.cs" />
     <Compile Include="Model\Preview.cs" />
-    <Compile Include="Model\Recorder.cs" />
+    <Compile Include="Model\CasparRecorder.cs" />
     <Compile Include="Model\Router.cs" />
     <Compile Include="Model\RouterPort.cs" />
     <Compile Include="Model\SearchProvider.cs" />
@@ -100,7 +110,7 @@
     <Compile Include="Model\Media\ServerMedia.cs" />
     <Compile Include="Model\Media\WatcherDirectory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Model\Media\XDCAMMedia.cs" />
+    <Compile Include="Model\Media\XdcamMedia.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj">

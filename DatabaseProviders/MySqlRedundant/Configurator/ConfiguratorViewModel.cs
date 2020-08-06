@@ -3,7 +3,6 @@ using System.Configuration;
 using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Client.Config;
 
 namespace TAS.Database.MySqlRedundant.Configurator
 {
@@ -58,7 +57,7 @@ namespace TAS.Database.MySqlRedundant.Configurator
                 var cs = section.ConnectionStrings[ConnectionStringsNames.Secondary];
                 if (cs != null)
                     section.ConnectionStrings.Remove(cs);
-            }
+            }            
         }
 
         public bool IsSConnectionStringSecondary
@@ -169,9 +168,9 @@ namespace TAS.Database.MySqlRedundant.Configurator
 
         private void CreateDatabase(object obj)
         {
-            using (var vm = new CreateDatabaseViewmodel(_db) { ConnectionString = ConnectionStringPrimary })
+            using (var vm = new CreateDatabaseViewModel(_db) { ConnectionString = ConnectionStringPrimary })
             {
-                if (vm.ShowDialog() != true)
+                if (UiServices.WindowManager.ShowDialog(vm, "Create database") != true)
                     return;
                 if (vm.ConnectionString == ConnectionStringPrimary)
                     MessageBox.Show(Window, "Database created successfully", "Create database", MessageBoxButton.OK,
@@ -185,19 +184,19 @@ namespace TAS.Database.MySqlRedundant.Configurator
 
         private void EditConnectionString(object obj)
         {
-            using (var vm = new ConnectionStringViewmodel(_connectionStringPrimary))
+            using (var vm = new ConnectionStringViewModel(_connectionStringPrimary))
             {
-                if (vm.ShowDialog() == true)
-                    ConnectionStringPrimary = vm.Model.ConnectionString;
+                if (UiServices.WindowManager.ShowDialog(vm, "Edit connection parameters") == true)
+                    ConnectionStringPrimary = vm.ConnectionString;
             }
         }
 
         private void EditConnectionStringSecondary(object obj)
         {
-            using (var vm = new ConnectionStringViewmodel(_connectionStringSecondary))
+            using (var vm = new ConnectionStringViewModel(_connectionStringSecondary))
             {
-                if (vm.ShowDialog() == true)
-                    ConnectionStringSecondary = vm.Model.ConnectionString;
+                if (UiServices.WindowManager.ShowDialog(vm, "Edit connection parameters") == true)
+                    ConnectionStringSecondary = vm.ConnectionString;
             }
         }
 

@@ -39,6 +39,16 @@
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Remote|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Remote\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
@@ -74,13 +84,20 @@
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
     <Compile Include="EventArgs.cs" />
-    <Compile Include="Interfaces\IRouter.cs" />
+    <Compile Include="Interfaces\Configurator\IConfigArchiveDirectories.cs" />
+    <Compile Include="Interfaces\Configurator\IConfigArchiveDirectory.cs" />
+    <Compile Include="Interfaces\Configurator\IConfigCasparChannel.cs" />
+    <Compile Include="Interfaces\Configurator\IConfigCasparServer.cs" />
+    <Compile Include="Interfaces\Configurator\IConfigEngine.cs" />
+    <Compile Include="Interfaces\Configurator\IConfigRecorder.cs" />
+    <Compile Include="Interfaces\IPluginConfigurator.cs" />
+    <Compile Include="Interfaces\IVideoSwitch.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
-    <Compile Include="Interfaces\IRouterPort.cs" />
+    <Compile Include="Interfaces\IVideoSwitchPort.cs" />
     <Compile Include="Interfaces\ISearchProvider.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaDirectory.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaSearchProvider.cs" />
-    <Compile Include="Interfaces\IEnginePlugin.cs" />
+    <Compile Include="Interfaces\IPlugin.cs" />
     <Compile Include="Interfaces\IEnginePluginFactory.cs" />
     <Compile Include="EventEventArgs.cs" />
     <Compile Include="Interfaces\MediaDirectory\IAnimationDirectory.cs" />

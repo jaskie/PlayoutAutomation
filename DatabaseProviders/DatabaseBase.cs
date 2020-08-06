@@ -18,6 +18,7 @@ using TAS.Database.Common.Interfaces.Media;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Common.Interfaces.Security;
+using Newtonsoft.Json;
 
 #if MYSQL
 namespace TAS.Database.MySqlRedundant
@@ -27,9 +28,23 @@ namespace TAS.Database.SQLite
 {
     public abstract class DatabaseBase : IDatabase
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public void SetSerializerSettings(IEnumerable<IPluginTypeBinder> pluginTypeResolvers)
+        {            
+            HibernationSerializerSettings.SerializationBinder = new HibernationSerializationBinder(pluginTypeResolvers);
+            HibernationSerializerSettings.Error = (sender, args) =>
+            {
+                if (args.ErrorContext.Error.GetType() == typeof(JsonSerializationException))
+                {
+                    Logger.Warn("Could not deserialize object {0}: {1}", args.ErrorContext.Member?.ToString(), args.ErrorContext.Error.Message);
+                    args.ErrorContext.Handled = true;
+                }
+                    
+            };
+        }        
 
 #if MYSQL
-
         private static readonly DateTime MinMySqlDate = new DateTime(1000, 01, 01);
         private static readonly DateTime MaxMySqlDate = new DateTime(9999, 12, 31, 23, 59, 59);
 
@@ -49,11 +64,12 @@ namespace TAS.Database.SQLite
 
         protected readonly object SyncRoot = new object();
 
-        private static readonly Newtonsoft.Json.JsonSerializerSettings HibernationSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
+        private static readonly JsonSerializerSettings HibernationSerializerSettings = new JsonSerializerSettings
         {
             ContractResolver = new HibernationContractResolver(),
-            NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
-        };
+            NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,            
+            MetadataPropertyHandling = MetadataPropertyHandling.ReadAhead            
+        };      
 
         public abstract void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection);
 

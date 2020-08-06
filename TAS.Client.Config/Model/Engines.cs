@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using TAS.Common;
+using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common;
 using TAS.Database.Common.Interfaces;
 
@@ -10,7 +11,7 @@ namespace TAS.Client.Config.Model
 {
     public class Engines : IDisposable
     {
-        internal readonly IReadOnlyCollection<CasparServer> Servers;
+        internal readonly IReadOnlyCollection<IConfigCasparServer> Servers;
         internal readonly ArchiveDirectories ArchiveDirectories;
         private readonly IDatabase _db;
 
@@ -18,6 +19,7 @@ namespace TAS.Client.Config.Model
         {
             _db = DatabaseLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
             _db.Open(connectionStringSettingsCollection);
+            _db.SetSerializerSettings(ConfigurationPluginManager.Current.PluginTypeBinders);            
             ArchiveDirectories = new ArchiveDirectories(_db);
             EngineList = _db.LoadEngines<Engine>().ToList();
             Servers = _db.LoadServers<CasparServer>();
@@ -29,7 +31,7 @@ namespace TAS.Client.Config.Model
             foreach (var e in EngineList)
             {
                 e.IsNew = false;
-                e.Servers = Servers;
+                e.Servers = Servers.ToList();                
                 e.ArchiveDirectories = ArchiveDirectories;
             }
         }

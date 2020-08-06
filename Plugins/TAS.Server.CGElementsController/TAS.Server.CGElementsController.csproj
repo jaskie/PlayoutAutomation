@@ -7,7 +7,7 @@
     <ProjectGuid>{7970C290-A9E8-4ED3-83BC-9E8654ECD8D6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TAS.Server</RootNamespace>
+    <RootNamespace>TAS.Server.CgElementsController</RootNamespace>
     <AssemblyName>TAS.Server.CgElementsController</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -41,10 +41,26 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Remote|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>\\192.168.1.3\TVPlay\Plugins\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\dependencies\jNet.RPC\jNet.RPC\bin\Debug\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
@@ -62,11 +78,22 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CgElement.cs" />
+    <Compile Include="Model\CgElement.cs" />
     <Compile Include="CgElementsController.cs" />
-    <Compile Include="CgElementsControllerFactory.cs" />
+    <Compile Include="Configurator\CgElementsControllerViewModel.cs" />
+    <Compile Include="Configurator\CgElementsControllerPluginManagerView.xaml.cs">
+      <DependentUpon>CgElementsControllerPluginManagerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Configurator\CgElementView.xaml.cs">
+      <DependentUpon>CgElementView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Configurator\CgElementViewModel.cs" />
+    <Compile Include="Configurator\Model\CgElement.cs" />
+    <Compile Include="Configurator\Model\CgElementsController.cs" />
+    <Compile Include="PluginTypeBinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -77,14 +104,37 @@
       <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
       <Name>jNet.RPC</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj">
+      <Project>{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}</Project>
+      <Name>TAS.Client.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TAS.Client.Config\TAS.Client.Config.csproj">
+      <Project>{86071de4-1a5d-4889-b54a-08da101b2b51}</Project>
+      <Name>TAS.Client.Config</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
       <Name>TAS.Common</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\TAS.Database.Common\TAS.Database.Common.csproj">
+      <Project>{F73445A5-2375-49EA-BD4F-8C6778D8736D}</Project>
+      <Name>TAS.Database.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Page Include="Configurator\CgElementsControllerPluginManagerView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Configurator\CgElementView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,0 +1,60 @@
+﻿<UserControl x:Class="TAS.Client.Config.Views.ConfigFile.ConfigFileView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:vm ="clr-namespace:TAS.Client.Config.ViewModels.ConfigFile"             
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance vm:ConfigFileViewModel}"
+            >
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="5" Width="250" MinHeight="330">
+            <Label Content="Initialization properties" FontWeight="Bold" HorizontalAlignment="Center"/>
+            <Label Content="Ingest folders definition file"/>
+            <controls:FilenameEntry 
+                DialogTitle="Ingest folders definition file" 
+                CheckFileExists="False" 
+                DialogFilter="XML files |*.xml" 
+                FileName="{Binding IngestFolders, UpdateSourceTrigger=PropertyChanged}" 
+                ButtonToolTip="Select file..."
+                InitialDirectory="{Binding ExeDirectory}"/>
+            <Label Content="Temp directory"/>
+            <TextBox Text="{Binding TempDirectory, UpdateSourceTrigger=PropertyChanged}"/>
+            <Grid>
+                <Grid.Resources>
+                    <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                        <Setter Property="MinWidth" Value="50"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Label>Instance binding</Label>
+                <TextBox Grid.Column="1" Text="{Binding Instance, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.ToolTip>
+                        <TextBlock>You have to set the same value to relevant field of each playout engine<LineBreak/>
+                            that should run in this configuration</TextBlock>
+                    </TextBox.ToolTip>
+                </TextBox>
+                <Label Grid.Row="1">Reference loudness level</Label>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ReferenceLoudnessLevel}"/>
+            </Grid>
+            <CheckBox Margin="0, 5" IsChecked="{Binding IsBackupInstance}" Content="Backup instance"/>
+            <Label Content="User interface language"/>
+            <ComboBox ItemsSource="{Binding SupportedLanguages}" DisplayMemberPath="DisplayName" SelectedValuePath="Name" SelectedValue="{Binding UiLanguage}" />
+            <DockPanel>
+                <Label Content="Database type"/>
+                <ComboBox ItemsSource="{Binding DatabaseTypes}" SelectedItem="{Binding DatabaseType}" VerticalAlignment="Center" HorizontalAlignment="Right" Width="100"/>
+            </DockPanel>
+            <ContentControl Content="{Binding DatabaseConfigurator.View}"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

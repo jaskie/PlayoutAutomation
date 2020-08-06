@@ -16,6 +16,7 @@ using TAS.Server.Media;
 using TAS.Server.Security;
 using TAS.Database.Common;
 using jNet.RPC;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
@@ -54,9 +55,7 @@ namespace TAS.Server
         private readonly Lazy<List<IAclRight>> _rights;
 
         private Event _playing;
-        private Event _forcedNext;
-        private List<IGpi> _localGpis;
-        private List<IEnginePlugin> _plugins;
+        private Event _forcedNext;        
         private int _timeCorrection;
         private bool _isWideScreen;
         private TEngineState _engineState;
@@ -142,14 +141,17 @@ namespace TAS.Server
 
         public IMediaManager MediaManager => _mediaManager;
 
-        [DtoMember]
-        public ICGElementsController CGElementsController { get; private set; }
+        [DtoMember, Hibernate, JsonConverter(typeof(PluginConverter))]
+        public ICGElementsController CGElementsController { get; set; }        
 
-        [DtoMember]
-        public IRouter Router { get; private set; }
+        [DtoMember, Hibernate, JsonConverter(typeof(PluginConverter))]
+        public IVideoSwitch Router { get; set; }
 
         [Hibernate]
         public ServerHost Remote { get; set; }
+
+        [Hibernate, JsonConverter(typeof(PluginConverter))]
+        public List<IGpi> Gpis { get; set; }
 
         [DtoMember, Hibernate]
         public TAspectRatioControl AspectRatioControl { get; set; }
@@ -279,10 +281,10 @@ namespace TAS.Server
             _mediaManager.SetRecorders(recorders);
             _eventRecorder = new EventRecorder(this, servers);
 
-            _localGpis = this.ComposeParts<IGpi>();
-            _plugins = this.ComposeParts<IEnginePlugin>();
-            CGElementsController = this.ComposePart<ICGElementsController>();
-            Router = this.ComposePart<IRouter>();
+            //Gpis = this.ComposeParts<IGpi>();
+            //_plugins = this.ComposeParts<IPlugin>();
+            //CGElementsController = this.ComposePart<ICGElementsController>();
+            //Router = this.ComposePart<IRouter>();
             _isWideScreen = FormatDescription.IsWideScreen;
             var chPRI = PlayoutChannelPRI as CasparServerChannel;
             var chSEC = PlayoutChannelSEC as CasparServerChannel;
@@ -300,11 +302,7 @@ namespace TAS.Server
             Debug.WriteLine(this, "Reading Root Events");
             DatabaseProvider.Database.ReadRootEvents(this);
 
-            EngineState = TEngineState.Idle;
-            if (CGElementsController != null)
-            {
-                CGElementsController.Started += _gpiStartLoaded;
-            }
+            EngineState = TEngineState.Idle;            
 
             if (Remote != null)
             {
@@ -312,8 +310,8 @@ namespace TAS.Server
                 Remote.Initialize(this, new PrincipalProvider(_authenticationService));
             }
 
-            if (_localGpis != null)
-                foreach (var gpi in _localGpis)
+            if (Gpis != null)
+                foreach (var gpi in Gpis)
                     gpi.Started += _gpiStartLoaded;
 
             Debug.WriteLine(this, "Creating engine thread");
@@ -347,7 +345,7 @@ namespace TAS.Server
                     return _visibleEvents.Cast<IEventPersistent>().ToList();
                 }
             }
-        }
+        }        
 
         [DtoMember]
         public IEvent Playing
@@ -852,15 +850,13 @@ namespace TAS.Server
                 Debug.WriteLine(this, "UnInitializing Remote interface");
                 Remote.UnInitialize();
             }
-            if (_localGpis != null)
-                foreach (var gpi in _localGpis)
+            if (Gpis != null)
+                foreach (var gpi in Gpis)
                     gpi.Started -= _gpiStartLoaded;
 
-            var cgElementsController = CGElementsController;
-            if (cgElementsController != null)
+            if (CGElementsController is IDisposable cgElementsController)
             {
-                Debug.WriteLine(this, "Uninitializing CGElementsController");
-                cgElementsController.Started -= _gpiStartLoaded;
+                Debug.WriteLine(this, "Uninitializing CGElementsController");                
                 cgElementsController.Dispose();
             }
 
@@ -1134,13 +1130,7 @@ namespace TAS.Server
                 return;
             var media = aEvent.Media;
             var narrow = media != null && (!media.VideoFormat.IsWideScreen());
-            IsWideScreen = !narrow;
-            if (AspectRatioControl != TAspectRatioControl.GPI &&
-                AspectRatioControl != TAspectRatioControl.GPIandImageResize)
-                return;
-            if (_localGpis != null)
-                foreach (var gpi in _localGpis)
-                    gpi.IsWideScreen = !narrow;
+            IsWideScreen = !narrow;                      
         }
 
         private void _run(Event aEvent)
@@ -1436,14 +1426,11 @@ namespace TAS.Server
                     _rights.Value.ForEach(r => ((EngineAclRight)r).Saved -= AclRight_Saved);
             }
             DatabaseProvider.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
-            CGElementsController?.Dispose();
+            (CGElementsController as IDisposable)?.Dispose();
             Router?.Dispose();
             Remote?.Dispose();
             _preview?.Dispose();
-            _mediaManager.Dispose();
-            if (_plugins != null)
-                foreach (var plugin in _plugins)
-                    plugin.Dispose();
+            _mediaManager.Dispose();            
             base.DoDispose();
         }
 

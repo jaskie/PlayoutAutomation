@@ -39,13 +39,6 @@ namespace TAS.Client.Views
         private void Expander_Collapsed(object sender, RoutedEventArgs e)
         {
             RundownTreeView.Focus();
-        }
-
-        private void EngineView_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (!(e.NewValue is ViewModels.EngineViewmodel vm))
-                return;
-            vm.View = (EngineView) sender;
-        }
+        }               
     }
 }

@@ -14,7 +14,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditViewmodel: EditViewmodelBase<IMedia>, IDataErrorInfo
+    public class MediaEditViewmodel: EditViewModelBase<IMedia>, IDataErrorInfo
     {
         private readonly IMediaManager _mediaManager;
 

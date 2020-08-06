@@ -6,15 +6,16 @@ namespace TAS.Client.ViewModels
 {
     public class EngineRouterViewModel : ViewModelBase
     {
-        public EngineRouterViewModel(IRouter router)
+        public EngineRouterViewModel(IVideoSwitch router)
         {
             Router = router;
+            Router.Connect();
             Router.PropertyChanged += Router_PropertyChanged;
         }
 
-        public IList<IRouterPort> InputPorts => Router.InputPorts;
+        public IList<IVideoSwitchPort> InputPorts => Router.InputPorts;
 
-        private IRouterPort _selectedInputPort
+        private IVideoSwitchPort _selectedInputPort
         {
             get => Router.SelectedInputPort;
             set
@@ -29,7 +30,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public IRouterPort SelectedInputPort 
+        public IVideoSwitchPort SelectedInputPort 
         { 
             get => _selectedInputPort; 
             set 
@@ -41,7 +42,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsConnected => Router.IsConnected;
 
-        public IRouter Router { get; }
+        public IVideoSwitch Router { get; }
 
         protected override void OnDispose()
         {

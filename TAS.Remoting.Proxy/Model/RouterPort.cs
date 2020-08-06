@@ -4,14 +4,14 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    class RouterPort : ProxyObjectBase, IRouterPort
+    class RouterPort : ProxyObjectBase, IVideoSwitchPort
     {
         #pragma warning disable CS0649
-        [DtoMember(nameof(IRouterPort.PortId))]
+        [DtoMember(nameof(IVideoSwitchPort.PortId))]
         private short _portId;
-        [DtoMember(nameof(IRouterPort.PortName))]
+        [DtoMember(nameof(IVideoSwitchPort.PortName))]
         private string _portName;
-        [DtoMember(nameof(IRouterPort.IsSignalPresent))]
+        [DtoMember(nameof(IVideoSwitchPort.IsSignalPresent))]
         private bool? _portIsSignalPresent;
         #pragma warning restore
 

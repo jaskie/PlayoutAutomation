@@ -1,6 +1,6 @@
-﻿namespace TAS.Server.Model
+﻿namespace TAS.Server.VideoSwitch.Model
 {
-    internal class PortState
+    public class PortState
     {
         public PortState(short portId, bool isSignalPresent)
         {

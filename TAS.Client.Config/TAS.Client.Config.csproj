@@ -39,6 +39,16 @@
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Remote|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Remote\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.3.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <HintPath>..\packages\BouncyCastle.1.8.3.1\lib\BouncyCastle.Crypto.dll</HintPath>
@@ -49,6 +59,10 @@
     <Reference Include="MySql.Data, Version=8.0.18.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>..\packages\MySql.Data.8.0.18\lib\net452\MySql.Data.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\dependencies\jNet.RPC\jNet.RPC\bin\Debug\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
@@ -56,6 +70,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -90,33 +105,38 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigFileView.xaml.cs">
+    <Compile Include="Model\IPluginManager.cs" />
+    <Compile Include="ViewModels\Plugins\CgElementsControllersViewModel.cs" />
+    <Compile Include="ViewModels\Plugins\GpisViewModel.cs" />
+    <Compile Include="ViewModels\Plugins\RoutersViewModel.cs" />
+    <Compile Include="Views\ConfigFile\ConfigFileView.xaml.cs">
       <DependentUpon>ConfigFileView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ConfigFileViewmodel.cs" />
-    <Compile Include="EnginesView.xaml.cs">
+    <Compile Include="ViewModels\ConfigFile\ConfigFileViewModel.cs" />
+    <Compile Include="Views\Engines\EnginesView.xaml.cs">
       <DependentUpon>EnginesView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="EnginesViewmodel.cs" />
-    <Compile Include="EngineView.xaml.cs">
+    <Compile Include="ConfigurationPluginManager.cs" />
+    <Compile Include="ViewModels\Engines\EnginesViewmodel.cs" />
+    <Compile Include="Views\Engines\EngineView.xaml.cs">
       <DependentUpon>EngineView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="EngineViewmodel.cs" />
-    <Compile Include="ArchiveDirectoriesViewmodel.cs" />
-    <Compile Include="ArchiveDirectoriesView.xaml.cs">
+    <Compile Include="ViewModels\Engines\EngineViewModel.cs" />
+    <Compile Include="ViewModels\ArchiveDirectories\ArchiveDirectoriesViewmodel.cs" />
+    <Compile Include="Views\ArchiveDirectories\ArchiveDirectoriesView.xaml.cs">
       <DependentUpon>ArchiveDirectoriesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\ArchiveDirectories.cs" />
     <Compile Include="Model\ArchiveDirectory.cs" />
     <Compile Include="Model\CasparRecorder.cs" />
-    <Compile Include="IngestDirectoriesView.xaml.cs">
+    <Compile Include="Views\IngestDirectories\IngestDirectoriesView.xaml.cs">
       <DependentUpon>IngestDirectoriesView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="IngestDirectoriesViewmodel.cs" />
-    <Compile Include="IngestDirectoryView.xaml.cs">
+    <Compile Include="ViewModels\IngestDirectories\IngestDirectoriesViewModel.cs" />
+    <Compile Include="Views\IngestDirectories\IngestDirectoryView.xaml.cs">
       <DependentUpon>IngestDirectoryView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="IngestDirectoryViewmodel.cs" />
+    <Compile Include="ViewModels\IngestDirectories\IngestDirectoryViewModel.cs" />
     <Compile Include="Model\ConfigFile.cs" />
     <Compile Include="Model\Engine.cs" />
     <Compile Include="Model\Engines.cs" />
@@ -125,55 +145,84 @@
     <Compile Include="Model\CasparServerChannel.cs" />
     <Compile Include="Model\PlayoutServers.cs" />
     <Compile Include="Model\RemoteHost.cs" />
-    <Compile Include="PlayoutRecorderViewmodel.cs" />
-    <Compile Include="PlayoutServerChannelView.xaml.cs">
+    <Compile Include="ViewModels\Playout\PlayoutRecorderViewModel.cs" />
+    <Compile Include="Views\Playout\PlayoutServerChannelView.xaml.cs">
       <DependentUpon>PlayoutServerChannelView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PlayoutServerChannelViewmodel.cs" />
-    <Compile Include="PlayoutServerView.xaml.cs">
+    <Compile Include="ViewModels\Playout\PlayoutServerChannelViewModel.cs" />
+    <Compile Include="Views\Playout\PlayoutServerView.xaml.cs">
       <DependentUpon>PlayoutServerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PlayoutServerViewmodel.cs" />
+    <Compile Include="ViewModels\Playout\PlayoutServerViewModel.cs" />
+    <Compile Include="Views\Plugins\CgElementsControllersView.xaml.cs">
+      <DependentUpon>CgElementsControllersView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Plugins\GpisView.xaml.cs">
+      <DependentUpon>GpisView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Plugins\PluginsView.xaml.cs">
+      <DependentUpon>PluginsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModels\Plugins\PluginsViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PlayoutServersView.xaml.cs">
+    <Compile Include="Views\Playout\PlayoutServersView.xaml.cs">
       <DependentUpon>PlayoutServersView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PlayoutServersViewmodel.cs" />
+    <Compile Include="ViewModels\Playout\PlayoutServersViewModel.cs" />
+    <Compile Include="Views\Plugins\RoutersView.xaml.cs">
+      <DependentUpon>RoutersView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="ConfigFileView.xaml">
+    <Page Include="Views\ConfigFile\ConfigFileView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="EnginesView.xaml">
+    <Page Include="Views\Engines\EnginesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="EngineView.xaml">
+    <Page Include="Views\Engines\EngineView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ArchiveDirectoriesView.xaml">
+    <Page Include="Views\ArchiveDirectories\ArchiveDirectoriesView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="IngestDirectoriesView.xaml">
+    <Page Include="Views\IngestDirectories\IngestDirectoriesView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="IngestDirectoryView.xaml">
+    <Page Include="Views\IngestDirectories\IngestDirectoryView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="PlayoutServerChannelView.xaml">
+    <Page Include="Views\Playout\PlayoutServerChannelView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PlayoutServersView.xaml">
+    <Page Include="Views\Playout\PlayoutServersView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PlayoutServerView.xaml">
+    <Page Include="Views\Playout\PlayoutServerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Plugins\CgElementsControllersView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Plugins\GpisView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Plugins\PluginsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Plugins\RoutersView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -199,6 +248,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

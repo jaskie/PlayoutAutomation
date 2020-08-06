@@ -17,7 +17,7 @@ namespace TAS.Remoting
                 case "TAS.Server.Media.IngestMedia":
                     return typeof(Model.Media.IngestMedia);
                 case "TAS.Server.XDCAM.XdcamMedia":
-                    return typeof(Model.Media.XDCAMMedia);
+                    return typeof(Model.Media.XdcamMedia);
                 case "TAS.Server.Media.ArchiveMedia":
                     return typeof(Model.Media.ArchiveMedia);
                 case "TAS.Server.Media.AnimatedMedia":
@@ -39,7 +39,7 @@ namespace TAS.Remoting
                 case "TAS.Server.FileManager":
                     return typeof(Model.FileManager);
                 case "TAS.Server.CasparRecorder":
-                    return typeof(Model.Recorder);
+                    return typeof(Model.CasparRecorder);
                 case "TAS.Server.MediaOperation.CopyOperation":
                     return typeof(Model.MediaOperation.CopyOperation);
                 case "TAS.Server.MediaOperation.MoveOperation":
@@ -69,7 +69,7 @@ namespace TAS.Remoting
                 case "TAS.Server.CasparServer":
                     return typeof(Model.PlayoutServer);
                 case "TAS.Server.CgElementsController":
-                    return typeof(Model.CGElementsController);
+                    return typeof(Model.CgElementsController);
                 case "TAS.Server.RouterController":
                     return typeof(Model.Router);
                 case "TAS.Server.RouterPort":

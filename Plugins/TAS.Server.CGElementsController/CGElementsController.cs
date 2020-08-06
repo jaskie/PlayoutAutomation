@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Serialization;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using jNet.RPC;
+using System.ComponentModel.Composition;
+using TAS.Database.Common;
 
-namespace TAS.Server
-{
-    public class CgElementsController : ServerObjectBase, ICGElementsController, IEnginePlugin
+namespace TAS.Server.CgElementsController
+{    
+    public class CgElementsController : ServerObjectBase, ICGElementsController, IDisposable
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
+        
         private IEngine _engine;
         internal IEngine Engine
         {
@@ -28,23 +29,21 @@ namespace TAS.Server
         private byte _logo;
         private byte _crawl;
         private byte _parental;
-        private bool _isStartupExecuted = false;
+        private bool _isStartupExecuted = false;        
 
-        [XmlAttribute]
-        public string EngineName { get; set; }
+        [Hibernate]
+        public bool IsEnabled { get; set; }
 
-        [DtoMember]
-        public byte DefaultCrawl { get; set; } = 1;
+        [DtoMember, Hibernate]
+        public byte DefaultCrawl { get; set; }
 
-        [DtoMember]
-        public byte DefaultLogo { get; set; } = 1;
+        [DtoMember, Hibernate]
+        public byte DefaultLogo { get; set; }
 
         [DtoMember]
         public virtual bool IsConnected => true;
 
-
-        [DtoMember]
-        [XmlIgnore]
+        [DtoMember]        
         public bool IsCGEnabled
         {
             get => _isCgEnabled;
@@ -55,15 +54,13 @@ namespace TAS.Server
         public bool IsMaster => true;
 
         [DtoMember]
-        [XmlIgnore]
         public bool IsWideScreen
         {
             get => _isWideScreen;
             set => SetField(ref _isWideScreen, value);
         }
 
-        [DtoMember]
-        [XmlIgnore]
+        [DtoMember]        
         public byte Crawl
         {
             get => _crawl;
@@ -71,18 +68,14 @@ namespace TAS.Server
             {
                 if (!SetField(ref _crawl, value))
                     return;
-                Engine.Execute(_crawls.ElementAtOrDefault(value)?.Command);
+                Engine.Execute(((Model.CGElement)Crawls.ElementAtOrDefault(value))?.Command);
             }
         }
 
-        [DtoMember(nameof(Crawls))]
-        [XmlArray(nameof(Crawls)), XmlArrayItem(nameof(Crawl))]
-        public CGElement[] _crawls { get; set; } = new CGElement[0];
+        [DtoMember, Hibernate]        
+        public IEnumerable<ICGElement> Crawls { get; set; }               
 
-        public IEnumerable<ICGElement> Crawls => _crawls;
-
-        [DtoMember]
-        [XmlIgnore]
+        [DtoMember]        
         public byte Logo
         {
             get => _logo;
@@ -90,18 +83,14 @@ namespace TAS.Server
             {
                 if (!SetField(ref _logo, value))
                     return;
-                Engine.Execute(_logos.ElementAtOrDefault(value)?.Command);
+                Engine.Execute(((Model.CGElement)Logos.ElementAtOrDefault(value))?.Command);
             }
         }
 
-        [DtoMember(nameof(Logos))]
-        [XmlArray(nameof(Logos)), XmlArrayItem(nameof(Logo))]
-        public CGElement[] _logos { get; set; } = new CGElement[0];
+        [DtoMember, Hibernate]        
+        public IEnumerable<ICGElement> Logos { get; set; }                
 
-        public IEnumerable<ICGElement> Logos => _logos;
-
-        [DtoMember]
-        [XmlIgnore]
+        [DtoMember]        
         public byte Parental
         {
             get => _parental;
@@ -109,18 +98,18 @@ namespace TAS.Server
             {
                 if (!SetField(ref _parental, value))
                     return;
-                Engine.Execute(_parentals.ElementAtOrDefault(value)?.Command);
+                Engine.Execute(((Model.CGElement)Parentals.ElementAtOrDefault(value))?.Command);
             }
         }
 
-        [DtoMember(nameof(Parentals))]
-        [XmlArray(nameof(Parentals)), XmlArrayItem(nameof(Parental))]
-        public CGElement[] _parentals { get; set; } = new CGElement[0];
-
-        public IEnumerable<ICGElement> Parentals => _parentals;
-
-        [XmlArray("Startup"), XmlArrayItem("Command")]
-        public string[] _startup { get; set; } = new string[0];
+        [DtoMember, Hibernate]        
+        public IEnumerable<ICGElement> Parentals { get; set; }                                       
+        
+        [Hibernate]
+        public IEnumerable<ICGElement> Auxes { get; }
+        
+        [Hibernate]
+        public IEnumerable<string> Startups { get; }
 
         public event EventHandler Started;
 
@@ -138,8 +127,8 @@ namespace TAS.Server
             {
                 Logger.Error(e);
             }
-        }
-
+        }                
+        
         public void Clear()
         {
             try
@@ -174,9 +163,8 @@ namespace TAS.Server
                 if (!_isCgEnabled)
                     return;
 
-
                 Logger.Debug("Executing startup items");
-                foreach (var command in _startup)
+                foreach (var command in Startups)
                 {
                     Logger.Trace("Executing startup command: {0}", command);
                     Engine.Execute(command);
@@ -187,8 +175,6 @@ namespace TAS.Server
             {
                 Logger.Error(e);
             }
-        }
-
-
+        }                  
     }
 }

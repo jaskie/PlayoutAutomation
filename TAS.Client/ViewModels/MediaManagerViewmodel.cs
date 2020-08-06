@@ -445,7 +445,7 @@ namespace TAS.Client.ViewModels
 
         private async void ReloadFiles()
         {
-            UiServices.SetBusyState();
+            UiServices.UiStateManager.SetBusyState();
             CancelMediaSearchProvider();
             SetMediaItems(null);
             switch (SelectedDirectory.Directory)
@@ -734,7 +734,7 @@ namespace TAS.Client.ViewModels
         {
             if (!CheckEditMediaSaved())
                 return;
-            UiServices.SetBusyState();
+            UiServices.UiStateManager.SetBusyState();
             if (_selectedDirectory.IsIngestDirectory)
                 IngestSelectionToDir();
             else

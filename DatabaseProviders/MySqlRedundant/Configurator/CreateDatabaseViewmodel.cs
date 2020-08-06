@@ -1,17 +1,24 @@
 ﻿using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Client.Config;
 
 namespace TAS.Database.MySqlRedundant.Configurator
 {
-    public class CreateDatabaseViewmodel: OkCancelViewmodelBase<Model.CreateDatabase>
+    public class CreateDatabaseViewModel: OkCancelViewModelBase
     {
         private string _connectionString;
         private string _collation;
+        private Model.CreateDatabase _createDatabase;
 
-        public CreateDatabaseViewmodel(DatabaseMySqlRedundant db) : base(new Model.CreateDatabase(db), typeof(CreateDatabaseView), "Create database") 
+        public CreateDatabaseViewModel(DatabaseMySqlRedundant db) 
         {
+            _createDatabase = new Model.CreateDatabase(db);
             CommandEditConnectionString = new UiCommand(_editConnectionString);
+        }
+
+        private void Init()
+        {
+            ConnectionString = _createDatabase.ConnectionString;
+            Collation = _createDatabase.Collation;
         }
 
         public string ConnectionString
@@ -30,22 +37,25 @@ namespace TAS.Database.MySqlRedundant.Configurator
 
         public ICommand CommandEditConnectionString { get; }
 
-        protected override void OnDispose() { }
-
-        protected override void Ok(object o)
-        {
-            Update();
-            if (Model.CreateEmptyDatabase())
-                base.Ok(o);
-        }
+        protected override void OnDispose() { }        
 
         private void _editConnectionString(object obj)
         {
-            using (var vm = new ConnectionStringViewmodel(ConnectionString))
+            using (var vm = new ConnectionStringViewModel(ConnectionString))
             {
-                if (vm.ShowDialog() == true)
-                    ConnectionString = vm.Model.ConnectionString;
+                if (UiServices.WindowManager.ShowDialog(vm, "Edit connection parameters") == true)
+                    ConnectionString = vm.ConnectionString;
             }
         }
+
+        public override bool Ok(object obj)
+        {
+            _createDatabase.ConnectionString = ConnectionString;
+            _createDatabase.Collation = Collation;
+            if (_createDatabase.CreateEmptyDatabase())
+                return true;
+            
+            return false;
+        }        
     }
 }

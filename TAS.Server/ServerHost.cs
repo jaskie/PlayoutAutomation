@@ -10,7 +10,7 @@ namespace TAS.Server
 
         [XmlAttribute, Hibernate]
         public ushort ListenPort { get; set; }
-        public int ClientCount => _serverHost?.ClientCount ?? 0;
+        public int ClientCount => _serverHost?.ClientCount ?? 0;       
 
         public void Dispose()
         {

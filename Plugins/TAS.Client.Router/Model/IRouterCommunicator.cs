@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using TAS.Common;
 
-namespace TAS.Server.Model
+namespace TAS.Server.VideoSwitch.Model
 {
-    internal interface IRouterCommunicator : IDisposable
+    internal interface IVideoSwitchCommunicator : IDisposable
     {
         Task<bool> Connect();       
         void SelectInput(int inPort);

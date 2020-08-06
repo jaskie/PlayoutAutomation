@@ -30,6 +30,16 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Remote|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Remote\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;MYSQL</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.3.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <HintPath>..\..\packages\BouncyCastle.1.8.3.1\lib\BouncyCastle.Crypto.dll</HintPath>
@@ -86,11 +96,11 @@
     <Compile Include="Configurator\ConnectionStringView.xaml.cs">
       <DependentUpon>ConnectionStringView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Configurator\ConnectionStringViewmodel.cs" />
+    <Compile Include="Configurator\ConnectionStringViewModel.cs" />
     <Compile Include="Configurator\CreateDatabaseView.xaml.cs">
       <DependentUpon>CreateDatabaseView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Configurator\CreateDatabaseViewmodel.cs" />
+    <Compile Include="Configurator\CreateDatabaseViewModel.cs" />
     <Compile Include="Configurator\Model\CreateDatabase.cs" />
     <Compile Include="ConnectionStringsNames.cs" />
     <Compile Include="DatabaseMySqlRedundant.cs" />

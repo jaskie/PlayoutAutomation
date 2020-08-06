@@ -29,9 +29,7 @@ namespace TAS.Client.ViewModels
 
         public CGElementViewmodel[] Parentals { get; private set; }
 
-        public CGElementViewmodel[] Logos { get; private set; }
-
-        public bool IsWideScreen { get => _controller?.IsWideScreen ?? false; set { if (_controller != null) _controller.IsWideScreen = value; } }
+        public CGElementViewmodel[] Logos { get; private set; }        
 
         public bool IsCGEnabled { get => _controller?.IsCGEnabled ?? false; set { if (_controller != null) { _controller.IsCGEnabled = value; } } }
 
