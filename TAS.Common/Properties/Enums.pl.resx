@@ -253,7 +253,7 @@
     <value>Zejście</value>
   </data>
   <data name="TPlayState_Paused" xml:space="preserve">
-    <value>Still</value>
+    <value>Załadowany</value>
   </data>
   <data name="TPlayState_Played" xml:space="preserve">
     <value>Zakończony</value>
