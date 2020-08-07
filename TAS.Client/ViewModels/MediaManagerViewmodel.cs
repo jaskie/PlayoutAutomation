@@ -18,6 +18,7 @@ using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using resources = TAS.Client.Common.Properties.Resources;
+using System.Diagnostics;
 
 namespace TAS.Client.ViewModels
 {
@@ -446,6 +447,9 @@ namespace TAS.Client.ViewModels
         private async void ReloadFiles()
         {
             UiServices.SetBusyState();
+#if DEBUG
+            var stopwatch = Stopwatch.StartNew();
+#endif
             CancelMediaSearchProvider();
             SetMediaItems(null);
             switch (SelectedDirectory.Directory)
@@ -479,6 +483,9 @@ namespace TAS.Client.ViewModels
                     }
                     break;
             }
+#if DEBUG
+            Debug.WriteLine("MediaManagerViewmodel:ReloadFiles took {0} ms", stopwatch.ElapsedMilliseconds);
+#endif
         }
 
         private void CancelMediaSearchProvider()
@@ -531,7 +538,7 @@ namespace TAS.Client.ViewModels
         {
             var newItems = items == null
                 ? new ObservableCollection<MediaViewViewmodel>()
-                : new ObservableCollection<MediaViewViewmodel>(items.Select(CreateMediaViewViewmodel));
+                : new ObservableCollection<MediaViewViewmodel>(items.Select(media => new MediaViewViewmodel(media, _mediaManager)));
             var oldMediaItems = _mediaItems;
             _mediaItems = newItems;
             if (oldMediaItems != null)
@@ -549,19 +556,8 @@ namespace TAS.Client.ViewModels
 
         private void AddMediaToItems(IMedia media)
         {
-            _mediaItems?.Add(CreateMediaViewViewmodel(media));
+            _mediaItems?.Add(new MediaViewViewmodel(media, _mediaManager));
             NotifyDirectoryPropertiesChanged();
-        }
-
-        private MediaViewViewmodel CreateMediaViewViewmodel(IMedia media)
-        {
-            return new MediaViewViewmodel(media)
-            {
-                IsArchived = _mediaManager.ArchiveDirectory?.ContainsMedia(media.MediaGuid) ?? false,
-                IngestStatus = media is IIngestMedia ingestMedia && _mediaManager.MediaDirectoryPRI != null
-                    ? ingestMedia.GetIngestStatus(_mediaManager.MediaDirectoryPRI)
-                    : TIngestStatus.Unknown
-            };
         }
 
         private void SelectedDirectory_MediaAdded(object source, MediaEventArgs e)

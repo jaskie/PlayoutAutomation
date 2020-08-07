@@ -84,7 +84,7 @@ namespace TAS.Client.ViewModels
             Items = new ObservableCollection<MediaViewViewmodel>(
                 _searchDirectory.GetAllFiles()
                     .Where(m => _canAddMediaToCollection(m, mediaType))
-                    .Select(m => new MediaViewViewmodel(m)));
+                    .Select(m => new MediaViewViewmodel(m, Engine.MediaManager)));
             _itemsView = CollectionViewSource.GetDefaultView(Items);
             _itemsView.Filter += _itemsFilter;
 
@@ -253,7 +253,7 @@ namespace TAS.Client.ViewModels
                 IMedia media = e.Media;
                 if (media != null
                     && _canAddMediaToCollection(media, _mediaType))
-                    Items.Add(new MediaViewViewmodel(media));
+                    Items.Add(new MediaViewViewmodel(media, Engine.MediaManager));
             });
         }
 
