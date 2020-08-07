@@ -47,8 +47,6 @@ namespace TAS.Database.SQLite
 #endif
         protected abstract string TrimText(string tableName, string columnName, string value);
 
-        protected readonly object SyncRoot = new object();
-
         private static readonly Newtonsoft.Json.JsonSerializerSettings HibernationSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
         {
             ContractResolver = new HibernationContractResolver(),
@@ -94,7 +92,7 @@ namespace TAS.Database.SQLite
         public ReadOnlyCollection<T> LoadServers<T>() where T : IPlayoutServerProperties
         {
             var servers = new List<T>();
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("SELECT * FROM server;"))
                 using (var dataReader = cmd.ExecuteReader())
@@ -113,7 +111,7 @@ namespace TAS.Database.SQLite
 
         public void InsertServer(IPlayoutServerProperties server) 
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 {
                     using (var cmd = CreateCommand(@"INSERT INTO server (typServer, Config) VALUES (0, @Config)"))
@@ -128,7 +126,7 @@ namespace TAS.Database.SQLite
 
         public void UpdateServer(IPlayoutServerProperties server) 
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
 
                 using (var cmd = CreateCommand("UPDATE server SET Config=@Config WHERE idServer=@idServer;"))
@@ -142,7 +140,7 @@ namespace TAS.Database.SQLite
 
         public void DeleteServer(IPlayoutServerProperties server) 
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("DELETE FROM server WHERE idServer=@idServer;"))
                 {
@@ -159,7 +157,7 @@ namespace TAS.Database.SQLite
         public ReadOnlyCollection<T> LoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
         {
             var engines = new List<T>();
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = instance == null
                     ? CreateCommand("SELECT * FROM engine;")
@@ -193,7 +191,7 @@ namespace TAS.Database.SQLite
 
         public void InsertEngine(IEnginePersistent engine) 
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 {
                     using (var cmd = CreateCommand(@"INSERT INTO engine (Instance, idServerPRI, ServerChannelPRI, idServerSEC, ServerChannelSEC, idServerPRV,  ServerChannelPRV, idArchive,  Config) VALUES (@Instance, @idServerPRI, @ServerChannelPRI, @idServerSEC, @ServerChannelSEC, @idServerPRV, @ServerChannelPRV, @idArchive, @Config);"))
@@ -216,7 +214,7 @@ namespace TAS.Database.SQLite
 
         public void UpdateEngine(IEnginePersistent engine)
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand(@"UPDATE engine SET Instance=@Instance, idServerPRI=@idServerPRI, ServerChannelPRI=@ServerChannelPRI, idServerSEC=@idServerSEC, ServerChannelSEC=@ServerChannelSEC, idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config WHERE idEngine=@idEngine"))
                 {
@@ -237,7 +235,7 @@ namespace TAS.Database.SQLite
 
         public void DeleteEngine(IEnginePersistent engine) 
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("DELETE FROM engine WHERE idEngine=@idEngine;"))
                 {
@@ -249,7 +247,7 @@ namespace TAS.Database.SQLite
 
         public void ReadRootEvents(IEngine engine)
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("SELECT * FROM rundownevent WHERE typStart in (@StartTypeManual, @StartTypeOnFixedTime, @StartTypeNone) AND idEventBinding=0 AND idEngine=@idEngine ORDER BY ScheduledTime, EventName"))
                 {
@@ -274,7 +272,7 @@ namespace TAS.Database.SQLite
         public void SearchMissing(IEngine engine) 
         {
             {
-                lock (SyncRoot)
+                lock (Connection)
                 {
                     using (var cmd = CreateCommand("SELECT * FROM rundownevent m WHERE m.idEngine=@idEngine AND m.typStart <= @typStart AND (SELECT s.idRundownEvent FROM rundownevent s WHERE m.idEventBinding = s.idRundownEvent) IS NULL"))
                     {
@@ -325,7 +323,7 @@ namespace TAS.Database.SQLite
         public List<IEvent> SearchPlaying(IEngine engine)
         {
             {
-                lock (SyncRoot)
+                lock (Connection)
                 {
                     using (var cmd = CreateCommand("SELECT * FROM rundownevent WHERE idEngine=@idEngine AND PlayState=@PlayState"))
                     {
@@ -356,7 +354,7 @@ namespace TAS.Database.SQLite
         public MediaDeleteResult MediaInUse(IEngine engine, IServerMedia serverMedia)
         {
             var reason = MediaDeleteResult.NoDeny;
-            lock (SyncRoot)
+            lock (Connection)
             {
 #if MYSQL
                 using (var cmd = CreateCommand("SELECT * from rundownevent WHERE MediaGuid=@MediaGuid AND ADDTIME(ScheduledTime, Duration) > UTC_TIMESTAMP();"))
@@ -387,7 +385,7 @@ namespace TAS.Database.SQLite
         public ReadOnlyCollection<T> LoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
         {
             var directories = new List<T>();
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("SELECT * FROM archive;"))
                 using (var dataReader = cmd.ExecuteReader())
@@ -409,7 +407,7 @@ namespace TAS.Database.SQLite
 
         public void InsertArchiveDirectory(IArchiveDirectoryProperties dir) 
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 {
                     using (var cmd = CreateCommand(@"INSERT INTO archive (Folder) VALUES (@Folder);"))
@@ -424,7 +422,7 @@ namespace TAS.Database.SQLite
 
         public void UpdateArchiveDirectory(IArchiveDirectoryProperties dir)
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand(@"UPDATE archive SET Folder=@Folder WHERE idArchive=@idArchive"))
                 {
@@ -437,7 +435,7 @@ namespace TAS.Database.SQLite
 
         public void DeleteArchiveDirectory(IArchiveDirectoryProperties dir) 
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("DELETE FROM archive WHERE idArchive=@idArchive;"))
                 {
@@ -463,7 +461,7 @@ namespace TAS.Database.SQLite
 
         public List<T> ArchiveMediaSearch<T>(IArchiveDirectoryServerSide dir, TMediaCategory? mediaCategory, string search) where T: IArchiveMedia, new()
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 var textSearches = (from text in search.ToLower().Split(' ').Where(s => !string.IsNullOrEmpty(s)) select "(LOWER(MediaName) LIKE \"%" + text + "%\" OR LOWER(FileName) LIKE \"%" + text + "%\")").ToArray();
                 using (var cmd = mediaCategory == null
@@ -497,7 +495,7 @@ namespace TAS.Database.SQLite
         public List<T> FindArchivedStaleMedia<T>(IArchiveDirectoryServerSide dir) where T : IArchiveMedia, new()
         {
             var returnList = new List<T>();
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive AND KillDate<CURRENT_DATE AND KillDate>'2000-01-01' LIMIT 0, 1000;"))
                 {
@@ -518,7 +516,7 @@ namespace TAS.Database.SQLite
             var result = default(T);
             if (mediaGuid == Guid.Empty)
                 return result;
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("SELECT * FROM archivemedia WHERE idArchive=@idArchive AND MediaGuid=@MediaGuid;"))
                 {
@@ -541,7 +539,7 @@ namespace TAS.Database.SQLite
         {
             if (dir == null || mediaGuid == Guid.Empty)
                 return false;
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("SELECT count(*) FROM archivemedia WHERE idArchive=@idArchive AND MediaGuid=@MediaGuid;"))
                 {
@@ -560,7 +558,7 @@ namespace TAS.Database.SQLite
         {
             if (eventOwner == null)
                 return null;
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = eventOwner.EventType == TEventType.Container
                     ? CreateCommand("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND (typStart=@StartTypeManual OR typStart=@StartTypeOnFixedTime);")
@@ -598,7 +596,7 @@ namespace TAS.Database.SQLite
         {
             if (aEvent == null)
                 return null;
-            lock (SyncRoot)
+            lock (Connection)
             {
                 IEvent next = null;
                 using (var cmd = CreateCommand("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND typStart=@StartType;"))
@@ -621,21 +619,24 @@ namespace TAS.Database.SQLite
 
         private void ReadAnimatedEvent(ulong id, ITemplated animatedEvent)
         {
-            using (var cmd = CreateCommand("SELECT * FROM rundownevent_templated WHERE idrundownevent_templated = @id;"))
+            lock (Connection)
             {
-                cmd.Parameters.AddWithValue("@id", id);
-                using (var reader = cmd.ExecuteReader())
+                using (var cmd = CreateCommand("SELECT * FROM rundownevent_templated WHERE idrundownevent_templated = @id;"))
                 {
-                    if (!reader.Read())
-                        return;
-                    animatedEvent.Method = (TemplateMethod)reader.GetByte("Method");
-                    animatedEvent.TemplateLayer = reader.GetInt16("TemplateLayer");
-                    var templateFields = reader.GetString("Fields");
-                    if (string.IsNullOrWhiteSpace(templateFields))
-                        return;
-                    var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
-                    if (fieldsDeserialized != null)
-                        animatedEvent.Fields = fieldsDeserialized;
+                    cmd.Parameters.AddWithValue("@id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (!reader.Read())
+                            return;
+                        animatedEvent.Method = (TemplateMethod)reader.GetByte("Method");
+                        animatedEvent.TemplateLayer = reader.GetInt16("TemplateLayer");
+                        var templateFields = reader.GetString("Fields");
+                        if (string.IsNullOrWhiteSpace(templateFields))
+                            return;
+                        var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
+                        if (fieldsDeserialized != null)
+                            animatedEvent.Fields = fieldsDeserialized;
+                    }
                 }
             }
         }
@@ -644,7 +645,7 @@ namespace TAS.Database.SQLite
         {
             if (idRundownEvent <= 0)
                 return null;
-            lock (SyncRoot)
+            lock (Connection)
             {
                 IEvent result = null;
                 using (var cmd = CreateCommand("SELECT * FROM rundownevent WHERE idRundownEvent = @idRundownEvent"))
@@ -816,7 +817,7 @@ namespace TAS.Database.SQLite
 
         public bool InsertEvent(IEventPersistent aEvent)
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var transaction = BeginTransaction())
                 {
@@ -841,7 +842,7 @@ VALUES
 
         public bool UpdateEvent<TEvent>(TEvent aEvent) where  TEvent: IEventPersistent
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var transaction = BeginTransaction())
                 {
@@ -889,7 +890,7 @@ WHERE idRundownEvent=@idRundownEvent;";
 
         public bool DeleteEvent(IEventPersistent aEvent)
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var transaction = BeginTransaction())
                 {
@@ -915,7 +916,7 @@ WHERE idRundownEvent=@idRundownEvent;";
         {
             try
             {
-                lock (SyncRoot)
+                lock (Connection)
                 {
                     using (var cmd = CreateCommand(
 @"INSERT INTO asrunlog (
@@ -999,7 +1000,7 @@ VALUES
         {
             if (aEvent == null)
                 return null;
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("SELECT * FROM rundownevent_acl WHERE idRundownEvent = @idRundownEvent;"))
                 {
@@ -1028,7 +1029,7 @@ VALUES
         {
             if (acl?.Owner == null)
                 return false;
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd =
                     CreateCommand("INSERT INTO rundownevent_acl (idRundownEvent, idACO, ACL) VALUES (@idRundownEvent, @idACO, @ACL);"))
@@ -1045,7 +1046,7 @@ VALUES
 
         public bool UpdateEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd =
                     CreateCommand("UPDATE rundownevent_acl SET ACL=@ACL WHERE idRundownevent_ACL=@idRundownevent_ACL;"))
@@ -1059,7 +1060,7 @@ VALUES
 
         public bool DeleteEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 var query = "DELETE FROM rundownevent_acl WHERE idRundownevent_ACL=@idRundownevent_ACL;";
                 using (var cmd = CreateCommand(query))
@@ -1073,7 +1074,7 @@ VALUES
 
         public List<IAclRight> ReadEngineAclList<TEngineAcl>(IPersistent engine, IAuthenticationServicePersitency authenticationService) where TEngineAcl : IAclRight, IPersistent, new()
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 var cmd =
                     CreateCommand("SELECT * FROM engine_acl WHERE idEngine=@idEngine;");
@@ -1101,7 +1102,7 @@ VALUES
         {
             if (acl?.Owner == null)
                 return false;
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("INSERT INTO engine_acl (idEngine, idACO, ACL) VALUES (@idEngine, @idACO, @ACL);"))
                 {
@@ -1117,7 +1118,7 @@ VALUES
 
         public bool UpdateEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("UPDATE engine_acl SET ACL=@ACL WHERE idEngine_ACL=@idEngine_ACL;"))
                 {
@@ -1130,7 +1131,7 @@ VALUES
 
         public bool DeleteEngineAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("DELETE FROM engine_acl WHERE idEngine_ACL=@idEngine_ACL;"))
                 {
@@ -1290,7 +1291,7 @@ VALUES
         public void LoadAnimationDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IAnimatedMedia, new()
         {
             Debug.WriteLine(directory, "AnimationDirectory load started");
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("SELECT servermedia.*, media_templated.Fields, media_templated.Method, media_templated.TemplateLayer, media_templated.ScheduledDelay, media_templated.StartType FROM serverMedia LEFT JOIN media_templated ON servermedia.MediaGuid = media_templated.MediaGuid WHERE idServer=@idServer AND typMedia = @typMedia"))
                 {
@@ -1324,7 +1325,7 @@ VALUES
         public void LoadServerDirectory<T>(IMediaDirectoryServerSide directory, ulong serverId) where T : IServerMedia, new()
         {
             Debug.WriteLine(directory, "ServerLoadMediaDirectory started");
-            lock (SyncRoot)
+            lock (Connection)
             {
 
                 using (var cmd = CreateCommand("SELECT * FROM servermedia WHERE idServer=@idServer AND typMedia IN (@typMediaMovie, @typMediaStill)"))
@@ -1432,7 +1433,7 @@ VALUES
         public void InsertMedia(IAnimatedMedia animatedMedia, ulong serverId )
         {
             var result = false;
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var transaction = BeginTransaction())
                 {
@@ -1454,7 +1455,7 @@ VALUES
 
         public void InsertMedia(IServerMedia serverMedia, ulong serverId)
         {
-            lock (SyncRoot)
+            lock (Connection)
                 DbInsertMedia(serverMedia, serverId);
         }
 
@@ -1474,7 +1475,7 @@ VALUES
 
         public void InsertMedia(IArchiveMedia archiveMedia, ulong serverid)
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand(@"INSERT INTO archivemedia 
 (idArchive, MediaName, Folder, FileName, FileSize, LastUpdated, Duration, DurationPlay, idProgramme, statusMedia, typMedia, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
@@ -1489,7 +1490,7 @@ VALUES
 
         public bool DeleteMedia(IServerMedia serverMedia)
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 return DeleteServerMedia(serverMedia);
             }
@@ -1497,7 +1498,7 @@ VALUES
 
         public bool DeleteMedia(IAnimatedMedia animatedMedia)
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 var result = false;
                 using (var transaction = BeginTransaction())
@@ -1531,7 +1532,7 @@ VALUES
 
         public bool DeleteMedia(IArchiveMedia archiveMedia)
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand("DELETE FROM archivemedia WHERE idArchiveMedia=@idArchiveMedia;"))
                 {
@@ -1543,7 +1544,7 @@ VALUES
 
         public void UpdateMedia(IAnimatedMedia animatedMedia, ulong serverId)
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var transaction = BeginTransaction())
                 {
@@ -1564,7 +1565,7 @@ VALUES
 
         public void UpdateMedia(IServerMedia serverMedia, ulong serverId)
         {
-            lock (SyncRoot)
+            lock (Connection)
                 DbUpdateMedia(serverMedia, serverId);
         }
 
@@ -1604,7 +1605,7 @@ WHERE idServerMedia=@idServerMedia;"))
 
         public void UpdateMedia(IArchiveMedia archiveMedia, ulong serverId)
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 using (var cmd = CreateCommand(@"UPDATE archivemedia SET 
 idArchive=@idArchive, 
@@ -1657,7 +1658,7 @@ WHERE idArchiveMedia=@idArchiveMedia;"))
 
         public T MediaSegmentsRead<T>(IPersistentMedia media) where T : IMediaSegments 
         {
-            lock (SyncRoot)
+            lock (Connection)
             {
                 if (_mediaSegmentsConstructorInfo == null)
                     _mediaSegmentsConstructorInfo = typeof(T).GetConstructor(new[] { typeof(Guid) });
@@ -1697,21 +1698,18 @@ WHERE idArchiveMedia=@idArchiveMedia;"))
         {
             if (!(mediaSegment is IPersistent ps) || ps.Id == 0)
                 return;
-            lock (SyncRoot)
-            {
+            lock (Connection)
                 using (var cmd = CreateCommand("DELETE FROM mediasegments WHERE idMediaSegment=@idMediaSegment;"))
                 {
                     cmd.Parameters.AddWithValue("@idMediaSegment", ps.Id);
                     cmd.ExecuteNonQuery();
                 }
-            }
         }
         public ulong SaveMediaSegment(IMediaSegment mediaSegment)
         {
             if (!(mediaSegment is IPersistent ps))
                 return 0;
-            lock (SyncRoot)
-            {
+            lock (Connection)
                 using (var command = ps.Id == 0
                     ? CreateCommand("INSERT INTO mediasegments (MediaGuid, TCIn, TCOut, SegmentName) VALUES (@MediaGuid, @TCIn, @TCOut, @SegmentName);")
                     : CreateCommand("INSERT INTO mediasegments (MediaGuid, TCIn, TCOut, SegmentName) VALUES (@MediaGuid, @TCIn, @TCOut, @SegmentName);"))
@@ -1730,70 +1728,56 @@ WHERE idArchiveMedia=@idArchiveMedia;"))
                     command.ExecuteNonQuery();
                     return (ulong)command.GetLastInsertedId();
                 }
-            }
         }
 
 
-#endregion // MediaSegment
+        #endregion // MediaSegment
 
-#region Security
+        #region Security
 
         public void InsertSecurityObject(ISecurityObject aco)
         {
             if (!(aco is IPersistent pAco))
                 throw new ArgumentNullException(nameof(aco));
-            lock (SyncRoot)
-            {
+            lock (Connection)
+                using (var cmd = CreateCommand(@"INSERT INTO aco (typAco, Config) VALUES (@typAco, @Config);"))
                 {
-                    using (var cmd = CreateCommand(@"INSERT INTO aco (typAco, Config) VALUES (@typAco, @Config);"))
-                    {
-                        cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(aco, HibernationSerializerSettings));
-                        cmd.Parameters.AddWithValue("@typAco", (int)aco.SecurityObjectTypeType);
-                        cmd.ExecuteNonQuery();
-                        pAco.Id = (ulong)cmd.GetLastInsertedId();
-                    }
+                    cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(aco, HibernationSerializerSettings));
+                    cmd.Parameters.AddWithValue("@typAco", (int)aco.SecurityObjectTypeType);
+                    cmd.ExecuteNonQuery();
+                    pAco.Id = (ulong)cmd.GetLastInsertedId();
                 }
-            }
         }
 
         public void DeleteSecurityObject(ISecurityObject aco)
         {
             if (!(aco is IPersistent pAco) || pAco.Id == 0)
                 throw new ArgumentNullException(nameof(aco));
-            lock (SyncRoot)
-            {
+            lock (Connection)
+                using (var cmd = CreateCommand(@"DELETE FROM aco WHERE idACO=@idACO;"))
                 {
-                    using (var cmd = CreateCommand(@"DELETE FROM aco WHERE idACO=@idACO;"))
-                    {
-                        cmd.Parameters.AddWithValue("@idACO", pAco.Id);
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.AddWithValue("@idACO", pAco.Id);
+                    cmd.ExecuteNonQuery();
                 }
-            }
         }
 
         public void UpdateSecurityObject(ISecurityObject aco)
         {
             if (!(aco is IPersistent pAco) || pAco.Id == 0)
                 throw new ArgumentNullException(nameof(aco));
-            lock (SyncRoot)
-            {
+            lock (Connection)
+                using (var cmd = CreateCommand(@"UPDATE aco SET Config=@Config WHERE idACO=@idACO;"))
                 {
-                    using (var cmd = CreateCommand(@"UPDATE aco SET Config=@Config WHERE idACO=@idACO;"))
-                    {
-                        cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(aco, HibernationSerializerSettings));
-                        cmd.Parameters.AddWithValue("@idACO", pAco.Id);
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(aco, HibernationSerializerSettings));
+                    cmd.Parameters.AddWithValue("@idACO", pAco.Id);
+                    cmd.ExecuteNonQuery();
                 }
-            }
         }
 
         public List<T> LoadSecurityObject<T>() where T : ISecurityObject
         {
             var acos = new List<T>();
-            lock (SyncRoot)
-            {
+            lock (Connection)
                 using (var cmd = CreateCommand("SELECT * FROM aco WHERE typACO=@typACO;"))
                 {
                     if (typeof(IUser).IsAssignableFrom(typeof(T)))
@@ -1813,7 +1797,6 @@ WHERE idArchiveMedia=@idArchiveMedia;"))
                         return acos;
                     }
                 }
-            }
         }
 
 #endregion
