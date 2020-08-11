@@ -266,13 +266,11 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (CheckConnected(channel))
             {
-                {
-                    channel.Play((int)videolayer);
-                    _visible.TryRemove(videolayer, out _);
-                    _loadedNext.TryRemove(videolayer, out _);
-                    Debug.WriteLine("CasparPlay Layer {0}", videolayer);
-                    return true;
-                }
+                channel.Play((int)videolayer);
+                if (_loadedNext.TryRemove(videolayer, out var loaded))
+                    _visible[videolayer] = loaded;
+                Debug.WriteLine("CasparPlay Layer {0}", videolayer);
+                return true;
             }
             return false;
         }
@@ -299,10 +297,9 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (CheckConnected(channel))
             {
-                if (_visible.TryRemove(aEvent.Layer, out var visible) && visible == aEvent)
+                if (_visible.TryGetValue(aEvent.Layer, out var visible) && visible == aEvent)
                 {
                     channel.Pause((int)aEvent.Layer);
-                    _loadedNext.TryRemove(aEvent.Layer, out _);
                     Debug.WriteLine(aEvent, $"CasprarPause {aEvent} layer {aEvent.Layer}");
                 }
                 return true;
