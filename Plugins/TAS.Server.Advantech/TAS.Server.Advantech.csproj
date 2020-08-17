@@ -58,6 +58,7 @@
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -101,10 +102,12 @@
     <ProjectReference Include="..\..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj">
       <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
       <Name>jNet.RPC</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj">
       <Project>{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}</Project>
       <Name>TAS.Client.Common</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
@@ -114,6 +117,7 @@
     <ProjectReference Include="..\..\TAS.Database.Common\TAS.Database.Common.csproj">
       <Project>{F73445A5-2375-49EA-BD4F-8C6778D8736D}</Project>
       <Name>TAS.Database.Common</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
