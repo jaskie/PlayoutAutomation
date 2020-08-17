@@ -372,6 +372,8 @@ namespace TAS.Client.ViewModels
         {
             if (IsStill)
                 return null;
+            if (_operation.Source.Directory is IIngestDirectory ingestDirectory && ingestDirectory.AccessType == TDirectoryAccessType.FTP)
+                return null;
             if (StartTC < _operation.Source.TcStart)
                 return string.Format(resources._validate_StartTCBeforeFile, _operation.Source.TcStart.ToSmpteTimecodeString(_operation.Source.VideoFormat));
             if (StartTC > _operation.Source.TcLastFrame())

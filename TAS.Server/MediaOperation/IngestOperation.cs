@@ -384,7 +384,7 @@ namespace TAS.Server.MediaOperation
                 return false;
             var helper = new FFMpegHelper(this, localSourceMedia.Duration);
             destMedia.MediaStatus = TMediaStatus.Copying;
-            if (!(Source is MediaBase mediaBase && mediaBase.Directory is IngestDirectory ingestDirectory))
+            if (!(Source.Directory is IngestDirectory ingestDirectory))
                 throw new ApplicationException("Media not belongs to IngestDirectory");
             var encodeParams = GetEncodeParameters(ingestDirectory, localSourceMedia, streams);
             var ingestRegion = IsTrimmed() ? string.Format(CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - Source.TcStart, Duration) : string.Empty;
@@ -406,7 +406,8 @@ namespace TAS.Server.MediaOperation
                 destMedia.TcPlay = destMedia.TcStart;
                 destMedia.DurationPlay = destMedia.Duration;
                 ((MediaDirectoryBase)DestDirectory).RefreshVolumeInfo();
-                if (Math.Abs(destMedia.Duration.Ticks - (IsTrimmed() ? Duration.Ticks : localSourceMedia.Duration.Ticks)) > TimeSpan.TicksPerSecond / 2)
+                if (!(ingestDirectory.AccessType == TDirectoryAccessType.FTP && Source.Duration == TimeSpan.Zero)
+                    && Math.Abs(destMedia.Duration.Ticks - (IsTrimmed() ? Duration.Ticks : localSourceMedia.Duration.Ticks)) > TimeSpan.TicksPerSecond / 2)
                 {
                     destMedia.MediaStatus = TMediaStatus.CopyError;
                     (destMedia as PersistentMedia)?.Save();

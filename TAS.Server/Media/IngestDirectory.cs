@@ -418,7 +418,7 @@ namespace TAS.Server.Media
                     if (extension != null && extension.ToLower() == XmlFileExtension &&
                         _bMdXmlFiles.Contains(e.FullPath))
                     {
-                        _scanXML(e.FullPath);
+                        ScanMediaExpressXML(e.FullPath);
                         return;
                     }
                 }
@@ -433,7 +433,7 @@ namespace TAS.Server.Media
             if (Kind == TIngestDirectoryKind.BmdMediaExpressWatchFolder)
                 lock (((IList) _bMdXmlFiles).SyncRoot)
                     foreach (string xml in _bMdXmlFiles)
-                        _scanXML(xml);
+                        ScanMediaExpressXML(xml);
         }
 
         protected override bool AcceptFile(string fullPath)
@@ -513,7 +513,7 @@ namespace TAS.Server.Media
         #region Utilities
 
         // parse files from BMD's MediaExpress
-        private void _scanXML(string xmlFileName)
+        private void ScanMediaExpressXML(string xmlFileName)
         {
             foreach (var fd in FindMediaList(f => f is IngestMedia && ((IngestMedia) f).BmdXmlFile == xmlFileName))
                 ((IngestMedia)fd).BmdXmlFile = string.Empty;
@@ -568,7 +568,7 @@ namespace TAS.Server.Media
         }
 
 
-        private IEnumerable<IMedia> _ftpAddFileFromPath(FtpClient client, string rootPath, string localPath, FtpListItem item, string filter)
+        private IEnumerable<IMedia> FtpAddFileFromPath(FtpClient client, string rootPath, string localPath, FtpListItem item, string filter)
         {
             var newPath = localPath + '/' + item.Name;
             if ((item.Type == FtpFileSystemObjectType.Movie || item.Type == FtpFileSystemObjectType.File)
@@ -577,7 +577,7 @@ namespace TAS.Server.Media
             if (!IsRecursive || item.Type != FtpFileSystemObjectType.Directory)
                 yield break;
             foreach (var file in client.GetListing(rootPath + newPath))
-            foreach (var media in _ftpAddFileFromPath(client, rootPath, newPath, file, filter))
+            foreach (var media in FtpAddFileFromPath(client, rootPath, newPath, file, filter))
                 yield return media;
         }
 
@@ -590,7 +590,7 @@ namespace TAS.Server.Media
                 ftpClient.Connect();
                 ClearFiles();
                 foreach (var file in ftpClient.GetListing(uri.LocalPath))
-                foreach (var media in _ftpAddFileFromPath(ftpClient, uri.LocalPath, "", file, filter))
+                foreach (var media in FtpAddFileFromPath(ftpClient, uri.LocalPath, "", file, filter))
                     yield return media;
             }
             finally
