@@ -269,7 +269,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="NLog\NLog_Release.config" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Plugins\FolderInfo.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

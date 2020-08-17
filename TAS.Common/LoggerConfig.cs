@@ -9,7 +9,7 @@ namespace TAS.Common
         [Conditional("DEBUG")]
         public static void AddDebuggerTarget()
         {
-            var config = LogManager.Configuration;
+            var config = LogManager.Configuration ?? new NLog.Config.LoggingConfiguration();
             var debuggerTarget = new DebuggerTarget("Nlog");
             config.AddTarget(debuggerTarget);
             config.AddRule(LogLevel.Trace, LogLevel.Fatal, debuggerTarget);
