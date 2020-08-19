@@ -141,16 +141,16 @@ namespace TAS.Server
 
         public IMediaManager MediaManager => _mediaManager;
 
-        [DtoMember, Hibernate, JsonConverter(typeof(PluginConverter))]
+        [DtoMember, Hibernate]
         public ICGElementsController CGElementsController { get; set; }        
 
-        [DtoMember, Hibernate, JsonConverter(typeof(PluginConverter))]
+        [DtoMember, Hibernate]
         public IVideoSwitch Router { get; set; }
 
         [Hibernate]
         public ServerHost Remote { get; set; }
 
-        [Hibernate, JsonConverter(typeof(PluginConverter))]
+        [Hibernate]
         public List<IGpi> Gpis { get; set; }
 
         [DtoMember, Hibernate]

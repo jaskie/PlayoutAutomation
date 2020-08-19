@@ -2,7 +2,7 @@
 
 namespace TAS.Common.Interfaces
 {
-    public interface IGpi
+    public interface IGpi: IPlugin
     {        
         event EventHandler Started;
     }

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using TAS.Common.Interfaces;
 
 namespace TAS.Database.Common
 {
@@ -41,7 +42,9 @@ namespace TAS.Database.Common
         protected override JsonObjectContract CreateObjectContract(Type objectType)
         {
             JsonObjectContract contract = base.CreateObjectContract(objectType);
-            contract.IsReference = false;            
+            contract.IsReference = false;
+            if (typeof(IPlugin).IsAssignableFrom(objectType))
+                contract.Converter = PluginConverter.Current;
             return contract;
         }
     }

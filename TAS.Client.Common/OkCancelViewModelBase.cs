@@ -7,7 +7,7 @@ namespace TAS.Client.Common
         public bool OkCancelButtonsActivateViaKeyboard { get; set; } = true;
         
         /// <summary>
-        /// OkCancelViewModelBase will provide basic support for Ok/Cancel concept dialog
+        /// OkCancelViewModelBase provide basic support for Ok/Cancel concept dialog
         /// </summary>        
         /// <param name="okButtonContent">Ok button content</param>
         /// <param name="cancelButtonContent">Cancel button content</param>
@@ -42,7 +42,7 @@ namespace TAS.Client.Common
         public ICommand CommandCancel { get; protected set; }
         public ICommand CommandOk { get; protected set; }
 
-        public string OkButtonContent { get; set; }
-        public string CancelButtonContent { get; set; }
+        public string OkButtonContent { get; }
+        public string CancelButtonContent { get; }
     }
 }
