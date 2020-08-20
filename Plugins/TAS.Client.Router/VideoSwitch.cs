@@ -37,6 +37,9 @@ namespace TAS.Server.VideoSwitch
                 case VideoSwitchType.Atem:
                     _routerCommunicator = new AtemCommunicator(this);
                     break;
+                case VideoSwitchType.Ross:
+                    _routerCommunicator = new RossCommunicator(this);
+                    break;
                 default:
                     return;
             }
@@ -72,7 +75,7 @@ namespace TAS.Server.VideoSwitch
             set => SetField(ref _selectedInputPort, value);
         }
 
-        [DtoMember]
+        [DtoMember, Hibernate]
         public IList<IVideoSwitchPort> InputPorts { get; } = new List<IVideoSwitchPort>();
 
         [DtoMember]
@@ -146,13 +149,22 @@ namespace TAS.Server.VideoSwitch
 
         private void Communicator_OnInputPortChangeReceived(object sender, EventArgs<CrosspointInfo> e)
         {
-            if (OutputPorts.Length == 0)
-                return;
-            var port = OutputPorts[0];
-            var changedIn = e.Value.OutPort == port ? e.Value : null;
-            if (changedIn == null)
-                return;
-            SelectedInputPort = InputPorts.FirstOrDefault(param => param.PortId == changedIn.InPort);
+            if (Type != VideoSwitchType.Ross)
+            {
+                if (OutputPorts.Length == 0)
+                    return;
+
+                var port = OutputPorts[0];
+                var changedIn = e.Value.OutPort == port ? e.Value : null;
+                if (changedIn == null)
+                    return;
+                SelectedInputPort = InputPorts.FirstOrDefault(param => param.PortId == changedIn.InPort);
+            }
+            else
+            {
+                SelectedInputPort = InputPorts.FirstOrDefault(param => param.PortId == e.Value.InPort);
+            }
+            
         }
 
         protected override void DoDispose()

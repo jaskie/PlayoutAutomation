@@ -10,7 +10,8 @@ namespace TAS.Server.VideoSwitch
     {
         private readonly List<Tuple<Type, Type>> _types = new List<Tuple<Type, Type>>()
         {
-            new Tuple<Type, Type>(typeof(VideoSwitch), typeof(VideoSwitch))            
+            new Tuple<Type, Type>(typeof(VideoSwitch), typeof(VideoSwitch)),
+            new Tuple<Type, Type>(typeof(RouterPort), typeof(RouterPort))
         };
 
         public Type GetBindedType(Type type)
@@ -18,11 +19,10 @@ namespace TAS.Server.VideoSwitch
             foreach (var typePair in _types)
                 if (typePair.Item1 == type)
                     return typePair.Item2;
-
-            //uncomment in case of diffrent classes pair in _types
-            //foreach (var typePair in _types)
-            //    if (typePair.Item2 == type)
-            //        return typePair.Item2;
+            
+            foreach (var typePair in _types)
+                if (typePair.Item2 == type)
+                    return typePair.Item2;
 
             return null;
         }

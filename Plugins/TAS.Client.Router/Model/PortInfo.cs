@@ -6,8 +6,8 @@
         {
             Id = id;
             Name = name;
-        }
-        public short Id { get; }
-        public string Name { get; }
+        }       
+        public short Id { get; set; }       
+        public string Name { get; set; }
     }   
 }

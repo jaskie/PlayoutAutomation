@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="API\COMRegistration.cs" />
     <Compile Include="Communicators\AtemCommunicator.cs" />
+    <Compile Include="Communicators\RossCommunicator.cs" />
     <Compile Include="Configurator\RouterConfiguratorView.xaml.cs">
       <DependentUpon>RouterConfiguratorView.xaml</DependentUpon>
     </Compile>

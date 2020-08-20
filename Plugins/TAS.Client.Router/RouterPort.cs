@@ -1,6 +1,7 @@
 ﻿using jNet.RPC;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
+using TAS.Database.Common;
 
 namespace TAS.Server
 {
@@ -16,14 +17,14 @@ namespace TAS.Server
             PortName = portName;
         }
 
-        [DtoMember]
+        [DtoMember, Hibernate]
         public short PortId
         { 
             get => _portId; 
             set => SetField(ref _portId, value);
         }
         
-        [DtoMember]
+        [DtoMember, Hibernate]
         public string PortName
         {
             get => _portName;

@@ -3,10 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
@@ -20,7 +17,7 @@ namespace TAS.Server.VideoSwitch.Configurator
     {
         private IConfigEngine _engine;
         private VideoSwitch _router = new VideoSwitch();
-        private IVideoSwitch _testRouter;
+        private VideoSwitch _testRouter;
 
         private bool _isEnabled;        
         private string _ipAddress;
@@ -28,10 +25,10 @@ namespace TAS.Server.VideoSwitch.Configurator
         private string _password;
         private int _level;        
         private VideoSwitch.VideoSwitchType? _selectedRouterType;
-        private List<PortInfo> _outputPorts;
+        private List<PortInfo> _ports;
         private bool _requiresAuthentication;
         private bool _requiresLevel;
-        private bool _requiresOutputPorts;
+        private bool _requiresPorts;
 
         [ImportingConstructor]
         public RouterConfiguratorViewModel([Import("Engine")]IConfigEngine engine)
@@ -54,7 +51,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             if (_requiresLevel && _level < 0)
                 return false;
 
-            if (_requiresOutputPorts && _outputPorts?.Count < 1)
+            if (_requiresPorts && _ports?.Count < 1)
                 return false;
 
             return true;
@@ -69,8 +66,8 @@ namespace TAS.Server.VideoSwitch.Configurator
         {
             if (!(obj is PortInfo port))
                 return;
-            _outputPorts.Remove(port);
-            OutputPorts.Refresh();
+            _ports.Remove(port);
+            Ports.Refresh();
         }
 
         private void Save(object obj)
@@ -81,10 +78,15 @@ namespace TAS.Server.VideoSwitch.Configurator
                 IpAddress = _ipAddress,
                 Login = _login,
                 Password = _password,
-                Level = _level,
-                OutputPorts = _outputPorts.Select(p => p.Id).ToArray(),
+                Level = _level,                
                 IsEnabled = _isEnabled
             };
+
+            if (_selectedRouterType == VideoSwitch.VideoSwitchType.Ross)
+                foreach (var port in _ports)
+                    _router.InputPorts.Add(new RouterPort(port.Id, port.Name));
+            else
+                _router.OutputPorts = _ports.Select(p => p.Id).ToArray();
 
             PluginChanged?.Invoke(this, EventArgs.Empty);
             IsModified = false;
@@ -143,8 +145,14 @@ namespace TAS.Server.VideoSwitch.Configurator
                 Login = _login,
                 Password = _password,
                 Level = _level,
-                OutputPorts = _outputPorts.Select(p => p.Id).ToArray()
+                
             };
+            if (_selectedRouterType == VideoSwitch.VideoSwitchType.Ross)
+                foreach (var port in _ports)
+                    _testRouter.InputPorts.Add(new RouterPort(port.Id, port.Name));
+            else                
+                _testRouter.OutputPorts = _ports.Select(p => p.Id).ToArray();
+
             _testRouter.PropertyChanged += TestRouter_PropertyChanged;
             _testRouter.Connect();          
         }
@@ -161,17 +169,17 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         private void AddOutputPort(object obj)
         {
-            var lastItem = _outputPorts.LastOrDefault();           
-            _outputPorts.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id+1), String.Empty));
+            var lastItem = _ports.LastOrDefault();           
+            _ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id+1), String.Empty));
             IsModified = true;
-            OutputPorts.Refresh();
+            Ports.Refresh();
         }
 
         private void Init()
         {
-            _outputPorts = new List<PortInfo>();
-            OutputPorts = CollectionViewSource.GetDefaultView(_outputPorts);
-            NotifyPropertyChanged(nameof(OutputPorts));
+            _ports = new List<PortInfo>();
+            Ports = CollectionViewSource.GetDefaultView(_ports);
+            NotifyPropertyChanged(nameof(Ports));
 
             _level = 0;
             _ipAddress = null;
@@ -188,11 +196,18 @@ namespace TAS.Server.VideoSwitch.Configurator
             Password = _router.Password;
             Level = _router.Level;
             IsEnabled = _router.IsEnabled;
-
-            if (_router.OutputPorts != null)            
-                foreach (var outputPort in _router.OutputPorts)
-                    _outputPorts.Add(new PortInfo(outputPort, null));                
-                           
+           
+            if(_selectedRouterType == VideoSwitch.VideoSwitchType.Ross)
+            {
+                foreach (var port in _router.InputPorts)
+                    _ports.Add(new PortInfo(port.PortId, port.PortName));
+            }
+            else
+            {
+                foreach (var port in _router.OutputPorts)
+                    _ports.Add(new PortInfo(port, null));
+            }
+            
             IsModified = false;            
         }
 
@@ -232,7 +247,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         }
         public IList<IVideoSwitchPort> InputPorts => _testRouter?.InputPorts;
         public event EventHandler PluginChanged;
-        public ICollectionView OutputPorts { get; private set; }        
+        public ICollectionView Ports { get; private set; }        
         public List<VideoSwitch.VideoSwitchType> RouterTypes { get; set; } = Enum.GetValues(typeof(VideoSwitch.VideoSwitchType)).Cast<VideoSwitch.VideoSwitchType>().ToList();
         public string Login { get => _login; set => SetField(ref _login, value); }
         public string Password { get => _password; set => SetField(ref _password, value); }
@@ -250,23 +265,23 @@ namespace TAS.Server.VideoSwitch.Configurator
                     case VideoSwitch.VideoSwitchType.Nevion:
                         RequiresAuthentication = true;
                         RequiresLevel = true;
-                        RequiresOutputPorts = true;
+                        RequiresPorts = true;
                         break;
                     case VideoSwitch.VideoSwitchType.BlackmagicSmartVideoHub:
                     case VideoSwitch.VideoSwitchType.Unknown:
                         RequiresAuthentication = false;
                         RequiresLevel = false;
-                        RequiresOutputPorts = true;
+                        RequiresPorts = true;
                         break;
                     case VideoSwitch.VideoSwitchType.Atem:                    
                         RequiresAuthentication = false;
                         RequiresLevel = true;
-                        RequiresOutputPorts = false;
+                        RequiresPorts = false;
                         break;
                     case VideoSwitch.VideoSwitchType.Ross:
                         RequiresAuthentication = false;
                         RequiresLevel = false;
-                        RequiresOutputPorts = false;
+                        RequiresPorts = true;
                         break;
                 }
             }
@@ -281,7 +296,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         
         public bool RequiresAuthentication { get => _requiresAuthentication; set => SetField(ref _requiresAuthentication, value); }
         public bool RequiresLevel { get => _requiresLevel; set => SetField(ref _requiresLevel, value); }
-        public bool RequiresOutputPorts { get => _requiresOutputPorts; set => SetField(ref _requiresOutputPorts, value); }
+        public bool RequiresPorts { get => _requiresPorts; set => SetField(ref _requiresPorts, value); }
 
         public object GetModel()
         {

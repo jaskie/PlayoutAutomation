@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TAS.Server.VideoSwitch.Configurator"             
-             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:TAS.Server.VideoSwitch.Configurator"                          
+             xmlns:main="clr-namespace:TAS.Server.VideoSwitch"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance local:RouterConfiguratorViewModel}"
              d:DesignHeight="250" d:DesignWidth="220">
@@ -101,7 +101,7 @@
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Collapsed" />
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding RequiresOutputPorts}" Value="True">
+                        <DataTrigger Binding="{Binding RequiresPorts}" Value="True">
                             <Setter Property="Visibility" Value="Visible" />
                         </DataTrigger>
                     </Style.Triggers>
@@ -113,19 +113,32 @@
                     <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                 </Button.Content>
             </Button>
-            <DataGrid MinHeight="50" Grid.Row="1" ItemsSource="{Binding OutputPorts}" CanUserAddRows="False" AutoGenerateColumns="False" CanUserDeleteRows="False">
+            <FrameworkElement x:Name="columnVisibilityHelper" Visibility="Collapsed">
+                <FrameworkElement.Style>
+                    <Style TargetType="FrameworkElement">
+                        <Setter Property="IsEnabled" Value="False" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedRouterType}" Value="{x:Static main:VideoSwitch+VideoSwitchType.Ross}">
+                                <Setter Property="IsEnabled" Value="True" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </FrameworkElement.Style>
+            </FrameworkElement>
+            <DataGrid MinHeight="50" Grid.Row="1" ItemsSource="{Binding Ports}" CanUserAddRows="False" AutoGenerateColumns="False" CanUserDeleteRows="False">
                 <DataGrid.Style>
                     <Style TargetType="DataGrid">
                         <Setter Property="Visibility" Value="Collapsed" />
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding RequiresOutputPorts}" Value="True">
+                            <DataTrigger Binding="{Binding RequiresPorts}" Value="True">
                                 <Setter Property="Visibility" Value="Visible" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </DataGrid.Style>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding Id}" Header="Output Ports" />
+                    <DataGridTextColumn Binding="{Binding Id}" Header="ID" />
+                    <DataGridTextColumn Binding="{Binding Name}" Header="Name" Visibility="{Binding IsEnabled, Converter={StaticResource BoolToVisConverter}, Source={x:Reference columnVisibilityHelper}}" />
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
