@@ -122,6 +122,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="API\BMDSwitcherAPI64.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <COMReference Include="BMDSwitcherAPI">
       <Guid>{8A92B919-156C-4D61-94EF-03F9BE4004B0}</Guid>
       <VersionMajor>1</VersionMajor>
@@ -131,9 +134,6 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="API\BMDSwitcherAPI64.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
