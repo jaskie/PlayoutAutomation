@@ -571,4 +571,11 @@ namespace TAS.Common
         Main,
         Configuration
     }    
+
+    public enum VideoSwitchEffect
+    {
+        Cut,
+        Fade,        
+        Mix,                        
+    }
 }

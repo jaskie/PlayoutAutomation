@@ -9,7 +9,7 @@ using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Communicators
 {    
-    public class AtemCommunicator : IVideoSwitchCommunicator
+    public class AtemCommunicator : IRouterCommunicator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 

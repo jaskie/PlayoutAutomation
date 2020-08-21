@@ -1,4 +1,6 @@
-﻿namespace TAS.Server.VideoSwitch.Model
+﻿using TAS.Database.Common;
+
+namespace TAS.Server.VideoSwitch.Model
 {
     public class PortInfo
     {
@@ -7,7 +9,9 @@
             Id = id;
             Name = name;
         }       
-        public short Id { get; set; }       
+        [Hibernate]
+        public short Id { get; set; }
+        [Hibernate]
         public string Name { get; set; }
     }   
 }

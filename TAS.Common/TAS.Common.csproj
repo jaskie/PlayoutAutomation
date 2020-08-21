@@ -88,7 +88,7 @@
     <Compile Include="Interfaces\IPluginConfigurator.cs" />
     <Compile Include="Interfaces\IVideoSwitch.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
-    <Compile Include="Interfaces\IRouterPort.cs" />
+    <Compile Include="Interfaces\IVideoSwitchPort.cs" />
     <Compile Include="Interfaces\ISearchProvider.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaDirectory.cs" />
     <Compile Include="Interfaces\MediaDirectory\IMediaSearchProvider.cs" />

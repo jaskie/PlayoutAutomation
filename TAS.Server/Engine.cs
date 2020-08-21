@@ -312,9 +312,10 @@ namespace TAS.Server
                 Remote.Initialize(this, new Security.PrincipalProvider(_authenticationService));
             }
 
-            if (Gpis != null)
-                foreach (var gpi in Gpis)
-                    gpi.Started += _gpiStartLoaded;
+            Router.Started += _gpiStartLoaded;
+
+            foreach (var gpi in Gpis)
+                gpi.Started += _gpiStartLoaded;
 
             Debug.WriteLine(this, "Creating engine thread");
             _engineThread = new Thread(ThreadProc)
@@ -458,6 +459,7 @@ namespace TAS.Server
         {
             if (aEvent == null || !(aEvent.EventType == TEventType.Rundown || aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live))
                 return;
+
             if (!HaveRight(EngineRight.Play))
                 return;
 
@@ -856,15 +858,16 @@ namespace TAS.Server
                 Debug.WriteLine(this, "UnInitializing Remote interface");
                 Remote.UnInitialize();
             }
-            if (Gpis != null)
-                foreach (var gpi in Gpis)
-                    gpi.Started -= _gpiStartLoaded;
 
-            var cgElementsController = CGElementsController;
-            if (cgElementsController != null)
+            Router.Started -= _gpiStartLoaded;
+
+            foreach (var gpi in Gpis)
+                gpi.Started -= _gpiStartLoaded;
+            
+            if (CGElementsController != null)
             {
-                Debug.WriteLine(this, "Uninitializing CGElementsController");                
-                cgElementsController.Dispose();
+                Debug.WriteLine(this, "Uninitializing CGElementsController");
+                CGElementsController.Dispose();
             }
 
             Debug.WriteLine(this, "Engine uninitialized");
@@ -1291,6 +1294,7 @@ namespace TAS.Server
                                     _play(succEvent, true);
                             }
                         }
+                        
                         playingEvent = _playing; // in case when succEvent just started 
                         if (playingEvent != null && playingEvent.SubEventsCount > 0)
                         {

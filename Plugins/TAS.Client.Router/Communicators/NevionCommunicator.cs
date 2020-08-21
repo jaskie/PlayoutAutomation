@@ -10,7 +10,7 @@ using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Communicators
 {
-    internal class NevionCommunicator : IVideoSwitchCommunicator
+    internal class NevionCommunicator : IRouterCommunicator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 

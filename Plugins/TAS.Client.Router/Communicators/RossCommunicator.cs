@@ -15,20 +15,24 @@ namespace TAS.Server.VideoSwitch.Communicators
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public event EventHandler<EventArgs<CrosspointInfo>> OnInputPortChangeReceived;
+        
+        //Ross does not have API for sources download.
         public event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;
+        
         public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
 
         private TcpClient _tcpClient;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private int _disposed;
         private VideoSwitch _mc;
+        private bool _transitionTypeChanged;
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();        
         private readonly ConcurrentDictionary<ListTypeEnum, int> _responseDictionary = new ConcurrentDictionary<ListTypeEnum, int>();
         private readonly Dictionary<ListTypeEnum, SemaphoreSlim> _semaphores = Enum.GetValues(typeof(ListTypeEnum)).Cast<ListTypeEnum>().ToDictionary(t => t, t => new SemaphoreSlim(t == ListTypeEnum.CrosspointStatus ? 1 : 0));
 
         private readonly SemaphoreSlim _requestQueueSemaphore = new SemaphoreSlim(0);
-        private readonly SemaphoreSlim _responsesQueueSemaphore = new SemaphoreSlim(0);
+        private readonly SemaphoreSlim _responsesQueueSemaphore = new SemaphoreSlim(0);        
 
         public RossCommunicator(VideoSwitch videoSwitch)
         {
@@ -63,11 +67,12 @@ namespace TAS.Server.VideoSwitch.Communicators
 
                     _requestsQueue = new ConcurrentQueue<string>();
                     
-                    StartRequestQueueHandler();                    
-                    
+                    StartRequestQueueHandler();                                        
                     StartListener();
+                    ConnectionWatcher();
 
-                    ConnectionWatcher();                    
+                    SetTransitionEffect(_mc.DefaultEffect);
+                    _transitionTypeChanged = false;
 
                     Logger.Info("Blackmagic router connected and ready!");
 
@@ -351,6 +356,31 @@ namespace TAS.Server.VideoSwitch.Communicators
         public void SelectInput(int inPort)
         {
             AddToRequestQueue($"FF 09 {SerializeInputIndex(inPort)}");
+            
+            if (!_transitionTypeChanged)
+                return;
+            SetTransitionEffect(_mc.DefaultEffect);
+            _transitionTypeChanged = false;
+        }
+
+        public void SetTransitionEffect(VideoSwitchEffect videoSwitchEffect)
+        {
+            switch(videoSwitchEffect)
+            {
+                case VideoSwitchEffect.Cut:
+                    AddToRequestQueue($"FF 05");
+                    break;
+                case VideoSwitchEffect.Fade:
+                    AddToRequestQueue($"FF 01");
+                    break;
+                case VideoSwitchEffect.Mix:
+                    AddToRequestQueue($"FF 03");
+                    break;
+                default:
+                    return;
+            }
+
+            _transitionTypeChanged = true;
         }
     }
 }

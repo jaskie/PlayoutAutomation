@@ -19,33 +19,39 @@ namespace TAS.Server.VideoSwitch
     public class VideoSwitch : ServerObjectBase, IVideoSwitch, IPlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        private IVideoSwitchCommunicator _routerCommunicator;
+        private IRouterCommunicator _communicator;
         private IVideoSwitchPort _selectedInputPort;
-        private bool _isConnected;
-        
+        private bool _isConnected;        
+
+        public event EventHandler Started;
+
         public VideoSwitch(VideoSwitchType type = VideoSwitchType.Unknown)
         {
             Type = type;
             switch (type)
             {
                 case VideoSwitchType.Nevion:
-                    _routerCommunicator = new NevionCommunicator(this);
+                    _communicator = new NevionCommunicator(this);
+                    Preload = true;
                     break;
                 case VideoSwitchType.BlackmagicSmartVideoHub:
-                    _routerCommunicator = new BlackmagicSmartVideoHubCommunicator(this);
+                    _communicator = new BlackmagicSmartVideoHubCommunicator(this);
+                    Preload = true;
                     break;
                 case VideoSwitchType.Atem:
-                    _routerCommunicator = new AtemCommunicator(this);
+                    _communicator = new AtemCommunicator(this);
+                    Preload = false;
                     break;
                 case VideoSwitchType.Ross:
-                    _routerCommunicator = new RossCommunicator(this);
+                    _communicator = new RossCommunicator(this);
+                    Preload = false;
                     break;
                 default:
                     return;
             }
-            _routerCommunicator.OnInputPortChangeReceived += Communicator_OnInputPortChangeReceived;
-            _routerCommunicator.OnRouterPortsStatesReceived += Communicator_OnRouterPortStateReceived;
-            _routerCommunicator.OnRouterConnectionStateChanged += Communicator_OnRouterConnectionStateChanged;            
+            _communicator.OnInputPortChangeReceived += Communicator_OnInputPortChangeReceived;
+            _communicator.OnRouterPortsStatesReceived += Communicator_OnRouterPortStateReceived;
+            _communicator.OnRouterConnectionStateChanged += Communicator_OnRouterConnectionStateChanged;            
         }
        
         #region Configuration
@@ -65,6 +71,8 @@ namespace TAS.Server.VideoSwitch
         public string Password { get; set; }
         [Hibernate]
         public short[] OutputPorts { get; set; }
+        
+        public bool Preload { get; }
 
         #endregion
 
@@ -83,23 +91,28 @@ namespace TAS.Server.VideoSwitch
         {
             get => _isConnected;
             private set => SetField(ref _isConnected, value);
-        }              
+        }
+
+        [Hibernate]
+        public VideoSwitchEffect DefaultEffect { get; set; }
+        [Hibernate]
+        public PortInfo GpiPort { get; set; }
 
         public void SelectInput(int inPort)
         {            
-             _routerCommunicator.SelectInput(inPort);
+             _communicator.SelectInput(inPort);
         }
 
         public async void Connect()
         {
-            if (_routerCommunicator == null)
+            if (_communicator == null)
                 return;
 
             try
             {
-                IsConnected = await _routerCommunicator.Connect();
+                IsConnected = await _communicator.Connect();
                 if (IsConnected)                    
-                    ParseInputMeta(await _routerCommunicator.GetInputPorts());
+                    ParseInputMeta(await _communicator.GetInputPorts());
             }
             catch (Exception e)
             {
@@ -120,7 +133,7 @@ namespace TAS.Server.VideoSwitch
                     InputPorts.Add(new RouterPort(port.Id, port.Name));
             }
             NotifyPropertyChanged(nameof(InputPorts));
-            var selectedInput = await _routerCommunicator.GetCurrentInputPort();
+            var selectedInput = await _communicator.GetCurrentInputPort();
 
             if (selectedInput == null)
             {
@@ -149,7 +162,7 @@ namespace TAS.Server.VideoSwitch
 
         private void Communicator_OnInputPortChangeReceived(object sender, EventArgs<CrosspointInfo> e)
         {
-            if (Type != VideoSwitchType.Ross)
+            if (Type != VideoSwitchType.Ross && Type != VideoSwitchType.Atem)
             {
                 if (OutputPorts.Length == 0)
                     return;
@@ -158,6 +171,7 @@ namespace TAS.Server.VideoSwitch
                 var changedIn = e.Value.OutPort == port ? e.Value : null;
                 if (changedIn == null)
                     return;
+
                 SelectedInputPort = InputPorts.FirstOrDefault(param => param.PortId == changedIn.InPort);
             }
             else
@@ -169,10 +183,15 @@ namespace TAS.Server.VideoSwitch
 
         protected override void DoDispose()
         {
-            _routerCommunicator.OnInputPortChangeReceived -= Communicator_OnInputPortChangeReceived;
-            _routerCommunicator.OnRouterPortsStatesReceived -= Communicator_OnRouterPortStateReceived;
-            _routerCommunicator.OnRouterConnectionStateChanged -= Communicator_OnRouterConnectionStateChanged;
-            _routerCommunicator.Dispose();
+            _communicator.OnInputPortChangeReceived -= Communicator_OnInputPortChangeReceived;
+            _communicator.OnRouterPortsStatesReceived -= Communicator_OnRouterPortStateReceived;
+            _communicator.OnRouterConnectionStateChanged -= Communicator_OnRouterConnectionStateChanged;
+            _communicator.Dispose();
+        }
+
+        public void SetTransitionEffect(VideoSwitchEffect videoSwitchEffect)
+        {
+            ((IVideoSwitchCommunicator)_communicator).SetTransitionEffect(videoSwitchEffect);
         }
 
         [JsonConverter(typeof(StringEnumConverter))]

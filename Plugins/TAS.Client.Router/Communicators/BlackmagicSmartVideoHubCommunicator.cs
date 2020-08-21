@@ -10,7 +10,7 @@ using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Communicators
 {
-    internal class BlackmagicSmartVideoHubCommunicator : IVideoSwitchCommunicator
+    internal class BlackmagicSmartVideoHubCommunicator : IRouterCommunicator
     {
         /// <summary>
         /// In Blackmagic CrosspointStatus and CrosspointChange responses have the same syntax. CrosspointStatus semaphore initial value is set to 1 to help notify ProcessCommand method

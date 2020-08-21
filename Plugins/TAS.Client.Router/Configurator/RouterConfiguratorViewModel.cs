@@ -1,11 +1,11 @@
-﻿using NLog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Windows.Data;
 using TAS.Client.Common;
+using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
 using TAS.Server.VideoSwitch.Model;
@@ -25,10 +25,15 @@ namespace TAS.Server.VideoSwitch.Configurator
         private string _password;
         private int _level;        
         private VideoSwitch.VideoSwitchType? _selectedRouterType;
+        private VideoSwitchEffect? _selectedTransitionType;
         private List<PortInfo> _ports;
+        private List<PortInfo> _gpiPorts;
+        private PortInfo _selectedGpiInput;
         private bool _requiresAuthentication;
         private bool _requiresLevel;
         private bool _requiresPorts;
+        private bool _requiresTransitionType;
+        private bool _requiresGpi;
 
         [ImportingConstructor]
         public RouterConfiguratorViewModel([Import("Engine")]IConfigEngine engine)
@@ -40,7 +45,41 @@ namespace TAS.Server.VideoSwitch.Configurator
             CommandDisconnect = new UiCommand(Disconnect, CanDisconnect);
             CommandSave = new UiCommand(Save, CanSave);
             CommandUndo = new UiCommand(Undo, CanUndo);
-            CommandDeleteOutputPort = new UiCommand(Delete);            
+            CommandDeleteOutputPort = new UiCommand(Delete);
+            CommandRefreshSources = new UiCommand(RefreshGpiSources, CanRefreshGpiSources);
+        }
+
+        private bool CanRefreshGpiSources(object obj)
+        {
+            if (_ipAddress?.Length > 0 && _selectedRouterType != null)
+                return true;
+            return false;
+        }
+
+        private void RefreshGpiSources(object obj)
+        {
+            _gpiPorts = new List<PortInfo>();
+            
+            switch (_selectedRouterType)
+            {
+                case VideoSwitch.VideoSwitchType.Atem:
+                    var temp = new VideoSwitch(_selectedRouterType ?? VideoSwitch.VideoSwitchType.Unknown) { IpAddress = _ipAddress };
+                    temp.Connect();
+
+                    foreach (var port in temp.InputPorts)                    
+                        _gpiPorts.Add(new PortInfo(port.PortId, port.PortName));
+                    
+                    GpiPorts = CollectionViewSource.GetDefaultView(_gpiPorts);
+                    temp.Dispose();
+                    NotifyPropertyChanged(nameof(GpiPorts));
+                    break;
+
+                case VideoSwitch.VideoSwitchType.Ross:                   
+                    GpiPorts = CollectionViewSource.GetDefaultView(_ports);
+                    NotifyPropertyChanged(nameof(GpiPorts));
+                    break;
+            }
+            
         }
 
         private bool CheckRequirements()
@@ -52,6 +91,12 @@ namespace TAS.Server.VideoSwitch.Configurator
                 return false;
 
             if (_requiresPorts && _ports?.Count < 1)
+                return false;
+
+            if (_requiresGpi && _selectedGpiInput == null)
+                return false;
+
+            if (_requiresTransitionType && _selectedTransitionType == null)
                 return false;
 
             return true;
@@ -75,11 +120,13 @@ namespace TAS.Server.VideoSwitch.Configurator
             _router = new VideoSwitch
             {
                 Type = _selectedRouterType ?? VideoSwitch.VideoSwitchType.Unknown,
+                DefaultEffect = _selectedTransitionType ?? VideoSwitchEffect.Cut,
                 IpAddress = _ipAddress,
                 Login = _login,
                 Password = _password,
                 Level = _level,                
-                IsEnabled = _isEnabled
+                IsEnabled = _isEnabled,
+                GpiPort = _selectedGpiInput
             };
 
             if (_selectedRouterType == VideoSwitch.VideoSwitchType.Ross)
@@ -178,6 +225,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         private void Init()
         {
             _ports = new List<PortInfo>();
+            _gpiPorts = new List<PortInfo>();
             Ports = CollectionViewSource.GetDefaultView(_ports);
             NotifyPropertyChanged(nameof(Ports));
 
@@ -186,28 +234,42 @@ namespace TAS.Server.VideoSwitch.Configurator
             _login = null;
             _password = null;
             _selectedRouterType = null;
+            _selectedTransitionType = null;
+            _selectedGpiInput = null;
            
             if (_router == null)
                 return;
 
             IpAddress = _router.IpAddress;
-            SelectedRouterType = RouterTypes.FirstOrDefault(r => r == ((VideoSwitch)_router).Type);
+            SelectedRouterType = RouterTypes.FirstOrDefault(r => r == _router.Type);
+            SelectedTransitionType = TransitionTypes.FirstOrDefault(r => r == _router.DefaultEffect);            
             Login = _router.Login;
             Password = _router.Password;
             Level = _router.Level;
             IsEnabled = _router.IsEnabled;
            
+            if (_selectedRouterType == VideoSwitch.VideoSwitchType.Atem)
+            {
+                _gpiPorts.Add(_router.GpiPort);
+                GpiPorts = CollectionViewSource.GetDefaultView(_gpiPorts);
+                SelectedGpiInput = _gpiPorts.FirstOrDefault(p => _router.GpiPort?.Id == p.Id);
+            }
+
             if(_selectedRouterType == VideoSwitch.VideoSwitchType.Ross)
             {
                 foreach (var port in _router.InputPorts)
                     _ports.Add(new PortInfo(port.PortId, port.PortName));
+
+                GpiPorts = CollectionViewSource.GetDefaultView(_ports);
+                SelectedGpiInput = _ports.FirstOrDefault(p => _router.GpiPort?.Id == p.Id);
             }
             else
             {
                 foreach (var port in _router.OutputPorts)
                     _ports.Add(new PortInfo(port, null));
             }
-            
+
+                        
             IsModified = false;            
         }
 
@@ -249,6 +311,8 @@ namespace TAS.Server.VideoSwitch.Configurator
         public event EventHandler PluginChanged;
         public ICollectionView Ports { get; private set; }        
         public List<VideoSwitch.VideoSwitchType> RouterTypes { get; set; } = Enum.GetValues(typeof(VideoSwitch.VideoSwitchType)).Cast<VideoSwitch.VideoSwitchType>().ToList();
+        public List<VideoSwitchEffect> TransitionTypes { get; set; } = Enum.GetValues(typeof(VideoSwitchEffect)).Cast<VideoSwitchEffect>().ToList();
+        public ICollectionView GpiPorts { get; private set; }
         public string Login { get => _login; set => SetField(ref _login, value); }
         public string Password { get => _password; set => SetField(ref _password, value); }
         public int Level { get => _level; set => SetField(ref _level, value); }
@@ -266,37 +330,51 @@ namespace TAS.Server.VideoSwitch.Configurator
                         RequiresAuthentication = true;
                         RequiresLevel = true;
                         RequiresPorts = true;
+                        RequiresTransitionType = false;
+                        RequiresGpi = false;
                         break;
                     case VideoSwitch.VideoSwitchType.BlackmagicSmartVideoHub:
                     case VideoSwitch.VideoSwitchType.Unknown:
                         RequiresAuthentication = false;
                         RequiresLevel = false;
                         RequiresPorts = true;
+                        RequiresTransitionType = false;
+                        RequiresGpi = false;
                         break;
                     case VideoSwitch.VideoSwitchType.Atem:                    
                         RequiresAuthentication = false;
                         RequiresLevel = true;
                         RequiresPorts = false;
+                        RequiresTransitionType = true;
+                        RequiresGpi = true;
                         break;
                     case VideoSwitch.VideoSwitchType.Ross:
                         RequiresAuthentication = false;
                         RequiresLevel = false;
                         RequiresPorts = true;
+                        RequiresTransitionType = true;
+                        RequiresGpi = true;
                         break;
                 }
             }
         }
+        public VideoSwitchEffect? SelectedTransitionType { get => _selectedTransitionType; set => SetField(ref _selectedTransitionType, value); }
+
         public UiCommand CommandAddOutputPort { get; }
         public UiCommand CommandConnect { get; }
         public UiCommand CommandDisconnect { get; }
         public UiCommand CommandSave { get; }
         public UiCommand CommandUndo { get; }
         public UiCommand CommandDeleteOutputPort { get; }        
+        public UiCommand CommandRefreshSources { get; }
         public string IpAddress { get => _ipAddress; set => SetField(ref _ipAddress, value); }
         
         public bool RequiresAuthentication { get => _requiresAuthentication; set => SetField(ref _requiresAuthentication, value); }
         public bool RequiresLevel { get => _requiresLevel; set => SetField(ref _requiresLevel, value); }
         public bool RequiresPorts { get => _requiresPorts; set => SetField(ref _requiresPorts, value); }
+        public bool RequiresTransitionType { get => _requiresTransitionType; set => SetField(ref _requiresTransitionType, value); }
+        public bool RequiresGpi { get => _requiresGpi; set => SetField(ref _requiresGpi, value); }
+        public PortInfo SelectedGpiInput { get => _selectedGpiInput; set => SetField(ref _selectedGpiInput, value); }
 
         public object GetModel()
         {
