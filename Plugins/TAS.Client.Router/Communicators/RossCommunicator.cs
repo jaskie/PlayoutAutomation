@@ -139,8 +139,9 @@ namespace TAS.Server.VideoSwitch.Communicators
      
         private void ParseCommand(IList<string> message)
         {
-            if (message.Count < 3 || (message[0] != "FE" && message[0] != "FF"))
+            if (message.Count < 2 || (message[0] != "FE" && message[0] != "FF"))
                 return;
+            
 
             switch (message[1])
             {
@@ -159,7 +160,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                                     _responseDictionary.TryAdd(ListTypeEnum.CrosspointStatus, inPort);
                                     semaphoreStatus.Release();                                                                        
                                 }
-
+                                
                                 OnInputPortChangeReceived?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo(inPort, -1)));
                                 return;
                             }
@@ -190,6 +191,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         private void ParseMessage(string[] response)
         {
             var buffer = new List<string>();
+            
             foreach (var r in response)
             {
                 if (buffer.Count == 0)
@@ -368,13 +370,13 @@ namespace TAS.Server.VideoSwitch.Communicators
             switch(videoSwitchEffect)
             {
                 case VideoSwitchEffect.Cut:
-                    AddToRequestQueue($"FF 05");
+                    AddToRequestQueue($"FF 01 05");
                     break;
                 case VideoSwitchEffect.Fade:
-                    AddToRequestQueue($"FF 01");
+                    AddToRequestQueue($"FF 01 01");
                     break;
                 case VideoSwitchEffect.Mix:
-                    AddToRequestQueue($"FF 03");
+                    AddToRequestQueue($"FF 01 03");
                     break;
                 default:
                     return;

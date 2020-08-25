@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BMDSwitcherAPI;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -58,8 +59,11 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         private void RefreshGpiSources(object obj)
         {
-            _gpiPorts = new List<PortInfo>();
-            
+            _gpiPorts = new List<PortInfo>()
+            {
+                new PortInfo(-1, "None")
+            };
+
             switch (_selectedRouterType)
             {
                 case VideoSwitch.VideoSwitchType.Atem:
@@ -74,12 +78,17 @@ namespace TAS.Server.VideoSwitch.Configurator
                     NotifyPropertyChanged(nameof(GpiPorts));
                     break;
 
-                case VideoSwitch.VideoSwitchType.Ross:                   
-                    GpiPorts = CollectionViewSource.GetDefaultView(_ports);
+                case VideoSwitch.VideoSwitchType.Ross:
+                    foreach (var port in _ports)
+                        _gpiPorts.Add(new PortInfo(port.Id, port.Name));
+
+                    GpiPorts = CollectionViewSource.GetDefaultView(_gpiPorts);
                     NotifyPropertyChanged(nameof(GpiPorts));
                     break;
             }
-            
+
+            _selectedGpiInput = _gpiPorts.FirstOrDefault(p => p.Id == _router.GpiPort.Id);
+            NotifyPropertyChanged(nameof(SelectedGpiInput));
         }
 
         private bool CheckRequirements()
@@ -192,7 +201,7 @@ namespace TAS.Server.VideoSwitch.Configurator
                 Login = _login,
                 Password = _password,
                 Level = _level,
-                
+                DefaultEffect = _selectedTransitionType ?? VideoSwitchEffect.Cut
             };
             if (_selectedRouterType == VideoSwitch.VideoSwitchType.Ross)
                 foreach (var port in _ports)
@@ -225,8 +234,12 @@ namespace TAS.Server.VideoSwitch.Configurator
         private void Init()
         {
             _ports = new List<PortInfo>();
-            _gpiPorts = new List<PortInfo>();
+            _gpiPorts = new List<PortInfo>()
+            {
+                new PortInfo(-1, "None")
+            };
             Ports = CollectionViewSource.GetDefaultView(_ports);
+            GpiPorts = CollectionViewSource.GetDefaultView(_gpiPorts);
             NotifyPropertyChanged(nameof(Ports));
 
             _level = 0;
@@ -235,7 +248,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             _password = null;
             _selectedRouterType = null;
             _selectedTransitionType = null;
-            _selectedGpiInput = null;
+            _selectedGpiInput = _gpiPorts.FirstOrDefault();
            
             if (_router == null)
                 return;
@@ -251,24 +264,33 @@ namespace TAS.Server.VideoSwitch.Configurator
             if (_selectedRouterType == VideoSwitch.VideoSwitchType.Atem)
             {
                 _gpiPorts.Add(_router.GpiPort);
-                GpiPorts = CollectionViewSource.GetDefaultView(_gpiPorts);
+                GpiPorts.Refresh();
                 SelectedGpiInput = _gpiPorts.FirstOrDefault(p => _router.GpiPort?.Id == p.Id);
             }
 
             if(_selectedRouterType == VideoSwitch.VideoSwitchType.Ross)
             {
                 foreach (var port in _router.InputPorts)
+                {
                     _ports.Add(new PortInfo(port.PortId, port.PortName));
+                    _gpiPorts.Add(new PortInfo(port.PortId, port.PortName));
+                }
 
-                GpiPorts = CollectionViewSource.GetDefaultView(_ports);
-                SelectedGpiInput = _ports.FirstOrDefault(p => _router.GpiPort?.Id == p.Id);
+                Ports.Refresh();
+                NotifyPropertyChanged(nameof(Ports));
+                NotifyPropertyChanged(nameof(GpiPorts));
+
+                SelectedGpiInput = _gpiPorts.FirstOrDefault(p => _router.GpiPort?.Id == p.Id);
+                
+                
             }
             else
             {
                 foreach (var port in _router.OutputPorts)
                     _ports.Add(new PortInfo(port, null));
-            }
 
+                Ports.Refresh();
+            }
                         
             IsModified = false;            
         }

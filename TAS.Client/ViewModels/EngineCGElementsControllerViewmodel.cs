@@ -25,6 +25,8 @@ namespace TAS.Client.ViewModels
 
         public byte Parental { get => _controller?.Parental ?? None; set { if (_controller != null) _controller.Parental = value; } }
 
+        public bool IsWideScreen { get => _controller.IsWideScreen; set { if (_controller != null) _controller.IsWideScreen = value; } }
+
         public CGElementViewmodel[] Crawls { get; private set; }
 
         public CGElementViewmodel[] Parentals { get; private set; }

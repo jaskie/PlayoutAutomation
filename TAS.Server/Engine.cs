@@ -312,10 +312,12 @@ namespace TAS.Server
                 Remote.Initialize(this, new Security.PrincipalProvider(_authenticationService));
             }
 
-            Router.Started += _gpiStartLoaded;
+            if (Router != null)
+                Router.Started += _gpiStartLoaded;
 
-            foreach (var gpi in Gpis)
-                gpi.Started += _gpiStartLoaded;
+            if (Gpis != null)
+                foreach (var gpi in Gpis)
+                    gpi.Started += _gpiStartLoaded;
 
             Debug.WriteLine(this, "Creating engine thread");
             _engineThread = new Thread(ThreadProc)
@@ -859,10 +861,12 @@ namespace TAS.Server
                 Remote.UnInitialize();
             }
 
-            Router.Started -= _gpiStartLoaded;
+            if (Router != null)
+                Router.Started -= _gpiStartLoaded;
 
-            foreach (var gpi in Gpis)
-                gpi.Started -= _gpiStartLoaded;
+            if (Gpis != null)
+                foreach (var gpi in Gpis)
+                    gpi.Started -= _gpiStartLoaded;
             
             if (CGElementsController != null)
             {
@@ -999,7 +1003,7 @@ namespace TAS.Server
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
 
-                if (Router != null && eventType == TEventType.Live && _playing?.EventType != TEventType.Live)
+                if (Router != null && eventType == TEventType.Live && _playing?.EventType != TEventType.Live && Router.Preload)
                     Router.SelectInput(aEvent.RouterPort);
 
                 if (!aEvent.IsHold
@@ -1061,7 +1065,7 @@ namespace TAS.Server
                 if (aEvent.RecordingInfo != null)
                     _recordingManager.Capture(aEvent);
 
-                if (Router != null && eventType == TEventType.Live && _playing?.EventType == TEventType.Live)
+                if (Router != null && eventType == TEventType.Live && _playing?.RouterPort != aEvent.RouterPort)
                     Router.SelectInput(aEvent.RouterPort);
 
                 _playoutChannelPRI?.Play(aEvent);

@@ -16,5 +16,6 @@ namespace TAS.Common.Interfaces
         bool IsMaster { get; }
         bool IsConnected { get; }
         void Clear();
+        bool IsWideScreen { get; set; }
     }
 }

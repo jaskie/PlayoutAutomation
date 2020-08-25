@@ -176,6 +176,9 @@ namespace TAS.Server.VideoSwitch
             }
             else
             {
+                if (e.Value.InPort == GpiPort?.Id)
+                    Started?.Invoke(this, EventArgs.Empty);
+
                 SelectedInputPort = InputPorts.FirstOrDefault(param => param.PortId == e.Value.InPort);
             }
             
@@ -187,6 +190,11 @@ namespace TAS.Server.VideoSwitch
             _communicator.OnRouterPortsStatesReceived -= Communicator_OnRouterPortStateReceived;
             _communicator.OnRouterConnectionStateChanged -= Communicator_OnRouterConnectionStateChanged;
             _communicator.Dispose();
+        }
+
+        internal void GpiStarted()
+        {
+            Started?.Invoke(this, EventArgs.Empty);
         }
 
         public void SetTransitionEffect(VideoSwitchEffect videoSwitchEffect)
