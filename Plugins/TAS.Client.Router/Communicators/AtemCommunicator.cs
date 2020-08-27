@@ -1,7 +1,6 @@
 ﻿using BMDSwitcherAPI;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,74 +8,58 @@ using TAS.Common;
 using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Communicators
-{
-    public class AtemCommunicator : IVideoSwitchCommunicator
+{    
+    public class AtemCommunicator : IRouterCommunicator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private IBMDSwitcherMixEffectBlock _me;
         private IBMDSwitcher _switcher;
+        IBMDSwitcherDiscovery _discovery;
         private int _disposed;
 
         private SemaphoreSlim _inputPortsSemaphore = new SemaphoreSlim(0);
         private SemaphoreSlim _selectedInputPortSemaphore = new SemaphoreSlim(0);
 
-        private List<PortInfo> _inputPorts = new List<PortInfo>();        
-
-        public AtemCommunicator(string ipAddress)
-        {
-            try
-            {                
-                Assembly api = Assembly.Load("Plugins/BMDSwitcherAPI64.dll");
-                RegistrationServices rs = new RegistrationServices();
-                rs.RegisterAssembly(api, AssemblyRegistrationFlags.None);
-            }
-            catch(Exception ex)
-            {
-                Logger.Error("Failed to register BMDSwitcherAPI64.dll: {0}", ex.Message);
-            }
-            
-            
-            _ = Connect();
-        }
-
-        //private void OnAtemReceive(object sender, IReadOnlyList<ICommand> commands)
-        //{
-        //    foreach(var command in commands)
-        //    {
-        //        if (command is InputPropertiesGetCommand input)
-        //        {
-        //            if (_inputPorts == null)
-        //                _inputPorts = new List<PortInfo>();
-
-        //            _inputPorts.Add(new PortInfo((short)(input.Id), input.ShortName));
-        //        }                
-        //    }
-            
-        //    if (_inputPortsSemaphore.CurrentCount == 0)
-        //        _inputPortsSemaphore.Release();
-        //}
-
-        //private void OnAtemDisconnected(object sender)
-        //{
-        //    Logger.Trace("ATEM disconnected");
-
-        //    if (_disposed == 1)
-        //        return;
-
-        //    _ = Connect();
-        //}
-
-        //private void OnAtemConnection(object sender)
-        //{
-            
-        //}
+        private List<PortInfo> _inputPorts = new List<PortInfo>();
+        private VideoSwitch _device;        
 
         public event EventHandler<EventArgs<CrosspointInfo>> OnInputPortChangeReceived;
         public event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;
-        public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;        
+        public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
 
+        public AtemCommunicator(VideoSwitch device)
+        {            
+            _device = device;            
+        }       
+
+        private IBMDSwitcherMixEffectBlock GetMixEffectBlock(int index)
+        {
+            IntPtr meIteratorPtr;
+            _switcher.CreateIterator(typeof(IBMDSwitcherMixEffectBlockIterator).GUID, out meIteratorPtr);
+            IBMDSwitcherMixEffectBlockIterator meIterator = Marshal.GetObjectForIUnknown(meIteratorPtr) as IBMDSwitcherMixEffectBlockIterator;
+            if (meIterator == null)
+                return null;
+
+            int i = 0;
+            while (true)
+            {                
+                meIterator.Next(out var me);
+
+                if (me != null)
+                {
+                    if (i == index)
+                        return me;
+                    ++i;
+                }
+                else
+                {
+                    return null;
+                }                    
+            }            
+        }
+        
         public async Task<bool> Connect()
         {
             _disposed = default(int);
@@ -90,21 +73,19 @@ namespace TAS.Server.VideoSwitch.Communicators
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    IBMDSwitcherDiscovery discovery = new CBMDSwitcherDiscovery();
+                    _discovery = new CBMDSwitcherDiscovery();
                     _BMDSwitcherConnectToFailure failureReason;
 
-                    discovery.ConnectTo("192.168.1.241", out _switcher, out failureReason);
-                    if (_switcher != null)
-                    {
-                        Logger.Trace("Connected to ATEM TVS");
-                    }
-                    else
+                    _discovery.ConnectTo("192.168.1.241", out _switcher, out failureReason);
+                    if (_switcher == null)
                     {
                         Logger.Trace("Could not connect to ATEM. Reconnecting in 3 seconds...");
                         await Task.Delay(3000);
                         continue;
-                    }                                                                                                                                           
+                    }                    
 
+                    Logger.Trace("Connected to ATEM TVS");
+                    _me = GetMixEffectBlock(0);                    
                     return true;
                 }
                 catch (Exception ex)
@@ -131,9 +112,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                 return;
             
             if (_me == null)
-                return;
-
-            
+                return;            
         }
 
         public async Task<CrosspointInfo> GetCurrentInputPort()
@@ -162,8 +141,9 @@ namespace TAS.Server.VideoSwitch.Communicators
                 if (currentType == _BMDSwitcherPortType.bmdSwitcherPortTypeExternal)
                 {
                     input.GetInputId(out var id);
-                    input.GetShortName(out var name);
-                    _inputPorts.Add(new PortInfo((short)id, name));                    
+                    input.GetShortName(out var shortName);
+                    input.GetLongName(out var longName);
+                    _inputPorts.Add(new PortInfo((short)id, String.Concat(longName, '(', shortName, ')')));                    
                 }                                    
 
                 // Get next input
@@ -172,9 +152,9 @@ namespace TAS.Server.VideoSwitch.Communicators
 
             return _inputPorts.ToArray();
         }
-
+                
         public void SelectInput(int inPort)
-        {
+        {            
             _me.SetProgramInput(inPort);
         }        
     }

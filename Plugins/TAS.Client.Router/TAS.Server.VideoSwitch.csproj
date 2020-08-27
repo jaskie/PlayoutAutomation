@@ -69,12 +69,15 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\COMRegistration.cs" />
     <Compile Include="Communicators\AtemCommunicator.cs" />
+    <Compile Include="Communicators\RossCommunicator.cs" />
     <Compile Include="Configurator\RouterConfiguratorView.xaml.cs">
       <DependentUpon>RouterConfiguratorView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Configurator\RouterConfiguratorViewModel.cs" />
     <Compile Include="Model\CrosspointInfo.cs" />
+    <Compile Include="Model\IVideoSwitchCommunicator.cs" />
     <Compile Include="Model\PortInfo.cs" />
     <Compile Include="Model\PortState.cs" />
     <Compile Include="Model\ListTypeEnum.cs" />
@@ -119,6 +122,9 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="API\BMDSwitcherAPI64.dll" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="BMDSwitcherAPI">

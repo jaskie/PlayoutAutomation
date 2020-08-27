@@ -310,6 +310,9 @@ namespace TAS.Server
                 Remote.Initialize(this, new PrincipalProvider(_authenticationService));
             }
 
+            if (Router != null)
+                Router.Started += _gpiStartLoaded;
+
             if (Gpis != null)
                 foreach (var gpi in Gpis)
                     gpi.Started += _gpiStartLoaded;
@@ -455,6 +458,7 @@ namespace TAS.Server
         {
             if (aEvent == null || !(aEvent.EventType == TEventType.Rundown || aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live))
                 return;
+
             if (!HaveRight(EngineRight.Play))
                 return;
 
@@ -850,14 +854,16 @@ namespace TAS.Server
                 Debug.WriteLine(this, "UnInitializing Remote interface");
                 Remote.UnInitialize();
             }
+
+            if (Router != null)
+                Router.Started -= _gpiStartLoaded;
+
             if (Gpis != null)
                 foreach (var gpi in Gpis)
                     gpi.Started -= _gpiStartLoaded;
 
             if (CGElementsController is IDisposable cgElementsController)
             {
-                Debug.WriteLine(this, "Uninitializing CGElementsController");                
-                cgElementsController.Dispose();
             }
 
             Debug.WriteLine(this, "Engine uninitialized");
@@ -986,7 +992,7 @@ namespace TAS.Server
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
 
-                if (Router != null && eventType == TEventType.Live && _playing?.EventType != TEventType.Live)
+                if (Router != null && eventType == TEventType.Live && _playing?.EventType != TEventType.Live && Router.Preload)
                     Router.SelectInput(aEvent.RouterPort);
 
                 if (!aEvent.IsHold
@@ -1046,7 +1052,7 @@ namespace TAS.Server
                 if (aEvent.RecordingInfo != null)
                     _eventRecorder.StartCapture(aEvent);
 
-                if (Router != null && eventType == TEventType.Live && _playing?.EventType == TEventType.Live)
+                if (Router != null && eventType == TEventType.Live && _playing?.RouterPort != aEvent.RouterPort)
                     Router.SelectInput(aEvent.RouterPort);
 
                 _playoutChannelPRI?.Play(aEvent);
@@ -1274,6 +1280,7 @@ namespace TAS.Server
                                     _play(succEvent, true);
                             }
                         }
+                        
                         playingEvent = _playing; // in case when succEvent just started 
                         if (playingEvent != null && playingEvent.SubEventsCount > 0)
                         {
