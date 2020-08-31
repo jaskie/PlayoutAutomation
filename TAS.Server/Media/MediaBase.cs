@@ -227,7 +227,10 @@ namespace TAS.Server.Media
 
         public virtual bool Delete()
         {
-            return ((MediaDirectoryBase)Directory).DeleteMedia(this);
+            if (!((MediaDirectoryBase)Directory).DeleteMedia(this))
+                    return false;
+            MediaStatus = TMediaStatus.Deleted;
+            return true;
         }
 
         internal virtual void CloneMediaProperties(IMediaProperties fromMedia)
