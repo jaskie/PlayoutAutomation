@@ -29,7 +29,7 @@ namespace TAS.Server.VideoSwitchTests
             int interval = 500;
             try
             {                                
-                videoSwitch.Connect();                
+                videoSwitch.ConnectAsync();                
 
                 videoSwitch.SelectInput(1);                
                 Thread.Sleep(interval);                

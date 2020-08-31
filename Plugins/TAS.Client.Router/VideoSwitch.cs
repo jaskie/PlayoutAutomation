@@ -11,6 +11,9 @@ using TAS.Database.Common;
 using System.ComponentModel.Composition;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Windows.Threading;
 
 namespace TAS.Server.VideoSwitch
 {
@@ -38,8 +41,8 @@ namespace TAS.Server.VideoSwitch
                     _communicator = new BlackmagicSmartVideoHubCommunicator(this);
                     Preload = true;
                     break;
-                case VideoSwitchType.Atem:
-                    _communicator = new AtemCommunicator(this);
+                case VideoSwitchType.Atem:                    
+                    _communicator = new AtemCommunicator(this);                    
                     Preload = false;
                     break;
                 case VideoSwitchType.Ross:
@@ -99,25 +102,29 @@ namespace TAS.Server.VideoSwitch
         public PortInfo GpiPort { get; set; }
 
         public void SelectInput(int inPort)
-        {            
-             _communicator.SelectInput(inPort);
+        {
+            _communicator.SelectInput(inPort);
         }
 
-        public async void Connect()
+        public async Task<bool> ConnectAsync()
         {
             if (_communicator == null)
-                return;
+                return false;
 
             try
             {
                 IsConnected = await _communicator.Connect();
-                if (IsConnected)                    
+                if (IsConnected)
+                {
                     ParseInputMeta(await _communicator.GetInputPorts());
+                    return true;
+                }                                   
             }
             catch (Exception e)
             {
                 Logger.Error(e);
             }
+            return false;
         }
 
         private async void ParseInputMeta(PortInfo[] ports)
@@ -132,7 +139,8 @@ namespace TAS.Server.VideoSwitch
                 else if (InputPorts.All(inPort => inPort.PortId != port.Id))
                     InputPorts.Add(new RouterPort(port.Id, port.Name));
             }
-            NotifyPropertyChanged(nameof(InputPorts));
+
+            NotifyPropertyChanged(nameof(InputPorts));            
             var selectedInput = await _communicator.GetCurrentInputPort();
 
             if (selectedInput == null)
@@ -151,7 +159,7 @@ namespace TAS.Server.VideoSwitch
             if (e.Value)
                 return;            
 
-            Connect();           
+            _ = ConnectAsync();           
         }        
 
         private void Communicator_OnRouterPortStateReceived(object sender, EventArgs<PortState[]> e)

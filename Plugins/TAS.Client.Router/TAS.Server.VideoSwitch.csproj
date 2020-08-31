@@ -76,8 +76,11 @@
       <DependentUpon>RouterConfiguratorView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Configurator\RouterConfiguratorViewModel.cs" />
+    <Compile Include="Helpers\BMDSwitcherWrapper.cs" />
+    <Compile Include="Helpers\MixEffectBlockMonitor.cs" />
     <Compile Include="Model\CrosspointInfo.cs" />
     <Compile Include="Model\IVideoSwitchCommunicator.cs" />
+    <Compile Include="Model\MixEffectEventArgs.cs" />
     <Compile Include="Model\PortInfo.cs" />
     <Compile Include="Model\PortState.cs" />
     <Compile Include="Model\ListTypeEnum.cs" />

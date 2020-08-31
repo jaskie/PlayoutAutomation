@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common;
@@ -19,6 +21,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         private IConfigEngine _engine;
         private VideoSwitch _router = new VideoSwitch();
         private VideoSwitch _testRouter;
+        private VideoSwitch _gpiRouter;
 
         private bool _isEnabled;        
         private string _ipAddress;
@@ -59,23 +62,38 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         private void RefreshGpiSources(object obj)
         {
+            if (_gpiRouter != null)                           
+                _gpiRouter.Dispose();
+            
+
             _gpiPorts = new List<PortInfo>()
             {
                 new PortInfo(-1, "None")
             };
 
             switch (_selectedRouterType)
-            {
+            {                
                 case VideoSwitch.VideoSwitchType.Atem:
-                    var temp = new VideoSwitch(_selectedRouterType ?? VideoSwitch.VideoSwitchType.Unknown) { IpAddress = _ipAddress };
-                    temp.Connect();
+                    var testThread = new Thread(new ThreadStart(() =>
+                    {
+                        _gpiRouter = new VideoSwitch(_selectedRouterType ?? VideoSwitch.VideoSwitchType.Unknown) { IpAddress = _ipAddress };
+                        if (!(_gpiRouter.ConnectAsync().Result))
+                            return;
 
-                    foreach (var port in temp.InputPorts)                    
-                        _gpiPorts.Add(new PortInfo(port.PortId, port.PortName));
-                    
-                    GpiPorts = CollectionViewSource.GetDefaultView(_gpiPorts);
-                    temp.Dispose();
-                    NotifyPropertyChanged(nameof(GpiPorts));
+                        if (_gpiRouter?.InputPorts == null)
+                            return;
+
+                        foreach (var port in _gpiRouter.InputPorts)
+                            _gpiPorts.Add(new PortInfo(port.PortId, port.PortName));
+
+                        GpiPorts = CollectionViewSource.GetDefaultView(_gpiPorts);
+                        _gpiRouter.Dispose();
+                        NotifyPropertyChanged(nameof(GpiPorts));
+                    }));
+                    testThread.SetApartmentState(ApartmentState.MTA);
+                    testThread.Name = "Gpi Router Thread";
+                    testThread.IsBackground = true;
+                    testThread.Start();
                     break;
 
                 case VideoSwitch.VideoSwitchType.Ross:
@@ -89,7 +107,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
             _selectedGpiInput = _gpiPorts.FirstOrDefault(p => p.Id == _router.GpiPort.Id);
             NotifyPropertyChanged(nameof(SelectedGpiInput));
-        }
+        }        
 
         private bool CheckRequirements()
         {
@@ -194,9 +212,11 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         private void Connect(object obj)
         {
+            if (_gpiRouter != null)            
+                _gpiRouter.Dispose();                
+            
             _testRouter = new VideoSwitch(_selectedRouterType ?? VideoSwitch.VideoSwitchType.Unknown)
-            {
-                Type = _selectedRouterType ?? VideoSwitch.VideoSwitchType.Unknown,
+            {                
                 IpAddress = _ipAddress,
                 Login = _login,
                 Password = _password,
@@ -210,7 +230,7 @@ namespace TAS.Server.VideoSwitch.Configurator
                 _testRouter.OutputPorts = _ports.Select(p => p.Id).ToArray();
 
             _testRouter.PropertyChanged += TestRouter_PropertyChanged;
-            _testRouter.Connect();          
+            _ = _testRouter.ConnectAsync();          
         }
 
         private void TestRouter_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -280,9 +300,7 @@ namespace TAS.Server.VideoSwitch.Configurator
                 NotifyPropertyChanged(nameof(Ports));
                 NotifyPropertyChanged(nameof(GpiPorts));
 
-                SelectedGpiInput = _gpiPorts.FirstOrDefault(p => _router.GpiPort?.Id == p.Id);
-                
-                
+                SelectedGpiInput = _gpiPorts.FirstOrDefault(p => _router.GpiPort?.Id == p.Id);                                
             }
             else
             {

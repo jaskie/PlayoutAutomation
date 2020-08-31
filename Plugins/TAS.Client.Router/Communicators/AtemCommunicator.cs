@@ -1,10 +1,8 @@
-﻿using BMDSwitcherAPI;
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
+using TAS.Server.VideoSwitch.Helpers;
 using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Communicators
@@ -13,17 +11,11 @@ namespace TAS.Server.VideoSwitch.Communicators
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private IBMDSwitcherMixEffectBlock _me;
-        private IBMDSwitcher _switcher;
-        IBMDSwitcherDiscovery _discovery;
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();        
         private int _disposed;
 
-        private SemaphoreSlim _inputPortsSemaphore = new SemaphoreSlim(0);
-        private SemaphoreSlim _selectedInputPortSemaphore = new SemaphoreSlim(0);
-
-        private List<PortInfo> _inputPorts = new List<PortInfo>();
-        private VideoSwitch _device;        
+        private VideoSwitch _device;
+        private BMDSwitcherWrapper _atem;
 
         public event EventHandler<EventArgs<CrosspointInfo>> OnInputPortChangeReceived;
         public event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;
@@ -31,35 +23,19 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         public AtemCommunicator(VideoSwitch device)
         {            
-            _device = device;            
-        }       
+            _device = device;
 
-        private IBMDSwitcherMixEffectBlock GetMixEffectBlock(int index)
-        {
-            IntPtr meIteratorPtr;
-            _switcher.CreateIterator(typeof(IBMDSwitcherMixEffectBlockIterator).GUID, out meIteratorPtr);
-            IBMDSwitcherMixEffectBlockIterator meIterator = Marshal.GetObjectForIUnknown(meIteratorPtr) as IBMDSwitcherMixEffectBlockIterator;
-            if (meIterator == null)
-                return null;
-
-            int i = 0;
-            while (true)
-            {                
-                meIterator.Next(out var me);
-
-                if (me != null)
-                {
-                    if (i == index)
-                        return me;
-                    ++i;
-                }
-                else
-                {
-                    return null;
-                }                    
-            }            
+            //ensure MTA
+            Task.Run(() => _atem = new BMDSwitcherWrapper()).Wait();            
+            
+            _atem.ProgramInputChanged += Switcher_ProgramInputChanged;
         }
-        
+
+        private void Switcher_ProgramInputChanged(object sender, MixEffectEventArgs e)
+        {
+            OnInputPortChangeReceived?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo((short)e.ProgramInput, -1)));
+        }        
+                
         public async Task<bool> Connect()
         {
             _disposed = default(int);
@@ -73,19 +49,17 @@ namespace TAS.Server.VideoSwitch.Communicators
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    _discovery = new CBMDSwitcherDiscovery();
-                    _BMDSwitcherConnectToFailure failureReason;
-
-                    _discovery.ConnectTo("192.168.1.241", out _switcher, out failureReason);
-                    if (_switcher == null)
-                    {
+                    bool isConnected = false;
+                    await Task.Run(() => isConnected = _atem.Connect(_device.IpAddress, _device.Level));
+                    
+                    if (!isConnected)
+                    {                        
                         Logger.Trace("Could not connect to ATEM. Reconnecting in 3 seconds...");
                         await Task.Delay(3000);
                         continue;
                     }                    
 
-                    Logger.Trace("Connected to ATEM TVS");
-                    _me = GetMixEffectBlock(0);                    
+                    Logger.Trace("Connected to ATEM TVS");                                                                                    
                     return true;
                 }
                 catch (Exception ex)
@@ -111,51 +85,23 @@ namespace TAS.Server.VideoSwitch.Communicators
             if (Interlocked.Exchange(ref _disposed, 1) != default(int))
                 return;
             
-            if (_me == null)
-                return;            
+            _cancellationTokenSource.Cancel();
         }
 
         public async Task<CrosspointInfo> GetCurrentInputPort()
         {
-            _me.GetProgramInput(out var inPort);            
-            return new CrosspointInfo((short)inPort, -1);
+            return await Task.Run(() => new CrosspointInfo((short)_atem.GetCurrentInputPort(), -1)); 
         }
 
         public async Task<PortInfo[]> GetInputPorts()
         {
-            _inputPorts = new List<PortInfo>();
-
-            IntPtr inputIteratorPtr;
-            _switcher.CreateIterator(typeof(IBMDSwitcherInputIterator).GUID, out inputIteratorPtr);
-            IBMDSwitcherInputIterator inputIterator = Marshal.GetObjectForIUnknown(inputIteratorPtr) as IBMDSwitcherInputIterator;
-            if (inputIterator == null)
-                return null;
-            
-            IBMDSwitcherInput input;
-            inputIterator.Next(out input);
-            while (input != null)
-            {
-                _BMDSwitcherPortType currentType;
-                input.GetPortType(out currentType);
-
-                if (currentType == _BMDSwitcherPortType.bmdSwitcherPortTypeExternal)
-                {
-                    input.GetInputId(out var id);
-                    input.GetShortName(out var shortName);
-                    input.GetLongName(out var longName);
-                    _inputPorts.Add(new PortInfo((short)id, String.Concat(longName, '(', shortName, ')')));                    
-                }                                    
-
-                // Get next input
-                inputIterator.Next(out input);
-            }
-
-            return _inputPorts.ToArray();
+            return await Task.Run(() => _atem.GetInputPorts());
         }
                 
         public void SelectInput(int inPort)
-        {            
-            _me.SetProgramInput(inPort);
+        {
+            //ensure MTA
+            Task.Run(() => _atem.SelectInput(inPort)); 
         }        
     }
 }
