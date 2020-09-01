@@ -17,16 +17,25 @@ namespace TAS.Server.VideoSwitch.Helpers
         private IBMDSwitcherDiscovery _discovery;
         private _BMDSwitcherConnectToFailure failureReason;
         
-        private MixEffectBlockMonitor _mixEffectBlockMonitor = new MixEffectBlockMonitor();       
+        private AtemMonitor _atemMonitor = new AtemMonitor();       
         public event EventHandler<MixEffectEventArgs> ProgramInputChanged;
-        
+        public event EventHandler Disconnected;
+
         public BMDSwitcherWrapper()
         {                                    
             _discovery = new CBMDSwitcherDiscovery();          
-            _mixEffectBlockMonitor.ProgramInputChanged += MixEffectBlockMonitor_ProgramInputChanged;
+            _atemMonitor.ProgramInputChanged += AtemMonitor_ProgramInputChanged;
+            _atemMonitor.ConnectionChanged += AtemMonitor_ConnectionChanged;
         }
 
-        private void MixEffectBlockMonitor_ProgramInputChanged(object sender, EventArgs e)
+        private void AtemMonitor_ConnectionChanged(object sender, EventArgs e)
+        {
+            Disconnected?.Invoke(this, EventArgs.Empty);
+            _switcher = null;
+            _me = null;
+        }
+
+        private void AtemMonitor_ProgramInputChanged(object sender, EventArgs e)
         {                     
             ProgramInputChanged?.Invoke(this, new MixEffectEventArgs((int)GetCurrentInputPort()));
         }
@@ -67,11 +76,13 @@ namespace TAS.Server.VideoSwitch.Helpers
                 if (_switcher == null)
                     return false;
 
+                _switcher.AddCallback(_atemMonitor);
+
                 //ensure MTA
                 Task.Run(() =>
                 {
                     _me = GetMixEffectBlock(level);
-                    _me?.AddCallback(_mixEffectBlockMonitor);
+                    _me?.AddCallback(_atemMonitor);
                 }).Wait();               
                 
                 if (_me == null)
@@ -107,7 +118,7 @@ namespace TAS.Server.VideoSwitch.Helpers
             return (int)inPort;
         }
         public void SelectInput(int inPort)
-        {            
+        {                        
             _me.SetProgramInput(inPort);         
         }
         public PortInfo[] GetInputPorts()

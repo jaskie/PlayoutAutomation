@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using TAS.Client.Common;
+﻿using TAS.Client.Common;
 using TAS.Common.Interfaces;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
@@ -11,59 +11,48 @@ namespace TAS.Client.ViewModels
             Router = router;
             Router.ConnectAsync();
             Router.PropertyChanged += Router_PropertyChanged;
+
+            CommandChangeSource = new UiCommand(ChangeSource, CanChangeSource);
         }
 
-        public IList<IVideoSwitchPort> InputPorts => Router.InputPorts;
-
-        private IVideoSwitchPort _selectedInputPort
+        private bool CanChangeSource(object obj)
         {
-            get => Router.SelectedInputPort;
-            set
+            return IsConnected;
+        }
+
+        private void ChangeSource(object obj)
+        {
+            using (var switcherVm = new SwitcherViewModel(Router))
             {
-                if (Router.InputPorts == value)
-                    return;
-
-                if (value == null)
-                    return;
-
-                Router.SelectInput(value.PortId);
+                UiServices.WindowManager.ShowDialog(switcherVm, resources._caption_Switcher);
             }
-        }
-
-        public IVideoSwitchPort SelectedInputPort 
-        { 
-            get => _selectedInputPort; 
-            set 
-            {
-                _selectedInputPort = value;                    
-                NotifyPropertyChanged();                                    
-            } 
-        }
-
-        public bool IsConnected => Router.IsConnected;
-
-        public IVideoSwitch Router { get; }
-
-        protected override void OnDispose()
-        {
-            Router.PropertyChanged -= Router_PropertyChanged;
         }
 
         private void Router_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
-            {
-                case nameof(Router.InputPorts):
-                    NotifyPropertyChanged(nameof(InputPorts));
-                    break;
+            {                
                 case nameof(Router.SelectedInputPort):
                     NotifyPropertyChanged(nameof(SelectedInputPort));
                     break;
                 case nameof(Router.IsConnected):
                     NotifyPropertyChanged(nameof(IsConnected));
+                    InvalidateRequerySuggested();
                     break;
             }
-        }
+        }       
 
+        public IVideoSwitchPort SelectedInputPort => Router.SelectedInputPort;        
+
+        public bool IsConnected => Router.IsConnected;
+
+        public IVideoSwitch Router { get; }
+
+        public UiCommand CommandChangeSource { get; }
+
+        protected override void OnDispose()
+        {
+            Router.PropertyChanged -= Router_PropertyChanged;
+        }        
     }
 }

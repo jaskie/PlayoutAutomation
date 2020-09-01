@@ -379,4 +379,13 @@ Wskazane jest wykonanie kopii bezpieczeństwa.
 
 Kontynuować?</value>
   </data>
+  <data name="_button_Cancel" xml:space="preserve">
+    <value>Anuluj</value>
+  </data>
+  <data name="_button_Ok" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="_caption_Switcher" xml:space="preserve">
+    <value>Manulny wybór wejścia</value>
+  </data>
 </root>

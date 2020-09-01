@@ -136,6 +136,7 @@
     <Compile Include="ViewModels\RecordersViewmodel.cs" />
     <Compile Include="ViewModels\RecordingInfoViewModel.cs" />
     <Compile Include="ViewModels\SecurityObjectSelectorViewmodel.cs" />
+    <Compile Include="ViewModels\SwitcherViewModel.cs" />
     <Compile Include="ViewModels\TemplatedEditViewmodel.cs" />
     <Compile Include="ViewModels\UserManagerViewmodel.cs" />
     <Compile Include="ViewModels\GroupViewmodel.cs" />
@@ -236,6 +237,9 @@
     </Compile>
     <Compile Include="Views\SplashScreenView.xaml.cs">
       <DependentUpon>SplashScreenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SwitcherView.xaml.cs">
+      <DependentUpon>SwitcherView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TemplatedEditView.xaml.cs">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
@@ -393,6 +397,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SwitcherView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\TemplatedEditView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -530,6 +538,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\SecurityObjectSelectorView.resx">
       <DependentUpon>SecurityObjectSelectorView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\SwitcherView.resx">
+      <DependentUpon>SwitcherView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\SwitcherView.pl.resx">
+      <DependentUpon>SwitcherView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TemplatedEditView.pl.resx">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>

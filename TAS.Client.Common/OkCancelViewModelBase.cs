@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.Common
 {
@@ -11,12 +12,12 @@ namespace TAS.Client.Common
         /// </summary>        
         /// <param name="okButtonContent">Ok button content</param>
         /// <param name="cancelButtonContent">Cancel button content</param>
-        public OkCancelViewModelBase(string okButtonContent = "Ok", string cancelButtonContent = "Cancel")
+        public OkCancelViewModelBase(string okButtonContent = null, string cancelButtonContent = null)
         {                        
             LoadCommands();
-           
-            OkButtonContent = okButtonContent;            
-            CancelButtonContent = cancelButtonContent;         
+                       
+            OkButtonContent = okButtonContent == null ? resources._button_Ok : okButtonContent;            
+            CancelButtonContent = cancelButtonContent == null ? resources._button_Cancel : cancelButtonContent;         
         }
 
         private void LoadCommands()

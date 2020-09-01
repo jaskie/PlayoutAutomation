@@ -29,6 +29,12 @@ namespace TAS.Server.VideoSwitch.Communicators
             Task.Run(() => _atem = new BMDSwitcherWrapper()).Wait();            
             
             _atem.ProgramInputChanged += Switcher_ProgramInputChanged;
+            _atem.Disconnected += Atem_Disconnected;
+        }
+
+        private void Atem_Disconnected(object sender, EventArgs e)
+        {
+            OnRouterConnectionStateChanged?.Invoke(this, new EventArgs<bool>(false));
         }
 
         private void Switcher_ProgramInputChanged(object sender, MixEffectEventArgs e)

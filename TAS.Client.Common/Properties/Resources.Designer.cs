@@ -115,6 +115,24 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string _button_Cancel {
+            get {
+                return ResourceManager.GetString("_button_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ok.
+        /// </summary>
+        public static string _button_Ok {
+            get {
+                return ResourceManager.GetString("_button_Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Confirmation.
         /// </summary>
         public static string _caption_Confirmation {
@@ -129,6 +147,15 @@ namespace TAS.Client.Common.Properties {
         public static string _caption_Error {
             get {
                 return ResourceManager.GetString("_caption_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manual source control.
+        /// </summary>
+        public static string _caption_Switcher {
+            get {
+                return ResourceManager.GetString("_caption_Switcher", resourceCulture);
             }
         }
         

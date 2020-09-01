@@ -379,4 +379,13 @@ Backup is strongly recommended.
 
 Proceed with update?</value>
   </data>
+  <data name="_button_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="_button_Ok" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="_caption_Switcher" xml:space="preserve">
+    <value>Manual source control</value>
+  </data>
 </root>

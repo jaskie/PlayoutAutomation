@@ -77,7 +77,7 @@
     </Compile>
     <Compile Include="Configurator\RouterConfiguratorViewModel.cs" />
     <Compile Include="Helpers\BMDSwitcherWrapper.cs" />
-    <Compile Include="Helpers\MixEffectBlockMonitor.cs" />
+    <Compile Include="Helpers\AtemMonitor.cs" />
     <Compile Include="Model\CrosspointInfo.cs" />
     <Compile Include="Model\IVideoSwitchCommunicator.cs" />
     <Compile Include="Model\MixEffectEventArgs.cs" />
