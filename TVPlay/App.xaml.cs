@@ -71,7 +71,7 @@ namespace TAS.Client
                 Mutex.WaitOne();
             }
             base.OnStartup(eventArgs);
-            TAS.Common.LoggerConfig.AddDebuggerTarget();
+            TAS.Common.LoggerConfig.AddDebuggerTarget("Trace");
             var splash = MainWindow as SplashScreenView;
             if (!IsShutdown)
             {
