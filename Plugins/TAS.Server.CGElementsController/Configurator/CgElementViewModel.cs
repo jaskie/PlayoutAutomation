@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Media.Imaging;
 using TAS.Client.Common;
 
 namespace TAS.Server.CgElementsController.Configurator
@@ -8,7 +9,9 @@ namespace TAS.Server.CgElementsController.Configurator
         private string _name = String.Empty;
         private string _command = String.Empty;        
         private string _uploadClientImagePath;
-        private string _uploadServerImagePath;        
+        private string _uploadServerImagePath;
+        private BitmapImage _serverBitmap;
+        private BitmapImage _clientBitmap;
         private Model.CgElement _cgElement;
 
         public CgElementViewModel(Model.CgElement cgElement, string ConfirmButtonText = "Add") : base(ConfirmButtonText, "Cancel")
@@ -24,6 +27,13 @@ namespace TAS.Server.CgElementsController.Configurator
             _command = _cgElement.Command;
             ClientImagePath = _cgElement.ClientImagePath;
             ServerImagePath = _cgElement.ServerImagePath;
+            UploadClientImagePath = _cgElement.UploadClientImagePath;
+            UploadServerImagePath = _cgElement.UploadServerImagePath;
+
+            if (Uri.TryCreate(ServerImagePath, UriKind.Absolute, out var serverBitmapUri))
+                ServerBitmap = new BitmapImage(serverBitmapUri);
+            if (Uri.TryCreate(ClientImagePath, UriKind.Absolute, out var clientBitmapUri))
+                ClientBitmap = new BitmapImage(clientBitmapUri);
             IsModified = false;
         }        
 
@@ -31,16 +41,40 @@ namespace TAS.Server.CgElementsController.Configurator
         {
             UploadServerImageCommand = new UiCommand(UploadServerImage);
             UploadClientImageCommand = new UiCommand(UploadClientImage);
+            ClearServerImageCommand = new UiCommand(ClearServerImage);
+            ClearClientImageCommand = new UiCommand(ClearClientImage);
+        }
+
+        private void ClearClientImage(object obj)
+        {
+            ClientImagePath = null;
+            ClientBitmap = null;
+            UploadClientImagePath = null;
+        }
+
+        private void ClearServerImage(object obj)
+        {
+            ServerImagePath = null;
+            ServerBitmap = null;
+            UploadServerImagePath = null;
         }
 
         private void UploadClientImage(object obj)
         {
             UploadClientImagePath = UiServices.CommonDialogManager.OpenFileDialog();
+            if (Uri.TryCreate(UploadClientImagePath, UriKind.Absolute, out var clientBitmapUri))
+                ClientBitmap = new BitmapImage(clientBitmapUri);
+            else
+                ClientBitmap = null;
         }
 
         private void UploadServerImage(object obj)
         {
             UploadServerImagePath = UiServices.CommonDialogManager.OpenFileDialog();
+            if (Uri.TryCreate(UploadServerImagePath, UriKind.Absolute, out var serverBitmapUri))
+                ServerBitmap = new BitmapImage(serverBitmapUri);
+            else
+                ServerBitmap = null;
         }
 
         public string Name { get => _name; set => SetField(ref _name, value); }
@@ -48,11 +82,13 @@ namespace TAS.Server.CgElementsController.Configurator
         public string UploadClientImagePath { get => _uploadClientImagePath; set => SetField(ref _uploadClientImagePath, value); }
         public string UploadServerImagePath { get => _uploadServerImagePath; set => SetField(ref _uploadServerImagePath, value); }
         public string ServerImagePath { get; private set; }
-        public string ClientImagePath { get; private set; }                
-
+        public string ClientImagePath { get; private set; }                  
         public UiCommand UploadServerImageCommand { get; private set; }
         public UiCommand UploadClientImageCommand { get; private set; }
-        
+        public UiCommand ClearServerImageCommand { get; private set; }
+        public UiCommand ClearClientImageCommand { get; private set; }
+        public BitmapImage ClientBitmap { get => _clientBitmap; set => SetField(ref _clientBitmap, value); }
+        public BitmapImage ServerBitmap { get => _serverBitmap; set => SetField(ref _serverBitmap, value); }
 
         public override bool Ok(object obj)
         {
@@ -60,8 +96,8 @@ namespace TAS.Server.CgElementsController.Configurator
             {
                 _cgElement.Name = _name;
                 _cgElement.Command = _command;
-                _cgElement.ClientImagePath = ClientImagePath;
-                _cgElement.ServerImagePath = ServerImagePath;
+                _cgElement.ClientImagePath = UploadClientImagePath;
+                _cgElement.ServerImagePath = UploadServerImagePath;
                
                 _cgElement.UploadClientImagePath = UploadClientImagePath;             
                 _cgElement.UploadServerImagePath = UploadServerImagePath;

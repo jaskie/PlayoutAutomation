@@ -6,8 +6,7 @@
              ResxExtension.DefaultResxName="TAS.Client.Views.SwitcherView"             
              mc:Ignorable="d" 
              d:DesignHeight="80" d:DesignWidth="220">
-    <StackPanel Margin="5">
-        <TextBlock Margin="0 5" FontSize="14" Text="{Resx _inputSource}" VerticalAlignment="Center" />
-        <ListView MaxHeight="400" ItemsSource="{Binding InputPorts}" SelectedItem="{Binding SelectedInputPort}" DisplayMemberPath="PortName" HorizontalAlignment="Stretch" />
-    </StackPanel>
+
+
+    <ListView Margin="10" MaxHeight="400" ItemsSource="{Binding InputPorts}" SelectedItem="{Binding SelectedInputPort}" DisplayMemberPath="PortName" HorizontalAlignment="Stretch" FontSize="16" />
 </UserControl>

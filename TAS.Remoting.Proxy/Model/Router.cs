@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using jNet.RPC;
 using jNet.RPC.Client;
+using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
@@ -21,6 +24,10 @@ namespace TAS.Remoting.Model
 
         [DtoMember(nameof(IVideoSwitch.IsEnabled))]
         private bool _isEnabled;
+        [DtoMember(nameof(IVideoSwitch.Preload))]
+        private bool _preload;
+        [DtoMember(nameof(IVideoSwitch.DefaultEffect))]
+        private VideoSwitchEffect _defaultEffect;
 
 #pragma warning restore
 
@@ -32,14 +39,25 @@ namespace TAS.Remoting.Model
 
         public bool IsEnabled { get => _isEnabled; set => Set(value); }
 
-        public void Connect()
+        public bool Preload => _preload;
+
+        public VideoSwitchEffect DefaultEffect => _defaultEffect;
+
+        public event EventHandler Started;
+
+        public async Task<bool> ConnectAsync()
         {
-            Invoke();
+            return Query<bool>();
         }
 
         public void SelectInput(int inputId)
         {
             Invoke(parameters: new object[] { inputId });
+        }
+
+        public void SetTransitionEffect(VideoSwitchEffect videoSwitchEffect)
+        {
+            Invoke(parameters: new object[] { videoSwitchEffect });
         }
 
         protected override void OnEventNotification(SocketMessage message) { }

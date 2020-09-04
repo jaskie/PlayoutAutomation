@@ -95,14 +95,13 @@ namespace TAS.Server.CgElementsControllerTests.Configurator
         public void IsEnabled_Changed(ICGElementsController cgElementsController)
         {
             Init(cgElementsController);
-            if (cgElementsController == null)
-                return;
+            if (cgElementsController != null)
+                Assert.AreEqual(_cgElementsControllerViewModel.IsEnabled, cgElementsController.IsEnabled);
 
-            Assert.AreEqual(_cgElementsControllerViewModel.IsEnabled, cgElementsController.IsEnabled);
-            _cgElementsControllerViewModel.IsEnabled = true;
-            Assert.IsTrue(cgElementsController.IsEnabled);
+            _cgElementsControllerViewModel.IsEnabled = true;            
+            Assert.IsTrue(((ICGElementsController)_cgElementsControllerViewModel.GetModel()).IsEnabled && _cgElementsControllerViewModel.IsEnabled);
             _cgElementsControllerViewModel.IsEnabled = false;
-            Assert.IsFalse(cgElementsController.IsEnabled);
+            Assert.IsFalse(((ICGElementsController)_cgElementsControllerViewModel.GetModel()).IsEnabled || _cgElementsControllerViewModel.IsEnabled);
         }
 
         /// <summary>

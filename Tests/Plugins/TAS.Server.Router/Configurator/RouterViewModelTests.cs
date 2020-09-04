@@ -73,7 +73,9 @@ namespace TAS.Server.VideoSwitchTests.Configurator
             Assert.AreEqual(_routerViewModel.Level, router?.Level ?? 0);
             Assert.AreEqual(_routerViewModel.Login, router?.Login);
             Assert.AreEqual(_routerViewModel.Password, router?.Password);
-            Assert.AreEqual(_routerViewModel.SelectedRouterType ?? _routerViewModel.RouterTypes.FirstOrDefault(), _routerViewModel.RouterTypes.FirstOrDefault(t => t == router?.Type));
+            if (router != null)
+                Assert.AreEqual(_routerViewModel?.SelectedRouterType, router.Type);
+            
         }
 
         [TestMethod]
@@ -81,14 +83,14 @@ namespace TAS.Server.VideoSwitchTests.Configurator
         public void IsEnabled_Changed(VideoSwitch.VideoSwitch router)
         {
             Init(router);
-            if (router == null)
-                return;
+            if (router != null)
+                Assert.AreEqual(_routerViewModel.IsEnabled, router.IsEnabled);
 
-            Assert.AreEqual(_routerViewModel.IsEnabled, router.IsEnabled);
+
             _routerViewModel.IsEnabled = true;
-            Assert.IsTrue(router.IsEnabled);
+            Assert.IsTrue(_routerViewModel.IsEnabled && ((VideoSwitch.VideoSwitch)_routerViewModel.GetModel()).IsEnabled);
             _routerViewModel.IsEnabled = false;
-            Assert.IsFalse(router.IsEnabled);
+            Assert.IsFalse(_routerViewModel.IsEnabled || ((VideoSwitch.VideoSwitch)_routerViewModel.GetModel()).IsEnabled);
         }
 
         [TestMethod]

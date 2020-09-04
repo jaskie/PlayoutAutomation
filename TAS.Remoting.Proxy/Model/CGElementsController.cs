@@ -41,13 +41,15 @@ namespace TAS.Remoting.Model
         private bool _isConnected;
 
         [DtoMember(nameof(ICGElementsController.IsMaster))]
-        private bool _isMaster;        
+        private bool _isMaster;
 
         [DtoMember(nameof(ICGElementsController.Logo))]
         private byte _logo;
 
         [DtoMember(nameof(ICGElementsController.Parental))]
         private byte _parental;
+        [DtoMember(nameof(ICGElementsController.IsWideScreen))]
+        private bool _isWideScreen;
 
 
 #pragma warning restore
@@ -74,11 +76,13 @@ namespace TAS.Remoting.Model
 
         public bool IsConnected => _isConnected;
 
-        public bool IsMaster => _isMaster;        
+        public bool IsMaster => _isMaster;
 
         public byte Logo { get { return _logo; } set { Set(value); } }
 
-        public byte Parental { get { return _parental; } set { Set(value); }  }
+        public byte Parental { get { return _parental; } set { Set(value); } }
+
+        public bool IsWideScreen { get => _isWideScreen; set => Set(value); } 
 
         public event EventHandler Started;
 

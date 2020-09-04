@@ -47,7 +47,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             CommandAddOutputPort = new UiCommand(AddOutputPort, CanAddOutputPort);
             CommandConnect = new UiCommand(Connect, CanConnect);
             CommandDisconnect = new UiCommand(Disconnect, CanDisconnect);
-            CommandSave = new UiCommand(Save, CanSave);
+            CommandSave = new UiCommand(UpdateModel, CanSave);
             CommandUndo = new UiCommand(Undo, CanUndo);
             CommandDeleteOutputPort = new UiCommand(Delete);
             CommandRefreshSources = new UiCommand(RefreshGpiSources, CanRefreshGpiSources);
@@ -142,7 +142,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             Ports.Refresh();
         }
 
-        private void Save(object obj)
+        private void UpdateModel(object obj = null)
         {
             _router = new VideoSwitch
             {
@@ -323,12 +323,16 @@ namespace TAS.Server.VideoSwitch.Configurator
                 if (_isEnabled == value)
                     return;
                 _isEnabled = value;
-                
-                if (_router != null)
-                    _router.IsEnabled = value;
 
-                NotifyPropertyChanged();
-                PluginChanged?.Invoke(this, EventArgs.Empty);
+                if (_router != null)
+                {
+                    _router.IsEnabled = value;
+                    PluginChanged?.Invoke(this, EventArgs.Empty);
+                }
+                else
+                    UpdateModel();
+                    
+                NotifyPropertyChanged();                
             }
         }
 

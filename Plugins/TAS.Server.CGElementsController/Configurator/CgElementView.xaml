@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
              mc:Ignorable="d" 
-             d:DesignHeight="320" d:DesignWidth="400">
+             d:DesignHeight="320" d:DesignWidth="400"
+             MinWidth="410">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
@@ -14,6 +15,7 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <Label Content="Name: " Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" />
@@ -24,26 +26,49 @@
         
         <Label Grid.Row="2" Content="Upload production image: " Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" />
         <StackPanel Grid.Row="2" Grid.Column="1"  Orientation="Horizontal">
-            <Label Content="{Binding ServerImagePath}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding UploadServerImageCommand}">
+            <Button Margin="15,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding UploadServerImageCommand}">
                 <Image Width="20" Source="/TAS.Client.Common;component/Images/Actions/media-ingest.png" />
             </Button>
-            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding UploadServerImageCommand}">
+            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding ClearServerImageCommand}">
                 <Image Width="20" Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
             </Button>
         </StackPanel>
 
+        <StackPanel Margin="5" Width="400" Grid.ColumnSpan="2" Grid.Row="3">
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ServerBitmap}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+            <CheckBox x:Name="IsBlackCheckBox" Content="Black preview" Margin="0,0,0,10" />
+            <Border BorderThickness="1" BorderBrush="Black">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsChecked, ElementName=IsBlackCheckBox}" Value="True">
+                                <Setter Property="Background" Value="Black" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Image Source="{Binding ServerBitmap}" />
+            </Border>
+        </StackPanel>
 
-        <Label Visibility="{Binding IsClientImageVisible, Converter={StaticResource BoolToVis}}" Grid.Row="3" Content="Upload preview image: " Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        <StackPanel Visibility="{Binding IsClientImageVisible, Converter={StaticResource BoolToVis}}" Grid.Row="3" Grid.Column="1"  Orientation="Horizontal">
-            <Label Content="{Binding ClientImagePath}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <Label Grid.Row="4" Content="Upload preview image: " Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <StackPanel Grid.Row="4" Grid.Column="1"  Orientation="Horizontal">
+            <Image Source="{Binding ClientBitmap}" Height="20" Margin="5" VerticalAlignment="Center" />
             <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding UploadClientImageCommand}">
                 <Image Width="20" Source="/TAS.Client.Common;component/Images/Actions/media-ingest.png" />
             </Button>
-            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding UploadClientImageCommand}">
+            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding ClearClientImageCommand}">
                 <Image Width="20" Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
             </Button>
         </StackPanel>
-        
     </Grid>
 </UserControl>

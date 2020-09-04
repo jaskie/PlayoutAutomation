@@ -109,8 +109,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
             {
                 _gpisViewModel.Save();
                 _engine.Gpis = _gpisViewModel.Gpis;
-            }
-            
+            }            
         }
 
         protected override void OnDispose()

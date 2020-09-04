@@ -23,7 +23,7 @@ namespace TAS.Server.Advantech.Configurator
         {            
             AddGpiBindingCommand = new UiCommand(AddGpiBinding, CanAddGpiBinding);
             DeleteGpiBindingCommand = new UiCommand(DeleteGpiBinding);
-            SaveCommand = new UiCommand(LocalSave, CanLocalSave);
+            SaveCommand = new UiCommand(UpdateModel, CanLocalSave);
             UndoCommand = new UiCommand(Undo, CanUndo);
             GpiBindings = CollectionViewSource.GetDefaultView(_gpiBindings);
         }        
@@ -103,7 +103,7 @@ namespace TAS.Server.Advantech.Configurator
            
         }
 
-        private void LocalSave(object obj)
+        private void UpdateModel(object obj = null)
         {
             _gpi = new Model.Gpi()
             {
@@ -134,10 +134,14 @@ namespace TAS.Server.Advantech.Configurator
                 _isEnabled = value;
 
                 if (_gpi != null)
+                {
                     _gpi.IsEnabled = value;
-
-                NotifyPropertyChanged();
-                PluginChanged?.Invoke(this, EventArgs.Empty);
+                    PluginChanged?.Invoke(this, EventArgs.Empty);
+                }
+                else
+                    UpdateModel();
+                    
+                NotifyPropertyChanged();                
             }
         }
 

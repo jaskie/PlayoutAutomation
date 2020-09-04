@@ -39,7 +39,7 @@ namespace TAS.Server.AdvantechTests.Configurator
             _gpiViewModel.GpiBindingViewModel.Ok(null);
             _gpiViewModel.UndoCommand.Execute(null);
 
-            Assert.IsTrue(_gpiViewModel.GpiBindings.SourceCollection.Cast<object>().Count() == gpi.Bindings.Count);
+            Assert.IsTrue(_gpiViewModel.GpiBindings.SourceCollection.Cast<object>().Count() == (gpi?.Bindings?.Count ?? 0));
         }
 
         [TestMethod]
@@ -47,7 +47,7 @@ namespace TAS.Server.AdvantechTests.Configurator
         public void AddGpi(Gpi gpi)
         {
             Init(gpi);
-            var initialBindingsCount = gpi?.Bindings?.Count;
+            var initialBindingsCount = gpi?.Bindings?.Count ?? 0;
 
             _gpiViewModel.AddGpiBindingCommand.Execute(null);
 
@@ -88,14 +88,13 @@ namespace TAS.Server.AdvantechTests.Configurator
         public void IsEnabled_Changed(Gpi gpi)
         {
             Init(gpi);
-            if (gpi == null)
-                return;
+            if (gpi != null)
+                Assert.AreEqual(_gpiViewModel.IsEnabled, gpi.IsEnabled);
 
-            Assert.AreEqual(_gpiViewModel.IsEnabled, gpi.IsEnabled);
             _gpiViewModel.IsEnabled = true;
-            Assert.IsTrue(gpi.IsEnabled);
+            Assert.IsTrue(_gpiViewModel.IsEnabled && ((Gpi)_gpiViewModel.GetModel()).IsEnabled);
             _gpiViewModel.IsEnabled = false;
-            Assert.IsFalse(gpi.IsEnabled);
+            Assert.IsFalse(_gpiViewModel.IsEnabled || ((Gpi)_gpiViewModel.GetModel()).IsEnabled);
         }
 
         [TestMethod]
