@@ -86,6 +86,8 @@
     <Compile Include="Interfaces\Configurator\IConfigRecorder.cs" />
     <Compile Include="Interfaces\IParamEnginePlugin.cs" />
     <Compile Include="Interfaces\IPluginConfigurator.cs" />
+    <Compile Include="Interfaces\IPluginExport.cs" />
+    <Compile Include="Interfaces\IPluginTypeBinder.cs" />
     <Compile Include="Interfaces\IVideoSwitch.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
     <Compile Include="Interfaces\IVideoSwitchPort.cs" />

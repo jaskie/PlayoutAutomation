@@ -1145,7 +1145,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(nameof(ServerConnectedPRI));
                 if (sender == Engine.PlayoutChannelSEC)
                     NotifyPropertyChanged(nameof(ServerConnectedSEC));
-                if (sender == Engine.Preview.Channel)
+                if (sender == Engine.Preview?.Channel)
                     NotifyPropertyChanged(nameof(ServerConnectedPRV));
                 NotifyPropertyChanged(nameof(NoAlarms));
             }

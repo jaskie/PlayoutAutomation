@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
-using TAS.Database.Common.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config
 {
@@ -13,14 +12,46 @@ namespace TAS.Client.Config
         {
             using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), FileNameSearchPattern))
             using (var container = new CompositionContainer(catalog))
-            {
-                PluginTypeBinders = container.GetExportedValues<IPluginTypeBinder>();
+            {                
+                foreach(var plugin in container.GetExportedValues<IPluginExport>())
+                {
+                    if (Binders == null)
+                        Binders = new List<IPluginTypeBinder>();
+
+                    Binders.Add(plugin.Binder);
+
+                    var configuratorVm = plugin.GetConfiguratorViewModel();
+                    if (configuratorVm.GetModel() is ICGElementsController)
+                    {
+                        if (CgElementsControllers == null)
+                            CgElementsControllers = new List<IPluginExport>();
+
+                        CgElementsControllers.Add(plugin);
+                    }
+
+                    else if (configuratorVm.GetModel() is IVideoSwitch)
+                    {
+                        if (VideoSwitchers == null)
+                            VideoSwitchers = new List<IPluginExport>();
+
+                        VideoSwitchers.Add(plugin);
+                    }
+
+                    else if (configuratorVm.GetModel() is IGpi)
+                    {
+                        if (Gpis == null)
+                            Gpis = new List<IPluginExport>();
+
+                        Gpis.Add(plugin);
+                    }
+                }                                
             }
         }
 
-        [ImportMany(typeof(IPluginTypeBinder))]
-        public IEnumerable<IPluginTypeBinder> PluginTypeBinders { get; }
-
+        public IList<IPluginExport> CgElementsControllers { get; private set; }
+        public IList<IPluginExport> Gpis { get; private set; }
+        public IList<IPluginExport> VideoSwitchers { get; private set; }
+        public IList<IPluginTypeBinder> Binders { get; }
 
         public static ConfigurationPluginManager Current { get; } = new ConfigurationPluginManager();
     }

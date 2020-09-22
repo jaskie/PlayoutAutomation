@@ -8,17 +8,13 @@ using TAS.Server.VideoSwitch.Model;
 using TAS.Server.VideoSwitch.Communicators;
 using jNet.RPC;
 using TAS.Database.Common;
-using System.ComponentModel.Composition;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Threading.Tasks;
-using System.Threading;
-using System.Windows.Threading;
 
 namespace TAS.Server.VideoSwitch
-{
-	[DtoClass(nameof(IVideoSwitch))]
-    [Export(typeof(IPlugin))]
+{	
+    [DtoClass(nameof(IVideoSwitch))]
     public class VideoSwitch : ServerObjectBase, IVideoSwitch, IPlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

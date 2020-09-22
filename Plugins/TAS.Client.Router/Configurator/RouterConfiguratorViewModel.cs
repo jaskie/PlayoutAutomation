@@ -1,11 +1,8 @@
-﻿using BMDSwitcherAPI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common;
@@ -14,8 +11,7 @@ using TAS.Common.Interfaces.Configurator;
 using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Configurator
-{
-    [Export(typeof(IPluginConfigurator))]
+{    
     public class RouterConfiguratorViewModel : ModifyableViewModelBase, IPluginConfigurator
     {
         private IConfigEngine _engine;
@@ -38,9 +34,8 @@ namespace TAS.Server.VideoSwitch.Configurator
         private bool _requiresPorts;
         private bool _requiresTransitionType;
         private bool _requiresGpi;
-
-        [ImportingConstructor]
-        public RouterConfiguratorViewModel([Import("Engine")]IConfigEngine engine)
+        
+        public RouterConfiguratorViewModel(IConfigEngine engine)
         {
             _engine = engine;            
 

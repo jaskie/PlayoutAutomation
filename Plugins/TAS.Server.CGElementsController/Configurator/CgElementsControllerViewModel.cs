@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Windows.Data;
@@ -11,8 +10,7 @@ using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Server.CgElementsController.Configurator
-{    
-    [Export(typeof(IPluginConfigurator))]
+{       
     public class CgElementsControllerViewModel : ModifyableViewModelBase, IPluginConfigurator
     {                
         private readonly IConfigEngine _engine;
@@ -35,9 +33,8 @@ namespace TAS.Server.CgElementsController.Configurator
         private Model.CgElement _newElement;
 
         public event EventHandler PluginChanged;
-
-        [ImportingConstructor]
-        public CgElementsControllerViewModel([Import("Engine")]IConfigEngine engine)
+        
+        public CgElementsControllerViewModel(IConfigEngine engine)
         {
             _engine = engine;
             LoadCommands();

@@ -8,8 +8,7 @@ using System.ComponentModel.Composition;
 using TAS.Database.Common;
 
 namespace TAS.Server.CgElementsController
-{    
-    [Export(typeof(IPlugin))]
+{        
     public class CgElementsController : ServerObjectBase, ICGElementsController
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

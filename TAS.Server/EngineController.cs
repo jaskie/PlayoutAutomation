@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.FtpClient;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using TAS.Server.Media;
@@ -12,9 +13,8 @@ namespace TAS.Server
 {
     public class EngineController
     {
-
         private EngineController()
-        {
+        {            
             if (double.TryParse(ConfigurationManager.AppSettings["ReferenceLoudnessLevel"], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var referenceLoudnessLevel))
                 ReferenceLoudnessLevel = referenceLoudnessLevel;
             else

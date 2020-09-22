@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
-using System.IO;
 using System.Linq;
 using System.Windows.Data;
 using TAS.Client.Common;
@@ -26,23 +23,16 @@ namespace TAS.Client.Config.ViewModels.Plugins
         public GpisViewModel(IConfigEngine engine)
         {
             _engine = engine;
-            Configurators = CollectionViewSource.GetDefaultView(_configurators);
 
-            using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), PluginsViewModel.FileNameSearchPattern))
+            foreach (var plugin in ConfigurationPluginManager.Current.Gpis)
             {
-                using (var container = new CompositionContainer(catalog))
-                {
-                    container.ComposeExportedValue("Engine", _engine);
-                    var pluginConfigurators = container.GetExportedValues<IPluginConfigurator>().Where(configurator => configurator.GetModel() is IGpi);
-                    
-                    foreach (var pluginConfigurator in pluginConfigurators)
-                    {                       
-                        pluginConfigurator.PluginChanged += PluginConfigurator_PluginChanged;                        
-                        pluginConfigurator.Initialize(_engine.Gpis?.FirstOrDefault(g => g?.GetType() == pluginConfigurator.GetModel().GetType()));
-                        _configurators.Add(pluginConfigurator);
-                    }                    
-                }
-            }            
+                var configuratorVm = plugin.GetConfiguratorViewModel();
+                configuratorVm.PluginChanged += PluginConfigurator_PluginChanged;
+                configuratorVm.Initialize(_engine.Gpis?.FirstOrDefault(g => g?.GetType() == configuratorVm.GetModel().GetType()));
+                _configurators.Add(configuratorVm);
+            }
+
+            Configurators = CollectionViewSource.GetDefaultView(_configurators);             
         }
 
         private void PluginConfigurator_PluginChanged(object sender, EventArgs e)

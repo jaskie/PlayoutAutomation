@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TAS.Database.Common.Interfaces
+namespace TAS.Common.Interfaces
 {
     public interface IPluginTypeBinder
     {        

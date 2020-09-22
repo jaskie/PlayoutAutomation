@@ -1,15 +1,12 @@
-﻿using NLog;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server.Advantech.Configurator
-{
-    [Export(typeof(IPluginConfigurator))]
+{    
     public class GpiViewModel : ModifyableViewModelBase, IPluginConfigurator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

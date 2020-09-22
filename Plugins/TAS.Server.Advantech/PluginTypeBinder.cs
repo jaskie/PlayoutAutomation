@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using TAS.Database.Common.Interfaces;
+using TAS.Common.Interfaces;
 using TAS.Server.Advantech.Model;
 
 namespace TAS.Server.Advantech
-{
-    [Export(typeof(IPluginTypeBinder))]
-    public class PluginTypeBinder : IPluginTypeBinder
+{    
+    internal class PluginTypeBinder : IPluginTypeBinder
     {
         private readonly List<Tuple<Type, Type>> _types = new List<Tuple<Type, Type>>()
         {

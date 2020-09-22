@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using TAS.Database.Common.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Database.Common
 {

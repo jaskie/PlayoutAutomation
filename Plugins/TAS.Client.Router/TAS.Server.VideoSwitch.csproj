@@ -85,6 +85,7 @@
     <Compile Include="Model\PortState.cs" />
     <Compile Include="Model\ListTypeEnum.cs" />
     <Compile Include="Model\IRouterCommunicator.cs" />
+    <Compile Include="PluginExporter.cs" />
     <Compile Include="PluginTypeBinder.cs" />
     <Compile Include="Resources.xaml.cs">
       <DependentUpon>Resources.xaml</DependentUpon>
