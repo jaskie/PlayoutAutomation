@@ -49,7 +49,7 @@ namespace TAS.Client.ViewModels
 
         public override bool CanOk(object obj)
         {
-            if (Router.SelectedInputPort.PortId != _selectedInputPort.PortId && IsConnected)
+            if (Router.SelectedInputPort?.PortId != _selectedInputPort?.PortId && IsConnected)
                 return true;
             return false;
         }
