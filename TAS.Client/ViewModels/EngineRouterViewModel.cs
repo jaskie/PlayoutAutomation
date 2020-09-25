@@ -6,7 +6,7 @@ namespace TAS.Client.ViewModels
 {
     public class EngineRouterViewModel : ViewModelBase
     {
-        public EngineRouterViewModel(IVideoSwitch router)
+        public EngineRouterViewModel(IRouter router)
         {
             Router = router;
             Router.ConnectAsync();
@@ -32,7 +32,7 @@ namespace TAS.Client.ViewModels
         {
             switch (e.PropertyName)
             {                
-                case nameof(Router.SelectedInputPort):
+                case nameof(Router.SelectedSource):
                     NotifyPropertyChanged(nameof(SelectedInputPort));
                     break;
                 case nameof(Router.IsConnected):
@@ -42,11 +42,11 @@ namespace TAS.Client.ViewModels
             }
         }       
 
-        public IVideoSwitchPort SelectedInputPort => Router.SelectedInputPort;        
+        public IVideoSwitchPort SelectedInputPort => Router.SelectedSource;        
 
         public bool IsConnected => Router.IsConnected;
 
-        public IVideoSwitch Router { get; }
+        public IRouter Router { get; }
 
         public UiCommand CommandChangeSource { get; }
 

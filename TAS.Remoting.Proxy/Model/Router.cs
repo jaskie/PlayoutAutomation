@@ -8,32 +8,32 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    [DtoClass(nameof(IVideoSwitch))]
-    public class Router : ProxyObjectBase, IVideoSwitch
+    [DtoClass(nameof(IRouter))]
+    public class Router : ProxyObjectBase, IRouter
     {
 #pragma warning disable CS0649 
 
-        [DtoMember(nameof(IVideoSwitch.InputPorts))]
+        [DtoMember(nameof(IRouter.Sources))]
         private IList<IVideoSwitchPort> _inputPorts;
 
-        [DtoMember(nameof(IVideoSwitch.SelectedInputPort))]
+        [DtoMember(nameof(IRouter.SelectedSource))]
         private IVideoSwitchPort _selectedInputPort;
 
-        [DtoMember(nameof(IVideoSwitch.IsConnected))]
+        [DtoMember(nameof(IRouter.IsConnected))]
         private bool _isConnected;       
 
-        [DtoMember(nameof(IVideoSwitch.IsEnabled))]
+        [DtoMember(nameof(IRouter.IsEnabled))]
         private bool _isEnabled;
-        [DtoMember(nameof(IVideoSwitch.Preload))]
+        [DtoMember(nameof(IRouter.Preload))]
         private bool _preload;
-        [DtoMember(nameof(IVideoSwitch.DefaultEffect))]
+        [DtoMember(nameof(IRouter.DefaultEffect))]
         private VideoSwitchEffect _defaultEffect;
 
 #pragma warning restore
 
-        public IList<IVideoSwitchPort> InputPorts => _inputPorts;
+        public IList<IVideoSwitchPort> Sources => _inputPorts;
 
-        public IVideoSwitchPort SelectedInputPort => _selectedInputPort;
+        public IVideoSwitchPort SelectedSource => _selectedInputPort;
 
         public bool IsConnected => _isConnected;       
 
@@ -50,7 +50,7 @@ namespace TAS.Remoting.Model
             return Query<bool>();
         }
 
-        public void SelectInput(int inputId)
+        public void SetSource(int inputId)
         {
             Invoke(parameters: new object[] { inputId });
         }

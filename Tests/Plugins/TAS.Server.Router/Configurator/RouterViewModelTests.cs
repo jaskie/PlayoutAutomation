@@ -40,7 +40,7 @@ namespace TAS.Server.VideoSwitchTests.Configurator
             _routerViewModel.Level = testLevel;
             _routerViewModel.Login = testLogin;
             _routerViewModel.Password = testPassword;
-            _routerViewModel.SelectedRouterType = VideoSwitch.VideoSwitch.VideoSwitchType.BlackmagicSmartVideoHub;
+            _routerViewModel.SelectedRouterType = VideoSwitch.VideoSwitch.Type.BlackmagicSmartVideoHub;
             _routerViewModel.CommandAddOutputPort.Execute(null);
 
             _routerViewModel.CommandSave.Execute(null);
@@ -52,7 +52,7 @@ namespace TAS.Server.VideoSwitchTests.Configurator
             Assert.AreEqual(result.Level, testLevel);
             Assert.AreEqual(result.Login, testLogin);
             Assert.AreEqual(result.Password, testPassword);
-            Assert.AreEqual(result.Type, VideoSwitch.VideoSwitch.VideoSwitchType.BlackmagicSmartVideoHub);
+            Assert.AreEqual(result.Type, VideoSwitch.VideoSwitch.Type.BlackmagicSmartVideoHub);
         }
        
         [TestMethod]

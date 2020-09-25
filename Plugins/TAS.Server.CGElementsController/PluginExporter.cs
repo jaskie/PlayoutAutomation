@@ -5,8 +5,8 @@ using TAS.Server.CgElementsController.Configurator;
 
 namespace TAS.Server.CgElementsController
 {
-    [Export(typeof(IPluginExport))]
-    public class PluginExporter : IPluginExport
+    [Export(typeof(IPluginConfigurationProvider))]
+    public class PluginExporter : IPluginConfigurationProvider
     {
         private IPluginTypeBinder _binder = new PluginTypeBinder();
         public IPluginTypeBinder Binder => _binder;

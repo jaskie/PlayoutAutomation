@@ -2,7 +2,7 @@
 
 namespace TAS.Common.Interfaces
 {
-    public interface IPluginExport
+    public interface IPluginConfigurationProvider
     {
         IPluginConfigurator GetConfiguratorViewModel(IConfigEngine engine = null);
         IPluginTypeBinder Binder { get; }

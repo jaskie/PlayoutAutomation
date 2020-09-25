@@ -13,7 +13,7 @@ namespace TAS.Client.Config
             using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), FileNameSearchPattern))
             using (var container = new CompositionContainer(catalog))
             {                
-                foreach(var plugin in container.GetExportedValues<IPluginExport>())
+                foreach(var plugin in container.GetExportedValues<IPluginConfigurationProvider>())
                 {
                     if (Binders == null)
                         Binders = new List<IPluginTypeBinder>();
@@ -24,15 +24,15 @@ namespace TAS.Client.Config
                     if (configuratorVm.GetModel() is ICGElementsController)
                     {
                         if (CgElementsControllers == null)
-                            CgElementsControllers = new List<IPluginExport>();
+                            CgElementsControllers = new List<IPluginConfigurationProvider>();
 
                         CgElementsControllers.Add(plugin);
                     }
 
-                    else if (configuratorVm.GetModel() is IVideoSwitch)
+                    else if (configuratorVm.GetModel() is IRouter)
                     {
                         if (VideoSwitchers == null)
-                            VideoSwitchers = new List<IPluginExport>();
+                            VideoSwitchers = new List<IPluginConfigurationProvider>();
 
                         VideoSwitchers.Add(plugin);
                     }
@@ -40,7 +40,7 @@ namespace TAS.Client.Config
                     else if (configuratorVm.GetModel() is IGpi)
                     {
                         if (Gpis == null)
-                            Gpis = new List<IPluginExport>();
+                            Gpis = new List<IPluginConfigurationProvider>();
 
                         Gpis.Add(plugin);
                     }
@@ -48,9 +48,9 @@ namespace TAS.Client.Config
             }
         }
 
-        public IList<IPluginExport> CgElementsControllers { get; private set; }
-        public IList<IPluginExport> Gpis { get; private set; }
-        public IList<IPluginExport> VideoSwitchers { get; private set; }
+        public IList<IPluginConfigurationProvider> CgElementsControllers { get; private set; }
+        public IList<IPluginConfigurationProvider> Gpis { get; private set; }
+        public IList<IPluginConfigurationProvider> VideoSwitchers { get; private set; }
         public IList<IPluginTypeBinder> Binders { get; }
 
         public static ConfigurationPluginManager Current { get; } = new ConfigurationPluginManager();

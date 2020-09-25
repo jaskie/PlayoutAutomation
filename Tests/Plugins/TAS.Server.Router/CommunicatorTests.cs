@@ -20,7 +20,7 @@ namespace TAS.Server.VideoSwitchTests
 
             Directory.SetCurrentDirectory(pluginsPath);
 
-            videoSwitch = new Server.VideoSwitch.VideoSwitch(VideoSwitch.VideoSwitch.VideoSwitchType.Atem);            
+            videoSwitch = new Server.VideoSwitch.VideoSwitch(VideoSwitch.VideoSwitch.Type.Atem);            
         }
         
         [TestMethod]
@@ -31,15 +31,15 @@ namespace TAS.Server.VideoSwitchTests
             {                                
                 videoSwitch.ConnectAsync();                
 
-                videoSwitch.SelectInput(1);                
+                videoSwitch.SetSource(1);                
                 Thread.Sleep(interval);                
-                videoSwitch.SelectInput(2);
+                videoSwitch.SetSource(2);
                 Thread.Sleep(interval);
-                videoSwitch.SelectInput(3);
+                videoSwitch.SetSource(3);
                 Thread.Sleep(interval);
-                videoSwitch.SelectInput(4);
+                videoSwitch.SetSource(4);
                 Thread.Sleep(interval);
-                videoSwitch.SelectInput(5);
+                videoSwitch.SetSource(5);
             }
             catch (Exception ex)
             {

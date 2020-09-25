@@ -6,7 +6,9 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
+using TAS.Common.Interfaces;
 using TAS.Server.VideoSwitch.Model;
+using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Communicators
 {
@@ -22,7 +24,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         private TcpClient _tcpClient;
 
         private NetworkStream _stream;
-        private readonly VideoSwitch _router;
+        private readonly Router _router;
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
         private ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>> _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
@@ -39,12 +41,12 @@ namespace TAS.Server.VideoSwitch.Communicators
         private string _response;
         private int _disposed;
 
-        public BlackmagicSmartVideoHubCommunicator(VideoSwitch device)
+        public BlackmagicSmartVideoHubCommunicator(IRouter device)
         {
-            _router = device;
+            _router = device as Router;
         }
 
-        public async Task<bool> Connect()
+        public async Task<bool> ConnectAsync()
         {
             _disposed = default(int);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -100,7 +102,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             return false;
         }
 
-        public void SelectInput(int inPort)
+        public void SetSource(int inPort)
         {
             AddToRequestQueue(_router.OutputPorts.Aggregate("VIDEO OUTPUT ROUTING:\n", (current, outPort) => current + string.Concat(outPort, " ", inPort, "\n")));
         }
@@ -109,7 +111,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         {
             _cancellationTokenSource?.Cancel();
             _tcpClient?.Close();
-            OnRouterConnectionStateChanged?.Invoke(this, new EventArgs<bool>(false));
+            ConnectionChanged?.Invoke(this, new EventArgs<bool>(false));
         }
 
         public void Dispose()
@@ -120,11 +122,11 @@ namespace TAS.Server.VideoSwitch.Communicators
             Logger.Debug("Blackmagic communicator disposed");
         }
 
-        public event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;
-        public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
-        public event EventHandler<EventArgs<CrosspointInfo>> OnInputPortChangeReceived;
+        public event EventHandler<EventArgs<PortState[]>> ExtendedStatusReceived;
+        public event EventHandler<EventArgs<bool>> ConnectionChanged;
+        public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
 
-        public async Task<PortInfo[]> GetInputPorts()
+        public async Task<PortInfo[]> GetSources()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
                 return null;
@@ -163,7 +165,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        public async Task<CrosspointInfo> GetCurrentInputPort()
+        public async Task<CrosspointInfo> GetSelectedSource()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
                 return null;
@@ -364,7 +366,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     if (crosspoints == null)
                         continue;
 
-                    OnInputPortChangeReceived?.Invoke(this, new EventArgs<CrosspointInfo>(crosspoints));
+                    SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(crosspoints));
                 }
                 catch (Exception ex)
                 {

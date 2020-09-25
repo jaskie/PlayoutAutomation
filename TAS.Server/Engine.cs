@@ -145,7 +145,7 @@ namespace TAS.Server
         public ICGElementsController CGElementsController { get; set; }        
 
         [DtoMember, Hibernate, JsonConverter(typeof(PluginConverter))]
-        public IVideoSwitch Router { get; set; }
+        public IRouter Router { get; set; }
 
         [Hibernate]
         public ServerHost Remote { get; set; }
@@ -967,7 +967,7 @@ namespace TAS.Server
             var eventType = aEvent.EventType;
 
             if (eventType == TEventType.Live)
-                Router?.SelectInput(aEvent.RouterPort);
+                Router?.SetSource(aEvent.RouterPort);
 
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
@@ -1004,7 +1004,7 @@ namespace TAS.Server
                 _playoutChannelSEC?.LoadNext(aEvent);
 
                 if (Router != null && eventType == TEventType.Live && _playing?.EventType != TEventType.Live && Router.Preload)
-                    Router.SelectInput(aEvent.RouterPort);
+                    Router.SetSource(aEvent.RouterPort);
 
                 if (!aEvent.IsHold
                     && CGElementsController?.IsConnected == true
@@ -1066,7 +1066,7 @@ namespace TAS.Server
                     _recordingManager.Capture(aEvent);
 
                 if (Router != null && eventType == TEventType.Live && _playing?.RouterPort != aEvent.RouterPort)
-                    Router.SelectInput(aEvent.RouterPort);
+                    Router.SetSource(aEvent.RouterPort);
 
                 _playoutChannelPRI?.Play(aEvent);
                 _playoutChannelSEC?.Play(aEvent);

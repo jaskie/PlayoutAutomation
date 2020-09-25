@@ -75,7 +75,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
 
         public string Name => _selectedConfigurator.PluginName;
 
-        public IVideoSwitch Router => (IVideoSwitch)_selectedConfigurator.GetModel();
+        public IRouter Router => (IRouter)_selectedConfigurator.GetModel();
 
         protected override void OnDispose()
         {

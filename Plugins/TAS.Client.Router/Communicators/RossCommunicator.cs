@@ -6,25 +6,27 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
+using TAS.Common.Interfaces;
 using TAS.Server.VideoSwitch.Model;
+using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Communicators
-{
+{   
     public class RossCommunicator : IVideoSwitchCommunicator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public event EventHandler<EventArgs<CrosspointInfo>> OnInputPortChangeReceived;
+        public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
         
         //Ross does not have API for sources download.
-        public event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;
+        public event EventHandler<EventArgs<PortState[]>> ExtendedStatusReceived;
         
-        public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
+        public event EventHandler<EventArgs<bool>> ConnectionChanged;
 
         private TcpClient _tcpClient;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private int _disposed;
-        private VideoSwitch _mc;
+        private VideoSwitcher _mc;
         private bool _transitionTypeChanged;
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();        
@@ -34,12 +36,12 @@ namespace TAS.Server.VideoSwitch.Communicators
         private readonly SemaphoreSlim _requestQueueSemaphore = new SemaphoreSlim(0);
         private readonly SemaphoreSlim _responsesQueueSemaphore = new SemaphoreSlim(0);        
 
-        public RossCommunicator(VideoSwitch videoSwitch)
+        public RossCommunicator(IVideoSwitcher videoSwitch)
         {
-            _mc = videoSwitch;
+            _mc = videoSwitch as VideoSwitcher;
         }
 
-        public async Task<bool> Connect()
+        public async Task<bool> ConnectAsync()
         {
             _disposed = default(int);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -63,7 +65,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                         continue;
                     }
 
-                    Logger.Debug("Blackmagic connected!");
+                    Logger.Debug("Ross connected!");
 
                     _requestsQueue = new ConcurrentQueue<string>();
                     
@@ -74,7 +76,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     SetTransitionEffect(_mc.DefaultEffect);
                     _transitionTypeChanged = false;
 
-                    Logger.Info("Blackmagic router connected and ready!");
+                    Logger.Info("Ross router connected and ready!");
 
                     return true;
                 }
@@ -122,7 +124,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                         }                        
 
                         await _tcpClient.GetStream().WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
-                        Logger.Debug($"Blackmagic message sent: {request}");
+                        Logger.Debug($"Ross message sent: {request}");
                     }
                 }
             }
@@ -161,7 +163,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                                     semaphoreStatus.Release();                                                                        
                                 }
                                 
-                                OnInputPortChangeReceived?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo(inPort, -1)));
+                                SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo(inPort, -1)));
                                 return;
                             }
                         }
@@ -173,7 +175,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     //Tally extended message formula
                     else if (byte.TryParse(message[3], out var aa) && byte.TryParse(message[4], out var bb))
                     {
-                        OnInputPortChangeReceived?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo((short)((bb & 0x7F) | ((aa & 0x7F) << 7)), -1)));
+                        SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo((short)((bb & 0x7F) | ((aa & 0x7F) << 7)), -1)));
                         return;
                     }
                     break;
@@ -287,7 +289,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         {
             _cancellationTokenSource?.Cancel();
             _tcpClient?.Close();
-            OnRouterConnectionStateChanged?.Invoke(this, new EventArgs<bool>(false));
+            ConnectionChanged?.Invoke(this, new EventArgs<bool>(false));
         }
 
         public void Dispose()
@@ -298,7 +300,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             Logger.Debug("Ross communicator disposed");
         }
 
-        public async Task<CrosspointInfo> GetCurrentInputPort()
+        public async Task<CrosspointInfo> GetSelectedSource()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
                 return null;
@@ -332,13 +334,13 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        public async Task<PortInfo[]> GetInputPorts()
+        public async Task<PortInfo[]> GetSources()
         {
             return await Task.Run(() =>             
             {
                 var portInfos = new List<PortInfo>();
 
-                foreach (var port in _mc.InputPorts)
+                foreach (var port in _mc.Sources)
                 {
                     portInfos.Add(new PortInfo(port.PortId, port.PortName));
                 }
@@ -355,7 +357,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             return BitConverter.ToString(new byte[] { 127, (byte)((b >> 7) & 0x7F), (byte)(b & 0x7F) });
         }
 
-        public void SelectInput(int inPort)
+        public void SetSource(int inPort)
         {
             AddToRequestQueue($"FF 09 {SerializeInputIndex(inPort)}");
             

@@ -94,7 +94,7 @@ namespace TAS.Common.Interfaces
         event EventHandler<EventEventArgs> VisibleEventAdded;
         event EventHandler<EventEventArgs> VisibleEventRemoved;
         event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
-        IVideoSwitch Router { get; }
+        IRouter Router { get; }
         ICGElementsController CGElementsController { get; }
     }
 

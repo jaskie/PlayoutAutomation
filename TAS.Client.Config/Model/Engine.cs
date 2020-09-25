@@ -61,7 +61,7 @@ namespace TAS.Client.Config.Model
         [Hibernate]        
         public ICGElementsController CGElementsController { get; set; }
         [Hibernate]
-        public IVideoSwitch Router { get; set; }        
+        public IRouter Router { get; set; }        
         
         public IDictionary<string, int> FieldLengths { get; set; }          
 

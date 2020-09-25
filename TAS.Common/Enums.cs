@@ -578,4 +578,10 @@ namespace TAS.Common
         Fade,        
         Mix,                        
     }
+
+    public enum VideoSwitchDevice
+    {
+        Switcher,
+        Router
+    }
 }

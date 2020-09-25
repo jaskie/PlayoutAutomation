@@ -7,12 +7,12 @@ namespace TAS.Client.ViewModels
     public class SwitcherViewModel : OkCancelViewModelBase
     {
         private IVideoSwitchPort _selectedInputPort;
-        public SwitcherViewModel(IVideoSwitch router)
+        public SwitcherViewModel(IRouter router)
         {
             Router = router;            
             Router.PropertyChanged += Router_PropertyChanged;
 
-            _selectedInputPort = Router.SelectedInputPort;
+            _selectedInputPort = Router.SelectedSource;
             NotifyPropertyChanged(nameof(SelectedInputPort));
         }
 
@@ -20,10 +20,10 @@ namespace TAS.Client.ViewModels
         {
             switch (e.PropertyName)
             {
-                case nameof(Router.InputPorts):
+                case nameof(Router.Sources):
                     NotifyPropertyChanged(nameof(InputPorts));
                     break;
-                case nameof(Router.SelectedInputPort):
+                case nameof(Router.SelectedSource):
                     NotifyPropertyChanged(nameof(SelectedInputPort));
                     break;
                 case nameof(Router.IsConnected):
@@ -37,7 +37,7 @@ namespace TAS.Client.ViewModels
             get => _selectedInputPort;
             set
             {
-                if (Router.InputPorts == value)
+                if (Router.Sources == value)
                     return;
 
                 if (value == null)
@@ -49,19 +49,19 @@ namespace TAS.Client.ViewModels
 
         public override bool CanOk(object obj)
         {
-            if (Router.SelectedInputPort?.PortId != _selectedInputPort?.PortId && IsConnected)
+            if (Router.SelectedSource?.PortId != _selectedInputPort?.PortId && IsConnected)
                 return true;
             return false;
         }
 
         public override bool Ok(object obj)
         {
-            Router.SelectInput(_selectedInputPort.PortId);
+            Router.SetSource(_selectedInputPort.PortId);
             return true;
         }
 
         public bool IsConnected => Router.IsConnected;
-        public IVideoSwitch Router { get; }
-        public IList<IVideoSwitchPort> InputPorts => Router.InputPorts;
+        public IRouter Router { get; }
+        public IList<IVideoSwitchPort> InputPorts => Router.Sources;
     }
 }

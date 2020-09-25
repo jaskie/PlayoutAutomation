@@ -79,12 +79,14 @@
     <Compile Include="Helpers\BMDSwitcherWrapper.cs" />
     <Compile Include="Helpers\AtemMonitor.cs" />
     <Compile Include="Model\CrosspointInfo.cs" />
-    <Compile Include="Model\IVideoSwitchCommunicator.cs" />
+    <Compile Include="Model\Interfaces\IVideoSwitchCommunicator.cs" />
     <Compile Include="Model\MixEffectEventArgs.cs" />
     <Compile Include="Model\PortInfo.cs" />
     <Compile Include="Model\PortState.cs" />
-    <Compile Include="Model\ListTypeEnum.cs" />
-    <Compile Include="Model\IRouterCommunicator.cs" />
+    <Compile Include="Model\Enums.cs" />
+    <Compile Include="Model\Interfaces\IRouterCommunicator.cs" />
+    <Compile Include="Model\RouterBase.cs" />
+    <Compile Include="Model\VideoSwitcher.cs" />
     <Compile Include="PluginExporter.cs" />
     <Compile Include="PluginTypeBinder.cs" />
     <Compile Include="Resources.xaml.cs">
@@ -93,7 +95,7 @@
     <Compile Include="Communicators\BlackmagicSmartVideoHubCommunicator.cs" />
     <Compile Include="RouterPort.cs" />
     <Compile Include="Communicators\NevionCommunicator.cs" />
-    <Compile Include="VideoSwitch.cs" />
+    <Compile Include="Model\Router.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -65,7 +65,7 @@ namespace TAS.Client.ViewModels
             if (Router != null)
             {
                 InputPorts.Add(string.Empty); //default value in ComboBox
-                foreach (var input in Router.InputPorts)
+                foreach (var input in Router.Sources)
                     InputPorts.Add(input);
                 _selectedInputPort = InputPorts?.FirstOrDefault(param => param is IVideoSwitchPort routerPort && routerPort.PortId == _routerPort) ?? InputPorts?[0];
             }
@@ -581,7 +581,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public IVideoSwitch Router { get; }
+        public IRouter Router { get; }
 
         public IList<object> InputPorts { get; }
 
