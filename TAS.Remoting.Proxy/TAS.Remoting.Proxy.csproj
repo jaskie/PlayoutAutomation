@@ -65,7 +65,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientTypeNameBinder.cs" />
     <Compile Include="Model\AnimatedEvent.cs" />
     <Compile Include="Model\Media\AnimatedMedia.cs" />
     <Compile Include="Model\Media\AnimationDirectory.cs" />
@@ -96,8 +95,8 @@
     <Compile Include="Model\PlayoutServer.cs" />
     <Compile Include="Model\PlayoutServerChannel.cs" />
     <Compile Include="Model\Preview.cs" />
-    <Compile Include="Model\CasparRecorder.cs" />
-    <Compile Include="Model\Router.cs" />
+    <Compile Include="Model\Recorder.cs" />
+    <Compile Include="Model\VideoSwitch.cs" />
     <Compile Include="Model\RouterPort.cs" />
     <Compile Include="Model\SearchProvider.cs" />
     <Compile Include="Model\Security\AuthenticationService.cs" />

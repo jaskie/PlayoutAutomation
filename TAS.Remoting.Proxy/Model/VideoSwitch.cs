@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
+using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public class Router : ProxyObjectBase, IVideoSwitch
+    public class VideoSwitch : ProxyObjectBase, IVideoSwitch
     {
 #pragma warning disable CS0649 
 
@@ -21,6 +23,12 @@ namespace TAS.Remoting.Model
         [DtoMember(nameof(IVideoSwitch.IsEnabled))]
         private bool _isEnabled;
 
+        [DtoMember(nameof(IVideoSwitch.DefaultEffect))]
+        private VideoSwitchEffect _defaultEffect;
+
+        [DtoMember(nameof(IVideoSwitch.Preload))]
+        private bool _preload;
+
 #pragma warning restore
 
         public IList<IVideoSwitchPort> InputPorts => _inputPorts;
@@ -31,6 +39,12 @@ namespace TAS.Remoting.Model
 
         public bool IsEnabled { get => _isEnabled; set => Set(value); }
 
+        public bool Preload => _preload;
+
+        public VideoSwitchEffect DefaultEffect => _defaultEffect;
+
+        public event EventHandler Started;
+
         public void Connect()
         {
             Invoke();
@@ -39,6 +53,11 @@ namespace TAS.Remoting.Model
         public void SelectInput(int inputId)
         {
             Invoke(parameters: new object[] { inputId });
+        }
+
+        public void SetTransitionEffect(VideoSwitchEffect videoSwitchEffect)
+        {
+            Invoke(parameters: new object[] { videoSwitchEffect });
         }
 
         protected override void OnEventNotification(SocketMessage message) { }

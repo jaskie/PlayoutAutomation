@@ -49,6 +49,9 @@ namespace TAS.Remoting.Model
         [DtoMember(nameof(ICGElementsController.Parental))]
         private byte _parental;
 
+        [DtoMember(nameof(ICGElementsController.IsWideScreen))]
+        private bool _isWideScreen;
+
 
 #pragma warning restore
         public bool IsEnabled
@@ -64,23 +67,23 @@ namespace TAS.Remoting.Model
 
         public IEnumerable<ICGElement> Parentals => _parentals;
 
-        public byte Crawl { get { return _crawl; } set { Set(value); } }
+        public byte Crawl { get => _crawl; set => Set(value); }
 
         public byte DefaultCrawl => _defaultCrawl;
 
         public byte DefaultLogo => _defaultLogo;
 
-        public bool IsCGEnabled { get { return _isCgEnabled; } set { Set(value); } }
+        public bool IsCGEnabled { get => _isCgEnabled; set => Set(value); }
 
         public bool IsConnected => _isConnected;
 
         public bool IsMaster => _isMaster;        
 
-        public byte Logo { get { return _logo; } set { Set(value); } }
+        public byte Logo { get => _logo; set => Set(value); }
 
-        public byte Parental { get { return _parental; } set { Set(value); }  }
+        public byte Parental { get => _parental; set => Set(value); }
 
-        public event EventHandler Started;
+        public bool IsWideScreen { get => _isWideScreen; set => Set(value); }
 
         public void SetState(ICGElementsState state)
         {

@@ -17,6 +17,7 @@ using jNet.RPC;
 
 namespace TAS.Server
 {
+    [DtoType(typeof(IPlayoutServerChannel))]
     public class CasparServerChannel : ServerObjectBase, IPlayoutServerChannel, IPlayoutServerChannelProperties
     {
         private Channel _casparChannel;
