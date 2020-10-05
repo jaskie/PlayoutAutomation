@@ -1,10 +1,12 @@
-﻿namespace TAS.Common.Interfaces
+﻿using System.Threading.Tasks;
+
+namespace TAS.Common.Interfaces
 {
     public interface IVideoSwitcher : IRouter
     {
-        void PreloadSource();
-        void SetMixEffect(VideoSwitchEffect videoSwitchEffect);
-        VideoSwitchEffect DefaultEffect { get; }
-        void Take();
+        Task PreloadSource(int sourceId);
+        void SetTransitionStyle(VideoSwitcherTransitionStyle videoSwitchEffect);        
+        VideoSwitcherTransitionStyle DefaultEffect { get; }
+        Task Take();
     }
 }

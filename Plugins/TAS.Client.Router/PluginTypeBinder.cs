@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TAS.Common.Interfaces;
+using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch
 {    
@@ -8,7 +9,8 @@ namespace TAS.Server.VideoSwitch
     {
         private readonly List<Tuple<Type, Type>> _types = new List<Tuple<Type, Type>>()
         {
-            new Tuple<Type, Type>(typeof(VideoSwitch), typeof(VideoSwitch)),
+            new Tuple<Type, Type>(typeof(VideoSwitcher), typeof(VideoSwitcher)),
+            new Tuple<Type, Type>(typeof(Router), typeof(Router)),
             new Tuple<Type, Type>(typeof(RouterPort), typeof(RouterPort))
         };
 

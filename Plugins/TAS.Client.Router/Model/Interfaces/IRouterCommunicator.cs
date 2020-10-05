@@ -5,7 +5,7 @@ using TAS.Common;
 
 namespace TAS.Server.VideoSwitch.Model.Interfaces
 {
-    internal interface IRouterCommunicator : INotifyPropertyChanged, IDisposable
+    public interface IRouterCommunicator : INotifyPropertyChanged, IDisposable
     {
         PortInfo[] Sources { get; set; }
         Task<bool> ConnectAsync();       

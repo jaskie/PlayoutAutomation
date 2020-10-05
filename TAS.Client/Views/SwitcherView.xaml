@@ -8,5 +8,5 @@
              d:DesignHeight="80" d:DesignWidth="220">
 
 
-    <ListView Margin="10" MaxHeight="400" ItemsSource="{Binding InputPorts}" SelectedItem="{Binding SelectedInputPort}" DisplayMemberPath="PortName" HorizontalAlignment="Stretch" FontSize="16" />
+    <ListView Margin="10" MaxHeight="400" ItemsSource="{Binding Sources}" SelectedItem="{Binding SelectedSource}" DisplayMemberPath="PortName" HorizontalAlignment="Stretch" FontSize="16" />
 </UserControl>

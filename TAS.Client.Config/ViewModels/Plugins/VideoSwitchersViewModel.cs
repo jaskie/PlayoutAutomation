@@ -33,7 +33,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
             }
 
             Configurators = CollectionViewSource.GetDefaultView(_configurators);
-            SelectedConfigurator = _configurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.Router?.GetType());              
+            SelectedConfigurator = _configurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.Router?.GetType()) ?? _configurators.First();              
         }
 
         private void PluginConfigurator_PluginChanged(object sender, EventArgs e)
@@ -73,7 +73,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
             }
         }
 
-        public string Name => _selectedConfigurator.PluginName;
+        public string Name => _selectedConfigurator?.PluginName;
 
         public IRouter Router => (IRouter)_selectedConfigurator.GetModel();
 

@@ -405,7 +405,7 @@ namespace TAS.Common
         Push = 2,
         Slide = 3,
         Wipe = 4,
-        Squeeze = 5,
+        Squeeze = 5        
     };
 
     [TypeConverter(typeof(TMediaEmphasisEnumConverter))]
@@ -570,18 +570,22 @@ namespace TAS.Common
     {
         Main,
         Configuration
-    }    
+    }            
 
-    public enum VideoSwitchEffect
+    public enum VideoSwitcherTransitionStyle
     {
+        Mix,
         Cut,
-        Fade,        
-        Mix,                        
-    }
-
-    public enum VideoSwitchDevice
-    {
-        Switcher,
-        Router
+        Fade,
+        Wipe,
+        Dip = 6,
+        VFade = 7,
+        FadeAndTake = 8,
+        TakeAndFade = 9,
+        WipeLeft = 10,
+        WipeTop = 11,
+        WipeReverseLeft = 12,
+        WipeReverseTop = 13,
+        UFade = 14
     }
 }

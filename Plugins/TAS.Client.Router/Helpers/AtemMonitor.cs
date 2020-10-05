@@ -6,6 +6,7 @@ namespace TAS.Server.VideoSwitch.Helpers
     internal class AtemMonitor : IBMDSwitcherMixEffectBlockCallback, IBMDSwitcherCallback
     {
         public event EventHandler ProgramInputChanged;
+        public event EventHandler TransitionFramesRemainingChanged;
         public event EventHandler ConnectionChanged;
         public void Notify(_BMDSwitcherMixEffectBlockEventType eventType)
         {
@@ -13,6 +14,10 @@ namespace TAS.Server.VideoSwitch.Helpers
             {                
                 case _BMDSwitcherMixEffectBlockEventType.bmdSwitcherMixEffectBlockEventTypeProgramInputChanged:
                     ProgramInputChanged?.Invoke(this, EventArgs.Empty);
+                    break;
+
+                case _BMDSwitcherMixEffectBlockEventType.bmdSwitcherMixEffectBlockEventTypeTransitionFramesRemainingChanged:
+                    TransitionFramesRemainingChanged?.Invoke(this, EventArgs.Empty);
                     break;
             }
         }
@@ -23,7 +28,7 @@ namespace TAS.Server.VideoSwitch.Helpers
             {
                 case _BMDSwitcherEventType.bmdSwitcherEventTypeDisconnected:
                     ConnectionChanged?.Invoke(this, EventArgs.Empty);
-                    break;
+                    break;                   
             }
         }
     }

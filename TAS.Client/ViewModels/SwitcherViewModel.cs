@@ -13,7 +13,7 @@ namespace TAS.Client.ViewModels
             Router.PropertyChanged += Router_PropertyChanged;
 
             _selectedInputPort = Router.SelectedSource;
-            NotifyPropertyChanged(nameof(SelectedInputPort));
+            NotifyPropertyChanged(nameof(SelectedSource));
         }
 
         private void Router_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -21,10 +21,10 @@ namespace TAS.Client.ViewModels
             switch (e.PropertyName)
             {
                 case nameof(Router.Sources):
-                    NotifyPropertyChanged(nameof(InputPorts));
+                    NotifyPropertyChanged(nameof(Sources));
                     break;
                 case nameof(Router.SelectedSource):
-                    NotifyPropertyChanged(nameof(SelectedInputPort));
+                    NotifyPropertyChanged(nameof(SelectedSource));
                     break;
                 case nameof(Router.IsConnected):
                     NotifyPropertyChanged(nameof(IsConnected));
@@ -32,7 +32,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public IVideoSwitchPort SelectedInputPort
+        public IVideoSwitchPort SelectedSource
         {
             get => _selectedInputPort;
             set
@@ -62,6 +62,6 @@ namespace TAS.Client.ViewModels
 
         public bool IsConnected => Router.IsConnected;
         public IRouter Router { get; }
-        public IList<IVideoSwitchPort> InputPorts => Router.Sources;
+        public IList<IVideoSwitchPort> Sources => Router.Sources;
     }
 }

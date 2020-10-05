@@ -250,7 +250,7 @@
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
                             <Label Margin="5" Content="{Resx _inputPort}" VerticalAlignment="Center" />
-                            <ComboBox Grid.Column="1" ItemsSource="{Binding InputPorts}" SelectedItem="{Binding SelectedInputPort}" IsEnabled="{Binding Router.IsConnected}" MinWidth="100" VerticalAlignment="Center">
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding Sources}" SelectedItem="{Binding SelectedSource}" IsEnabled="{Binding Router.IsConnected}" MinWidth="100" VerticalAlignment="Center">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
                                         <ComboBoxItem>

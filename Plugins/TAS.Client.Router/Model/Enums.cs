@@ -18,5 +18,5 @@ namespace TAS.Server.VideoSwitch.Model
         CrosspointChange,
         CrosspointStatus,
         SignalPresence
-    }
+    }    
 }

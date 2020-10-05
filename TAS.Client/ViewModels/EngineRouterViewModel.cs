@@ -33,7 +33,7 @@ namespace TAS.Client.ViewModels
             switch (e.PropertyName)
             {                
                 case nameof(Router.SelectedSource):
-                    NotifyPropertyChanged(nameof(SelectedInputPort));
+                    NotifyPropertyChanged(nameof(SelectedSource));
                     break;
                 case nameof(Router.IsConnected):
                     NotifyPropertyChanged(nameof(IsConnected));
@@ -42,7 +42,7 @@ namespace TAS.Client.ViewModels
             }
         }       
 
-        public IVideoSwitchPort SelectedInputPort => Router.SelectedSource;        
+        public IVideoSwitchPort SelectedSource => Router.SelectedSource;        
 
         public bool IsConnected => Router.IsConnected;
 

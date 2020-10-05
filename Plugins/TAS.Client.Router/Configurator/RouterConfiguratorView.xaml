@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TAS.Server.VideoSwitch.Configurator"                          
-             xmlns:main="clr-namespace:TAS.Server.VideoSwitch"
+             xmlns:model="clr-namespace:TAS.Server.VideoSwitch.Model"
+             xmlns:configurator="clr-namespace:TAS.Server.VideoSwitch.Configurator"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance local:RouterConfiguratorViewModel}"
              d:DesignHeight="300" d:DesignWidth="220">
@@ -14,21 +15,10 @@
         <GridLength x:Key="TextBoxColumnSize">50*</GridLength>
     </UserControl.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="auto" />
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         
         <Grid>
@@ -38,252 +28,26 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Margin="0,5" Text="Type: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-            <ComboBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Grid.Column="1" MinWidth="100" ItemsSource="{Binding RouterTypes}" SelectedItem="{Binding SelectedRouterType}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <ComboBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Grid.Column="1" MinWidth="100" ItemsSource="{Binding CommunicatorTypes}" SelectedItem="{Binding SelectedCommunicatorType}" HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{StaticResource TextBlockColumnSize}" />
-                <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
-            </Grid.ColumnDefinitions>
-
-            <TextBlock Margin="0,5" Text="Hostname [IP:port]: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-            <TextBox Margin="0,5" Grid.Column="1" IsEnabled="{Binding IsEnabled}" MinWidth="100" Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        </Grid>
-
-        <Grid Grid.Row="2">
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding RequiresTransitionType}" Value="True">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{StaticResource TextBlockColumnSize}" />
-                <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
-            </Grid.ColumnDefinitions>
-
-            <TextBlock Margin="0,5" Text="TransitionType: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-            <ComboBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Grid.Column="1" MinWidth="100" ItemsSource="{Binding TransitionTypes}" SelectedItem="{Binding SelectedTransitionType}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        </Grid>
-
-        <Grid Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{StaticResource TextBlockColumnSize}" />
-                <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-            </Grid.RowDefinitions>
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding RequiresAuthentication}" Value="True">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
-
-            <TextBlock Margin="0,5" IsEnabled="{Binding IsEnabled}" Text="Login: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-            <TextBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Grid.Column="1" MinWidth="100" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-
-            <TextBlock Margin="0,5" Grid.Row="1" Text="Password: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-            <TextBox Margin="0,5" Grid.Row="1" Grid.Column="1" IsEnabled="{Binding IsEnabled}" MinWidth="100" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        </Grid>
-
-        <Grid Grid.Row="4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{StaticResource TextBlockColumnSize}" />
-                <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
-            </Grid.ColumnDefinitions>
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding RequiresLevel}" Value="True">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
-
-            <TextBlock Margin="0,5" Grid.Row="4" Text="Level: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-            <TextBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Grid.Column="1" MinWidth="100" Text="{Binding Level, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        </Grid>
-
-        <GroupBox Margin="10,0,0,0" Grid.Row="5" MinWidth="150">
-            <GroupBox.Style>
-                <Style TargetType="GroupBox">
-                    <Setter Property="Header" Value="Router ports" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding SelectedRouterType}" Value="{x:Static main:VideoSwitch+VideoSwitchType.Ross}">
-                            <Setter Property="Header" Value="Sources" />
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding SelectedRouterType}" Value="{x:Static main:VideoSwitch+VideoSwitchType.Atem}">
-                            <Setter Property="Header" Value="Sources" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </GroupBox.Style>
-            <StackPanel Orientation="Vertical">
-                <Grid Margin="5">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                    </Grid.RowDefinitions>
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding RequiresPorts}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
-
-                    <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,5" Command="{Binding CommandAddOutputPort}">
-                        <Button.Content>
-                            <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        </Button.Content>
-                    </Button>
-                    <FrameworkElement x:Name="columnVisibilityHelper" Visibility="Collapsed">
-                        <FrameworkElement.Style>
-                            <Style TargetType="FrameworkElement">
-                                <Setter Property="IsEnabled" Value="False" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedRouterType}" Value="{x:Static main:VideoSwitch+VideoSwitchType.Ross}">
-                                        <Setter Property="IsEnabled" Value="True" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </FrameworkElement.Style>
-                    </FrameworkElement>
-                    <DataGrid MinHeight="50" Grid.Row="1" ItemsSource="{Binding Ports}" CanUserAddRows="False" AutoGenerateColumns="False" CanUserDeleteRows="False">
-                        <DataGrid.Style>
-                            <Style TargetType="DataGrid">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RequiresPorts}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </DataGrid.Style>
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Binding="{Binding Id}" Header="ID" />
-                            <DataGridTextColumn Binding="{Binding Name}" Header="Name" Visibility="{Binding IsEnabled, Converter={StaticResource BoolToVisConverter}, Source={x:Reference columnVisibilityHelper}}" />
-                            <DataGridTemplateColumn>
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Button Margin="1,2" Command="{Binding DataContext.CommandDeleteOutputPort, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
-                                            <Button.Content>
-                                                <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                            </Button.Content>
-                                        </Button>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-                <Grid Grid.Row="6">
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding RequiresGpi}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="{StaticResource TextBlockColumnSize}" />
-                        <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
-                        <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Margin="0,5" Text="Gpi signal: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-                    <ComboBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Grid.Column="1" MinWidth="100" ItemsSource="{Binding GpiPorts}" SelectedItem="{Binding SelectedGpiInput}" IsSynchronizedWithCurrentItem="True" DisplayMemberPath="Name" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                    <Button Grid.Column="2" Command="{Binding CommandRefreshSources}" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <Button.Content>
-                            <Image Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        </Button.Content>
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedRouterType}" Value="{x:Static main:VideoSwitch+VideoSwitchType.Atem}">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding SelectedRouterType}" Value="{x:Static main:VideoSwitch+VideoSwitchType.Ross}">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                </Grid>
-            </StackPanel>
-        </GroupBox>
-                
-        <Rectangle Grid.Row="7" Margin="0,10" Height="1" HorizontalAlignment="Stretch" Grid.ColumnSpan="2" VerticalAlignment="Center" Fill="LightGray" />
-
-        <GroupBox Grid.Row="8" Margin="5" Header="Test connection" HorizontalAlignment="Center" Grid.ColumnSpan="2">
-            <Grid Margin="5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto" />
-                    <ColumnDefinition Width="auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="auto" />
-                </Grid.RowDefinitions>
-
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <TextBlock VerticalAlignment="Center">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Text" Value="Disconnected" />
-                                <Setter Property="Foreground" Value="Red" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
-                                        <Setter Property="Text" Value="Connected" />
-                                        <Setter Property="Foreground" Value="Green" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <Button Margin="10,0,0,0" Command="{Binding CommandConnect}">
-                        <Button.Content>
-                            <Image Source="/TAS.Client.Common;component/Images/Config/connect-test.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        </Button.Content>
-                    </Button>
-                    <Button Margin="5,0,0,0" Command="{Binding CommandDisconnect}">
-                        <Button.Content>
-                            <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        </Button.Content>
-                    </Button>
-                </StackPanel>
-
-                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
-                    <TextBlock Text="Input Port" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                    <ComboBox IsEnabled="{Binding IsConnected}" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="80" ItemsSource="{Binding InputPorts}" DisplayMemberPath="PortName" SelectedItem="{Binding SelectedInputPort}" />
-                </StackPanel>
-            </Grid>
-        </GroupBox>
-
-        <Grid Grid.Row="9" Margin="5,10" Grid.ColumnSpan="2">
+        <ContentControl Grid.Row="1" Content="{Binding CommunicatorConfigurator}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type configurator:AtemConfiguratorViewModel}">
+                    <configurator:AtemConfiguratorView />
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type configurator:NevionConfiguratorViewModel}">
+                    <configurator:NevionConfiguratorView />
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type configurator:RossConfiguratorViewModel}">
+                    <configurator:RossConfiguratorView />
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type configurator:BlackmagicConfiguratorViewModel}">
+                    <configurator:BlackmagicConfiguratorView />
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
+        <Grid Grid.Row="2" Margin="5,10" Grid.ColumnSpan="2">
             <Button Command="{Binding CommandSave}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Padding="10,5,10,5">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
@@ -301,5 +65,6 @@
                 </Button.Content>
             </Button>
         </Grid>
+        
     </Grid>
 </UserControl>

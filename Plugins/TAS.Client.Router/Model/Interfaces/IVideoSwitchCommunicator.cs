@@ -1,12 +1,13 @@
-﻿using TAS.Common;
+﻿using System.Threading.Tasks;
+using TAS.Common;
 
 namespace TAS.Server.VideoSwitch.Model.Interfaces
 {
     internal interface IVideoSwitchCommunicator : IRouterCommunicator
     {
-        void PreloadSource();
-        void SetMixEffect(VideoSwitchEffect mixEffect);
-        VideoSwitchEffect DefaultEffect { get; }
-        void Take();
+        Task Preload(int sourceId);     
+        void SetTransitionStyle(VideoSwitcherTransitionStyle mixEffect);
+        void SetMixSpeed(double rate);
+        Task Take();
     }
 }
