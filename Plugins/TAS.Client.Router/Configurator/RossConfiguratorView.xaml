@@ -36,7 +36,11 @@
                 <ColumnDefinition Width="{StaticResource TextBlockColumnSize}" />
                 <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
             </Grid.ColumnDefinitions>
-            <CheckBox Grid.Column="1" IsEnabled="{Binding IsEnabled}" IsChecked="{Binding Preload}" Content="Preload" />
+            <CheckBox Grid.Column="1" IsEnabled="{Binding IsEnabled}" IsChecked="{Binding Preload}" Content="Preload">
+                <CheckBox.ToolTip>
+                    <TextBlock Text="Load source on preset bus if possible" />
+                </CheckBox.ToolTip>
+            </CheckBox>
         </Grid>
         
         <Grid Grid.Row="2">
@@ -91,6 +95,9 @@
                 <Button.Content>
                     <Image Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                 </Button.Content>
+                <Button.ToolTip>
+                    <TextBlock Text="Load sources from table above" />
+                </Button.ToolTip>
             </Button>
         </Grid>
         

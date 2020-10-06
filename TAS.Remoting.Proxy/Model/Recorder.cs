@@ -10,7 +10,8 @@ using TAS.Remoting.Model.Media;
 
 namespace TAS.Remoting.Model
 {
-    public class CasparRecorder : ProxyObjectBase, IRecorder
+    [DtoType(typeof(IRecorder))]
+    public class Recorder : ProxyObjectBase, IRecorder
     {
         #region IRecorder
 

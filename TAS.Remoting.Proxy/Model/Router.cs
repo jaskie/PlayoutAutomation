@@ -3,45 +3,41 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using jNet.RPC;
 using jNet.RPC.Client;
-using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    [DtoClass(nameof(IRouter))]
+    [DtoType(typeof(IRouter))]
     public class Router : ProxyObjectBase, IRouter
     {
 #pragma warning disable CS0649 
 
         [DtoMember(nameof(IRouter.Sources))]
-        private IList<IVideoSwitchPort> _inputPorts;
+        private IList<IVideoSwitchPort> _sources;
 
         [DtoMember(nameof(IRouter.SelectedSource))]
-        private IVideoSwitchPort _selectedInputPort;
+        private IVideoSwitchPort _selectedSource;
 
         [DtoMember(nameof(IRouter.IsConnected))]
         private bool _isConnected;       
 
         [DtoMember(nameof(IRouter.IsEnabled))]
         private bool _isEnabled;
+
         [DtoMember(nameof(IRouter.Preload))]
-        private bool _preload;
-        [DtoMember(nameof(IRouter.DefaultEffect))]
-        private VideoSwitchEffect _defaultEffect;
+        private bool _preload;        
 
 #pragma warning restore
 
-        public IList<IVideoSwitchPort> Sources => _inputPorts;
+        public IList<IVideoSwitchPort> Sources => _sources;
 
-        public IVideoSwitchPort SelectedSource => _selectedInputPort;
+        public IVideoSwitchPort SelectedSource => _selectedSource;
 
         public bool IsConnected => _isConnected;       
 
         public bool IsEnabled { get => _isEnabled; set => Set(value); }
 
-        public bool Preload => _preload;
-
-        public VideoSwitchEffect DefaultEffect => _defaultEffect;
+        public bool Preload => _preload;        
 
         public event EventHandler Started;
 
@@ -55,10 +51,10 @@ namespace TAS.Remoting.Model
             Invoke(parameters: new object[] { inputId });
         }
 
-        public void SetTransitionEffect(VideoSwitchEffect videoSwitchEffect)
-        {
-            Invoke(parameters: new object[] { videoSwitchEffect });
-        }
+        //public void SetTransitionEffect(VideoSwitchEffect videoSwitchEffect)
+        //{
+        //    Invoke(parameters: new object[] { videoSwitchEffect });
+        //}
 
         protected override void OnEventNotification(SocketMessage message) { }
     }

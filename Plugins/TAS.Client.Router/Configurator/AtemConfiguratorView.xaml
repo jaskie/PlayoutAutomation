@@ -35,7 +35,11 @@
                 <ColumnDefinition Width="{StaticResource TextBlockColumnSize}" />
                 <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
             </Grid.ColumnDefinitions>
-            <CheckBox Grid.Column="1" IsEnabled="{Binding IsEnabled}" IsChecked="{Binding Preload}" Content="Preload" />
+            <CheckBox Grid.Column="1" IsEnabled="{Binding IsEnabled}" IsChecked="{Binding Preload}" Content="Preload">
+                <CheckBox.ToolTip>
+                    <TextBlock Text="Load source on preset bus if possible" />
+                </CheckBox.ToolTip>
+            </CheckBox>
         </Grid>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>

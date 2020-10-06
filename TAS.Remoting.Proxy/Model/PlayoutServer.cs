@@ -7,7 +7,7 @@ using TAS.Remoting.Model.Media;
 
 namespace TAS.Remoting.Model
 {
-    [DtoClass(nameof(IPlayoutServer))]
+    [DtoType(typeof(IPlayoutServer))]
     public class PlayoutServer : ProxyObjectBase, IPlayoutServer
     {
         #pragma warning disable CS0649
@@ -18,7 +18,7 @@ namespace TAS.Remoting.Model
         private List<PlayoutServerChannel> _channels;
 
         [DtoMember(nameof(IPlayoutServer.Recorders))]
-        private List<CasparRecorder> _recorders;
+        private List<Recorder> _recorders;
 
         [DtoMember(nameof(IPlayoutServer.IsConnected))]
         private bool _isConnected;

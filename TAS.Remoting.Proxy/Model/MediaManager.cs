@@ -33,7 +33,7 @@ namespace TAS.Remoting.Model
         private ArchiveDirectory _archiveDirectory;
 
         [DtoMember(nameof(IMediaManager.Recorders))]
-        private List<CasparRecorder> _recorders;
+        private List<Recorder> _recorders;
 
         [DtoMember(nameof(IMediaManager.MediaDirectorySEC))]
         private ServerDirectory _mediaDirectorySec;

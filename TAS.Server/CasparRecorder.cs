@@ -15,7 +15,7 @@ using jNet.RPC;
 
 namespace TAS.Server
 {
-
+    [DtoType(typeof(IRecorder))]
     public class CasparRecorder: ServerObjectBase, IRecorder
     {
         private TVideoFormat _tcFormat = TVideoFormat.PAL;

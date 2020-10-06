@@ -36,7 +36,7 @@ namespace TAS.Server.VideoSwitch.Model
             if (!(Communicator is IVideoSwitchCommunicator videoSwitch))
                 return;
 
-            videoSwitch.Preload(sourceId);
+            await videoSwitch.Preload(sourceId);
         }
 
         public void SetTransitionStyle(VideoSwitcherTransitionStyle videoSwitchEffect)
@@ -52,7 +52,7 @@ namespace TAS.Server.VideoSwitch.Model
             if (!(Communicator is IVideoSwitchCommunicator videoSwitch))
                 return;
 
-            videoSwitch.Take();
+            await videoSwitch.Take();
         }        
 
         protected override void Dispose(bool disposing)

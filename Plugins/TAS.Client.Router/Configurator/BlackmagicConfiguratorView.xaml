@@ -39,7 +39,11 @@
                 <ColumnDefinition Width="{StaticResource TextBlockColumnSize}" />
                 <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
             </Grid.ColumnDefinitions>
-            <CheckBox Grid.Column="1" IsEnabled="{Binding IsEnabled}" IsChecked="{Binding Preload}" Content="Preload" />
+            <CheckBox Grid.Column="1" IsEnabled="{Binding IsEnabled}" IsChecked="{Binding Preload}" Content="Preload">
+                <CheckBox.ToolTip>
+                    <TextBlock Text="Load source before next live if possible" />
+                </CheckBox.ToolTip>
+            </CheckBox>
         </Grid>
         <GroupBox Margin="10,0,0,0" Grid.Row="2" Header="Caspar ports" MinWidth="150">
             <StackPanel Orientation="Vertical">

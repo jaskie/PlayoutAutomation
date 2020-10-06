@@ -33,7 +33,7 @@ namespace TAS.Remoting.Model
         private CgElementsController _cGElementsController;
 
         [DtoMember(nameof(IEngine.Router))]
-        private Router _router;
+        private IRouter _router;
 
         [DtoMember(nameof(IEngine.EnableCGElementsForNewEvents))]
         private bool _enableCGElementsForNewEvents;
