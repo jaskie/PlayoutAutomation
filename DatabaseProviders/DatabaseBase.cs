@@ -1265,7 +1265,7 @@ VALUES
                     serverMedia.DoNotArchive = (flags & 0x1) != 0;
                 media.IsProtected = (flags & (1 << 1)) != 0;
                 media.FieldOrderInverted = (flags & (1 << 2)) != 0;
-                media.HaveAlphaChannel = (flags & (1 << 3)) != 0;
+                media.SetHaveAlphaChannel((flags & (1 << 3)) != 0);
                 media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
                 if (media is ITemplated templated)
                 {

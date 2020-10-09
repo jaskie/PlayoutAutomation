@@ -291,6 +291,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        public bool HaveAlphaChannel => Model.HaveAlphaChannel;
+
         public string Error => string.Empty;
         
         public string this[string propertyName]
@@ -453,15 +455,16 @@ namespace TAS.Client.ViewModels
                 IsModified = oldModified;
                 NotifyPropertyChanged(e.PropertyName);
             });
-
-            if (e.PropertyName == nameof(IMedia.MediaStatus))
+            switch (e.PropertyName)
             {
-                NotifyPropertyChanged(e.PropertyName);
-                NotifyPropertyChanged(nameof(IsIngestDataShown));
-            }
-            if (e.PropertyName == nameof(IMedia.MediaGuid))
-            {
-                NotifyPropertyChanged(e.PropertyName);
+                case nameof(IMedia.MediaStatus):
+                    NotifyPropertyChanged(e.PropertyName);
+                    NotifyPropertyChanged(nameof(IsIngestDataShown));
+                    break;
+                case nameof(IMedia.MediaGuid):
+                case nameof(IMedia.HaveAlphaChannel):
+                    NotifyPropertyChanged(e.PropertyName);
+                    break;
             }
         }
 

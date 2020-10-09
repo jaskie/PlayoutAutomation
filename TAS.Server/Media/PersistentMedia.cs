@@ -85,6 +85,11 @@ namespace TAS.Server.Media
 
         public bool IsModified { get; protected set; }
 
+        public void SetHaveAlphaChannel(bool haveAlphaChannel)
+        {
+            HaveAlphaChannel = haveAlphaChannel;
+        }
+
         public override void Verify(bool updateFormatAndDurations)
         {
             base.Verify(updateFormatAndDurations);

@@ -6,5 +6,6 @@
         new string FileName { get; set; }
         void DisableIsModified();
         void EnableIsModified();
+        void SetHaveAlphaChannel(bool haveAlphaChannel);
     }
 }

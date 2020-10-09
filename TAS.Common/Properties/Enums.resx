@@ -238,7 +238,7 @@
     <value>Audio</value>
   </data>
   <data name="TMediaType_Movie" xml:space="preserve">
-    <value>Clip</value>
+    <value>Movie clip</value>
   </data>
   <data name="TMediaType_Still" xml:space="preserve">
     <value>Graphics</value>
