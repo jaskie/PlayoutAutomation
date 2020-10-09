@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
+using TAS.Common.Interfaces;
 using TAS.Server.VideoSwitch.Model;
+using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Communicators
 {
@@ -17,7 +20,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         private TcpClient _tcpClient;
 
         private NetworkStream _stream;
-        private readonly VideoSwitch _router;
+        private readonly Router _router;
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
         private ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>> _responsesQueue =new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
@@ -33,94 +36,16 @@ namespace TAS.Server.VideoSwitch.Communicators
         private string _response;
         private int _disposed;
 
-        public NevionCommunicator(VideoSwitch device)
+        private PortInfo[] _sources;        
+
+        public NevionCommunicator(IRouter device)
         {
-            _router = device;               
+            _router = device as Router;               
         }
 
-        public async Task<bool> Connect()
-        {
-            _cancellationTokenSource = new CancellationTokenSource();
+        
 
-            while (_disposed == default(int))
-            {                
-                _tcpClient = new TcpClient();
-
-                Logger.Debug("Connecting to Nevion...");
-                try
-                {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
-
-                    var connectTask = _tcpClient.ConnectAsync(_router.IpAddress.Split(':')[0], Int32.Parse(_router.IpAddress.Split(':')[1]));
-                    await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
-
-                    if (_tcpClient.Client?.Connected != true)
-                    {
-                        _tcpClient.Close();
-                        continue;
-                    }                        
-
-                    Logger.Debug("Nevion connected!");
-
-                    _requestsQueue = new ConcurrentQueue<string>();
-                    _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
-                    StartRequestQueueHandler();
-                    StartResponseQueueHandler();
-                   
-                    _stream = _tcpClient.GetStream();
-                    StartListener();
-
-                    SignalPresenceWatcher();
-                    InputPortWatcher();
-
-                    Logger.Info("Nevion router connected and ready!");
-
-                    AddToRequestQueue($"login {_router.Login} {_router.Password}");
-                    return true;
-                }
-                
-                catch (Exception ex)
-                {
-                    if (ex is ObjectDisposedException || ex is System.IO.IOException)
-                        Logger.Debug("Network stream closed");
-                    else if (ex is OperationCanceledException)
-                        Logger.Debug("Router connecting canceled");
-                    else
-                        Logger.Error(ex);
-
-                    break;
-                }
-
-            }
-            return false;
-        }         
-
-        public void SelectInput(int inPort)
-        {
-           AddToRequestQueue($"x l{_router.Level} {inPort} {string.Join(",", _router.OutputPorts.Select(param => param.ToString()))}");            
-        }                
-
-        public void Disconnect()
-        {
-            _cancellationTokenSource?.Cancel();
-            _tcpClient?.Close();            
-            OnRouterConnectionStateChanged?.Invoke(this, new EventArgs<bool>(false));
-        }
-
-        public void Dispose()
-        {
-            if (Interlocked.Exchange(ref _disposed, 1) != default(int))
-                return;
-            Disconnect();           
-            Logger.Debug("Nevion communicator disposed");
-        }
-
-        public event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;        
-        public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
-        public event EventHandler<EventArgs<CrosspointInfo>> OnInputPortChangeReceived;
-
-        public async Task<PortInfo[]> GetInputPorts()
+        private async Task<PortInfo[]> GetSources()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
                 return null;
@@ -156,47 +81,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             return null;
         }       
 
-        public async Task<CrosspointInfo> GetCurrentInputPort()
-        {
-            if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
-                return null;
-
-            AddToRequestQueue($"si l{_router.Level} {string.Join(",", _router.OutputPorts)}");
-            while (_disposed == default(int))
-            {
-                try
-                {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
-
-                    if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
-                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
-
-                    if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out response))
-                        continue;
-
-                    return response.Select(line =>
-                    {
-                        var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                        if (lineParams.Length >= 4 && lineParams[0] == "x" &&
-                            lineParams[1] == $"l{_router.Level}" &&
-                            lineParams[3] == _router.OutputPorts[0].ToString() &&
-                            short.TryParse(lineParams[2], out var inPort) &&
-                            short.TryParse(lineParams[3], out var outPort))
-                            return new CrosspointInfo(inPort, outPort);
-                        return null;
-                    }).FirstOrDefault(c => c != null);
-                }
-                catch (Exception ex)
-                {
-                    if (ex is OperationCanceledException)
-                        Logger.Debug("Current Input Port request cancelled");
-
-                    return null;
-                }
-            }
-            return null;
-        }       
+        
 
         private async void StartRequestQueueHandler()
         {
@@ -326,7 +211,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                         var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         return lineParams.Length >= 4 ? new PortState(short.Parse(lineParams[2].Trim('\"')), lineParams[3].Trim('\"') == "p") : null;
                     }).Where(c => c != null).ToArray();
-                    OnRouterPortsStatesReceived?.Invoke(this, new EventArgs<PortState[]>(portsSignal));
+                    ExtendedStatusReceived?.Invoke(this, new EventArgs<PortState[]>(portsSignal));
 
                     await Task.Delay(3000);
                     AddToRequestQueue($"sspi l{_router.Level}");
@@ -375,7 +260,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     if (crosspoints == null)
                         continue;
 
-                    OnInputPortChangeReceived?.Invoke(this, new EventArgs<CrosspointInfo>(crosspoints));
+                    SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(crosspoints));
                 }
                 catch(Exception ex)
                 {
@@ -470,6 +355,143 @@ namespace TAS.Server.VideoSwitch.Communicators
                 _response = _response.Remove(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
                 ProcessCommand(command);
             }
-        }        
+        }
+
+        public event EventHandler<EventArgs<PortState[]>> ExtendedStatusReceived;
+        public event EventHandler<EventArgs<bool>> ConnectionChanged;
+        public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public async Task<bool> ConnectAsync()
+        {
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            while (_disposed == default(int))
+            {
+                _tcpClient = new TcpClient();
+
+                Logger.Debug("Connecting to Nevion...");
+                try
+                {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
+                    var connectTask = _tcpClient.ConnectAsync(_router.IpAddress.Split(':')[0], Int32.Parse(_router.IpAddress.Split(':')[1]));
+                    await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
+
+                    if (_tcpClient.Client?.Connected != true)
+                    {
+                        _tcpClient.Close();
+                        continue;
+                    }
+
+                    Logger.Debug("Nevion connected!");
+
+                    _requestsQueue = new ConcurrentQueue<string>();
+                    _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
+                    StartRequestQueueHandler();
+                    StartResponseQueueHandler();
+
+                    _stream = _tcpClient.GetStream();
+                    StartListener();
+
+                    SignalPresenceWatcher();
+                    InputPortWatcher();
+                    Sources = await GetSources();
+                    Logger.Info("Nevion router connected and ready!");
+
+                    AddToRequestQueue($"login {_router.Login} {_router.Password}");
+                    return true;
+                }
+
+                catch (Exception ex)
+                {
+                    if (ex is ObjectDisposedException || ex is System.IO.IOException)
+                        Logger.Debug("Network stream closed");
+                    else if (ex is OperationCanceledException)
+                        Logger.Debug("Router connecting canceled");
+                    else
+                        Logger.Error(ex);
+
+                    break;
+                }
+
+            }
+            return false;
+        }
+
+        public void SetSource(int inPort)
+        {
+            AddToRequestQueue($"x l{_router.Level} {inPort} {string.Join(",", _router.OutputPorts.Select(param => param.ToString()))}");
+        }
+
+        public void Disconnect()
+        {
+            _cancellationTokenSource?.Cancel();
+            _tcpClient?.Close();
+            ConnectionChanged?.Invoke(this, new EventArgs<bool>(false));
+        }
+
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref _disposed, 1) != default(int))
+                return;
+            Disconnect();
+            Logger.Debug("Nevion communicator disposed");
+        }
+
+        public async Task<CrosspointInfo> GetSelectedSource()
+        {
+            if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
+                return null;
+
+            AddToRequestQueue($"si l{_router.Level} {string.Join(",", _router.OutputPorts)}");
+            while (_disposed == default(int))
+            {
+                try
+                {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
+                    if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
+                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+
+                    if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out response))
+                        continue;
+
+                    return response.Select(line =>
+                    {
+                        var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (lineParams.Length >= 4 && lineParams[0] == "x" &&
+                            lineParams[1] == $"l{_router.Level}" &&
+                            lineParams[3] == _router.OutputPorts[0].ToString() &&
+                            short.TryParse(lineParams[2], out var inPort) &&
+                            short.TryParse(lineParams[3], out var outPort))
+                            return new CrosspointInfo(inPort, outPort);
+                        return null;
+                    }).FirstOrDefault(c => c != null);
+                }
+                catch (Exception ex)
+                {
+                    if (ex is OperationCanceledException)
+                        Logger.Debug("Current Input Port request cancelled");
+
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        public PortInfo[] Sources
+        {
+            get => _sources;
+            set
+            {
+                if (_sources == value)
+                    return;
+                _sources = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sources)));
+            }
+        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TAS.Client.Config.Model;
@@ -40,8 +39,8 @@ namespace TAS.Server.VideoSwitchTests.Configurator
             _routerViewModel.Level = testLevel;
             _routerViewModel.Login = testLogin;
             _routerViewModel.Password = testPassword;
-            _routerViewModel.SelectedRouterType = VideoSwitch.VideoSwitch.VideoSwitchType.BlackmagicSmartVideoHub;
-            _routerViewModel.CommandAddOutputPort.Execute(null);
+            _routerViewModel.SelectedCommunicatorType = VideoSwitch.VideoSwitch.Type.BlackmagicSmartVideoHub;
+            _routerViewModel.CommandAddPort.Execute(null);
 
             _routerViewModel.CommandSave.Execute(null);
 
@@ -52,7 +51,7 @@ namespace TAS.Server.VideoSwitchTests.Configurator
             Assert.AreEqual(result.Level, testLevel);
             Assert.AreEqual(result.Login, testLogin);
             Assert.AreEqual(result.Password, testPassword);
-            Assert.AreEqual(result.Type, VideoSwitch.VideoSwitch.VideoSwitchType.BlackmagicSmartVideoHub);
+            Assert.AreEqual(result.Type, VideoSwitch.VideoSwitch.Type.BlackmagicSmartVideoHub);
         }
        
         [TestMethod]
@@ -65,7 +64,7 @@ namespace TAS.Server.VideoSwitchTests.Configurator
             _routerViewModel.Level = testLevel;
             _routerViewModel.Login = testLogin;
             _routerViewModel.Password = testPassword;
-            _routerViewModel.SelectedRouterType = _routerViewModel.RouterTypes.LastOrDefault();
+            _routerViewModel.SelectedCommunicatorType = _routerViewModel.CommunicatorTypes.LastOrDefault();
 
             _routerViewModel.CommandUndo.Execute(null);            
 
@@ -73,7 +72,9 @@ namespace TAS.Server.VideoSwitchTests.Configurator
             Assert.AreEqual(_routerViewModel.Level, router?.Level ?? 0);
             Assert.AreEqual(_routerViewModel.Login, router?.Login);
             Assert.AreEqual(_routerViewModel.Password, router?.Password);
-            Assert.AreEqual(_routerViewModel.SelectedRouterType ?? _routerViewModel.RouterTypes.FirstOrDefault(), _routerViewModel.RouterTypes.FirstOrDefault(t => t == router?.Type));
+            if (router != null)
+                Assert.AreEqual(_routerViewModel?.SelectedCommunicatorType, router.Type);
+            
         }
 
         [TestMethod]
@@ -81,14 +82,14 @@ namespace TAS.Server.VideoSwitchTests.Configurator
         public void IsEnabled_Changed(VideoSwitch.VideoSwitch router)
         {
             Init(router);
-            if (router == null)
-                return;
+            if (router != null)
+                Assert.AreEqual(_routerViewModel.IsEnabled, router.IsEnabled);
 
-            Assert.AreEqual(_routerViewModel.IsEnabled, router.IsEnabled);
+
             _routerViewModel.IsEnabled = true;
-            Assert.IsTrue(router.IsEnabled);
+            Assert.IsTrue(_routerViewModel.IsEnabled && ((VideoSwitch.VideoSwitch)_routerViewModel.GetModel()).IsEnabled);
             _routerViewModel.IsEnabled = false;
-            Assert.IsFalse(router.IsEnabled);
+            Assert.IsFalse(_routerViewModel.IsEnabled || ((VideoSwitch.VideoSwitch)_routerViewModel.GetModel()).IsEnabled);
         }
 
         [TestMethod]
@@ -103,7 +104,7 @@ namespace TAS.Server.VideoSwitchTests.Configurator
             Assert.IsFalse(_routerViewModel.IsModified);
            
             _routerViewModel.IsModified = false;
-            _routerViewModel.CommandAddOutputPort.Execute(null);
+            _routerViewModel.CommandAddPort.Execute(null);
             Assert.IsTrue(_routerViewModel.IsModified);
 
             _routerViewModel.IsModified = false;
@@ -123,7 +124,7 @@ namespace TAS.Server.VideoSwitchTests.Configurator
             Assert.IsTrue(_routerViewModel.IsModified);
 
             _routerViewModel.IsModified = false;
-            _routerViewModel.SelectedRouterType = _routerViewModel.RouterTypes.FirstOrDefault(t => t != router?.Type);
+            _routerViewModel.SelectedCommunicatorType = _routerViewModel.CommunicatorTypes.FirstOrDefault(t => t != router?.Type);
             Assert.IsTrue(_routerViewModel.IsModified);
         }
     }

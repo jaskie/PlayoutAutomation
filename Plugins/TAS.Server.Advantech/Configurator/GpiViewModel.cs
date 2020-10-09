@@ -1,15 +1,12 @@
-﻿using NLog;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server.Advantech.Configurator
-{
-    [Export(typeof(IPluginConfigurator))]
+{    
     public class GpiViewModel : ModifyableViewModelBase, IPluginConfigurator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -23,7 +20,7 @@ namespace TAS.Server.Advantech.Configurator
         {            
             AddGpiBindingCommand = new UiCommand(AddGpiBinding, CanAddGpiBinding);
             DeleteGpiBindingCommand = new UiCommand(DeleteGpiBinding);
-            SaveCommand = new UiCommand(LocalSave, CanLocalSave);
+            SaveCommand = new UiCommand(UpdateModel, CanLocalSave);
             UndoCommand = new UiCommand(Undo, CanUndo);
             GpiBindings = CollectionViewSource.GetDefaultView(_gpiBindings);
         }        
@@ -103,7 +100,7 @@ namespace TAS.Server.Advantech.Configurator
            
         }
 
-        private void LocalSave(object obj)
+        private void UpdateModel(object obj = null)
         {
             _gpi = new Model.Gpi()
             {
@@ -134,10 +131,14 @@ namespace TAS.Server.Advantech.Configurator
                 _isEnabled = value;
 
                 if (_gpi != null)
+                {
                     _gpi.IsEnabled = value;
-
-                NotifyPropertyChanged();
-                PluginChanged?.Invoke(this, EventArgs.Empty);
+                    PluginChanged?.Invoke(this, EventArgs.Empty);
+                }
+                else
+                    UpdateModel();
+                    
+                NotifyPropertyChanged();                
             }
         }
 

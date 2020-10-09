@@ -10,6 +10,7 @@ namespace TAS.Server.AdvantechTests
     {
         public static List<Gpi> Gpis = new List<Gpi>
         {
+            null,
             new Gpi
             {                
                 Bindings = new ObservableCollection<GpiBinding>

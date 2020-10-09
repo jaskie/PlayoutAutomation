@@ -1,97 +1,52 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
+using TAS.Common.Interfaces;
 using TAS.Server.VideoSwitch.Model;
+using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Communicators
-{
+{   
     public class RossCommunicator : IVideoSwitchCommunicator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public event EventHandler<EventArgs<CrosspointInfo>> OnInputPortChangeReceived;
+        public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
         
         //Ross does not have API for sources download.
-        public event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;
+        public event EventHandler<EventArgs<PortState[]>> ExtendedStatusReceived;
         
-        public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
+        public event EventHandler<EventArgs<bool>> ConnectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private TcpClient _tcpClient;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private int _disposed;
-        private VideoSwitch _mc;
+        private VideoSwitcher _mc;
         private bool _transitionTypeChanged;
+        private bool _takeExecuting;
+
+        private readonly object _syncObject = new object();
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();        
         private readonly ConcurrentDictionary<ListTypeEnum, int> _responseDictionary = new ConcurrentDictionary<ListTypeEnum, int>();
         private readonly Dictionary<ListTypeEnum, SemaphoreSlim> _semaphores = Enum.GetValues(typeof(ListTypeEnum)).Cast<ListTypeEnum>().ToDictionary(t => t, t => new SemaphoreSlim(t == ListTypeEnum.CrosspointStatus ? 1 : 0));
 
-        private readonly SemaphoreSlim _requestQueueSemaphore = new SemaphoreSlim(0);
-        private readonly SemaphoreSlim _responsesQueueSemaphore = new SemaphoreSlim(0);        
+        private readonly SemaphoreSlim _requestQueueSemaphore = new SemaphoreSlim(0);        
+        private readonly SemaphoreSlim _waitForTransitionEndSemaphore = new SemaphoreSlim(0);
 
-        public RossCommunicator(VideoSwitch videoSwitch)
+        private PortInfo[] _sources;        
+
+        public RossCommunicator(IRouter videoSwitch)
         {
-            _mc = videoSwitch;
-        }
-
-        public async Task<bool> Connect()
-        {
-            _disposed = default(int);
-            _cancellationTokenSource = new CancellationTokenSource();
-
-            while (true)
-            {
-                _tcpClient = new TcpClient();
-
-                Logger.Debug("Connecting to Ross...");
-                try
-                {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
-
-                    var connectTask = _tcpClient.ConnectAsync(_mc.IpAddress.Split(':')[0], Int32.Parse(_mc.IpAddress.Split(':')[1]));
-                    await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
-
-                    if (!_tcpClient.Connected)
-                    {
-                        _tcpClient.Close();
-                        continue;
-                    }
-
-                    Logger.Debug("Blackmagic connected!");
-
-                    _requestsQueue = new ConcurrentQueue<string>();
-                    
-                    StartRequestQueueHandler();                                        
-                    StartListener();
-                    ConnectionWatcher();
-
-                    SetTransitionEffect(_mc.DefaultEffect);
-                    _transitionTypeChanged = false;
-
-                    Logger.Info("Blackmagic router connected and ready!");
-
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    if (ex is ObjectDisposedException || ex is System.IO.IOException)
-                        Logger.Debug("Network stream closed");
-                    else if (ex is OperationCanceledException)
-                        Logger.Debug("Router connecting canceled");
-                    else
-                        Logger.Error(ex);
-
-                    break;
-                }
-            }
-            return false;
-        }
+            _mc = videoSwitch as VideoSwitcher;
+        }        
 
         private async void StartRequestQueueHandler()
         {
@@ -122,7 +77,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                         }                        
 
                         await _tcpClient.GetStream().WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
-                        Logger.Debug($"Blackmagic message sent: {request}");
+                        Logger.Debug($"Ross message sent: {request}");
                     }
                 }
             }
@@ -161,7 +116,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                                     semaphoreStatus.Release();                                                                        
                                 }
                                 
-                                OnInputPortChangeReceived?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo(inPort, -1)));
+                                SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo(inPort, -1)));
                                 return;
                             }
                         }
@@ -173,7 +128,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     //Tally extended message formula
                     else if (byte.TryParse(message[3], out var aa) && byte.TryParse(message[4], out var bb))
                     {
-                        OnInputPortChangeReceived?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo((short)((bb & 0x7F) | ((aa & 0x7F) << 7)), -1)));
+                        SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo((short)((bb & 0x7F) | ((aa & 0x7F) << 7)), -1)));
                         return;
                     }
                     break;
@@ -184,6 +139,14 @@ namespace TAS.Server.VideoSwitch.Communicators
                         semaphore.Release();
 
                     Logger.Trace("Ross ping successful");
+                    break;
+
+                case "4F":
+                    lock (_syncObject)
+                    {
+                        _takeExecuting = false;
+                        _waitForTransitionEndSemaphore.Release();
+                    }                    
                     break;
             }
         }
@@ -287,7 +250,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         {
             _cancellationTokenSource?.Cancel();
             _tcpClient?.Close();
-            OnRouterConnectionStateChanged?.Invoke(this, new EventArgs<bool>(false));
+            ConnectionChanged?.Invoke(this, new EventArgs<bool>(false));
         }
 
         public void Dispose()
@@ -298,7 +261,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             Logger.Debug("Ross communicator disposed");
         }
 
-        public async Task<CrosspointInfo> GetCurrentInputPort()
+        public async Task<CrosspointInfo> GetSelectedSource()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
                 return null;
@@ -332,13 +295,13 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        public async Task<PortInfo[]> GetInputPorts()
+        public async Task<PortInfo[]> GetSources()
         {
             return await Task.Run(() =>             
             {
                 var portInfos = new List<PortInfo>();
 
-                foreach (var port in _mc.InputPorts)
+                foreach (var port in _mc.Sources)
                 {
                     portInfos.Add(new PortInfo(port.PortId, port.PortName));
                 }
@@ -355,34 +318,157 @@ namespace TAS.Server.VideoSwitch.Communicators
             return BitConverter.ToString(new byte[] { 127, (byte)((b >> 7) & 0x7F), (byte)(b & 0x7F) });
         }
 
-        public void SelectInput(int inPort)
+        public async void SetSource(int inPort)
         {
+            while (_takeExecuting)
+            {
+                Logger.Trace("Waiting Program");
+                await _waitForTransitionEndSemaphore.WaitAsync();
+            }
+
             AddToRequestQueue($"FF 09 {SerializeInputIndex(inPort)}");
-            
+
+            if (_waitForTransitionEndSemaphore.CurrentCount == 0)
+                _waitForTransitionEndSemaphore.Release();
+
             if (!_transitionTypeChanged)
-                return;
-            SetTransitionEffect(_mc.DefaultEffect);
+                return;            
+            SetTransitionStyle(_mc.DefaultEffect);
             _transitionTypeChanged = false;
         }
 
-        public void SetTransitionEffect(VideoSwitchEffect videoSwitchEffect)
+        public async Task<bool> ConnectAsync()
+        {
+            _disposed = default(int);
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            while (true)
+            {
+                _tcpClient = new TcpClient();
+
+                Logger.Debug("Connecting to Ross...");
+                try
+                {
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+
+                    var connectTask = _tcpClient.ConnectAsync(_mc.IpAddress.Split(':')[0], Int32.Parse(_mc.IpAddress.Split(':')[1]));
+                    await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
+
+                    if (!_tcpClient.Connected)
+                    {
+                        _tcpClient.Close();
+                        continue;
+                    }
+
+                    Logger.Debug("Ross connected!");
+
+                    _requestsQueue = new ConcurrentQueue<string>();
+
+                    StartRequestQueueHandler();
+                    StartListener();
+                    ConnectionWatcher();
+
+                    SetTransitionStyle(_mc.DefaultEffect);
+                    _transitionTypeChanged = false;
+
+                    Logger.Info("Ross router connected and ready!");
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    if (ex is ObjectDisposedException || ex is System.IO.IOException)
+                        Logger.Debug("Network stream closed");
+                    else if (ex is OperationCanceledException)
+                        Logger.Debug("Router connecting canceled");
+                    else
+                        Logger.Error(ex);
+
+                    break;
+                }
+            }
+            return false;
+        }
+
+        public void SetTransitionStyle(VideoSwitcherTransitionStyle videoSwitchEffect)
         {
             switch(videoSwitchEffect)
             {
-                case VideoSwitchEffect.Cut:
-                    AddToRequestQueue($"FF 01 05");
-                    break;
-                case VideoSwitchEffect.Fade:
+                case VideoSwitcherTransitionStyle.VFade:
                     AddToRequestQueue($"FF 01 01");
                     break;
-                case VideoSwitchEffect.Mix:
+                case VideoSwitcherTransitionStyle.FadeAndTake:
+                    AddToRequestQueue($"FF 01 02");
+                    break;
+                case VideoSwitcherTransitionStyle.Mix:
                     AddToRequestQueue($"FF 01 03");
                     break;
+                case VideoSwitcherTransitionStyle.TakeAndFade:
+                    AddToRequestQueue($"FF 01 04");
+                    break;
+                case VideoSwitcherTransitionStyle.Cut:
+                    AddToRequestQueue($"FF 01 05");
+                    break;
+                case VideoSwitcherTransitionStyle.WipeLeft:
+                    AddToRequestQueue($"FF 01 06");
+                    break;
+                case VideoSwitcherTransitionStyle.WipeTop:
+                    AddToRequestQueue($"FF 01 07");
+                    break;
+                case VideoSwitcherTransitionStyle.WipeReverseLeft:
+                    AddToRequestQueue($"FF 01 10");
+                    break;
+                case VideoSwitcherTransitionStyle.WipeReverseTop:
+                    AddToRequestQueue($"FF 01 11");
+                    break;
+
                 default:
                     return;
             }
 
             _transitionTypeChanged = true;
         }
+
+        public async Task Preload(int sourceId)
+        {
+            while (_takeExecuting)
+            {
+                Logger.Trace("Waiting Preload");
+                await _waitForTransitionEndSemaphore.WaitAsync();
+            }
+
+            Logger.Trace("Setting preview {0}", sourceId);
+            AddToRequestQueue($"FF 0B {SerializeInputIndex(sourceId)}");
+
+            if (_waitForTransitionEndSemaphore.CurrentCount == 0)
+                _waitForTransitionEndSemaphore.Release();
+        }
+       
+        public void SetMixSpeed(double rate)
+        {
+            AddToRequestQueue($"FF 03 {rate}");
+        }
+
+        public async Task Take()
+        {
+            lock (_syncObject)            
+                _takeExecuting = true;
+
+            Logger.Trace("Executing take");
+            AddToRequestQueue("FF 0F");
+        }
+
+        public PortInfo[] Sources
+        {
+            get => _sources;
+            set
+            {
+                if (value == _sources)
+                    return;
+                _sources = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sources)));
+            }
+        }       
     }
 }

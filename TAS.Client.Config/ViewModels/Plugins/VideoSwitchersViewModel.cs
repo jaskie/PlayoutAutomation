@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
-using System.IO;
 using System.Linq;
 using System.Windows.Data;
 using TAS.Client.Common;
@@ -13,38 +10,30 @@ using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {
-    public class RoutersViewModel : ViewModelBase, IPluginManager
+    public class VideoSwitchersViewModel : ViewModelBase, IPluginManager
     {
         private IConfigEngine _engine;
         public event EventHandler PluginChanged;
 
-        private List<IPluginConfigurator> _configurators = new List<IPluginConfigurator>();
+        private IList<IPluginConfigurator> _configurators = new List<IPluginConfigurator>();
         private IPluginConfigurator _selectedConfigurator;
 
         private bool? _isEnabled;
 
-        public RoutersViewModel(IConfigEngine engine)
+        public VideoSwitchersViewModel(IConfigEngine engine)
         {
             _engine = engine;
-            Configurators = CollectionViewSource.GetDefaultView(_configurators);
 
-            using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), PluginsViewModel.FileNameSearchPattern))
+            foreach (var plugin in ConfigurationPluginManager.Current.VideoSwitchers)
             {
-                using (var container = new CompositionContainer(catalog))
-                {
-                    container.ComposeExportedValue("Engine", _engine);
-                    var pluginConfigurators = container.GetExportedValues<IPluginConfigurator>().Where(configurator => configurator.GetModel() is IVideoSwitch);
-
-                    foreach (var pluginConfigurator in pluginConfigurators)
-                    {
-                        pluginConfigurator.PluginChanged += PluginConfigurator_PluginChanged;
-                        pluginConfigurator.Initialize(_engine.Router);
-                        _configurators.Add(pluginConfigurator);
-                    }
-                    
-                    SelectedConfigurator = _configurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.Router?.GetType());
-                }
+                var configuratorVm = plugin.GetConfiguratorViewModel();
+                configuratorVm.PluginChanged += PluginConfigurator_PluginChanged;
+                configuratorVm.Initialize(_engine.Router);
+                _configurators.Add(configuratorVm);
             }
+
+            Configurators = CollectionViewSource.GetDefaultView(_configurators);
+            SelectedConfigurator = _configurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.Router?.GetType()) ?? _configurators.First();              
         }
 
         private void PluginConfigurator_PluginChanged(object sender, EventArgs e)
@@ -84,9 +73,9 @@ namespace TAS.Client.Config.ViewModels.Plugins
             }
         }
 
-        public string Name => _selectedConfigurator.PluginName;
+        public string Name => _selectedConfigurator?.PluginName;
 
-        public IVideoSwitch Router => (IVideoSwitch)_selectedConfigurator.GetModel();
+        public IRouter Router => (IRouter)_selectedConfigurator.GetModel();
 
         protected override void OnDispose()
         {

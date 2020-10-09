@@ -33,7 +33,7 @@ namespace TAS.Remoting.Model
         private CgElementsController _cGElementsController;
 
         [DtoMember(nameof(IEngine.Router))]
-        private VideoSwitch _router;
+        private IRouter _router;
 
         [DtoMember(nameof(IEngine.EnableCGElementsForNewEvents))]
         private bool _enableCGElementsForNewEvents;
@@ -117,7 +117,7 @@ namespace TAS.Remoting.Model
 
         public ICGElementsController CGElementsController => _cGElementsController;
 
-        public IVideoSwitch Router => _router;
+        public IRouter Router => _router;
 
         public bool EnableCGElementsForNewEvents
         {

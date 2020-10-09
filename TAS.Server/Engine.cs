@@ -145,7 +145,7 @@ namespace TAS.Server
         public ICGElementsController CGElementsController { get; set; }        
 
         [DtoMember, Hibernate]
-        public IVideoSwitch Router { get; set; }
+        public IRouter Router { get; set; }
 
         [Hibernate]
         public ServerHost Remote { get; set; }
@@ -948,6 +948,51 @@ namespace TAS.Server
             }
         }
 
+        private async void SetupRouter(Event aEvent, bool isLoadedForPlaying)
+        {
+            if (Router == null)
+                return;
+
+            if (isLoadedForPlaying)
+            {
+                if (aEvent.EventType == TEventType.Live && _playing != null && Router is IVideoSwitcher videoSwitcher && videoSwitcher.Preload)
+                {
+                    Logger.Trace("Engine: executing take");
+                    await videoSwitcher.Take();
+                }
+                    
+
+                else if (aEvent.EventType == TEventType.Live && _playing?.RouterPort != aEvent.RouterPort)
+                    Router.SetSource(aEvent.RouterPort);
+            }
+            else
+            {
+                if ((_playing?.EventType != TEventType.Live || _playing == null) && aEvent.EventType == TEventType.Live)
+                    Router.SetSource(aEvent.RouterPort);
+            }
+
+            if (!Router.Preload)
+                return;
+
+            var successor = aEvent.InternalGetSuccessor();
+            if (successor?.EventType == TEventType.Live && Router is IVideoSwitcher vSwitcher)
+            {
+                if (successor.RouterPort < 0)
+                    return;
+                
+                Logger.Trace("Engine: preloading source");
+                await vSwitcher.PreloadSource(successor.RouterPort);
+            }
+            else if (aEvent.EventType != TEventType.Live && successor?.EventType == TEventType.Live && !(Router is IVideoSwitcher))
+            {
+                if (successor.RouterPort < 0)
+                    return;
+
+                Logger.Trace("Engine: preloading source");
+                Router.SetSource(successor.RouterPort);
+            }                   
+        }
+
         private void _load(Event aEvent)
         {
             if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
@@ -957,8 +1002,7 @@ namespace TAS.Server
             Logger.Info("{0} {1}: Load {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
             var eventType = aEvent.EventType;
 
-            if (eventType == TEventType.Live)
-                Router?.SelectInput(aEvent.RouterPort);
+            SetupRouter(aEvent, false);            
 
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
@@ -991,11 +1035,11 @@ namespace TAS.Server
                 _preloadedEvents[aEvent.Layer] = aEvent;
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
-
-                if (Router != null && eventType == TEventType.Live && _playing?.EventType != TEventType.Live && Router.Preload)
-                    Router.SelectInput(aEvent.RouterPort);
-
-                if (!aEvent.IsHold
+                
+                if (_playing.EventType != TEventType.Live && eventType == TEventType.Live && !(Router is IVideoSwitcher) && Router.Preload && Router.SelectedSource?.PortId != aEvent.RouterPort)
+                    Router.SetSource(aEvent.RouterPort);
+                                
+                    if (!aEvent.IsHold
                     && CGElementsController?.IsConnected == true
                     && CGElementsController.IsCGEnabled
                     && CGStartDelay < 0)
@@ -1052,8 +1096,7 @@ namespace TAS.Server
                 if (aEvent.RecordingInfo != null)
                     _eventRecorder.StartCapture(aEvent);
 
-                if (Router != null && eventType == TEventType.Live && _playing?.RouterPort != aEvent.RouterPort)
-                    Router.SelectInput(aEvent.RouterPort);
+                SetupRouter(aEvent, true);                                 
 
                 _playoutChannelPRI?.Play(aEvent);
                 _playoutChannelSEC?.Play(aEvent);

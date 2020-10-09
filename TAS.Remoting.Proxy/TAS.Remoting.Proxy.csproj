@@ -96,7 +96,6 @@
     <Compile Include="Model\PlayoutServerChannel.cs" />
     <Compile Include="Model\Preview.cs" />
     <Compile Include="Model\Recorder.cs" />
-    <Compile Include="Model\VideoSwitch.cs" />
     <Compile Include="Model\RouterPort.cs" />
     <Compile Include="Model\SearchProvider.cs" />
     <Compile Include="Model\Security\AuthenticationService.cs" />
@@ -108,6 +107,7 @@
     <Compile Include="Model\Media\ServerDirectory.cs" />
     <Compile Include="Model\Media\ServerMedia.cs" />
     <Compile Include="Model\Media\WatcherDirectory.cs" />
+    <Compile Include="Model\VideoSwitcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\Media\XdcamMedia.cs" />
   </ItemGroup>

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Windows.Data;
@@ -11,8 +10,7 @@ using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Server.CgElementsController.Configurator
-{    
-    [Export(typeof(IPluginConfigurator))]
+{       
     public class CgElementsControllerViewModel : ModifyableViewModelBase, IPluginConfigurator
     {                
         private readonly IConfigEngine _engine;
@@ -35,9 +33,8 @@ namespace TAS.Server.CgElementsController.Configurator
         private Model.CgElement _newElement;
 
         public event EventHandler PluginChanged;
-
-        [ImportingConstructor]
-        public CgElementsControllerViewModel([Import("Engine")]IConfigEngine engine)
+        
+        public CgElementsControllerViewModel(IConfigEngine engine)
         {
             _engine = engine;
             LoadCommands();
@@ -58,7 +55,7 @@ namespace TAS.Server.CgElementsController.Configurator
             MoveStartupUpCommand = new UiCommand(MoveStartupUp, CanMoveStartupUp);
             MoveStartupDownCommand = new UiCommand(MoveStartupDown, CanMoveStartupDown);            
             DeleteStartupCommand = new UiCommand(DeleteStartup);
-            SaveCommand = new UiCommand(LocalSave, CanSave);
+            SaveCommand = new UiCommand(UpdateModel, CanSave);
             UndoCommand = new UiCommand(Undo, CanUndo);
         }
 
@@ -315,7 +312,7 @@ namespace TAS.Server.CgElementsController.Configurator
             }            
         }
 
-        private void LocalSave(object obj)
+        private void UpdateModel(object obj = null)
         {
             if (_cgElementsController == null)
                 _cgElementsController = new Model.CgElementsController();            
@@ -348,13 +345,15 @@ namespace TAS.Server.CgElementsController.Configurator
                         Crawls.Refresh();
                     else if (_newElement.CgType == Model.CgElement.Type.Logo)
                         Logos.Refresh();
-                    _newElement = null;
-                    IsModified = true;
                 }
+
+                IsModified = true;
             }
 
+            _newElement = null;
             CgElementViewModel = null;
             CgElements.Refresh();
+            
         }
 
         public OkCancelViewModelBase CgElementViewModel
@@ -440,11 +439,15 @@ namespace TAS.Server.CgElementsController.Configurator
                     return;
                 _isEnabled = value;
 
-                if (_cgElementsController != null)                     
+                if (_cgElementsController != null)
+                {
                     _cgElementsController.IsEnabled = value;
+                    PluginChanged?.Invoke(this, EventArgs.Empty);
+                }                    
+                else                
+                    UpdateModel();                                                    
 
-                NotifyPropertyChanged();
-                PluginChanged?.Invoke(this, EventArgs.Empty);
+                NotifyPropertyChanged();                
             }
         }
 

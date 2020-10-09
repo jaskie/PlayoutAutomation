@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using TAS.Common.Interfaces;
 using TAS.Database.Common;
 using TAS.Server.Advantech.Model;
 
 namespace TAS.Server.Advantech
-{    
-    [Export(typeof(IPlugin))]
+{        
     public class Gpi : GpiBase, IGpi, IPlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        
-        [Export(typeof(List<GpiBinding>))]
+                
         private List<GpiBinding> _bindings = new List<GpiBinding>();     
                              
         [Hibernate]

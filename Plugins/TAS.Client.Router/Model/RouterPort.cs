@@ -3,7 +3,7 @@ using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using TAS.Database.Common;
 
-namespace TAS.Server
+namespace TAS.Server.VideoSwitch.Model
 {
     public class RouterPort : ServerObjectBase, IVideoSwitchPort
     {

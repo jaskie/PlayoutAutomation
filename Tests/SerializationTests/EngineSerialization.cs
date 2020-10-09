@@ -1,11 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Configuration;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using TAS.Client.Config;
 using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common;
@@ -45,18 +48,29 @@ namespace SerializationTests
         [ClassInitialize]
         public static void TestInitialize(TestContext testContext)
         {
-            string pluginsPath = "../../../../TVPlay/bin/Debug/";
+            string programPath = "../../../../TVPlay/bin/Debug/";
 #if RELEASE
             pluginsPath = "../../../../TVPlay/bin/Release/";
 #endif
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            config.Sections.Clear();
 
-            Directory.SetCurrentDirectory(pluginsPath);
+            Directory.SetCurrentDirectory(programPath);            
+            var prodConfig = ConfigurationManager.OpenExeConfiguration("TVPlay.exe");                                    
 
-            //ConfigurationManager.AppSettings["DatabaseType"] = "MySQL";
-            //var section = (ConnectionStringsSection)ConfigurationManager.GetSection("connectionStrings");
-            ////var connectionSettings = new ConnectionStringSettingsCollection();
-            ////connectionSettings.Add(new ConnectionStringSettings("tasConnectionString", "server = localhost; database = tas2; user id = root; keepalive = 300; characterset = utf8; password = haslo; sslmode = Prefered; port = 3306"));
-            //section.ConnectionStrings.Add(new ConnectionStringSettings("tasConnectionString", "server = localhost; database = tas2; user id = root; keepalive = 300; characterset = utf8; password = haslo; sslmode = Prefered; port = 3306"));
+            foreach (var key in prodConfig.AppSettings.Settings.AllKeys)                
+                config.AppSettings.Settings.Add(key, prodConfig.AppSettings.Settings[key].Value);
+
+            for (int i = 0; i < prodConfig.ConnectionStrings.ConnectionStrings.Count; ++i)            
+                config.ConnectionStrings.ConnectionStrings.Add(prodConfig.ConnectionStrings.ConnectionStrings[i]);
+
+            Directory.SetCurrentDirectory(Directory.GetParent(Assembly.GetCallingAssembly().Location).FullName);
+            config.Save();                      
+
+            ConfigurationManager.RefreshSection("appSettings");
+            ConfigurationManager.RefreshSection("connectionStrings");
+            
+            Directory.SetCurrentDirectory(programPath);
         }
 
         [TestMethod]

@@ -1053,7 +1053,7 @@ namespace TAS.Client.ViewModels
 
         public IVideoPreview VideoPreview { get; }
 
-        public IVideoSwitch Router { get; }
+        public IRouter Router { get; }
 
         public bool IsAnyPluginVisible => _plugins != null && _plugins.Any(p => p.Menu != null);
 

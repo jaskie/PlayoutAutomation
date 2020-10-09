@@ -1,0 +1,150 @@
+﻿<UserControl x:Class="TAS.Server.VideoSwitch.Configurator.NevionConfiguratorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="250">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+        <GridLength x:Key="TextBlockColumnSize">50*</GridLength>
+        <GridLength x:Key="TextBoxColumnSize">50*</GridLength>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{StaticResource TextBlockColumnSize}" />
+                <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Margin="0,5" Text="Hostname [IP:port]: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+            <TextBox Margin="0,5" Grid.Column="1" IsEnabled="{Binding IsEnabled}" MinWidth="100" Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{StaticResource TextBlockColumnSize}" />
+                <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
+            </Grid.ColumnDefinitions>
+            <CheckBox Grid.Column="1" IsEnabled="{Binding IsEnabled}" IsChecked="{Binding Preload}" Content="Preload">
+                <CheckBox.ToolTip>
+                    <TextBlock Text="Load source before next live if possible" />
+                </CheckBox.ToolTip>
+            </CheckBox>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{StaticResource TextBlockColumnSize}" />
+                <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Margin="0,5" IsEnabled="{Binding IsEnabled}" Text="Login: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+            <TextBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Grid.Column="1" MinWidth="100" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+
+            <TextBlock Margin="0,5" Grid.Row="1" Text="Password: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+            <TextBox Margin="0,5" Grid.Row="1" Grid.Column="1" IsEnabled="{Binding IsEnabled}" MinWidth="100" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        </Grid>
+
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{StaticResource TextBlockColumnSize}" />
+                <ColumnDefinition Width="{StaticResource TextBoxColumnSize}" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Margin="0,5" Grid.Row="4" Text="Level: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+            <TextBox Margin="0,5" IsEnabled="{Binding IsEnabled}" Grid.Column="1" MinWidth="100" Text="{Binding Level, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        </Grid>
+
+        <GroupBox Margin="10,0,0,0" Grid.Row="4" Header="Caspar ports" MinWidth="150">
+            <StackPanel Orientation="Vertical">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+
+                    <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,5" Command="{Binding CommandAddPort}">
+                        <Button.Content>
+                            <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        </Button.Content>
+                    </Button>
+
+                    <DataGrid MinHeight="50" Grid.Row="1" ItemsSource="{Binding Ports}" CanUserAddRows="False" AutoGenerateColumns="False" CanUserDeleteRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Id}" Header="ID" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </StackPanel>
+        </GroupBox>
+
+        <Rectangle Grid.Row="5" Margin="0,10" Height="1" HorizontalAlignment="Stretch" Grid.ColumnSpan="2" VerticalAlignment="Center" Fill="LightGray" />
+
+        <GroupBox Grid.Row="6" Margin="5" Header="Test connection" HorizontalAlignment="Center" Grid.ColumnSpan="2">
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="Disconnected" />
+                                <Setter Property="Foreground" Value="Red" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                        <Setter Property="Text" Value="Connected" />
+                                        <Setter Property="Foreground" Value="Green" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <Button Margin="10,0,0,0" Command="{Binding CommandConnect}">
+                        <Button.Content>
+                            <Image Source="/TAS.Client.Common;component/Images/Config/connect-test.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        </Button.Content>
+                    </Button>
+                    <Button Margin="5,0,0,0" Command="{Binding CommandDisconnect}">
+                        <Button.Content>
+                            <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock Text="Input Port" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                    <ComboBox IsEnabled="{Binding IsConnected}" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="80" ItemsSource="{Binding TestSources}" DisplayMemberPath="PortName" SelectedItem="{Binding SelectedTestSource}" />
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

@@ -108,7 +108,7 @@
     <Compile Include="Model\IPluginManager.cs" />
     <Compile Include="ViewModels\Plugins\CgElementsControllersViewModel.cs" />
     <Compile Include="ViewModels\Plugins\GpisViewModel.cs" />
-    <Compile Include="ViewModels\Plugins\RoutersViewModel.cs" />
+    <Compile Include="ViewModels\Plugins\VideoSwitchersViewModel.cs" />
     <Compile Include="Views\ConfigFile\ConfigFileView.xaml.cs">
       <DependentUpon>ConfigFileView.xaml</DependentUpon>
     </Compile>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
 using System.Windows;
@@ -19,7 +20,7 @@ namespace TAS.Client
         internal bool IsShutdown { get; private set; }
 
         public App()
-        {
+        {            
             new SplashScreenView().Show();
 
             #region hacks
@@ -29,7 +30,7 @@ namespace TAS.Client
             var uiCulture = ConfigurationManager.AppSettings["UiLanguage"];
             CultureManager.UICulture = string.IsNullOrWhiteSpace(uiCulture) ? System.Globalization.CultureInfo.CurrentUICulture : new System.Globalization.CultureInfo(uiCulture);
             ShutdownMode = ShutdownMode.OnMainWindowClose;
-        }
+        }       
 
         protected override void OnExit(ExitEventArgs e)
         {

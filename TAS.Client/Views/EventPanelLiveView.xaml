@@ -78,12 +78,13 @@
                     <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" ToolTip="{Resx _endTime.ToolTip}"/>
                     <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" Style="{StaticResource EventPanelImage}"/>
                 </StackPanel>
-                <StackPanel Grid.Column="3" Grid.Row="0" VerticalAlignment="Center" >
+                <StackPanel Grid.Column="3" Grid.Row="0" VerticalAlignment="Center">
                     <TextBlock Text="{Binding EventName}" FontSize="20" Style="{StaticResource EventPanelTextBlock}" >
                         <TextBlock.ToolTip>
                             <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
                         </TextBlock.ToolTip>
                     </TextBlock>
+                    <TextBlock Text="{Binding VideoSwitchPortName}" FontSize="9" />
                 </StackPanel>
                 <StackPanel Grid.Column="3" Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}" >
                     <Button Command="{Binding CommandAddNextMovie}" ToolTip="{Resx _addNextMovie.ToolTip}" >
@@ -100,7 +101,14 @@
                     </Button>
                 </StackPanel>
                 <local:EventPanelCGElementsView Grid.Column="3" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Right"  Margin="5, 0" />
-                <TextBlock Grid.Column="4" Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToString}}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
+                <Grid Grid.Column="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToString}}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
+                    
+                </Grid>
             </Grid>
         </Border>
     </StackPanel>

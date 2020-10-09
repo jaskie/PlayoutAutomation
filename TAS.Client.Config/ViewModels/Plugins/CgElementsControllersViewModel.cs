@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
-using System.IO;
 using System.Linq;
 using System.Windows.Data;
 using TAS.Client.Common;
@@ -18,7 +15,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
         private IConfigEngine _engine;
         public event EventHandler PluginChanged;
 
-        private List<IPluginConfigurator> _configurators = new List<IPluginConfigurator>();
+        private IList<IPluginConfigurator> _configurators = new List<IPluginConfigurator>();
         private IPluginConfigurator _selectedConfigurator;
                 
         private bool? _isEnabled;
@@ -26,25 +23,16 @@ namespace TAS.Client.Config.ViewModels.Plugins
         public CgElementsControllersViewModel(IConfigEngine engine)
         {
             _engine = engine;
-            Configurators = CollectionViewSource.GetDefaultView(_configurators);
-
-            using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), PluginsViewModel.FileNameSearchPattern))
+                                    
+            foreach (var plugin in ConfigurationPluginManager.Current.CgElementsControllers)
             {
-                using (var container = new CompositionContainer(catalog))
-                {
-                    container.ComposeExportedValue("Engine", _engine);
-                    var pluginConfigurators = container.GetExportedValues<IPluginConfigurator>().Where(configurator => configurator.GetModel() is ICGElementsController);
-
-                    foreach (var pluginConfigurator in pluginConfigurators)
-                    {
-                        pluginConfigurator.PluginChanged += PluginConfigurator_PluginChanged;
-                        pluginConfigurator.Initialize(_engine.CGElementsController);
-                        _configurators.Add(pluginConfigurator);
-                    }
-
-                    SelectedConfigurator = _configurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.CGElementsController?.GetType());                    
-                }
+                var configuratorVm = plugin.GetConfiguratorViewModel();
+                configuratorVm.PluginChanged += PluginConfigurator_PluginChanged;
+                configuratorVm.Initialize(_engine.CGElementsController);
+                _configurators.Add(configuratorVm);
             }
+            Configurators = CollectionViewSource.GetDefaultView(_configurators);
+            SelectedConfigurator = _configurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.CGElementsController?.GetType());
         }
 
         private void PluginConfigurator_PluginChanged(object sender, EventArgs e)
@@ -85,7 +73,6 @@ namespace TAS.Client.Config.ViewModels.Plugins
                 NotifyPropertyChanged(nameof(Name));
             }
         }
-
         public ICollectionView Configurators { get; }
 
         protected override void OnDispose()
@@ -97,6 +84,6 @@ namespace TAS.Client.Config.ViewModels.Plugins
         public void Save()
         {
             _selectedConfigurator.Save();
-        }
+        }       
     }
 }

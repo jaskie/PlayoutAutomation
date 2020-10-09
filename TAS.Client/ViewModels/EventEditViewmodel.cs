@@ -41,7 +41,7 @@ namespace TAS.Client.ViewModels
 
         #region Router
         private int _routerPort = -1;
-        private object _selectedInputPort;
+        private object _selectedSource;
         #endregion
                      
         public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
@@ -60,14 +60,14 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
             Router = engineViewModel.Router;
-            InputPorts = new List<object>();
+            Sources = new List<object>();
 
             if (Router != null)
             {
-                InputPorts.Add(string.Empty); //default value in ComboBox
-                foreach (var input in Router.InputPorts)
-                    InputPorts.Add(input);
-                _selectedInputPort = InputPorts?.FirstOrDefault(param => param is IVideoSwitchPort routerPort && routerPort.PortId == _routerPort) ?? InputPorts?[0];
+                Sources.Add(string.Empty); //default value in ComboBox
+                foreach (var input in Router.Sources)
+                    Sources.Add(input);
+                _selectedSource = Sources?.FirstOrDefault(param => param is IVideoSwitchPort routerPort && routerPort.PortId == _routerPort) ?? Sources?[0];
             }
                             
             if (@event.EventType == TEventType.Live && Model.Engine.MediaManager.Recorders.Count() > 0)
@@ -576,21 +576,21 @@ namespace TAS.Client.ViewModels
                     return;
 
                 _routerPort = value;
-                _selectedInputPort = InputPorts?.FirstOrDefault(p => p is IVideoSwitchPort routerPort && routerPort.PortId == value) ?? InputPorts?[0];
-                NotifyPropertyChanged(nameof(SelectedInputPort));
+                _selectedSource = Sources?.FirstOrDefault(p => p is IVideoSwitchPort routerPort && routerPort.PortId == value) ?? Sources?[0];
+                NotifyPropertyChanged(nameof(SelectedSource));
             }
         }
 
-        public IVideoSwitch Router { get; }
+        public IRouter Router { get; }
 
-        public IList<object> InputPorts { get; }
+        public IList<object> Sources { get; }
 
-        public object SelectedInputPort
+        public object SelectedSource
         {
-            get => _selectedInputPort;
+            get => _selectedSource;
             set
             {
-                if (!SetField(ref _selectedInputPort, value))
+                if (!SetField(ref _selectedSource, value))
                     return;
 
                 if (!(value is IVideoSwitchPort routerPort))

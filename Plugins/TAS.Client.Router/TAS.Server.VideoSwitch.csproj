@@ -72,24 +72,49 @@
     <Compile Include="API\COMRegistration.cs" />
     <Compile Include="Communicators\AtemCommunicator.cs" />
     <Compile Include="Communicators\RossCommunicator.cs" />
+    <Compile Include="Configurator\AtemConfiguratorView.xaml.cs">
+      <DependentUpon>AtemConfiguratorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Configurator\AtemConfiguratorViewModel.cs" />
+    <Compile Include="Configurator\BlackmagicConfiguratorView.xaml.cs">
+      <DependentUpon>BlackmagicConfiguratorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Configurator\BlackmagicConfiguratorViewModel.cs" />
+    <Compile Include="Configurator\ConfiguratorViewModelBase.cs" />
+    <Compile Include="Configurator\NevionConfiguratorView.xaml.cs">
+      <DependentUpon>NevionConfiguratorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Configurator\NevionConfiguratorViewModel.cs" />
+    <Compile Include="Configurator\RossConfiguratorView.xaml.cs">
+      <DependentUpon>RossConfiguratorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Configurator\RossConfiguratorViewModel.cs" />
     <Compile Include="Configurator\RouterConfiguratorView.xaml.cs">
       <DependentUpon>RouterConfiguratorView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Configurator\RouterConfiguratorViewModel.cs" />
+    <Compile Include="Helpers\BMDSwitcherWrapper.cs" />
+    <Compile Include="Helpers\AtemMonitor.cs" />
+    <Compile Include="Helpers\QueryInterfaceWrapper.cs" />
     <Compile Include="Model\CrosspointInfo.cs" />
-    <Compile Include="Model\IVideoSwitchCommunicator.cs" />
+    <Compile Include="Model\Interfaces\IVideoSwitchCommunicator.cs" />
+    <Compile Include="Model\MixEffectEventArgs.cs" />
     <Compile Include="Model\PortInfo.cs" />
     <Compile Include="Model\PortState.cs" />
-    <Compile Include="Model\ListTypeEnum.cs" />
-    <Compile Include="Model\IRouterCommunicator.cs" />
+    <Compile Include="Model\Enums.cs" />
+    <Compile Include="Model\Interfaces\IRouterCommunicator.cs" />
+    <Compile Include="Model\RouterBase.cs" />
+    <Compile Include="Model\TransitionEffect.cs" />
+    <Compile Include="Model\VideoSwitcher.cs" />
+    <Compile Include="PluginConfigurationProvider.cs" />
     <Compile Include="PluginTypeBinder.cs" />
     <Compile Include="Resources.xaml.cs">
       <DependentUpon>Resources.xaml</DependentUpon>
     </Compile>
     <Compile Include="Communicators\BlackmagicSmartVideoHubCommunicator.cs" />
-    <Compile Include="RouterPort.cs" />
+    <Compile Include="Model\RouterPort.cs" />
     <Compile Include="Communicators\NevionCommunicator.cs" />
-    <Compile Include="VideoSwitch.cs" />
+    <Compile Include="Model\Router.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +139,22 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Configurator\AtemConfiguratorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Configurator\BlackmagicConfiguratorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Configurator\NevionConfiguratorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Configurator\RossConfiguratorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Configurator\RouterConfiguratorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

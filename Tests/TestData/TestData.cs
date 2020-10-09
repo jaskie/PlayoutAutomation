@@ -96,7 +96,7 @@ namespace TestData
 					Login = "testLogin",
 					Password = "testPassword",
 					Level = 1,
-					Type = VideoSwitch.VideoSwitchType.BlackmagicSmartVideoHub,
+					Type = VideoSwitch.Type.BlackmagicSmartVideoHub,
 					OutputPorts = new short[2] { 0,1 }
 				}
 			},

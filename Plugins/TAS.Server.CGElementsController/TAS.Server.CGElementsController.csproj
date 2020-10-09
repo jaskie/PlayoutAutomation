@@ -86,8 +86,8 @@
     <Compile Include="Model\CgElement.cs" />
     <Compile Include="CgElementsController.cs" />
     <Compile Include="Configurator\CgElementsControllerViewModel.cs" />
-    <Compile Include="Configurator\CgElementsControllerPluginManagerView.xaml.cs">
-      <DependentUpon>CgElementsControllerPluginManagerView.xaml</DependentUpon>
+    <Compile Include="Configurator\CgElementsControllerView.xaml.cs">
+      <DependentUpon>CgElementsControllerView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Configurator\CgElementView.xaml.cs">
       <DependentUpon>CgElementView.xaml</DependentUpon>
@@ -95,6 +95,7 @@
     <Compile Include="Configurator\CgElementViewModel.cs" />
     <Compile Include="Configurator\Model\CgElement.cs" />
     <Compile Include="Configurator\Model\CgElementsController.cs" />
+    <Compile Include="PluginExporter.cs" />
     <Compile Include="PluginTypeBinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -133,7 +134,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Page Include="Configurator\CgElementsControllerPluginManagerView.xaml">
+    <Page Include="Configurator\CgElementsControllerView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
