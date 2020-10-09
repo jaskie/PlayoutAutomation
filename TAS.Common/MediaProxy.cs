@@ -25,6 +25,7 @@ namespace TAS.Common
         public TVideoFormat VideoFormat { get; set; }
         public bool FieldOrderInverted { get; set; }
         public Guid MediaGuid { get; set; }
+        public bool HaveAlphaChannel { get; set; }
 
         public static MediaProxy FromMedia(IMediaProperties media)
         {

@@ -871,11 +871,20 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Graphics.
+        ///   Looks up a localized string similar to Movie overlay.
         /// </summary>
-        public static string TMediaType_Still {
+        public static string TMediaType_MovieOverlay {
             get {
-                return ResourceManager.GetString("TMediaType_Still", resourceCulture);
+                return ResourceManager.GetString("TMediaType_MovieOverlay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Graphics overlay.
+        /// </summary>
+        public static string TMediaType_StillOverlay {
+            get {
+                return ResourceManager.GetString("TMediaType_StillOverlay", resourceCulture);
             }
         }
         

@@ -39,7 +39,7 @@ namespace TAS.Server.Media
         private bool _verified;
         private TMediaStatus _mediaStatus;
         internal bool HasExtraLines; // VBI lines that shouldn't be displayed
-        
+        private bool _haveAlphaChannel;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         #region IMediaProperties
@@ -66,7 +66,7 @@ namespace TAS.Server.Media
         }
 
         [DtoMember]
-        public ulong FileSize 
+        public ulong FileSize
         {
             get => _fileSize;
             set => SetField(ref _fileSize, value);
@@ -124,7 +124,7 @@ namespace TAS.Server.Media
         }
 
         [DtoMember]
-        public virtual TimeSpan TcStart 
+        public virtual TimeSpan TcStart
         {
             get => _tcStart;
             set => SetField(ref _tcStart, value);
@@ -152,7 +152,7 @@ namespace TAS.Server.Media
         }
 
         [DtoMember]
-        public virtual TAudioChannelMapping AudioChannelMapping 
+        public virtual TAudioChannelMapping AudioChannelMapping
         {
             get => _audioChannelMapping;
             set => SetField(ref _audioChannelMapping, value);
@@ -192,7 +192,7 @@ namespace TAS.Server.Media
             get => _parental;
             set => SetField(ref _parental, value);
         }
-        
+
         [DtoMember]
         public Guid MediaGuid
         {
@@ -219,6 +219,9 @@ namespace TAS.Server.Media
         }
 
         [DtoMember]
+        public bool HaveAlphaChannel { get => _haveAlphaChannel; set => SetField(ref _haveAlphaChannel, value); }
+
+        [DtoMember]
         public IMediaDirectory Directory { get; internal set; }
 
         #endregion //IMediaProperties
@@ -228,7 +231,7 @@ namespace TAS.Server.Media
         public virtual bool Delete()
         {
             if (!((MediaDirectoryBase)Directory).DeleteMedia(this))
-                    return false;
+                return false;
             MediaStatus = TMediaStatus.Deleted;
             return true;
         }
@@ -278,13 +281,13 @@ namespace TAS.Server.Media
                         var buffer = new byte[1024 * 1024];
                         ulong totalReadBytesCount = 0;
                         int readBytesCount;
-                        FileSize = (ulong) source.Length;
+                        FileSize = (ulong)source.Length;
                         while ((readBytesCount = source.Read(buffer, 0, buffer.Length)) > 0)
                         {
                             if (cancellationToken.IsCancellationRequested)
                                 return false;
                             dest.Write(buffer, 0, readBytesCount);
-                            totalReadBytesCount += (ulong) readBytesCount;
+                            totalReadBytesCount += (ulong)readBytesCount;
                             destMedia.FileSize = totalReadBytesCount;
                         }
                     }
@@ -307,7 +310,7 @@ namespace TAS.Server.Media
                 Logger.Warn(e, "File {0} rename failed", this);
             }
         }
-        
+
         public override string ToString()
         {
             return $"{Directory}:{Folder}\\{MediaName}";
@@ -322,13 +325,13 @@ namespace TAS.Server.Media
         {
             ((WatcherDirectory)Directory).RemoveMedia(this);
         }
-        
+
         public virtual void Verify(bool updateFormatAndDurations)
         {
-            if (_mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required || 
+            if (_mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required ||
                 (Directory is IngestDirectory ingestDirectory && ingestDirectory.AccessType != TDirectoryAccessType.Direct))
                 return;
-            if (Directory?.DirectoryExists== true && !FileExists())
+            if (Directory?.DirectoryExists == true && !FileExists())
             {
                 _mediaStatus = TMediaStatus.Deleted;
                 return; // in case that no file was found, and directory exists
@@ -352,7 +355,7 @@ namespace TAS.Server.Media
                     //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
 
                     this.Check(updateFormatAndDurations);
-                }                
+                }
                 IsVerified = true;
             }
             catch (Exception e)

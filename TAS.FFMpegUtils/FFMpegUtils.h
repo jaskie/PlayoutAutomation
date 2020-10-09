@@ -38,8 +38,9 @@ namespace TAS {
 		NB
 	};
 
-	public ref struct StreamInfo
+	public ref class StreamInfo
 	{
+	public:
 		int Id;
 		int Index;
 		int ChannelCount;
@@ -63,6 +64,7 @@ namespace TAS {
 		int getStreamCount();
 		StreamInfo ^ getStreamInfo(unsigned int streamIndex);
 		AVFieldOrder getFieldOrder();
+		bool getHaveAlphaChannel();
 		AVRational getSAR();
 		AVRational getFrameRate();
 		char* _FFMpegWrapper::getTimeCode();
@@ -127,6 +129,11 @@ namespace TAS {
 				ret->Num = val.num;
 				ret->Den = val.den;
 				return ret;
+			}
+
+			bool GetHaveAlphaChannel()
+			{
+				return wrapper->getHaveAlphaChannel();
 			}
 
 			String^ GetTimeCode()

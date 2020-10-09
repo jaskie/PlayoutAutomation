@@ -61,6 +61,7 @@ namespace TAS.Server.Media
 
                         var vfd = VideoFormatDescription.Match(new System.Drawing.Size(w, h), frameRate, sAR, order != FieldOrder.PROGRESSIVE);
                         media.VideoFormat = vfd.Format;
+                        media.HaveAlphaChannel = ffmpeg.GetHaveAlphaChannel();
                     }
                     if (media is IngestMedia ingestMedia)
                         ingestMedia.StreamInfo = ffmpeg.GetStreamInfo();
