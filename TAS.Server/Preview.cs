@@ -29,7 +29,7 @@ namespace TAS.Server
         private long _currentTicks;
         private CancellationTokenSource _previewPositionCancellationTokenSource;
         private long _previewLastPositionSetTick;
-        private readonly ConcurrentDictionary<VideoLayer, IMedia> _previewLoadedStills = new ConcurrentDictionary<VideoLayer, IMedia>();
+        private readonly ConcurrentDictionary<VideoLayer, IMedia> _previewLoadedOverlays = new ConcurrentDictionary<VideoLayer, IMedia>();
         private readonly CasparServerChannel _channel;
 
         public Preview(Engine engine, CasparServerChannel previewChannel)
@@ -151,7 +151,7 @@ namespace TAS.Server
             NotifyPropertyChanged(nameof(MovieSeekOnLoad));
         }
 
-        public void LoadStillImage(IMedia media, VideoLayer layer)
+        public void LoadOverlay(IMedia media, VideoLayer layer)
         {
             if (!_engine.HaveRight(EngineRight.Preview))
                 return;
@@ -159,21 +159,21 @@ namespace TAS.Server
             if (mediaToLoad == null) return;
             if (_channel.Load(mediaToLoad, layer) != true)
                 return;
-            _previewLoadedStills.TryAdd(layer, mediaToLoad);
-            StillImageLoaded?.Invoke(this, new MediaOnLayerEventArgs(media, layer));
+            _previewLoadedOverlays.TryAdd(layer, mediaToLoad);
+            OverlayLoaded?.Invoke(this, new MediaOnLayerEventArgs(media, layer));
         }
 
-        public bool UnLoadStillImage(VideoLayer layer)
+        public bool UnLoadOverlay(VideoLayer layer)
         {
-            if (!_previewLoadedStills.TryRemove(layer, out var media))
+            if (!_previewLoadedOverlays.TryRemove(layer, out var media))
                 return false;
             _channel.Clear(layer);
-            StillImageUnLoaded?.Invoke(this, new MediaOnLayerEventArgs(media, layer));
+            OverlayUnLoaded?.Invoke(this, new MediaOnLayerEventArgs(media, layer));
             return true;
         }
 
         [DtoMember]
-        public Dictionary<VideoLayer, IMedia> LoadedStillImages => new Dictionary<VideoLayer, IMedia>(_previewLoadedStills);
+        public Dictionary<VideoLayer, IMedia> LoadedOverlays => new Dictionary<VideoLayer, IMedia>(_previewLoadedOverlays);
         
         public void UnloadMovie()
         {
@@ -214,9 +214,9 @@ namespace TAS.Server
             }
         }
 
-        public event EventHandler<MediaOnLayerEventArgs> StillImageLoaded;
+        public event EventHandler<MediaOnLayerEventArgs> OverlayLoaded;
 
-        public event EventHandler<MediaOnLayerEventArgs> StillImageUnLoaded;
+        public event EventHandler<MediaOnLayerEventArgs> OverlayUnLoaded;
 
         private void _movieUnload()
         {                           

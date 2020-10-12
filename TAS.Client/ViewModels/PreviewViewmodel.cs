@@ -31,19 +31,19 @@ namespace TAS.Client.ViewModels
         private bool _isSegmentsVisible;
         private TimeSpan _duration;
         private TimeSpan _startTc;
-        private readonly bool _showStillButtons;
+        private readonly bool _showOverlayButtons;
         private IIngestOperation _selectedIngestOperation;
-        private readonly Dictionary<VideoLayer, IMedia> _loadedStillImages = new Dictionary<VideoLayer, IMedia>();
+        private readonly Dictionary<VideoLayer, IMedia> _loadedOverlays = new Dictionary<VideoLayer, IMedia>();
         private static readonly TimeSpan EndDuration = TimeSpan.FromSeconds(3);
 
-        public PreviewViewmodel(IPreview preview, bool canTrimMedia, bool showStillButtons)
+        public PreviewViewmodel(IPreview preview, bool canTrimMedia, bool showOverlayButtons)
         {
-            _showStillButtons = showStillButtons;
+            _showOverlayButtons = showOverlayButtons;
             preview.PropertyChanged += PreviewPropertyChanged;
-            preview.StillImageLoaded += Preview_StillImageLoaded;
-            preview.StillImageUnLoaded += Preview_StillImageUnLoaded;
+            preview.OverlayLoaded += Preview_OverlayLoaded;
+            preview.OverlayUnLoaded += Preview_OverlayUnLoaded;
             HaveLiveDevice = preview.HaveLiveDevice;
-            _loadedStillImages = new Dictionary<VideoLayer, IMedia>(preview.LoadedStillImages);
+            _loadedOverlays = new Dictionary<VideoLayer, IMedia>(preview.LoadedOverlays);
             _preview = preview;
             FormatDescription = VideoFormatDescription.Descriptions[preview.VideoFormat];
             _canTrimMedia = canTrimMedia;
@@ -253,17 +253,17 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsStillButton1Visible => _showStillButtons || _loadedStillImages.ContainsKey(VideoLayer.PreviewCG1);
+        public bool IsOverlayButton1Visible => _showOverlayButtons || _loadedOverlays.ContainsKey(VideoLayer.PreviewCG1);
 
-        public bool IsStillButton2Visible => _showStillButtons || _loadedStillImages.ContainsKey(VideoLayer.PreviewCG2);
+        public bool IsOverlayButton2Visible => _showOverlayButtons || _loadedOverlays.ContainsKey(VideoLayer.PreviewCG2);
 
-        public bool IsStillButton3Visible => _showStillButtons || _loadedStillImages.ContainsKey(VideoLayer.PreviewCG3);
+        public bool IsOverlayButton3Visible => _showOverlayButtons || _loadedOverlays.ContainsKey(VideoLayer.PreviewCG3);
 
-        public bool IsStill1Loaded => _loadedStillImages.ContainsKey(VideoLayer.PreviewCG1);
+        public bool IsOverlay1Loaded => _loadedOverlays.ContainsKey(VideoLayer.PreviewCG1);
 
-        public bool IsStill2Loaded => _loadedStillImages.ContainsKey(VideoLayer.PreviewCG2);
+        public bool IsOverlay2Loaded => _loadedOverlays.ContainsKey(VideoLayer.PreviewCG2);
 
-        public bool IsStill3Loaded => _loadedStillImages.ContainsKey(VideoLayer.PreviewCG3);
+        public bool IsOverlay3Loaded => _loadedOverlays.ContainsKey(VideoLayer.PreviewCG3);
 
         #region Commands
 
@@ -499,7 +499,7 @@ namespace TAS.Client.ViewModels
                 o => SliderPosition = Math.Max(SliderPosition - FramesPerSecond, 0),
                 o => IsLoaded && SliderPosition > 0
             );
-            CommandToggleLayer = new UiCommand(_stillToggle, _canStillToggle);
+            CommandToggleLayer = new UiCommand(_toggleOverlay, _canToggleOverlay);
 
             CommandLoadLiveDevice = new UiCommand
             (
@@ -508,22 +508,22 @@ namespace TAS.Client.ViewModels
             );
         }
 
-        private bool _canStillToggle(object obj)
+        private bool _canToggleOverlay(object obj)
         {
             if (!(obj is string s && Enum.TryParse(s, out VideoLayer layer)))
                 return false;
-            return _selectedMedia?.MediaType == TMediaType.Still || _loadedStillImages.ContainsKey(layer);
+            return _selectedMedia?.HasTransparency == true || _loadedOverlays.ContainsKey(layer);
         }
 
-        private void _stillToggle(object obj)
+        private void _toggleOverlay(object obj)
         {
             if (!(obj is string s && Enum.TryParse(s, out VideoLayer layer)))
                 return;
-            if (_loadedStillImages.ContainsKey(layer))
-                _preview.UnLoadStillImage(layer);
+            if (_loadedOverlays.ContainsKey(layer))
+                _preview.UnLoadOverlay(layer);
             else
             {
-                _preview.LoadStillImage(_selectedMedia, layer);
+                _preview.LoadOverlay(_selectedMedia, layer);
             }
         }
 
@@ -544,6 +544,7 @@ namespace TAS.Client.ViewModels
         {
             return media != null
                 && IsEnabled
+                && !media.HasTransparency
                 && media.MediaType == TMediaType.Movie
                 && (media.Directory is IServerDirectory || media.Directory is IArchiveDirectory || (media.Directory is IIngestDirectory && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct))
                 && media.MediaStatus == TMediaStatus.Available
@@ -557,8 +558,8 @@ namespace TAS.Client.ViewModels
             if (LoadedMedia == _preview.LoadedMovie)
                 _preview.UnloadMovie();
             _preview.PropertyChanged -= PreviewPropertyChanged;
-            _preview.StillImageLoaded -= Preview_StillImageLoaded;
-            _preview.StillImageUnLoaded -= Preview_StillImageUnLoaded;
+            _preview.OverlayLoaded -= Preview_OverlayLoaded;
+            _preview.OverlayUnLoaded -= Preview_OverlayUnLoaded;
             LoadedMedia = null;
             SelectedSegment = null;
         }
@@ -716,20 +717,20 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void Preview_StillImageUnLoaded(object sender, MediaOnLayerEventArgs e)
+        private void Preview_OverlayUnLoaded(object sender, MediaOnLayerEventArgs e)
         {
             OnUiThread(() =>
             {
-                _loadedStillImages.Remove(e.Layer);
+                _loadedOverlays.Remove(e.Layer);
                 NotifyLayerButtonVisible(e.Layer);
             });
         }
 
-        private void Preview_StillImageLoaded(object sender, MediaOnLayerEventArgs e)
+        private void Preview_OverlayLoaded(object sender, MediaOnLayerEventArgs e)
         {
             OnUiThread(() =>
             {
-                _loadedStillImages[e.Layer] = e.Media;
+                _loadedOverlays[e.Layer] = e.Media;
                 NotifyLayerButtonVisible(e.Layer);
             });
         }
@@ -739,16 +740,16 @@ namespace TAS.Client.ViewModels
             switch (layer)
             {
                 case VideoLayer.PreviewCG1:
-                    NotifyPropertyChanged(nameof(IsStillButton1Visible));
-                    NotifyPropertyChanged(nameof(IsStill1Loaded));
+                    NotifyPropertyChanged(nameof(IsOverlayButton1Visible));
+                    NotifyPropertyChanged(nameof(IsOverlay1Loaded));
                     break;
                 case VideoLayer.PreviewCG2:
-                    NotifyPropertyChanged(nameof(IsStillButton2Visible));
-                    NotifyPropertyChanged(nameof(IsStill2Loaded));
+                    NotifyPropertyChanged(nameof(IsOverlayButton2Visible));
+                    NotifyPropertyChanged(nameof(IsOverlay2Loaded));
                     break;
                 case VideoLayer.PreviewCG3:
-                    NotifyPropertyChanged(nameof(IsStillButton3Visible));
-                    NotifyPropertyChanged(nameof(IsStill3Loaded));
+                    NotifyPropertyChanged(nameof(IsOverlayButton3Visible));
+                    NotifyPropertyChanged(nameof(IsOverlay3Loaded));
                     break;
             }
             CommandManager.InvalidateRequerySuggested();

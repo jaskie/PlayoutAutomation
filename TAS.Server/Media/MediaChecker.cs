@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using TAS.FFMpegUtils;
 using TAS.Common;
-using NLog;
 
 namespace TAS.Server.Media
 {

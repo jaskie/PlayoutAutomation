@@ -66,13 +66,13 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" ToolTip="{Resx _buttonStillImage1.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG1" Visibility="{Binding IsStillButton1Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsStill1Loaded, Converter={StaticResource BoolToBrushButton}}">
+                    <Button Grid.Column="0" ToolTip="{Resx _buttonOverlay1.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG1" Visibility="{Binding IsOverlayButton1Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsOverlay1Loaded, Converter={StaticResource BoolToBrushButton}}">
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer1.png" />
                     </Button>
-                    <Button Grid.Column="1" ToolTip="{Resx _buttonStillImage2.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG2" Visibility="{Binding IsStillButton2Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsStill2Loaded, Converter={StaticResource BoolToBrushButton}}">
+                    <Button Grid.Column="1" ToolTip="{Resx _buttonOverlay2.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG2" Visibility="{Binding IsOverlayButton2Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsOverlay2Loaded, Converter={StaticResource BoolToBrushButton}}">
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer2.png" />
                     </Button>
-                    <Button Grid.Column="2" ToolTip="{Resx _buttonStillImage3.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG3" Visibility="{Binding IsStillButton3Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsStill3Loaded, Converter={StaticResource BoolToBrushButton}}">
+                    <Button Grid.Column="2" ToolTip="{Resx _buttonOverlay3.ToolTip}" Command="{Binding CommandToggleLayer}" CommandParameter="PreviewCG3" Visibility="{Binding IsOverlayButton3Visible, Converter={StaticResource BoolToVis}}" Background="{Binding IsOverlay3Loaded, Converter={StaticResource BoolToBrushButton}}">
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/layer3.png" />
                     </Button>
                 </Grid>

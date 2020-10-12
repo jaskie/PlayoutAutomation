@@ -680,28 +680,23 @@ namespace TAS.Client.ViewModels
         {
             if (!(_selectedDirectory?.Directory is IIngestDirectory currentDir))
                 return;
-            var ingestList = new List<IIngestOperation>();
             var selectedMediaList = GetSelections();
             Task.Run(() =>
             {
-                selectedMediaList.ForEach(m =>
-                {
-                    if (!m.IsVerified)
-                        m.Verify(true);
-                });
+                foreach (var media in selectedMediaList.Where(m => !m.IsVerified))
+                    media.Verify(true);
             });
-            foreach (var sourceMedia in selectedMediaList)
-                if (sourceMedia is IIngestMedia media)
-                {
-                    var operation = (IIngestOperation)_mediaManager.FileManager.CreateFileOperation(TFileOperationKind.Ingest);
-                    operation.Source = media;
-                    operation.DestDirectory = _mediaManager.DetermineValidServerDirectory();
-                    operation.AudioVolume = currentDir.AudioVolume;
-                    operation.SourceFieldOrderEnforceConversion = currentDir.SourceFieldOrder;
-                    operation.AspectConversion = currentDir.AspectConversion;
-                    operation.LoudnessCheck = currentDir.MediaLoudnessCheckAfterIngest;
-                    ingestList.Add(operation);
-                }
+            var ingestList = new List<IIngestOperation>(selectedMediaList.Where(sm => sm is IIngestMedia).Select(sourceMedia =>
+            {
+                var operation = (IIngestOperation)_mediaManager.FileManager.CreateFileOperation(TFileOperationKind.Ingest);
+                operation.Source = sourceMedia;
+                operation.DestDirectory = _mediaManager.DetermineValidServerDirectory();
+                operation.AudioVolume = currentDir.AudioVolume;
+                operation.SourceFieldOrderEnforceConversion = currentDir.SourceFieldOrder;
+                operation.AspectConversion = currentDir.AspectConversion;
+                operation.LoudnessCheck = currentDir.MediaLoudnessCheckAfterIngest;
+                return operation;
+            }));
             if (ingestList.Count == 0)
                 return;
             using (var ievm = new IngestEditorViewmodel(ingestList, Engine))

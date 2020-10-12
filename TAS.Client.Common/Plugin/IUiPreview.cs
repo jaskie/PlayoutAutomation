@@ -36,12 +36,12 @@ namespace TAS.Client.Common.Plugin
         bool IsSegmentNameFocused { get; set; }
         bool IsSegmentsEnabled { get; }
         bool IsSegmentsVisible { get; set; }
-        bool IsStill1Loaded { get; }
-        bool IsStill2Loaded { get; }
-        bool IsStill3Loaded { get; }
-        bool IsStillButton1Visible { get; }
-        bool IsStillButton2Visible { get; }
-        bool IsStillButton3Visible { get; }
+        bool IsOverlay1Loaded { get; }
+        bool IsOverlay2Loaded { get; }
+        bool IsOverlay3Loaded { get; }
+        bool IsOverlayButton1Visible { get; }
+        bool IsOverlayButton2Visible { get; }
+        bool IsOverlayButton3Visible { get; }
         long LoadedDuration { get; }
         IMedia LoadedMedia { get; }
         bool PlayWholeClip { get; set; }

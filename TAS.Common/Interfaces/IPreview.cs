@@ -11,8 +11,8 @@ namespace TAS.Common.Interfaces
         void LoadMovie(IMedia media, long seek, long duration, long position, double audioLevel);
         void UnloadMovie();
         void PlayLiveDevice();
-        void LoadStillImage(IMedia media, VideoLayer layer);
-        bool UnLoadStillImage(VideoLayer layer);
+        void LoadOverlay(IMedia media, VideoLayer layer);
+        bool UnLoadOverlay(VideoLayer layer);
         IMedia LoadedMovie { get; }
         TVideoFormat VideoFormat { get; }
         void Pause();
@@ -25,8 +25,8 @@ namespace TAS.Common.Interfaces
         long MoviePosition { get; set; }
         long MovieSeekOnLoad { get; }
         double AudioVolume { get; set; }
-        Dictionary<VideoLayer, IMedia> LoadedStillImages { get; }
-        event EventHandler<MediaOnLayerEventArgs> StillImageLoaded;
-        event EventHandler<MediaOnLayerEventArgs> StillImageUnLoaded;
+        Dictionary<VideoLayer, IMedia> LoadedOverlays { get; }
+        event EventHandler<MediaOnLayerEventArgs> OverlayLoaded;
+        event EventHandler<MediaOnLayerEventArgs> OverlayUnLoaded;
     }
 }

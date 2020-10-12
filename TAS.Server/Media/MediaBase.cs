@@ -329,16 +329,17 @@ namespace TAS.Server.Media
 
         public virtual void Verify(bool updateFormatAndDurations)
         {
-            if (_mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required ||
-                (Directory is IngestDirectory ingestDirectory && ingestDirectory.AccessType != TDirectoryAccessType.Direct))
-                return;
-            if (Directory?.DirectoryExists == true && !FileExists())
-            {
-                _mediaStatus = TMediaStatus.Deleted;
-                return; // in case that no file was found, and directory exists
-            }
             try
             {
+                if (_mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required ||
+                (Directory is IngestDirectory ingestDirectory && ingestDirectory.AccessType != TDirectoryAccessType.Direct))
+                    return;
+                if (Directory?.DirectoryExists == true && !FileExists())
+                {
+                    _mediaStatus = TMediaStatus.Deleted;
+                    return; // in case that no file was found, and directory exists
+                }
+
                 var fi = new FileInfo(FullPath);
                 if (fi.Length == 0L)
                     return;

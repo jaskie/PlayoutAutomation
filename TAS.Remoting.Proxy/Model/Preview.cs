@@ -45,7 +45,7 @@ namespace TAS.Remoting.Model
         [DtoMember(nameof(IPreview.VideoFormat))]
         private TVideoFormat _videoFormat;
 
-        [DtoMember(nameof(IPreview.LoadedStillImages))]
+        [DtoMember(nameof(IPreview.LoadedOverlays))]
         private Dictionary<VideoLayer, IMedia> _loadedStillImages;
 
 #pragma warning restore
@@ -68,17 +68,17 @@ namespace TAS.Remoting.Model
 
         public bool IsMovieLoaded => _isMovieLoaded;
 
-        public void LoadStillImage(IMedia media, VideoLayer layer)
+        public void LoadOverlay(IMedia media, VideoLayer layer)
         {
             Invoke(parameters: new object[] {media, layer});
         }
 
-        public bool UnLoadStillImage(VideoLayer layer)
+        public bool UnLoadOverlay(VideoLayer layer)
         {
             return Query<bool>(parameters: new object[] {layer});
         }
 
-        public Dictionary<VideoLayer, IMedia> LoadedStillImages => _loadedStillImages;
+        public Dictionary<VideoLayer, IMedia> LoadedOverlays => _loadedStillImages;
 
         public IMedia LoadedMovie => _loadedMovie;
 
@@ -104,7 +104,7 @@ namespace TAS.Remoting.Model
 
         private event EventHandler<MediaOnLayerEventArgs> _stillImageLoaded;
 
-        public event EventHandler<MediaOnLayerEventArgs> StillImageLoaded
+        public event EventHandler<MediaOnLayerEventArgs> OverlayLoaded
         {
             add
             {
@@ -119,7 +119,7 @@ namespace TAS.Remoting.Model
         }
 
         private event EventHandler<MediaOnLayerEventArgs> _stillImageUnLoaded;
-        public event EventHandler<MediaOnLayerEventArgs> StillImageUnLoaded
+        public event EventHandler<MediaOnLayerEventArgs> OverlayUnLoaded
         {
             add
             {
@@ -138,10 +138,10 @@ namespace TAS.Remoting.Model
         {
             switch (message.MemberName)
             {
-                case nameof(IPreview.StillImageLoaded):
+                case nameof(IPreview.OverlayLoaded):
                     _stillImageLoaded?.Invoke(this, Deserialize<MediaOnLayerEventArgs>(message));
                     break;
-                case nameof(IPreview.StillImageUnLoaded):
+                case nameof(IPreview.OverlayUnLoaded):
                     _stillImageUnLoaded?.Invoke(this, Deserialize<MediaOnLayerEventArgs>(message));
                     break;
             }
