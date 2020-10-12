@@ -50,7 +50,7 @@ namespace TAS.Client.ViewModels
                         layerEvent?.Delete();
                     }
                     else
-                        EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, TMediaType.Still, layer, true);
+                        EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, new[] { TMediaType.Still, TMediaType.Movie }, layer, true);
                 },
                 _canToggleLayer
             );
@@ -71,14 +71,14 @@ namespace TAS.Client.ViewModels
             );
             CommandAddNextMovie = new UiCommand
             (
-                o => EngineViewmodel.AddMediaEvent(Event, TStartType.After, TMediaType.Movie,
+                o => EngineViewmodel.AddMediaEvent(Event, TStartType.After, new[] { TMediaType.Movie },
                     VideoLayer.Program, false),
                 CanAddNextMovie
             );
             CommandAddAnimation = new UiCommand
             (
                 o => EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent,
-                    TMediaType.Animation, VideoLayer.Animation, true),
+                    new[] { TMediaType.Animation }, VideoLayer.Animation, true),
                 o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             );
             CommandAddCommandScript = new UiCommand

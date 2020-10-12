@@ -690,7 +690,7 @@ namespace TAS.Client.ViewModels
         #endregion // Commands
 
         #region MediaSearch
-        public void AddMediaEvent(IEvent baseEvent, TStartType startType, TMediaType mediaType, VideoLayer layer, bool closeAfterAdd)
+        public void AddMediaEvent(IEvent baseEvent, TStartType startType, TMediaType[] mediaTypes, VideoLayer layer, bool closeAfterAdd)
         {
             if (baseEvent == null)
                 return;
@@ -698,7 +698,7 @@ namespace TAS.Client.ViewModels
             {
                 var mediaSearchViewModel = new MediaSearchViewmodel(
                     Engine.HaveRight(EngineRight.Preview) ? Engine.Preview : null,
-                    Engine, mediaType, layer, closeAfterAdd, baseEvent.Media?.FormatDescription())
+                    Engine, mediaTypes, layer, closeAfterAdd, baseEvent.Media?.FormatDescription())
                 {
                     BaseEvent = baseEvent,
                     NewEventStartType = startType

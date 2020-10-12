@@ -46,7 +46,7 @@ namespace TAS.Client.ViewModels
             using (var vm = new MediaSearchViewmodel(
                 null, // preview
                 _engine,
-                TMediaType.Still,
+                new[] { TMediaType.Still },
                 VideoLayer.CG1,
                 true, // close ater add
                 MediaExport.Media.FormatDescription())

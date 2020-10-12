@@ -19,7 +19,7 @@ namespace TAS.Client.ViewModels
 {
     public class MediaSearchViewmodel : ViewModelBase, IUiPreviewProvider
     {
-        private readonly TMediaType _mediaType;
+        private readonly TMediaType[] _mediaTypes;
         private readonly VideoFormatDescription _videoFormatDescription;
         private IWatcherDirectory _searchDirectory;
         private ICollectionView _itemsView;
@@ -37,12 +37,12 @@ namespace TAS.Client.ViewModels
         private bool _isRecursive;
         private bool _showExpired;
 
-        public MediaSearchViewmodel(IPreview preview, IEngine engine, TMediaType mediaType, VideoLayer layer,
+        public MediaSearchViewmodel(IPreview preview, IEngine engine, TMediaType[] mediaTypes, VideoLayer layer,
             bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
         {
             Engine = engine;
             Layer = layer;
-            if (mediaType == TMediaType.Movie)
+            if (layer == VideoLayer.Program)
             {
                 _videoFormatDescription = engine.FormatDescription;
                 if (preview != null)
@@ -50,21 +50,21 @@ namespace TAS.Client.ViewModels
             }
             else
                 _videoFormatDescription = videoFormatDescription;
-            _mediaType = mediaType;
+            _mediaTypes = mediaTypes;
             if (_preview != null)
                 _preview.PropertyChanged += _onPreviewViewModelPropertyChanged;
             CommandAdd = new UiCommand(_add, _allowAdd);
             _mediaCategory = MediaCategories.FirstOrDefault();
             NewEventStartType = TStartType.After;
-            SetupSearchDirectory(closeAfterAdd, mediaType);
+            SetupSearchDirectory(closeAfterAdd, mediaTypes, layer);
         }
 
-        private async void SetupSearchDirectory(bool closeAfterAdd, TMediaType mediaType)
+        private async void SetupSearchDirectory(bool closeAfterAdd, TMediaType[] mediaTypes, VideoLayer videoLayer)
         {
-            var pri = _mediaType == TMediaType.Animation
+            var pri = _mediaTypes.Contains(TMediaType.Animation)
                 ? (IWatcherDirectory)Engine.MediaManager.AnimationDirectoryPRI
                 : Engine.MediaManager.MediaDirectoryPRI;
-            var sec = _mediaType == TMediaType.Animation
+            var sec = _mediaTypes.Contains(TMediaType.Animation)
                 ? (IWatcherDirectory)Engine.MediaManager.AnimationDirectorySEC
                 : Engine.MediaManager.MediaDirectorySEC;
             _searchDirectory = pri != null && await Task.Run(() => pri.DirectoryExists)
@@ -75,6 +75,8 @@ namespace TAS.Client.ViewModels
             if (_searchDirectory == null)
                 return;
 
+            IsRecursive = _searchDirectory is IServerDirectory sd && sd.IsRecursive;
+
             _searchDirectory.MediaAdded += _searchDirectory_MediaAdded;
             _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
             _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;
@@ -83,14 +85,12 @@ namespace TAS.Client.ViewModels
                 OkButtonText = resources._button_Add;
             Items = new ObservableCollection<MediaViewViewmodel>(
                 _searchDirectory.GetAllFiles()
-                    .Where(m => _canAddMediaToCollection(m, mediaType))
+                    .Where(m => CanAddMediaToCollection(m))
                     .Select(m => new MediaViewViewmodel(m, Engine.MediaManager)));
             _itemsView = CollectionViewSource.GetDefaultView(Items);
             _itemsView.Filter += _itemsFilter;
 
-            IsRecursive = _searchDirectory is IServerDirectory sd && sd.IsRecursive;
-
-            if (mediaType == TMediaType.Movie || mediaType == TMediaType.Audio)
+            if (videoLayer == VideoLayer.Program)
                 SortByIngestDate();
             else
                 SortByName();
@@ -112,7 +112,7 @@ namespace TAS.Client.ViewModels
                 if (!SetField(ref _searchText, value))
                     return;
                 _searchTextSplit = value.Split(' ');
-                if (!UserSorted && (_mediaType == TMediaType.Audio || _mediaType == TMediaType.Movie))
+                if (!UserSorted && Layer == VideoLayer.Program)
                 {
                     if (string.IsNullOrWhiteSpace(value) && !string.IsNullOrWhiteSpace(oldValue))
                         SortByIngestDate();
@@ -172,12 +172,12 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsMovie => _mediaType == TMediaType.Movie;
+        public bool IsMovie => Layer == VideoLayer.Program;
 
-        public bool IsShowCategoryColumn => _mediaType == TMediaType.Movie && !(_mediaCategory is TMediaCategory);
+        public bool IsShowCategoryColumn => Layer == VideoLayer.Program && !(_mediaCategory is TMediaCategory);
 
 
-        public bool CanEnableCGElements => Engine.CGElementsController != null && _mediaType == TMediaType.Movie;
+        public bool CanEnableCGElements => Engine.CGElementsController != null && Layer == VideoLayer.Program;
 
         public string OkButtonText
         {
@@ -217,13 +217,13 @@ namespace TAS.Client.ViewModels
 
         public IUiPreview Preview => _preview;
 
-        private bool _canAddMediaToCollection(IMedia media, TMediaType requiredMediaType)
+        private bool CanAddMediaToCollection(IMedia media)
         {
             return
                 media != null
-                && media.MediaType == requiredMediaType
+                && _mediaTypes.Contains(media.MediaType)
                 &&
-                   ((requiredMediaType == TMediaType.Still && (_videoFormatDescription == null || _videoFormatDescription.IsWideScreen == media.FormatDescription().IsWideScreen))
+                   ((_mediaTypes.Contains(TMediaType.Still) && (_videoFormatDescription == null || _videoFormatDescription.IsWideScreen == media.FormatDescription().IsWideScreen))
                  || (media.MediaType == TMediaType.Movie && media.FrameRate().Equals(_videoFormatDescription?.FrameRate))
                  || media.MediaType == TMediaType.Animation);
         }
@@ -252,7 +252,7 @@ namespace TAS.Client.ViewModels
             {
                 IMedia media = e.Media;
                 if (media != null
-                    && _canAddMediaToCollection(media, _mediaType))
+                    && CanAddMediaToCollection(media))
                     Items.Add(new MediaViewViewmodel(media, Engine.MediaManager));
             });
         }
@@ -334,7 +334,7 @@ namespace TAS.Client.ViewModels
                     {
                         case TEventType.Movie:
                         case TEventType.Live:
-                            return BaseEvent.PlayState == TPlayState.Scheduled || (_mediaType == TMediaType.Still && BaseEvent.PlayState == TPlayState.Playing);
+                            return BaseEvent.PlayState == TPlayState.Scheduled || (Layer != VideoLayer.Program && BaseEvent.PlayState == TPlayState.Playing);
                         case TEventType.Rundown:
                             return BaseEvent.PlayState == TPlayState.Scheduled && BaseEvent.SubEventsCount == 0;
                         default:

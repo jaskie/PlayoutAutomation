@@ -698,7 +698,7 @@ namespace TAS.Client.ViewModels
         {
             if (Model.EventType == TEventType.Movie)
             {
-                _chooseMedia(TMediaType.Movie, Model, Model.StartType);
+                _chooseMedia(new[] { TMediaType.Movie }, Model, Model.StartType);
             }
         }
 
@@ -986,13 +986,13 @@ namespace TAS.Client.ViewModels
             return null;
         }
 
-        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType,
+        private void _chooseMedia(TMediaType[] mediaTypes, IEvent baseEvent, TStartType startType,
             VideoFormatDescription videoFormatDescription = null)
         {
             using (var vm = new MediaSearchViewmodel(
                 _engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine.Preview : null,
                 Model.Engine,
-                mediaType, VideoLayer.Program, true, videoFormatDescription)
+                mediaTypes, VideoLayer.Program, true, videoFormatDescription)
             {
                 BaseEvent = baseEvent,
                 NewEventStartType = startType

@@ -67,7 +67,7 @@ namespace TAS.Client.ViewModels
 
         private void _addSubMovie(object obj)
         {
-            EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, TMediaType.Movie, VideoLayer.Program, false);
+            EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, new[] { TMediaType.Movie }, VideoLayer.Program, false);
         }
 
         private bool _canAddSubEvent(object o)
