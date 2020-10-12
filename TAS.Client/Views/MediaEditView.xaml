@@ -8,6 +8,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance {x:Type vm:MediaEditViewmodel}}"
              d:DesignWidth="300"
              >
     <UserControl.InputBindings>
@@ -160,9 +161,10 @@
                         <!--<DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}">
                 <Label Style="{StaticResource fieldNameLabels}" Content="Ostatnio użyty" />
                 <TextBox IsReadOnly="True" Text="{Binding LastAccess, Mode=OneWay, Converter={StaticResource DateTimeToString}, ConverterParameter=g}" />
-            </DockPanel>-->
+            </DockPanel>
                         <Label Grid.Row="1" Content="{Resx _audioChannelMappings}" />
                         <ComboBox Grid.Row="1" ItemsSource="{Binding AudioChannelMappings}" SelectedValue="{Binding AudioChannelMapping}" />
+                        -->
                         <Label Grid.Row="2" Content="{Resx _category}" />
                         <ComboBox Grid.Row="2" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" >
                             <ComboBox.ItemTemplate>
@@ -226,14 +228,16 @@
                         <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
                     <CheckBox Grid.Column="1" Content="{Resx _protect}" Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsProtected}" />
-                    <Label Grid.Row="1" Content="{Resx _mediaType}" />
-                    <TextBox Grid.Row="1" Text="{Binding MediaType, Mode=OneWay}" IsReadOnly="True" />
-                    <Label Grid.Row="2" Content="{Resx _fileName}" />
-                    <TextBox Grid.Row="2" Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
-                    <Label Grid.Row="3" Content="{Resx _mediaGuid}" />
-                    <TextBox Grid.Row="3" Text="{Binding MediaGuid, Mode=OneWay}" IsReadOnly="True" />
+                    <CheckBox Grid.Row="1" Grid.Column="1" Content="{Resx _hasTransparency}" IsChecked="{Binding HasTransparency, Mode=OneWay}" Focusable="False" IsHitTestVisible="False"/>
+                    <Label Grid.Row="2" Content="{Resx _mediaType}" />
+                    <TextBox Grid.Row="2" Text="{Binding MediaType, Mode=OneWay}" IsReadOnly="True" />
+                    <Label Grid.Row="3" Content="{Resx _fileName}" />
+                    <TextBox Grid.Row="3" Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                    <Label Grid.Row="4" Content="{Resx _mediaGuid}" />
+                    <TextBox Grid.Row="4" Text="{Binding MediaGuid, Mode=OneWay}" IsReadOnly="True" />
                 </Grid>
                 <ContentControl Content="{Binding TemplatedEditViewmodel}">
                     <ContentControl.Resources>

@@ -87,7 +87,7 @@ namespace TAS.Server.Media
 
         public void SetHaveAlphaChannel(bool haveAlphaChannel)
         {
-            HaveAlphaChannel = haveAlphaChannel;
+            HasTransparency = haveAlphaChannel;
         }
 
         public override void Verify(bool updateFormatAndDurations)

@@ -215,7 +215,7 @@ namespace TAS {
 			return AV_FIELD_UNKNOWN;
 		}
 
-		bool _FFMpegWrapper::getHaveAlphaChannel()
+		bool _FFMpegWrapper::getHasTransparency()
 		{
 			if (pFormatCtx)
 			{

@@ -291,7 +291,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool HaveAlphaChannel => Model.HaveAlphaChannel;
+        public bool HasTransparency => Model.HasTransparency;
 
         public string Error => string.Empty;
         
@@ -462,7 +462,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(nameof(IsIngestDataShown));
                     break;
                 case nameof(IMedia.MediaGuid):
-                case nameof(IMedia.HaveAlphaChannel):
+                case nameof(IMedia.HasTransparency):
                     NotifyPropertyChanged(e.PropertyName);
                     break;
             }

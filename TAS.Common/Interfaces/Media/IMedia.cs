@@ -37,6 +37,6 @@ namespace TAS.Common.Interfaces.Media
         TVideoFormat VideoFormat { get; set; }
         bool FieldOrderInverted { get; set; }
         Guid MediaGuid { get; set; }
-        bool HaveAlphaChannel { get; }
+        bool HasTransparency { get; }
     }
 }

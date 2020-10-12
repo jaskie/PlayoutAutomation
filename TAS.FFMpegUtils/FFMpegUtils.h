@@ -64,7 +64,7 @@ namespace TAS {
 		int getStreamCount();
 		StreamInfo ^ getStreamInfo(unsigned int streamIndex);
 		AVFieldOrder getFieldOrder();
-		bool getHaveAlphaChannel();
+		bool getHasTransparency();
 		AVRational getSAR();
 		AVRational getFrameRate();
 		char* _FFMpegWrapper::getTimeCode();
@@ -131,9 +131,9 @@ namespace TAS {
 				return ret;
 			}
 
-			bool GetHaveAlphaChannel()
+			bool GetHasTransparency()
 			{
-				return wrapper->getHaveAlphaChannel();
+				return wrapper->getHasTransparency();
 			}
 
 			String^ GetTimeCode()

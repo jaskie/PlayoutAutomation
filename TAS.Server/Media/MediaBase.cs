@@ -219,7 +219,7 @@ namespace TAS.Server.Media
         }
 
         [DtoMember]
-        public bool HaveAlphaChannel { get => _haveAlphaChannel; set => SetField(ref _haveAlphaChannel, value); }
+        public bool HasTransparency { get => _haveAlphaChannel; set => SetField(ref _haveAlphaChannel, value); }
 
         [DtoMember]
         public IMediaDirectory Directory { get; internal set; }

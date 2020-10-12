@@ -1168,7 +1168,7 @@ VALUES
             var flags = ((media is IServerMedia serverMedia && serverMedia.DoNotArchive) ? 0x1 : (uint)0x0)
                         | (media.IsProtected ? 1 << 1 : (uint)0x0)
                         | (media.FieldOrderInverted ? 1 << 2 : (uint)0)
-                        | (media.HaveAlphaChannel ? 1 << 3: (uint)0)
+                        | (media.HasTransparency ? 1 << 3: (uint)0)
                         | ((uint)media.MediaCategory << 4) // bits 4-7 of 1st byte
                         | ((uint)media.MediaEmphasis << 8) // bits 1-3 of second byte
                         | ((uint)media.Parental << 12) // bits 4-7 of second byte
