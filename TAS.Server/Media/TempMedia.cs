@@ -11,7 +11,7 @@ namespace TAS.Server.Media
        
         public TempMedia(TempDirectory directory, IMediaProperties originalMedia)
         {
-            OriginalMedia = originalMedia;
+            _originalMedia = originalMedia;
             Directory = directory;
             MediaGuid = originalMedia?.MediaGuid ?? Guid.NewGuid();
             FileName = originalMedia == null 
@@ -19,85 +19,85 @@ namespace TAS.Server.Media
                 : $"{originalMedia.MediaGuid}{Path.GetExtension(originalMedia.FileName)}";
         }
 
-        internal IMediaProperties OriginalMedia;
+        private IMediaProperties _originalMedia;
         internal StreamInfo[] StreamInfo;
 
         public override TAudioChannelMapping AudioChannelMapping
         {
-            get => OriginalMedia?.AudioChannelMapping ?? TAudioChannelMapping.Stereo;
+            get => _originalMedia?.AudioChannelMapping ?? TAudioChannelMapping.Stereo;
             set { }
         }
 
         public override string MediaName
         {
-            get => OriginalMedia?.MediaName ?? FileName;
+            get => _originalMedia?.MediaName ?? FileName;
             set { }
         }
 
 
         public override double AudioLevelIntegrated
         {
-            get => OriginalMedia?.AudioLevelIntegrated ?? -23d;
+            get => _originalMedia?.AudioLevelIntegrated ?? -23d;
             set {  }
         }
 
         public override double AudioLevelPeak
         {
-            get => OriginalMedia?.AudioLevelPeak ?? 0d;
+            get => _originalMedia?.AudioLevelPeak ?? 0d;
             set { }
         }
 
         public override double AudioVolume
         {
-            get => OriginalMedia?.AudioVolume ?? 1d;
+            get => _originalMedia?.AudioVolume ?? 1d;
             set { }
         }
 
         public override TimeSpan Duration
         {
-            get => OriginalMedia?.Duration ?? TimeSpan.Zero;
+            get => _originalMedia?.Duration ?? TimeSpan.Zero;
             set { }
         }
 
         public override TimeSpan DurationPlay
         {
-            get => OriginalMedia?.DurationPlay ?? TimeSpan.Zero;
+            get => _originalMedia?.DurationPlay ?? TimeSpan.Zero;
             set { }
         }
 
         public override TMediaCategory MediaCategory
         {
-            get => OriginalMedia?.MediaCategory ?? TMediaCategory.Uncategorized;
+            get => _originalMedia?.MediaCategory ?? TMediaCategory.Uncategorized;
             set {  }
         }
 
         public override byte Parental
         {
-            get => OriginalMedia?.Parental ?? 0;
+            get => _originalMedia?.Parental ?? 0;
             set {  }
         }
 
         public override TimeSpan TcPlay
         {
-            get => OriginalMedia?.TcPlay ?? TimeSpan.Zero;
+            get => _originalMedia?.TcPlay ?? TimeSpan.Zero;
             set { }
         }
 
         public override TimeSpan TcStart
         {
-            get => OriginalMedia?.TcStart ?? TimeSpan.Zero;
+            get => _originalMedia?.TcStart ?? TimeSpan.Zero;
             set { }
         }
 
         public override TVideoFormat VideoFormat
         {
-            get => OriginalMedia?.VideoFormat ?? TVideoFormat.Other;
+            get => _originalMedia?.VideoFormat ?? TVideoFormat.Other;
             set { }
         }
 
         public override bool FieldOrderInverted
         {
-            get => OriginalMedia?.FieldOrderInverted ?? false;
+            get => _originalMedia?.FieldOrderInverted ?? false;
             set { }
         }
         

@@ -42,7 +42,8 @@ namespace TAS {
 		{
 			if (pFormatCtx)
 				for (unsigned int i = 0; i < pFormatCtx->nb_streams; i++)
-				{
+					if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
+					{
 					AVRational time_base = pFormatCtx->streams[i]->time_base;
 					int64_t duration = pFormatCtx->streams[i]->duration;
 					return av_rescale(duration * AV_TIME_BASE, time_base.num, time_base.den);

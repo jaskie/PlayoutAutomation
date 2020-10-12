@@ -88,7 +88,7 @@ namespace TAS.Server.MediaOperation
         private async Task<bool> DoExecute()
         {
             bool result;
-            var helper = new FFMpegHelper(this, TimeSpan.FromTicks(_sources.Sum(e => e.Duration.Ticks)));
+            var helper = new FFMpegProcessWrapper(this, TimeSpan.FromTicks(_sources.Sum(e => e.Duration.Ticks)));
             if (!(DestDirectory is IngestDirectory destDirectory))
                 throw new InvalidOperationException("Can only export to IngestDirectory");
             if (destDirectory.AccessType == TDirectoryAccessType.FTP)
@@ -180,7 +180,7 @@ namespace TAS.Server.MediaOperation
                 Progress = (int)((media.FileSize * 100ul) / fs);
         }
 
-        private async Task<bool> EncodeToLocalFile(FFMpegHelper helper, IngestDirectory directory, string outFile)
+        private async Task<bool> EncodeToLocalFile(FFMpegProcessWrapper helper, IngestDirectory directory, string outFile)
         {
             var localExportDescriptions = _sources.ToArray();
             var tempMediae = new List<TempMedia>();
@@ -218,7 +218,7 @@ namespace TAS.Server.MediaOperation
             }
         }
 
-        private async Task<bool> EncodeFromLocalFiles(FFMpegHelper helper, IngestDirectory directory, string outFile, ICollection<MediaExportDescription> exportMedia)
+        private async Task<bool> EncodeFromLocalFiles(FFMpegProcessWrapper helper, IngestDirectory directory, string outFile, ICollection<MediaExportDescription> exportMedia)
         {            
             var files = new StringBuilder();
             var index = 0;

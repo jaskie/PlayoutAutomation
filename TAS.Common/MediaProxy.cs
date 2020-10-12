@@ -92,6 +92,7 @@ namespace TAS.Common
                 IdProgramme = media.IdProgramme,
                 KillDate = media.KillDate,
                 MediaEmphasis = media.MediaEmphasis,
+                HasTransparency = media.HasTransparency
             };
         }
     }

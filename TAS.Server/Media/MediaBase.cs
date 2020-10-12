@@ -39,7 +39,7 @@ namespace TAS.Server.Media
         private bool _verified;
         private TMediaStatus _mediaStatus;
         internal bool HasExtraLines; // VBI lines that shouldn't be displayed
-        private bool _haveAlphaChannel;
+        private bool _hasTransparency;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         #region IMediaProperties
@@ -219,7 +219,7 @@ namespace TAS.Server.Media
         }
 
         [DtoMember]
-        public bool HasTransparency { get => _haveAlphaChannel; set => SetField(ref _haveAlphaChannel, value); }
+        public bool HasTransparency { get => _hasTransparency; set => SetField(ref _hasTransparency, value); }
 
         [DtoMember]
         public IMediaDirectory Directory { get; internal set; }
@@ -251,6 +251,7 @@ namespace TAS.Server.Media
             VideoFormat = fromMedia.VideoFormat;
             MediaCategory = fromMedia.MediaCategory;
             Parental = fromMedia.Parental;
+            HasTransparency = fromMedia.HasTransparency;
         }
 
         public virtual Stream GetFileStream(bool forWrite)

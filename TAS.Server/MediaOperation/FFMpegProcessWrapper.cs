@@ -8,7 +8,7 @@ using NLog;
 
 namespace TAS.Server.MediaOperation
 {
-    public class FFMpegHelper
+    public class FFMpegProcessWrapper
     {
         private const string FFmpegExe = "ffmpeg.exe";
         private const string LProgressPattern = "time=" + @"\d\d:\d\d:\d\d\.?\d*";
@@ -16,7 +16,7 @@ namespace TAS.Server.MediaOperation
         private readonly FileOperationBase _fileOperation;
         private readonly TimeSpan _progressDuration;
 
-        public FFMpegHelper(FileOperationBase fileOperation, TimeSpan progressDuration)
+        public FFMpegProcessWrapper(FileOperationBase fileOperation, TimeSpan progressDuration)
         {
             _fileOperation = fileOperation;
             _progressDuration = progressDuration;

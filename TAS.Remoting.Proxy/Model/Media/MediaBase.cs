@@ -78,7 +78,7 @@ namespace TAS.Remoting.Model.Media
         private bool _fieldOrderInverted;
 
         [DtoMember(nameof(IMedia.HasTransparency))]
-        private bool _haveAlphaChannel;
+        private bool _hasTransparency;
 
 #pragma warning restore
 
@@ -205,11 +205,8 @@ namespace TAS.Remoting.Model.Media
             get => _fieldOrderInverted;
             set => Set(value);
         }
-        public bool HasTransparency 
-        { 
-            get => _haveAlphaChannel; 
-            set => Set(value); 
-        }
+
+        public bool HasTransparency => _hasTransparency;
 
         public bool Delete()
         {

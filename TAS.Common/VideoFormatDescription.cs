@@ -297,7 +297,7 @@ namespace TAS.Common
                 return interlaced ? Descriptions[TVideoFormat.PAL] : Descriptions[TVideoFormat.PAL_P];
             if (imageSize.Height == Descriptions[TVideoFormat.PAL_FHA].ImageSize.Height &&
                 frameRate == Descriptions[TVideoFormat.PAL_FHA].FrameRate &&
-                (imageSize.Width == 1024 || imageSize.Width == 1050))
+                (imageSize.Width == Descriptions[TVideoFormat.PAL].ImageSize.Width || imageSize.Width == 1024 || imageSize.Width == 1050))
                 return interlaced ? Descriptions[TVideoFormat.PAL_FHA] : Descriptions[TVideoFormat.PAL_FHA_P];
             return new VideoFormatDescription(imageSize, frameRate, sar, interlaced); 
         }
