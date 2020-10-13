@@ -698,7 +698,7 @@ namespace TAS.Client.ViewModels
             {
                 var mediaSearchViewModel = new MediaSearchViewmodel(
                     Engine.HaveRight(EngineRight.Preview) ? Engine.Preview : null,
-                    Engine, mediaTypes, layer, closeAfterAdd, baseEvent.Media?.FormatDescription())
+                    Engine, mediaTypes, layer, closeAfterAdd, Engine.FormatDescription)
                 {
                     BaseEvent = baseEvent,
                     NewEventStartType = startType
@@ -737,7 +737,7 @@ namespace TAS.Client.ViewModels
             LastAddedEvent = newEvent;
         }
 
-        public void AddSimpleEvent(IEvent baseEvent, TEventType eventType, bool insertUnder)
+        public void AddSimpleEvent(IEvent baseEvent, TEventType eventType, VideoLayer layer, bool insertUnder)
         {
             IEvent newEvent = null;
             switch (eventType)
@@ -746,7 +746,7 @@ namespace TAS.Client.ViewModels
                     newEvent = Engine.CreateNewEvent(
                         eventType: TEventType.Live,
                         eventName: resources._title_NewLive,
-                        videoLayer: VideoLayer.Program,
+                        videoLayer: layer,
                         isCGEnabled: Engine.EnableCGElementsForNewEvents,
                         isHold: Engine.StudioMode,
                         duration: new TimeSpan(0, 10, 0));
@@ -757,7 +757,7 @@ namespace TAS.Client.ViewModels
                         eventName: resources._title_EmptyMovie,
                         isCGEnabled: Engine.EnableCGElementsForNewEvents,
                         isHold: Engine.StudioMode,
-                        videoLayer: VideoLayer.Program);
+                        videoLayer: layer);
                     break;
                 case TEventType.Rundown:
                     newEvent = Engine.CreateNewEvent(
@@ -1239,7 +1239,7 @@ namespace TAS.Client.ViewModels
                     var defaultLogo = cgController?.DefaultLogo ?? 0;
                     newEvent = Engine.CreateNewEvent(
                         eventName: e.MediaName,
-                        videoLayer: VideoLayer.Program,
+                        videoLayer: mediaSearchVm.Layer,
                         eventType: TEventType.Movie,
                         scheduledTC: e.TCIn,
                         duration: e.Duration,

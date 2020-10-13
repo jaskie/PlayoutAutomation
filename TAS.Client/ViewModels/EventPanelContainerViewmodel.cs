@@ -48,7 +48,7 @@ namespace TAS.Client.ViewModels
 
         private void _addSubRundown(object o)
         {
-            EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, true);
+            EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, VideoLayer.None, true);
         }
         protected override void OnDispose()
         {

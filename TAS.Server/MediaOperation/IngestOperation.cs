@@ -213,7 +213,7 @@ namespace TAS.Server.MediaOperation
             var encoderParameters = new EncoderParameters(1) { Param = { [0] = encoderParameter } };
             bmp.Save(Dest.FullPath, imageCodecInfo, encoderParameters);
             Dest.MediaStatus = TMediaStatus.Copied;
-            Dest.Verify(false);
+            Dest.Verify(true);
             return true;
         }
 

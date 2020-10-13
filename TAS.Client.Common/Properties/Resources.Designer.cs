@@ -106,15 +106,6 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add.
-        /// </summary>
-        public static string _button_Add {
-            get {
-                return ResourceManager.GetString("_button_Add", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Confirmation.
         /// </summary>
         public static string _caption_Confirmation {

@@ -20,6 +20,8 @@ namespace TAS.Client.ViewModels
             ev.PositionChanged += EventPositionChanged;
             ev.SubEventChanged += OnSubeventChanged;
 
+            IsPrimaryEvent = ev.Layer == VideoLayer.Program || ev.EventType == TEventType.Container || ev.EventType == TEventType.Rundown;
+
             CommandToggleHold = new UiCommand
             (
                 o =>
@@ -56,17 +58,17 @@ namespace TAS.Client.ViewModels
             );
             CommandAddNextRundown = new UiCommand
             (
-                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, false),
+                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, VideoLayer.None, false),
                 _canAddNextItem
             );
             CommandAddNextEmptyMovie = new UiCommand
             (
-                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Movie, false),
+                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Movie, VideoLayer.Program, false),
                 CanAddNextMovie
             );
             CommandAddNextLive = new UiCommand
             (
-                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, false),
+                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, VideoLayer.Program, false),
                 CanAddNewLive
             );
             CommandAddNextMovie = new UiCommand
@@ -79,14 +81,16 @@ namespace TAS.Client.ViewModels
             (
                 o => EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent,
                     new[] { TMediaType.Animation }, VideoLayer.Animation, true),
-                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+                o => IsPrimaryEvent && Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             );
             CommandAddCommandScript = new UiCommand
             (
                 o => EngineViewmodel.AddCommandScriptEvent(Event),
-                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+                o => IsPrimaryEvent && Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             );
         }
+
+        public bool IsPrimaryEvent { get; }
 
         private bool _canToggleLayer(object obj)
         {
@@ -130,7 +134,8 @@ namespace TAS.Client.ViewModels
 
         bool _canAddNextItem(object o)
         {
-            return Event.PlayState != TPlayState.Played 
+            return IsPrimaryEvent
+                   && Event.PlayState != TPlayState.Played 
                    && !Event.IsLoop
                    && Event.HaveRight(EventRight.Create);
         }
@@ -205,7 +210,7 @@ namespace TAS.Client.ViewModels
 
         public TMediaEmphasis MediaEmphasis => (Media as IPersistentMedia)?.MediaEmphasis ?? TMediaEmphasis.None;
 
-        public string Layer => Event.Layer.ToString();
+        public VideoLayer Layer => Event?.Layer ?? VideoLayer.None;
 
         public double AudioVolume => Event == null ? 0 : Event.AudioVolume.GetValueOrDefault();
 

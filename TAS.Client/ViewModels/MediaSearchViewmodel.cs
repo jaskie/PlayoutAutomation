@@ -31,14 +31,13 @@ namespace TAS.Client.ViewModels
         private string _searchText = string.Empty;
         private object _mediaCategory;
         private MediaViewViewmodel _selectedItem;
-        private string _okButtonText = "OK";
         internal TStartType NewEventStartType;
         private ObservableCollection<MediaViewViewmodel> _items = new ObservableCollection<MediaViewViewmodel>();
         private bool _isRecursive;
         private bool _showExpired;
 
         public MediaSearchViewmodel(IPreview preview, IEngine engine, TMediaType[] mediaTypes, VideoLayer layer,
-            bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
+            bool isDialog, VideoFormatDescription videoFormatDescription)
         {
             Engine = engine;
             Layer = layer;
@@ -56,10 +55,13 @@ namespace TAS.Client.ViewModels
             CommandAdd = new UiCommand(_add, _allowAdd);
             _mediaCategory = MediaCategories.FirstOrDefault();
             NewEventStartType = TStartType.After;
-            SetupSearchDirectory(closeAfterAdd, mediaTypes, layer);
+            IsDialog = isDialog;
+            SetupSearchDirectory(layer);
         }
 
-        private async void SetupSearchDirectory(bool closeAfterAdd, TMediaType[] mediaTypes, VideoLayer videoLayer)
+        public bool IsDialog { get; }
+
+        private async void SetupSearchDirectory(VideoLayer videoLayer)
         {
             var pri = _mediaTypes.Contains(TMediaType.Animation)
                 ? (IWatcherDirectory)Engine.MediaManager.AnimationDirectoryPRI
@@ -81,8 +83,6 @@ namespace TAS.Client.ViewModels
             _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
             _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;
 
-            if (!closeAfterAdd)
-                OkButtonText = resources._button_Add;
             Items = new ObservableCollection<MediaViewViewmodel>(
                 _searchDirectory.GetAllFiles()
                     .Where(m => CanAddMediaToCollection(m))
@@ -179,18 +179,6 @@ namespace TAS.Client.ViewModels
 
         public bool CanEnableCGElements => Engine.CGElementsController != null && Layer == VideoLayer.Program;
 
-        public string OkButtonText
-        {
-            get => _okButtonText;
-            set
-            {
-                if (value == _okButtonText)
-                    return;
-                _okButtonText = value;
-                NotifyPropertyChanged(nameof(OkButtonText));
-            }
-        }
-
         public event EventHandler<MediaSearchEventArgs> MediaChoosen;
 
         internal IEvent BaseEvent
@@ -219,13 +207,17 @@ namespace TAS.Client.ViewModels
 
         private bool CanAddMediaToCollection(IMedia media)
         {
-            return
-                media != null
-                && _mediaTypes.Contains(media.MediaType)
-                &&
-                   ((_mediaTypes.Contains(TMediaType.Still) && (_videoFormatDescription == null || _videoFormatDescription.IsWideScreen == media.FormatDescription().IsWideScreen))
-                 || (media.MediaType == TMediaType.Movie && media.FrameRate().Equals(_videoFormatDescription?.FrameRate))
-                 || media.MediaType == TMediaType.Animation);
+            if (media == null || !_mediaTypes.Contains(media.MediaType))
+                return false;
+            switch (Layer)
+            {
+                case VideoLayer.Program:
+                    return media.MediaType == TMediaType.Movie && media.FrameRate().Equals(_videoFormatDescription?.FrameRate);
+                case VideoLayer.Animation:
+                    return true;
+                default:
+                    return media.HasTransparency && _videoFormatDescription.IsWideScreen == media.FormatDescription().IsWideScreen;
+            }
         }
 
         private void _searchDirectory_MediaVerified(object sender, MediaEventArgs e)
