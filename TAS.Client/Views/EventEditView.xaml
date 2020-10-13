@@ -12,7 +12,7 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d" 
              d:DesignWidth="360"
-             d:DesignHeight="530"
+             d:DesignHeight="630"
              BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey }}"
              >
     <Grid>
@@ -91,8 +91,8 @@
             </ScrollViewer.Resources>
             <Grid IsSharedSizeScope="True" IsEnabled="{Binding IsEditEnabled}" >
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="88" SharedSizeGroup="Labels"/>
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
+                    <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -163,7 +163,7 @@
                         <CheckBox Grid.Column="1" Content="{Resx _autoStartForced}" ToolTip="{Resx _autoStartForced.ToolTip}" IsChecked="{Binding AutoStartForced}" Margin="1,3" Width="110"/>
                         <CheckBox Grid.Column="2" Content="{Resx _autoStartEveryday}" IsChecked="{Binding AutoStartDaily}" Margin="1,3" Width="Auto" />
                     </Grid>
-                    <Grid Grid.Row="3" Grid.Column="1" Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
+                    <Grid Grid.Row="3" Grid.Column="1" Visibility="{Binding IsPrimaryEvent, Converter={StaticResource BoolToVis}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition/>
@@ -214,7 +214,7 @@
                             <Label Grid.Column="2" Content="{Resx _at}" Width="Auto"/>
                             <controls:TimecodeEdit VerticalContentAlignment="Center" Grid.Column="3" Timecode="{Binding ScheduledTimeOfDay, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
                         </Grid>
-                        <Grid Grid.Row="1" Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
+                        <Grid Grid.Row="1" Visibility="{Binding IsPrimaryEvent, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="Labels" />
                                 <ColumnDefinition/>
@@ -269,7 +269,7 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
                         </Grid>
-                        <Grid Grid.Row="4" Visibility="{Binding IsMovieOrLive, Converter={StaticResource BoolToVis}}" >
+                        <Grid Grid.Row="4" Visibility="{Binding IsPrimaryMovieOrLive, Converter={StaticResource BoolToVis}}" >
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -408,7 +408,7 @@
                                 </UniformGrid>
                             </Grid>
                         </Grid>
-                        <Grid Grid.Row="5" Visibility="{Binding IsStillImage, Converter={StaticResource BoolToVis}}">
+                        <Grid Grid.Row="5" Visibility="{Binding IsSecondaryMovieOrLive, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
                                 <ColumnDefinition/>

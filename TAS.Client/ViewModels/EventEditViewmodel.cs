@@ -53,6 +53,8 @@ namespace TAS.Client.ViewModels
         public EventEditViewmodel(IEvent @event, EngineViewmodel engineViewModel): base(@event)
         {
             _engineViewModel = engineViewModel;
+            IsPrimaryEvent = @event.Layer == VideoLayer.Program || @event.EventType == TEventType.Rundown;
+            IsSecondaryMovieOrLive = !IsPrimaryEvent && (@event.EventType == TEventType.Movie || @event.EventType == TEventType.StillImage);
             Model.PropertyChanged += ModelPropertyChanged;
             if (@event.EventType == TEventType.Container)
             {
@@ -234,18 +236,13 @@ namespace TAS.Client.ViewModels
 
         public bool IsAutoStartEvent => _startType == TStartType.OnFixedTime;
 
-        public bool IsMovieOrLive => Model.EventType == TEventType.Movie || Model.EventType == TEventType.Live;
+        public bool IsPrimaryMovieOrLive =>  Model.Layer == VideoLayer.Program && (Model.EventType == TEventType.Movie || Model.EventType == TEventType.Live);
+
+        public bool IsSecondaryMovieOrLive { get; }
 
         public bool IsLive => Model.EventType == TEventType.Live;
 
-        public bool IsMovieOrLiveOrRundown
-        {
-            get
-            {
-                var et = Model.EventType;
-                return et == TEventType.Movie || et == TEventType.Live || et == TEventType.Rundown;
-            }
-        }
+        public bool IsPrimaryEvent { get; }
 
         public bool IsCommandScript => Model is ICommandScript;
 
@@ -414,7 +411,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsDisplayBindToEnd => (_eventType == TEventType.CommandScript || _eventType == TEventType.StillImage)
+        public bool IsDisplayBindToEnd => (_eventType == TEventType.CommandScript || ((_eventType == TEventType.StillImage || _eventType == TEventType.Movie) && Model.Layer != VideoLayer.Program))
                                           && (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd);
 
         public bool IsEventNameFocused
@@ -992,7 +989,7 @@ namespace TAS.Client.ViewModels
             using (var vm = new MediaSearchViewmodel(
                 _engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine.Preview : null,
                 Model.Engine,
-                mediaTypes, VideoLayer.Program, true, videoFormatDescription)
+                mediaTypes, Model.Layer, true, videoFormatDescription)
             {
                 BaseEvent = baseEvent,
                 NewEventStartType = startType
