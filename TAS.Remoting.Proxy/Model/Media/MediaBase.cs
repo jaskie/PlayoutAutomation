@@ -9,7 +9,7 @@ namespace TAS.Remoting.Model.Media
 {
     public abstract class MediaBase : ProxyObjectBase, IMedia
     {
-        #pragma warning disable CS0649 
+#pragma warning disable CS0649
 
         [DtoMember(nameof(IMedia.AudioChannelMapping))]
         private TAudioChannelMapping _audioChannelMapping;
@@ -77,7 +77,10 @@ namespace TAS.Remoting.Model.Media
         [DtoMember(nameof(IMedia.FieldOrderInverted))]
         private bool _fieldOrderInverted;
 
-        #pragma warning restore
+        [DtoMember(nameof(IMedia.HasTransparency))]
+        private bool _hasTransparency;
+
+#pragma warning restore
 
         public TAudioChannelMapping AudioChannelMapping
         {
@@ -203,6 +206,8 @@ namespace TAS.Remoting.Model.Media
             set => Set(value);
         }
 
+        public bool HasTransparency => _hasTransparency;
+
         public bool Delete()
         {
             return Query<bool>();
@@ -220,12 +225,12 @@ namespace TAS.Remoting.Model.Media
 
         public void RenameFileTo(string newFileName)
         {
-            Invoke(parameters: new object[] {newFileName});
+            Invoke(parameters: new object[] { newFileName });
         }
 
         public void Verify(bool updateFormatAndDurations)
         {
-            Invoke(parameters: new object[] {updateFormatAndDurations});
+            Invoke(parameters: new object[] { updateFormatAndDurations });
         }
 
         public override string ToString()

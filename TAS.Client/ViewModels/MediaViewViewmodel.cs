@@ -3,7 +3,6 @@ using System;
 using System.Linq;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -19,10 +18,10 @@ namespace TAS.Client.ViewModels
         private IMediaSegments _segments;
         private bool _isExpanded;
         private MediaSegmentViewmodel _selectedSegment;
-        private bool _isArchived;
-        private TIngestStatus _ingestStatus;
+        private Lazy<bool> _isArchivedLazy;
+        private Lazy<TIngestStatus> _ingestStatusLazy;
 
-        public MediaViewViewmodel(IMedia media)
+        public MediaViewViewmodel(IMedia media, IMediaManager mediaManager)
         {
             Media = media;
             media.PropertyChanged += OnMediaPropertyChanged;
@@ -37,6 +36,13 @@ namespace TAS.Client.ViewModels
                     return result;
                 });
             }
+            if (media is IServerMedia serverMedia)
+                _isArchivedLazy = new Lazy<bool>(() => mediaManager.ArchiveDirectory?.ContainsMedia(serverMedia.MediaGuid) ?? false);
+            if (media is IIngestMedia ingestMedia)
+                _ingestStatusLazy = new Lazy<TIngestStatus>(() => mediaManager.MediaDirectoryPRI != null
+                    ? ingestMedia.GetIngestStatus(mediaManager.MediaDirectoryPRI)
+                    : TIngestStatus.Unknown
+                    );
         }
 
         protected override void OnDispose()
@@ -63,7 +69,15 @@ namespace TAS.Client.ViewModels
         public int SegmentCount => _mediaSegments?.Value.Count ?? 0;
         public bool HasSegments => SegmentCount != 0;
         public bool IsTrimmed => TcPlay != TcStart || Duration != DurationPlay;
-        public bool IsArchived { get => _isArchived; set => SetField(ref _isArchived, value); }
+        public bool IsArchived
+        {
+            get => _isArchivedLazy?.Value ?? false; 
+            set
+            {
+                _isArchivedLazy = new Lazy<bool>(() => value);
+                NotifyPropertyChanged();
+            }
+        }
         public bool IsExpired
         {
             get
@@ -78,7 +92,15 @@ namespace TAS.Client.ViewModels
         public int ClipNr => (Media as IXdcamMedia)?.ClipNr ?? 0;
         public int TotalClipCount => (Media.Directory as IIngestDirectory)?.XdcamClipCount ?? 0;
 
-        public TIngestStatus IngestStatus { get => _ingestStatus; set => SetField(ref _ingestStatus, value); }
+        public TIngestStatus IngestStatus
+        {
+            get => _ingestStatusLazy?.Value ?? TIngestStatus.Unknown; 
+            set
+            {
+                _ingestStatusLazy = new Lazy<TIngestStatus>(() => value);
+                NotifyPropertyChanged();
+            }
+        }
 
         public TVideoFormat VideoFormat => Media.VideoFormat;
         public bool IsExpanded

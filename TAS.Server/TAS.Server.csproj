@@ -84,7 +84,7 @@
     <Compile Include="Engine.cs" />
     <Compile Include="EngineController.cs" />
     <Compile Include="Event.cs" />
-    <Compile Include="MediaOperation\FFMpegHelper.cs" />
+    <Compile Include="MediaOperation\FFMpegProcessWrapper.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="MediaOperation\CopyOperation.cs" />
     <Compile Include="MediaOperation\LoudnessOperation.cs" />

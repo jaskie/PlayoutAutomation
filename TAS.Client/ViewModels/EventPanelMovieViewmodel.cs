@@ -26,7 +26,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                if (Event.PlayState != TPlayState.Scheduled)
+                if (Event.PlayState == TPlayState.Played)
                     return TMediaErrorInfo.NoError;
                 var media = Media;
                 if (media == null || media.MediaStatus != TMediaStatus.Available || !media.FileExists())
@@ -50,6 +50,7 @@ namespace TAS.Client.ViewModels
                 case nameof(IEvent.Duration):
                 case nameof(IEvent.ScheduledTc):
                 case nameof(IEvent.ScheduledTime):
+                case nameof(IEvent.PlayState):
                     NotifyPropertyChanged(nameof(MediaErrorInfo));
                     break;
             }

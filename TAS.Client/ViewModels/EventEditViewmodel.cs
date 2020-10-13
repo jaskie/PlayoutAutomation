@@ -53,6 +53,8 @@ namespace TAS.Client.ViewModels
         public EventEditViewmodel(IEvent @event, EngineViewmodel engineViewModel): base(@event)
         {
             _engineViewModel = engineViewModel;
+            IsPrimaryEvent = @event.Layer == VideoLayer.Program || @event.EventType == TEventType.Rundown;
+            IsSecondaryMovieOrLive = !IsPrimaryEvent && (@event.EventType == TEventType.Movie || @event.EventType == TEventType.StillImage);
             Model.PropertyChanged += ModelPropertyChanged;
             if (@event.EventType == TEventType.Container)
             {
@@ -234,18 +236,13 @@ namespace TAS.Client.ViewModels
 
         public bool IsAutoStartEvent => _startType == TStartType.OnFixedTime;
 
-        public bool IsMovieOrLive => Model.EventType == TEventType.Movie || Model.EventType == TEventType.Live;
+        public bool IsPrimaryMovieOrLive =>  Model.Layer == VideoLayer.Program && (Model.EventType == TEventType.Movie || Model.EventType == TEventType.Live);
+
+        public bool IsSecondaryMovieOrLive { get; }
 
         public bool IsLive => Model.EventType == TEventType.Live;
 
-        public bool IsMovieOrLiveOrRundown
-        {
-            get
-            {
-                var et = Model.EventType;
-                return et == TEventType.Movie || et == TEventType.Live || et == TEventType.Rundown;
-            }
-        }
+        public bool IsPrimaryEvent { get; }
 
         public bool IsCommandScript => Model is ICommandScript;
 
@@ -414,7 +411,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsDisplayBindToEnd => (_eventType == TEventType.CommandScript || _eventType == TEventType.StillImage)
+        public bool IsDisplayBindToEnd => (_eventType == TEventType.CommandScript || ((_eventType == TEventType.StillImage || _eventType == TEventType.Movie) && Model.Layer != VideoLayer.Program))
                                           && (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd);
 
         public bool IsEventNameFocused
@@ -698,7 +695,7 @@ namespace TAS.Client.ViewModels
         {
             if (Model.EventType == TEventType.Movie)
             {
-                _chooseMedia(TMediaType.Movie, Model, Model.StartType);
+                _chooseMedia(new[] { TMediaType.Movie }, Model, Model.StartType);
             }
         }
 
@@ -706,8 +703,9 @@ namespace TAS.Client.ViewModels
         {
             using (var evm = new MediaEditWindowViewmodel(Model.Media, Model.Engine.MediaManager) )
             {
-                if (UiServices.ShowDialog<Views.MediaEditWindowView>(evm) == true)
-                    evm.Editor.Save();
+                if (WindowManager.Current.ShowDialog(evm) != true)
+                    return;
+                evm.Editor.Save();
             }
         }
 
@@ -986,29 +984,28 @@ namespace TAS.Client.ViewModels
             return null;
         }
 
-        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType,
+        private void _chooseMedia(TMediaType[] mediaTypes, IEvent baseEvent, TStartType startType,
             VideoFormatDescription videoFormatDescription = null)
         {
             using (var vm = new MediaSearchViewmodel(
                 _engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine.Preview : null,
                 Model.Engine,
-                mediaType, VideoLayer.Program, true, videoFormatDescription)
+                mediaTypes, Model.Layer, true, videoFormatDescription)
             {
                 BaseEvent = baseEvent,
                 NewEventStartType = startType
             })
             {
-                if (UiServices.ShowDialog<Views.MediaSearchView>(vm) == true)
-                {
-                    if (!(vm.SelectedMedia is IServerMedia media))
-                        return;
-                    Media = media;
-                    Duration = media.DurationPlay;
-                    ScheduledTc = media.TcPlay;
-                    AudioVolume = null;
-                    EventName = media.MediaName;
-                    _setCGElements(media);
-                }
+                if (WindowManager.Current.ShowDialog(vm) != true)
+                    return;
+                if (!(vm.SelectedMedia is IServerMedia media))
+                    return;
+                Media = media;
+                Duration = media.DurationPlay;
+                ScheduledTc = media.TcPlay;
+                AudioVolume = null;
+                EventName = media.MediaName;
+                _setCGElements(media);
             }
 
         }

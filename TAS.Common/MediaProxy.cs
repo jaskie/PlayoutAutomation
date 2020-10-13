@@ -25,6 +25,7 @@ namespace TAS.Common
         public TVideoFormat VideoFormat { get; set; }
         public bool FieldOrderInverted { get; set; }
         public Guid MediaGuid { get; set; }
+        public bool HasTransparency { get; set; }
 
         public static MediaProxy FromMedia(IMediaProperties media)
         {
@@ -91,6 +92,7 @@ namespace TAS.Common
                 IdProgramme = media.IdProgramme,
                 KillDate = media.KillDate,
                 MediaEmphasis = media.MediaEmphasis,
+                HasTransparency = media.HasTransparency
             };
         }
     }

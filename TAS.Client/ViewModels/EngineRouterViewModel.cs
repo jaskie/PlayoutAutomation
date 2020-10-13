@@ -24,7 +24,7 @@ namespace TAS.Client.ViewModels
         {
             using (var switcherVm = new SwitcherViewModel(Router))
             {
-                UiServices.WindowManager.ShowDialog(switcherVm, resources._caption_Switcher);
+                WindowManager.Current.ShowDialog(switcherVm, resources._caption_Switcher);
             }
         }
 

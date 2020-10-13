@@ -8,7 +8,7 @@ namespace TAS.Server.VideoSwitchTests
     [TestClass]
     public class CommunicatorTests
     {
-        Server.VideoSwitch.VideoSwitch videoSwitch;
+        Server.VideoSwitch.Model.VideoSwitcher videoSwitch;
 
         [TestInitialize]
         public void TestInitialize()
@@ -20,7 +20,7 @@ namespace TAS.Server.VideoSwitchTests
 
             Directory.SetCurrentDirectory(pluginsPath);
 
-            videoSwitch = new Server.VideoSwitch.VideoSwitch(VideoSwitch.VideoSwitch.Type.Atem);            
+            videoSwitch = new Server.VideoSwitch.Model.VideoSwitcher(VideoSwitch.Model.CommunicatorType.Atem);            
         }
         
         [TestMethod]

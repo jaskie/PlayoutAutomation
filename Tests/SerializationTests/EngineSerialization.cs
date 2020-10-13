@@ -77,7 +77,7 @@ namespace SerializationTests
         [DynamicData(nameof(GetConfigEngine), DynamicDataSourceType.Method)]
         public void SerializeAndDeserialize(IConfigEngine configEngine)
         {
-            _jsonSerializerSettings.SerializationBinder = new HibernationSerializationBinder(ConfigurationPluginManager.Current.PluginTypeBinders);
+            _jsonSerializerSettings.SerializationBinder = new HibernationSerializationBinder(ConfigurationPluginManager.Current.Binders);
             var json = JsonConvert.SerializeObject(configEngine, _jsonSerializerSettings);
 
             _jsonSerializerSettings.SerializationBinder = null;

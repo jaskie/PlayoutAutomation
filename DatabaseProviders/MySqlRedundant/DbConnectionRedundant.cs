@@ -144,11 +144,9 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-        private readonly object _stateLock = new object();
-
         private void _connection_StateChange(object sender, StateChangeEventArgs e)
         {
-            lock (_stateLock)
+            lock (this)
             {
                 var newState = StateRedundant;
                 if (sender == ConnectionPrimary)

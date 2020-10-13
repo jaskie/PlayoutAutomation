@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Windows.Media.Imaging;
 using TAS.Client.Common;
 
@@ -61,7 +62,10 @@ namespace TAS.Server.CgElementsController.Configurator
 
         private void UploadClientImage(object obj)
         {
-            UploadClientImagePath = UiServices.CommonDialogManager.OpenFileDialog();
+            var dialog = new OpenFileDialog();
+            if (dialog.ShowDialog() != true)
+                return;
+            UploadClientImagePath = dialog.FileName;
             if (Uri.TryCreate(UploadClientImagePath, UriKind.Absolute, out var clientBitmapUri))
                 ClientBitmap = new BitmapImage(clientBitmapUri);
             else
@@ -70,7 +74,10 @@ namespace TAS.Server.CgElementsController.Configurator
 
         private void UploadServerImage(object obj)
         {
-            UploadServerImagePath = UiServices.CommonDialogManager.OpenFileDialog();
+            var dialog = new OpenFileDialog();
+            if (dialog.ShowDialog() != true)
+                return;
+            UploadServerImagePath = dialog.FileName;
             if (Uri.TryCreate(UploadServerImagePath, UriKind.Absolute, out var serverBitmapUri))
                 ServerBitmap = new BitmapImage(serverBitmapUri);
             else

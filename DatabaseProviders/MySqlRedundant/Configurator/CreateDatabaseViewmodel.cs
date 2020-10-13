@@ -43,7 +43,7 @@ namespace TAS.Database.MySqlRedundant.Configurator
         {
             using (var vm = new ConnectionStringViewModel(ConnectionString))
             {
-                if (UiServices.WindowManager.ShowDialog(vm, "Edit connection parameters") == true)
+                if (WindowManager.Current.ShowDialog(vm, "Edit connection parameters") == true)
                     ConnectionString = vm.ConnectionString;
             }
         }

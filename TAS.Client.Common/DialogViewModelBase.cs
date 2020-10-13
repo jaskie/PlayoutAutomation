@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xceed.Wpf.AvalonDock;
 
 namespace TAS.Client.Common
 {
@@ -33,7 +28,7 @@ namespace TAS.Client.Common
         {
             DialogResult = true;
             Closing?.Invoke(this, EventArgs.Empty);
-            UiServices.WindowManager.CloseWindow(this);            
+            WindowManager.Current.CloseWindow(this);            
         }
 
         /// <summary>
@@ -43,7 +38,7 @@ namespace TAS.Client.Common
         {
             DialogResult = false;
             Closing?.Invoke(this, EventArgs.Empty);
-            UiServices.WindowManager.CloseWindow(this);
+            WindowManager.Current.CloseWindow(this);
         }
 
         public ViewModelBase Content { get => _content; private set => SetField(ref _content, value); }

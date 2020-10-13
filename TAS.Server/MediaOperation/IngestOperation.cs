@@ -16,7 +16,7 @@ using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Dependencies;
 using TAS.Server.Media;
-using LogLevel = NLog.LogLevel;
+using NLog;
 using jNet.RPC;
 
 namespace TAS.Server.MediaOperation
@@ -213,7 +213,7 @@ namespace TAS.Server.MediaOperation
             var encoderParameters = new EncoderParameters(1) { Param = { [0] = encoderParameter } };
             bmp.Save(Dest.FullPath, imageCodecInfo, encoderParameters);
             Dest.MediaStatus = TMediaStatus.Copied;
-            Dest.Verify(false);
+            Dest.Verify(true);
             return true;
         }
 
@@ -227,20 +227,20 @@ namespace TAS.Server.MediaOperation
         private string GetEncodeParameters(IngestDirectory sourceDir, MediaBase inputMedia, StreamInfo[] inputStreams)
         {
             var videoFilters = new List<string>();
-            var ep = new StringBuilder();
+            var resultParameters = new StringBuilder();
             #region Video
-            ep.AppendFormat(" -c:v {0}", sourceDir.VideoCodec);
-            if (sourceDir.VideoCodec == TVideoCodec.copy)
+            resultParameters.AppendFormat(" -c:v {0}", sourceDir.VideoCodec);
+            if (sourceDir.VideoCodec == TVideoCodec.copy || inputMedia.HasTransparency)
             {
                 if (AspectConversion == TAspectConversion.Force16_9)
-                    ep.Append(" -aspect 16/9");
+                    resultParameters.Append(" -aspect 16/9");
                 else
                 if (AspectConversion == TAspectConversion.Force4_3)
-                    ep.Append(" -aspect 4/3");
+                    resultParameters.Append(" -aspect 4/3");
             }
             else
             {
-                ep.AppendFormat(" -b:v {0}k", (int)(inputMedia.FormatDescription().ImageSize.Height * 13 * sourceDir.VideoBitrateRatio));
+                resultParameters.AppendFormat(" -b:v {0}k", (int)(inputMedia.FormatDescription().ImageSize.Height * 13 * sourceDir.VideoBitrateRatio));
                 var outputFormatDescription = Dest.FormatDescription();
                 var inputFormatDescription = inputMedia.FormatDescription();
                 AddConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], videoFilters);
@@ -258,26 +258,26 @@ namespace TAS.Server.MediaOperation
                     if (outputFormatDescription.Interlaced)
                     {
                         videoFilters.Add("fieldorder=tff");
-                        ep.Append(" -flags +ildct+ilme");
+                        resultParameters.Append(" -flags +ildct+ilme");
                     }
                     else
                         videoFilters.Add("w3fdif");
                 }
                 var additionalEncodeParams = sourceDir.EncodeParams;
                 if (!string.IsNullOrWhiteSpace(additionalEncodeParams))
-                    ep.Append(" ").Append(additionalEncodeParams.Trim());
+                    resultParameters.Append(" ").Append(additionalEncodeParams.Trim());
             }
             var lastFilterIndex = videoFilters.Count - 1;
             if (lastFilterIndex >= 0)
             {
                 videoFilters[lastFilterIndex] = $"{videoFilters[lastFilterIndex]}[v]";
-                ep.Append(" -map \"[v]\"");
+                resultParameters.Append(" -map \"[v]\"");
             }
             else
             {
                 var videoStream = inputStreams.FirstOrDefault(s => s.StreamType == StreamType.VIDEO);
                 if (videoStream != null)
-                    ep.AppendFormat(" -map 0:{0}", videoStream.Index);
+                    resultParameters.AppendFormat(" -map 0:{0}", videoStream.Index);
             }
 
             #endregion // Video
@@ -287,10 +287,10 @@ namespace TAS.Server.MediaOperation
             var audioStreams = inputStreams.Where(s => s.StreamType == StreamType.AUDIO).ToArray();
             if (audioStreams.Length > 0)
             {
-                ep.AppendFormat(" -c:a {0}", sourceDir.AudioCodec);
+                resultParameters.AppendFormat(" -c:a {0}", sourceDir.AudioCodec);
                 if (sourceDir.AudioCodec != TAudioCodec.copy)
                 {
-                    ep.AppendFormat(" -b:a {0}k", (int)(2 * 128 * sourceDir.AudioBitrateRatio));
+                    resultParameters.AppendFormat(" -b:a {0}k", (int)(2 * 128 * sourceDir.AudioBitrateRatio));
                     var audioChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
                     //                    int inputTotalChannels = audioStreams.Sum(s => s.ChannelCount);
                     int requiredOutputChannels;
@@ -337,31 +337,31 @@ namespace TAS.Server.MediaOperation
                     {
                         case TAudioChannelMapping.Mono:
                         case TAudioChannelMapping.Stereo:
-                            ep.Append(" -ac 2");
+                            resultParameters.Append(" -ac 2");
                             break;
                     }
                     if (Math.Abs(AudioVolume) > double.Epsilon)
                         AddConversion(new MediaConversion(AudioVolume), audioFilters);
-                    ep.Append(" -ar 48000");
+                    resultParameters.Append(" -ar 48000");
                 }
             }
             lastFilterIndex = audioFilters.Count - 1;
             if (lastFilterIndex >= 0)
             {
                 audioFilters[lastFilterIndex] = $"{audioFilters[lastFilterIndex]}[a]";
-                ep.Append(" -map \"[a]\"");
+                resultParameters.Append(" -map \"[a]\"");
             }
             else
             {
                 var audioStream = inputStreams.FirstOrDefault(s => s.StreamType == StreamType.AUDIO);
                 if (audioStream != null)
-                    ep.AppendFormat(" -map 0:{0}", audioStream.Index);
+                    resultParameters.AppendFormat(" -map 0:{0}", audioStream.Index);
             }
             #endregion // audio
             var filters = videoFilters.Concat(audioFilters).ToArray();
             if (filters.Length > 0)
-                ep.AppendFormat(" -filter_complex \"{0}\"", string.Join(",", filters));
-            return ep.ToString();
+                resultParameters.AppendFormat(" -filter_complex \"{0}\"", string.Join(",", filters));
+            return resultParameters.ToString();
         }
 
         private bool IsTrimmed()
@@ -382,7 +382,7 @@ namespace TAS.Server.MediaOperation
             var destMedia = Dest;
             if (destMedia == null)
                 return false;
-            var helper = new FFMpegHelper(this, localSourceMedia.Duration);
+            var helper = new FFMpegProcessWrapper(this, localSourceMedia.Duration);
             destMedia.MediaStatus = TMediaStatus.Copying;
             if (!(Source.Directory is IngestDirectory ingestDirectory))
                 throw new ApplicationException("Media not belongs to IngestDirectory");

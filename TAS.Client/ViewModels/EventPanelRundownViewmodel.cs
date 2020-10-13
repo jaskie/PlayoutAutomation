@@ -57,17 +57,17 @@ namespace TAS.Client.ViewModels
 
         private void _addSubLive(object obj)
         {
-            EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, true);
+            EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, VideoLayer.Program, true);
         }
 
         private void _addSubRundown(object obj)
         {
-            EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, true);
+            EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, VideoLayer.None, true);
         }
 
         private void _addSubMovie(object obj)
         {
-            EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, TMediaType.Movie, VideoLayer.Program, false);
+            EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, new[] { TMediaType.Movie }, VideoLayer.Program, false);
         }
 
         private bool _canAddSubEvent(object o)

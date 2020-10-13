@@ -42,7 +42,8 @@ namespace TAS {
 		{
 			if (pFormatCtx)
 				for (unsigned int i = 0; i < pFormatCtx->nb_streams; i++)
-				{
+					if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
+					{
 					AVRational time_base = pFormatCtx->streams[i]->time_base;
 					int64_t duration = pFormatCtx->streams[i]->duration;
 					return av_rescale(duration * AV_TIME_BASE, time_base.num, time_base.den);
@@ -113,7 +114,7 @@ namespace TAS {
 				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
 				{
 					if(pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_VIDEO) 
-						return pFormatCtx->streams[i]->codec->width;
+						return pFormatCtx->streams[i]->codecpar->width;
 				} 
 			}
 			return 0; 
@@ -125,12 +126,13 @@ namespace TAS {
 			{
 				for (unsigned int i = 0; i < pFormatCtx->nb_streams; i++)
 				{
-					AVCodecContext *codecCtx = pFormatCtx->streams[i]->codec;
+					AVCodecParameters *codecCtx = pFormatCtx->streams[i]->codecpar;
 					if (codecCtx->codec_type == AVMEDIA_TYPE_VIDEO)
 					{
 						std::unique_ptr<AVFrame, std::function<void(AVFrame *)>> picture(av_frame_alloc(), [](AVFrame *frame) { av_frame_free(&frame); });
 						std::unique_ptr<AVPacket, std::function<void(AVPacket *)>> packet(av_packet_alloc(), [](AVPacket *p) { av_packet_free(&p); });
-						std::unique_ptr<AVCodecContext, std::function<void(AVCodecContext *)>> opened_context(open_codec(codecCtx), [](AVCodecContext * ctx) {
+						
+						std::unique_ptr<AVCodecContext, std::function<void(AVCodecContext *)>> opened_context(open_codec(pFormatCtx->streams[i]->codec), [](AVCodecContext * ctx) {
 							avcodec_close(ctx);
 						});
 						if (!opened_context)
@@ -212,6 +214,23 @@ namespace TAS {
 				}
 			}
 			return AV_FIELD_UNKNOWN;
+		}
+
+		bool _FFMpegWrapper::getHasTransparency()
+		{
+			if (pFormatCtx)
+			{
+				for (unsigned int i = 0; i < pFormatCtx->nb_streams; i++)
+				{
+					AVCodecParameters* codecPar = pFormatCtx->streams[i]->codecpar;
+					if (codecPar->codec_type == AVMEDIA_TYPE_VIDEO)
+					{
+						const AVPixFmtDescriptor* pix_fmt_desc = av_pix_fmt_desc_get((AVPixelFormat)codecPar->format);
+						return pix_fmt_desc ? pix_fmt_desc->flags & AV_PIX_FMT_FLAG_ALPHA : false;
+					}
+				}
+			}
+			return false;
 		}
 
 		AVRational _FFMpegWrapper::getSAR()

@@ -132,20 +132,20 @@
   <data name="_buttonLivePreview.ToolTip" xml:space="preserve">
     <value>Podgląd na żywo</value>
   </data>
+  <data name="_buttonOverlay1.ToolTip" xml:space="preserve">
+    <value>Pokaż/Schowaj grafikę na warstwie 1</value>
+  </data>
+  <data name="_buttonOverlay2.ToolTip" xml:space="preserve">
+    <value>Pokaż/Schowaj grafikę na warstwie 2</value>
+  </data>
+  <data name="_buttonOverlay3.ToolTip" xml:space="preserve">
+    <value>Pokaż/Schowaj grafikę na warstwie 3</value>
+  </data>
   <data name="_buttonPlay.ToolTip" xml:space="preserve">
     <value>Odtwarzaj | Ctrl+Spacja</value>
   </data>
   <data name="_buttonPlayTheEnd.ToolTip" xml:space="preserve">
     <value>Odtwórz zakończenie</value>
-  </data>
-  <data name="_buttonStillImage1.ToolTip" xml:space="preserve">
-    <value>Pokaż/Schowaj grafikę na warstwie 1</value>
-  </data>
-  <data name="_buttonStillImage2.ToolTip" xml:space="preserve">
-    <value>Pokaż/Schowaj grafikę na warstwie 2</value>
-  </data>
-  <data name="_buttonStillImage3.ToolTip" xml:space="preserve">
-    <value>Pokaż/Schowaj grafikę na warstwie 3</value>
   </data>
   <data name="_buttonStop.ToolTip" xml:space="preserve">
     <value>Wyłącz podgląd | Ctrl+Shift+Spacja</value>

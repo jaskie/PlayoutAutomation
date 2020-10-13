@@ -20,13 +20,13 @@ namespace TAS.Server.VideoSwitchTests.Configurator
                 yield return new object[] { router };
         }
 
-        private RouterConfiguratorViewModel _routerViewModel = new RouterConfiguratorViewModel(new Engine());
+        private RouterConfiguratorViewModel _routerViewModel = new RouterConfiguratorViewModel();
 
-        public void Init(VideoSwitch.VideoSwitch router)
+        public void Init(VideoSwitch.Model.VideoSwitcher router)
         {
             _routerViewModel.Initialize(router);
             _routerViewModel.IsEnabled = true;
-            _routerViewModel.IsModified = false;
+            //_routerViewModel.IsModified = false;
         }
        
         [TestMethod]

@@ -136,7 +136,7 @@ namespace TAS.Client.ViewModels
                 return;
             using (var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>)editObject, false))
             {
-                if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) != true
+                if (WindowManager.Current.ShowDialog(kve) != true
                     || _fields[kve.Key] == kve.Value)
                     return;
                 _fields[kve.Key] = kve.Value;
@@ -170,7 +170,7 @@ namespace TAS.Client.ViewModels
         {
             using (var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), true))
             {
-                if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) != true)
+                if (WindowManager.Current.ShowDialog(kve) != true)
                     return;
                 _fields.Add(kve.Key, kve.Value);
                 NotifyPropertyChanged(nameof(Fields));

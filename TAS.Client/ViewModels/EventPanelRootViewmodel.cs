@@ -43,9 +43,10 @@ namespace TAS.Client.ViewModels
         {
             try
             {
-            var root = await Task.Run(() => Engine.GetRootEvents());
-            foreach (var se in root)
-                AddRootEvent(se);
+                var root = await Task.Run(() => Engine.GetRootEvents());
+                foreach (var se in root)
+                    AddRootEvent(se);
+                NotifyContainerVisibility();
             }
             catch (Exception e)
             {

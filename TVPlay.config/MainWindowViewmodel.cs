@@ -47,7 +47,7 @@ namespace TAS.Client.Config
         {
             using (var vm = new EnginesViewModel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
             {
-                UiServices.WindowManager.ShowDialog(vm, "Engines");
+                WindowManager.Current.ShowDialog(vm, "Engines");
             }
         }
         
@@ -55,7 +55,7 @@ namespace TAS.Client.Config
         {
             using (var vm = new PlayoutServersViewModel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
             {
-                UiServices.WindowManager.ShowDialog(vm, "Playout Servers");
+                WindowManager.Current.ShowDialog(vm, "Playout Servers");
             }
         }
                 
@@ -70,7 +70,7 @@ namespace TAS.Client.Config
         {
             using (var vm = new ConfigFileViewModel(_configFile))
             {
-                UiServices.WindowManager.ShowDialog(vm, $"Config file ({_configFile.FileName})");
+                WindowManager.Current.ShowDialog(vm, $"Config file ({_configFile.FileName})");
             }                
         }
 
@@ -78,7 +78,7 @@ namespace TAS.Client.Config
         {
             using (var vm = new IngestDirectoriesViewModel(_configFile.AppSettings.IngestFolders))
             {
-                UiServices.WindowManager.ShowDialog(vm, $"Ingest directories ({System.IO.Path.GetFullPath(_configFile.AppSettings.IngestFolders)})");
+                WindowManager.Current.ShowDialog(vm, $"Ingest directories ({System.IO.Path.GetFullPath(_configFile.AppSettings.IngestFolders)})");
             }
                 
         }        

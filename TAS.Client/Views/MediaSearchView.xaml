@@ -34,7 +34,18 @@
             <Label Grid.Column="0" Content="{Resx _search}" HorizontalAlignment="Center" VerticalAlignment="Center" />
             <StackPanel Grid.Column="3" DockPanel.Dock="Right" Height="35" Orientation="Horizontal">
                 <Button Style="{StaticResource CancelButtonStyle}" Click="BtnClose_OnClick"/>
-                <Button Content="{Binding OkButtonText}" Command="{Binding CommandAdd}" Click="ButtonOk_OnClick" IsDefault="True" Margin="5" MinWidth="90"/>
+                <Button Command="{Binding CommandAdd}" Click="ButtonOk_OnClick" IsDefault="True" Margin="5" MinWidth="90">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="Content" Value="{Resx Key= _ok, ResxName=TAS.Client.Views.MediaSearchView}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDialog}" Value="False">
+                                    <Setter Property="Content" Value="{Resx _add, ResxName=TAS.Client.Views.MediaSearchView}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
             </StackPanel>
             <ComboBox Grid.Column="2" DockPanel.Dock="Right" Width="130" VerticalAlignment="Center" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
                 <ComboBox.ItemTemplate>

@@ -69,7 +69,7 @@ namespace TAS.Server.MediaOperation
         private async Task<bool> DoExecute(MediaBase inputMedia)
         {
             string Params = $"-nostats -i \"{inputMedia.FullPath}\" -ss {MeasureStart} -t {(MeasureDuration == TimeSpan.Zero ? inputMedia.DurationPlay : MeasureDuration)} -filter_complex ebur128=peak=sample -f null -";
-            var helper = new FFMpegHelper(this, MeasureDuration);
+            var helper = new FFMpegProcessWrapper(this, MeasureDuration);
             helper.DataReceived += DataReceived;
             return await helper.RunProcess(Params);
         }

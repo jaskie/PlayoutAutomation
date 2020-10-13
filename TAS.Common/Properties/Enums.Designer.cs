@@ -862,7 +862,7 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Clip.
+        ///   Looks up a localized string similar to Movie clip.
         /// </summary>
         public static string TMediaType_Movie {
             get {

@@ -85,14 +85,14 @@ namespace TAS.Client.Config.ViewModels.Engines
 
         private void OpenPluginManager(object obj)
         {                                   
-            UiServices.WindowManager.ShowDialog(_pluginsViewModel);                        
+            WindowManager.Current.ShowDialog(_pluginsViewModel);                        
         }
 
         private void _manageArchiveDirectories(object obj)
         {
             using (var vm = new ArchiveDirectoriesViewmodel(_engine.ArchiveDirectories))
             {
-                if (UiServices.WindowManager.ShowDialog(vm, "Archive") != true)
+                if (WindowManager.Current.ShowDialog(vm, "Archive") != true)
                     return;
                 ArchiveDirectories = new List<object> { Common.Properties.Resources._none_ };
                 ArchiveDirectories.AddRange(_engine.ArchiveDirectories.Directories);

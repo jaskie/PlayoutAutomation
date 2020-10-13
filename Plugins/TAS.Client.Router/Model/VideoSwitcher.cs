@@ -7,7 +7,7 @@ using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Model
 {
-    internal class VideoSwitcher : RouterBase, IVideoSwitcher
+    public class VideoSwitcher : RouterBase, IVideoSwitcher
     {
         #region Configuration
         [Hibernate]

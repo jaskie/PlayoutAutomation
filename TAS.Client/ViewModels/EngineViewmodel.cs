@@ -21,7 +21,6 @@ namespace TAS.Client.ViewModels
         private EventPanelViewmodelBase _selectedEventPanel;
         private DateTime _currentTime;
         private TimeSpan _timeToAttention;
-        private Views.EngineDebugView _debugWindow;
         private int _audioLevelPri = -100;
         private bool _trackPlayingEvent = true;
         private bool _isPropertiesPanelVisible = true;
@@ -245,7 +244,7 @@ namespace TAS.Client.ViewModels
 
         public IEngine Engine { get; }
 
-        public EventPanelViewmodelBase RootEventViewModel { get; }
+        public EventPanelRootViewmodel RootEventViewModel { get; }
 
         public IUiPreview Preview => _preview;
 
@@ -357,7 +356,7 @@ namespace TAS.Client.ViewModels
         private void _engineRights(object obj)
         {
             using (var vm = new EngineRightsEditViewmodel(Engine, Engine.AuthenticationService))
-                UiServices.ShowDialog<Views.EngineRightsEditView>(vm);
+                WindowManager.Current.ShowDialog(vm);
         }
 
         private bool _canEngineRights(object obj) => CurrentUser.IsAdmin;
@@ -365,8 +364,7 @@ namespace TAS.Client.ViewModels
         private void _userManager(object obj)
         {
             var vm = new UserManagerViewmodel(Engine.AuthenticationService);
-            UiServices.ShowWindow<Views.UserManagerView>(vm).Closed += (s, e) =>
-                vm.Dispose();
+            WindowManager.Current.ShowWindow(vm, () => vm.Dispose());
         }
 
         private bool _canUserManager(object obj) => CurrentUser.IsAdmin;
@@ -390,7 +388,7 @@ namespace TAS.Client.ViewModels
             };
             if (dlg.ShowDialog() != true)
                 return;
-            UiServices.UiStateManager.SetBusyState();
+            UiServices.Current.SetBusyState();
             await Task.Run(() =>
             {
                 using (var reader = File.OpenText(dlg.FileName))
@@ -545,7 +543,7 @@ namespace TAS.Client.ViewModels
                     e.Event.GetAudioVolume()));
             using (var vm = new ExportViewmodel(Engine, selections))
             {
-                UiServices.ShowDialog<Views.ExportView>(vm);
+                WindowManager.Current.ShowDialog(vm);
             }
         }
 
@@ -675,21 +673,18 @@ namespace TAS.Client.ViewModels
 
         private void _debugShow(object o)
         {
-            if (_debugWindow != null)
-                return;
-            _debugWindow = UiServices.ShowWindow<Views.EngineDebugView>(this);
-            _debugWindow.Closed += (w, e) =>
+            var debugWindow = WindowManager.Current.ShowWindow(this);
+            debugWindow.Closed += (w, e) =>
             {
                 if (w is Views.EngineDebugView window)
                     window.DataContext = null;
-                _debugWindow = null;
             };
         }
 
         #endregion // Commands
 
         #region MediaSearch
-        public void AddMediaEvent(IEvent baseEvent, TStartType startType, TMediaType mediaType, VideoLayer layer, bool closeAfterAdd)
+        public void AddMediaEvent(IEvent baseEvent, TStartType startType, TMediaType[] mediaTypes, VideoLayer layer, bool closeAfterAdd)
         {
             if (baseEvent == null)
                 return;
@@ -697,7 +692,7 @@ namespace TAS.Client.ViewModels
             {
                 var mediaSearchViewModel = new MediaSearchViewmodel(
                     Engine.HaveRight(EngineRight.Preview) ? Engine.Preview : null,
-                    Engine, mediaType, layer, closeAfterAdd, baseEvent.Media?.FormatDescription())
+                    Engine, mediaTypes, layer, closeAfterAdd, Engine.FormatDescription)
                 {
                     BaseEvent = baseEvent,
                     NewEventStartType = startType
@@ -705,27 +700,26 @@ namespace TAS.Client.ViewModels
                 mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
                 if (closeAfterAdd)
                 {
-                    UiServices.ShowDialog<Views.MediaSearchView>(mediaSearchViewModel);
+                    WindowManager.Current.ShowDialog(mediaSearchViewModel);
                     mediaSearchViewModel.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
                     mediaSearchViewModel.Dispose();
                 }
                 else
                 {
-                    mediaSearchViewModel.Window = UiServices.ShowWindow<Views.MediaSearchView>(mediaSearchViewModel);
-                    mediaSearchViewModel.Window.Closed += (sender, args) =>
+                    WindowManager.Current.ShowWindow(mediaSearchViewModel, () =>
                     {
                         mediaSearchViewModel.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
                         mediaSearchViewModel.Dispose();
                         _mediaSearchViewModel = null;
                         _selectedEventPanel?.Focus();
-                    };
+                    });
                     _mediaSearchViewModel = mediaSearchViewModel;
                 }
             }
             else
             {
                 _mediaSearchViewModel.BaseEvent = baseEvent;
-                _mediaSearchViewModel.Window.WindowState = WindowState.Normal;
+                WindowManager.Current.ShowWindow(_mediaSearchViewModel);
             }
         }
 
@@ -736,7 +730,7 @@ namespace TAS.Client.ViewModels
             LastAddedEvent = newEvent;
         }
 
-        public void AddSimpleEvent(IEvent baseEvent, TEventType eventType, bool insertUnder)
+        public void AddSimpleEvent(IEvent baseEvent, TEventType eventType, VideoLayer layer, bool insertUnder)
         {
             IEvent newEvent = null;
             switch (eventType)
@@ -745,7 +739,7 @@ namespace TAS.Client.ViewModels
                     newEvent = Engine.CreateNewEvent(
                         eventType: TEventType.Live,
                         eventName: resources._title_NewLive,
-                        videoLayer: VideoLayer.Program,
+                        videoLayer: layer,
                         isCGEnabled: Engine.EnableCGElementsForNewEvents,
                         isHold: Engine.StudioMode,
                         duration: new TimeSpan(0, 10, 0));
@@ -756,7 +750,7 @@ namespace TAS.Client.ViewModels
                         eventName: resources._title_EmptyMovie,
                         isCGEnabled: Engine.EnableCGElementsForNewEvents,
                         isHold: Engine.StudioMode,
-                        videoLayer: VideoLayer.Program);
+                        videoLayer: layer);
                     break;
                 case TEventType.Rundown:
                     newEvent = Engine.CreateNewEvent(
@@ -846,7 +840,7 @@ namespace TAS.Client.ViewModels
             if (found != null)
             {
                 var rootTrack = found.GetVisualRootTrack().ToArray();
-                var cl = RootEventViewModel;
+                EventPanelViewmodelBase cl = RootEventViewModel;
                 for (var i = rootTrack.Length - 1; i >= 0; i--)
                 {
                     cl = cl.Find(rootTrack[i], false);
@@ -1139,7 +1133,7 @@ namespace TAS.Client.ViewModels
         private void SetOnTopView(IEvent pe)
         {
             var rootTrack = pe.GetVisualRootTrack().ToArray();
-            var vm = RootEventViewModel;
+            EventPanelViewmodelBase vm = RootEventViewModel;
             for (var i = rootTrack.Length - 1; i >= 0; i--)
             {
                 vm = vm.Find(rootTrack[i], false);
@@ -1238,7 +1232,7 @@ namespace TAS.Client.ViewModels
                     var defaultLogo = cgController?.DefaultLogo ?? 0;
                     newEvent = Engine.CreateNewEvent(
                         eventName: e.MediaName,
-                        videoLayer: VideoLayer.Program,
+                        videoLayer: mediaSearchVm.Layer,
                         eventType: TEventType.Movie,
                         scheduledTC: e.TCIn,
                         duration: e.Duration,
@@ -1299,7 +1293,7 @@ namespace TAS.Client.ViewModels
             if (playing == null)
                 return;
             var rootTrack = playing.GetVisualRootTrack().ToArray();
-            var vm = RootEventViewModel;
+            EventPanelViewmodelBase vm = RootEventViewModel;
             for (var i = rootTrack.Length - 1; i >= 0; i--)
             {
                 vm = vm.Find(rootTrack[i], false);

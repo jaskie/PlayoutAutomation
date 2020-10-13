@@ -46,14 +46,14 @@ namespace TAS.Client.ViewModels
             using (var vm = new MediaSearchViewmodel(
                 null, // preview
                 _engine,
-                TMediaType.Still,
+                new[] { TMediaType.Still },
                 VideoLayer.CG1,
                 true, // close ater add
                 MediaExport.Media.FormatDescription())
             {
                 BaseEvent = null
             })
-                if (UiServices.ShowDialog<Views.MediaSearchView>(vm) == true)
+                if (WindowManager.Current.ShowDialog(vm) == true)
                 {
                     Logos.Add(new ExportMediaLogoViewmodel(this, vm.SelectedMedia));
                     MediaExport.AddLogo(vm.SelectedMedia);

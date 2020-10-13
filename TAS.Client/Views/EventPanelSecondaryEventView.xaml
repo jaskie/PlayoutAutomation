@@ -1,0 +1,75 @@
+﻿<local:EventPanelView ResxExtension.DefaultResxName="TAS.Client.Views.EventPanelView" Language="{UICulture}" 
+             x:Class="TAS.Client.Views.EventPanelSecondaryEventView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TAS.Client.Views"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{x:Type vm:EventPanelSecondaryEventViewmodel}"
+             FontSize="12" 
+             d:DesignWidth="700"
+             >
+    <Border x:Name="border" Style="{StaticResource EventPanelStyle}">
+        <Grid Background="{Binding IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter=#4040FF00}" Opacity="{Binding IsEnabled, Converter={StaticResource EnabledToOpacity}}" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Image Grid.Column="0" Margin="1">
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Layer}" Value="CG1">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Layers/layer1.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Layer}" Value="CG2">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Layers/layer2.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Layer}" Value="CG3">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Layers/layer3.png"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+            <Image Grid.Column="1" ToolTip="{Binding EventType}">
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding EventType}" Value="Movie">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventTypes/Movie.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding EventType}" Value="StillImage">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventTypes/StillImage.png"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image> 
+            <Image Grid.Column="1" ToolTip="{Binding MediaErrorInfo}" >
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/error-overlay.png"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+            <Image Grid.Column="2" ToolTip="{Binding PlayState}" Style="{StaticResource EventPlayStateImage}"/>
+            <TextBlock Grid.Column="3" Text="{Binding EventName}" FontSize="15" VerticalAlignment="Center" Margin="5, 0">
+                <TextBlock.ToolTip>
+                    <TextBlock Text="{Binding Parent.EventName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
+                </TextBlock.ToolTip>
+            </TextBlock>
+            <TextBlock Grid.Column="4" Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToString}}" FontSize="15" VerticalAlignment="Center" Margin="5, 0" />
+        </Grid>
+    </Border>
+</local:EventPanelView>

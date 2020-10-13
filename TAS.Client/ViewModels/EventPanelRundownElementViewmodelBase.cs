@@ -20,6 +20,8 @@ namespace TAS.Client.ViewModels
             ev.PositionChanged += EventPositionChanged;
             ev.SubEventChanged += OnSubeventChanged;
 
+            IsPrimaryEvent = ev.Layer == VideoLayer.Program || ev.EventType == TEventType.Container || ev.EventType == TEventType.Rundown;
+
             CommandToggleHold = new UiCommand
             (
                 o =>
@@ -50,43 +52,45 @@ namespace TAS.Client.ViewModels
                         layerEvent?.Delete();
                     }
                     else
-                        EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, TMediaType.Still, layer, true);
+                        EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, new[] { TMediaType.Still, TMediaType.Movie }, layer, true);
                 },
                 _canToggleLayer
             );
             CommandAddNextRundown = new UiCommand
             (
-                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, false),
+                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, VideoLayer.None, false),
                 _canAddNextItem
             );
             CommandAddNextEmptyMovie = new UiCommand
             (
-                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Movie, false),
+                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Movie, VideoLayer.Program, false),
                 CanAddNextMovie
             );
             CommandAddNextLive = new UiCommand
             (
-                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, false),
+                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, VideoLayer.Program, false),
                 CanAddNewLive
             );
             CommandAddNextMovie = new UiCommand
             (
-                o => EngineViewmodel.AddMediaEvent(Event, TStartType.After, TMediaType.Movie,
+                o => EngineViewmodel.AddMediaEvent(Event, TStartType.After, new[] { TMediaType.Movie },
                     VideoLayer.Program, false),
                 CanAddNextMovie
             );
             CommandAddAnimation = new UiCommand
             (
                 o => EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent,
-                    TMediaType.Animation, VideoLayer.Animation, true),
-                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+                    new[] { TMediaType.Animation }, VideoLayer.Animation, true),
+                o => IsPrimaryEvent && Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             );
             CommandAddCommandScript = new UiCommand
             (
                 o => EngineViewmodel.AddCommandScriptEvent(Event),
-                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+                o => IsPrimaryEvent && Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             );
         }
+
+        public bool IsPrimaryEvent { get; }
 
         private bool _canToggleLayer(object obj)
         {
@@ -130,7 +134,8 @@ namespace TAS.Client.ViewModels
 
         bool _canAddNextItem(object o)
         {
-            return Event.PlayState != TPlayState.Played 
+            return IsPrimaryEvent
+                   && Event.PlayState != TPlayState.Played 
                    && !Event.IsLoop
                    && Event.HaveRight(EventRight.Create);
         }
@@ -205,7 +210,7 @@ namespace TAS.Client.ViewModels
 
         public TMediaEmphasis MediaEmphasis => (Media as IPersistentMedia)?.MediaEmphasis ?? TMediaEmphasis.None;
 
-        public string Layer => Event.Layer.ToString();
+        public VideoLayer Layer => Event?.Layer ?? VideoLayer.None;
 
         public double AudioVolume => Event == null ? 0 : Event.AudioVolume.GetValueOrDefault();
 
@@ -294,24 +299,24 @@ namespace TAS.Client.ViewModels
             else
                 p.SetOnTop();
         }
+
         protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            if (e.Item.EventType == TEventType.StillImage)
-                switch (e.Item.Layer)
-                {
-                    case VideoLayer.CG1:
-                        NotifyPropertyChanged(nameof(HasSubItemOnLayer1));
-                        NotifyPropertyChanged(nameof(Layer1SubItemMediaName));
-                        break;
-                    case VideoLayer.CG2:
-                        NotifyPropertyChanged(nameof(HasSubItemOnLayer2));
-                        NotifyPropertyChanged(nameof(Layer2SubItemMediaName));
-                        break;
-                    case VideoLayer.CG3:
-                        NotifyPropertyChanged(nameof(HasSubItemOnLayer3));
-                        NotifyPropertyChanged(nameof(Layer3SubItemMediaName));
-                        break;
-                }
+            switch (e.Item.Layer)
+            {
+                case VideoLayer.CG1:
+                    NotifyPropertyChanged(nameof(HasSubItemOnLayer1));
+                    NotifyPropertyChanged(nameof(Layer1SubItemMediaName));
+                    break;
+                case VideoLayer.CG2:
+                    NotifyPropertyChanged(nameof(HasSubItemOnLayer2));
+                    NotifyPropertyChanged(nameof(Layer2SubItemMediaName));
+                    break;
+                case VideoLayer.CG3:
+                    NotifyPropertyChanged(nameof(HasSubItemOnLayer3));
+                    NotifyPropertyChanged(nameof(Layer3SubItemMediaName));
+                    break;
+            }
         }
 
         protected void EventPositionChanged(object sender, EventPositionEventArgs e)
@@ -382,14 +387,14 @@ namespace TAS.Client.ViewModels
 
         private string _subItemMediaName(VideoLayer layer)
         {
-            var se = Event?.SubEvents.FirstOrDefault(e => e.Layer == layer && e.EventType == TEventType.StillImage);
+            var se = Event?.SubEvents.FirstOrDefault(e => e.Layer == layer);
             var m = se?.Media;
             return m?.MediaName ?? string.Empty;
         }
 
         private bool _hasSubItemsOnLayer(VideoLayer layer)
         {
-            return Event.SubEvents.Any(e => e.Layer == layer && e.EventType == TEventType.StillImage);
+            return Event.SubEvents.Any(e => e.Layer == layer);
         }
 
     }

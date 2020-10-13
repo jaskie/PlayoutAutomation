@@ -485,7 +485,7 @@ namespace TAS.Server.CgElementsController.Configurator
         {           
             _cgElementsController = (ICGElementsController)model as Model.CgElementsController;
 
-            UiServices.AddDataTemplate(typeof(CgElementsControllerViewModel), typeof(CgElementsControllerPluginManagerView));
+            WindowManager.Current.AddDataTemplate(typeof(CgElementsControllerViewModel), typeof(CgElementsControllerPluginManagerView));
             Init();
         }
 

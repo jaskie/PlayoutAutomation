@@ -112,7 +112,7 @@
     <Compile Include="ViewModels\EventPanelRootViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelRundownElementViewmodelBase.cs" />
     <Compile Include="ViewModels\EventPanelRundownViewmodel.cs" />
-    <Compile Include="ViewModels\EventPanelStillViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelSecondaryEventViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelViewmodelBase.cs" />
     <Compile Include="ViewModels\EngineRightsEditViewmodel.cs" />
     <Compile Include="ViewModels\EventRightsEditViewmodel.cs" />
@@ -189,8 +189,8 @@
     <Compile Include="Views\EventPanelAnimationView.xaml.cs">
       <DependentUpon>EventPanelAnimationView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\EventPanelStillView.xaml.cs">
-      <DependentUpon>EventPanelStillView.xaml</DependentUpon>
+    <Compile Include="Views\EventPanelSecondaryEventView.xaml.cs">
+      <DependentUpon>EventPanelSecondaryEventView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EngineRightsEditView.xaml.cs">
       <DependentUpon>EngineRightsEditView.xaml</DependentUpon>
@@ -333,7 +333,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\EventPanelStillView.xaml">
+    <Page Include="Views\EventPanelSecondaryEventView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

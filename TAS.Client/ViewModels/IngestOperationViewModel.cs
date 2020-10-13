@@ -100,7 +100,7 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _sourceFieldOrderEnforceConversion, value);
         }
 
-        public bool EncodeVideo => ((IIngestDirectory)_operation.Source.Directory).VideoCodec != TVideoCodec.copy;
+        public bool EncodeVideo => !(((IIngestDirectory)_operation.Source.Directory).VideoCodec == TVideoCodec.copy || _operation.Source.HasTransparency);
 
         public bool EncodeAudio => ((IIngestDirectory)_operation.Source.Directory).AudioCodec != TAudioCodec.copy;
 
@@ -226,7 +226,7 @@ namespace TAS.Client.ViewModels
 
         public bool ShowParentalCombo => _engine?.CGElementsController?.Parentals != null;
 
-        public bool CanTrim => EncodeVideo && EncodeAudio && _operation.Source.MediaStatus == TMediaStatus.Available && _operation.Source.Duration > TimeSpan.Zero;
+        public bool CanTrim => EncodeVideo && EncodeAudio && _operation.Source.MediaStatus == TMediaStatus.Available && (_operation.Source.MediaType == TMediaType.Movie || _operation.Source.MediaType == TMediaType.Audio);
 
         private PreviewViewmodel _preview;
 
@@ -259,8 +259,10 @@ namespace TAS.Client.ViewModels
                 FileName = DestFileName,
                 MediaName = DestMediaName,
                 MediaType = IsMovie ? TMediaType.Movie : TMediaType.Still,
-                Duration = Duration,
                 TcStart = StartTC,
+                Duration = Duration,
+                TcPlay = StartTC,
+                DurationPlay = Duration,
                 MediaGuid = _operation.Source.MediaGuid,
                 MediaCategory = DestCategory,
                 Parental = DestParental,
@@ -347,9 +349,13 @@ namespace TAS.Client.ViewModels
                     break;
                 case nameof(IMedia.TcPlay):
                     StartTC = _operation.Source.TcPlay;
+                    NotifyPropertyChanged(nameof(CanTrim));
                     break;
                 case nameof(IMedia.IsVerified):
                     NotifyPropertyChanged(nameof(IsValid));
+                    break;
+                case nameof(IMedia.HasTransparency):
+                    NotifyPropertyChanged(nameof(EncodeVideo));
                     break;
             }
         }

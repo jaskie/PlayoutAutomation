@@ -144,7 +144,10 @@ namespace TAS.Server
             var item = _getItem(media, videolayer);
             if (item == null)
                 return false;
-            channel.Load(item);
+            if (media.MediaType == TMediaType.Still)
+                channel.Load(item);
+            if (media.MediaType == TMediaType.Movie)
+                channel.Play(item);
             _visible.TryRemove(videolayer, out _);
             _loadedNext.TryRemove(videolayer, out _);
             Debug.WriteLine("CasparLoad media {0} Layer {1}", media, videolayer);
@@ -267,13 +270,11 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (CheckConnected(channel))
             {
-                {
-                    channel.Play((int)videolayer);
-                    _visible.TryRemove(videolayer, out _);
-                    _loadedNext.TryRemove(videolayer, out _);
-                    Debug.WriteLine("CasparPlay Layer {0}", videolayer);
-                    return true;
-                }
+                channel.Play((int)videolayer);
+                if (_loadedNext.TryRemove(videolayer, out var loaded))
+                    _visible[videolayer] = loaded;
+                Debug.WriteLine("CasparPlay Layer {0}", videolayer);
+                return true;
             }
             return false;
         }
@@ -300,10 +301,9 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (CheckConnected(channel))
             {
-                if (_visible.TryRemove(aEvent.Layer, out var visible) && visible == aEvent)
+                if (_visible.TryGetValue(aEvent.Layer, out var visible) && visible == aEvent)
                 {
                     channel.Pause((int)aEvent.Layer);
-                    _loadedNext.TryRemove(aEvent.Layer, out _);
                     Debug.WriteLine(aEvent, $"CasprarPause {aEvent} layer {aEvent.Layer}");
                 }
                 return true;
@@ -484,7 +484,7 @@ namespace TAS.Server
             {
                 VideoLayer layer = (VideoLayer) Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
                 string file = match.Groups["file"].Value;
-                channel.Play((int)layer, file, false);
+                channel.Play(new CasparItem((int)layer, file));
                 return true;
             }
             match = RegexCall.Match(command);

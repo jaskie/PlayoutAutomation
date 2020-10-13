@@ -6,16 +6,16 @@ namespace TAS.Server.VideoSwitchTests
     [TestClass]
     public class RouterTestData
     {
-        public static List<VideoSwitch.VideoSwitch> Routers = new List<VideoSwitch.VideoSwitch>
+        public static List<VideoSwitch.Model.VideoSwitcher> Routers = new List<VideoSwitch.Model.VideoSwitcher>
         {
             null,
-            new VideoSwitch.VideoSwitch(VideoSwitch.VideoSwitch.Type.BlackmagicSmartVideoHub)
+            new VideoSwitch.Model.VideoSwitcher(VideoSwitch.Model.CommunicatorType.BlackmagicSmartVideoHub)
             {
                 IsEnabled = true,
                 IpAddress = "192.168.0.1",
                 OutputPorts = new short[] {0,1}
             },
-            new VideoSwitch.VideoSwitch(VideoSwitch.VideoSwitch.Type.Nevion)
+            new VideoSwitch.Model.VideoSwitcher(VideoSwitch.Model.CommunicatorType.Nevion)
             {
                 IsEnabled = true,
                 IpAddress = "192.168.0.1",

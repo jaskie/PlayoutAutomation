@@ -162,6 +162,9 @@
   <data name="_fileName" xml:space="preserve">
     <value>Plik</value>
   </data>
+  <data name="_hasTransparency" xml:space="preserve">
+    <value>Ma przezroczystość (kanał alfa)</value>
+  </data>
   <data name="_ingestTime" xml:space="preserve">
     <value>Data i czas ingestu</value>
   </data>

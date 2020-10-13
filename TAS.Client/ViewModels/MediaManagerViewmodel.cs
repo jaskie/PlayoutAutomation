@@ -18,6 +18,7 @@ using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using resources = TAS.Client.Common.Properties.Resources;
+using System.Diagnostics;
 
 namespace TAS.Client.ViewModels
 {
@@ -445,7 +446,10 @@ namespace TAS.Client.ViewModels
 
         private async void ReloadFiles()
         {
-            UiServices.UiStateManager.SetBusyState();
+            UiServices.Current.SetBusyState();
+#if DEBUG
+            var stopwatch = Stopwatch.StartNew();
+#endif
             CancelMediaSearchProvider();
             SetMediaItems(null);
             switch (SelectedDirectory.Directory)
@@ -479,6 +483,9 @@ namespace TAS.Client.ViewModels
                     }
                     break;
             }
+#if DEBUG
+            Debug.WriteLine("MediaManagerViewmodel:ReloadFiles took {0} ms", stopwatch.ElapsedMilliseconds);
+#endif
         }
 
         private void CancelMediaSearchProvider()
@@ -531,7 +538,7 @@ namespace TAS.Client.ViewModels
         {
             var newItems = items == null
                 ? new ObservableCollection<MediaViewViewmodel>()
-                : new ObservableCollection<MediaViewViewmodel>(items.Select(CreateMediaViewViewmodel));
+                : new ObservableCollection<MediaViewViewmodel>(items.Select(media => new MediaViewViewmodel(media, _mediaManager)));
             var oldMediaItems = _mediaItems;
             _mediaItems = newItems;
             if (oldMediaItems != null)
@@ -549,19 +556,8 @@ namespace TAS.Client.ViewModels
 
         private void AddMediaToItems(IMedia media)
         {
-            _mediaItems?.Add(CreateMediaViewViewmodel(media));
+            _mediaItems?.Add(new MediaViewViewmodel(media, _mediaManager));
             NotifyDirectoryPropertiesChanged();
-        }
-
-        private MediaViewViewmodel CreateMediaViewViewmodel(IMedia media)
-        {
-            return new MediaViewViewmodel(media)
-            {
-                IsArchived = _mediaManager.ArchiveDirectory?.ContainsMedia(media.MediaGuid) ?? false,
-                IngestStatus = media is IIngestMedia ingestMedia && _mediaManager.MediaDirectoryPRI != null
-                    ? ingestMedia.GetIngestStatus(_mediaManager.MediaDirectoryPRI)
-                    : TIngestStatus.Unknown
-            };
         }
 
         private void SelectedDirectory_MediaAdded(object source, MediaEventArgs e)
@@ -666,7 +662,7 @@ namespace TAS.Client.ViewModels
             var selections = GetSelections().Select(m => new MediaExportDescription(m, new List<IMedia>(), m.TcPlay, m.DurationPlay, m.AudioVolume));
             using (var vm = new ExportViewmodel(Engine, selections))
             {
-                UiServices.ShowDialog<Views.ExportView>(vm);
+                WindowManager.Current.ShowDialog(vm);
             }
         }
 
@@ -684,33 +680,28 @@ namespace TAS.Client.ViewModels
         {
             if (!(_selectedDirectory?.Directory is IIngestDirectory currentDir))
                 return;
-            var ingestList = new List<IIngestOperation>();
             var selectedMediaList = GetSelections();
             Task.Run(() =>
             {
-                selectedMediaList.ForEach(m =>
-                {
-                    if (!m.IsVerified)
-                        m.Verify(true);
-                });
+                foreach (var media in selectedMediaList.Where(m => !m.IsVerified))
+                    media.Verify(true);
             });
-            foreach (var sourceMedia in selectedMediaList)
-                if (sourceMedia is IIngestMedia media)
-                {
-                    var operation = (IIngestOperation)_mediaManager.FileManager.CreateFileOperation(TFileOperationKind.Ingest);
-                    operation.Source = media;
-                    operation.DestDirectory = _mediaManager.DetermineValidServerDirectory();
-                    operation.AudioVolume = currentDir.AudioVolume;
-                    operation.SourceFieldOrderEnforceConversion = currentDir.SourceFieldOrder;
-                    operation.AspectConversion = currentDir.AspectConversion;
-                    operation.LoudnessCheck = currentDir.MediaLoudnessCheckAfterIngest;
-                    ingestList.Add(operation);
-                }
+            var ingestList = new List<IIngestOperation>(selectedMediaList.Where(sm => sm is IIngestMedia).Select(sourceMedia =>
+            {
+                var operation = (IIngestOperation)_mediaManager.FileManager.CreateFileOperation(TFileOperationKind.Ingest);
+                operation.Source = sourceMedia;
+                operation.DestDirectory = _mediaManager.DetermineValidServerDirectory();
+                operation.AudioVolume = currentDir.AudioVolume;
+                operation.SourceFieldOrderEnforceConversion = currentDir.SourceFieldOrder;
+                operation.AspectConversion = currentDir.AspectConversion;
+                operation.LoudnessCheck = currentDir.MediaLoudnessCheckAfterIngest;
+                return operation;
+            }));
             if (ingestList.Count == 0)
                 return;
             using (var ievm = new IngestEditorViewmodel(ingestList, Engine))
             {
-                if (UiServices.ShowDialog<Views.IngestEditorView>(ievm) == true)
+                if (WindowManager.Current.ShowDialog(ievm) == true)
                     ievm.ScheduleAll();
             }
         }
@@ -734,7 +725,7 @@ namespace TAS.Client.ViewModels
         {
             if (!CheckEditMediaSaved())
                 return;
-            UiServices.UiStateManager.SetBusyState();
+            UiServices.Current.SetBusyState();
             if (_selectedDirectory.IsIngestDirectory)
                 IngestSelectionToDir();
             else

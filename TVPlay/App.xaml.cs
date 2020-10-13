@@ -46,7 +46,7 @@ namespace TAS.Client
                 MessageBox.Show(e.Exception.Message, Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             else
                 MessageBox.Show(window, e.Exception.Message, Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-            Logger.Error(e);
+            Logger.Error(e.Exception);
             e.Handled = true;
         }
 
@@ -72,7 +72,7 @@ namespace TAS.Client
                 Mutex.WaitOne();
             }
             base.OnStartup(eventArgs);
-            TAS.Common.LoggerConfig.AddDebuggerTarget();
+            TAS.Common.LoggerConfig.AddDebuggerTarget("Trace");
             var splash = MainWindow as SplashScreenView;
             if (!IsShutdown)
             {
