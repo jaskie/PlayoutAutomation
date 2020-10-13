@@ -299,24 +299,24 @@ namespace TAS.Client.ViewModels
             else
                 p.SetOnTop();
         }
+
         protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            if (e.Item.EventType == TEventType.StillImage)
-                switch (e.Item.Layer)
-                {
-                    case VideoLayer.CG1:
-                        NotifyPropertyChanged(nameof(HasSubItemOnLayer1));
-                        NotifyPropertyChanged(nameof(Layer1SubItemMediaName));
-                        break;
-                    case VideoLayer.CG2:
-                        NotifyPropertyChanged(nameof(HasSubItemOnLayer2));
-                        NotifyPropertyChanged(nameof(Layer2SubItemMediaName));
-                        break;
-                    case VideoLayer.CG3:
-                        NotifyPropertyChanged(nameof(HasSubItemOnLayer3));
-                        NotifyPropertyChanged(nameof(Layer3SubItemMediaName));
-                        break;
-                }
+            switch (e.Item.Layer)
+            {
+                case VideoLayer.CG1:
+                    NotifyPropertyChanged(nameof(HasSubItemOnLayer1));
+                    NotifyPropertyChanged(nameof(Layer1SubItemMediaName));
+                    break;
+                case VideoLayer.CG2:
+                    NotifyPropertyChanged(nameof(HasSubItemOnLayer2));
+                    NotifyPropertyChanged(nameof(Layer2SubItemMediaName));
+                    break;
+                case VideoLayer.CG3:
+                    NotifyPropertyChanged(nameof(HasSubItemOnLayer3));
+                    NotifyPropertyChanged(nameof(Layer3SubItemMediaName));
+                    break;
+            }
         }
 
         protected void EventPositionChanged(object sender, EventPositionEventArgs e)
@@ -387,14 +387,14 @@ namespace TAS.Client.ViewModels
 
         private string _subItemMediaName(VideoLayer layer)
         {
-            var se = Event?.SubEvents.FirstOrDefault(e => e.Layer == layer && e.EventType == TEventType.StillImage);
+            var se = Event?.SubEvents.FirstOrDefault(e => e.Layer == layer);
             var m = se?.Media;
             return m?.MediaName ?? string.Empty;
         }
 
         private bool _hasSubItemsOnLayer(VideoLayer layer)
         {
-            return Event.SubEvents.Any(e => e.Layer == layer && e.EventType == TEventType.StillImage);
+            return Event.SubEvents.Any(e => e.Layer == layer);
         }
 
     }

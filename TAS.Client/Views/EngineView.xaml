@@ -647,8 +647,8 @@
                         <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelRundownViewmodel}" >
                             <views:EventPanelRundownView />
                         </HierarchicalDataTemplate>
-                        <DataTemplate DataType="{x:Type vievmodels:EventPanelStillViewmodel}" >
-                            <views:EventPanelStillView />
+                        <DataTemplate DataType="{x:Type vievmodels:EventPanelSecondaryEventViewmodel}" >
+                            <views:EventPanelSecondaryEventView />
                         </DataTemplate>
                         <DataTemplate DataType="{x:Type vievmodels:EventPanelAnimationViewmodel}" >
                             <views:EventPanelAnimationView />

@@ -141,7 +141,7 @@ namespace TAS.Client.ViewModels
         
         public string EventName => Event?.EventName;
 
-        public TEventType? EventType => Event?.EventType;
+        public TEventType EventType => Event?.EventType ?? TEventType.Rundown;
 
         public EventPanelViewmodelBase Find(IEvent aEvent, bool searchOnNextLevels)
         {
@@ -286,11 +286,14 @@ namespace TAS.Client.ViewModels
                 case TEventType.Container:
                     return new EventPanelContainerViewmodel(ev, this);
                 case TEventType.Movie:
-                    return new EventPanelMovieViewmodel(ev, this);
+                    if (ev.Layer == VideoLayer.Program)
+                        return new EventPanelMovieViewmodel(ev, this);
+                    else
+                        return new EventPanelSecondaryEventViewmodel(ev, this);
                 case TEventType.Live:
                     return new EventPanelLiveViewmodel(ev, this);
                 case TEventType.StillImage:
-                    return new EventPanelStillViewmodel(ev, this);
+                    return new EventPanelSecondaryEventViewmodel(ev, this);
                 case TEventType.Animation:
                     return new EventPanelAnimationViewmodel(ev, this);
                 case TEventType.CommandScript:

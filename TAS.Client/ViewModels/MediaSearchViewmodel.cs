@@ -212,7 +212,7 @@ namespace TAS.Client.ViewModels
             switch (Layer)
             {
                 case VideoLayer.Program:
-                    return media.MediaType == TMediaType.Movie && media.FrameRate().Equals(_videoFormatDescription?.FrameRate);
+                    return media.MediaType == TMediaType.Movie && !media.HasTransparency && media.FrameRate().Equals(_videoFormatDescription?.FrameRate);
                 case VideoLayer.Animation:
                     return true;
                 default:
