@@ -9,14 +9,14 @@ using TAS.Common;
 
 namespace TVPlayClient
 {
-    public class MainWindowViewmodel : ViewModelBase
+    public class MainWindowViewModel : ViewModelBase
     {
         private const string ConfigurationFileName = "Channels.xml";
         private readonly string _configurationFile;
         private ViewModelBase _content;
         private bool _showConfigButton = true;
 
-        public MainWindowViewmodel()
+        public MainWindowViewModel()
         {
             if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
                 return;
@@ -37,13 +37,13 @@ namespace TVPlayClient
 
         protected override void OnDispose()
         {
-            (_content as ChannelsViewmodel)?.Dispose();
+            (_content as ChannelsViewModel)?.Dispose();
         }
 
         private void _configure(object obj)
         {
-            (_content as ChannelsViewmodel)?.Dispose();
-            var vm = new ConfigurationViewmodel(_configurationFile);
+            (_content as ChannelsViewModel)?.Dispose();
+            var vm = new ConfigurationViewModel(_configurationFile);
             vm.Closed += _configClosed;
             ShowConfigButton = false;
             Content = vm;
@@ -51,7 +51,7 @@ namespace TVPlayClient
 
         private void _configClosed(object sender, EventArgs e)
         {
-            if (sender is ConfigurationViewmodel vm)
+            if (sender is ConfigurationViewModel vm)
             {
                 vm.Closed -= _configClosed;
                 vm.Dispose();
@@ -71,7 +71,7 @@ namespace TVPlayClient
                 return;
             var reader = new XmlSerializer(typeof(List<ChannelConfiguration>), new XmlRootAttribute("Channels"));
             using (var file = new StreamReader(_configurationFile))
-                Content = new ChannelsViewmodel((List<ChannelConfiguration>)reader.Deserialize(file));
+                Content = new ChannelsViewModel((List<ChannelConfiguration>)reader.Deserialize(file));
         }
         
     }

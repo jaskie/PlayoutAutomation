@@ -8,7 +8,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class TemplatedEditViewmodel : EditViewModelBase<ITemplated>
+    public class TemplatedEditViewModel : EditViewModelBase<ITemplated>
     {
         private int _templateLayer;
         private TemplateMethod _method;
@@ -16,7 +16,7 @@ namespace TAS.Client.ViewModels
         private TStartType _startType;
         private bool _bindToEnd;
 
-        public TemplatedEditViewmodel(ITemplated model, bool isFieldListReadOnly, bool displayCgMethod, TVideoFormat videoFormat) : base(model)
+        public TemplatedEditViewModel(ITemplated model, bool isFieldListReadOnly, bool displayCgMethod, TVideoFormat videoFormat) : base(model)
         {
             IsDisplayCgMethod = displayCgMethod;
             VideoFormat = videoFormat;
@@ -134,7 +134,7 @@ namespace TAS.Client.ViewModels
             var editObject = obj ?? SelectedField;
             if (editObject == null)
                 return;
-            using (var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>)editObject, false))
+            using (var kve = new KeyValueEditViewModel((KeyValuePair<string, string>)editObject, false))
             {
                 if (WindowManager.Current.ShowDialog(kve) != true
                     || _fields[kve.Key] == kve.Value)
@@ -168,7 +168,7 @@ namespace TAS.Client.ViewModels
 
         private void _addField(object obj)
         {
-            using (var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), true))
+            using (var kve = new KeyValueEditViewModel(new KeyValuePair<string, string>(string.Empty, string.Empty), true))
             {
                 if (WindowManager.Current.ShowDialog(kve) != true)
                     return;

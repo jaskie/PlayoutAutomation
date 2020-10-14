@@ -6,11 +6,11 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class CGElementViewmodel : ViewModelBase
+    public class CGElementViewModel : ViewModelBase
     {
         private readonly ICGElement _element;
 
-        public CGElementViewmodel(ICGElement element)
+        public CGElementViewModel(ICGElement element)
         {
             _element = element;
             if (element.Image != null)

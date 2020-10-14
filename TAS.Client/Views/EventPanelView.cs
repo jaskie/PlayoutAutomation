@@ -16,7 +16,7 @@ namespace TAS.Client.Views
 
         protected void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (!(e.NewValue is EventPanelViewmodelBase vm))
+            if (!(e.NewValue is EventPanelViewModelBase vm))
                 return;
             vm.View = (EventPanelView)sender;
             if (vm.IsSelected)

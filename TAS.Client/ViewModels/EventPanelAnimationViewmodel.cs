@@ -5,9 +5,9 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventPanelAnimationViewmodel: EventPanelRundownElementViewmodelBase
+    public class EventPanelAnimationViewModel: EventPanelRundownElementViewModelBase
     {
-        public EventPanelAnimationViewmodel(IEvent ev, EventPanelViewmodelBase parent): base(ev, parent) { }
+        public EventPanelAnimationViewModel(IEvent ev, EventPanelViewModelBase parent): base(ev, parent) { }
         public override bool IsEnabled => Event.IsEnabled;
 
         public override IMedia Media

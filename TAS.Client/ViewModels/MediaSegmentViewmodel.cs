@@ -8,14 +8,14 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaSegmentViewmodel: ModifyableViewModelBase
+    public class MediaSegmentViewModel: ModifyableViewModelBase
     {
         private TVideoFormat _videoFormat;
         private TimeSpan _tcIn;
         private TimeSpan _tcOut;
         private string _segmentName;
 
-        public MediaSegmentViewmodel(IPersistentMedia media, IMediaSegment mediaSegment)
+        public MediaSegmentViewModel(IPersistentMedia media, IMediaSegment mediaSegment)
         {
             MediaSegment = mediaSegment;
             Media = media;

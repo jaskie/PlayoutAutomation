@@ -134,7 +134,7 @@
                 </StackPanel>
                 <ContentControl Content="{Binding Preview}">
                     <ContentControl.Resources>
-                        <DataTemplate DataType="{x:Type vm:PreviewViewmodel}">
+                        <DataTemplate DataType="{x:Type vm:PreviewViewModel}">
                             <views:PreviewView />
                         </DataTemplate>
                     </ContentControl.Resources>

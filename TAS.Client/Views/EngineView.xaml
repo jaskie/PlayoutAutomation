@@ -12,7 +12,7 @@
              xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
              xmlns:properties="clr-namespace:TAS.Client.Common.AttachedProperties;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance vievmodels:EngineViewmodel}"
+             d:DataContext="{d:DesignInstance vievmodels:EngineViewModel}"
              d:DesignHeight="850" d:DesignWidth="1150" Focusable="True" 
              FontSize="13">
     <UserControl.Resources>
@@ -421,9 +421,9 @@
                             </DataTemplate>
                         </ContentControl.Resources>
                     </ContentControl>
-                    <ContentControl Content="{Binding CGElementsControllerViewmodel}">
+                    <ContentControl Content="{Binding CGElementsControllerViewModel}">
                         <ContentControl.Resources>
-                            <DataTemplate DataType="{x:Type vievmodels:EngineCGElementsControllerViewmodel}">
+                            <DataTemplate DataType="{x:Type vievmodels:EngineCGElementsControllerViewModel}">
                                 <views:EngineCGElementsControllerView />
                             </DataTemplate>
                         </ContentControl.Resources>
@@ -492,9 +492,9 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Thumb Name="SidePanelResizer" HorizontalAlignment="Left" Width="3"  BorderThickness="0" Background="DarkGray" Grid.Column="0" Grid.RowSpan="3" Cursor="SizeWE" DragDelta="SidePanelResizer_DragDelta"/>
-                    <ContentControl Content="{Binding SelectedEventEditViewmodel}" Margin="3, 0, 0, 0">
+                    <ContentControl Content="{Binding SelectedEventEditViewModel}" Margin="3, 0, 0, 0">
                         <ContentControl.Resources>
-                            <DataTemplate DataType="{x:Type vievmodels:EventEditViewmodel}">
+                            <DataTemplate DataType="{x:Type vievmodels:EventEditViewModel}">
                                 <views:EventEditView/>
                             </DataTemplate>
                         </ContentControl.Resources>
@@ -502,7 +502,7 @@
                     <GridSplitter Grid.Row="0" Visibility="{Binding Preview, Converter={StaticResource NullToVis}}"  HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
                     <ContentControl Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding Preview}">
                         <ContentControl.Resources>
-                            <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
+                            <DataTemplate DataType="{x:Type vievmodels:PreviewViewModel}" >
                                 <views:PreviewView/>
                             </DataTemplate>
                         </ContentControl.Resources>
@@ -635,25 +635,25 @@
                         </Style>
                     </TreeView.ItemContainerStyle>
                     <TreeView.Resources>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelMovieViewmodel}" >
+                        <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelMovieViewModel}" >
                             <views:EventPanelMovieView />
                         </HierarchicalDataTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelLiveViewmodel}" >
+                        <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelLiveViewModel}" >
                             <views:EventPanelLiveView />
                         </HierarchicalDataTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelContainerViewmodel}" >
+                        <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelContainerViewModel}" >
                             <views:EventPanelContainerView />
                         </HierarchicalDataTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelRundownViewmodel}" >
+                        <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelRundownViewModel}" >
                             <views:EventPanelRundownView />
                         </HierarchicalDataTemplate>
-                        <DataTemplate DataType="{x:Type vievmodels:EventPanelSecondaryEventViewmodel}" >
+                        <DataTemplate DataType="{x:Type vievmodels:EventPanelSecondaryEventViewModel}" >
                             <views:EventPanelSecondaryEventView />
                         </DataTemplate>
-                        <DataTemplate DataType="{x:Type vievmodels:EventPanelAnimationViewmodel}" >
+                        <DataTemplate DataType="{x:Type vievmodels:EventPanelAnimationViewModel}" >
                             <views:EventPanelAnimationView />
                         </DataTemplate>
-                        <DataTemplate DataType="{x:Type vievmodels:EventPanelCommandScriptViewmodel}" >
+                        <DataTemplate DataType="{x:Type vievmodels:EventPanelCommandScriptViewModel}" >
                             <views:EventPanelCommandScriptView />
                         </DataTemplate>
                     </TreeView.Resources>

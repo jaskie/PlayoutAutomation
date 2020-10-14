@@ -11,12 +11,12 @@ using TAS.Common.Interfaces;
 namespace TAS.Client.ViewModels
 {
     [DebuggerDisplay("{" + nameof(EventName) + "}")]
-    public abstract class EventPanelViewmodelBase : ViewModelBase
+    public abstract class EventPanelViewModelBase : ViewModelBase
     {
         protected readonly IEngine Engine;
-        protected readonly EngineViewmodel EngineViewmodel;
-        protected static readonly EventPanelViewmodelBase DummyChild = new EventPanelDummyViewmodel();
-        private EventPanelViewmodelBase _parent;
+        protected readonly EngineViewModel EngineViewModel;
+        protected static readonly EventPanelViewModelBase DummyChild = new EventPanelDummyViewModel();
+        private EventPanelViewModelBase _parent;
 
         private TVideoFormat _videoFormat;
         bool _isExpanded;
@@ -26,15 +26,15 @@ namespace TAS.Client.ViewModels
         /// <summary>
         /// Constructor for root event
         /// </summary>
-        /// <param name="engineViewmodel"></param>
-        protected EventPanelViewmodelBase(EngineViewmodel engineViewmodel)
+        /// <param name="engineViewModel"></param>
+        protected EventPanelViewModelBase(EngineViewModel engineViewModel)
         {
-            EngineViewmodel = engineViewmodel;
-            Engine = engineViewmodel.Engine;
+            EngineViewModel = engineViewModel;
+            Engine = engineViewModel.Engine;
             Level = 0;
             _isExpanded = true;
-            _videoFormat = engineViewmodel.VideoFormat;
-            Root = (EventPanelRootViewmodel)this;
+            _videoFormat = engineViewModel.VideoFormat;
+            Root = (EventPanelRootViewModel)this;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace TAS.Client.ViewModels
         /// </summary>
         /// <param name="aEvent"></param>
         /// <param name="parent"></param>
-        protected EventPanelViewmodelBase(IEvent aEvent, EventPanelViewmodelBase parent)
+        protected EventPanelViewModelBase(IEvent aEvent, EventPanelViewModelBase parent)
         {
             if (aEvent == null) // dummy child
                 return;
@@ -53,7 +53,7 @@ namespace TAS.Client.ViewModels
             {
                 _parent = parent;
                 Root = parent.Root;
-                EngineViewmodel = parent.EngineViewmodel;
+                EngineViewModel = parent.EngineViewModel;
                 Level = parent.Level + 1;
                 if (aEvent.SubEventsCount > 0)
                     Childrens.Add(DummyChild);
@@ -72,15 +72,15 @@ namespace TAS.Client.ViewModels
             if (Event != null)
             {
                 Event.PropertyChanged -= OnEventPropertyChanged;
-                EngineViewmodel.RemoveEventPanel(this);
+                EngineViewModel.RemoveEventPanel(this);
                 IsMultiSelected = false;
             }
-            Debug.WriteLine(this, "EventPanelViewmodel Disposed");
+            Debug.WriteLine(this, "EventPanelViewModel Disposed");
         }
 
-        protected EventPanelRootViewmodel Root { get; }
+        protected EventPanelRootViewModel Root { get; }
 
-        public ObservableCollection<EventPanelViewmodelBase> Childrens { get; } = new ObservableCollection<EventPanelViewmodelBase>();
+        public ObservableCollection<EventPanelViewModelBase> Childrens { get; } = new ObservableCollection<EventPanelViewModelBase>();
 
         public bool HasDummyChild => Childrens.Contains(DummyChild);
 
@@ -112,7 +112,7 @@ namespace TAS.Client.ViewModels
                     return;
                 if (value)
                 {
-                    EngineViewmodel.SelectedEventPanel = this;
+                    EngineViewModel.SelectedEventPanel = this;
                     BringIntoView();
                 }
                 InvalidateRequerySuggested();
@@ -133,7 +133,7 @@ namespace TAS.Client.ViewModels
             protected set => SetField(ref _videoFormat, value);
         }
 
-        public EventPanelViewmodelBase Parent
+        public EventPanelViewModelBase Parent
         {
             get => _parent;
             private set => SetField(ref _parent, value);
@@ -143,7 +143,7 @@ namespace TAS.Client.ViewModels
 
         public TEventType EventType => Event?.EventType ?? TEventType.Rundown;
 
-        public EventPanelViewmodelBase Find(IEvent aEvent, bool searchOnNextLevels)
+        public EventPanelViewModelBase Find(IEvent aEvent, bool searchOnNextLevels)
         {
             if (aEvent == null)
                 return null;
@@ -161,12 +161,12 @@ namespace TAS.Client.ViewModels
             return null;
         }
 
-        private void RemoveChild(EventPanelViewmodelBase item)
+        private void RemoveChild(EventPanelViewModelBase item)
         {
             if (!IsExpanded)
                 return;
             Childrens.Remove(item);
-            if (!(this is EventPanelRootViewmodel) && Childrens.Count == 0)
+            if (!(this is EventPanelRootViewModel) && Childrens.Count == 0)
                 IsExpanded = false;
         }
 
@@ -277,27 +277,27 @@ namespace TAS.Client.ViewModels
 
         public Views.EventPanelView View;
 
-        internal EventPanelViewmodelBase CreateChildEventPanelViewmodelForEvent(IEvent ev)
+        internal EventPanelViewModelBase CreateChildEventPanelViewModelForEvent(IEvent ev)
         {
             switch (ev.EventType)
             {
                 case TEventType.Rundown:
-                    return new EventPanelRundownViewmodel(ev, this);
+                    return new EventPanelRundownViewModel(ev, this);
                 case TEventType.Container:
-                    return new EventPanelContainerViewmodel(ev, this);
+                    return new EventPanelContainerViewModel(ev, this);
                 case TEventType.Movie:
                     if (ev.Layer == VideoLayer.Program)
-                        return new EventPanelMovieViewmodel(ev, this);
+                        return new EventPanelMovieViewModel(ev, this);
                     else
-                        return new EventPanelSecondaryEventViewmodel(ev, this);
+                        return new EventPanelSecondaryEventViewModel(ev, this);
                 case TEventType.Live:
-                    return new EventPanelLiveViewmodel(ev, this);
+                    return new EventPanelLiveViewModel(ev, this);
                 case TEventType.StillImage:
-                    return new EventPanelSecondaryEventViewmodel(ev, this);
+                    return new EventPanelSecondaryEventViewModel(ev, this);
                 case TEventType.Animation:
-                    return new EventPanelAnimationViewmodel(ev, this);
+                    return new EventPanelAnimationViewModel(ev, this);
                 case TEventType.CommandScript:
-                    return new EventPanelCommandScriptViewmodel(ev, this);
+                    return new EventPanelCommandScriptViewModel(ev, this);
                 default:
                     throw new ApplicationException($"Invalid event type {ev.EventType} to create panel");
             }
@@ -348,12 +348,12 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        protected EventPanelViewmodelBase RootOwner
+        protected EventPanelViewModelBase RootOwner
         {
             get
             {
                 var result = this;
-                while (result.Parent is EventPanelRundownElementViewmodelBase || result.Parent is EventPanelContainerViewmodel)
+                while (result.Parent is EventPanelRundownElementViewModelBase || result.Parent is EventPanelContainerViewModel)
                     result = result.Parent;
                 return result;
             }
@@ -364,11 +364,11 @@ namespace TAS.Client.ViewModels
             UiServices.Current.SetBusyState();
             foreach (var se in Event.SubEvents)
             {
-                Childrens.Add(CreateChildEventPanelViewmodelForEvent(se));
+                Childrens.Add(CreateChildEventPanelViewModelForEvent(se));
                 var ne = se.Next;
                 while (ne != null)
                 {
-                    Childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
+                    Childrens.Add(CreateChildEventPanelViewModelForEvent(ne));
                     ne = ne.Next;
                 }
             }

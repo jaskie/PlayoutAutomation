@@ -8,7 +8,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance vm:EventPanelRundownViewmodel}"
+             d:DataContext="{d:DesignInstance vm:EventPanelRundownViewModel}"
              FontSize="12" 
              d:DesignWidth="700"
              >

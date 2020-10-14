@@ -4,10 +4,10 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Client.ViewModels
 {
-    public class ExportMediaLogoViewmodel
+    public class ExportMediaLogoViewModel
     {
-        private readonly ExportMediaViewmodel _owner;
-        public ExportMediaLogoViewmodel(ExportMediaViewmodel owner, IMedia logo )
+        private readonly ExportMediaViewModel _owner;
+        public ExportMediaLogoViewModel(ExportMediaViewModel owner, IMedia logo )
         {
             Logo = logo;
             _owner = owner;

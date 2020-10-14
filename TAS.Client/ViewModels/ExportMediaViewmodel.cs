@@ -7,15 +7,15 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class ExportMediaViewmodel : ViewModelBase
+    public class ExportMediaViewModel : ViewModelBase
     {
         private readonly IEngine _engine;
 
-        public ExportMediaViewmodel(IEngine engine, MediaExportDescription mediaExport)
+        public ExportMediaViewModel(IEngine engine, MediaExportDescription mediaExport)
         {
             _engine = engine;
             MediaExport = mediaExport;
-            Logos = new ObservableCollection<ExportMediaLogoViewmodel>(mediaExport.Logos.Select(l => new ExportMediaLogoViewmodel(this, l)));
+            Logos = new ObservableCollection<ExportMediaLogoViewModel>(mediaExport.Logos.Select(l => new ExportMediaLogoViewModel(this, l)));
             CommandAddLogo = new UiCommand(_addLogo);
         }
 
@@ -27,7 +27,7 @@ namespace TAS.Client.ViewModels
 
         public double AudioVolume { get => MediaExport.AudioVolume; set => SetField(ref MediaExport.AudioVolume, value); }
 
-        public ObservableCollection<ExportMediaLogoViewmodel> Logos { get; }
+        public ObservableCollection<ExportMediaLogoViewModel> Logos { get; }
 
         public UiCommand CommandAddLogo { get; }
 
@@ -35,7 +35,7 @@ namespace TAS.Client.ViewModels
 
         public TVideoFormat VideoFormat => _engine.VideoFormat;
         
-        internal void Remove(ExportMediaLogoViewmodel exportMediaLogoViewModel)
+        internal void Remove(ExportMediaLogoViewModel exportMediaLogoViewModel)
         {
             Logos.Remove(exportMediaLogoViewModel);
             MediaExport.RemoveLogo(exportMediaLogoViewModel.Logo);
@@ -43,7 +43,7 @@ namespace TAS.Client.ViewModels
 
         private void _addLogo(object o)
         {
-            using (var vm = new MediaSearchViewmodel(
+            using (var vm = new MediaSearchViewModel(
                 null, // preview
                 _engine,
                 new[] { TMediaType.Still },
@@ -55,7 +55,7 @@ namespace TAS.Client.ViewModels
             })
                 if (WindowManager.Current.ShowDialog(vm) == true)
                 {
-                    Logos.Add(new ExportMediaLogoViewmodel(this, vm.SelectedMedia));
+                    Logos.Add(new ExportMediaLogoViewModel(this, vm.SelectedMedia));
                     MediaExport.AddLogo(vm.SelectedMedia);
                 }
         }

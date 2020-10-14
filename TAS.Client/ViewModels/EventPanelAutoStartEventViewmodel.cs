@@ -3,7 +3,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventPanelAutoStartEventViewmodel:EventPanelRundownElementViewmodelBase
+    public class EventPanelAutoStartEventViewModel:EventPanelRundownElementViewModelBase
     {
         public enum TAutoStartPlayState
         {
@@ -15,7 +15,7 @@ namespace TAS.Client.ViewModels
         }
 
 
-        public EventPanelAutoStartEventViewmodel(IEvent ev):base(ev, null) { }
+        public EventPanelAutoStartEventViewModel(IEvent ev):base(ev, null) { }
 
         public string ScheduledDate => Event.ScheduledTime.ToLocalTime().ToString("d");
 

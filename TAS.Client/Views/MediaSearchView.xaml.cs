@@ -22,18 +22,18 @@ namespace TAS.Client.Views
             if (e.AddedItems.Count == 0)
                 _selectedMedia.SelectedSegment = null;
             else
-            if (e.AddedItems[0] is MediaSegmentViewmodel 
+            if (e.AddedItems[0] is MediaSegmentViewModel 
                 && e.AddedItems[0] != _selectedMedia.SelectedSegment
-                && (e.AddedItems[0] as MediaSegmentViewmodel)?.Media == _selectedMedia.Media )
-                _selectedMedia.SelectedSegment = (MediaSegmentViewmodel)e.AddedItems[0];
+                && (e.AddedItems[0] as MediaSegmentViewModel)?.Media == _selectedMedia.Media )
+                _selectedMedia.SelectedSegment = (MediaSegmentViewModel)e.AddedItems[0];
             else
                 _selectedMedia.SelectedSegment = null;
         }
 
-        private MediaViewViewmodel _selectedMedia;
+        private MediaViewViewModel _selectedMedia;
         private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count <= 0 || !(e.AddedItems[0] is MediaViewViewmodel sm))
+            if (e.AddedItems.Count <= 0 || !(e.AddedItems[0] is MediaViewViewModel sm))
                 return;
             _selectedMedia = sm;
             (sender as DataGrid)?.ScrollIntoView(sm);
@@ -57,7 +57,7 @@ namespace TAS.Client.Views
 
         private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            var vm = e.NewValue as MediaSearchViewmodel;
+            var vm = e.NewValue as MediaSearchViewModel;
             Width = vm?._preview == null ? 550 : 950;
         }
 
@@ -68,7 +68,7 @@ namespace TAS.Client.Views
 
         private void DataGrid_OnSorting(object sender, DataGridSortingEventArgs e)
         {
-            if (!(sender is FrameworkElement fe) || !(fe.DataContext is MediaSearchViewmodel vm))
+            if (!(sender is FrameworkElement fe) || !(fe.DataContext is MediaSearchViewModel vm))
                 return;
             vm.UserSorted = true;
         }

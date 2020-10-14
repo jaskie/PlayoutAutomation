@@ -17,7 +17,7 @@ using TAS.Client.NDIVideoPreview.Interop;
 
 namespace TAS.Client.NDIVideoPreview
 {
-    public class VideoPreviewViewmodel : ViewModelBase, Common.Plugin.IVideoPreview
+    public class VideoPreviewViewModel : ViewModelBase, Common.Plugin.IVideoPreview
     {
         private const double MinAudioLevel = -60;
         private readonly ObservableCollection<string> _videoSources;
@@ -29,7 +29,7 @@ namespace TAS.Client.NDIVideoPreview
         private bool _isDisplaySource;
         private bool _displayPopup;
         private bool _isDisplayAudioBars = true;
-        private AudioLevelBarViewmodel[] _audioLevels = new AudioLevelBarViewmodel[0];
+        private AudioLevelBarViewModel[] _audioLevels = new AudioLevelBarViewModel[0];
         private IEnumerable<AudioDevice> _audioDevices;
         private AudioDevice _selectedAudioDevice;
 
@@ -44,7 +44,7 @@ namespace TAS.Client.NDIVideoPreview
         private static event EventHandler SourceRefreshed;
         private static readonly IntPtr NdiFindInstance;
 
-        static VideoPreviewViewmodel()
+        static VideoPreviewViewModel()
         {
             Ndi.AddRuntimeDir();
             var findDesc = new NDIlib_find_create_t
@@ -98,7 +98,7 @@ namespace TAS.Client.NDIVideoPreview
         }
 
 
-        public VideoPreviewViewmodel()
+        public VideoPreviewViewModel()
         {
             _videoSources = new ObservableCollection<string>(new[] {Common.Properties.Resources._none_});
             _videoSource = _videoSources.FirstOrDefault();
@@ -180,7 +180,7 @@ namespace TAS.Client.NDIVideoPreview
                     {
                         Disconnect();
                         VideoBitmap = null;
-                        AudioLevels = new AudioLevelBarViewmodel[0];
+                        AudioLevels = new AudioLevelBarViewModel[0];
                         IsDisplaySource = _ndiSources.ContainsKey(value);
                         if (IsDisplaySource)
                             Task.Run(() => Connect(value));
@@ -229,7 +229,7 @@ namespace TAS.Client.NDIVideoPreview
             set => SetField(ref _isPlayAudio, value);
         }
 
-        public AudioLevelBarViewmodel[] AudioLevels
+        public AudioLevelBarViewModel[] AudioLevels
         {
             get => _audioLevels;
             private set => SetField(ref _audioLevels, value);
@@ -428,7 +428,7 @@ namespace TAS.Client.NDIVideoPreview
         private void SetAudioLevels(double[] maxValues)
         {
             if (AudioLevels.Length != maxValues.Length)
-                AudioLevels = maxValues.Select(v => new AudioLevelBarViewmodel{AudioLevel = v}).ToArray();
+                AudioLevels = maxValues.Select(v => new AudioLevelBarViewModel{AudioLevel = v}).ToArray();
             else
                 for (var index = 0; index < maxValues.Length; index++)
                 AudioLevels[index].AudioLevel = maxValues[index];

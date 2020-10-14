@@ -117,12 +117,12 @@
       <DependentUpon>EnginesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ConfigurationPluginManager.cs" />
-    <Compile Include="ViewModels\Engines\EnginesViewmodel.cs" />
+    <Compile Include="ViewModels\Engines\EnginesViewModel.cs" />
     <Compile Include="Views\Engines\EngineView.xaml.cs">
       <DependentUpon>EngineView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\Engines\EngineViewModel.cs" />
-    <Compile Include="ViewModels\ArchiveDirectories\ArchiveDirectoriesViewmodel.cs" />
+    <Compile Include="ViewModels\ArchiveDirectories\ArchiveDirectoriesViewModel.cs" />
     <Compile Include="Views\ArchiveDirectories\ArchiveDirectoriesView.xaml.cs">
       <DependentUpon>ArchiveDirectoriesView.xaml</DependentUpon>
     </Compile>

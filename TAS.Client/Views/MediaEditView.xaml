@@ -8,7 +8,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance {x:Type vm:MediaEditViewmodel}}"
+             d:DataContext="{d:DesignInstance {x:Type vm:MediaEditViewModel}}"
              d:DesignWidth="300"
              >
     <UserControl.InputBindings>
@@ -239,9 +239,9 @@
                     <Label Grid.Row="4" Content="{Resx _mediaGuid}" />
                     <TextBox Grid.Row="4" Text="{Binding MediaGuid, Mode=OneWay}" IsReadOnly="True" />
                 </Grid>
-                <ContentControl Content="{Binding TemplatedEditViewmodel}">
+                <ContentControl Content="{Binding TemplatedEditViewModel}">
                     <ContentControl.Resources>
-                        <DataTemplate DataType="{x:Type vm:TemplatedEditViewmodel}">
+                        <DataTemplate DataType="{x:Type vm:TemplatedEditViewModel}">
                             <views:TemplatedEditView/>
                         </DataTemplate>
                     </ContentControl.Resources>

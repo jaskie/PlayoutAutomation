@@ -8,7 +8,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels;assembly=TAS.Client"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance {x:Type vm:FileManagerViewmodel}}"
+             d:DataContext="{d:DesignInstance {x:Type vm:FileManagerViewModel}}"
              d:DesignHeight="300" d:DesignWidth="480"
              >
     <Grid>

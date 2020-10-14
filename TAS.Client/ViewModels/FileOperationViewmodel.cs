@@ -8,12 +8,12 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class FileOperationViewmodel: ViewModelBase
+    public class FileOperationViewModel: ViewModelBase
     {
         private bool _isWarning;
         private readonly IMediaManager _mediaManager;
 
-        public FileOperationViewmodel(IFileOperationBase fileOperation, IMediaManager mediaManager)
+        public FileOperationViewModel(IFileOperationBase fileOperation, IMediaManager mediaManager)
         {
             _mediaManager = mediaManager;
             FileOperation = fileOperation;

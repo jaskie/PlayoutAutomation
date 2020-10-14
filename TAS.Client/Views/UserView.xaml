@@ -10,7 +10,7 @@
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
 
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance {x:Type vm:UserViewmodel}}"
+             d:DataContext="{d:DesignInstance {x:Type vm:UserViewModel}}"
              d:DesignHeight="300" d:DesignWidth="300">
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">
@@ -45,7 +45,7 @@
         <Label DockPanel.Dock="Top" Content="{Resx _groupMembership}"/>
         <xctk:CheckListBox ItemsSource="{Binding AllGroups}" SelectedItemsOverride="{Binding GroupMember}">
             <xctk:CheckListBox.Resources>
-                <DataTemplate DataType="{x:Type vm:GroupViewmodel}">
+                <DataTemplate DataType="{x:Type vm:GroupViewModel}">
                     <TextBlock Text="{Binding Name}"/>
                 </DataTemplate>
             </xctk:CheckListBox.Resources>

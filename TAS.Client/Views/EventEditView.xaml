@@ -107,9 +107,9 @@
                         <behaviors:Focus IsFocused="{Binding IsEventNameFocused}" SelectAllOnFocus="True" />
                     </i:Interaction.Behaviors>
                 </TextBox>
-                <ContentControl Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding IsContainer, Converter={StaticResource BoolToVis}}" Content="{Binding EventRightsEditViewmodel}">
+                <ContentControl Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding IsContainer, Converter={StaticResource BoolToVis}}" Content="{Binding EventRightsEditViewModel}">
                     <ContentControl.Resources>
-                        <DataTemplate DataType="{x:Type vm:EventRightsEditViewmodel}">
+                        <DataTemplate DataType="{x:Type vm:EventRightsEditViewModel}">
                             <views:EventRightsEditView/>
                         </DataTemplate>
                     </ContentControl.Resources>
@@ -350,15 +350,15 @@
                                 <Grid.Visibility>
                                     <MultiBinding Converter="{StaticResource MultiBooleanOrNotNullToVisibilityConverter}">
                                         <Binding Path="IsLive"/>
-                                        <Binding Path="RecordingInfoViewmodel"/>
+                                        <Binding Path="RecordingInfoViewModel"/>
                                     </MultiBinding>                                    
                                 </Grid.Visibility>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="auto" />
                                     <RowDefinition Height="auto" />
                                 </Grid.RowDefinitions>
-                                <CheckBox IsChecked="{Binding RecordingInfoViewmodel.IsRecordingScheduled}" Content="{Resx _isRecordingScheduled}" Margin="10,5,0,0" />
-                                <Grid Grid.Row="1" Visibility="{Binding IsRecordingScheduled, Converter={StaticResource BoolToVis}}" DataContext="{Binding RecordingInfoViewmodel}">
+                                <CheckBox IsChecked="{Binding RecordingInfoViewModel.IsRecordingScheduled}" Content="{Resx _isRecordingScheduled}" Margin="10,5,0,0" />
+                                <Grid Grid.Row="1" Visibility="{Binding IsRecordingScheduled, Converter={StaticResource BoolToVis}}" DataContext="{Binding RecordingInfoViewModel}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="auto" />
                                         <RowDefinition Height="auto" />
@@ -434,9 +434,9 @@
                             <Label Content="{Resx _command}" />
                             <TextBox Grid.Column="1" Text="{Binding Command, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Resx _command.ToolTip}"/>
                         </Grid>
-                        <ContentControl Grid.Row="8" Content="{Binding TemplatedEditViewmodel}">
+                        <ContentControl Grid.Row="8" Content="{Binding TemplatedEditViewModel}">
                             <ContentControl.Resources>
-                                <DataTemplate DataType="{x:Type vm:TemplatedEditViewmodel}">
+                                <DataTemplate DataType="{x:Type vm:TemplatedEditViewModel}">
                                     <views:TemplatedEditView />
                                 </DataTemplate>
                             </ContentControl.Resources>

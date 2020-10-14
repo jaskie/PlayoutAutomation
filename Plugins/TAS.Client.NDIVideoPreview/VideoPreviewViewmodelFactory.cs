@@ -5,13 +5,13 @@ using TAS.Client.Common.Plugin;
 namespace TAS.Client.NDIVideoPreview
 {
     [Export(typeof(IUiPluginFactory))]
-    public class VideoPreviewViewmodelFactory: IUiPluginFactory
+    public class VideoPreviewViewModelFactory: IUiPluginFactory
     {
         object[] IUiPluginFactory.Create(IUiPluginContext context)
         {
-            return new object[] { new VideoPreviewViewmodel() };
+            return new object[] { new VideoPreviewViewModel() };
         }
 
-        public Type Type { get; } = typeof(VideoPreviewViewmodel);
+        public Type Type { get; } = typeof(VideoPreviewViewModel);
     }
 }

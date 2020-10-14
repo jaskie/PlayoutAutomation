@@ -7,7 +7,7 @@
         xmlns:views="clr-namespace:TAS.Client.Views"
         xmlns:viewModels="clr-namespace:TAS.Client.ViewModels"
         mc:Ignorable="d" 
-        d:DataContext="{d:DesignInstance viewModels:IngestEditorViewmodel}"
+        d:DataContext="{d:DesignInstance viewModels:IngestEditorViewModel}"
         SizeToContent="WidthAndHeight"
         Title="{Resx _windowTitle}"
         >

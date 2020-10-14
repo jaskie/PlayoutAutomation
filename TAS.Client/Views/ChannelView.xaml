@@ -7,7 +7,7 @@
              xmlns:vievmodels="clr-namespace:TAS.Client.ViewModels" 
              xmlns:views="clr-namespace:TAS.Client.Views" 
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance vievmodels:ChannelViewmodel}"
+             d:DataContext="{d:DesignInstance vievmodels:ChannelViewModel}"
              d:DesignHeight="800" d:DesignWidth="1000">
     <UserControl.InputBindings>
         <KeyBinding Gesture="F12" Command="{Binding CommandSwitchTab}"/>

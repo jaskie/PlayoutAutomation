@@ -14,7 +14,7 @@ using TAS.Client.Common.Plugin;
 namespace TAS.Client.ViewModels
 {
 
-    public class PreviewViewmodel : ViewModelBase, IUiPreview
+    public class PreviewViewModel : ViewModelBase, IUiPreview
     {
         private IMedia _selectedMedia;
         private IEvent _selectedEvent;
@@ -27,7 +27,7 @@ namespace TAS.Client.ViewModels
         private TimeSpan _tcIn;
         private TimeSpan _tcOut;
         private string _segmentName;
-        private MediaSegmentViewmodel _selectedSegment;
+        private MediaSegmentViewModel _selectedSegment;
         private bool _isSegmentsVisible;
         private TimeSpan _duration;
         private TimeSpan _startTc;
@@ -36,7 +36,7 @@ namespace TAS.Client.ViewModels
         private readonly Dictionary<VideoLayer, IMedia> _loadedOverlays = new Dictionary<VideoLayer, IMedia>();
         private static readonly TimeSpan EndDuration = TimeSpan.FromSeconds(3);
 
-        public PreviewViewmodel(IPreview preview, bool canTrimMedia, bool showOverlayButtons)
+        public PreviewViewModel(IPreview preview, bool canTrimMedia, bool showOverlayButtons)
         {
             _showOverlayButtons = showOverlayButtons;
             preview.PropertyChanged += PreviewPropertyChanged;
@@ -202,14 +202,14 @@ namespace TAS.Client.ViewModels
 
         public long FramesPerSecond => FormatDescription.FrameRate.Num / FormatDescription.FrameRate.Den;
 
-        public ObservableCollection<MediaSegmentViewmodel> MediaSegments { get; } = new ObservableCollection<MediaSegmentViewmodel>();
+        public ObservableCollection<MediaSegmentViewModel> MediaSegments { get; } = new ObservableCollection<MediaSegmentViewModel>();
 
-        public MediaSegmentViewmodel SelectedSegment
+        public MediaSegmentViewModel SelectedSegment
         {
             get => _selectedSegment;
             set
             {
-                MediaSegmentViewmodel oldValue = _selectedSegment;
+                MediaSegmentViewModel oldValue = _selectedSegment;
                 if (oldValue != value)
                 {
                     if (oldValue != null)
@@ -532,7 +532,7 @@ namespace TAS.Client.ViewModels
             if (_preview.IsLivePlaying)
                 return true;
 
-            MediaSegmentViewmodel segment = PlayWholeClip ? SelectedSegment : null;
+            MediaSegmentViewModel segment = PlayWholeClip ? SelectedSegment : null;
             IMedia media = LoadedMedia;
             if (media == null || !IsEnabled)
                 return false;
@@ -587,7 +587,7 @@ namespace TAS.Client.ViewModels
                 {
                     MediaSegments.Clear();
                     foreach (IMediaSegment ms in ((IPersistentMedia)media).GetMediaSegments().Segments)
-                        MediaSegments.Add(new MediaSegmentViewmodel((IPersistentMedia)media, ms));
+                        MediaSegments.Add(new MediaSegmentViewModel((IPersistentMedia)media, ms));
                 }
                 var seek = (tcIn.Ticks - media.TcStart.Ticks) / FormatDescription.FrameTicks;
                 long newPosition = _preview.IsMovieLoaded && _loadedMedia != null ? _preview.MovieSeekOnLoad + _preview.MoviePosition - seek : 0;
@@ -681,7 +681,7 @@ namespace TAS.Client.ViewModels
             {
                 if (LoadedMedia is IPersistentMedia media && sender == media.GetMediaSegments())
                 {
-                    var newVm = new MediaSegmentViewmodel(media, e.Segment);
+                    var newVm = new MediaSegmentViewModel(media, e.Segment);
                     MediaSegments.Add(newVm);
                     if (e.Segment == _lastAddedSegment)
                         SelectedSegment = newVm;

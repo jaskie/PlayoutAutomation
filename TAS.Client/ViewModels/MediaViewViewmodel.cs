@@ -11,26 +11,26 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaViewViewmodel : ViewModelBase
+    public class MediaViewViewModel : ViewModelBase
     {
         public readonly IMedia Media;
-        private readonly Lazy<ObservableCollection<MediaSegmentViewmodel>> _mediaSegments;
+        private readonly Lazy<ObservableCollection<MediaSegmentViewModel>> _mediaSegments;
         private IMediaSegments _segments;
         private bool _isExpanded;
-        private MediaSegmentViewmodel _selectedSegment;
+        private MediaSegmentViewModel _selectedSegment;
         private Lazy<bool> _isArchivedLazy;
         private Lazy<TIngestStatus> _ingestStatusLazy;
 
-        public MediaViewViewmodel(IMedia media, IMediaManager mediaManager)
+        public MediaViewViewModel(IMedia media, IMediaManager mediaManager)
         {
             Media = media;
             media.PropertyChanged += OnMediaPropertyChanged;
             if (media is IPersistentMedia pm)
             {
-                _mediaSegments = new Lazy<ObservableCollection<MediaSegmentViewmodel>>(() =>
+                _mediaSegments = new Lazy<ObservableCollection<MediaSegmentViewModel>>(() =>
                 {
                     _segments = pm.GetMediaSegments();
-                    var result = new ObservableCollection<MediaSegmentViewmodel>(_segments.Segments.Select(ms => new MediaSegmentViewmodel(pm, ms)));
+                    var result = new ObservableCollection<MediaSegmentViewModel>(_segments.Segments.Select(ms => new MediaSegmentViewModel(pm, ms)));
                     _segments.SegmentAdded += MediaSegments_SegmentAdded;
                     _segments.SegmentRemoved += _mediaSegments_SegmentRemoved;
                     return result;
@@ -116,12 +116,12 @@ namespace TAS.Client.ViewModels
             }
         }
         public bool IsVerified => Media.IsVerified;
-        public MediaSegmentViewmodel SelectedSegment
+        public MediaSegmentViewModel SelectedSegment
         {
             get => _selectedSegment;
             set => SetField(ref _selectedSegment, value);
         }
-        public ObservableCollection<MediaSegmentViewmodel> MediaSegments => _mediaSegments.Value;
+        public ObservableCollection<MediaSegmentViewModel> MediaSegments => _mediaSegments.Value;
 
         public override string ToString()
         {
@@ -145,7 +145,7 @@ namespace TAS.Client.ViewModels
                     if (media is IPersistentMedia && _mediaSegments.IsValueCreated)
                         OnUiThread(() =>
                         {
-                            foreach (MediaSegmentViewmodel segment in _mediaSegments.Value)
+                            foreach (MediaSegmentViewModel segment in _mediaSegments.Value)
                                 segment.VideoFormat = ((IMedia)media).VideoFormat;
                         });
                     break;
@@ -176,7 +176,7 @@ namespace TAS.Client.ViewModels
                 return;
             OnUiThread(() =>
             {
-                _mediaSegments.Value.Add(new MediaSegmentViewmodel(Media as IPersistentMedia, e.Segment));
+                _mediaSegments.Value.Add(new MediaSegmentViewModel(Media as IPersistentMedia, e.Segment));
                 NotifyPropertyChanged(nameof(HasSegments));
             });
         }

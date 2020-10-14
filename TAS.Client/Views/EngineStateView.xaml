@@ -8,7 +8,7 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:views="clr-namespace:TAS.Client.Views" 
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
-             d:DataContext="{x:Type vievmodels:EngineStateViewmodel}"
+             d:DataContext="{x:Type vievmodels:EngineStateViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>

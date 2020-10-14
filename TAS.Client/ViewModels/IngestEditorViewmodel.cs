@@ -8,12 +8,12 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    internal class IngestEditorViewmodel : ModifyableViewModelBase
+    internal class IngestEditorViewModel : ModifyableViewModelBase
     {
         private readonly IEngine _engine;
         private IngestOperationViewModel _selectedOperation;
 
-        public IngestEditorViewmodel(IList<IIngestOperation> convertionList, IEngine engine)
+        public IngestEditorViewModel(IList<IIngestOperation> convertionList, IEngine engine)
         {
             _engine = engine;
             OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op => new IngestOperationViewModel(op, engine)));

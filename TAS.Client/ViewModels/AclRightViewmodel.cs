@@ -4,9 +4,9 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Client.ViewModels
 {
-    public abstract class AclRightViewmodel: ModifyableViewModelBase
+    public abstract class AclRightViewModel: ModifyableViewModelBase
     {
-        protected AclRightViewmodel(IAclRight right)
+        protected AclRightViewModel(IAclRight right)
         {
             Right = right;
         }

@@ -2,8 +2,8 @@
 
 namespace TAS.Client.ViewModels
 {
-    public class EventPanelCommandScriptViewmodel: EventPanelRundownElementViewmodelBase
+    public class EventPanelCommandScriptViewModel: EventPanelRundownElementViewModelBase
     {
-        public EventPanelCommandScriptViewmodel(IEvent ev, EventPanelViewmodelBase parent): base(ev, parent) { }
+        public EventPanelCommandScriptViewModel(IEvent ev, EventPanelViewModelBase parent): base(ev, parent) { }
     }
 }

@@ -10,10 +10,10 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client
 {
-    public class MainWindowViewmodel : ViewModelBase
+    public class MainWindowViewModel : ViewModelBase
     {
 
-        public MainWindowViewmodel()
+        public MainWindowViewModel()
         {
             if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject())) 
                 return;
@@ -23,7 +23,7 @@ namespace TAS.Client
                     EngineController.Current.Engines.Select(engine =>
                     {
                         SplashScreenView.Current?.Notify($"Creating view for {engine.EngineName}...");
-                        return new ChannelViewmodel(engine, true, true);
+                        return new ChannelViewModel(engine, true, true);
                     }));
             }
             catch (Exception e)

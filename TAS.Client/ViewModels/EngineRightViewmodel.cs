@@ -4,7 +4,7 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Client.ViewModels
 {
-    public class EngineRightViewmodel: AclRightViewmodel
+    public class EngineRightViewModel: AclRightViewModel
     {
         private bool _play;
         private bool _preview;
@@ -16,7 +16,7 @@ namespace TAS.Client.ViewModels
         private bool _mediaExport;
         private bool _rundownRightsAdmin;
         
-        public EngineRightViewmodel(IAclRight right) : base(right)
+        public EngineRightViewModel(IAclRight right) : base(right)
         {
             Acl = right.Acl;
             Load();

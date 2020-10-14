@@ -66,9 +66,9 @@ namespace TAS.Client.Config.ViewModels.Playout
         {
             var newPlayoutServer = new Model.CasparServer();
             _playoutServers.Servers.Add(newPlayoutServer);
-            var newPlayoutServerViewmodel = new PlayoutServerViewModel(newPlayoutServer);
-            PlayoutServers.Add(newPlayoutServerViewmodel);
-            SelectedServer = newPlayoutServerViewmodel;            
+            var newPlayoutServerViewModel = new PlayoutServerViewModel(newPlayoutServer);
+            PlayoutServers.Add(newPlayoutServerViewModel);
+            SelectedServer = newPlayoutServerViewModel;            
         }
 
         public override bool Ok(object obj = null)

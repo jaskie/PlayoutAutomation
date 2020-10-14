@@ -10,29 +10,29 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.ViewModels
 {
-    public class ExportViewmodel : ViewModelBase
+    public class ExportViewModel : ViewModelBase
     {
         private readonly IEngine _engine;
-        private MediaDirectoryViewmodel _selectedDirectory;
+        private MediaDirectoryViewModel _selectedDirectory;
         private bool _concatMedia;
         private string _concatMediaName;
         private TmXFAudioExportFormat _mXFAudioExportFormat;
         private TmXFVideoExportFormat _mXFVideoExportFormat;
 
-        public ExportViewmodel(IEngine engine, IEnumerable<MediaExportDescription> exportList)
+        public ExportViewModel(IEngine engine, IEnumerable<MediaExportDescription> exportList)
         {
             _engine = engine;
-            Items = new ObservableCollection<ExportMediaViewmodel>(exportList.Select(media => new ExportMediaViewmodel(engine, media)));
-            Directories = engine.MediaManager.IngestDirectories.Where(d => d.ContainsExport()).Select(d => new MediaDirectoryViewmodel(d, d.DirectoryName, false, true)).ToList();
+            Items = new ObservableCollection<ExportMediaViewModel>(exportList.Select(media => new ExportMediaViewModel(engine, media)));
+            Directories = engine.MediaManager.IngestDirectories.Where(d => d.ContainsExport()).Select(d => new MediaDirectoryViewModel(d, d.DirectoryName, false, true)).ToList();
             SelectedDirectory = Directories.FirstOrDefault();
             CommandExport = new UiCommand(_export, _canExport);
         }
 
         public ICommand CommandExport { get; }
 
-        public List<MediaDirectoryViewmodel> Directories { get; }
+        public List<MediaDirectoryViewModel> Directories { get; }
         
-        public MediaDirectoryViewmodel SelectedDirectory
+        public MediaDirectoryViewModel SelectedDirectory
         {
             get => _selectedDirectory;
             set
@@ -52,7 +52,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public ObservableCollection<ExportMediaViewmodel> Items { get; }
+        public ObservableCollection<ExportMediaViewModel> Items { get; }
 
         public bool IsXDCAM => _selectedDirectory?.IsXdcam == true;
 

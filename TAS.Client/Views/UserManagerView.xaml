@@ -8,7 +8,7 @@
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance vm:UserManagerViewmodel}"
+             d:DataContext="{d:DesignInstance vm:UserManagerViewModel}"
              Height="600" 
              Width="600"
              Title="{Resx _windowTitle}"
@@ -36,7 +36,7 @@
                     <Label DockPanel.Dock="Top" Content="{Resx _selectedUser}" Style="{StaticResource HeaderLabel}"/>
                     <ContentControl Content="{Binding SelectedUser}">
                         <ContentControl.Resources>
-                            <DataTemplate DataType="{x:Type vm:UserViewmodel}">
+                            <DataTemplate DataType="{x:Type vm:UserViewModel}">
                                 <local:UserView/>
                             </DataTemplate>
                         </ContentControl.Resources>
@@ -75,7 +75,7 @@
                     <Label DockPanel.Dock="Top" Content="{Resx _selectedGroup}" Style="{StaticResource HeaderLabel}"/>
                     <ContentControl Content="{Binding SelectedGroup}">
                         <ContentControl.Resources>
-                            <DataTemplate DataType="{x:Type vm:GroupViewmodel}">
+                            <DataTemplate DataType="{x:Type vm:GroupViewModel}">
                                 <local:GroupView/>
                             </DataTemplate>
                         </ContentControl.Resources>

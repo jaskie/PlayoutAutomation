@@ -6,9 +6,9 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventPanelRundownViewmodel: EventPanelRundownElementViewmodelBase
+    public class EventPanelRundownViewModel: EventPanelRundownElementViewModelBase
     {
-        public EventPanelRundownViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
+        public EventPanelRundownViewModel(IEvent ev, EventPanelViewModelBase parent) : base(ev, parent)
         {
             CommandAddSubMovie = new UiCommand(_addSubMovie, _canAddSubEvent);
             CommandAddSubRundown = new UiCommand(_addSubRundown, _canAddSubEvent);
@@ -28,12 +28,12 @@ namespace TAS.Client.ViewModels
 
         protected override bool CanAddNextMovie(object o)
         {
-            return Parent is EventPanelRundownViewmodel && base.CanAddNextMovie(o);
+            return Parent is EventPanelRundownViewModel && base.CanAddNextMovie(o);
         }
 
         protected override bool CanAddNewLive(object o)
         {
-            return Parent is EventPanelRundownViewmodel && base.CanAddNewLive(o);
+            return Parent is EventPanelRundownViewModel && base.CanAddNewLive(o);
         }
 
         protected override void OnDispose()
@@ -57,17 +57,17 @@ namespace TAS.Client.ViewModels
 
         private void _addSubLive(object obj)
         {
-            EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, VideoLayer.Program, true);
+            EngineViewModel.AddSimpleEvent(Event, TEventType.Live, VideoLayer.Program, true);
         }
 
         private void _addSubRundown(object obj)
         {
-            EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, VideoLayer.None, true);
+            EngineViewModel.AddSimpleEvent(Event, TEventType.Rundown, VideoLayer.None, true);
         }
 
         private void _addSubMovie(object obj)
         {
-            EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, new[] { TMediaType.Movie }, VideoLayer.Program, false);
+            EngineViewModel.AddMediaEvent(Event, TStartType.WithParent, new[] { TMediaType.Movie }, VideoLayer.Program, false);
         }
 
         private bool _canAddSubEvent(object o)

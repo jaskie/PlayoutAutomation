@@ -4,11 +4,11 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Client.ViewModels
 {
-    public class GroupViewmodel: EditViewModelBase<IGroup>
+    public class GroupViewModel: EditViewModelBase<IGroup>
     {
         private string _name;
 
-        public GroupViewmodel(IGroup group): base(group)
+        public GroupViewModel(IGroup group): base(group)
         {
         }
 

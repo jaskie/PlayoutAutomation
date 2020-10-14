@@ -5,14 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:config ="clr-namespace:TAS.Client.Config"
         mc:Ignorable="d"
-        d:DataContext="{x:Type config:MainWindowViewmodel}"
+        d:DataContext="{x:Type config:MainWindowViewModel}"
         Title="TV Automation Configuration" 
         SizeToContent="WidthAndHeight"
         >
     <Window.Resources>
-        <config:MainWindowViewmodel x:Key="MainWindowViewmodel"/>
+        <config:MainWindowViewModel x:Key="MainWindowViewModel"/>
     </Window.Resources>
-    <StackPanel DataContext="{StaticResource MainWindowViewmodel}">
+    <StackPanel DataContext="{StaticResource MainWindowViewModel}">
         <DockPanel>
             <Label VerticalAlignment="Center" Content="Application config file"/>
             <Button DockPanel.Dock="Right" Height="18" Command="{Binding CommandConfigFileSelect}" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}">

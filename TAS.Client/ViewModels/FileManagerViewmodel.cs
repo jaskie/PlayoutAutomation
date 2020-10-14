@@ -9,24 +9,24 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class FileManagerViewmodel : ViewModelBase
+    public class FileManagerViewModel : ViewModelBase
     {
         private readonly IFileManager _fileManager;
         private readonly IMediaManager _mediaManager;
 
-        public FileManagerViewmodel(IMediaManager mediaManager)
+        public FileManagerViewModel(IMediaManager mediaManager)
         {
             _mediaManager = mediaManager;
             _fileManager = mediaManager.FileManager;
             _fileManager.OperationAdded += FileManager_OperationAdded;
             _fileManager.OperationCompleted += FileManager_OperationCompleted;
-            OperationList = new ObservableCollection<FileOperationViewmodel>(_fileManager.GetOperationQueue().Select(fo => new FileOperationViewmodel(fo, mediaManager)));
+            OperationList = new ObservableCollection<FileOperationViewModel>(_fileManager.GetOperationQueue().Select(fo => new FileOperationViewModel(fo, mediaManager)));
             CommandClearFinished = new UiCommand(_clearFinishedOperations, o => OperationList.Any(op => op.Finished));
             CommandCancelPending = new UiCommand(o => _fileManager.CancelPending(), o => OperationList.Any(op => op.OperationStatus == FileOperationStatus.Waiting));
             DispatcherTimer clearTimer = new DispatcherTimer();
             clearTimer.Tick += (o, e) =>
             {
-                foreach (FileOperationViewmodel vm in OperationList.Where(op => op.FileOperation.OperationStatus == FileOperationStatus.Finished && op.FinishedTime > DateTime.Now+TimeSpan.FromHours(1)).ToList())
+                foreach (FileOperationViewModel vm in OperationList.Where(op => op.FileOperation.OperationStatus == FileOperationStatus.Finished && op.FinishedTime > DateTime.Now+TimeSpan.FromHours(1)).ToList())
                 {
                     OperationList.Remove(vm);
                     vm.Dispose();
@@ -39,7 +39,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandClearFinished { get; }
         public ICommand CommandCancelPending { get; }
 
-        public ObservableCollection<FileOperationViewmodel> OperationList { get; }
+        public ObservableCollection<FileOperationViewModel> OperationList { get; }
 
         public bool ClearFinished
         {
@@ -59,7 +59,7 @@ namespace TAS.Client.ViewModels
             {
                 if (_clearFinished && e.Operation.OperationStatus != FileOperationStatus.Failed)
                 {
-                    FileOperationViewmodel
+                    FileOperationViewModel
                         fovm = OperationList.FirstOrDefault(vm =>
                             vm.FileOperation == e.Operation); // don't remove failed
                     if (fovm != null)
@@ -78,13 +78,13 @@ namespace TAS.Client.ViewModels
                 return;
             OnUiThread(() => 
             {
-                OperationList.Insert(0, new FileOperationViewmodel(e.Operation, _mediaManager));
+                OperationList.Insert(0, new FileOperationViewModel(e.Operation, _mediaManager));
             });
         }
 
         private void _clearFinishedOperations(object parameter)
         {
-            foreach (FileOperationViewmodel vm in OperationList.Where(f => f.Finished).ToList())
+            foreach (FileOperationViewModel vm in OperationList.Where(f => f.Finished).ToList())
             {
                 OperationList.Remove(vm);
                 vm.Dispose();

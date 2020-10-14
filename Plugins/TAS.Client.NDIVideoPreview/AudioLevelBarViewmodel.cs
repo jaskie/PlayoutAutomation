@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace TAS.Client.NDIVideoPreview
 {
-    public class AudioLevelBarViewmodel : INotifyPropertyChanged
+    public class AudioLevelBarViewModel : INotifyPropertyChanged
     {
         private const long SilenceDurationToHideTicks = 3000 * TimeSpan.TicksPerMillisecond;
         private const double SilenceLevel = -60;

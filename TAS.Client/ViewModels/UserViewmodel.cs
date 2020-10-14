@@ -12,18 +12,18 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class UserViewmodel: EditViewModelBase<IUser>, IDataErrorInfo
+    public class UserViewModel: EditViewModelBase<IUser>, IDataErrorInfo
     {
         private string _name;
-        private readonly UserManagerViewmodel _owner;
+        private readonly UserManagerViewModel _owner;
         private bool _isAdmin;
         private AuthenticationSource _authenticationSource;
         private string _authenticationObject;
 
-        public UserViewmodel(IUser user, UserManagerViewmodel owner): base(user)
+        public UserViewModel(IUser user, UserManagerViewModel owner): base(user)
         {
             _owner = owner;
-            GroupMember = new ObservableCollection<GroupViewmodel>(user.GetGroups().Select(g => owner.Groups.FirstOrDefault(vm => vm.Model == g)));
+            GroupMember = new ObservableCollection<GroupViewModel>(user.GetGroups().Select(g => owner.Groups.FirstOrDefault(vm => vm.Model == g)));
             GroupMember.CollectionChanged += _groupMember_CollectionChanged;
         }
 
@@ -67,9 +67,9 @@ namespace TAS.Client.ViewModels
             Model.Save();
         }
 
-        public IList<GroupViewmodel> AllGroups => _owner.Groups;
+        public IList<GroupViewModel> AllGroups => _owner.Groups;
 
-        public ObservableCollection<GroupViewmodel> GroupMember { get; }
+        public ObservableCollection<GroupViewModel> GroupMember { get; }
 
         public ICommand CommandSave => new UiCommand(Update, o => IsModified);
 

@@ -14,7 +14,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class IngestOperationViewModel : FileOperationViewmodel, IDataErrorInfo, IUiPreviewProvider
+    public class IngestOperationViewModel : FileOperationViewModel, IDataErrorInfo, IUiPreviewProvider
     {
         private readonly IIngestOperation _operation;
         private readonly IEngine _engine;
@@ -56,7 +56,7 @@ namespace TAS.Client.ViewModels
             AspectConversionsEnforce = new TAspectConversion[3];
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             if (engine.Preview != null)
-                _preview = new PreviewViewmodel(engine.Preview, true, false) { SelectedIngestOperation = operation };
+                _preview = new PreviewViewModel(engine.Preview, true, false) { SelectedIngestOperation = operation };
             CommandRemove = new UiCommand(o => Removed?.Invoke(this, EventArgs.Empty));
         }
 
@@ -228,7 +228,7 @@ namespace TAS.Client.ViewModels
 
         public bool CanTrim => EncodeVideo && EncodeAudio && _operation.Source.MediaStatus == TMediaStatus.Available && (_operation.Source.MediaType == TMediaType.Movie || _operation.Source.MediaType == TMediaType.Audio);
 
-        private PreviewViewmodel _preview;
+        private PreviewViewModel _preview;
 
         public bool CanPreview => (_preview != null && ((IIngestDirectory)_operation.Source.Directory).AccessType == TDirectoryAccessType.Direct);
 

@@ -93,9 +93,9 @@ namespace TAS.Client.Config.ViewModels.Engines
                 ArchiveDirectories = _engines.ArchiveDirectories 
             };
             _engines.EngineList.Add(newEngine);
-            var newPlayoutServerViewmodel = new EngineViewModel(newEngine);
-            Engines.Add(newPlayoutServerViewmodel);
-            SelectedEngine = newPlayoutServerViewmodel;            
+            var newPlayoutServerViewModel = new EngineViewModel(newEngine);
+            Engines.Add(newPlayoutServerViewModel);
+            SelectedEngine = newPlayoutServerViewModel;            
         }
 
         public override bool Ok(object obj)

@@ -7,7 +7,7 @@
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:local="clr-namespace:TVPlayClient"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type local:ConfigurationViewmodel}"
+             d:DataContext="{x:Type local:ConfigurationViewModel}"
              d:DesignHeight="300" d:DesignWidth="400">
     <DockPanel>
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" FlowDirection="RightToLeft" Height="37">

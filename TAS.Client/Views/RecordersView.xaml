@@ -7,7 +7,7 @@
              mc:Ignorable="d"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
-             d:DataContext="{d:DesignInstance vm:RecordersViewmodel}"
+             d:DataContext="{d:DesignInstance vm:RecordersViewModel}"
              d:DesignHeight="500" d:DesignWidth="700">
     <UserControl.Resources>
         <Style TargetType="Button" >

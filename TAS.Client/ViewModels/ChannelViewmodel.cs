@@ -6,17 +6,17 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class ChannelViewmodel : ViewModelBase
+    public class ChannelViewModel : ViewModelBase
     {
         private int _selectedTabIndex;
 
-        public ChannelViewmodel(IEngine engine, bool showEngine, bool showMedia)
+        public ChannelViewModel(IEngine engine, bool showEngine, bool showMedia)
         {
             DisplayName = engine.EngineName;
             if (showEngine)
-                Engine = new EngineViewmodel(engine, engine.Preview);
+                Engine = new EngineViewModel(engine, engine.Preview);
             if (showMedia)
-                MediaManager = new MediaManagerViewmodel(engine, engine.HaveRight(EngineRight.Preview) ? engine.Preview : null);
+                MediaManager = new MediaManagerViewModel(engine, engine.HaveRight(EngineRight.Preview) ? engine.Preview : null);
             CommandSwitchTab = new UiCommand(o => SelectedTabIndex = _selectedTabIndex == 0 ? 1 : 0, o => showEngine && showMedia);
             SelectedTabIndex = showEngine ? 0 : 1;
         }
@@ -25,9 +25,9 @@ namespace TAS.Client.ViewModels
 
         public string DisplayName { get; }
 
-        public EngineViewmodel Engine { get; }
+        public EngineViewModel Engine { get; }
 
-        public MediaManagerViewmodel MediaManager { get; }
+        public MediaManagerViewModel MediaManager { get; }
 
         public int SelectedTabIndex
         {
@@ -39,7 +39,7 @@ namespace TAS.Client.ViewModels
         {
             set
             {
-                if (value?.DataContext is EngineViewmodel engine)
+                if (value?.DataContext is EngineViewModel engine)
                     OnIdle(() => engine.Focus());
             }
         }

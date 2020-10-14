@@ -11,7 +11,7 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance vm:EventPanelMovieViewmodel}"
+             d:DataContext="{d:DesignInstance vm:EventPanelMovieViewModel}"
              FontSize="12" 
              d:DesignWidth="700"
              >

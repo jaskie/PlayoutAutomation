@@ -13,9 +13,9 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventEditViewmodel : EditViewModelBase<IEvent>, IDataErrorInfo
+    public class EventEditViewModel : EditViewModelBase<IEvent>, IDataErrorInfo
     {
-        private readonly EngineViewmodel _engineViewModel;
+        private readonly EngineViewModel _engineViewModel;
         private IMedia _media;
         private bool _isVolumeChecking;
         private TEventType _eventType;
@@ -50,7 +50,7 @@ namespace TAS.Client.ViewModels
         public static readonly Regex RegexPlay = new Regex(TAS.Common.EventExtensions.PlayCommand, RegexOptions.IgnoreCase);
         public static readonly Regex RegexCg = new Regex(TAS.Common.EventExtensions.CgCommand, RegexOptions.IgnoreCase);
 
-        public EventEditViewmodel(IEvent @event, EngineViewmodel engineViewModel): base(@event)
+        public EventEditViewModel(IEvent @event, EngineViewModel engineViewModel): base(@event)
         {
             _engineViewModel = engineViewModel;
             IsPrimaryEvent = @event.Layer == VideoLayer.Program || @event.EventType == TEventType.Rundown;
@@ -58,8 +58,8 @@ namespace TAS.Client.ViewModels
             Model.PropertyChanged += ModelPropertyChanged;
             if (@event.EventType == TEventType.Container)
             {
-                EventRightsEditViewmodel = new EventRightsEditViewmodel(@event, engineViewModel.Engine.AuthenticationService);
-                EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
+                EventRightsEditViewModel = new EventRightsEditViewModel(@event, engineViewModel.Engine.AuthenticationService);
+                EventRightsEditViewModel.ModifiedChanged += RightsModifiedChanged;
             }
             Router = engineViewModel.Router;
             Sources = new List<object>();
@@ -74,8 +74,8 @@ namespace TAS.Client.ViewModels
                             
             if (@event.EventType == TEventType.Live && Model.Engine.MediaManager.Recorders.Count() > 0)
             {
-                RecordingInfoViewmodel = new RecordingInfoViewModel(@event.Engine, @event.RecordingInfo);
-                RecordingInfoViewmodel.ModifiedChanged += RecordingInfoViewmodel_ModifiedChanged;
+                RecordingInfoViewModel = new RecordingInfoViewModel(@event.Engine, @event.RecordingInfo);
+                RecordingInfoViewModel.ModifiedChanged += RecordingInfoViewModel_ModifiedChanged;
             }
 
             CommandSaveEdit = new UiCommand(o => Save(), o => CanSave);
@@ -112,12 +112,12 @@ namespace TAS.Client.ViewModels
             );
             if (@event is ITemplated templated)
             {
-                TemplatedEditViewmodel = new TemplatedEditViewmodel(templated, true, true, engineViewModel.VideoFormat);
-                TemplatedEditViewmodel.ModifiedChanged += TemplatedEditViewmodel_ModifiedChanged;
+                TemplatedEditViewModel = new TemplatedEditViewModel(templated, true, true, engineViewModel.VideoFormat);
+                TemplatedEditViewModel.ModifiedChanged += TemplatedEditViewModel_ModifiedChanged;
             }
         }
 
-        private void RecordingInfoViewmodel_ModifiedChanged(object sender, EventArgs e)
+        private void RecordingInfoViewModel_ModifiedChanged(object sender, EventArgs e)
         {
             IsModified = true;
         }
@@ -129,18 +129,18 @@ namespace TAS.Client.ViewModels
 
         public void UndoEdit()
         {
-            RecordingInfoViewmodel?.Load();
-            TemplatedEditViewmodel?.UndoEdit();
-            EventRightsEditViewmodel?.UndoEdit();            
+            RecordingInfoViewModel?.Load();
+            TemplatedEditViewModel?.UndoEdit();
+            EventRightsEditViewModel?.UndoEdit();            
             Load();
         }
         
         protected override void Update(object destObject = null)
         {
-            Model.RecordingInfo = RecordingInfoViewmodel?.GetRecordingInfo();
+            Model.RecordingInfo = RecordingInfoViewModel?.GetRecordingInfo();
             base.Update(Model);
-            EventRightsEditViewmodel?.Save();
-            TemplatedEditViewmodel?.Save();            
+            EventRightsEditViewModel?.Save();
+            TemplatedEditViewModel?.Save();            
             Model.Save();            
         }
 
@@ -180,7 +180,7 @@ namespace TAS.Client.ViewModels
                         return _validateScheduledDelay();
                     case nameof(EventName):
                         return _validateEventName();
-                    case nameof(RecordingInfoViewmodel):
+                    case nameof(RecordingInfoViewModel):
                         return _validateRecordingInfo();
                     case nameof(Command):
                         return IsValidCommand(_command)
@@ -629,10 +629,10 @@ namespace TAS.Client.ViewModels
 
         public ICGElement[] Parentals => Model.Engine.CGElementsController?.Parentals.ToArray() ?? new ICGElement[0];
         
-        public EventRightsEditViewmodel EventRightsEditViewmodel { get; }
+        public EventRightsEditViewModel EventRightsEditViewModel { get; }
 
-        public TemplatedEditViewmodel TemplatedEditViewmodel { get; }
-        public RecordingInfoViewModel RecordingInfoViewmodel { get; }
+        public TemplatedEditViewModel TemplatedEditViewModel { get; }
+        public RecordingInfoViewModel RecordingInfoViewModel { get; }
 
         public override string ToString()
         {
@@ -661,15 +661,15 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             Model.PropertyChanged -= ModelPropertyChanged;
-            if (TemplatedEditViewmodel != null)
+            if (TemplatedEditViewModel != null)
             {
-                TemplatedEditViewmodel.ModifiedChanged -= TemplatedEditViewmodel_ModifiedChanged;
-                TemplatedEditViewmodel?.Dispose();
+                TemplatedEditViewModel.ModifiedChanged -= TemplatedEditViewModel_ModifiedChanged;
+                TemplatedEditViewModel?.Dispose();
             }
-            if (EventRightsEditViewmodel != null)
+            if (EventRightsEditViewModel != null)
             {
-                EventRightsEditViewmodel.ModifiedChanged -= RightsModifiedChanged;
-                EventRightsEditViewmodel.Dispose();
+                EventRightsEditViewModel.ModifiedChanged -= RightsModifiedChanged;
+                EventRightsEditViewModel.Dispose();
             }
             if (_media != null)
                 _media.PropertyChanged -= OnMediaPropertyChanged;
@@ -701,7 +701,7 @@ namespace TAS.Client.ViewModels
 
         private void _editMovie(object obj)
         {
-            using (var evm = new MediaEditWindowViewmodel(Model.Media, Model.Engine.MediaManager) )
+            using (var evm = new MediaEditWindowViewModel(Model.Media, Model.Engine.MediaManager) )
             {
                 if (WindowManager.Current.ShowDialog(evm) != true)
                     return;
@@ -892,15 +892,15 @@ namespace TAS.Client.ViewModels
                         InvalidateRequerySuggested();
                         break;
                     case nameof(IEvent.RecordingInfo):
-                        RecordingInfoViewmodel?.UpdateInfo(s.RecordingInfo);
+                        RecordingInfoViewModel?.UpdateInfo(s.RecordingInfo);
                         break;                    
                 }
             });
         }
 
-        private void TemplatedEditViewmodel_ModifiedChanged(object sender, EventArgs e)
+        private void TemplatedEditViewModel_ModifiedChanged(object sender, EventArgs e)
         {
-            if (sender is TemplatedEditViewmodel templatedEditViewmodel && templatedEditViewmodel.IsModified)
+            if (sender is TemplatedEditViewModel templatedEditViewModel && templatedEditViewModel.IsModified)
                 IsModified = true;
         }
 
@@ -946,11 +946,11 @@ namespace TAS.Client.ViewModels
 
         private string _validateRecordingInfo()
         {
-            if (RecordingInfoViewmodel != null && RecordingInfoViewmodel.IsRecordingScheduled && RecordingInfoViewmodel.SelectedRecorder != null && RecordingInfoViewmodel.SelectedRecorderChannel != null)
+            if (RecordingInfoViewModel != null && RecordingInfoViewModel.IsRecordingScheduled && RecordingInfoViewModel.SelectedRecorder != null && RecordingInfoViewModel.SelectedRecorderChannel != null)
                 return null;
-            else if (RecordingInfoViewmodel != null && !RecordingInfoViewmodel.IsRecordingScheduled)
+            else if (RecordingInfoViewModel != null && !RecordingInfoViewModel.IsRecordingScheduled)
                 return null;
-            else if (RecordingInfoViewmodel == null)
+            else if (RecordingInfoViewModel == null)
                 return null;
 
             return resources._validateRecordingInfo;
@@ -987,7 +987,7 @@ namespace TAS.Client.ViewModels
         private void _chooseMedia(TMediaType[] mediaTypes, IEvent baseEvent, TStartType startType,
             VideoFormatDescription videoFormatDescription = null)
         {
-            using (var vm = new MediaSearchViewmodel(
+            using (var vm = new MediaSearchViewModel(
                 _engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine.Preview : null,
                 Model.Engine,
                 mediaTypes, Model.Layer, true, videoFormatDescription)

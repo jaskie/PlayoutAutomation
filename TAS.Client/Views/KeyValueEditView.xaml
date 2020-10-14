@@ -7,7 +7,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              mc:Ignorable="d" 
              SizeToContent="WidthAndHeight"
-             d:DataContext="{d:DesignInstance vm:KeyValueEditViewmodel}"
+             d:DataContext="{d:DesignInstance vm:KeyValueEditViewModel}"
              Title="{Binding Key}"
              >
     <DockPanel MinHeight="100" MinWidth="300">

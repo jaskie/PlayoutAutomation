@@ -5,9 +5,9 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventPanelSecondaryEventViewmodel: EventPanelRundownElementViewmodelBase
+    public class EventPanelSecondaryEventViewModel: EventPanelRundownElementViewModelBase
     {
-        public EventPanelSecondaryEventViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent) {}
+        public EventPanelSecondaryEventViewModel(IEvent ev, EventPanelViewModelBase parent) : base(ev, parent) {}
 
         public override IMedia Media
         {

@@ -4,13 +4,13 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventRightViewmodel: AclRightViewmodel
+    public class EventRightViewModel: AclRightViewModel
     {
         private bool _create;
         private bool _delete;
         private bool _modify;
 
-        public EventRightViewmodel(IAclRight right) : base(right)
+        public EventRightViewModel(IAclRight right) : base(right)
         {
             Acl = right.Acl;
             Load();

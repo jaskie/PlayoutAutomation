@@ -16,27 +16,27 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class EngineViewmodel : ViewModelBase, IUiEngine, IUiPreviewProvider
+    public class EngineViewModel : ViewModelBase, IUiEngine, IUiPreviewProvider
     {
-        private EventPanelViewmodelBase _selectedEventPanel;
+        private EventPanelViewModelBase _selectedEventPanel;
         private DateTime _currentTime;
         private TimeSpan _timeToAttention;
         private int _audioLevelPri = -100;
         private bool _trackPlayingEvent = true;
         private bool _isPropertiesPanelVisible = true;
         private readonly IUiPlugin[] _plugins;
-        private EventEditViewmodel _selectedEventEditViewmodel;
+        private EventEditViewModel _selectedEventEditViewModel;
         private IEvent _selectedEvent;
-        private PreviewViewmodel _preview;
+        private PreviewViewModel _preview;
 
-        private MediaSearchViewmodel _mediaSearchViewModel;
+        private MediaSearchViewModel _mediaSearchViewModel;
         private readonly ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
         private readonly ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
-        private readonly ObservableCollection<EventPanelViewmodelBase> _multiSelectedEvents;        
+        private readonly ObservableCollection<EventPanelViewModelBase> _multiSelectedEvents;        
 
-        public EngineViewmodel(IEngine engine, IPreview preview)
+        public EngineViewModel(IEngine engine, IPreview preview)
         {
-            Debug.WriteLine($"Creating EngineViewmodel for {engine}");
+            Debug.WriteLine($"Creating EngineViewModel for {engine}");
             Engine = engine;
             VideoFormat = engine.VideoFormat;
             IsInterlacedFormat = engine.FormatDescription.Interlaced;
@@ -45,7 +45,7 @@ namespace TAS.Client.ViewModels
             if (Router != null)
                 EngineRouterViewModel = new EngineRouterViewModel(Router);
 
-            RootEventViewModel = new EventPanelRootViewmodel(this);
+            RootEventViewModel = new EventPanelRootViewModel(this);
             Engine.EngineTick += _engineTick;
             Engine.EngineOperation += _engineOperation;
             Engine.PropertyChanged += _enginePropertyChanged;
@@ -57,12 +57,12 @@ namespace TAS.Client.ViewModels
             
 
             if (preview != null && engine.HaveRight(EngineRight.Preview))
-                _preview = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit), false) { IsSegmentsVisible = true };
+                _preview = new PreviewViewModel(preview, engine.HaveRight(EngineRight.MediaEdit), false) { IsSegmentsVisible = true };
 
 
-            _multiSelectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
+            _multiSelectedEvents = new ObservableCollection<EventPanelViewModelBase>();
             _multiSelectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
-            EventClipboard.ClipboardChanged += _engineViewmodel_ClipboardChanged;
+            EventClipboard.ClipboardChanged += _engineViewModel_ClipboardChanged;
             if (engine.PlayoutChannelPRI != null)
                 engine.PlayoutChannelPRI.PropertyChanged += OnServerChannelPropertyChanged;
             if (engine.PlayoutChannelSEC != null)
@@ -72,7 +72,7 @@ namespace TAS.Client.ViewModels
             if (engine.CGElementsController != null)
             {
                 engine.CGElementsController.PropertyChanged += _cGElementsController_PropertyChanged;
-                CGElementsControllerViewmodel = new EngineCGElementsControllerViewmodel(engine.CGElementsController);
+                CGElementsControllerViewModel = new EngineCGElementsControllerViewModel(engine.CGElementsController);
             }
 
 
@@ -116,7 +116,7 @@ namespace TAS.Client.ViewModels
             CommandToggleEnabled = new UiCommand(_toggleEnabled);
             CommandToggleHold = new UiCommand(_toggleHold);
             CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
-            CommandFocusEventName = new UiCommand(_focusEventName, o => IsPropertiesPanelVisible && SelectedEventEditViewmodel != null);
+            CommandFocusEventName = new UiCommand(_focusEventName, o => IsPropertiesPanelVisible && SelectedEventEditViewModel != null);
             CommandFocusRundown = new UiCommand(_focusRundown);
             CommandToggleCg = new UiCommand(_toggleCg, _canToggleCg);
 
@@ -143,7 +143,7 @@ namespace TAS.Client.ViewModels
 
         private void _focusEventName(object obj)
         {
-            SelectedEventEditViewmodel?.SetFocusOnEventName();
+            SelectedEventEditViewModel?.SetFocusOnEventName();
         }
 
         private void _engine_VisibleEventRemoved(object sender, EventEventArgs e)
@@ -244,7 +244,7 @@ namespace TAS.Client.ViewModels
 
         public IEngine Engine { get; }
 
-        public EventPanelRootViewmodel RootEventViewModel { get; }
+        public EventPanelRootViewModel RootEventViewModel { get; }
 
         public IUiPreview Preview => _preview;
 
@@ -254,7 +254,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsSearchBoxFocused { get => _isSearchBoxFocused; set => SetField(ref _isSearchBoxFocused, value); }
 
-        public EngineCGElementsControllerViewmodel CGElementsControllerViewmodel { get; }
+        public EngineCGElementsControllerViewModel CGElementsControllerViewModel { get; }
 
         public bool IsPropertiesPanelVisible
         {
@@ -296,7 +296,7 @@ namespace TAS.Client.ViewModels
             Engine.RunningEventsOperation -= OnEngineRunningEventsOperation;
 
             _multiSelectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
-            EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
+            EventClipboard.ClipboardChanged -= _engineViewModel_ClipboardChanged;
             if (Engine.PlayoutChannelPRI != null)
                 Engine.PlayoutChannelPRI.PropertyChanged -= OnServerChannelPropertyChanged;
             if (Engine.PlayoutChannelSEC != null)
@@ -314,18 +314,18 @@ namespace TAS.Client.ViewModels
 
         private void _undoEdit(object obj)
         {
-            if (SelectedEventEditViewmodel == null)
+            if (SelectedEventEditViewModel == null)
                 return;
-            if (SelectedEventEditViewmodel.IsModified)
-                SelectedEventEditViewmodel.UndoEdit();
+            if (SelectedEventEditViewModel.IsModified)
+                SelectedEventEditViewModel.UndoEdit();
         }
 
         private void _saveEdit(object obj)
         {
-            if (SelectedEventEditViewmodel == null) 
+            if (SelectedEventEditViewModel == null) 
                 return;
-            if (SelectedEventEditViewmodel.CanSave)
-                SelectedEventEditViewmodel.Save();
+            if (SelectedEventEditViewModel.CanSave)
+                SelectedEventEditViewModel.Save();
         }
 
         private void _moveUp(object obj)
@@ -355,7 +355,7 @@ namespace TAS.Client.ViewModels
 
         private void _engineRights(object obj)
         {
-            using (var vm = new EngineRightsEditViewmodel(Engine, Engine.AuthenticationService))
+            using (var vm = new EngineRightsEditViewModel(Engine, Engine.AuthenticationService))
                 WindowManager.Current.ShowDialog(vm);
         }
 
@@ -363,7 +363,7 @@ namespace TAS.Client.ViewModels
 
         private void _userManager(object obj)
         {
-            var vm = new UserManagerViewmodel(Engine.AuthenticationService);
+            var vm = new UserManagerViewModel(Engine.AuthenticationService);
             WindowManager.Current.ShowWindow(vm, () => vm.Dispose());
         }
 
@@ -434,40 +434,40 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private bool _canAddSubLive(object obj) => SelectedEventPanel is EventPanelRundownViewmodel ep && ep.CommandAddSubLive.CanExecute(obj);
+        private bool _canAddSubLive(object obj) => SelectedEventPanel is EventPanelRundownViewModel ep && ep.CommandAddSubLive.CanExecute(obj);
 
         private bool _canAddSubRundown(object obj)
         {
-            if (SelectedEventPanel is EventPanelRundownViewmodel ep)
+            if (SelectedEventPanel is EventPanelRundownViewModel ep)
                 return ep.CommandAddSubRundown.CanExecute(obj);
-            return SelectedEventPanel is EventPanelContainerViewmodel ec && ec.CommandAddSubRundown.CanExecute(obj);
+            return SelectedEventPanel is EventPanelContainerViewModel ec && ec.CommandAddSubRundown.CanExecute(obj);
         }
 
-        private bool _canAddSubMovie(object obj) => SelectedEventPanel is EventPanelRundownViewmodel ep && ep.CommandAddSubMovie.CanExecute(obj);
+        private bool _canAddSubMovie(object obj) => SelectedEventPanel is EventPanelRundownViewModel ep && ep.CommandAddSubMovie.CanExecute(obj);
 
-        private bool _canAddNextLive(object obj) => SelectedEventPanel is EventPanelRundownElementViewmodelBase ep && ep.CommandAddNextLive.CanExecute(obj);
+        private bool _canAddNextLive(object obj) => SelectedEventPanel is EventPanelRundownElementViewModelBase ep && ep.CommandAddNextLive.CanExecute(obj);
 
-        private bool _canAddNextRundown(object obj) => SelectedEventPanel is EventPanelRundownElementViewmodelBase ep && ep.CommandAddNextRundown.CanExecute(obj);
+        private bool _canAddNextRundown(object obj) => SelectedEventPanel is EventPanelRundownElementViewModelBase ep && ep.CommandAddNextRundown.CanExecute(obj);
 
-        private bool _canAddNextEmptyMovie(object obj) => SelectedEventPanel is EventPanelRundownElementViewmodelBase ep && ep.CommandAddNextEmptyMovie.CanExecute(obj);
+        private bool _canAddNextEmptyMovie(object obj) => SelectedEventPanel is EventPanelRundownElementViewModelBase ep && ep.CommandAddNextEmptyMovie.CanExecute(obj);
 
-        private bool _canAddNextMovie(object obj) => SelectedEventPanel is EventPanelRundownElementViewmodelBase ep && ep.CommandAddNextMovie.CanExecute(obj);
+        private bool _canAddNextMovie(object obj) => SelectedEventPanel is EventPanelRundownElementViewModelBase ep && ep.CommandAddNextMovie.CanExecute(obj);
 
-        private void _toggleHold(object obj) => (SelectedEventPanel as EventPanelRundownElementViewmodelBase)?.CommandToggleHold.Execute(obj);
+        private void _toggleHold(object obj) => (SelectedEventPanel as EventPanelRundownElementViewModelBase)?.CommandToggleHold.Execute(obj);
 
-        private void _toggleEnabled(object obj) => (SelectedEventPanel as EventPanelRundownElementViewmodelBase)?.CommandToggleEnabled.Execute(obj);
+        private void _toggleEnabled(object obj) => (SelectedEventPanel as EventPanelRundownElementViewModelBase)?.CommandToggleEnabled.Execute(obj);
 
         private void _forceNext(object obj) => Engine.ForceNext(IsForcedNext ? null : _selectedEventPanel.Event);
 
         private bool _canForceNextSelected(object obj) => Engine.EngineState == TEngineState.Running && (_canLoadSelected(obj) || IsForcedNext);
 
-        private void _toggleLayer(object obj) => (SelectedEventPanel as EventPanelRundownElementViewmodelBase)?.CommandToggleLayer.Execute(obj);
+        private void _toggleLayer(object obj) => (SelectedEventPanel as EventPanelRundownElementViewModelBase)?.CommandToggleLayer.Execute(obj);
 
-        private void _addSubLive(object obj) => (SelectedEventPanel as EventPanelRundownViewmodel)?.CommandAddSubLive.Execute(obj);
+        private void _addSubLive(object obj) => (SelectedEventPanel as EventPanelRundownViewModel)?.CommandAddSubLive.Execute(obj);
 
-        private void _addAnimation(object obj) => (SelectedEventPanel as EventPanelRundownElementViewmodelBase)?.CommandAddAnimation.Execute(obj);
+        private void _addAnimation(object obj) => (SelectedEventPanel as EventPanelRundownElementViewModelBase)?.CommandAddAnimation.Execute(obj);
 
-        private bool _canAddAnimation(object obj) => SelectedEventPanel is EventPanelRundownElementViewmodelBase ep && ep.CommandAddAnimation.CanExecute(obj);
+        private bool _canAddAnimation(object obj) => SelectedEventPanel is EventPanelRundownElementViewModelBase ep && ep.CommandAddAnimation.CanExecute(obj);
 
         private void _toggleCg(object _)
         {
@@ -488,21 +488,21 @@ namespace TAS.Client.ViewModels
         
         private void _addSubRundown(object obj)
         {
-            (SelectedEventPanel as EventPanelRundownViewmodel)?.CommandAddSubRundown.Execute(obj);
-            (SelectedEventPanel as EventPanelContainerViewmodel)?.CommandAddSubRundown.Execute(obj);
+            (SelectedEventPanel as EventPanelRundownViewModel)?.CommandAddSubRundown.Execute(obj);
+            (SelectedEventPanel as EventPanelContainerViewModel)?.CommandAddSubRundown.Execute(obj);
         }
 
-        private void _addSubMovie(object obj) => (SelectedEventPanel as EventPanelRundownViewmodel)?.CommandAddSubMovie.Execute(obj);
+        private void _addSubMovie(object obj) => (SelectedEventPanel as EventPanelRundownViewModel)?.CommandAddSubMovie.Execute(obj);
 
-        private void _addNextLive(object obj) => (SelectedEventPanel as EventPanelRundownElementViewmodelBase)?.CommandAddNextLive.Execute(obj);
+        private void _addNextLive(object obj) => (SelectedEventPanel as EventPanelRundownElementViewModelBase)?.CommandAddNextLive.Execute(obj);
 
-        private void _addNextRundown(object obj) => (SelectedEventPanel as EventPanelRundownElementViewmodelBase)?.CommandAddNextRundown.Execute(obj);
+        private void _addNextRundown(object obj) => (SelectedEventPanel as EventPanelRundownElementViewModelBase)?.CommandAddNextRundown.Execute(obj);
 
-        private void _addNextEmptyMovie(object obj) => (SelectedEventPanel as EventPanelRundownElementViewmodelBase)?.CommandAddNextEmptyMovie.Execute(obj);
+        private void _addNextEmptyMovie(object obj) => (SelectedEventPanel as EventPanelRundownElementViewModelBase)?.CommandAddNextEmptyMovie.Execute(obj);
 
-        private void _addNextMovie(object obj) => (SelectedEventPanel as EventPanelRundownElementViewmodelBase)?.CommandAddNextMovie.Execute(obj);
+        private void _addNextMovie(object obj) => (SelectedEventPanel as EventPanelRundownElementViewModelBase)?.CommandAddNextMovie.Execute(obj);
 
-        private void _eventHide(object obj) => (SelectedEventPanel as EventPanelContainerViewmodel)?.CommandHide.Execute(obj);
+        private void _eventHide(object obj) => (SelectedEventPanel as EventPanelContainerViewModel)?.CommandHide.Execute(obj);
 
         private async void _pasteSelected(object obj)
         {
@@ -522,7 +522,7 @@ namespace TAS.Client.ViewModels
                 return false;
 
             bool exportAll = obj != null;
-            return _multiSelectedEvents.Any(e => e is EventPanelMovieViewmodel m
+            return _multiSelectedEvents.Any(e => e is EventPanelMovieViewModel m
                                                  && (m.IsEnabled || exportAll))
                    && Engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
         }
@@ -530,7 +530,7 @@ namespace TAS.Client.ViewModels
         private void _exportMedia(object obj)
         {
             bool exportAll = obj != null;
-            var selections = _multiSelectedEvents.Where(e => e is EventPanelMovieViewmodel m
+            var selections = _multiSelectedEvents.Where(e => e is EventPanelMovieViewModel m
                                                              && (m.IsEnabled || exportAll)
                                                              && m.Media?.FileExists() == true)
                 .OrderBy(e => e.Event.ScheduledTime)
@@ -541,7 +541,7 @@ namespace TAS.Client.ViewModels
                     e.Event.ScheduledTc,
                     e.Event.Duration,
                     e.Event.GetAudioVolume()));
-            using (var vm = new ExportViewmodel(Engine, selections))
+            using (var vm = new ExportViewModel(Engine, selections))
             {
                 WindowManager.Current.ShowDialog(vm);
             }
@@ -690,7 +690,7 @@ namespace TAS.Client.ViewModels
                 return;
             if (_mediaSearchViewModel == null)
             {
-                var mediaSearchViewModel = new MediaSearchViewmodel(
+                var mediaSearchViewModel = new MediaSearchViewModel(
                     Engine.HaveRight(EngineRight.Preview) ? Engine.Preview : null,
                     Engine, mediaTypes, layer, closeAfterAdd, Engine.FormatDescription)
                 {
@@ -840,7 +840,7 @@ namespace TAS.Client.ViewModels
             if (found != null)
             {
                 var rootTrack = found.GetVisualRootTrack().ToArray();
-                EventPanelViewmodelBase cl = RootEventViewModel;
+                EventPanelViewModelBase cl = RootEventViewModel;
                 for (var i = rootTrack.Length - 1; i >= 0; i--)
                 {
                     cl = cl.Find(rootTrack[i], false);
@@ -857,27 +857,27 @@ namespace TAS.Client.ViewModels
         }
         #endregion
 
-        public EventPanelViewmodelBase SelectedEventPanel
+        public EventPanelViewModelBase SelectedEventPanel
         {
             get => _selectedEventPanel;
             set
             {
                 if (value == _selectedEventPanel)
                     return;
-                if (SelectedEventEditViewmodel?.IsModified == true)
+                if (SelectedEventEditViewModel?.IsModified == true)
                 {
-                    if (SelectedEventEditViewmodel.IsValid)
-                        switch (MessageBox.Show(string.Format(resources._query_SaveChangedData, SelectedEventEditViewmodel.EventName), resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
+                    if (SelectedEventEditViewModel.IsValid)
+                        switch (MessageBox.Show(string.Format(resources._query_SaveChangedData, SelectedEventEditViewModel.EventName), resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
                         {
                             case MessageBoxResult.Cancel:
                                 NotifyPropertyChanged(nameof(SelectedEventPanel));
                                 return;
                             case MessageBoxResult.Yes:
-                                SelectedEventEditViewmodel.Save();
+                                SelectedEventEditViewModel.Save();
                                 break;
                         }
                     else
-                    if (MessageBox.Show(string.Format(resources._query_AbadonChanges, SelectedEventEditViewmodel.EventName), resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes)
+                    if (MessageBox.Show(string.Format(resources._query_AbadonChanges, SelectedEventEditViewModel.EventName), resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes)
                     {
                         NotifyPropertyChanged(nameof(SelectedEventPanel));
                         return;
@@ -885,7 +885,7 @@ namespace TAS.Client.ViewModels
                 }
                 _selectedEventPanel = value;
                 SelectedEvent = value?.Event;
-                if (value is EventPanelRundownElementViewmodelBase re && _mediaSearchViewModel != null)
+                if (value is EventPanelRundownElementViewModelBase re && _mediaSearchViewModel != null)
                 {
                     _mediaSearchViewModel.BaseEvent = re.Event;
                     _mediaSearchViewModel.NewEventStartType = TStartType.After;
@@ -908,21 +908,21 @@ namespace TAS.Client.ViewModels
                 if (value != null)
                 {
                     value.PropertyChanged += _onSelectedEventPropertyChanged;
-                    SelectedEventEditViewmodel = new EventEditViewmodel(value, this);
+                    SelectedEventEditViewModel = new EventEditViewModel(value, this);
                 }
                 else
-                    SelectedEventEditViewmodel = null;
+                    SelectedEventEditViewModel = null;
                 if (_preview != null)
                     _preview.SelectedEvent = value;
             }
         }
 
-        public EventEditViewmodel SelectedEventEditViewmodel
+        public EventEditViewModel SelectedEventEditViewModel
         {
-            get => _selectedEventEditViewmodel; set
+            get => _selectedEventEditViewModel; set
             {
-                var oldSelectedEventEditViewModel = _selectedEventEditViewmodel;
-                if (!SetField(ref _selectedEventEditViewmodel, value))
+                var oldSelectedEventEditViewModel = _selectedEventEditViewModel;
+                if (!SetField(ref _selectedEventEditViewModel, value))
                     return;
                 oldSelectedEventEditViewModel?.Dispose();
             }
@@ -1063,7 +1063,7 @@ namespace TAS.Client.ViewModels
 
         public IEnumerable<IEvent> RunningEvents => _runningEvents;
 
-        public IEnumerable<EventPanelViewmodelBase> MultiSelectedEvents => _multiSelectedEvents;
+        public IEnumerable<EventPanelViewModelBase> MultiSelectedEvents => _multiSelectedEvents;
 
         public void ClearSelection()
         {
@@ -1072,7 +1072,7 @@ namespace TAS.Client.ViewModels
             _multiSelectedEvents.Clear();
         }
 
-        public void RemoveEventPanel(EventPanelViewmodelBase evm)
+        public void RemoveEventPanel(EventPanelViewModelBase evm)
         {
             if (_multiSelectedEvents.Contains(evm))
                 _multiSelectedEvents.Remove(evm);
@@ -1133,7 +1133,7 @@ namespace TAS.Client.ViewModels
         private void SetOnTopView(IEvent pe)
         {
             var rootTrack = pe.GetVisualRootTrack().ToArray();
-            EventPanelViewmodelBase vm = RootEventViewModel;
+            EventPanelViewModelBase vm = RootEventViewModel;
             for (var i = rootTrack.Length - 1; i >= 0; i--)
             {
                 vm = vm.Find(rootTrack[i], false);
@@ -1220,7 +1220,7 @@ namespace TAS.Client.ViewModels
 
         private void _mediaSearchViewModelMediaChoosen(object o, MediaSearchEventArgs e)
         {
-            if (e.Media == null || !(o is MediaSearchViewmodel mediaSearchVm))
+            if (e.Media == null || !(o is MediaSearchViewModel mediaSearchVm))
                 return;
             IEvent newEvent;
             switch (e.Media.MediaType)
@@ -1293,7 +1293,7 @@ namespace TAS.Client.ViewModels
             if (playing == null)
                 return;
             var rootTrack = playing.GetVisualRootTrack().ToArray();
-            EventPanelViewmodelBase vm = RootEventViewModel;
+            EventPanelViewModelBase vm = RootEventViewModel;
             for (var i = rootTrack.Length - 1; i >= 0; i--)
             {
                 vm = vm.Find(rootTrack[i], false);
@@ -1306,7 +1306,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _engineViewmodel_ClipboardChanged() => InvalidateRequerySuggested();
+        private void _engineViewModel_ClipboardChanged() => InvalidateRequerySuggested();
 
     }
 }

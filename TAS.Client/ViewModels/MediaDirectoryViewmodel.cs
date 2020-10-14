@@ -6,14 +6,14 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaDirectoryViewmodel
+    public class MediaDirectoryViewModel
     {
-        public MediaDirectoryViewmodel(IMediaDirectory directory, string directoryName, bool includeImport = false, bool includeExport = false)
+        public MediaDirectoryViewModel(IMediaDirectory directory, string directoryName, bool includeImport = false, bool includeExport = false)
         {
             Directory = directory;
             DirectoryName = directoryName;
             SubDirectories = (directory as IIngestDirectory)?.SubDirectories?.Where(d=> includeImport && d.ContainsImport() || includeExport && d.ContainsExport())
-                             .Select(d => new MediaDirectoryViewmodel((IIngestDirectory)d, d.DirectoryName, includeImport, includeExport)).ToList() ?? new List<MediaDirectoryViewmodel>();
+                             .Select(d => new MediaDirectoryViewModel((IIngestDirectory)d, d.DirectoryName, includeImport, includeExport)).ToList() ?? new List<MediaDirectoryViewModel>();
         }
 
         public IMediaDirectory Directory { get; }
@@ -69,7 +69,7 @@ namespace TAS.Client.ViewModels
 
         public TDirectoryAccessType AccessType => (Directory as IIngestDirectory)?.AccessType ?? TDirectoryAccessType.Direct;
 
-        public List<MediaDirectoryViewmodel> SubDirectories { get; }
+        public List<MediaDirectoryViewModel> SubDirectories { get; }
 
         public override string ToString()
         {

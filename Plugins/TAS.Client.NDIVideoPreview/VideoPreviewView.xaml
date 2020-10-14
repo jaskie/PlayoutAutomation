@@ -12,7 +12,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="200"
              d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance local:VideoPreviewViewmodel}"
+             d:DataContext="{d:DesignInstance local:VideoPreviewViewModel}"
              >
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>

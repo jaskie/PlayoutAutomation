@@ -8,7 +8,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance vm:EventPanelRundownElementViewmodelBase}"
+             d:DataContext="{d:DesignInstance vm:EventPanelRundownElementViewModelBase}"
              d:DesignHeight="30" d:DesignWidth="800"
              >
     <StackPanel Orientation="Horizontal">

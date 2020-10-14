@@ -1,9 +1,8 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Markup;
 
 namespace TAS.Client.Common
@@ -20,8 +19,9 @@ namespace TAS.Client.Common
         /// <summary>
         /// Collection containing existing windows
         /// </summary>
-        private static readonly HashSet<Window> _windows = new HashSet<Window>();        
+        private readonly HashSet<Window> _windows = new HashSet<Window>();
 
+        private readonly Dictionary<Type, Type> _viewTypesCache = new Dictionary<Type, Type>();
 
         /// <summary>
         /// Create window dialog
@@ -31,9 +31,6 @@ namespace TAS.Client.Common
         /// <returns>Window's DialogResult</returns>
         public bool? ShowDialog(ViewModelBase content, string title)
         {
-            if (!FindView(content))
-                throw new ViewNotFoundException(content);
-
             var window = CreateWindow(content, new WindowInfo { Title = title });
             window.ShowDialog();
 
@@ -50,9 +47,6 @@ namespace TAS.Client.Common
         /// <param name="windowInfo">Window parameters</param>      
         public Window ShowWindow(ViewModelBase content, Action onClose = null, WindowInfo windowInfo = null)
         {
-            if (!FindView(content))
-                throw new ViewNotFoundException(content);
-
             var window = _windows.FirstOrDefault(w => w.Content == content);
             if (window == null)
             {
@@ -79,9 +73,6 @@ namespace TAS.Client.Common
         /// <returns>Window's DialogResult</returns>
         public bool? ShowDialog(ViewModelBase content, WindowInfo windowInfo = null)
         {
-            if (!FindView(content))
-                throw new ViewNotFoundException(content);
-
             var window = CreateWindow(content, windowInfo);
             window.ShowDialog();
 
@@ -90,114 +81,52 @@ namespace TAS.Client.Common
 
             return window.DialogResult;
         }
-        
-        private object GetDialogView(ViewModelBase viewModel)
+
+        private Type GetViewType(Type viewModelType)
         {
-            DataTemplate dataTemplate = null;
-            if ((dataTemplate = (DataTemplate)Application.Current.TryFindResource(new DataTemplateKey(viewModel.GetType().BaseType))) != null)
-            {
-                return dataTemplate.LoadContent();
-            }
-
-            var dialogVmType = viewModel.GetType().BaseType;            
-            var viewTypeName = dialogVmType.Name.Replace("ViewModelBase", "View");
-            var viewTypes = dialogVmType.Assembly.GetTypes().Where(t => (t.IsClass && t.Name == viewTypeName));
-
-            if (viewTypes.Count() == 0)
-                return null;
-
-            if (viewTypes.Count() == 1)
-            {
-                AddDataTemplate(dialogVmType, viewTypes.FirstOrDefault());                
-            }
-            else
-            {
-                AddDataTemplate(viewModel.GetType().BaseType, FindAccurateType(viewModel.GetType().BaseType, viewTypes));                
-            }
-
-            dataTemplate = (DataTemplate)Application.Current.TryFindResource(new DataTemplateKey(dialogVmType));
-            return dataTemplate.LoadContent();
+            if (_viewTypesCache.TryGetValue(viewModelType, out var viewType))
+                return viewType;
+            var namespaceParts = viewModelType.FullName.Split(new[] { '.' });
+            for (int i = 0; i < namespaceParts.Length; i++)
+                if (string.Equals(namespaceParts[i], "ViewModels"))
+                    namespaceParts[i] = "Views";
+            namespaceParts[namespaceParts.Length - 1] = namespaceParts[namespaceParts.Length - 1].Replace("ViewModel", "View");
+            viewType = viewModelType.Assembly.GetType(string.Join(".", namespaceParts), true, false);
+            _viewTypesCache[viewModelType] = viewType;
+            if (typeof(OkCancelViewModelBase).IsAssignableFrom(viewModelType))
+                AddDataTemplate(viewModelType, viewType);
+            return viewType;
         }
-
+        
         private Window CreateWindow(ViewModelBase viewModel, WindowInfo windowInfo)
         {
-            var window = new Window();
-            window.Title = windowInfo?.Title ?? viewModel.GetType().Name.Replace("ViewModel","");
-            window.SizeToContent = windowInfo?.SizeToContent ?? SizeToContent.WidthAndHeight;
-            window.Content = GetDialogView(viewModel) ?? viewModel;
+            var viewType = GetViewType(viewModel.GetType());
+            Window window = null;
+            if (typeof(OkCancelViewModelBase).IsAssignableFrom(viewModel.GetType()))
+                window = new Window { Content = new OkCancelView(), SizeToContent = SizeToContent.WidthAndHeight };
+            else
+            if (typeof(Window).IsAssignableFrom(viewType))
+                window = (Window)Activator.CreateInstance(viewType);
+            else
+            if (typeof(UserControl).IsAssignableFrom(viewType))
+                window = new Window { Content = Activator.CreateInstance(viewType), SizeToContent = SizeToContent.WidthAndHeight };
+            if (window == null)
+                throw new ApplicationException($"Type of view for {viewModel.GetType().FullName} is not Window nor UserControl");
             window.DataContext = viewModel;
-            window.ResizeMode = windowInfo?.ResizeMode ?? ResizeMode.NoResize;
-            window.ShowInTaskbar = windowInfo?.ShowInTaskbar ?? false;
-            window.WindowStartupLocation = windowInfo?.WindowStartupLocation ?? WindowStartupLocation.CenterOwner;
-            window.Owner = windowInfo?.Owner ?? Application.Current.MainWindow;            
+            if (windowInfo?.Title != null)
+                window.Title = windowInfo.Title;
+            if (windowInfo?.SizeToContent != null)
+                window.SizeToContent = windowInfo.SizeToContent.Value;
+            if (windowInfo?.ResizeMode != null)
+                window.ResizeMode = windowInfo.ResizeMode.Value;
+            if (windowInfo?.ShowInTaskbar != null)
+                window.ShowInTaskbar = windowInfo.ShowInTaskbar.Value;
+            if (windowInfo?.WindowStartupLocation != null)
+                window.WindowStartupLocation = windowInfo.WindowStartupLocation.Value;
+            if (windowInfo?.Owner != null)
+                window.Owner = windowInfo.Owner;  
             _windows.Add(window);
             return window;
-        }
-
-        private Type FindAccurateType(Type targetType, IEnumerable<Type> types)
-        {
-            string[] targetNamespaces = targetType.Namespace.Split(',');
-
-            Type accurateType = types.FirstOrDefault();            
-            byte accuracy = 0;
-
-            foreach (var type in types)
-            {
-                var typeNamespaces = type.Namespace.Split(',');
-                byte localAccuracy = 0;
-
-                for (int i = targetNamespaces.Count(), j = typeNamespaces.Count(); i <= 0 && j <= 0; --i, --j)
-                {
-                    if (targetNamespaces[i] == typeNamespaces[j])
-                        ++localAccuracy;
-                    else
-                        break;
-                }
-
-                if (localAccuracy > accuracy)
-                {
-                    accurateType = type;                   
-                    accuracy = localAccuracy;
-                }
-            }
-            return accurateType;
-        }
-        
-        private bool FindView(ViewModelBase viewModel)
-        {
-            if (Application.Current.Resources.Contains(new DataTemplateKey(viewModel.GetType())))
-                return true;
-
-            var vmType = viewModel.GetType();            
-            
-            var viewTypeName = vmType.Name.Replace("ViewModel", "View");
-            var viewTypes = vmType.Assembly.GetTypes().Where(t => (t.IsClass && t.Name == viewTypeName) 
-                                                            || t.GetCustomAttribute<DataContextAttribute>(false) != null);
-
-            if (viewTypes.Count() == 0)
-                return false;
-
-
-            if (viewTypes.Count() == 1)
-            {
-                AddDataTemplate(viewModel.GetType(), viewTypes.FirstOrDefault());
-            }
-            else
-            {
-                AddDataTemplate(viewModel.GetType(), FindAccurateType(vmType, viewTypes));
-            }
-
-            return true;                        
-        }
-        
-        public string OpenFileDialog()
-        {
-            var dialog = new OpenFileDialog();                     
-            var result = dialog.ShowDialog();
-            
-            if (result == true)
-                return dialog.FileName;
-            return null;
         }
 
         /// <summary>
@@ -221,11 +150,8 @@ namespace TAS.Client.Common
         /// <returns></returns>
         public void AddDataTemplate(Type viewModelType, Type viewType)
         {
-            const string xamlTemplate = "<DataTemplate DataType=\"{{x:Type vm:{0}}}\"><v:{1} /></DataTemplate>";
-            var xaml = string.Format(xamlTemplate, viewModelType.Name, viewType.Name, viewModelType.Namespace, viewType.Namespace);
-
+            var xaml = $"<DataTemplate DataType=\"{{x:Type vm:{viewModelType.Name}}}\"><v:{viewType.Name} /></DataTemplate>";
             var context = new ParserContext();
-
             context.XamlTypeMapper = new XamlTypeMapper(new string[0]);
             context.XamlTypeMapper.AddMappingProcessingInstruction("vm", viewModelType.Namespace, viewModelType.Assembly.FullName);
             context.XamlTypeMapper.AddMappingProcessingInstruction("v", viewType.Namespace, viewType.Assembly.FullName);
@@ -236,7 +162,6 @@ namespace TAS.Client.Common
             context.XmlnsDictionary.Add("v", "v");
 
             var template = (DataTemplate)XamlReader.Parse(xaml, context);
-
             if (!Application.Current?.Resources.Contains(template.DataTemplateKey) == true)
                 Application.Current?.Resources.Add(template.DataTemplateKey, template);
         }       

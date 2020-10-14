@@ -1,7 +1,7 @@
 ﻿namespace TAS.Client.ViewModels
 {
-    public class EventPanelDummyViewmodel: EventPanelViewmodelBase
+    public class EventPanelDummyViewModel: EventPanelViewModelBase
     {
-        public EventPanelDummyViewmodel() : base(null, null) { }
+        public EventPanelDummyViewModel() : base(null, null) { }
     }
 }

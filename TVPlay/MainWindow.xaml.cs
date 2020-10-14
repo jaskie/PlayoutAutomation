@@ -20,7 +20,7 @@ namespace TAS.Client
 
         protected override void OnClosed(EventArgs e)
         {
-            (TryFindResource("MainWindowVM") as MainWindowViewmodel)?.Dispose();
+            (TryFindResource("MainWindowVM") as MainWindowViewModel)?.Dispose();
             base.OnClosed(e);
         }
 

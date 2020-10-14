@@ -5,15 +5,15 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditWindowViewmodel : ViewModelBase
+    public class MediaEditWindowViewModel : ViewModelBase
     {
-        public MediaEditViewmodel Editor { get; }
+        public MediaEditViewModel Editor { get; }
 
         public string WindowTitle { get; }
 
-        public MediaEditWindowViewmodel(IMedia media, IMediaManager mediaManager)
+        public MediaEditWindowViewModel(IMedia media, IMediaManager mediaManager)
         {
-            Editor = new MediaEditViewmodel(media, mediaManager, false);
+            Editor = new MediaEditViewModel(media, mediaManager, false);
             WindowTitle = media.MediaName;
         }
 

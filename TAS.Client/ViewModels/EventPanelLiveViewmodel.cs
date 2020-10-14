@@ -3,12 +3,12 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventPanelLiveViewmodel: EventPanelRundownElementViewmodelBase
+    public class EventPanelLiveViewModel: EventPanelRundownElementViewModelBase
     {
         private string _videoSwitchPortName = string.Empty;
-        public EventPanelLiveViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent) 
+        public EventPanelLiveViewModel(IEvent ev, EventPanelViewModelBase parent) : base(ev, parent) 
         {
-            VideoSwitchPortName = EngineViewmodel.Router?.Sources?.FirstOrDefault(p => p.PortId == Event.RouterPort)?.PortName;
+            VideoSwitchPortName = EngineViewModel.Router?.Sources?.FirstOrDefault(p => p.PortId == Event.RouterPort)?.PortName;
             Event.PropertyChanged += Event_PropertyChanged;
         }
 
@@ -17,7 +17,7 @@ namespace TAS.Client.ViewModels
             switch(e.PropertyName)
             {
                 case nameof(Event.RouterPort):
-                    VideoSwitchPortName = EngineViewmodel.Router?.Sources?.FirstOrDefault(p => p.PortId == Event.RouterPort)?.PortName;
+                    VideoSwitchPortName = EngineViewModel.Router?.Sources?.FirstOrDefault(p => p.PortId == Event.RouterPort)?.PortName;
                     break;
             }
         }

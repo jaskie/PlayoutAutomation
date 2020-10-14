@@ -6,7 +6,7 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.ArchiveDirectories"
-             d:DataContext="{x:Type vm:ArchiveDirectoriesViewmodel}"
+             d:DataContext="{x:Type vm:ArchiveDirectoriesViewModel}"
              mc:Ignorable="d" 
              MinHeight="200"
              >

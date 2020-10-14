@@ -6,9 +6,9 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventPanelMovieViewmodel: EventPanelRundownElementViewmodelBase
+    public class EventPanelMovieViewModel: EventPanelRundownElementViewModelBase
     {
-        public EventPanelMovieViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
+        public EventPanelMovieViewModel(IEvent ev, EventPanelViewModelBase parent) : base(ev, parent)
         {
         }
 

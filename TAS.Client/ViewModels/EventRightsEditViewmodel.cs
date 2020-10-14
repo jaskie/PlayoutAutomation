@@ -10,21 +10,21 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventRightsEditViewmodel: ModifyableViewModelBase
+    public class EventRightsEditViewModel: ModifyableViewModelBase
     {
         private readonly IEvent _ev;
         private readonly IAuthenticationService _authenticationService;
-        private EventRightViewmodel _selectedRight;
+        private EventRightViewModel _selectedRight;
         private ISecurityObject _selectedAclObject;
         private readonly List<IAclRight> _originalRights;
 
-        public EventRightsEditViewmodel(IEvent ev, IAuthenticationService authenticationService)
+        public EventRightsEditViewModel(IEvent ev, IAuthenticationService authenticationService)
         {
             _ev = ev;
             _authenticationService = authenticationService;
             AclObjects = authenticationService.Users.Cast<ISecurityObject>().Concat(authenticationService.Groups).ToArray();
             _originalRights = ev.GetRights().ToList();
-            Rights = new ObservableCollection<EventRightViewmodel>();
+            Rights = new ObservableCollection<EventRightViewModel>();
             Load();
             CommandAddRight = new UiCommand(_addRight, _canAddRight);
             CommandDeleteRight = new UiCommand(_deleteRight, _canDeleteRight);
@@ -48,9 +48,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public ObservableCollection<EventRightViewmodel> Rights { get; }
+        public ObservableCollection<EventRightViewModel> Rights { get; }
 
-        public EventRightViewmodel SelectedRight
+        public EventRightViewModel SelectedRight
         {
             get => _selectedRight;
             set
@@ -66,10 +66,10 @@ namespace TAS.Client.ViewModels
 
         public void UndoEdit()
         {
-            foreach (var rightViewmodel in Rights)
+            foreach (var rightViewModel in Rights)
             {
-                rightViewmodel.ModifiedChanged -= EventRightViewmodelModifiedChanged;
-                rightViewmodel.Dispose();
+                rightViewModel.ModifiedChanged -= EventRightViewModelModifiedChanged;
+                rightViewModel.Dispose();
             }
             Rights.Clear();
             Load();
@@ -81,10 +81,10 @@ namespace TAS.Client.ViewModels
         {
             if (!IsModified)
                 return;
-            foreach (var aclRightViewmodel in Rights)
+            foreach (var aclRightViewModel in Rights)
             {
-                if (aclRightViewmodel.IsModified)
-                    aclRightViewmodel.Save();
+                if (aclRightViewModel.IsModified)
+                    aclRightViewModel.Save();
             }
             foreach (var right in _originalRights)
             {
@@ -95,26 +95,26 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            foreach (var aclRightViewmodel in Rights)
+            foreach (var aclRightViewModel in Rights)
             {
-                aclRightViewmodel.Dispose();
-                aclRightViewmodel.ModifiedChanged -= EventRightViewmodelModifiedChanged;
+                aclRightViewModel.Dispose();
+                aclRightViewModel.ModifiedChanged -= EventRightViewModelModifiedChanged;
             }
         }
 
         private void _addRight(object obj)
         {
-            using (var selector = new SecurityObjectSelectorViewmodel(_authenticationService))
+            using (var selector = new SecurityObjectSelectorViewModel(_authenticationService))
             {
                 if  (WindowManager.Current.ShowDialog(selector) != true)
                     return;
                 var right = _ev.AddRightFor(selector.SelectedSecurityObject);
                 if (right == null)
                     return;
-                var newRightVm = new EventRightViewmodel(right);
+                var newRightVm = new EventRightViewModel(right);
                 Rights.Add(newRightVm);
                 SelectedRight = newRightVm;
-                SelectedRight.ModifiedChanged += EventRightViewmodelModifiedChanged;
+                SelectedRight.ModifiedChanged += EventRightViewModelModifiedChanged;
                 IsModified = true;
             }
         }
@@ -135,21 +135,21 @@ namespace TAS.Client.ViewModels
             if (!Rights.Remove(rightToDelete))
                 return;
             rightToDelete.Dispose();
-            rightToDelete.ModifiedChanged -= EventRightViewmodelModifiedChanged;
+            rightToDelete.ModifiedChanged -= EventRightViewModelModifiedChanged;
             IsModified = true;
         }
 
-        private void EventRightViewmodelModifiedChanged(object sender, EventArgs e)
+        private void EventRightViewModelModifiedChanged(object sender, EventArgs e)
         {
             IsModified = true;
         }
 
         private void Load()
         {
-            foreach (var right in _originalRights.Select(r => new EventRightViewmodel(r)))
+            foreach (var right in _originalRights.Select(r => new EventRightViewModel(r)))
             {
                 Rights.Add(right);
-                right.ModifiedChanged += EventRightViewmodelModifiedChanged;
+                right.ModifiedChanged += EventRightViewModelModifiedChanged;
             }
         }
 

@@ -8,17 +8,17 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Client.ViewModels
 {
-    public class UserManagerViewmodel: ViewModelBase
+    public class UserManagerViewModel: ViewModelBase
     {
         private readonly IAuthenticationService _authenticationService;
-        private UserViewmodel _selectedUser;
-        private GroupViewmodel _selectedGroup;
+        private UserViewModel _selectedUser;
+        private GroupViewModel _selectedGroup;
 
-        public UserManagerViewmodel(IAuthenticationService authenticationService)
+        public UserManagerViewModel(IAuthenticationService authenticationService)
         {
             _authenticationService = authenticationService;
-            Groups = new ObservableCollection<GroupViewmodel>(authenticationService.Groups.Select(g => new GroupViewmodel(g)));
-            Users = new ObservableCollection<UserViewmodel>(authenticationService.Users.Select(u => new UserViewmodel(u, this)));
+            Groups = new ObservableCollection<GroupViewModel>(authenticationService.Groups.Select(g => new GroupViewModel(g)));
+            Users = new ObservableCollection<UserViewModel>(authenticationService.Users.Select(u => new UserViewModel(u, this)));
             CommandAddUser = new UiCommand(AddUser);
             CommandDeleteUser = new UiCommand(DeleteUser, CanDeleteUser);
             CommandAddGroup = new UiCommand(AddGroup);
@@ -27,16 +27,16 @@ namespace TAS.Client.ViewModels
             authenticationService.GroupsOperation += AuthenticationService_GroupsOperation;
         }
         
-        public ObservableCollection<UserViewmodel> Users { get; }
+        public ObservableCollection<UserViewModel> Users { get; }
 
-        public UserViewmodel SelectedUser {
+        public UserViewModel SelectedUser {
             get => _selectedUser;
             set => SetField(ref _selectedUser, value);
         }
 
-        public ObservableCollection<GroupViewmodel> Groups { get; }
+        public ObservableCollection<GroupViewModel> Groups { get; }
 
-        public GroupViewmodel SelectedGroup {
+        public GroupViewModel SelectedGroup {
             get => _selectedGroup;
             set => SetField(ref _selectedGroup, value);
         }
@@ -59,7 +59,7 @@ namespace TAS.Client.ViewModels
 
         private void AddUser(object obj)
         {
-            var newUserVm = new UserViewmodel(_authenticationService.CreateUser(), this);
+            var newUserVm = new UserViewModel(_authenticationService.CreateUser(), this);
             Users.Add(newUserVm);
             SelectedUser = newUserVm;
         }
@@ -76,7 +76,7 @@ namespace TAS.Client.ViewModels
 
         private void AddGroup(object obj)
         {
-            var newVm = new GroupViewmodel(_authenticationService.CreateGroup());
+            var newVm = new GroupViewModel(_authenticationService.CreateGroup());
             Groups.Add(newVm);
             SelectedGroup = newVm;
         }
@@ -99,7 +99,7 @@ namespace TAS.Client.ViewModels
                 if (e.Operation == CollectionOperation.Add)
                 {
                     if (vm == null)
-                        Users.Add(new UserViewmodel(e.Item, this));
+                        Users.Add(new UserViewModel(e.Item, this));
                 }
                 else
                 {
@@ -116,7 +116,7 @@ namespace TAS.Client.ViewModels
             OnUiThread(() =>
             {
                 if (e.Operation == CollectionOperation.Add)
-                    Groups.Add(new GroupViewmodel(e.Item));
+                    Groups.Add(new GroupViewModel(e.Item));
                 else
                 {
                     var vm = Groups.FirstOrDefault(u => u.Model == e.Item);

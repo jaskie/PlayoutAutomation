@@ -90,7 +90,7 @@ namespace TAS.Client.Config.ViewModels.Engines
 
         private void _manageArchiveDirectories(object obj)
         {
-            using (var vm = new ArchiveDirectoriesViewmodel(_engine.ArchiveDirectories))
+            using (var vm = new ArchiveDirectoriesViewModel(_engine.ArchiveDirectories))
             {
                 if (WindowManager.Current.ShowDialog(vm, "Archive") != true)
                     return;

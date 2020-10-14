@@ -9,7 +9,7 @@
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance {x:Type vm:UserViewmodel}}"
+             d:DataContext="{d:DesignInstance {x:Type vm:UserViewModel}}"
              d:DesignHeight="300" d:DesignWidth="300">
     <StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="35">

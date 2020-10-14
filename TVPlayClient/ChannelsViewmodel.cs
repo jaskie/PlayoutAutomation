@@ -4,15 +4,15 @@ using TAS.Client.Common;
 
 namespace TVPlayClient
 {
-    public class ChannelsViewmodel : ViewModelBase
+    public class ChannelsViewModel : ViewModelBase
     {
-        public ChannelsViewmodel(IEnumerable<ChannelConfiguration> channels)
+        public ChannelsViewModel(IEnumerable<ChannelConfiguration> channels)
         {
-            Channels = channels.Select(c => new ChannelWrapperViewmodel(c)).ToList();
+            Channels = channels.Select(c => new ChannelWrapperViewModel(c)).ToList();
             Channels.ForEach(c => c.Initialize());
         }
 
-        public List<ChannelWrapperViewmodel> Channels { get; }
+        public List<ChannelWrapperViewModel> Channels { get; }
 
         protected override void OnDispose()
         {

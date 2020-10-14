@@ -8,7 +8,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance vm:TemplatedEditViewmodel}"
+             d:DataContext="{d:DesignInstance vm:TemplatedEditViewModel}"
              d:DesignHeight="300" d:DesignWidth="300">
     <DockPanel>
         <DockPanel DockPanel.Dock="Top">

@@ -14,7 +14,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditViewmodel: EditViewModelBase<IMedia>, IDataErrorInfo
+    public class MediaEditViewModel: EditViewModelBase<IMedia>, IDataErrorInfo
     {
         private readonly IMediaManager _mediaManager;
 
@@ -41,7 +41,7 @@ namespace TAS.Client.ViewModels
         private TMediaCategory _mediaCategory;
         private string _idAux;
 
-        public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, bool showButtons) : base(media)
+        public MediaEditViewModel(IMedia media, IMediaManager mediaManager, bool showButtons) : base(media)
         {
             CommandSaveEdit = new UiCommand(o => Save(), o => CanSave());
             CommandCancelEdit = new UiCommand(_undoEdit, o => IsModified);
@@ -56,8 +56,8 @@ namespace TAS.Client.ViewModels
             Model.PropertyChanged += OnMediaPropertyChanged;
             if (Model is ITemplated templated)
             {
-                TemplatedEditViewmodel = new TemplatedEditViewmodel(templated, false, false, media.VideoFormat);
-                TemplatedEditViewmodel.ModifiedChanged += TemplatedEditViewmodel_ModifiedChanged;
+                TemplatedEditViewModel = new TemplatedEditViewModel(templated, false, false, media.VideoFormat);
+                TemplatedEditViewModel.ModifiedChanged += TemplatedEditViewModel_ModifiedChanged;
             }
         }
 
@@ -69,7 +69,7 @@ namespace TAS.Client.ViewModels
 
         public void Save()
         {
-            TemplatedEditViewmodel?.Save();
+            TemplatedEditViewModel?.Save();
             if (FileName != Model.FileName)
                 Model.RenameFileTo(FileName);
             Update(Model);
@@ -268,7 +268,7 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _idAux, value);
         }
 
-        public TemplatedEditViewmodel TemplatedEditViewmodel { get; }
+        public TemplatedEditViewModel TemplatedEditViewModel { get; }
 
         public bool IsPersistentMedia => Model is IPersistentMedia;
 
@@ -336,10 +336,10 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             Model.PropertyChanged -= OnMediaPropertyChanged;
-            if (TemplatedEditViewmodel != null)
+            if (TemplatedEditViewModel != null)
             {
-                TemplatedEditViewmodel.ModifiedChanged -= TemplatedEditViewmodel_ModifiedChanged;
-                TemplatedEditViewmodel.Dispose();
+                TemplatedEditViewModel.ModifiedChanged -= TemplatedEditViewModel_ModifiedChanged;
+                TemplatedEditViewModel.Dispose();
             }
         }
 
@@ -470,14 +470,14 @@ namespace TAS.Client.ViewModels
 
         private void _undoEdit(object o)
         {
-            TemplatedEditViewmodel?.UndoEdit();
+            TemplatedEditViewModel?.UndoEdit();
             Load();
         }
-        private void TemplatedEditViewmodel_ModifiedChanged(object sender, EventArgs e)
+        private void TemplatedEditViewModel_ModifiedChanged(object sender, EventArgs e)
         {
-            if (!(sender is TemplatedEditViewmodel templatedEditViewmodel))
+            if (!(sender is TemplatedEditViewModel templatedEditViewModel))
                 return;
-            if (templatedEditViewmodel.IsModified)
+            if (templatedEditViewModel.IsModified)
                 IsModified = true;
         }
 

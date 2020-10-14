@@ -6,11 +6,11 @@ using TAS.Common.Interfaces.Security;
 
 namespace TAS.Client.ViewModels
 {
-    public class SecurityObjectSelectorViewmodel: ViewModelBase
+    public class SecurityObjectSelectorViewModel: ViewModelBase
     {
         private ISecurityObject _selectedSecurityObject;
         
-        public SecurityObjectSelectorViewmodel(IAuthenticationService authenticationService)
+        public SecurityObjectSelectorViewModel(IAuthenticationService authenticationService)
         {
             Users = authenticationService.Users;
             Groups = authenticationService.Groups;

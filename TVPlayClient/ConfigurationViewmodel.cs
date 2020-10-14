@@ -8,11 +8,11 @@ using TAS.Client.Common;
 
 namespace TVPlayClient
 {
-    public class ConfigurationViewmodel: ViewModelBase
+    public class ConfigurationViewModel: ViewModelBase
     {
         private readonly ObservableCollection<ChannelConfiguration> _channels;
         private readonly string _configurationFile;
-        public ConfigurationViewmodel(string configurationFile)
+        public ConfigurationViewModel(string configurationFile)
         {
             _configurationFile = configurationFile;
             if (File.Exists(configurationFile))

@@ -6,10 +6,10 @@ using TAS.Client.Config.Model;
 
 namespace TAS.Client.Config.ViewModels.ArchiveDirectories
 {
-    public class ArchiveDirectoriesViewmodel : OkCancelViewModelBase
+    public class ArchiveDirectoriesViewModel : OkCancelViewModelBase
     {
         private Model.ArchiveDirectories _archiveDirectories;
-        public ArchiveDirectoriesViewmodel(Model.ArchiveDirectories directories)
+        public ArchiveDirectoriesViewModel(Model.ArchiveDirectories directories)
         {
             _archiveDirectories = directories;
             Directories = new ObservableCollection<ArchiveDirectory>(_archiveDirectories.Directories);

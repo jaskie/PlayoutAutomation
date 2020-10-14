@@ -113,7 +113,7 @@ namespace TAS.Client
 
         #endregion //Undo
 
-        public static async Task Copy(IEnumerable<EventPanelViewmodelBase> items)
+        public static async Task Copy(IEnumerable<EventPanelViewModelBase> items)
         {
             await Task.Run(() =>
             {
@@ -125,7 +125,7 @@ namespace TAS.Client
             });
         }
 
-        public static async Task Cut(IEnumerable<EventPanelViewmodelBase> items)
+        public static async Task Cut(IEnumerable<EventPanelViewModelBase> items)
         {
             await Task.Run(() =>
             {
@@ -137,7 +137,7 @@ namespace TAS.Client
             });
         }
 
-        public static async Task<IEvent> Paste(EventPanelViewmodelBase destination, PasteLocation location)
+        public static async Task<IEvent> Paste(EventPanelViewModelBase destination, PasteLocation location)
         {
             return await Task.Run(() =>
             {
@@ -219,7 +219,7 @@ namespace TAS.Client
         }
 
 
-        public static bool CanPaste(EventPanelViewmodelBase destEventVm, PasteLocation location)
+        public static bool CanPaste(EventPanelViewModelBase destEventVm, PasteLocation location)
         {
             if (destEventVm?.Event == null)
                 return false;

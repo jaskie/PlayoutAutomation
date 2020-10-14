@@ -17,26 +17,26 @@ using TAS.Client.Common.Plugin;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaSearchViewmodel : ViewModelBase, IUiPreviewProvider
+    public class MediaSearchViewModel : ViewModelBase, IUiPreviewProvider
     {
         private readonly TMediaType[] _mediaTypes;
         private readonly VideoFormatDescription _videoFormatDescription;
         private IWatcherDirectory _searchDirectory;
         private ICollectionView _itemsView;
         public readonly VideoLayer Layer;
-        public PreviewViewmodel _preview;
+        public PreviewViewModel _preview;
 
         private IEvent _baseEvent;
         private string[] _searchTextSplit = new string[0];
         private string _searchText = string.Empty;
         private object _mediaCategory;
-        private MediaViewViewmodel _selectedItem;
+        private MediaViewViewModel _selectedItem;
         internal TStartType NewEventStartType;
-        private ObservableCollection<MediaViewViewmodel> _items = new ObservableCollection<MediaViewViewmodel>();
+        private ObservableCollection<MediaViewViewModel> _items = new ObservableCollection<MediaViewViewModel>();
         private bool _isRecursive;
         private bool _showExpired;
 
-        public MediaSearchViewmodel(IPreview preview, IEngine engine, TMediaType[] mediaTypes, VideoLayer layer,
+        public MediaSearchViewModel(IPreview preview, IEngine engine, TMediaType[] mediaTypes, VideoLayer layer,
             bool isDialog, VideoFormatDescription videoFormatDescription)
         {
             Engine = engine;
@@ -45,7 +45,7 @@ namespace TAS.Client.ViewModels
             {
                 _videoFormatDescription = engine.FormatDescription;
                 if (preview != null)
-                    _preview = new PreviewViewmodel(preview, false, false) { IsSegmentsVisible = true };
+                    _preview = new PreviewViewModel(preview, false, false) { IsSegmentsVisible = true };
             }
             else
                 _videoFormatDescription = videoFormatDescription;
@@ -83,10 +83,10 @@ namespace TAS.Client.ViewModels
             _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
             _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;
 
-            Items = new ObservableCollection<MediaViewViewmodel>(
+            Items = new ObservableCollection<MediaViewViewModel>(
                 _searchDirectory.GetAllFiles()
                     .Where(m => CanAddMediaToCollection(m))
-                    .Select(m => new MediaViewViewmodel(m, Engine.MediaManager)));
+                    .Select(m => new MediaViewViewModel(m, Engine.MediaManager)));
             _itemsView = CollectionViewSource.GetDefaultView(Items);
             _itemsView.Filter += _itemsFilter;
 
@@ -96,7 +96,7 @@ namespace TAS.Client.ViewModels
                 SortByName();
         }
 
-        public ObservableCollection<MediaViewViewmodel> Items { get => _items; private set => SetField(ref _items, value); }
+        public ObservableCollection<MediaViewViewModel> Items { get => _items; private set => SetField(ref _items, value); }
 
         public ICommand CommandAdd { get; }
 
@@ -119,7 +119,7 @@ namespace TAS.Client.ViewModels
                 }
                 _itemsView?.Refresh();
                 _itemsView?.MoveCurrentToFirst();
-                SelectedItem = _itemsView?.CurrentItem as MediaViewViewmodel;
+                SelectedItem = _itemsView?.CurrentItem as MediaViewViewModel;
             }
         }
 
@@ -154,7 +154,7 @@ namespace TAS.Client.ViewModels
 
         public IMedia SelectedMedia => _selectedItem?.Media;
 
-        public MediaViewViewmodel SelectedItem
+        public MediaViewViewModel SelectedItem
         {
             get => _selectedItem;
             set
@@ -243,13 +243,13 @@ namespace TAS.Client.ViewModels
                 IMedia media = e.Media;
                 if (media != null
                     && CanAddMediaToCollection(media))
-                    Items.Add(new MediaViewViewmodel(media, Engine.MediaManager));
+                    Items.Add(new MediaViewViewModel(media, Engine.MediaManager));
             });
         }
 
         private bool _itemsFilter(object item)
         {
-            var mvm = item as MediaViewViewmodel;
+            var mvm = item as MediaViewViewModel;
             if (mvm?.Media == null)
                 return false;
             string mediaName = mvm.MediaName.ToLower();
@@ -390,13 +390,13 @@ namespace TAS.Client.ViewModels
         private void SortByName()
         {
             _itemsView?.SortDescriptions.Clear();
-            _itemsView?.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
+            _itemsView?.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewModel.MediaName), ListSortDirection.Ascending));
         }
 
         private void SortByIngestDate()
         {
             _itemsView?.SortDescriptions.Clear();
-            _itemsView?.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending));
+            _itemsView?.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewModel.LastUpdated), ListSortDirection.Descending));
         }
 
     }

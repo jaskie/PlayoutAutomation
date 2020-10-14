@@ -13,7 +13,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class RecordersViewmodel : ViewModelBase, IDataErrorInfo
+    public class RecordersViewModel : ViewModelBase, IDataErrorInfo
     {
         private readonly IEngine _engine;
         private string _mediaName;
@@ -35,7 +35,7 @@ namespace TAS.Client.ViewModels
         private TAudioChannelMappingConversion _selectedAudioChannelMappingConversion;
         private bool _isAudioChannelMappingConversionVisible;
 
-        public RecordersViewmodel(IEngine engine, IEnumerable<IRecorder> recorders)
+        public RecordersViewModel(IEngine engine, IEnumerable<IRecorder> recorders)
         {
             _engine = engine;
             CreateCommands();

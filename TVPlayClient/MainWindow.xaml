@@ -13,15 +13,15 @@
         Height="600" 
         Width="1024"
         Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"
-        d:DataContext="{d:DesignInstance local:MainWindowViewmodel}"
+        d:DataContext="{d:DesignInstance local:MainWindowViewModel}"
         KeyDown="Window_KeyDown">
     <Window.Resources>
-        <local:MainWindowViewmodel x:Key="mainWindowViewmodel"/>
+        <local:MainWindowViewModel x:Key="mainWindowViewModel"/>
     </Window.Resources>
-    <Grid DataContext="{StaticResource mainWindowViewmodel}">
+    <Grid DataContext="{StaticResource mainWindowViewModel}">
         <ContentControl Content="{Binding Content}">
             <ContentControl.Resources>
-                <DataTemplate DataType="{x:Type local:ChannelsViewmodel}">
+                <DataTemplate DataType="{x:Type local:ChannelsViewModel}">
                     <TabControl TabStripPlacement="Bottom" ItemsSource="{Binding Channels}" Padding="0" BorderThickness="0">
                         <TabControl.Resources>
                             <Style TargetType="TabItem">
@@ -44,7 +44,7 @@
                                         <TextBlock Text="{Resx ResxName=TVPlayClient.MainWindow, Key=_pleaseWait}"/>
                                     </xctk:BusyIndicator.BusyContent>
                                     <xctk:BusyIndicator.Resources>
-                                        <DataTemplate DataType="{x:Type vm:ChannelViewmodel}">
+                                        <DataTemplate DataType="{x:Type vm:ChannelViewModel}">
                                             <views:ChannelView/>
                                         </DataTemplate>
                                     </xctk:BusyIndicator.Resources>
@@ -53,7 +53,7 @@
                         </TabControl.ContentTemplate>
                     </TabControl>
                 </DataTemplate>
-                <DataTemplate DataType="{x:Type local:ConfigurationViewmodel}">
+                <DataTemplate DataType="{x:Type local:ConfigurationViewModel}">
                     <local:ConfigurationView/>
                 </DataTemplate>
             </ContentControl.Resources>

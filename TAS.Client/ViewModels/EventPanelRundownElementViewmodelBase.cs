@@ -9,12 +9,12 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Client.ViewModels
 {
-    public abstract class EventPanelRundownElementViewmodelBase : EventPanelViewmodelBase
+    public abstract class EventPanelRundownElementViewModelBase : EventPanelViewModelBase
     {
         private TimeSpan _timeLeft;
         private IMedia _media;
 
-        protected EventPanelRundownElementViewmodelBase(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
+        protected EventPanelRundownElementViewModelBase(IEvent ev, EventPanelViewModelBase parent) : base(ev, parent)
         {
             Media = ev.Media;
             ev.PositionChanged += EventPositionChanged;
@@ -52,40 +52,40 @@ namespace TAS.Client.ViewModels
                         layerEvent?.Delete();
                     }
                     else
-                        EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, new[] { TMediaType.Still, TMediaType.Movie }, layer, true);
+                        EngineViewModel.AddMediaEvent(Event, TStartType.WithParent, new[] { TMediaType.Still, TMediaType.Movie }, layer, true);
                 },
                 _canToggleLayer
             );
             CommandAddNextRundown = new UiCommand
             (
-                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, VideoLayer.None, false),
+                o => EngineViewModel.AddSimpleEvent(Event, TEventType.Rundown, VideoLayer.None, false),
                 _canAddNextItem
             );
             CommandAddNextEmptyMovie = new UiCommand
             (
-                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Movie, VideoLayer.Program, false),
+                o => EngineViewModel.AddSimpleEvent(Event, TEventType.Movie, VideoLayer.Program, false),
                 CanAddNextMovie
             );
             CommandAddNextLive = new UiCommand
             (
-                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, VideoLayer.Program, false),
+                o => EngineViewModel.AddSimpleEvent(Event, TEventType.Live, VideoLayer.Program, false),
                 CanAddNewLive
             );
             CommandAddNextMovie = new UiCommand
             (
-                o => EngineViewmodel.AddMediaEvent(Event, TStartType.After, new[] { TMediaType.Movie },
+                o => EngineViewModel.AddMediaEvent(Event, TStartType.After, new[] { TMediaType.Movie },
                     VideoLayer.Program, false),
                 CanAddNextMovie
             );
             CommandAddAnimation = new UiCommand
             (
-                o => EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent,
+                o => EngineViewModel.AddMediaEvent(Event, TStartType.WithParent,
                     new[] { TMediaType.Animation }, VideoLayer.Animation, true),
                 o => IsPrimaryEvent && Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             );
             CommandAddCommandScript = new UiCommand
             (
-                o => EngineViewmodel.AddCommandScriptEvent(Event),
+                o => EngineViewModel.AddCommandScriptEvent(Event),
                 o => IsPrimaryEvent && Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             );
         }
@@ -106,9 +106,9 @@ namespace TAS.Client.ViewModels
         }
 
         #region Commands
-        public ICommand CommandCut => EngineViewmodel.CommandCutSelected;
-        public ICommand CommandCopy => EngineViewmodel.CommandCopySelected;
-        public ICommand CommandPaste => EngineViewmodel.CommandPasteSelected;
+        public ICommand CommandCut => EngineViewModel.CommandCutSelected;
+        public ICommand CommandCopy => EngineViewModel.CommandCopySelected;
+        public ICommand CommandPaste => EngineViewModel.CommandPasteSelected;
         public ICommand CommandToggleHold { get; }
         public ICommand CommandToggleEnabled { get; }
 
@@ -154,7 +154,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsStartEvent => Event != null && (Event.StartType == TStartType.Manual || Event.StartType == TStartType.OnFixedTime);
 
-        public bool IsAnimationEnabled => EngineViewmodel.IsAnimationDirAvailable;
+        public bool IsAnimationEnabled => EngineViewModel.IsAnimationDirAvailable;
 
         public bool IsPlaying => Event != null && Event.PlayState == TPlayState.Playing;
 
@@ -191,11 +191,11 @@ namespace TAS.Client.ViewModels
 
         public bool IsCGEnabled => Event?.IsCGEnabled == true && Engine?.CGElementsController != null;
 
-        public CGElementViewmodel Logo { get { return  EngineViewmodel.CGElementsControllerViewmodel?.Logos?.FirstOrDefault(l => l.Id == Event.Logo); } }
+        public CGElementViewModel Logo { get { return  EngineViewModel.CGElementsControllerViewModel?.Logos?.FirstOrDefault(l => l.Id == Event.Logo); } }
 
-        public CGElementViewmodel Parental { get { return EngineViewmodel.CGElementsControllerViewmodel?.Parentals?.FirstOrDefault(l => l.Id == Event.Parental); } }
+        public CGElementViewModel Parental { get { return EngineViewModel.CGElementsControllerViewModel?.Parentals?.FirstOrDefault(l => l.Id == Event.Parental); } }
 
-        public CGElementViewmodel Crawl { get { return EngineViewmodel.CGElementsControllerViewmodel?.Crawls?.FirstOrDefault(l => l.Id == Event.Crawl); } }
+        public CGElementViewModel Crawl { get { return EngineViewModel.CGElementsControllerViewModel?.Crawls?.FirstOrDefault(l => l.Id == Event.Crawl); } }
 
         public string MediaFileName
         {
@@ -237,7 +237,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsFixedTimeStart => Event.StartType == TStartType.OnFixedTime;
 
-        public EventPanelViewmodelBase Prior
+        public EventPanelViewModelBase Prior
         {
             get
             {
@@ -248,7 +248,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public EventPanelViewmodelBase Next
+        public EventPanelViewModelBase Next
         {
             get
             {

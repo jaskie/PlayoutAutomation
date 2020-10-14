@@ -7,12 +7,12 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventPanelContainerViewmodel: EventPanelViewmodelBase
+    public class EventPanelContainerViewModel: EventPanelViewModelBase
     {
 
         private bool _isVisible;
 
-        public EventPanelContainerViewmodel(IEvent ev, EventPanelViewmodelBase parent): base(ev, parent) {
+        public EventPanelContainerViewModel(IEvent ev, EventPanelViewModelBase parent): base(ev, parent) {
             if (ev.EventType != TEventType.Container)
                 throw new ApplicationException($"Invalid panel type:{GetType()} for event type:{ev.EventType}");
             _isVisible = !HiddenEventsStorage.Contains(ev);
@@ -25,7 +25,7 @@ namespace TAS.Client.ViewModels
 
         public ICommand CommandHide { get; }
         public ICommand CommandShow { get; }
-        public ICommand CommandPaste => EngineViewmodel.CommandPasteSelected;
+        public ICommand CommandPaste => EngineViewModel.CommandPasteSelected;
         public ICommand CommandAddSubRundown { get; }
 
         public override bool IsVisible
@@ -48,7 +48,7 @@ namespace TAS.Client.ViewModels
 
         private void _addSubRundown(object o)
         {
-            EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, VideoLayer.None, true);
+            EngineViewModel.AddSimpleEvent(Event, TEventType.Rundown, VideoLayer.None, true);
         }
         protected override void OnDispose()
         {

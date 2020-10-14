@@ -6,7 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance {x:Type vm:EngineRightsEditViewmodel}}"
+             d:DataContext="{d:DesignInstance {x:Type vm:EngineRightsEditViewModel}}"
              Height="400" 
              Width="500"
              Title="{Resx _windowTitle}"

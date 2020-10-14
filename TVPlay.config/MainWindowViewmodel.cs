@@ -9,11 +9,11 @@ using TAS.Client.Config.ViewModels.Playout;
 
 namespace TAS.Client.Config
 {
-    public class MainWindowViewmodel: ViewModelBase
+    public class MainWindowViewModel: ViewModelBase
     {
         private Model.ConfigFile _configFile;
         
-        public MainWindowViewmodel()
+        public MainWindowViewModel()
         {            
             if (File.Exists("TVPlay.exe"))
                 ConfigFile = new Model.ConfigFile(ConfigurationManager.OpenExeConfiguration("TVPlay.exe"));

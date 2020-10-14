@@ -9,11 +9,11 @@
         Title="{Resx Window.Title}" Height="864" Width="1152"
 >
     <Window.Resources>
-        <client:MainWindowViewmodel x:Key="MainWindowVM"/>
+        <client:MainWindowViewModel x:Key="MainWindowVM"/>
     </Window.Resources>
     <TabControl ItemsSource="{Binding Tabs}" Padding="0" TabStripPlacement="Left" BorderThickness="0" DataContext="{StaticResource MainWindowVM}">
         <TabControl.Resources>
-            <DataTemplate DataType="{x:Type vm:ChannelViewmodel}">
+            <DataTemplate DataType="{x:Type vm:ChannelViewModel}">
                 <views:ChannelView/>
             </DataTemplate>
         </TabControl.Resources>

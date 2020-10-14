@@ -13,7 +13,7 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
-             d:DataContext="{d:DesignInstance viewmodels:MediaManagerViewmodel}"
+             d:DataContext="{d:DesignInstance viewmodels:MediaManagerViewModel}"
              FontSize="13" KeyUp="UserControl_KeyUp"
              >
     <UserControl.Resources>
@@ -86,7 +86,7 @@
                 <Thumb Name="SidePanelResizer" HorizontalAlignment="Left" Width="3"  BorderThickness="0" Background="DarkGray" Grid.Column="0" Grid.RowSpan="3" Cursor="SizeWE" DragDelta="SidePanelResizer_OnDragDelta"/>
                 <ContentControl Grid.Row="0" Content="{Binding EditMedia}" Margin="3, 0, 0, 0">
                     <ContentControl.Resources>
-                        <DataTemplate DataType="{x:Type viewmodels:MediaEditViewmodel}">
+                        <DataTemplate DataType="{x:Type viewmodels:MediaEditViewModel}">
                             <views:MediaEditView/>
                         </DataTemplate>
                     </ContentControl.Resources>
@@ -94,7 +94,7 @@
                 <GridSplitter Grid.Row="0" Visibility="{Binding IsDisplayPreview, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
                 <ContentControl Visibility="{Binding IsDisplayPreview, Converter={StaticResource BoolToVis}}" Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding Preview}">
                     <ContentControl.Resources>
-                        <DataTemplate DataType="{x:Type viewmodels:PreviewViewmodel}" >
+                        <DataTemplate DataType="{x:Type viewmodels:PreviewViewModel}" >
                             <views:PreviewView/>
                         </DataTemplate>
                     </ContentControl.Resources>
@@ -156,7 +156,7 @@
                                             <behaviors:TreeViewTwoWaySelectedItem SelectedItem="{Binding SelectedDirectory, Mode=TwoWay}"/>
                                         </i:Interaction.Behaviors>
                                         <TreeView.ItemTemplate>
-                                            <HierarchicalDataTemplate DataType="{x:Type viewmodels:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
+                                            <HierarchicalDataTemplate DataType="{x:Type viewmodels:MediaDirectoryViewModel}" ItemsSource="{Binding SubDirectories}">
                                                 <TextBlock Padding="2" Text="{Binding DirectoryName}" ToolTip="{Binding Folder}" />
                                             </HierarchicalDataTemplate>
                                         </TreeView.ItemTemplate>
@@ -507,12 +507,12 @@
                     </DockPanel>
                 </TabItem>
                 <TabItem Header="{Resx _recorders}" Visibility="{Binding IsShowRecorders, Converter={StaticResource BoolToVis}}">
-                    <views:RecordersView DataContext="{Binding RecordersViewmodel}"/>
+                    <views:RecordersView DataContext="{Binding RecordersViewModel}"/>
                 </TabItem>
             </TabControl>
 
             <GridSplitter Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-            <views:FileManagerView Grid.Row="1" DataContext="{Binding FileManagerViewmodel}" />
+            <views:FileManagerView Grid.Row="1" DataContext="{Binding FileManagerViewModel}" />
         </Grid>
 
     </DockPanel>

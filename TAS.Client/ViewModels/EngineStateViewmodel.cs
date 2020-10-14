@@ -6,28 +6,28 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class EngineStateViewmodel: ViewModelBase
+    public class EngineStateViewModel: ViewModelBase
     {
         private readonly IEngine _engine;
 
-        public EngineStateViewmodel(IEngine engine)
+        public EngineStateViewModel(IEngine engine)
         {
             _engine = engine;
-            _fixedTimeEvents = new ObservableCollection<EventPanelAutoStartEventViewmodel>(engine.FixedTimeEvents.Select(e => new EventPanelAutoStartEventViewmodel(e)));
+            _fixedTimeEvents = new ObservableCollection<EventPanelAutoStartEventViewModel>(engine.FixedTimeEvents.Select(e => new EventPanelAutoStartEventViewModel(e)));
             engine.FixedTimeEventOperation += _engine_FixedTimeEventOperation;
         }
 
         private void _engine_FixedTimeEventOperation(object sender, CollectionOperationEventArgs<IEvent> e)
         {
             if (e.Operation == CollectionOperation.Add)
-                _fixedTimeEvents.Add(new EventPanelAutoStartEventViewmodel(e.Item));
+                _fixedTimeEvents.Add(new EventPanelAutoStartEventViewModel(e.Item));
             if (e.Operation == CollectionOperation.Remove)
                 _fixedTimeEvents.Remove(_fixedTimeEvents.FirstOrDefault(evm => evm.Event == e.Item));
         }
 
 
-        readonly ObservableCollection<EventPanelAutoStartEventViewmodel> _fixedTimeEvents;
-        public ObservableCollection<EventPanelAutoStartEventViewmodel> FixedTimeEvents => _fixedTimeEvents;
+        readonly ObservableCollection<EventPanelAutoStartEventViewModel> _fixedTimeEvents;
+        public ObservableCollection<EventPanelAutoStartEventViewModel> FixedTimeEvents => _fixedTimeEvents;
 
 
         protected override void OnDispose()

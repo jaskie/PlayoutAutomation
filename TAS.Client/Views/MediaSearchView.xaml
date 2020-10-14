@@ -17,7 +17,7 @@
         Title="{Resx _windowTitle}"
         DataContextChanged="Window_DataContextChanged"
         FocusManager.FocusedElement="{Binding ElementName=TbSearch}"
-        d:DataContext="{d:DesignInstance vm:MediaSearchViewmodel}"
+        d:DataContext="{d:DesignInstance vm:MediaSearchViewModel}"
         >
     <Grid Width="Auto">
         <Grid.RowDefinitions>
@@ -70,7 +70,7 @@
             </Grid.ColumnDefinitions>
             <ContentControl Content="{Binding Preview}" Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                 <ContentControl.Resources>
-                    <DataTemplate DataType="{x:Type vm:PreviewViewmodel}" >
+                    <DataTemplate DataType="{x:Type vm:PreviewViewModel}" >
                         <views:PreviewView Width="330"/>
                     </DataTemplate>
                 </ContentControl.Resources>

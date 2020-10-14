@@ -4,13 +4,13 @@ using TAS.Client.Common;
 
 namespace TAS.Client.ViewModels
 {
-    public class KeyValueEditViewmodel : ViewModelBase
+    public class KeyValueEditViewModel : ViewModelBase
     {
 
         private string _key;
         private string _value;
         
-        public KeyValueEditViewmodel(KeyValuePair<string, string> item, bool keyIsEnabled)
+        public KeyValueEditViewModel(KeyValuePair<string, string> item, bool keyIsEnabled)
         {
             _key = item.Key;
             _value = item.Value;
