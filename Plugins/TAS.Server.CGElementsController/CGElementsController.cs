@@ -4,11 +4,10 @@ using System.Linq;
 using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using jNet.RPC;
-using System.ComponentModel.Composition;
 using TAS.Database.Common;
 
 namespace TAS.Server.CgElementsController
-{        
+{
     public class CgElementsController : ServerObjectBase, ICGElementsController
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -68,7 +67,7 @@ namespace TAS.Server.CgElementsController
             {
                 if (!SetField(ref _crawl, value))
                     return;
-                Engine.Execute(((Model.CGElement)Crawls.ElementAtOrDefault(value))?.Command);
+                Engine.Execute(((CGElement)Crawls.ElementAtOrDefault(value))?.Command);
             }
         }
 
@@ -83,7 +82,7 @@ namespace TAS.Server.CgElementsController
             {
                 if (!SetField(ref _logo, value))
                     return;
-                Engine.Execute(((Model.CGElement)Logos.ElementAtOrDefault(value))?.Command);
+                Engine.Execute(((CGElement)Logos.ElementAtOrDefault(value))?.Command);
             }
         }
 
@@ -98,7 +97,7 @@ namespace TAS.Server.CgElementsController
             {
                 if (!SetField(ref _parental, value))
                     return;
-                Engine.Execute(((Model.CGElement)Parentals.ElementAtOrDefault(value))?.Command);
+                Engine.Execute(((CGElement)Parentals.ElementAtOrDefault(value))?.Command);
             }
         }
 

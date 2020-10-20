@@ -7,6 +7,7 @@ using TAS.Client.Common;
 using TAS.Client.Config.Model;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
+using TAS.Database.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {
@@ -15,8 +16,8 @@ namespace TAS.Client.Config.ViewModels.Plugins
         private IConfigEngine _engine;
         public event EventHandler PluginChanged;
 
-        private List<IPluginConfigurator> _configurators = new List<IPluginConfigurator>();
-        private IPluginConfigurator _selectedConfigurator;
+        private List<IPluginConfiguratorViewModel> _configurators = new List<IPluginConfiguratorViewModel>();
+        private IPluginConfiguratorViewModel _selectedConfigurator;
 
         private bool? _isEnabled = null;
 
@@ -50,7 +51,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
         public string Name => "GPI";
         public List<IGpi> Gpis => _configurators.Select(c => c.GetModel()).Cast<IGpi>().ToList();
 
-        public IPluginConfigurator SelectedConfigurator
+        public IPluginConfiguratorViewModel SelectedConfigurator
         {
             get => _selectedConfigurator;
             set

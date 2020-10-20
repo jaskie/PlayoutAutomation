@@ -45,8 +45,10 @@ namespace TAS.Server.CgElementsController.Configurator.Model
         public byte Parental { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool IsWideScreen { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+#pragma warning disable CS0067
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler Started;
+#pragma warning restore
 
         public void SetState(ICGElementsState state)
         {

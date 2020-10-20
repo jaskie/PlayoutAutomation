@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace TAS.Common.Interfaces
-{    
+{
     public interface ICGElementsController: ICGElementsState, IPlugin, INotifyPropertyChanged
     {
         IEnumerable<ICGElement> Crawls { get; }

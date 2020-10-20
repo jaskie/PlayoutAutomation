@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace TAS.Server.VideoSwitch.Model
 {	    
-    internal class Router : RouterBase
+    public class Router : RouterBase
     {        
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();                                          
 

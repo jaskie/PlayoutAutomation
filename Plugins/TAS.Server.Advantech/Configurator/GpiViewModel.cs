@@ -4,10 +4,11 @@ using System.ComponentModel;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
+using TAS.Database.Common.Interfaces;
 
 namespace TAS.Server.Advantech.Configurator
-{    
-    public class GpiViewModel : ModifyableViewModelBase, IPluginConfigurator
+{
+    public class GpiViewModel : ModifyableViewModelBase, IPluginConfiguratorViewModel
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private Model.Gpi _gpi = new Model.Gpi();

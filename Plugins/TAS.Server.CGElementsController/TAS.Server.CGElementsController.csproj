@@ -83,7 +83,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\CgElement.cs" />
+    <Compile Include="CgElement.cs" />
     <Compile Include="CgElementsController.cs" />
     <Compile Include="Configurator\CgElementsControllerViewModel.cs" />
     <Compile Include="Configurator\CgElementsControllerView.xaml.cs">
@@ -95,8 +95,7 @@
     <Compile Include="Configurator\CgElementViewModel.cs" />
     <Compile Include="Configurator\Model\CgElement.cs" />
     <Compile Include="Configurator\Model\CgElementsController.cs" />
-    <Compile Include="PluginExporter.cs" />
-    <Compile Include="PluginTypeBinder.cs" />
+    <Compile Include="ConfigurationProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -43,8 +43,8 @@ namespace TAS.Database.Common
         {
             JsonObjectContract contract = base.CreateObjectContract(objectType);
             contract.IsReference = false;
-            if (typeof(IPlugin).IsAssignableFrom(objectType))
-                contract.Converter = PluginConverter.Current;
+            //if (typeof(IPlugin).IsAssignableFrom(objectType))
+            //    contract.Converter = PluginConverter.Current;
             return contract;
         }
     }

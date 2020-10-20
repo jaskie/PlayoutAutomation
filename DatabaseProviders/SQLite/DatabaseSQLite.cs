@@ -6,6 +6,8 @@ using System.IO;
 using System.Reflection;
 using TAS.Common;
 using TAS.Database.Common.Interfaces;
+using System.Collections.Generic;
+using TAS.Database.Common;
 
 namespace TAS.Database.SQLite
 {
@@ -55,8 +57,9 @@ namespace TAS.Database.SQLite
         { }
 
 
-        public override void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection)
+        public override void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection, bool inConfigMode, IEnumerable<HibernationBinder> pluginTypeBinders)
         {
+            SetConfigMode(inConfigMode, pluginTypeBinders);
             var path = FileUtils.LocalApplicationDataPath;
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);

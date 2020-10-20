@@ -14,7 +14,7 @@ namespace TAS.Client.Config.Model
         public PlayoutServers(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {
             _db = DatabaseLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
-            _db.Open(connectionStringSettingsCollection);
+            _db.Open(connectionStringSettingsCollection, true, ConfigurationPluginManager.Current.Binders);
             Servers = _db.LoadServers<CasparServer>().ToList();
             Servers.ForEach(s =>
                 {

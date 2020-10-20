@@ -2,12 +2,15 @@
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using TAS.Common.Interfaces;
+using TAS.Database.Common;
+using TAS.Database.Common.Interfaces;
 
 namespace TAS.Client.Config
 {
     public class ConfigurationPluginManager
     {
         private const string FileNameSearchPattern = "TAS.Server.*.dll";
+        
         private ConfigurationPluginManager()
         {
             using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), FileNameSearchPattern))
@@ -15,9 +18,6 @@ namespace TAS.Client.Config
             {                
                 foreach(var plugin in container.GetExportedValues<IPluginConfigurationProvider>())
                 {
-                    if (Binders == null)
-                        Binders = new List<IPluginTypeBinder>();
-
                     Binders.Add(plugin.Binder);
 
                     var configuratorVm = plugin.GetConfiguratorViewModel();
@@ -51,7 +51,7 @@ namespace TAS.Client.Config
         public IList<IPluginConfigurationProvider> CgElementsControllers { get; private set; }
         public IList<IPluginConfigurationProvider> Gpis { get; private set; }
         public IList<IPluginConfigurationProvider> VideoSwitchers { get; private set; }
-        public IList<IPluginTypeBinder> Binders { get; }
+        public IList<HibernationBinder> Binders { get; } = new List<HibernationBinder>();
 
         public static ConfigurationPluginManager Current { get; } = new ConfigurationPluginManager();
     }

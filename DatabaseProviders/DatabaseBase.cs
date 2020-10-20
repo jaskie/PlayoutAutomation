@@ -18,7 +18,6 @@ using TAS.Database.Common.Interfaces.Media;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Common.Interfaces.Security;
-using Newtonsoft.Json;
 
 #if MYSQL
 namespace TAS.Database.MySqlRedundant
@@ -30,17 +29,23 @@ namespace TAS.Database.SQLite
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public void SetSerializerSettings(IEnumerable<IPluginTypeBinder> pluginTypeResolvers)
-        {            
-            HibernationSerializerSettings.SerializationBinder = new HibernationSerializationBinder(pluginTypeResolvers);
+        public void SetConfigMode(bool inConfigMode, IEnumerable<HibernationBinder> pluginTypeResolvers)
+        {
+            HibernationSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
+            {
+                ContractResolver = new HibernationContractResolver(),
+                NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
+                MetadataPropertyHandling = inConfigMode ? Newtonsoft.Json.MetadataPropertyHandling.Default : Newtonsoft.Json.MetadataPropertyHandling.ReadAhead
+            };
+            if (inConfigMode)
+                HibernationSerializerSettings.SerializationBinder = new PluginSerializationBinder(pluginTypeResolvers);
             HibernationSerializerSettings.Error = (sender, args) =>
             {
-                if (args.ErrorContext.Error.GetType() == typeof(JsonSerializationException))
+                if (args.ErrorContext.Error is Newtonsoft.Json.JsonSerializationException)
                 {
-                    Logger.Warn("Could not deserialize object {0}: {1}", args.ErrorContext.Member?.ToString(), args.ErrorContext.Error.Message);
+                    Logger.Error("Could not deserialize object {0}: {1}", args.ErrorContext.Member?.ToString(), args.ErrorContext.Error.Message);
                     args.ErrorContext.Handled = true;
-                }
-                    
+                }                    
             };
         }        
 
@@ -62,14 +67,9 @@ namespace TAS.Database.SQLite
 #endif
         protected abstract string TrimText(string tableName, string columnName, string value);
 
-        private static readonly JsonSerializerSettings HibernationSerializerSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new HibernationContractResolver(),
-            NullValueHandling = NullValueHandling.Ignore,            
-            MetadataPropertyHandling = MetadataPropertyHandling.ReadAhead            
-        };
+        Newtonsoft.Json.JsonSerializerSettings HibernationSerializerSettings;
 
-        public abstract void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection);
+        public abstract void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection, bool inConfigMode, IEnumerable<HibernationBinder> pluginTypeBinders);
 
         public abstract void InitializeFieldLengths();
 

@@ -13,10 +13,9 @@ namespace TAS.Database.Common.Interfaces
     public interface IDatabase
     {
         DatabaseType DatabaseType { get; }
-        void SetSerializerSettings(IEnumerable<IPluginTypeBinder> pluginTypeResolvers);        
         ConnectionStateRedundant ConnectionState { get; }
         event EventHandler<RedundantConnectionStateEventArgs> ConnectionStateChanged;
-        void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection);
+        void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection, bool inConfigMode, IEnumerable<HibernationBinder> pluginTypeBinders);
         void InitializeFieldLengths();
         void Close();
         void AsRunLogWrite(ulong idEngine, IEvent e);

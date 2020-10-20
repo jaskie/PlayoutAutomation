@@ -50,7 +50,7 @@
         <ScrollViewer Grid.Row="1" Padding="2" VerticalScrollBarVisibility="Auto">
             <ScrollViewer.Resources>
                 <Style TargetType="Label">
-                    <Setter Property="Padding" Value="3"/>
+                    <Setter Property="Padding" Value="3 0"/>
                     <Setter Property="HorizontalContentAlignment" Value="Right"/>
                     <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>
@@ -192,7 +192,7 @@
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
                             <Label Content="{Resx _scheduledTime}" />
-                            <DatePicker Grid.Column="1" Margin="1" Width="110" 
+                            <DatePicker Grid.Column="1" Margin="1" Height="20" Padding="0" 
                                             SelectedDate="{Binding ScheduledDate, ValidatesOnDataErrors=True}" 
                                             Visibility="{Binding IsScheduledDateVisible, Converter={StaticResource BoolToVis}}" 
                                             SelectedDateFormat="Short" >
@@ -220,7 +220,7 @@
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
                             <Label Grid.Column="0" Content="{Resx _requiredAt}" />
-                            <xctk:MaskedTextBox Grid.Column="1" AutoSelectBehavior="OnFocus" Text="{Binding RequestedStartTime, UpdateSourceTrigger=PropertyChanged}" Mask="00:00:00" ToolTip="{Resx _requiredAt.ToolTip}" Margin="1" />
+                            <xctk:MaskedTextBox Grid.Column="1" AutoSelectBehavior="OnFocus" Text="{Binding RequestedStartTime, UpdateSourceTrigger=PropertyChanged}" Mask="00:00:00" ToolTip="{Resx _requiredAt.ToolTip}" Margin="1" VerticalAlignment="Center" />
                         </Grid>
                         <Grid Grid.Row="2" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>
@@ -281,14 +281,14 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" SharedSizeGroup="Labels" />
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="2*"/>
                                 </Grid.ColumnDefinitions>
                                 <Label Content="{Resx _duration}" />
                                 <controls:TimecodeEdit Grid.Column="1" Timecode="{Binding Duration, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" IsEnabled="{Binding IsDurationEnabled}" Height="21" VerticalAlignment="Top" />
                                 <Grid Grid.Column="2" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{Resx _scheduledTC}" />
@@ -338,8 +338,8 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" IsChecked="{Binding HasAudioVolume}" ToolTip="{Resx _audioVolume.ToolTip}" />
-                                <Slider Grid.Column="1" VerticalAlignment="Stretch" Margin="5, 0" Minimum="-18" Maximum="18" Value="{Binding AudioVolumeLevel}"/>
+                                <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" Padding="3 0" IsChecked="{Binding HasAudioVolume}" ToolTip="{Resx _audioVolume.ToolTip}" />
+                                <Slider Grid.Column="1" VerticalAlignment="Center" Minimum="-18" Maximum="18" Value="{Binding AudioVolumeLevel}"/>
                                 <TextBox Grid.Column="2" Width="40" Text="{Binding AudioVolumeLevel, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
                                 <Label Grid.Column="3" VerticalAlignment="Center" Content="dB" Width="25" />
                                 <Button Grid.Column="4" Height="20" Margin="5" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">

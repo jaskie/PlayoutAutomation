@@ -106,8 +106,7 @@
     <Compile Include="Model\RouterBase.cs" />
     <Compile Include="Model\TransitionEffect.cs" />
     <Compile Include="Model\VideoSwitcher.cs" />
-    <Compile Include="PluginConfigurationProvider.cs" />
-    <Compile Include="PluginTypeBinder.cs" />
+    <Compile Include="ConfigurationProvider.cs" />
     <Compile Include="Resources.xaml.cs">
       <DependentUpon>Resources.xaml</DependentUpon>
     </Compile>

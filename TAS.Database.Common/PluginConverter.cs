@@ -32,13 +32,11 @@ namespace TAS.Database.Common
                 return null;
             }                        
         }
-        
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            writer.WriteValue(value);
-        }
-        
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) 
+            => throw new InvalidOperationException("This converter can't be used to serialize objects");
+
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.StartArray)

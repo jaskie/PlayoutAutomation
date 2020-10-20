@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using TAS.Client.Common;
-using TAS.Common.Interfaces;
+using TAS.Database.Common.Interfaces;
 using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Configurator
-{    
-    public class RouterConfiguratorViewModel : ViewModelBase, IPluginConfigurator
+{
+    public class RouterConfiguratorViewModel : ViewModelBase, IPluginConfiguratorViewModel
     {
         private bool _isEnabled;
         ConfiguratorViewModelBase _communicatorConfigurator;    

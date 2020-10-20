@@ -83,7 +83,7 @@ namespace TAS.Database.MySqlRedundant.Configurator
             try
             {
                 _db.TestConnect(ConnectionStringPrimary);
-                _db.Open(ConnectionStringPrimary, null);
+                _db.Open(ConnectionStringPrimary, ConnectionStringSecondary);
                 try
                 {
                     if (_db.UpdateRequired())

@@ -8,10 +8,11 @@ using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
+using TAS.Database.Common.Interfaces;
 
 namespace TAS.Server.CgElementsController.Configurator
-{       
-    public class CgElementsControllerViewModel : ModifyableViewModelBase, IPluginConfigurator
+{
+    public class CgElementsControllerViewModel : ModifyableViewModelBase, IPluginConfiguratorViewModel
     {                
         private readonly IConfigEngine _engine;
         private Model.CgElementsController _cgElementsController = new Model.CgElementsController();

@@ -9,6 +9,7 @@ using TAS.Common;
 using TAS.Database.Common.Interfaces;
 using TAS.Database.Common.Interfaces.Media;
 using TAS.Common.Interfaces;
+using TAS.Database.Common;
 
 namespace TAS.Database.MySqlRedundant
 {
@@ -18,8 +19,9 @@ namespace TAS.Database.MySqlRedundant
         private Dictionary<string, Dictionary<string, int>> _tablesStringFieldsLenghts;
 
 
-        public override void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection)
+        public override void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection, bool inConfigMode, IEnumerable<HibernationBinder> pluginTypeBinders)
         {
+            SetConfigMode(inConfigMode, pluginTypeBinders);
             ConnectionStringPrimary =  connectionStringSettingsCollection[ConnectionStringsNames.Primary]?.ConnectionString;
             ConnectionStringSecondary = connectionStringSettingsCollection[ConnectionStringsNames.Secondary]?.ConnectionString;
             Close();

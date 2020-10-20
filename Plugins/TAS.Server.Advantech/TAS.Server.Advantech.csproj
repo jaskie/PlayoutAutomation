@@ -96,7 +96,6 @@
     <Compile Include="Model\GpiPin.cs" />
     <Compile Include="Model\GpiStateChangedEventArgs.cs" />
     <Compile Include="PluginExporter.cs" />
-    <Compile Include="PluginTypeBinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

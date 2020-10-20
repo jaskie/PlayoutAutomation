@@ -90,9 +90,6 @@
     <Compile Include="Interfaces\Configurator\IConfigCasparServer.cs" />
     <Compile Include="Interfaces\Configurator\IConfigEngine.cs" />
     <Compile Include="Interfaces\Configurator\IConfigRecorder.cs" />
-    <Compile Include="Interfaces\IPluginConfigurator.cs" />
-    <Compile Include="Interfaces\IPluginConfigurationProvider.cs" />
-    <Compile Include="Interfaces\IPluginTypeBinder.cs" />
     <Compile Include="Interfaces\IVideoSwitcher.cs" />
     <Compile Include="Interfaces\IRouter.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
@@ -129,7 +126,6 @@
     <Compile Include="Interfaces\IPreview.cs" />
     <Compile Include="Interfaces\IRecorder.cs" />
     <Compile Include="Interfaces\MediaDirectory\IServerDirectory.cs" />
-    <Compile Include="Interfaces\IInitializable.cs" />
     <Compile Include="Interfaces\Media\IServerMedia.cs" />
     <Compile Include="Interfaces\ITemplated.cs" />
     <Compile Include="Interfaces\Media\ITempMedia.cs" />

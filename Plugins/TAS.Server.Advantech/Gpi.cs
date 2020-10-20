@@ -5,7 +5,7 @@ using TAS.Database.Common;
 using TAS.Server.Advantech.Model;
 
 namespace TAS.Server.Advantech
-{        
+{
     public class Gpi : GpiBase, IGpi, IPlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

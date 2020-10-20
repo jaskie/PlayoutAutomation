@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Xml.Serialization;
 using TAS.Common;
 using System.Drawing;
 using jNet.RPC;
@@ -8,7 +7,7 @@ using jNet.RPC.Server;
 using TAS.Common.Interfaces;
 using TAS.Database.Common;
 
-namespace TAS.Server.CgElementsController.Model
+namespace TAS.Server.CgElementsController
 {
     [DebuggerDisplay("{Id}:{Name}")]
     public class CGElement : ServerObjectBase, ICGElement

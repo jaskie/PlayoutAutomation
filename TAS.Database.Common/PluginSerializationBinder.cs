@@ -1,24 +1,23 @@
 ﻿using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using TAS.Common.Interfaces;
 
 namespace TAS.Database.Common
 {
-    public class HibernationSerializationBinder : ISerializationBinder
+    public class PluginSerializationBinder : ISerializationBinder
     {
-        private readonly IEnumerable<IPluginTypeBinder> _pluginTypeResolvers;
+        private readonly IEnumerable<HibernationBinder> _pluginHibernationBinders;
 
-        public HibernationSerializationBinder(IEnumerable<IPluginTypeBinder> pluginTypeResolvers)
+        public PluginSerializationBinder(IEnumerable<HibernationBinder> pluginHibernationBinders)
         {
-            _pluginTypeResolvers = pluginTypeResolvers;
+            _pluginHibernationBinders = pluginHibernationBinders;
         }
         
         public void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
-            foreach (var resolver in _pluginTypeResolvers)
+            foreach (var resolver in _pluginHibernationBinders)
             {
-                var resolvedType = resolver.GetBindedType(serializedType);
+                var resolvedType = resolver.GetRuntimeType(serializedType);
                 if (resolvedType != null)
                 {
                     assemblyName = resolvedType.Assembly.FullName;
@@ -32,18 +31,12 @@ namespace TAS.Database.Common
 
         public Type BindToType(string assemblyName, string typeName)
         {
-            foreach (var resolver in _pluginTypeResolvers)
+            foreach (var resolver in _pluginHibernationBinders)
             {
-                var resolvedType = resolver.BindToType(assemblyName, typeName);
+                var resolvedType = resolver.GetModelType(assemblyName, typeName);
                 if (resolvedType != null)
-                {
-                    var bindedType = resolver.GetBindedType(resolvedType);
-                    if (bindedType != null)
-                        return bindedType;
-                }
-                    
+                    return resolvedType;
             }
-
             return Type.GetType($"{typeName},{assemblyName}");
         }
     }
