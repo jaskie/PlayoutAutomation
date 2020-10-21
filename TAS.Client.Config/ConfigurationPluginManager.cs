@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
-using TAS.Common.Interfaces;
+using System.Linq;
 using TAS.Database.Common;
 using TAS.Database.Common.Interfaces;
 
@@ -15,44 +15,15 @@ namespace TAS.Client.Config
         {
             using (var catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(), "Plugins"), FileNameSearchPattern))
             using (var container = new CompositionContainer(catalog))
-            {                
-                foreach(var plugin in container.GetExportedValues<IPluginConfigurationProvider>())
-                {
-                    Binders.Add(plugin.Binder);
-
-                    var configuratorVm = plugin.GetConfiguratorViewModel();
-                    if (configuratorVm.GetModel() is ICGElementsController)
-                    {
-                        if (CgElementsControllers == null)
-                            CgElementsControllers = new List<IPluginConfigurationProvider>();
-
-                        CgElementsControllers.Add(plugin);
-                    }
-
-                    else if (configuratorVm.GetModel() is IRouter)
-                    {
-                        if (VideoSwitchers == null)
-                            VideoSwitchers = new List<IPluginConfigurationProvider>();
-
-                        VideoSwitchers.Add(plugin);
-                    }
-
-                    else if (configuratorVm.GetModel() is IGpi)
-                    {
-                        if (Gpis == null)
-                            Gpis = new List<IPluginConfigurationProvider>();
-
-                        Gpis.Add(plugin);
-                    }
-                }                                
+            {
+                ConfigurationProviders = container.GetExportedValues<IPluginConfigurationProvider>().ToArray();
             }
         }
 
-        public IList<IPluginConfigurationProvider> CgElementsControllers { get; private set; }
-        public IList<IPluginConfigurationProvider> Gpis { get; private set; }
-        public IList<IPluginConfigurationProvider> VideoSwitchers { get; private set; }
-        public IList<HibernationBinder> Binders { get; } = new List<HibernationBinder>();
-
         public static ConfigurationPluginManager Current { get; } = new ConfigurationPluginManager();
+
+        public IPluginConfigurationProvider[] ConfigurationProviders { get; }
+        public bool IsPluginAvailable => ConfigurationProviders.Length > 0;
+        public IEnumerable<HibernationBinder> Binders => ConfigurationProviders.Select(cp => cp.Binder);
     }
 }

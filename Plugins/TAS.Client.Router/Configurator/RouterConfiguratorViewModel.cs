@@ -117,7 +117,6 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public void Initialize(object parameter)
         {
-            WindowManager.Current.AddDataTemplate(typeof(RouterConfiguratorViewModel), typeof(RouterConfiguratorView));
             if (!(parameter is RouterBase routerBase))
             {
                 if (parameter == null)

@@ -44,7 +44,7 @@ namespace TAS.Server.CgElementsControllerTests
                     {
                         new CgElement { Id=0, Name="Off", Command = "Test1CommandAux" }
                     },
-                    Startups = new List<string>
+                    StartupsCommands = new List<string>
                     {
                         "Start1",
                         "Start2"

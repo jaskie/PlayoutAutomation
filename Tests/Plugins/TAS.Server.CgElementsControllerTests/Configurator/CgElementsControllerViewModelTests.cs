@@ -211,7 +211,7 @@ namespace TAS.Server.CgElementsControllerTests.Configurator
         public void DeleteStartup_Startup_Deleted(CgElementsController.Configurator.Model.CgElementsController cgElementsController)
         {
             Init(cgElementsController);
-            var initialStartupsCount = cgElementsController?.Startups?.Count;
+            var initialStartupsCount = cgElementsController?.StartupsCommands?.Count;
 
             var enumerator = _cgElementsControllerViewModel.Startups.SourceCollection.GetEnumerator();
             if (!enumerator.MoveNext())
@@ -220,7 +220,7 @@ namespace TAS.Server.CgElementsControllerTests.Configurator
             _cgElementsControllerViewModel.SaveCommand.Execute(null);
 
             var result = (CgElementsController.Configurator.Model.CgElementsController)_cgElementsControllerViewModel.GetModel();
-            Assert.IsTrue(result.Startups.Count < initialStartupsCount);
+            Assert.IsTrue(result.StartupsCommands.Count < initialStartupsCount);
         }
 
         [TestMethod]

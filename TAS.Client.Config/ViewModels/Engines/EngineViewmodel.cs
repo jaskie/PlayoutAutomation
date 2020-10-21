@@ -19,18 +19,20 @@ namespace TAS.Client.Config.ViewModels.Engines
         private TCrawlEnableBehavior _crawlEnableBehavior;
         private int _cgStartDelay;
         private ulong _instance;
-        private Engine _engine;
-        private PluginsViewModel _pluginsViewModel;
 
         public EngineViewModel(Engine engine)
         {
-            _engine = engine;
-            _pluginsViewModel = new PluginsViewModel(_engine);
-            _pluginsViewModel.PluginChanged += PluginsViewModel_PluginChanged;
-            CommandManageArchiveDirectories = new Common.UiCommand(_manageArchiveDirectories);
-            PluginManagerCommand = new UiCommand(OpenPluginManager, CanOpenPluginManager);
+            Engine = engine;
+            if (ConfigurationPluginManager.Current.IsPluginAvailable)
+            {
+                Plugins = new PluginsViewModel(Engine);
+                Plugins.PluginChanged += PluginsViewModel_PluginChanged;
+            }
+            CommandManageArchiveDirectories = new UiCommand(_manageArchiveDirectories);
             Init();
         }
+
+        public PluginsViewModel Plugins { get; }
 
         private void PluginsViewModel_PluginChanged(object sender, EventArgs e)
         {
@@ -40,62 +42,52 @@ namespace TAS.Client.Config.ViewModels.Engines
         public void Init()
         {
             Channels = new List<object> { Common.Properties.Resources._none_ };
-            foreach (var s in _engine.Servers)
+            foreach (var s in Engine.Servers)
                 foreach (var c in s.Channels)
                     Channels.Add(c);
             _channelPRI = Channels.FirstOrDefault(c => c is CasparServerChannel
-                                                        && ((CasparServerChannel)c).Id == _engine.ServerChannelPRI
-                                                        && ((CasparServer)((CasparServerChannel)c).Owner).Id == _engine.IdServerPRI);
+                                                        && ((CasparServerChannel)c).Id == Engine.ServerChannelPRI
+                                                        && ((CasparServer)((CasparServerChannel)c).Owner).Id == Engine.IdServerPRI);
             if (_channelPRI == null) _channelPRI = Channels.First();
             _channelSEC = Channels.FirstOrDefault(c => c is CasparServerChannel
-                                                        && ((CasparServerChannel)c).Id == _engine.ServerChannelSEC
-                                                        && ((CasparServer)((CasparServerChannel)c).Owner).Id == _engine.IdServerSEC);
+                                                        && ((CasparServerChannel)c).Id == Engine.ServerChannelSEC
+                                                        && ((CasparServer)((CasparServerChannel)c).Owner).Id == Engine.IdServerSEC);
             if (_channelSEC == null) _channelSEC = Channels.First();
             _channelPRV = Channels.FirstOrDefault(c => c is CasparServerChannel
-                                                        && ((CasparServerChannel)c).Id == _engine.ServerChannelPRV
-                                                        && ((CasparServer)((CasparServerChannel)c).Owner).Id == _engine.IdServerPRV);
+                                                        && ((CasparServerChannel)c).Id == Engine.ServerChannelPRV
+                                                        && ((CasparServer)((CasparServerChannel)c).Owner).Id == Engine.IdServerPRV);
 
             ArchiveDirectories = new List<object> { Common.Properties.Resources._none_ };
-            ArchiveDirectories.AddRange(_engine.ArchiveDirectories.Directories);
-            _archiveDirectory = _engine.IdArchive == 0 ? ArchiveDirectories.First() : ArchiveDirectories.FirstOrDefault(d => (d as ArchiveDirectory)?.IdArchive == _engine.IdArchive);
+            ArchiveDirectories.AddRange(Engine.ArchiveDirectories.Directories);
+            _archiveDirectory = Engine.IdArchive == 0 ? ArchiveDirectories.First() : ArchiveDirectories.FirstOrDefault(d => (d as ArchiveDirectory)?.IdArchive == Engine.IdArchive);
             if (_channelPRV == null) _channelPRV = Channels.First();
-            if (_engine.Remote != null)
+            if (Engine.Remote != null)
             {
                 _remoteHostEnabled = true;
-                _remoteHostListenPort = _engine.Remote.ListenPort;
+                _remoteHostListenPort = Engine.Remote.ListenPort;
             }
             
-            CGStartDelay = _engine.CGStartDelay;
-            CrawlEnableBehavior = _engine.CrawlEnableBehavior;
-            StudioMode = _engine.StudioMode;
-            EnableCGElementsForNewEvents = _engine.EnableCGElementsForNewEvents;
-            Instance = _engine.Instance;
-            VideoFormat = _engine.VideoFormat;
-            TimeCorrection = _engine.TimeCorrection;
-            AspectRatioControl = _engine.AspectRatioControl;
-            EngineName = _engine.EngineName;
+            CGStartDelay = Engine.CGStartDelay;
+            CrawlEnableBehavior = Engine.CrawlEnableBehavior;
+            StudioMode = Engine.StudioMode;
+            EnableCGElementsForNewEvents = Engine.EnableCGElementsForNewEvents;
+            Instance = Engine.Instance;
+            VideoFormat = Engine.VideoFormat;
+            TimeCorrection = Engine.TimeCorrection;
+            AspectRatioControl = Engine.AspectRatioControl;
+            EngineName = Engine.EngineName;
             IsModified = false;
-            _engine.IsModified = false;
-        }
-
-        private bool CanOpenPluginManager(object obj)
-        {
-            return _pluginsViewModel.HasPlugins;
-        }
-
-        private void OpenPluginManager(object obj)
-        {                                   
-            WindowManager.Current.ShowDialog(_pluginsViewModel);                        
+            Engine.IsModified = false;
         }
 
         private void _manageArchiveDirectories(object obj)
         {
-            using (var vm = new ArchiveDirectoriesViewModel(_engine.ArchiveDirectories))
+            using (var vm = new ArchiveDirectoriesViewModel(Engine.ArchiveDirectories))
             {
                 if (WindowManager.Current.ShowDialog(vm, "Archive") != true)
                     return;
                 ArchiveDirectories = new List<object> { Common.Properties.Resources._none_ };
-                ArchiveDirectories.AddRange(_engine.ArchiveDirectories.Directories);
+                ArchiveDirectories.AddRange(Engine.ArchiveDirectories.Directories);
                 NotifyPropertyChanged(nameof(ArchiveDirectories));
                 ArchiveDirectory = vm.SelectedDirectory;
             }
@@ -109,8 +101,8 @@ namespace TAS.Client.Config.ViewModels.Engines
 
         public Array CrawlEnableBehaviors { get; } = Enum.GetValues(typeof(TCrawlEnableBehavior));
 
-        public Engine Engine => _engine;
-        
+        public Engine Engine { get; }
+
         public string EngineName
         {
             get => _engineName;
@@ -205,37 +197,36 @@ namespace TAS.Client.Config.ViewModels.Engines
             set => SetField(ref _remoteHostListenPort, value);
         }
 
-        public Common.UiCommand CommandManageArchiveDirectories { get; }
-        public UiCommand PluginManagerCommand { get; }        
+        public UiCommand CommandManageArchiveDirectories { get; }
 
         public void Save()
         {
-            _pluginsViewModel.Save();
+            Plugins?.Save();
 
             if (IsModified)
             {
                 var playoutServerChannelPRI = _channelPRI as CasparServerChannel;
-                _engine.IdServerPRI = ((CasparServer)playoutServerChannelPRI?.Owner)?.Id ?? 0;
-                _engine.ServerChannelPRI = playoutServerChannelPRI?.Id ?? 0;
+                Engine.IdServerPRI = ((CasparServer)playoutServerChannelPRI?.Owner)?.Id ?? 0;
+                Engine.ServerChannelPRI = playoutServerChannelPRI?.Id ?? 0;
                 var playoutServerChannelSEC = _channelSEC as CasparServerChannel;
-                _engine.IdServerSEC = ((CasparServer)playoutServerChannelSEC?.Owner)?.Id ?? 0;
-                _engine.ServerChannelSEC = playoutServerChannelSEC?.Id ?? 0;
+                Engine.IdServerSEC = ((CasparServer)playoutServerChannelSEC?.Owner)?.Id ?? 0;
+                Engine.ServerChannelSEC = playoutServerChannelSEC?.Id ?? 0;
                 var playoutServerChannelPRV = _channelPRV as CasparServerChannel;
-                _engine.IdServerPRV = ((CasparServer)playoutServerChannelPRV?.Owner)?.Id ?? 0;
-                _engine.ServerChannelPRV = playoutServerChannelPRV?.Id ?? 0;
-                _engine.Remote = _remoteHostEnabled ? new RemoteHost { ListenPort = RemoteHostListenPort } : null;
-                _engine.IdArchive = (_archiveDirectory as ArchiveDirectory)?.IdArchive ?? 0;                
+                Engine.IdServerPRV = ((CasparServer)playoutServerChannelPRV?.Owner)?.Id ?? 0;
+                Engine.ServerChannelPRV = playoutServerChannelPRV?.Id ?? 0;
+                Engine.Remote = _remoteHostEnabled ? new RemoteHost { ListenPort = RemoteHostListenPort } : null;
+                Engine.IdArchive = (_archiveDirectory as ArchiveDirectory)?.IdArchive ?? 0;                
             }
-            _engine.CGStartDelay = CGStartDelay;
-            _engine.CrawlEnableBehavior = CrawlEnableBehavior;
-            _engine.StudioMode = StudioMode;
-            _engine.EnableCGElementsForNewEvents = EnableCGElementsForNewEvents;
-            _engine.Instance = Instance;
-            _engine.VideoFormat = VideoFormat;
-            _engine.TimeCorrection = TimeCorrection;
-            _engine.AspectRatioControl = AspectRatioControl;
-            _engine.EngineName = EngineName;
-            _engine.IsModified = true;            
+            Engine.CGStartDelay = CGStartDelay;
+            Engine.CrawlEnableBehavior = CrawlEnableBehavior;
+            Engine.StudioMode = StudioMode;
+            Engine.EnableCGElementsForNewEvents = EnableCGElementsForNewEvents;
+            Engine.Instance = Instance;
+            Engine.VideoFormat = VideoFormat;
+            Engine.TimeCorrection = TimeCorrection;
+            Engine.AspectRatioControl = AspectRatioControl;
+            Engine.EngineName = EngineName;
+            Engine.IsModified = true;            
         }               
     }
 }

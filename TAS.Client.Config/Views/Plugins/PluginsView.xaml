@@ -9,21 +9,21 @@
              mc:Ignorable="d"                     
              d:DataContext="{d:DesignInstance vm:PluginsViewModel}"             
              d:DesignHeight="350" d:DesignWidth="400"
-             MinHeight="400">
+             MinWidth="400">
       
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <DataGrid MinWidth="200" MinHeight="350" ItemsSource="{Binding Plugins}" SelectionMode="Single" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectedItem="{Binding SelectedPlugin}">
-            <DataGrid.Columns>
-                <DataGridCheckBoxColumn Binding="{Binding IsEnabled, UpdateSourceTrigger=PropertyChanged}" />
-                <DataGridTextColumn Header="Plugin" MinWidth="170" Binding="{Binding Name}" IsReadOnly="True" />
-            </DataGrid.Columns>
-        </DataGrid>
-
-        <ContentControl Grid.Column="1" Content="{Binding SelectedPlugin}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Label>Plugin type</Label>
+        <ComboBox Grid.Column="1" ItemsSource="{Binding PluginTypes}" SelectedItem="{Binding SelectedPluginType}" 
+                  DisplayMemberPath="Name" VerticalAlignment="Center" HorizontalAlignment="Left" Width="200"/>
+        <ContentControl Grid.Row="1" Grid.ColumnSpan="2" Content="{Binding SelectedPluginType}">
             <ContentControl.Resources>
                 <DataTemplate DataType="{x:Type pluginsVm:CgElementsControllersViewModel}">
                     <pluginsView:CgElementsControllersView />

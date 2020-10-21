@@ -6,9 +6,9 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Margin="5">
+    <Grid >
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="100" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -16,16 +16,9 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Text="CgElementsController Plugins: " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <ComboBox Margin="10,0,0,0" Grid.Column="1" DisplayMemberPath="PluginName" SelectedItem="{Binding SelectedConfigurator}" ItemsSource="{Binding Configurators}" MinWidth="100" HorizontalAlignment="Left" VerticalAlignment="Center" />
-        <Rectangle Grid.Row="1" Grid.ColumnSpan="2" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,10" Fill="Gray" />
-        <ContentControl Grid.Row="2" Grid.ColumnSpan="2" Content="{Binding SelectedConfigurator}">
-            <ContentControl.Resources>
-                <DataTemplate DataType="{x:Type common:ViewModelBase}">
-                    <TextBlock Text="Plugin does not provide any configurator." FontSize="24" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                </DataTemplate>
-            </ContentControl.Resources>
-        </ContentControl>
-
+        <Label>Plugin in use</Label>
+        <ComboBox Grid.Column="1" DisplayMemberPath="PluginName" SelectedItem="{Binding SelectedConfigurator}" ItemsSource="{Binding Configurators}" MinWidth="200" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <Separator Grid.Row="1" Grid.ColumnSpan="2" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5" />
+        <ContentControl Grid.Row="2" Grid.ColumnSpan="2" Content="{Binding SelectedConfigurator}"/>
     </Grid>
 </UserControl>

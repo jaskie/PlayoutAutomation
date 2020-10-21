@@ -91,7 +91,6 @@ namespace TAS.Server.Advantech.Configurator
 
         public void Initialize(object model)
         {
-            WindowManager.Current.AddDataTemplate(typeof(GpiViewModel), typeof(GpiView));
             _gpi = (IGpi)model as Model.Gpi;
             Init();
         }

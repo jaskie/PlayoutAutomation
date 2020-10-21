@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace TAS.Server.CgElementsController.Configurator
 {
     /// <summary>
-    /// Interaction logic for CgElementsControllerPluginManagerView.xaml
+    /// Interaction logic for CgElementsControllerView.xaml
     /// </summary>
-    public partial class CgElementsControllerPluginManagerView : UserControl
+    public partial class CgElementsControllerView : UserControl
     {
-        public CgElementsControllerPluginManagerView()
+        public CgElementsControllerView()
         {
             InitializeComponent();
         }

@@ -105,9 +105,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\IPluginManager.cs" />
     <Compile Include="ViewModels\Plugins\CgElementsControllersViewModel.cs" />
     <Compile Include="ViewModels\Plugins\GpisViewModel.cs" />
+    <Compile Include="ViewModels\Plugins\PluginTypeViewModelBase.cs" />
     <Compile Include="ViewModels\Plugins\VideoSwitchersViewModel.cs" />
     <Compile Include="Views\ConfigFile\ConfigFileView.xaml.cs">
       <DependentUpon>ConfigFileView.xaml</DependentUpon>
@@ -229,7 +229,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj">
-      <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
+      <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
       <Name>jNet.RPC</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Client.Common\TAS.Client.Common.csproj">

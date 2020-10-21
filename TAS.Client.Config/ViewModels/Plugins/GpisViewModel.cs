@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows.Data;
-using TAS.Client.Common;
-using TAS.Client.Config.Model;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {
-    public class GpisViewModel : ViewModelBase, IPluginManager
+    internal class GpisViewModel : PluginTypeViewModelBase
     {
         private IConfigEngine _engine;
-        public event EventHandler PluginChanged;
 
         private List<IPluginConfiguratorViewModel> _configurators = new List<IPluginConfiguratorViewModel>();
         private IPluginConfiguratorViewModel _selectedConfigurator;
@@ -24,21 +19,22 @@ namespace TAS.Client.Config.ViewModels.Plugins
         public GpisViewModel(IConfigEngine engine)
         {
             _engine = engine;
+            Name = "GPI";
 
-            foreach (var plugin in ConfigurationPluginManager.Current.Gpis)
-            {
-                var configuratorVm = plugin.GetConfiguratorViewModel();
-                configuratorVm.PluginChanged += PluginConfigurator_PluginChanged;
-                configuratorVm.Initialize(_engine.Gpis?.FirstOrDefault(g => g?.GetType() == configuratorVm.GetModel().GetType()));
-                _configurators.Add(configuratorVm);
-            }
+            //foreach (var plugin in ConfigurationPluginManager.Current.Gpis)
+            //{
+            //    var configuratorVm = plugin.GetConfiguratorViewModel();
+            //    configuratorVm.PluginChanged += PluginConfigurator_PluginChanged;
+            //    configuratorVm.Initialize(_engine.Gpis?.FirstOrDefault(g => g?.GetType() == configuratorVm.GetModel().GetType()));
+            //    _configurators.Add(configuratorVm);
+            //}
 
             Configurators = CollectionViewSource.GetDefaultView(_configurators);             
         }
 
         private void PluginConfigurator_PluginChanged(object sender, EventArgs e)
-        {            
-            PluginChanged?.Invoke(this, EventArgs.Empty);
+        {
+            RaisePluginChanged();
         }
 
         public void Save()
@@ -48,9 +44,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
         }
 
         public ICollectionView Configurators { get; }
-        public string Name => "GPI";
-        public List<IGpi> Gpis => _configurators.Select(c => c.GetModel()).Cast<IGpi>().ToList();
-
+        
         public IPluginConfiguratorViewModel SelectedConfigurator
         {
             get => _selectedConfigurator;

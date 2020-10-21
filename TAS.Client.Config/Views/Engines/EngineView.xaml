@@ -4,7 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
              xmlns:vm="clr-namespace:TAS.Client.Config.ViewModels.Engines"
-             d:DataContext="{d:DesignInstance vm:EngineViewModel}"
+             xmlns:plugins="clr-namespace:TAS.Client.Config.ViewModels.Plugins"
+             xmlns:pluginsView="clr-namespace:TAS.Client.Config.Views.Plugins"
+             d:DataContext="{d:DesignInstance {x:Type vm:EngineViewModel}}"
              mc:Ignorable="d" 
              >
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
@@ -24,7 +26,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-            <StackPanel MinHeight="480" MinWidth="250" Margin="0, 0, 0, 5">
+            <StackPanel Grid.Column="0" MinHeight="480" MinWidth="250" Margin="0, 0, 0, 5">
                 <Label Content="Engine name"/>
                 <TextBox Text="{Binding EngineName, UpdateSourceTrigger=PropertyChanged}"/>
                 <Label Content="Video format"/>
@@ -75,15 +77,14 @@
                         </StackPanel>
                     </StackPanel>
                 </Expander>
-                <Separator />
-                <Button VerticalAlignment="Center" HorizontalAlignment="Right" Padding="5,2,5,2" Margin="5" Command="{Binding PluginManagerCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/TAS.Client.Common;component/Images/Config/plugins_config.png" Width="25" />
-                        <Label Content="Plugins" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
             </StackPanel>
+            <ContentControl Grid.Column="1" Content="{Binding Plugins}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type plugins:PluginsViewModel}">
+                        <pluginsView:PluginsView/>
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
         </Grid>
-        
     </ScrollViewer>
 </UserControl>

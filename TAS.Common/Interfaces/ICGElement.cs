@@ -6,7 +6,6 @@ namespace TAS.Common.Interfaces
     {
         byte Id { get; }
         string Name { get; }        
-        string ImageFile { get; }
         Bitmap Image { get; }
     }
 }
