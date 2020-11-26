@@ -93,7 +93,7 @@ namespace TAS.Server
         }
 
         public bool Load(Event aEvent)
-        {            
+        {
             var channel = _casparChannel;
             if (aEvent != null && CheckConnected(channel))
             {
@@ -117,7 +117,7 @@ namespace TAS.Server
             return false;
         }
 
-        
+
 
         public bool Load(MediaBase media, VideoLayer videolayer, long seek, long duration)
         {
@@ -181,7 +181,7 @@ namespace TAS.Server
                 return false;
             var channel = _casparChannel;
             var item = new CasparItem((int)layer, LiveDevice);
-            channel?.LoadBG(item);            
+            channel?.LoadBG(item);
             return Play(layer); ;
         }
 
@@ -437,7 +437,7 @@ namespace TAS.Server
             Match match = RegexMixerFill.Match(command);
             if (match.Success)
             {
-                VideoLayer layer = (VideoLayer) Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
                 float x = float.Parse(match.Groups["x"].Value, CultureInfo.InvariantCulture);
                 float y = float.Parse(match.Groups["y"].Value, CultureInfo.InvariantCulture);
                 float sx = float.Parse(match.Groups["sx"].Value, CultureInfo.InvariantCulture);
@@ -446,15 +446,15 @@ namespace TAS.Server
                     ? 0
                     : int.Parse(match.Groups["duration"].Value);
                 TEasing easing = match.Groups["easing"].Success
-                    ? (TEasing) Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true)
+                    ? (TEasing)Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true)
                     : TEasing.Linear;
-                channel.Fill((int) layer, x, y, sx, sy, duration, (Easing) easing);
+                channel.Fill((int)layer, x, y, sx, sy, duration, (Easing)easing);
                 return true;
             }
             match = RegexMixerClip.Match(command);
             if (match.Success)
             {
-                VideoLayer layer = (VideoLayer) Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
                 float x = float.Parse(match.Groups["x"].Value, CultureInfo.InvariantCulture);
                 float y = float.Parse(match.Groups["y"].Value, CultureInfo.InvariantCulture);
                 float sx = float.Parse(match.Groups["sx"].Value, CultureInfo.InvariantCulture);
@@ -463,22 +463,22 @@ namespace TAS.Server
                     ? 0
                     : int.Parse(match.Groups["duration"].Value);
                 TEasing easing = match.Groups["easing"].Success
-                    ? (TEasing) Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true)
+                    ? (TEasing)Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true)
                     : TEasing.Linear;
-                channel.Clip((int) layer, x, y, sx, sy, duration, (Easing) easing);
+                channel.Clip((int)layer, x, y, sx, sy, duration, (Easing)easing);
                 return true;
             }
             match = RegexMixerClear.Match(command);
             if (match.Success)
             {
-                VideoLayer layer = (VideoLayer) Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
-                channel.ClearMixer((int) layer);
+                VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                channel.ClearMixer((int)layer);
                 return true;
             }
             match = RegexPlay.Match(command);
             if (match.Success)
             {
-                VideoLayer layer = (VideoLayer) Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
                 string file = match.Groups["file"].Value;
                 channel.Play((int)layer, file, false);
                 return true;
@@ -494,12 +494,12 @@ namespace TAS.Server
             match = RegexCg.Match(command);
             if (match.Success)
             {
-                VideoLayer layer = (VideoLayer) Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
                 if (Enum.TryParse(match.Groups["method"].Value, true, out TemplateMethod methodEnum))
                 {
                     if (methodEnum == TemplateMethod.Clear)
                     {
-                        channel.CG.Clear((int) layer);
+                        channel.CG.Clear((int)layer);
                         return true;
                     }
                     var matchWithCgLayer = RegexCgWithLayer.Match(command);
@@ -508,16 +508,16 @@ namespace TAS.Server
                     switch (methodEnum)
                     {
                         case TemplateMethod.Play:
-                            channel.CG.Play((int) layer, cgLayer);
+                            channel.CG.Play((int)layer, cgLayer);
                             return true;
                         case TemplateMethod.Next:
-                            channel.CG.Next((int) layer, cgLayer);
+                            channel.CG.Next((int)layer, cgLayer);
                             return true;
                         case TemplateMethod.Stop:
-                            channel.CG.Stop((int) layer, cgLayer);
+                            channel.CG.Stop((int)layer, cgLayer);
                             return true;
                         case TemplateMethod.Remove:
-                            channel.CG.Remove((int) layer, cgLayer);
+                            channel.CG.Remove((int)layer, cgLayer);
                             return true;
                         case TemplateMethod.Add:
                             var matchAdd = RegexCgAdd.Match(command);
@@ -527,7 +527,7 @@ namespace TAS.Server
                             if (string.IsNullOrWhiteSpace(file))
                                 return false;
                             int.TryParse(matchAdd.Groups["play_on_load"].Value, out var playOnLoadAsInt);
-                            channel.CG.Add((int) layer, cgLayer, file, playOnLoadAsInt == 1,
+                            channel.CG.Add((int)layer, cgLayer, file, playOnLoadAsInt == 1,
                                 matchAdd.Groups["data"].Value);
                             return true;
                         case TemplateMethod.Invoke:
@@ -537,7 +537,7 @@ namespace TAS.Server
                             var cgMethod = matchInvoke.Groups["cg_method"].Value;
                             if (string.IsNullOrWhiteSpace(cgMethod))
                                 return false;
-                            channel.CG.Invoke((int) layer, cgLayer, cgMethod);
+                            channel.CG.Invoke((int)layer, cgLayer, cgMethod);
                             return true;
                         case TemplateMethod.Update:
                             var matchUpdate = RegexCgUpdate.Match(command);
@@ -546,7 +546,7 @@ namespace TAS.Server
                             var data = matchUpdate.Groups["data"].Value;
                             if (string.IsNullOrWhiteSpace(data))
                                 return false;
-                            channel.CG.Update((int) layer, cgLayer, data);
+                            channel.CG.Update((int)layer, cgLayer, data);
                             return true;
                     }
                 }
@@ -557,7 +557,7 @@ namespace TAS.Server
         #endregion //IPlayoutServerChannel
 
         internal CasparServer Owner { get; set; }
-        
+
         internal void AssignCasparChannel(Channel casparChannel)
         {
             if (casparChannel == null)
@@ -583,7 +583,7 @@ namespace TAS.Server
         {
             if (sender == _casparChannel)
             {
-                var values = e.AudioData.dBFS.Where(f => f.HasValue).Select(f=> f.Value).ToArray();
+                var values = e.AudioData.dBFS.Where(f => f.HasValue).Select(f => f.Value).ToArray();
                 if (values.Any())
                     AudioLevel = (int)values.Average();
             }
@@ -598,7 +598,7 @@ namespace TAS.Server
         }
 
         public event EventHandler<VolumeChangedEventArgs> VolumeChanged;
-        
+
         private CasparItem _getItem(Event aEvent)
         {
             if (aEvent.EventType == TEventType.Live && string.IsNullOrWhiteSpace(LiveDevice))
@@ -609,7 +609,7 @@ namespace TAS.Server
             var item = new CasparItem(string.Empty);
             if (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
             {
-                if (!string.IsNullOrWhiteSpace(media.Folder) && ((ServerDirectory) media.Directory).IsRecursive)
+                if (!string.IsNullOrWhiteSpace(media.Folder) && ((ServerDirectory)media.Directory).IsRecursive)
                     item.Clipname = $"\"{Path.Combine(media.Folder, media.FileName)}\"";
                 else
                     item.Clipname = $"\"{Path.GetFileNameWithoutExtension(media.FileName)}\"";
@@ -617,19 +617,20 @@ namespace TAS.Server
             if (aEvent.EventType == TEventType.Live)
                 item.Clipname = LiveDevice;
             if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie)
-                item.ChannelLayout = ChannelLayout.Stereo;
+                item.ChannelLayout = GetAudioChannelLayout();
             if (aEvent.EventType == TEventType.Movie)
                 item.FieldOrderInverted = media.FieldOrderInverted;
             item.VideoLayer = (int)aEvent.Layer;
             item.Loop = false;
-                
+
             item.Transition.Type = (TransitionType)aEvent.TransitionType;
             item.Transition.Duration = (int)((aEvent.TransitionTime.Ticks - aEvent.TransitionPauseTime.Ticks) / aEvent.Engine.FrameTicks);
             item.Transition.Pause = (int)(aEvent.TransitionPauseTime.Ticks / aEvent.Engine.FrameTicks);
-            item.Transition.Easing = (Easing)aEvent.TransitionEasing; 
+            item.Transition.Easing = (Easing)aEvent.TransitionEasing;
             item.Seek = (int)aEvent.MediaSeek;
             return item;
         }
+
 
         private CasparItem _getItem(MediaBase media, VideoLayer videolayer, long seek)
         {
@@ -638,7 +639,7 @@ namespace TAS.Server
                 return new CasparItem(string.Empty)
                 {
                     Clipname = $"\"{(media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath)}\"",
-                    ChannelLayout = ChannelLayout.Stereo,
+                    ChannelLayout = GetAudioChannelLayout(),
                     VideoLayer = (int) videolayer,
                     Seek = (int) seek,
                     FieldOrderInverted = media.FieldOrderInverted
@@ -653,7 +654,7 @@ namespace TAS.Server
                 return new CasparItem(string.Empty)
                 {
                     Clipname =$"\"{(media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath)}\"",
-                    ChannelLayout = ChannelLayout.Stereo,
+                    ChannelLayout = GetAudioChannelLayout(),
                     VideoLayer = (int) videolayer
                 };
             return null;
@@ -713,6 +714,19 @@ namespace TAS.Server
                     return TVideoFormat.HD2160p5000;
                 default:
                     return TVideoFormat.Other;
+            }
+        }
+
+        private ChannelLayout GetAudioChannelLayout()
+        {
+            switch (AudioChannelCount)
+            {
+                case 1:
+                    return ChannelLayout.Mono;
+                case 2:
+                    return ChannelLayout.Stereo;
+                default:
+                    return ChannelLayout.Passthru;
             }
         }
 
