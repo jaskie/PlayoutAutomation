@@ -54,6 +54,7 @@ namespace TAS.Common.Interfaces
         IMediaProperties DestProperties { get; set; }
         TAspectConversion AspectConversion { get; set; }
         TAudioChannelMappingConversion AudioChannelMappingConversion { get; set; }
+        TAudioChannelMappingConversion AudiodescriptionChannelMappingConversion { get; set; }
         TFieldOrder SourceFieldOrderEnforceConversion { get; set; }
         double AudioVolume { get; set; }
         bool Trim { get; set; }

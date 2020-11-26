@@ -98,13 +98,15 @@
                     <ComboBox ItemsSource="{Binding SourceFieldOrderEnforceConversions}"  SelectedItem="{Binding SourceFieldOrderEnforceConversion}" />
                 </StackPanel>
                 <StackPanel Visibility="{Binding EncodeAudio, Converter={StaticResource BoolToVis}}">
-                <Label Content="{Resx _audioChannelMix}" />
+                    <Label Content="{Resx _audioChannelMix}" />
                     <ComboBox ItemsSource="{Binding AudioChannelMappingConversions}" SelectedItem="{Binding AudioChannelMappingConversion}" />
                     <Label Content="{Resx _audioLevelCorrection}" />
                     <DockPanel>
                         <TextBox Margin="0, 4" MinWidth="45" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
                         <Slider Margin="2" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
                     </DockPanel>
+                    <Label Content="{Resx _audiodescription}"/>
+                    <ComboBox ItemsSource="{Binding AudiodescriptionChannelMappingConversions}" SelectedItem="{Binding AudiodescriptionChannelMappingConversion}" />
                 </StackPanel>
                 <StackPanel Visibility="{Binding EncodeVideo, Converter={StaticResource InvertedBoolToVis}}">
                     <Label Content="{Resx _aspectCorrection}" />

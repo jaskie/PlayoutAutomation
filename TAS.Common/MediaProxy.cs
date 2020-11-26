@@ -9,6 +9,7 @@ namespace TAS.Common
         public double AudioLevelIntegrated { get; set; }
         public double AudioLevelPeak { get; set; }
         public double AudioVolume { get; set; }
+        public bool HaveAudiodescription { get; set; }
         public TimeSpan Duration { get; set; }
         public TimeSpan DurationPlay { get; set; }
         public string FileName { get; set; }

@@ -465,4 +465,7 @@
   <data name="TAudioChannelMappingConversion_ThirdTwoChannels" xml:space="preserve">
     <value>Ścieżki 5 i 6 -&gt; Stereo</value>
   </data>
+  <data name="TAudioChannelMappingConversion_None" xml:space="preserve">
+    <value>Brak</value>
+  </data>
 </root>

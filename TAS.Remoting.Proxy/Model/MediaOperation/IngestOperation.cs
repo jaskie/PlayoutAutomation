@@ -28,6 +28,9 @@ namespace TAS.Remoting.Model.MediaOperation
         [DtoMember(nameof(IIngestOperation.AudioChannelMappingConversion))]
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
 
+        [DtoMember(nameof(IIngestOperation.AudiodescriptionChannelMappingConversion))]
+        private TAudioChannelMappingConversion _audiodescriptionChannelMappingConversion;
+
         [DtoMember(nameof(IIngestOperation.AudioVolume))]
         private double _audioVolume;
 
@@ -45,7 +48,7 @@ namespace TAS.Remoting.Model.MediaOperation
 
         [DtoMember(nameof(IIngestOperation.LoudnessCheck))]
         private bool _loudnessCheck;
-        
+
 
 #pragma warning restore
 
@@ -58,6 +61,8 @@ namespace TAS.Remoting.Model.MediaOperation
         public TAspectConversion AspectConversion { get => _aspectConversion; set => Set(value); }
 
         public TAudioChannelMappingConversion AudioChannelMappingConversion { get => _audioChannelMappingConversion; set => Set(value); }
+
+        public TAudioChannelMappingConversion AudiodescriptionChannelMappingConversion { get => _audiodescriptionChannelMappingConversion; set => Set(value); }
 
         public double AudioVolume { get => _audioVolume; set => Set(value); }
 

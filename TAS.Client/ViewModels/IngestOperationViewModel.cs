@@ -17,10 +17,9 @@ namespace TAS.Client.ViewModels
     public class IngestOperationViewModel : FileOperationViewmodel, IDataErrorInfo, IUiPreviewProvider
     {
         private readonly IIngestOperation _operation;
-        private readonly IEngine _engine;
-
         private TAspectConversion _aspectConversion;
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
+        private TAudioChannelMappingConversion _audiodescriptionChannelMappingConversion;
         private double _audioVolume;
         private TFieldOrder _sourceFieldOrderEnforceConversion;
         private bool _loudnessCheck;
@@ -34,12 +33,13 @@ namespace TAS.Client.ViewModels
         private TMediaEmphasis _destMediaEmphasis;
         private TVideoFormat _destMediaVideoFormat;
         private DateTime? _killDate;
+        private PreviewViewmodel _preview;
 
         public IngestOperationViewModel(IIngestOperation operation, IEngine engine)
             : base(operation, engine.MediaManager)
         {
             _operation = operation;
-            _engine = engine;
+            Engine = engine;
             _destMediaVideoFormat = operation.Source.VideoFormat;
             DestMediaName = FileUtils.GetFileNameWithoutExtension(operation.Source.MediaName, operation.Source.MediaType);
             _duration = operation.Source.Duration;
@@ -48,6 +48,7 @@ namespace TAS.Client.ViewModels
             IsMovie = operation.Source.MediaType == TMediaType.Unknown || operation.Source.MediaType == TMediaType.Movie;
             IsStill = operation.Source.MediaType == TMediaType.Still;
             _audioChannelMappingConversion = operation.AudioChannelMappingConversion;
+            _audiodescriptionChannelMappingConversion = operation.AudiodescriptionChannelMappingConversion;
             _aspectConversion = operation.AspectConversion;
             _audioVolume = operation.AudioVolume;
             _sourceFieldOrderEnforceConversion = operation.SourceFieldOrderEnforceConversion;
@@ -67,7 +68,7 @@ namespace TAS.Client.ViewModels
         public Array Categories { get; } = Enum.GetValues(typeof(TMediaCategory));
         public TMediaCategory DestCategory { get => _destCategory; set => SetField(ref _destCategory, value); }
 
-        public IEnumerable<ICGElement> Parentals => _engine?.CGElementsController?.Parentals;
+        public IEnumerable<ICGElement> Parentals => Engine?.CGElementsController?.Parentals;
 
         public byte DestParental { get => _destParental; set => SetField(ref _destParental, value); }
 
@@ -80,11 +81,20 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _aspectConversion, value);
         }
 
-        public Array AudioChannelMappingConversions { get; } = Enum.GetValues(typeof(TAudioChannelMappingConversion));
+        public static TAudioChannelMappingConversion[] AudioChannelMappingConversions { get; } = Enum.GetValues(typeof(TAudioChannelMappingConversion)).Cast<TAudioChannelMappingConversion>().Where(a => a != TAudioChannelMappingConversion.None).ToArray();
+
         public TAudioChannelMappingConversion AudioChannelMappingConversion
         {
             get => _audioChannelMappingConversion;
             set => SetField(ref _audioChannelMappingConversion, value);
+        }
+
+        public static TAudioChannelMappingConversion[] AudiodescriptionChannelMappingConversions { get; } = Enum.GetValues(typeof(TAudioChannelMappingConversion)).Cast<TAudioChannelMappingConversion>().Where(a => a != TAudioChannelMappingConversion.Default).ToArray();
+
+        public TAudioChannelMappingConversion AudiodescriptionChannelMappingConversion 
+        { 
+            get => _audiodescriptionChannelMappingConversion; 
+            set => SetField(ref _audiodescriptionChannelMappingConversion, value); 
         }
 
         public double AudioVolume
@@ -110,7 +120,7 @@ namespace TAS.Client.ViewModels
             set => _operation.Trim = value;
         }
 
-        public string SourceFileName => $"{_operation.Source.Directory.GetDisplayName(_engine.MediaManager)}:{_operation.Source.MediaName}";
+        public string SourceFileName => $"{_operation.Source.Directory.GetDisplayName(Engine.MediaManager)}:{_operation.Source.MediaName}";
 
         public string DestMediaName
         {
@@ -141,7 +151,7 @@ namespace TAS.Client.ViewModels
             get => _killDate;
             set
             {
-                if(!SetField(ref _killDate, value))
+                if (!SetField(ref _killDate, value))
                     return;
                 NotifyPropertyChanged(nameof(IsKillDate));
             }
@@ -224,11 +234,9 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _destMediaVideoFormat, value);
         }
 
-        public bool ShowParentalCombo => _engine?.CGElementsController?.Parentals != null;
+        public bool ShowParentalCombo => Engine?.CGElementsController?.Parentals != null;
 
         public bool CanTrim => EncodeVideo && EncodeAudio && _operation.Source.MediaStatus == TMediaStatus.Available && _operation.Source.Duration > TimeSpan.Zero;
-
-        private PreviewViewmodel _preview;
 
         public bool CanPreview => (_preview != null && ((IIngestDirectory)_operation.Source.Directory).AccessType == TDirectoryAccessType.Direct);
 
@@ -252,6 +260,7 @@ namespace TAS.Client.ViewModels
             _operation.Duration = Duration;
             _operation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
             _operation.AudioChannelMappingConversion = _audioChannelMappingConversion;
+            _operation.AudiodescriptionChannelMappingConversion = _audiodescriptionChannelMappingConversion;
             _operation.AspectConversion = _aspectConversion;
             _operation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
             _operation.DestProperties = new PersistentMediaProxy
@@ -285,13 +294,13 @@ namespace TAS.Client.ViewModels
                     case nameof(DestMediaName):
                         if (string.IsNullOrEmpty(DestMediaName))
                             return null;
-                        if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.MediaName), out var mnLength) && DestMediaName.Length > mnLength)
+                        if (Engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.MediaName), out var mnLength) && DestMediaName.Length > mnLength)
                             return resources._validate_TextTooLong;
                         break;
                     case nameof(IdAux):
                         if (string.IsNullOrEmpty(IdAux))
                             return null;
-                        if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.IdAux), out var iaLength) && IdAux.Length > iaLength)
+                        if (Engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.IdAux), out var iaLength) && IdAux.Length > iaLength)
                             return resources._validate_TextTooLong;
                         break;
                 }
@@ -303,7 +312,7 @@ namespace TAS.Client.ViewModels
 
         public IUiPreview Preview => _preview;
 
-        public IEngine Engine => _engine;
+        public IEngine Engine { get; }
 
         // utilities
 
@@ -391,7 +400,7 @@ namespace TAS.Client.ViewModels
                 return resources._validate_FileNameCanNotStartOrEndWithSpace;
             if (DestFileName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
                 return resources._validate_FileNameCanNotContainSpecialCharacters;
-            if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.FileName), out var length) && DestFileName.Length > length)
+            if (Engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.FileName), out var length) && DestFileName.Length > length)
                 return resources._validate_TextTooLong;
             var newName = DestFileName.ToLowerInvariant();
             if (dir.FileExists(newName))

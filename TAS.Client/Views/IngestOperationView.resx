@@ -123,6 +123,9 @@
   <data name="_audioChannelMix" xml:space="preserve">
     <value>Audio channels mix</value>
   </data>
+  <data name="_audiodescription" xml:space="preserve">
+    <value>Audiodescription</value>
+  </data>
   <data name="_audioLevelCorrection" xml:space="preserve">
     <value>Audio level correction</value>
   </data>

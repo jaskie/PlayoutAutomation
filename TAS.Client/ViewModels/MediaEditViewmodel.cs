@@ -14,7 +14,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditViewmodel: EditViewmodelBase<IMedia>, IDataErrorInfo
+    public class MediaEditViewmodel : EditViewmodelBase<IMedia>, IDataErrorInfo
     {
         private readonly IMediaManager _mediaManager;
 
@@ -32,6 +32,7 @@ namespace TAS.Client.ViewModels
         private bool _fieldOrderInverted;
         private TAudioChannelMapping _audioChannelMapping;
         private double _audioVolume;
+        private bool _haveAudiodescription;
         private string _mediaName;
         private TMediaEmphasis _mediaEmphasis;
         private DateTime? _killDate;
@@ -79,7 +80,7 @@ namespace TAS.Client.ViewModels
         {
             return IsModified && IsValid && Model.MediaStatus == TMediaStatus.Available;
         }
-        
+
         public bool IsVolumeChecking
         {
             get => _isVolumeChecking;
@@ -103,7 +104,7 @@ namespace TAS.Client.ViewModels
         }
 
         [IgnoreOnUpdate]
-        public string FileName 
+        public string FileName
         {
             get => _fileName;
             set
@@ -154,7 +155,7 @@ namespace TAS.Client.ViewModels
             get => _tcPlay;
             set => SetField(ref _tcPlay, value);
         }
-        
+
         public Array VideoFormats { get; } = Enum.GetValues(typeof(TVideoFormat));
 
         public TVideoFormat VideoFormat
@@ -187,6 +188,12 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _audioVolume, value);
         }
 
+        public bool HaveAudiodescription
+        {
+            get => _haveAudiodescription; 
+            set => SetField(ref _haveAudiodescription, value);
+        }
+
         public string MediaName
         {
             get => _mediaName;
@@ -199,7 +206,7 @@ namespace TAS.Client.ViewModels
             get => _mediaEmphasis;
             set => SetField(ref _mediaEmphasis, value);
         }
-        
+
         public DateTime? KillDate
         {
             get => _killDate;
@@ -237,14 +244,14 @@ namespace TAS.Client.ViewModels
         public TMediaStatus MediaStatus => Model.MediaStatus;
 
         public Guid MediaGuid => Model.MediaGuid;
-        
+
         public bool DoNotArchive
         {
             get => _doNotArchive;
             set => SetField(ref _doNotArchive, value);
         }
 
-        public bool ShowParentalCombo => _mediaManager?.CGElementsController?.Parentals!= null;
+        public bool ShowParentalCombo => _mediaManager?.CGElementsController?.Parentals != null;
 
         public IEnumerable<ICGElement> Parentals => _mediaManager?.CGElementsController?.Parentals;
 
@@ -292,7 +299,7 @@ namespace TAS.Client.ViewModels
         }
 
         public string Error => string.Empty;
-        
+
         public string this[string propertyName]
         {
             get
@@ -343,9 +350,9 @@ namespace TAS.Client.ViewModels
 
         private string _validateMediaName()
         {
-            if (Model is IPersistentMedia pm 
+            if (Model is IPersistentMedia pm
                 && MediaName != null
-                && pm.FieldLengths.TryGetValue(nameof(IMedia.MediaName), out var mnLength) 
+                && pm.FieldLengths.TryGetValue(nameof(IMedia.MediaName), out var mnLength)
                 && MediaName.Length > mnLength)
                 return resources._validate_TextTooLong;
             return null;
@@ -389,7 +396,7 @@ namespace TAS.Client.ViewModels
         {
             return DurationPlay + TcPlay > Duration + TcStart ? resources._validate_DurationInvalid : null;
         }
-        
+
         #region Command methods
 
 
@@ -400,6 +407,7 @@ namespace TAS.Client.ViewModels
         }
 
         private AutoResetEvent _checkVolumeSignal;
+
         private void _checkVolume(object o)
         {
             if (_isVolumeChecking)

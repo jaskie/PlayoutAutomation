@@ -1171,6 +1171,7 @@ VALUES
                         | ((uint)media.MediaCategory << 4) // bits 4-7 of 1st byte
                         | ((uint)media.MediaEmphasis << 8) // bits 1-3 of second byte
                         | ((uint)media.Parental << 12) // bits 4-7 of second byte
+                        | (media.HaveAudiodescription ? 1 << 16 : (uint)0x0) // first bit of third byte
                         ;
             cmd.Parameters.AddWithValue("@flags", flags);
             if (media is IServerMedia && media.Directory is IServerDirectory)
@@ -1265,6 +1266,7 @@ VALUES
                 media.IsProtected = (flags & 0x2) != 0;
                 media.FieldOrderInverted = (flags & 0x4) != 0;
                 media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
+                media.HaveAudiodescription = (flags & (1 << 16)) != 0; // first bit of third byte
                 if (media is ITemplated templated)
                 {
                     var templateFields = dataReader.GetString("Fields");

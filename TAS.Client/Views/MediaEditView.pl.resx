@@ -162,6 +162,9 @@
   <data name="_fileName" xml:space="preserve">
     <value>Plik</value>
   </data>
+  <data name="_haveAudiodescription" xml:space="preserve">
+    <value>Zawiera ścieżkę audiodeskrypcji</value>
+  </data>
   <data name="_ingestTime" xml:space="preserve">
     <value>Data i czas ingestu</value>
   </data>

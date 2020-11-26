@@ -358,6 +358,15 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to None.
+        /// </summary>
+        public static string TAudioChannelMappingConversion_None {
+            get {
+                return ResourceManager.GetString("TAudioChannelMappingConversion_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Track 2 -&gt; Mono.
         /// </summary>
         public static string TAudioChannelMappingConversion_SecondChannelOnly {

@@ -179,6 +179,7 @@ namespace TAS.Common
     public enum TAudioChannelMappingConversion : byte
     {
         Default,
+        None,
         FirstTwoChannels,
         SecondTwoChannels,
         ThirdTwoChannels,

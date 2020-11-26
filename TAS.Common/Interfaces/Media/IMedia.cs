@@ -21,6 +21,7 @@ namespace TAS.Common.Interfaces.Media
         double AudioLevelIntegrated { get; set; }
         double AudioLevelPeak { get; set; }
         double AudioVolume { get; set; }
+        bool HaveAudiodescription { get; set; }
         TimeSpan Duration { get; set; }
         TimeSpan DurationPlay { get; set; }
         string FileName { get; }

@@ -123,6 +123,9 @@
   <data name="_audioChannelMix" xml:space="preserve">
     <value>Miks dźwięku</value>
   </data>
+  <data name="_audiodescription" xml:space="preserve">
+    <value>Audiodeskrypcja</value>
+  </data>
   <data name="_audioLevelCorrection" xml:space="preserve">
     <value>Korekta poziomu dźwięku</value>
   </data>

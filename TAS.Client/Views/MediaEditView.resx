@@ -162,6 +162,9 @@
   <data name="_fileName" xml:space="preserve">
     <value>File name</value>
   </data>
+  <data name="_haveAudiodescription" xml:space="preserve">
+    <value>Have audiodescription track</value>
+  </data>
   <data name="_ingestTime" xml:space="preserve">
     <value>Ingest date/time</value>
   </data>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TAS.Common
 {
-    public sealed class MediaConversion 
+    public sealed class MediaConversion
     {
         public readonly Enum Conversion;
         public readonly Enum OutputFormat;
@@ -37,12 +37,39 @@ namespace TAS.Common
             }
         }
 
+        public int GetRequiredInputChannels(int totalChannels)
+        {
+            if (!(Conversion is TAudioChannelMappingConversion))
+                return 0;
+            switch ((TAudioChannelMappingConversion)Conversion)
+            {
+                case TAudioChannelMappingConversion.FirstTwoChannels:
+                case TAudioChannelMappingConversion.SecondChannelOnly:
+                case TAudioChannelMappingConversion.Combine1Plus2:
+                    return 2;
+                case TAudioChannelMappingConversion.SecondTwoChannels:
+                case TAudioChannelMappingConversion.Combine3Plus4:
+                    return 4;
+                case TAudioChannelMappingConversion.FirstChannelOnly:
+                    return 1;
+                case TAudioChannelMappingConversion.ThirdTwoChannels:
+                    return 6;
+                case TAudioChannelMappingConversion.FourthTwoChannels:
+                    return 8;
+                case TAudioChannelMappingConversion.MergeAllChannels:
+                    return totalChannels;
+                default:
+                    return 0;
+            }
+        }
+
         private MediaConversion(TAudioChannelMappingConversion type)
         {
             Conversion = type;
             switch (type)
             {
                 case TAudioChannelMappingConversion.Default:
+                case TAudioChannelMappingConversion.None:
                     OutputFormat = TAudioChannelMapping.Unknown;
                     break;
                 case TAudioChannelMappingConversion.FirstTwoChannels:
@@ -124,6 +151,7 @@ namespace TAS.Common
         public static Dictionary<TAudioChannelMappingConversion, MediaConversion> AudioChannelMapingConversions = new Dictionary<TAudioChannelMappingConversion, MediaConversion>()
         {
             {TAudioChannelMappingConversion.Default, new MediaConversion(TAudioChannelMappingConversion.Default)},
+            {TAudioChannelMappingConversion.None, new MediaConversion(TAudioChannelMappingConversion.None) },
             {TAudioChannelMappingConversion.FirstTwoChannels, new MediaConversion(TAudioChannelMappingConversion.FirstTwoChannels)},
             {TAudioChannelMappingConversion.SecondTwoChannels, new MediaConversion(TAudioChannelMappingConversion.SecondTwoChannels)},
             {TAudioChannelMappingConversion.ThirdTwoChannels, new MediaConversion(TAudioChannelMappingConversion.ThirdTwoChannels)},

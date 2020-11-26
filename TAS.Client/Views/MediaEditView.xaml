@@ -145,6 +145,11 @@
                             <Label Content="{Resx _parental}" />
                             <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValue="{Binding Parental}" SelectedValuePath="Id" />
                         </DockPanel>
+                        
+                        <DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
+                            <CheckBox IsChecked="{Binding HaveAudiodescription}" Content="{Resx _haveAudiodescription}" VerticalAlignment="Center"/>
+                        </DockPanel>
+                        
                         <DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
                             <CheckBox IsChecked="{Binding IsKillDate}" Content="{Resx _killDate}" VerticalAlignment="Center"/>
                             <DatePicker IsEnabled="{Binding IsKillDate}" Margin="10, 3, 0, 3" SelectedDate="{Binding KillDate}" SelectedDateFormat="Short" />
