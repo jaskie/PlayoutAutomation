@@ -583,7 +583,10 @@ namespace TAS.Server
         {
             if (sender == _casparChannel)
             {
-                var values = e.AudioData.dBFS.Where(f => f.HasValue).Select(f => f.Value).ToArray();
+                var values = e.AudioData.dBFS
+                    .Take(2) // display audio level of first two channels only
+                    .Where(f => f.HasValue)
+                    .Select(f => f.Value).ToArray();
                 if (values.Any())
                     AudioLevel = (int)values.Average();
             }
