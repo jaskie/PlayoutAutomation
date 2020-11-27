@@ -349,7 +349,7 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Merge all channels.
+        ///   Looks up a localized string similar to Get all channels.
         /// </summary>
         public static string TAudioChannelMappingConversion_MergeAllChannels {
             get {
