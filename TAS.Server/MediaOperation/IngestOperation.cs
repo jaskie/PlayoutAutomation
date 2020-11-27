@@ -290,9 +290,19 @@ namespace TAS.Server.MediaOperation
                 ep.AppendFormat(" -c:a {0}", sourceDir.AudioCodec);
                 if (sourceDir.AudioCodec != TAudioCodec.copy)
                 {
-                    ep.AppendFormat(" -b:a {0}k", (int)(2 * 128 * sourceDir.AudioBitrateRatio));
                     var audioChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
-                    //                    int inputTotalChannels = audioStreams.Sum(s => s.ChannelCount);
+                    int outputChannelCount;
+                    switch ((TAudioChannelMappingConversion)audioChannelMappingConversion.Conversion)
+                    {
+                        case TAudioChannelMappingConversion.MergeAllChannels:
+                            outputChannelCount = audioStreams.Sum(s => s.ChannelCount);
+                            break;
+                        default:
+                            outputChannelCount = 2;
+                            break;
+                    }
+
+                    ep.AppendFormat(" -b:a {0}k", (int)(outputChannelCount * 128 * sourceDir.AudioBitrateRatio));
                     int requiredOutputChannels;
                     switch ((TAudioChannelMappingConversion)audioChannelMappingConversion.Conversion)
                     {
@@ -333,13 +343,7 @@ namespace TAS.Server.MediaOperation
                         audioFilters.Add($"{pf}amerge=inputs={audioStreams.Length}");
                     }
                     AddConversion(audioChannelMappingConversion, audioFilters);
-                    switch (audioChannelMappingConversion.Conversion)
-                    {
-                        case TAudioChannelMapping.Mono:
-                        case TAudioChannelMapping.Stereo:
-                            ep.Append(" -ac 2");
-                            break;
-                    }
+                    ep.AppendFormat(" -ac {0}", outputChannelCount);
                     if (Math.Abs(AudioVolume) > double.Epsilon)
                         AddConversion(new MediaConversion(AudioVolume), audioFilters);
                     ep.Append(" -ar 48000");
