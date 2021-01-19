@@ -1045,7 +1045,7 @@ namespace TAS.Server
         
         public override string ToString()
         {
-            return $"{EventType} {EventName}";
+            return $"Event {EventType} {EventName}";
         }
 
         internal PersistentMedia ServerMediaPRI => (_eventType == TEventType.Animation ? (WatcherDirectory)Engine.MediaManager.AnimationDirectoryPRI : (WatcherDirectory)Engine.MediaManager.MediaDirectoryPRI)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;

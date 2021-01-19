@@ -515,9 +515,9 @@ namespace TAS.Client.ViewModels
                 vm.IsSelected = true;
         }
 
-        private async void _copySelected(object obj) => await EventClipboard.Copy(_multiSelectedEvents);
+        private async void _copySelected(object obj) => await EventClipboard.Copy(_multiSelectedEvents.ToList());
 
-        private async void _cutSelected(object obj) => await EventClipboard.Cut(_multiSelectedEvents);
+        private async void _cutSelected(object obj) => await EventClipboard.Cut(_multiSelectedEvents.ToList());
 
         private bool _canExportMedia(object obj)
         {

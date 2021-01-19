@@ -83,12 +83,9 @@ namespace TVPlayClient
         {
             try
             {
-                _client = new RemoteClient()
-                {
-                    Binder = ClientTypeNameBinder.Current
-                };
+                _client = new RemoteClient(ClientTypeNameBinder.Current);
                 _client.Disconnected += ClientDisconnected;
-                await _client.Connect(_channelConfiguration.Address);
+                await _client.ConnectAsync(_channelConfiguration.Address);
 
                 var engine = _client.GetRootObject<Engine>();
                 if (engine == null)

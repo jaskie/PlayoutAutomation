@@ -19,8 +19,8 @@ namespace TAS.Server
 
         internal void Initialize(Engine engine, jNet.RPC.Server.IPrincipalProvider principalProvider)
         {
-            _serverHost = new jNet.RPC.Server.ServerHost { ListenPort = ListenPort };
-            _serverHost.Initialize(engine, principalProvider);
+            _serverHost = new jNet.RPC.Server.ServerHost(ListenPort, engine, principalProvider);
+            _serverHost.Start();
         }
 
         internal void UnInitialize()
