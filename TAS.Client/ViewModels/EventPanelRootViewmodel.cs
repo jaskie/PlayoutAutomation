@@ -114,14 +114,14 @@ namespace TAS.Client.ViewModels
                                 evmVp.IsExpanded = true;
                                 if (evmVp.Find(e, true) == null) // find again after expand
                                 {
-                                    if (e.Parent == vp) // StartType = With
+                                    if (e.GetParent() == vp) // StartType = With
                                     {
                                         newVm = evmVp.CreateChildEventPanelViewmodelForEvent(e);
                                         evmVp.Childrens.Insert(0, newVm);
                                     }
                                     else // StartType == After
                                     {
-                                        var prior = e.Prior;
+                                        var prior = e.GetPrior();
                                         if (prior != null)
                                         {
                                             var evmPrior = evmVp.Find(prior, true);
@@ -147,7 +147,7 @@ namespace TAS.Client.ViewModels
                 }
                 else //vp == null
                 {
-                    var prior = e.Prior;
+                    var prior = e.GetPrior();
                     if (prior != null)
                     {
                         var evmPrior = Find(prior, true);
@@ -173,12 +173,12 @@ namespace TAS.Client.ViewModels
             {
                 var newEvm = CreateChildEventPanelViewmodelForEvent(e);
                 Childrens.Add(newEvm);
-                IEvent ne = e.Next;
+                IEvent ne = e.GetNext();
                 while (ne != null)
                 {
                     Childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
                     Debug.WriteLine(ne, "Reading next for");
-                    ne = ne.Next;
+                    ne = ne.GetNext();
                 }
                 return newEvm;
             }

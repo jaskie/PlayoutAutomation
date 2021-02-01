@@ -46,14 +46,14 @@ namespace TAS.Common
                 var se = current.FindInside(searchFunc);
                 if (se != null)
                     return se;
-                current = current.Next;
+                current = current.GetNext();
             }
             return null;
         }
 
         public static IEvent FindInside(this IEvent aEvent, Func<IEvent, bool> searchFunc)
         {
-            var se = aEvent.SubEvents;
+            var se = aEvent.GetSubEvents();
             foreach(var ev in se)
             {
                 if (searchFunc(ev))
@@ -73,19 +73,6 @@ namespace TAS.Common
                 yield return pe;
                 pe = pe.GetVisualParent();
             }
-        }
-
-
-        public static IEvent GetVisualParent(this IEvent aEvent)
-        {
-            var curr = aEvent;
-            var prior = curr.Prior;
-            while (prior != null)
-            {
-                curr = prior;
-                prior = curr.Prior;
-            }
-            return curr.Parent;
         }
 
         public static bool IsContainedIn(this IEvent aEvent, IEvent parent)
@@ -131,12 +118,12 @@ namespace TAS.Common
 
         public static IEnumerable<IEvent> AllSubEvents(this IEvent e)
         {
-            IEnumerable<IEvent> sel = e.SubEvents;
+            IEnumerable<IEvent> sel = e.GetSubEvents();
             foreach (var selItem in sel)
             {
                 yield return selItem;
                 var nextItem = selItem;
-                while ((nextItem = nextItem.Next) != null)
+                while ((nextItem = nextItem.GetNext()) != null)
                     yield return nextItem;
             }
         }

@@ -103,7 +103,7 @@ namespace TAS.Client.ViewModels
                     if (MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
                         return;
                     await EventClipboard.SaveUndo(new List<IEvent> {Model},
-                        Model.StartType == TStartType.After ? Model.Prior : Model.Parent);
+                        Model.StartType == TStartType.After ? Model.GetPrior() : Model.GetParent());
                     Model.Delete();
                 },
                 o => Model.HaveRight(EventRight.Delete) && Model.AllowDelete()
@@ -306,7 +306,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsContainer => Model.EventType == TEventType.Container;
 
-        public bool CanHold => Model.Prior != null;
+        public bool CanHold => Model.GetPrior() != null;
 
         public bool CanLoop => Model.GetSuccessor() == null;
 
@@ -395,9 +395,9 @@ namespace TAS.Client.ViewModels
             {
                 var st = Model.StartType;
                 var boundEvent = st == TStartType.WithParent || st == TStartType.WithParentFromEnd
-                    ? Model.Parent
+                    ? Model.GetParent()
                     : (st == TStartType.After)
-                        ? Model.Prior
+                        ? Model.GetPrior()
                         : null;
                 return boundEvent == null ? string.Empty : boundEvent.EventName;
             }
@@ -883,10 +883,6 @@ namespace TAS.Client.ViewModels
                         _transitionPauseTime = s.TransitionPauseTime;
                         NotifyPropertyChanged(nameof(TransitionPauseTime));
                         break;
-                    case nameof(IEvent.Prior):
-                    case nameof(IEvent.Parent):
-                        NotifyPropertyChanged(nameof(BoundEventName));
-                        break;
                     case nameof(IEvent.RouterPort):
                         RouterPort = s.RouterPort;                        
                         break;                    
@@ -918,7 +914,7 @@ namespace TAS.Client.ViewModels
         {
             if (Model.EventType != TEventType.StillImage && Model.EventType != TEventType.CommandScript)
                 return null;
-            var parent = Model.Parent;
+            var parent = Model.GetParent();
             if (parent != null && _duration + _scheduledDelay > parent.Duration)
                 return resources._validate_ScheduledDelayInvalid;
             return null;
@@ -966,7 +962,7 @@ namespace TAS.Client.ViewModels
                 return resources._validate_DurationInvalid;
             if (Model.EventType != TEventType.StillImage && Model.EventType != TEventType.CommandScript)
                 return null;
-            var parent = Model.Parent;
+            var parent = Model.GetParent();
             if (parent != null && _duration + _scheduledDelay > parent.Duration)
                 return resources._validate_ScheduledDelayInvalid;
             return null;

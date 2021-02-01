@@ -931,7 +931,7 @@ namespace TAS.Server
                         || aEvent.PlayState == TPlayState.Played)
                     {
                         aEvent.PlayState = TPlayState.Scheduled;
-                        foreach (Event se in aEvent.SubEvents)
+                        foreach (Event se in aEvent.GetSubEvents())
                             _reSchedule(se);
                     }
 
@@ -969,7 +969,7 @@ namespace TAS.Server
             _run(aEvent);
             aEvent.PlayState = TPlayState.Paused;
             NotifyEngineOperation(aEvent, TEngineOperation.Load);
-            foreach (Event se in (aEvent.SubEvents.Where(e => e.ScheduledDelay == TimeSpan.Zero)))
+            foreach (Event se in (aEvent.GetSubEvents().Where(e => e.ScheduledDelay == TimeSpan.Zero)))
                 _load(se);
         }
 
@@ -1088,7 +1088,7 @@ namespace TAS.Server
             {
                 aEvent.PlayState = TPlayState.Playing;
                 if (aEvent.SubEventsCount > 0)
-                    foreach (Event se in aEvent.SubEvents)
+                    foreach (Event se in aEvent.GetSubEvents())
                         if (se.ScheduledDelay == TimeSpan.Zero)
                             _play(se, fromBeginning);
             }
@@ -1183,7 +1183,7 @@ namespace TAS.Server
                         _playoutChannelPRI?.Pause(aEvent);
                         _playoutChannelSEC?.Pause(aEvent);
                     }
-                    foreach (Event se in aEvent.SubEvents)
+                    foreach (Event se in aEvent.GetSubEvents())
                         _pause(se, finish);
                 }
             if (finish)
@@ -1245,7 +1245,7 @@ namespace TAS.Server
                     ev.PlayState = TPlayState.Playing;
                     ev.StartTime = st;
                     rerun(ev);
-                    foreach (var se in ev.SubEvents)
+                    foreach (var se in ev.GetSubEvents())
                         _restartRundown(se);
                     break;
                 }
@@ -1289,7 +1289,7 @@ namespace TAS.Server
                         {
                             TimeSpan playingEventPosition = TimeSpan.FromTicks(playingEvent.Position * FrameTicks);
                             TimeSpan playingEventDuration = playingEvent.Duration;
-                            var sel = playingEvent.SubEvents.Where(e => e.PlayState == TPlayState.Scheduled);
+                            var sel = playingEvent.GetSubEvents().Where(e => e.PlayState == TPlayState.Scheduled);
                             foreach (Event se in sel)
                             {
                                 IEvent preloaded;

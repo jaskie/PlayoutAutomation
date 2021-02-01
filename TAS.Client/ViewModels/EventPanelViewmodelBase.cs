@@ -177,9 +177,9 @@ namespace TAS.Client.ViewModels
             var ev = Event;
             if (ev == null)
                 return;
-            var prior = ev.Prior;
-            var parent = ev.Parent;
-            var next = ev.Next;
+            var prior = ev.GetPrior();
+            var parent = ev.GetParent();
+            var next = ev.GetNext();
             var visualParent = ev.GetVisualParent();
             if (prior != null)
             {
@@ -361,14 +361,14 @@ namespace TAS.Client.ViewModels
         protected void LoadChildrens()
         {
             UiServices.SetBusyState();
-            foreach (var se in Event.SubEvents)
+            foreach (var se in Event.GetSubEvents())
             {
                 Childrens.Add(CreateChildEventPanelViewmodelForEvent(se));
-                var ne = se.Next;
+                var ne = se.GetNext();
                 while (ne != null)
                 {
                     Childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
-                    ne = ne.Next;
+                    ne = ne.GetNext();
                 }
             }
         }

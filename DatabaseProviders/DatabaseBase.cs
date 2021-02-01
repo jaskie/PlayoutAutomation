@@ -979,7 +979,7 @@ VALUES
                         }
                         cmd.Parameters.AddWithValue("@idProgramme", e.IdProgramme);
                         cmd.Parameters.AddWithValue("@idAuxRundown", TrimText("asrunlog", "idAuxRundown", e.IdAux));
-                        cmd.Parameters.AddWithValue("@SecEvents", TrimText("asrunlog", "SecEvents", string.Join(";", e.SubEvents.Select(se => se.EventName))));
+                        cmd.Parameters.AddWithValue("@SecEvents", TrimText("asrunlog", "SecEvents", string.Join(";", e.GetSubEvents().Select(se => se.EventName))));
                         cmd.Parameters.AddWithValue("@Flags", e.ToFlags());
                         cmd.ExecuteNonQuery();
                     }
