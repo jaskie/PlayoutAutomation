@@ -96,7 +96,7 @@ namespace TAS.Remoting.Model
 
         public Engine()
         {
-            Debug.WriteLine("Engine created.");
+            Debug.WriteLine($"Engine created on {System.Threading.Thread.CurrentThread.ManagedThreadId}.");
         }
 
         public DateTime CurrentTime => _currentTime;
