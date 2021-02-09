@@ -94,11 +94,6 @@ namespace TAS.Remoting.Model
 
         #pragma warning restore
 
-        public Engine()
-        {
-            Debug.WriteLine($"Engine created on {System.Threading.Thread.CurrentThread.ManagedThreadId}.");
-        }
-
         public DateTime CurrentTime => _currentTime;
 
         public int TimeCorrection { get => _timeCorrection; set => Set(value); }

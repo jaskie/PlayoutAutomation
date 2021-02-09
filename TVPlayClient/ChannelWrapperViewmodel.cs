@@ -81,24 +81,18 @@ namespace TVPlayClient
 
         private async void CreateView()
         {
-            try
+            _client = new RemoteClient(ClientTypeNameBinder.Current);
+            _client.Disconnected += ClientDisconnected;
+            if (await _client.ConnectAsync(_channelConfiguration.Address))
             {
-                _client = new RemoteClient(ClientTypeNameBinder.Current);
-                _client.Disconnected += ClientDisconnected;
-                await _client.ConnectAsync(_channelConfiguration.Address);
-
                 var engine = _client.GetRootObject<Engine>();
-                if (engine == null)
+                if (engine != null)
                 {
-                    await Task.Delay(1000);
+                    OnUiThread(() => SetupChannel(engine));
                     return;
                 }
-                OnUiThread(() => SetupChannel(engine));
             }
-            catch (OperationCanceledException)
-            {
-                await Task.Delay(1000);
-            }
+            await Task.Delay(1000);
         }
     }
 }
