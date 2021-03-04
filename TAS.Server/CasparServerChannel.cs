@@ -729,7 +729,7 @@ namespace TAS.Server
                 case 2:
                     return ChannelLayout.Stereo;
                 default:
-                    return ChannelLayout.Passthru;
+                    return ChannelLayout.Default;
             }
         }
 
