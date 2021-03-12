@@ -348,8 +348,8 @@ namespace TAS.Server.Media
 
         protected override void OnError(object source, ErrorEventArgs e)
         {
-            base.OnError(source, e);
             ClearFiles();
+            base.OnError(source, e);
             if (HaveFileWatcher)
                 BeginWatch(IsRecursive);
         }
