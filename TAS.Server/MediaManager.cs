@@ -500,10 +500,12 @@ namespace TAS.Server
                 return;
             if (Interlocked.Exchange(ref _isInitialMediaSecToPriSynchronized, 1) != default)
                 return;
+            Logger.Debug("Initial media synchronization started");
             try
             {
                 await Task.Run(() => CopyMissingMediaPriToSec(pri, sec));
                 await Task.Run(() => SynchronizeAnimationsPropertiesSecToPri());
+                Logger.Debug("Initial media synchronization finished");
             }
             catch (Exception e)
             {
@@ -513,7 +515,6 @@ namespace TAS.Server
 
         private void CopyMissingMediaPriToSec(ServerDirectory pri, ServerDirectory sec)
         {
-            Logger.Debug("SynchronizeMediaSecToPri started");
             var pRiMediaList = pri.GetAllFiles();
             foreach (var pRImedia in pRiMediaList)
             {
