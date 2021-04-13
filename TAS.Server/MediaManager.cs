@@ -217,7 +217,6 @@ namespace TAS.Server
             if (!(MediaDirectoryPRI is ServerDirectory pri) || !(MediaDirectorySEC is ServerDirectory sec) ||
                 pri == sec || !pri.IsInitialized || !sec.IsInitialized)
                 return;
-            Logger.Debug("SynchronizeMediaSecToPri started");
             try
             {
                 await Task.Run(() => CopyMissingMediaPriToSec(pri, sec));
@@ -235,8 +234,6 @@ namespace TAS.Server
             {
                 Logger.Error(e);
             }
-            Logger.Debug("SynchronizeMediaSecToPri finished");
-
         }
 
 
@@ -503,12 +500,12 @@ namespace TAS.Server
                 return;
             if (Interlocked.Exchange(ref _isInitialMediaSecToPriSynchronized, 1) != default)
                 return;
+            Logger.Debug("Initial media synchronization started");
             try
             {
-                Logger.Debug("InitialMediaSynchronization started");
                 await Task.Run(() => CopyMissingMediaPriToSec(pri, sec));
                 await Task.Run(() => SynchronizeAnimationsPropertiesSecToPri());
-                Logger.Debug("InitialMediaSynchronization finished");
+                Logger.Debug("Initial media synchronization finished");
             }
             catch (Exception e)
             {

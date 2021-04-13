@@ -19,12 +19,14 @@ namespace TAS.Common.Interfaces
         IEngine Engine { get; }
         DateTime EndTime { get; }
         TimeSpan? Offset { get; }
-        
-        IEvent Next { get; }
-        IEvent Prior { get; }
-        IEvent Parent { get; }
 
-        IEnumerable<IEvent> SubEvents { get; }
+        IEvent GetNext();
+        IEvent GetPrior();
+        IEvent GetParent();
+
+        IEvent GetVisualParent();
+
+        IEnumerable<IEvent> GetSubEvents();
 
         int SubEventsCount { get; }
         bool InsertAfter(IEvent e);

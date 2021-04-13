@@ -457,7 +457,7 @@
     <value>Minęła data ważności klipu</value>
   </data>
   <data name="TAudioChannelMappingConversion_MergeAllChannels" xml:space="preserve">
-    <value>Połącz wszystkie ścieżki</value>
+    <value>Pobierz wszystkie ścieżki</value>
   </data>
   <data name="TAudioChannelMappingConversion_FourthTwoChannels" xml:space="preserve">
     <value>Ścieżki 7 i 8 -&gt; Stereo</value>

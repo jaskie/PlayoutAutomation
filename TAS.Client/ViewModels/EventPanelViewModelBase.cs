@@ -7,6 +7,8 @@ using System.Windows;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using resources = TAS.Client.Common.Properties.Resources;
+
 
 namespace TAS.Client.ViewModels
 {
@@ -141,7 +143,7 @@ namespace TAS.Client.ViewModels
         
         public string EventName => Event?.EventName;
 
-        public TEventType EventType => Event?.EventType ?? TEventType.Rundown;
+        public TEventType? EventType => Event?.EventType;
 
         public EventPanelViewModelBase Find(IEvent aEvent, bool searchOnNextLevels)
         {
@@ -175,9 +177,9 @@ namespace TAS.Client.ViewModels
             var ev = Event;
             if (ev == null)
                 return;
-            var prior = ev.Prior;
-            var parent = ev.Parent;
-            var next = ev.Next;
+            var prior = ev.GetPrior();
+            var parent = ev.GetParent();
+            var next = ev.GetNext();
             var visualParent = ev.GetVisualParent();
             if (prior != null)
             {
@@ -286,10 +288,7 @@ namespace TAS.Client.ViewModels
                 case TEventType.Container:
                     return new EventPanelContainerViewModel(ev, this);
                 case TEventType.Movie:
-                    if (ev.Layer == VideoLayer.Program)
-                        return new EventPanelMovieViewModel(ev, this);
-                    else
-                        return new EventPanelSecondaryEventViewModel(ev, this);
+                    return new EventPanelMovieViewModel(ev, this);
                 case TEventType.Live:
                     return new EventPanelLiveViewModel(ev, this);
                 case TEventType.StillImage:
@@ -362,14 +361,14 @@ namespace TAS.Client.ViewModels
         protected void LoadChildrens()
         {
             UiServices.Current.SetBusyState();
-            foreach (var se in Event.SubEvents)
+            foreach (var se in Event.GetSubEvents())
             {
                 Childrens.Add(CreateChildEventPanelViewModelForEvent(se));
-                var ne = se.Next;
+                var ne = se.GetNext();
                 while (ne != null)
                 {
                     Childrens.Add(CreateChildEventPanelViewModelForEvent(ne));
-                    ne = ne.Next;
+                    ne = ne.GetNext();
                 }
             }
         }

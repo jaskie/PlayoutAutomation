@@ -48,7 +48,7 @@ namespace TAS.Client.ViewModels
                         return;
                     if (_hasSubItemsOnLayer(layer))
                     {
-                        var layerEvent = Event.SubEvents.FirstOrDefault(e => e.Layer == layer);
+                        var layerEvent = Event.GetSubEvents().FirstOrDefault(e => e.Layer == layer);
                         layerEvent?.Delete();
                     }
                     else
@@ -179,11 +179,11 @@ namespace TAS.Client.ViewModels
             {
                 if (Event == null)
                     return false;
-                IEvent ne = Event.Next;
-                IEvent pe = Event.Prior;
+                IEvent ne = Event.GetNext();
+                IEvent pe = Event.GetPrior();
                 return !(
-                    (ne == null || ne.Prior == Event)
-                    && (pe == null || pe.Next == Event)
+                    (ne == null || ne.GetPrior() == Event)
+                    && (pe == null || pe.GetNext() == Event)
                     )
                     || Event.EventType == TEventType.Rundown && Event.SubEventsCount > 1;
             }
@@ -387,14 +387,14 @@ namespace TAS.Client.ViewModels
 
         private string _subItemMediaName(VideoLayer layer)
         {
-            var se = Event?.SubEvents.FirstOrDefault(e => e.Layer == layer);
+            var se = Event?.GetSubEvents().FirstOrDefault(e => e.Layer == layer && e.EventType == TEventType.StillImage);
             var m = se?.Media;
             return m?.MediaName ?? string.Empty;
         }
 
         private bool _hasSubItemsOnLayer(VideoLayer layer)
         {
-            return Event.SubEvents.Any(e => e.Layer == layer);
+            return Event.GetSubEvents().Any(e => e.Layer == layer && e.EventType == TEventType.StillImage);
         }
 
     }

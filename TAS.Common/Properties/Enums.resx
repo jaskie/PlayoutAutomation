@@ -457,7 +457,7 @@
     <value>Clip expired</value>
   </data>
   <data name="TAudioChannelMappingConversion_MergeAllChannels" xml:space="preserve">
-    <value>Merge all channels</value>
+    <value>Get all channels</value>
   </data>
   <data name="TAudioChannelMappingConversion_FourthTwoChannels" xml:space="preserve">
     <value>Tracks 7 &amp; 8 -&gt; Stereo</value>

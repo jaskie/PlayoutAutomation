@@ -8,7 +8,7 @@ namespace TAS.Client
     {
         public static bool CanMoveUp(this IEvent aEvent)
         {
-            var prior = aEvent?.Prior;
+            var prior = aEvent?.GetPrior();
             return prior != null && prior.PlayState == TPlayState.Scheduled &&
                    aEvent.PlayState == TPlayState.Scheduled && !aEvent.IsLoop
                    && (prior.StartType == TStartType.After || !aEvent.IsHold)
@@ -17,7 +17,7 @@ namespace TAS.Client
 
         public static bool CanMoveDown(this IEvent aEvent)
         {
-            var next = aEvent?.Next;
+            var next = aEvent?.GetNext();
             return next != null && next.PlayState == TPlayState.Scheduled && aEvent.PlayState == TPlayState.Scheduled &&
                    !next.IsLoop
                    && (aEvent.StartType == TStartType.After || !next.IsHold)

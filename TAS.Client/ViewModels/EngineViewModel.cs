@@ -512,9 +512,9 @@ namespace TAS.Client.ViewModels
                 vm.IsSelected = true;
         }
 
-        private async void _copySelected(object obj) => await EventClipboard.Copy(_multiSelectedEvents);
+        private async void _copySelected(object obj) => await EventClipboard.Copy(_multiSelectedEvents.ToList());
 
-        private async void _cutSelected(object obj) => await EventClipboard.Cut(_multiSelectedEvents);
+        private async void _cutSelected(object obj) => await EventClipboard.Cut(_multiSelectedEvents.ToList());
 
         private bool _canExportMedia(object obj)
         {
@@ -536,7 +536,7 @@ namespace TAS.Client.ViewModels
                 .OrderBy(e => e.Event.ScheduledTime)
                 .Select(e => new MediaExportDescription(
                     e.Event.Media,
-                    e.Event.SubEvents.Where(sev => sev.EventType == TEventType.StillImage && sev.Media != null)
+                    e.Event.GetSubEvents().Where(sev => sev.EventType == TEventType.StillImage && sev.Media != null)
                         .Select(sev => sev.Media).ToList(),
                     e.Event.ScheduledTc,
                     e.Event.Duration,
@@ -646,7 +646,7 @@ namespace TAS.Client.ViewModels
                 || MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count, evmList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
                 return;
             var firstEvent = evmList.First().Event;
-            await EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.Prior : firstEvent.Parent);
+            await EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.GetPrior() : firstEvent.GetParent());
             await Task.Run(
                 () =>
                 {
@@ -831,7 +831,7 @@ namespace TAS.Client.ViewModels
             if (found == null)
                 foreach (var et in visualRootTrack)
                 {
-                    current = et.Next;
+                    current = et.GetNext();
                     if (current != null)
                         found = current.FindNext(SearchFunc);
                     if (found != null)

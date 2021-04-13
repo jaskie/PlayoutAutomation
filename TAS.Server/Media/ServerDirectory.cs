@@ -149,6 +149,12 @@ namespace TAS.Server.Media
             return newMedia;
         }
 
+        protected override void OnError(object source, ErrorEventArgs e)
+        {
+            base.OnError(source, e);
+            BeginWatch(IsRecursive);
+        }
+
         public override string ToString()
         {
             return Folder;

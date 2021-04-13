@@ -129,14 +129,6 @@ namespace TAS.Remoting.Model
         [DtoMember(nameof(IEvent.TransitionType))]
         private TTransitionType _transitionType;
 
-        private Lazy<IEvent> _parent;
-
-        private Lazy<IEvent> _next;
-
-        private Lazy<IEvent> _prior;
-
-        private Lazy<List<IEvent>> _subEvents;
-
         [DtoMember(nameof(IEvent.CurrentUserRights))]
         private ulong _currentUserRights;
 
@@ -144,12 +136,6 @@ namespace TAS.Remoting.Model
         private RecordingInfo _recordingInfo;
 
 #pragma warning restore
-
-        public Event()
-        {
-            ResetSubEvents();
-            ResetSlibbings();
-        }
 
         public ulong Id { get => _id; set => _id = value; }
 
@@ -195,36 +181,14 @@ namespace TAS.Remoting.Model
 
         public Guid MediaGuid { get => _mediaGuid; set => Set(value); }
 
-        public IEvent Next
-        {
-            get => _next.Value;
-            set
-            {
-                _next = new Lazy<IEvent>(() => value);
-                Debug.Write($"New Next for: {this} is {value}");
-            }
-        }
+        public IEvent GetNext() => Query<Event>();
 
-        public IEvent Parent
-        {
-            get => _parent.Value;
-            set
-            {
-                _parent = new Lazy<IEvent>(() => value);
-                Debug.Write($"New Parent for: {this} is {value}");
-            }
-        }
+        public IEvent GetParent() => Query<Event>();
 
-        public IEvent Prior
-        {
-            get => _prior.Value;
-            set
-            {
-                _prior = new Lazy<IEvent>(() => value);
-                Debug.Write($"New Prior for: {this} is {value}");
-            }
+        public IEvent GetPrior() => Query<Event>();
 
-        }
+        public IEvent GetVisualParent() => Query<Event>();
+
 
         public TimeSpan? Offset => _offset;
 
@@ -247,7 +211,7 @@ namespace TAS.Remoting.Model
 
         public TStartType StartType { get => _startType; set => Set(value); }
 
-        public IEnumerable<IEvent> SubEvents => _subEvents.Value;
+        public IEnumerable<IEvent> GetSubEvents() => Query<Event[]>();
 
         public int SubEventsCount => _subEventsCount;
 
@@ -306,12 +270,6 @@ namespace TAS.Remoting.Model
                     break;
                 case nameof(IEvent.SubEventChanged):
                     var ea = Deserialize<CollectionOperationEventArgs<IEvent>>(message);
-                    if (!_subEvents.IsValueCreated)
-                        return;
-                    if (ea.Operation == CollectionOperation.Add)
-                        _subEvents.Value.Add(ea.Item);
-                    else
-                        _subEvents.Value.Remove(ea.Item);
                     _subEventChanged?.Invoke(this, ea);
                     break;
             }
@@ -351,23 +309,11 @@ namespace TAS.Remoting.Model
         public ulong CurrentUserRights => _currentUserRights;        
     
 
-    public bool HaveRight(EventRight right)
+        public bool HaveRight(EventRight right)
         {
             if (_engine.HaveRight(EngineRight.Rundown))
                 return true;
             return (CurrentUserRights & (ulong)right) > 0;
-        }
-
-        private void ResetSlibbings()
-        {
-            _parent = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Parent)));
-            _next = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Next)));
-            _prior = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Prior)));
-        }
-
-        private void ResetSubEvents()
-        {
-            _subEvents = new Lazy<List<IEvent>>(() => Get<List<IEvent>>(nameof(IEvent.SubEvents)));
         }
 
         public override string ToString()

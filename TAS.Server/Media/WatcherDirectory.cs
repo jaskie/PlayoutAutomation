@@ -290,8 +290,6 @@ namespace TAS.Server.Media
             Logger.Warn("MediaDirectory: Watcher {0} returned error: {1} and will be restarted.", Folder, e.GetException());
             if (source is FileSystemWatcher watcher)
                 DisposeWatcher(watcher);
-            _watcher = null;
-            BeginWatch(_includeSubdirectories);
         }
 
         protected MediaBase FindMediaFirstByFullPath(string fullPath)

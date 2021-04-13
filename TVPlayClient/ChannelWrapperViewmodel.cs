@@ -12,16 +12,16 @@ using TAS.Remoting.Model;
 
 namespace TVPlayClient
 {
-    public class ChannelWrapperViewModel : ViewModelBase
+    public class ChannelWrapperViewmodel : ViewModelBase
     {
 
         private readonly ChannelConfiguration _channelConfiguration;
         private RemoteClient _client;
-        private ChannelViewModel _channel;
+        private ChannelViewmodel _channel;
         private bool _isLoading = true;
         private string _tabName;
 
-        public ChannelWrapperViewModel(ChannelConfiguration channel)
+        public ChannelWrapperViewmodel(ChannelConfiguration channel)
         {
             _channelConfiguration = channel;
         }
@@ -43,7 +43,7 @@ namespace TVPlayClient
             set => SetField(ref _isLoading, value);
         }
 
-        public ChannelViewModel Channel
+        public ChannelViewmodel Channel
         {
             get => _channel;
             private set => SetField(ref _channel, value);
@@ -74,33 +74,25 @@ namespace TVPlayClient
 
         private void SetupChannel(Engine engine)
         {
-            Channel = new ChannelViewModel(engine, _channelConfiguration.ShowEngine, _channelConfiguration.ShowMedia);
+            Channel = new ChannelViewmodel(engine, _channelConfiguration.ShowEngine, _channelConfiguration.ShowMedia);
             TabName = Channel.DisplayName;
             IsLoading = false;
         }
 
         private async void CreateView()
         {
-            try
+            _client = new RemoteClient(ClientTypeNameBinder.Current);
+            _client.Disconnected += ClientDisconnected;
+            if (await _client.ConnectAsync(_channelConfiguration.Address))
             {
-                _client = new RemoteClient();
-                _client.AddProxyAssembly(typeof(Engine).Assembly);
-
-                _client.Disconnected += ClientDisconnected;
-                await _client.ConnectAsync(_channelConfiguration.Address);
-
                 var engine = _client.GetRootObject<Engine>();
-                if (engine == null)
+                if (engine != null)
                 {
-                    await Task.Delay(1000);
+                    OnUiThread(() => SetupChannel(engine));
                     return;
                 }
-                OnUiThread(() => SetupChannel(engine));
             }
-            catch (OperationCanceledException)
-            {
-                await Task.Delay(1000);
-            }
+            await Task.Delay(1000);
         }
     }
 }
