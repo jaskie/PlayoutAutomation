@@ -95,7 +95,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.ExportRundownAsX
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jNet.RPC", "dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj", "{15324B69-7D18-49F3-9141-B024079356E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.VideoSwitch", "Plugins\TAS.Client.Router\TAS.Server.VideoSwitch.csproj", "{AD45E333-FBC5-42EE-BA3F-66DA6B2C8C1C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.VideoSwitch", "Plugins\TAS.Client.VideoSwitch\TAS.Server.VideoSwitch.csproj", "{AD45E333-FBC5-42EE-BA3F-66DA6B2C8C1C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Database.SQLite", "DatabaseProviders\SQLite\TAS.Database.SQLite.csproj", "{8E491E24-FFA4-44CF-976F-37D5CC904536}"
 EndProject
@@ -107,7 +107,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.CgElementsContro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestData", "Tests\TestData\TestData.csproj", "{B3FD6946-66CF-4BCB-9694-923A5FF54D1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.VideoSwitchTests", "Tests\Plugins\TAS.Server.Router\TAS.Server.VideoSwitchTests.csproj", "{1A78C4B9-74D5-4065-BBED-DEADC62578BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.VideoSwitchTests", "Tests\Plugins\TAS.Server.VideoSwitch\TAS.Server.VideoSwitchTests.csproj", "{1A78C4B9-74D5-4065-BBED-DEADC62578BE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.AdvantechTests", "Tests\Plugins\TAS.Server.Advantech\TAS.Server.AdvantechTests.csproj", "{2A509F84-A7AD-4152-B24C-3B32A42CEC1C}"
 EndProject
