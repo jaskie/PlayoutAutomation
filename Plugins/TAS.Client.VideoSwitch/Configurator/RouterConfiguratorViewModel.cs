@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TAS.Client.Common;
+using TAS.Common.Interfaces;
 using TAS.Database.Common.Interfaces;
 using TAS.Server.VideoSwitch.Model;
 
@@ -115,16 +116,16 @@ namespace TAS.Server.VideoSwitch.Configurator
             return _communicatorConfigurator?.GetModel() ?? new Router();
         }
 
-        public void Initialize(object parameter)
+        public void Initialize(IPlugin plugin)
         {
-            if (!(parameter is RouterBase routerBase))
+            if (!(plugin is RouterBase routerBase))
             {
-                if (parameter == null)
+                if (plugin == null)
                     SelectedCommunicatorType = CommunicatorTypes.First();
                 return;
             }
 
-            if (parameter is VideoSwitcher videoSwitcher)
+            if (plugin is VideoSwitcher videoSwitcher)
             {
                 _videoSwitcher = videoSwitcher;
                 _router = new Router
@@ -140,7 +141,7 @@ namespace TAS.Server.VideoSwitch.Configurator
                     Type = videoSwitcher.Type
                 };
             }
-            else if (parameter is Router router)
+            else if (plugin is Router router)
             {
                 _router = router;
                 _videoSwitcher = new VideoSwitcher

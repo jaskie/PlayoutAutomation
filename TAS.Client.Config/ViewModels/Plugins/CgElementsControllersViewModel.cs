@@ -8,12 +8,10 @@ namespace TAS.Client.Config.ViewModels.Plugins
 {
     internal class CgElementsControllersViewModel : PluginTypeViewModelBase
     {
-        private IConfigEngine _engine;
         private IPluginConfiguratorViewModel _selectedConfigurator;
                 
         public CgElementsControllersViewModel(IConfigEngine engine)
         {
-            _engine = engine;
             Name = "Channel branding controllers";
 
             Configurators = ConfigurationPluginManager.Current.ConfigurationProviders
@@ -22,7 +20,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
                 {
                     var configuratorVm = p.GetConfiguratorViewModel(engine);
                     configuratorVm.PluginChanged += PluginConfigurator_PluginChanged;
-                    configuratorVm.Initialize(_engine.CGElementsController);
+                    configuratorVm.Initialize(engine.CGElementsController);
                     return configuratorVm;
                 })
                 .ToArray();

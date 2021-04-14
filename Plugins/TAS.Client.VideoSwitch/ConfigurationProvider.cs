@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Composition;
+﻿using System;
+using System.ComponentModel.Composition;
 using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common;
 using TAS.Database.Common.Interfaces;
@@ -10,11 +11,16 @@ namespace TAS.Server.VideoSwitch
     [Export(typeof(IPluginConfigurationProvider))]
     public class ConfigurationProvider : IPluginConfigurationProvider
     {
-        public HibernationBinder Binder { get; } = new HibernationBinder(new System.Collections.Generic.Dictionary<System.Type, System.Type> {
+        public HibernationBinder Binder { get; } = new HibernationBinder(new System.Collections.Generic.Dictionary<Type, System.Type> {
             { typeof(VideoSwitcher), typeof(VideoSwitcher) },
             { typeof(Router), typeof(Router) },
             { typeof(RouterPort), typeof(RouterPort) }
         });
-        public IPluginConfiguratorViewModel GetConfiguratorViewModel(IConfigEngine engine) => new RouterConfiguratorViewModel();        
+        public IPluginConfiguratorViewModel GetConfiguratorViewModel(IConfigEngine engine) => new RouterConfiguratorViewModel();
+
+        public Type GetPluginModelType()
+        {
+            return typeof(RouterBase);
+        }
     }
 }

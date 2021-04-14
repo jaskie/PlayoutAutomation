@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Linq;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
-using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common.Interfaces;
 
 namespace TAS.Server.CgElementsController.Configurator
@@ -20,7 +19,6 @@ namespace TAS.Server.CgElementsController.Configurator
             Aux
         }
 
-        private readonly IConfigEngine _engine;
         private Model.CgElementsController _cgElementsController = new Model.CgElementsController();
 
         private readonly ObservableCollection<Model.CgElement> _crawls = new ObservableCollection<Model.CgElement>();
@@ -39,9 +37,8 @@ namespace TAS.Server.CgElementsController.Configurator
 
         public event EventHandler PluginChanged;
 
-        public CgElementsControllerViewModel(IConfigEngine engine)
+        public CgElementsControllerViewModel()
         {
-            _engine = engine;
             CreateCommands();
         }
 
