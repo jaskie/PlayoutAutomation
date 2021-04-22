@@ -63,7 +63,7 @@
       <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
       <Name>jNet.RPC</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Plugins\TAS.Client.Router\TAS.Server.VideoSwitch.csproj">
+    <ProjectReference Include="..\..\Plugins\TAS.Client.VideoSwitch\TAS.Server.VideoSwitch.csproj">
       <Project>{AD45E333-FBC5-42EE-BA3F-66DA6B2C8C1C}</Project>
       <Name>TAS.Server.VideoSwitch</Name>
     </ProjectReference>

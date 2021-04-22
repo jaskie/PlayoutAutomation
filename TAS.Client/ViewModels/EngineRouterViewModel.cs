@@ -9,7 +9,7 @@ namespace TAS.Client.ViewModels
         public EngineRouterViewModel(IVideoSwitch router)
         {
             Router = router;
-            Router.ConnectAsync();
+            Router.Connect();
             Router.PropertyChanged += Router_PropertyChanged;
 
             CommandChangeSource = new UiCommand(ChangeSource, CanChangeSource);

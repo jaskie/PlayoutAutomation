@@ -1,27 +1,22 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using jNet.RPC.Client;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
-using TAS.Remoting;
 using TAS.Remoting.Model;
 
 namespace TVPlayClient
 {
-    public class ChannelWrapperViewmodel : ViewModelBase
+    public class ChannelWrapperViewModel : ViewModelBase
     {
 
         private readonly ChannelConfiguration _channelConfiguration;
         private RemoteClient _client;
-        private ChannelViewmodel _channel;
+        private ChannelViewModel _channel;
         private bool _isLoading = true;
         private string _tabName;
 
-        public ChannelWrapperViewmodel(ChannelConfiguration channel)
+        public ChannelWrapperViewModel(ChannelConfiguration channel)
         {
             _channelConfiguration = channel;
         }
@@ -43,7 +38,7 @@ namespace TVPlayClient
             set => SetField(ref _isLoading, value);
         }
 
-        public ChannelViewmodel Channel
+        public ChannelViewModel Channel
         {
             get => _channel;
             private set => SetField(ref _channel, value);
@@ -74,14 +69,15 @@ namespace TVPlayClient
 
         private void SetupChannel(Engine engine)
         {
-            Channel = new ChannelViewmodel(engine, _channelConfiguration.ShowEngine, _channelConfiguration.ShowMedia);
+            Channel = new ChannelViewModel(engine, _channelConfiguration.ShowEngine, _channelConfiguration.ShowMedia);
             TabName = Channel.DisplayName;
             IsLoading = false;
         }
 
         private async void CreateView()
         {
-            _client = new RemoteClient(ClientTypeNameBinder.Current);
+            _client = new RemoteClient();
+            _client.AddProxyAssembly(typeof(Engine).Assembly);
             _client.Disconnected += ClientDisconnected;
             if (await _client.ConnectAsync(_channelConfiguration.Address))
             {

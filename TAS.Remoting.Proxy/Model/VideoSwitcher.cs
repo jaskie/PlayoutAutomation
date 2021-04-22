@@ -2,8 +2,6 @@
 using jNet.RPC.Client;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -42,15 +40,14 @@ namespace TAS.Remoting.Model
 
         public bool IsEnabled { get => _isEnabled; set => Set(value); }
 
-        public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler Started;
 
-        public async Task<bool> ConnectAsync()
+        public bool Connect()
         {
             return Query<bool>();
         }        
 
-        public async Task PreloadSource(int sourceId)
+        public void PreloadSource(int sourceId)
         {
             Invoke(parameters: new object[] { sourceId });
         }
@@ -65,7 +62,7 @@ namespace TAS.Remoting.Model
             Invoke(parameters: new object[] { videoSwitchEffect });
         }
 
-        public async Task Take()
+        public void Take()
         {
             Invoke();
         }

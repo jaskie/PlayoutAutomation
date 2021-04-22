@@ -120,16 +120,16 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChannelsViewmodel.cs" />
+    <Compile Include="ChannelsViewModel.cs" />
     <Compile Include="ConfigurationView.xaml.cs">
       <DependentUpon>ConfigurationView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ConfigurationViewmodel.cs" />
+    <Compile Include="ConfigurationViewModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainWindowViewmodel.cs" />
-    <Compile Include="ChannelWrapperViewmodel.cs" />
+    <Compile Include="MainWindowViewModel.cs" />
+    <Compile Include="ChannelWrapperViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
 
 namespace TAS.Common.Interfaces
 {
     public interface IVideoSwitch : IDisposable, INotifyPropertyChanged, IPlugin, IStartGpi
     {        
-        Task<bool> ConnectAsync();
+        bool Connect();
         IList<IVideoSwitchPort> Sources { get; }        
         void SetSource(int inputId);       
         IVideoSwitchPort SelectedSource { get; }
