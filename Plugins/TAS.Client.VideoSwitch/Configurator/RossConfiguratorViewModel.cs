@@ -28,9 +28,9 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         private void TestRouter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IRouter.SelectedSource))
+            if (e.PropertyName == nameof(IVideoSwitch.SelectedSource))
                 NotifyPropertyChanged(nameof(SelectedTestSource));
-            else if (e.PropertyName == nameof(IRouter.IsConnected))
+            else if (e.PropertyName == nameof(IVideoSwitch.IsConnected))
                 NotifyPropertyChanged(nameof(IsConnected));
         }
 

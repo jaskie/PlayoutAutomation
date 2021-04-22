@@ -91,7 +91,7 @@
     <Compile Include="Interfaces\Configurator\IConfigEngine.cs" />
     <Compile Include="Interfaces\Configurator\IConfigRecorder.cs" />
     <Compile Include="Interfaces\IVideoSwitcher.cs" />
-    <Compile Include="Interfaces\IRouter.cs" />
+    <Compile Include="Interfaces\IVideoSwitch.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
     <Compile Include="Interfaces\IVideoSwitchPort.cs" />
     <Compile Include="Interfaces\ISearchProvider.cs" />
@@ -111,7 +111,7 @@
     <Compile Include="Interfaces\IFileManager.cs" />
     <Compile Include="Interfaces\IFileOperation.cs" />
     <Compile Include="Interfaces\ICGElementsController.cs" />
-    <Compile Include="Interfaces\IGpi.cs" />
+    <Compile Include="Interfaces\IStartGpi.cs" />
     <Compile Include="Interfaces\MediaDirectory\IIngestDirectory.cs" />
     <Compile Include="Interfaces\Media\IIngestMedia.cs" />
     <Compile Include="Interfaces\Media\IMedia.cs" />

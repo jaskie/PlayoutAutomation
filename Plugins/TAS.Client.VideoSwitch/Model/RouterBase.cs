@@ -13,7 +13,7 @@ using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Model
 {
-    public abstract class RouterBase : IRouter
+    public abstract class RouterBase : IVideoSwitch
     {
         #region Configuration        
         [Hibernate]

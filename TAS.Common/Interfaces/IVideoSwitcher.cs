@@ -2,7 +2,7 @@
 
 namespace TAS.Common.Interfaces
 {
-    public interface IVideoSwitcher : IRouter
+    public interface IVideoSwitcher : IVideoSwitch
     {
         Task PreloadSource(int sourceId);
         void SetTransitionStyle(VideoSwitcherTransitionStyle videoSwitchEffect);        

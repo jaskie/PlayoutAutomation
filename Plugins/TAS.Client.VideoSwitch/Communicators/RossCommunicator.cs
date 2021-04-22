@@ -43,7 +43,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         private PortInfo[] _sources;        
 
-        public RossCommunicator(IRouter videoSwitch)
+        public RossCommunicator(IVideoSwitch videoSwitch)
         {
             _mc = videoSwitch as VideoSwitcher;
         }        

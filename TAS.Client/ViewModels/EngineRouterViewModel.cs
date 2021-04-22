@@ -6,7 +6,7 @@ namespace TAS.Client.ViewModels
 {
     public class EngineRouterViewModel : ViewModelBase
     {
-        public EngineRouterViewModel(IRouter router)
+        public EngineRouterViewModel(IVideoSwitch router)
         {
             Router = router;
             Router.ConnectAsync();
@@ -46,7 +46,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsConnected => Router.IsConnected;
 
-        public IRouter Router { get; }
+        public IVideoSwitch Router { get; }
 
         public UiCommand CommandChangeSource { get; }
 

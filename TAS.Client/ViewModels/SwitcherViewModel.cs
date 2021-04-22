@@ -7,7 +7,7 @@ namespace TAS.Client.ViewModels
     public class SwitcherViewModel : OkCancelViewModelBase
     {
         private IVideoSwitchPort _selectedInputPort;
-        public SwitcherViewModel(IRouter router)
+        public SwitcherViewModel(IVideoSwitch router)
         {
             Router = router;            
             Router.PropertyChanged += Router_PropertyChanged;
@@ -61,7 +61,7 @@ namespace TAS.Client.ViewModels
         }
 
         public bool IsConnected => Router.IsConnected;
-        public IRouter Router { get; }
+        public IVideoSwitch Router { get; }
         public IList<IVideoSwitchPort> Sources => Router.Sources;
     }
 }

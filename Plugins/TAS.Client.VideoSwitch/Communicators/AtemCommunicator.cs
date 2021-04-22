@@ -38,7 +38,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         public event EventHandler<EventArgs<bool>> ConnectionChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public AtemCommunicator(IRouter device)
+        public AtemCommunicator(IVideoSwitch device)
         {            
             _device = device as VideoSwitcher;
 

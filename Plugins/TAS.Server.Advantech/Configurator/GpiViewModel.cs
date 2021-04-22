@@ -91,7 +91,7 @@ namespace TAS.Server.Advantech.Configurator
 
         public void Initialize(object model)
         {
-            _gpi = (IGpi)model as Model.Gpi;
+            _gpi = (IStartGpi)model as Model.Gpi;
             Init();
         }
 

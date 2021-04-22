@@ -38,7 +38,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         private PortInfo[] _sources;        
 
-        public NevionCommunicator(IRouter device)
+        public NevionCommunicator(IVideoSwitch device)
         {
             _router = device as Router;               
         }

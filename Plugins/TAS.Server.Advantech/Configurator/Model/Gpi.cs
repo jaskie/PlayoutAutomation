@@ -6,7 +6,7 @@ using TAS.Server.Advantech.Model;
 
 namespace TAS.Server.Advantech.Configurator.Model
 {
-    public class Gpi : GpiBase, IGpi, IPlugin
+    public class Gpi : GpiBase, IStartGpi, IPlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();        
         private ObservableCollection<GpiBinding> _bindings = new ObservableCollection<GpiBinding>();

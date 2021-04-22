@@ -578,7 +578,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public IRouter Router { get; }
+        public IVideoSwitch Router { get; }
 
         public IList<object> Sources { get; }
 

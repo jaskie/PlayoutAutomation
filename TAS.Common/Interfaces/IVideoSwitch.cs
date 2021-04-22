@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IRouter : IDisposable, INotifyPropertyChanged, IPlugin, IGpi
+    public interface IVideoSwitch : IDisposable, INotifyPropertyChanged, IPlugin, IStartGpi
     {        
         Task<bool> ConnectAsync();
         IList<IVideoSwitchPort> Sources { get; }        

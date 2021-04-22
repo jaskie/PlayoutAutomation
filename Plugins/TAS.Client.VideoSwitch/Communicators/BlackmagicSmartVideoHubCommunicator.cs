@@ -45,7 +45,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         private PortInfo[] _sources;
         
 
-        public BlackmagicSmartVideoHubCommunicator(IRouter device)
+        public BlackmagicSmartVideoHubCommunicator(IVideoSwitch device)
         {
             _router = device as RouterBase;
         }               

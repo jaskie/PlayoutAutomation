@@ -110,7 +110,7 @@ namespace TestData
 				StudioMode = false,
 				TimeCorrection = 0,
 				VideoFormat = TAS.Common.TVideoFormat.HD1080i5000,
-				Gpis = new List<IGpi>
+				Gpis = new List<IStartGpi>
 				{
 					new TAS.Server.Advantech.Configurator.Model.Gpi
 					{

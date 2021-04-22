@@ -145,13 +145,13 @@ namespace TAS.Server
         public ICGElementsController CGElementsController { get; set; }        
 
         [DtoMember, Hibernate]
-        public IRouter Router { get; set; }
+        public IVideoSwitch Router { get; set; }
 
         [Hibernate]
         public ServerHost Remote { get; set; }
 
         [Hibernate]
-        public List<IGpi> Gpis { get; set; }
+        public List<IStartGpi> Gpis { get; set; }
 
         [DtoMember, Hibernate]
         public TAspectRatioControl AspectRatioControl { get; set; }

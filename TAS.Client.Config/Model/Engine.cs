@@ -61,13 +61,13 @@ namespace TAS.Client.Config.Model
         [Hibernate]        
         public ICGElementsController CGElementsController { get; set; }
         [Hibernate]
-        public IRouter Router { get; set; }        
+        public IVideoSwitch Router { get; set; }        
         
         public IDictionary<string, int> FieldLengths { get; set; }          
 
         public List<IConfigCasparServer> Servers { get; set; }
         [Hibernate]
-        public List<IGpi> Gpis { get; set; }
+        public List<IStartGpi> Gpis { get; set; }
 
         public ArchiveDirectories ArchiveDirectories;       
 
