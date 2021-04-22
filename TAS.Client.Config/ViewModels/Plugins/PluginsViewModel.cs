@@ -19,14 +19,18 @@ namespace TAS.Client.Config.ViewModels.Plugins
         public PluginsViewModel(Engine engine)
         {
             _engine = engine;
-
-            if (ConfigurationPluginManager.Current.ConfigurationProviders.Any(c => typeof(ICGElementsController).IsAssignableFrom(c.GetPluginModelType())))
-            {
-                var pluginTypeViewModel = new CgElementsControllersViewModel(engine);
-                PluginTypes.Add(pluginTypeViewModel);
-                pluginTypeViewModel.PluginChanged += PluginTypeViewModel_PluginChanged;                
-            }
-            //TODO
+            foreach (var configurationProvider in ConfigurationPluginManager.Current.ConfigurationProviders)
+                switch (configurationProvider.GetPluginModelType())
+                {
+                    case Type type when typeof(ICGElementsController).IsAssignableFrom(type):
+                        if (!PluginTypes.Any(pt => pt is CgElementsControllersViewModel))
+                        {
+                            var pluginTypeViewModel = new CgElementsControllersViewModel(engine);
+                            PluginTypes.Add(pluginTypeViewModel);
+                            pluginTypeViewModel.PluginChanged += PluginTypeViewModel_PluginChanged;
+                        }
+                        break;
+                }
             _selectedPluginType = PluginTypes.FirstOrDefault();
         }
 
@@ -38,6 +42,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
         }
 
         public bool HasPlugins => PluginTypes.Any();
+        
         public List<PluginTypeViewModelBase> PluginTypes { get; } = new List<PluginTypeViewModelBase>();
         
         public PluginTypeViewModelBase SelectedPluginType
