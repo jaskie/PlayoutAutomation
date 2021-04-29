@@ -150,7 +150,7 @@ namespace TAS.Server
         [Hibernate]
         public ServerHost Remote { get; set; }
 
-        [Hibernate]
+        //[Hibernate]
         public List<IStartGpi> Gpis { get; set; }
 
         [DtoMember, Hibernate]
@@ -948,7 +948,7 @@ namespace TAS.Server
             }
         }
 
-        private async void SetupRouter(Event aEvent, bool isLoadedForPlaying)
+        private void SetupRouter(Event aEvent, bool isLoadedForPlaying)
         {
             if (Router == null)
                 return;
@@ -958,7 +958,7 @@ namespace TAS.Server
                 if (aEvent.EventType == TEventType.Live && _playing != null && Router is IVideoSwitcher videoSwitcher && videoSwitcher.Preload)
                 {
                     Logger.Trace("Engine: executing take");
-                    await videoSwitcher.Take();
+                    videoSwitcher.Take();
                 }
                     
 
@@ -981,7 +981,7 @@ namespace TAS.Server
                     return;
                 
                 Logger.Trace("Engine: preloading source");
-                await vSwitcher.PreloadSource(successor.RouterPort);
+                vSwitcher.PreloadSource(successor.RouterPort);
             }
             else if (aEvent.EventType != TEventType.Live && successor?.EventType == TEventType.Live && !(Router is IVideoSwitcher))
             {

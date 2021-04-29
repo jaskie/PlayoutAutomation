@@ -11,7 +11,7 @@ namespace TAS.Server.VideoSwitch
     [Export(typeof(IPluginConfigurationProvider))]
     public class ConfigurationProvider : IPluginConfigurationProvider
     {
-        public HibernationBinder Binder { get; } = new HibernationBinder(new System.Collections.Generic.Dictionary<Type, System.Type> {
+        public HibernationBinder Binder { get; } = new HibernationBinder(new System.Collections.Generic.Dictionary<Type, Type> {
             { typeof(VideoSwitcher), typeof(VideoSwitcher) },
             { typeof(Router), typeof(Router) },
             { typeof(RouterPort), typeof(RouterPort) }
