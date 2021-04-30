@@ -34,7 +34,6 @@ namespace TAS.Server.VideoSwitch.Communicators
         }
 
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
-        public event EventHandler<EventArgs<PortState[]>> ExtendedStatusReceived;
         public event EventHandler<EventArgs<bool>> ConnectionChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -59,7 +58,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo((short)e.ProgramInput, -1)));
         }        
                 
-        public async Task<bool> ConnectAsync()
+        public bool Connect()
         {
             _disposed = default(int);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -72,17 +71,16 @@ namespace TAS.Server.VideoSwitch.Communicators
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    bool isConnected = false;
-                    await Task.Run(() => isConnected = _atem.Connect(_device.IpAddress, _device.Level));
+                    var isConnected = _atem.Connect(_device.IpAddress, _device.Level);
                     
                     if (!isConnected)
                     {                        
                         Logger.Trace("Could not connect to ATEM. Reconnecting in 3 seconds...");
-                        await Task.Delay(3000);
+                        Thread.Sleep(3000);
                         continue;
                     }
 
-                    Sources = await Task.Run(() => _atem.GetInputPorts());
+                    Sources = _atem.GetInputPorts();
                     SetTransitionStyle(_device.DefaultEffect);
                     Logger.Trace("Connected to ATEM TVS");                                                                                    
                     return true;
@@ -97,7 +95,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     else
                     {
                         Logger.Error(ex);
-                        await Task.Delay(3000);
+                        Thread.Sleep(3000);
                         continue;
                     }
                 }
@@ -113,37 +111,34 @@ namespace TAS.Server.VideoSwitch.Communicators
             _cancellationTokenSource.Cancel();
         }
 
-        public async Task<CrosspointInfo> GetSelectedSource()
+        public CrosspointInfo GetSelectedSource()
         {
-            return await Task.Run(() => new CrosspointInfo((short)_atem.GetCurrentInputPort(), -1)); 
+            return new CrosspointInfo((short)_atem.GetCurrentInputPort(), -1); 
         }       
                 
-        public async void SetSource(int inPort)
+        public void SetSource(int inPort)
         {
-            //ensure MTA
-            await Task.Run(() => _atem.SetProgram(inPort)); 
+            _atem.SetProgram(inPort); 
         }
 
-        public async Task Preload(int sourceId)
+        public void Preload(int sourceId)
         {
-            //ensure MTA
-            await Task.Run(() => _atem.SetPreview(sourceId));
+            _atem.SetPreview(sourceId);
         }
 
         public void SetTransitionStyle(VideoSwitcherTransitionStyle transitionStyle)
         {
-            Task.Run(() => _atem.SetTransition(transitionStyle));
+            _atem.SetTransition(transitionStyle);
         }
 
         public void SetMixSpeed(double rate)
         {
-            Task.Run(() => _atem.SetMixSpeed(100));
+            _atem.SetMixSpeed(100);
         }
 
-        public async Task Take()
+        public void Take()
         {
-            //ensure MTA
-            await Task.Run(() => _atem.Take());
+            _atem.Take();
         }        
     }
 }

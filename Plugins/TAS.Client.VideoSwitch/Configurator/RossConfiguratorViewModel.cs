@@ -100,7 +100,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             
             NotifyPropertyChanged(nameof(TestSources));
             TestRouter.PropertyChanged += TestRouter_PropertyChanged;
-            _ = TestRouter.ConnectAsync();
+            TestRouter.Connect();
         }
 
         protected override void Disconnect(object obj)

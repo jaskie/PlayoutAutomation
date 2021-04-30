@@ -42,10 +42,9 @@ namespace TAS.Server.VideoSwitch.Communicators
         {
             _router = device as Router;               
         }
+                
 
-        
-
-        private async Task<PortInfo[]> GetSources()
+        private PortInfo[] GetSources()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
                 return null;
@@ -59,7 +58,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
                     if (!_responseDictionary.TryRemove(ListTypeEnum.Input, out var response))
-                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);                    
+                        semaphore.Wait(_cancellationTokenSource.Token);
 
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.Input, out response))
                         continue;
@@ -362,7 +361,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public async Task<bool> ConnectAsync()
+        public bool Connect()
         {
             _cancellationTokenSource = new CancellationTokenSource();
 
@@ -376,8 +375,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    var connectTask = _tcpClient.ConnectAsync(_router.IpAddress.Split(':')[0], Int32.Parse(_router.IpAddress.Split(':')[1]));
-                    await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
+                    _tcpClient.Connect(_router.IpAddress.Split(':')[0], Int32.Parse(_router.IpAddress.Split(':')[1]));
 
                     if (_tcpClient.Client?.Connected != true)
                     {
@@ -397,7 +395,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
                     SignalPresenceWatcher();
                     InputPortWatcher();
-                    Sources = await GetSources();
+                    Sources = GetSources();
                     Logger.Info("Nevion router connected and ready!");
 
                     AddToRequestQueue($"login {_router.Login} {_router.Password}");
@@ -440,7 +438,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             Logger.Debug("Nevion communicator disposed");
         }
 
-        public async Task<CrosspointInfo> GetSelectedSource()
+        public CrosspointInfo GetSelectedSource()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
                 return null;
@@ -454,7 +452,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
                     if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
-                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                        semaphore.Wait(_cancellationTokenSource.Token);
 
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out response))
                         continue;

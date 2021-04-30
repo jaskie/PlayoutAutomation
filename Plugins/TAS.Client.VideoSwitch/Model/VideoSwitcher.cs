@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Database.Common;
@@ -31,12 +30,11 @@ namespace TAS.Server.VideoSwitch.Model
             SelectedSource = Sources.FirstOrDefault(param => param.PortId == e.Value.InPort);
         }
         
-        public async Task PreloadSource(int sourceId)
+        public void PreloadSource(int sourceId)
         {
             if (!(Communicator is IVideoSwitchCommunicator videoSwitch))
                 return;
-
-            await videoSwitch.Preload(sourceId);
+            videoSwitch.Preload(sourceId);
         }
 
         public void SetTransitionStyle(VideoSwitcherTransitionStyle videoSwitchEffect)
@@ -47,12 +45,11 @@ namespace TAS.Server.VideoSwitch.Model
             videoSwitch.SetTransitionStyle(videoSwitchEffect);
         }        
 
-        public async Task Take()
+        public void Take()
         {
             if (!(Communicator is IVideoSwitchCommunicator videoSwitch))
                 return;
-
-            await videoSwitch.Take();
+            videoSwitch.Take();
         }        
 
         protected override void Dispose(bool disposing)

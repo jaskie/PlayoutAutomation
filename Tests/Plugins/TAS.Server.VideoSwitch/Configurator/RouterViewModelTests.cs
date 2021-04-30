@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
-using TAS.Client.Config.Model;
 using TAS.Server.VideoSwitch.Configurator;
+using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitchTests.Configurator
 {
@@ -22,7 +22,7 @@ namespace TAS.Server.VideoSwitchTests.Configurator
 
         private RouterConfiguratorViewModel _routerViewModel = new RouterConfiguratorViewModel();
 
-        public void Init(VideoSwitch.Model.VideoSwitcher router)
+        public void Init(VideoSwitcher router)
         {
             _routerViewModel.Initialize(router);
             _routerViewModel.IsEnabled = true;
@@ -31,7 +31,7 @@ namespace TAS.Server.VideoSwitchTests.Configurator
        
         [TestMethod]
         [DynamicData(nameof(GetRouter), DynamicDataSourceType.Method)]
-        public void EditRouter_Confirm(VideoSwitch.VideoSwitch router)
+        public void EditRouter_Confirm(VideoSwitcher router)
         {            
             Init(router);
 

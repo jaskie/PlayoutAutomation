@@ -19,9 +19,6 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
         
-        //Ross does not have API for sources download.
-        public event EventHandler<EventArgs<PortState[]>> ExtendedStatusReceived;
-        
         public event EventHandler<EventArgs<bool>> ConnectionChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -261,7 +258,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             Logger.Debug("Ross communicator disposed");
         }
 
-        public async Task<CrosspointInfo> GetSelectedSource()
+        public CrosspointInfo GetSelectedSource()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
                 return null;
@@ -276,7 +273,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
                     if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
-                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                        semaphore.Wait(_cancellationTokenSource.Token);
 
                     if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out response))
                         continue;
@@ -295,19 +292,9 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        public async Task<PortInfo[]> GetSources()
+        public PortInfo[] GetSources()
         {
-            return await Task.Run(() =>             
-            {
-                var portInfos = new List<PortInfo>();
-
-                foreach (var port in _mc.Sources)
-                {
-                    portInfos.Add(new PortInfo(port.PortId, port.PortName));
-                }
-
-                return portInfos.ToArray();
-            });             
+            return _mc.Sources.Select(p => new PortInfo(p.PortId, p.PortName)).ToArray();
         }
 
         private string SerializeInputIndex(int b)
@@ -337,7 +324,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             _transitionTypeChanged = false;
         }
 
-        public async Task<bool> ConnectAsync()
+        public bool Connect()
         {
             _disposed = default(int);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -352,8 +339,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    var connectTask = _tcpClient.ConnectAsync(_mc.IpAddress.Split(':')[0], Int32.Parse(_mc.IpAddress.Split(':')[1]));
-                    await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
+                    _tcpClient.Connect(_mc.IpAddress.Split(':')[0], Int32.Parse(_mc.IpAddress.Split(':')[1]));
 
                     if (!_tcpClient.Connected)
                     {
@@ -430,12 +416,12 @@ namespace TAS.Server.VideoSwitch.Communicators
             _transitionTypeChanged = true;
         }
 
-        public async Task Preload(int sourceId)
+        public void Preload(int sourceId)
         {
             while (_takeExecuting)
             {
                 Logger.Trace("Waiting Preload");
-                await _waitForTransitionEndSemaphore.WaitAsync();
+                _waitForTransitionEndSemaphore.Wait();
             }
 
             Logger.Trace("Setting preview {0}", sourceId);
@@ -450,7 +436,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             AddToRequestQueue($"FF 03 {rate}");
         }
 
-        public async Task Take()
+        public void Take()
         {
             lock (_syncObject)            
                 _takeExecuting = true;

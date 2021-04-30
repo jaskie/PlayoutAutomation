@@ -69,10 +69,10 @@ namespace TAS.Server.VideoSwitch.Model
             if (e.Value)
                 return;
 
-            _ = ConnectAsync();
+            Connect();
         }                
 
-        private async void SetupDevice(PortInfo[] ports)
+        private void SetupDevice(PortInfo[] ports)
         {
             if (ports == null)
             {
@@ -94,7 +94,7 @@ namespace TAS.Server.VideoSwitch.Model
             }
 
             NotifyPropertyChanged(nameof(Sources));
-            var selectedInput = await Communicator.GetSelectedSource();
+            var selectedInput = Communicator.GetSelectedSource();
 
             if (selectedInput == null)                            
                 return;
@@ -135,14 +135,14 @@ namespace TAS.Server.VideoSwitch.Model
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler Started;
 
-        public async Task<bool> ConnectAsync()
+        public bool Connect()
         {
             if (Communicator == null)
                 return false;
 
             try
             {
-                IsConnected = await Communicator.ConnectAsync();
+                IsConnected = Communicator.Connect();
                 if (IsConnected)
                 {                    
                     SetupDevice(Communicator.Sources);

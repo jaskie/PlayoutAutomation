@@ -56,7 +56,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             var testThread = new Thread(new ThreadStart(() =>
             {
                 _gpiRouter = new VideoSwitcher(CommunicatorType.Atem) { IpAddress = _ipAddress };
-                if (!(_gpiRouter.ConnectAsync().Result))
+                if (!_gpiRouter.Connect())
                     return;              
 
                 foreach (var port in _gpiRouter.Sources)
@@ -95,7 +95,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             };            
 
             TestRouter.PropertyChanged += TestRouter_PropertyChanged;
-            _ = TestRouter.ConnectAsync();            
+            TestRouter.Connect();            
         }
 
         protected override void Disconnect(object obj)

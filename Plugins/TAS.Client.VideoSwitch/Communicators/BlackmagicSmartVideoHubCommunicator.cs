@@ -50,7 +50,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             _router = device as RouterBase;
         }               
 
-        private async Task<PortInfo[]> GetSources()
+        private PortInfo[] GetSources()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
                 return null;
@@ -64,7 +64,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
                     if (!_responseDictionary.TryRemove(ListTypeEnum.Input, out var response))
-                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                        semaphore.Wait(_cancellationTokenSource.Token);
 
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.Input, out response))
                         continue;
@@ -336,7 +336,6 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        public event EventHandler<EventArgs<PortState[]>> ExtendedStatusReceived;
         public event EventHandler<EventArgs<bool>> ConnectionChanged;
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
         public event PropertyChangedEventHandler PropertyChanged;
@@ -353,7 +352,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        public async Task<CrosspointInfo> GetSelectedSource()
+        public CrosspointInfo GetSelectedSource()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
                 return null;
@@ -367,7 +366,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
                     if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
-                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                        semaphore.Wait(_cancellationTokenSource.Token);
 
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out response))
                         continue;
@@ -395,7 +394,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        public async Task<bool> ConnectAsync()
+        public bool Connect()
         {
             _disposed = default(int);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -410,9 +409,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    var connectTask = _tcpClient.ConnectAsync(_router.IpAddress.Split(':')[0], Int32.Parse(_router.IpAddress.Split(':')[1]));
-                    await Task.WhenAny(connectTask, Task.Delay(3000, _cancellationTokenSource.Token)).ConfigureAwait(false);
-
+                    _tcpClient.Connect(_router.IpAddress.Split(':')[0], Int32.Parse(_router.IpAddress.Split(':')[1]));
                     if (!_tcpClient.Connected)
                     {
                         _tcpClient.Close();
@@ -432,7 +429,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     ConnectionWatcher();
                     InputPortWatcher();
 
-                    Sources = await GetSources();
+                    Sources = GetSources();
                     Logger.Info("Blackmagic router connected and ready!");
 
                     return true;
