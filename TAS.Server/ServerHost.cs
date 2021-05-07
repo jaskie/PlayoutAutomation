@@ -14,7 +14,7 @@ namespace TAS.Server
 
         public void Dispose()
         {
-            _serverHost?.Dispose();
+            UnInitialize();
         }
 
         internal void Initialize(Engine engine, jNet.RPC.Server.IPrincipalProvider principalProvider)
@@ -25,7 +25,8 @@ namespace TAS.Server
 
         internal void UnInitialize()
         {
-            _serverHost?.UnInitialize();
+            _serverHost?.Dispose();
+            _serverHost = null;
         }
     }
 }
