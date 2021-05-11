@@ -302,6 +302,8 @@ namespace TAS.Client.ViewModels
 
         protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
+            if (e.Item is null)
+                return;
             switch (e.Item.Layer)
             {
                 case VideoLayer.CG1:
