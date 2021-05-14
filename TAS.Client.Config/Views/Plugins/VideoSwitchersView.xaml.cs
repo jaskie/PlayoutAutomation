@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace TAS.Client.Config.Views.Plugins
 {
     /// <summary>
-    /// Interaction logic for RoutersView.xaml
+    /// Interaction logic for VideoSwitchersView.xaml
     /// </summary>
-    public partial class RoutersView : UserControl
+    public partial class VideoSwitchersView : UserControl
     {
-        public RoutersView()
+        public VideoSwitchersView()
         {
             InitializeComponent();
         }

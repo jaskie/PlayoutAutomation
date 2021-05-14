@@ -30,6 +30,14 @@ namespace TAS.Client.Config.ViewModels.Plugins
                             pluginTypeViewModel.PluginChanged += PluginTypeViewModel_PluginChanged;
                         }
                         break;
+                    case Type type when typeof(IVideoSwitch).IsAssignableFrom(type):
+                        if (!PluginTypes.Any(pt => pt is VideoSwitchersViewModel))
+                        {
+                            var videoSwitchersViewModel = new VideoSwitchersViewModel(engine);
+                            PluginTypes.Add(videoSwitchersViewModel);
+                            videoSwitchersViewModel.PluginChanged += PluginTypeViewModel_PluginChanged;
+                        }
+                        break;
                 }
             _selectedPluginType = PluginTypes.FirstOrDefault();
         }

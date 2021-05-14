@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common.Interfaces;
 using TAS.Server.VideoSwitch.Model;
 
@@ -15,40 +16,15 @@ namespace TAS.Server.VideoSwitch.Configurator
         private CommunicatorType? _selectedCommunicatorType;
         private Router _router;
         private VideoSwitcher _videoSwitcher;
+        IConfigEngine _engine;
                
-        public RouterConfiguratorViewModel()
-        {                        
-            CommandSave = new UiCommand(UpdateModel, CanUpdateModel);
-            CommandUndo = new UiCommand(Undo, CanUndo);            
+        public RouterConfiguratorViewModel(IConfigEngine engine)
+        {
+            _engine = engine;
+            Undo();
         }
 
-        private bool CanUpdateModel(object obj)
-        {
-            return CommunicatorConfigurator.CanSave();
-        }
-
-        private void UpdateModel(object obj = null)
-        {
-            CommunicatorConfigurator.Save();
-
-            if (CommunicatorConfigurator.GetModel() is VideoSwitcher videoSwitcher)
-                _videoSwitcher = videoSwitcher;
-            else if (CommunicatorConfigurator.GetModel() is Router router)
-                _router = router;
-
-            PluginChanged?.Invoke(this, EventArgs.Empty);
-        }         
-
-        private bool CanUndo(object obj)
-        {
-            return CommunicatorConfigurator.CanUndo();
-        }
-
-        private void Undo(object obj)
-        {
-            CommunicatorConfigurator.Undo();            
-        }                                     
-
+        
         public string PluginName => "VideoSwitch";
 
         public bool IsEnabled 
@@ -65,7 +41,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         
         public event EventHandler PluginChanged;
         
-        public List<CommunicatorType> CommunicatorTypes { get; set; } = Enum.GetValues(typeof(CommunicatorType)).Cast<CommunicatorType>().ToList();
+        public CommunicatorType[] CommunicatorTypes { get; set; } = Enum.GetValues(typeof(CommunicatorType)).Cast<CommunicatorType>().ToArray();
         
         
         public CommunicatorType? SelectedCommunicatorType 
@@ -97,10 +73,7 @@ namespace TAS.Server.VideoSwitch.Configurator
                     CommunicatorConfigurator.IsEnabled = _isEnabled;
             }
         }                                
-                    
-        
-        public UiCommand CommandSave { get; }
-        public UiCommand CommandUndo { get; }
+                   
         public ConfiguratorViewModelBase CommunicatorConfigurator 
         { 
             get => _communicatorConfigurator;
@@ -164,7 +137,16 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public void Save()
         {
+            CommunicatorConfigurator.Save();
+            if (CommunicatorConfigurator.GetModel() is VideoSwitcher videoSwitcher)
+                _videoSwitcher = videoSwitcher;
+            else if (CommunicatorConfigurator.GetModel() is Router router)
+                _router = router;
+        }
 
+        public void Undo()
+        {
+            //CommunicatorConfigurator.Undo();
         }
 
         protected override void OnDispose()

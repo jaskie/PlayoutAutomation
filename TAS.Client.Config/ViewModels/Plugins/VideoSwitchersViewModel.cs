@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Data;
+using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common.Interfaces;
 
@@ -18,9 +20,11 @@ namespace TAS.Client.Config.ViewModels.Plugins
         {
             _engine = engine;
 
-            Configurators = CollectionViewSource.GetDefaultView(_configurators);
+
+            Configurators = new List<IPluginConfiguratorViewModel> { new EmptyPluginConfiguratorViewModel() };
             Name = "Video switchers";
-            //SelectedConfigurator = _configurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.Router?.GetType()) ?? _configurators.First();              
+            Configurators.AddRange(ConfigurationPluginManager.Current.ConfigurationProviders.Select(p => p.GetConfiguratorViewModel(engine)));
+            //_selectedConfigurator = _configurators.FirstOrDefault(p => p.GetModel()?.GetType() == _engine.Router?.GetType()) ?? _configurators.First();
         }
 
         private void PluginConfigurator_PluginChanged(object sender, EventArgs e)
@@ -28,7 +32,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
             RaisePluginChanged();
         }
 
-        public ICollectionView Configurators { get; }
+        public List<IPluginConfiguratorViewModel> Configurators { get; }
 
         public IPluginConfiguratorViewModel SelectedConfigurator
         {
@@ -48,5 +52,30 @@ namespace TAS.Client.Config.ViewModels.Plugins
         {
             _selectedConfigurator.Save();
         }
+    }
+
+    internal class EmptyPluginConfiguratorViewModel : IPluginConfiguratorViewModel
+    {
+        public string PluginName { get; } = Common.Properties.Resources._none_;
+
+        public event EventHandler PluginChanged;
+
+        public void Dispose() { }
+
+        public void Initialize(IPlugin model)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Save() { }
+
+        public void Undo() { }
+
+
+        public override string ToString()
+        {
+            return "You can select a plugin from list above";
+        }
+                
     }
 }

@@ -32,7 +32,7 @@
                     <pluginsView:GpisView />
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type pluginsVm:VideoSwitchersViewModel}">
-                    <pluginsView:RoutersView />
+                    <pluginsView:VideoSwitchersView />
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>

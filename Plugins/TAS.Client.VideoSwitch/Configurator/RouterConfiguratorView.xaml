@@ -47,24 +47,5 @@
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>
-        <Grid Grid.Row="2" Margin="5,10" Grid.ColumnSpan="2">
-            <Button Command="{Binding CommandSave}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Padding="10,5,10,5">
-                <Button.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Margin="5,0" Padding="0" Content="Save" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                        <Image Source="/TAS.Client.Common;component/Images/Actions/apply.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-            <Button Command="{Binding CommandUndo}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="10,5,10,5">
-                <Button.Content>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Margin="5,0" Padding="0" Content="Undo" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                        <Image Source="/TAS.Client.Common;component/Images/Actions/undo.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-        </Grid>
-        
     </Grid>
 </UserControl>
