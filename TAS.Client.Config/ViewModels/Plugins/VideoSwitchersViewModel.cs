@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Windows.Data;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
-using TAS.Database.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {

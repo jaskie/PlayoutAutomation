@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using TAS.Common.Interfaces;
-using TAS.Database.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {
@@ -14,7 +14,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
             Name = "Channel branding controllers";
 
             Configurators = ConfigurationPluginManager.Current.ConfigurationProviders
-                .Where(p => typeof(ICGElementsController).IsAssignableFrom(p.GetPluginModelType()))
+                .Where(p => p.GetPluginInterfaceType() == typeof(ICGElementsController))
                 .Select(p =>
                 {
                     var configuratorVm = p.GetConfiguratorViewModel(engine);

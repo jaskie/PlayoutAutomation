@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Data;
 using TAS.Common.Interfaces;
-using TAS.Database.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {

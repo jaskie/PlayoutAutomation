@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
-using TAS.Database.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Configurator

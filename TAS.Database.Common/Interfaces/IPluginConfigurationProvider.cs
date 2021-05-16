@@ -1,5 +1,6 @@
 ﻿using System;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Database.Common.Interfaces
 {
@@ -7,6 +8,6 @@ namespace TAS.Database.Common.Interfaces
     {
         IPluginConfiguratorViewModel GetConfiguratorViewModel(IEngineProperties engine);
         HibernationBinder Binder { get; }
-        Type GetPluginModelType();
+        Type GetPluginInterfaceType();
     }
 }

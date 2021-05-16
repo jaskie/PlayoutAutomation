@@ -19,9 +19,9 @@ namespace TAS.Client.Config.ViewModels.Plugins
         {
             _engine = engine;
             foreach (var configurationProvider in ConfigurationPluginManager.Current.ConfigurationProviders)
-                switch (configurationProvider.GetPluginModelType())
+                switch (configurationProvider.GetPluginInterfaceType())
                 {
-                    case Type type when typeof(ICGElementsController).IsAssignableFrom(type):
+                    case Type type when typeof(ICGElementsController) == type:
                         if (!PluginTypes.Any(pt => pt is CgElementsControllersViewModel))
                         {
                             var pluginTypeViewModel = new CgElementsControllersViewModel(engine);
@@ -29,7 +29,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
                             pluginTypeViewModel.PluginChanged += PluginTypeViewModel_PluginChanged;
                         }
                         break;
-                    case Type type when typeof(IVideoSwitch).IsAssignableFrom(type):
+                    case Type type when typeof(IVideoSwitch) == type:
                         if (!PluginTypes.Any(pt => pt is VideoSwitchersViewModel))
                         {
                             var videoSwitchersViewModel = new VideoSwitchersViewModel(engine);

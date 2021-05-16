@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
-using TAS.Database.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Server.CgElementsController.Configurator
 {

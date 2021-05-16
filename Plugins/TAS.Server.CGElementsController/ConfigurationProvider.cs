@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common;
 using TAS.Database.Common.Interfaces;
 using TAS.Server.CgElementsController.Configurator;
@@ -24,9 +25,9 @@ namespace TAS.Server.CgElementsController
 
         public IPluginConfiguratorViewModel GetConfiguratorViewModel(IEngineProperties engine) => new CgElementsControllerViewModel();
 
-        public Type GetPluginModelType()
+        public Type GetPluginInterfaceType()
         {
-            return typeof(CgElementsController);
+            return typeof(ICGElementsController);
         }
     }
 }

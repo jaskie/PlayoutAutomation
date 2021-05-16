@@ -1,7 +1,6 @@
 ﻿using System;
-using TAS.Common.Interfaces;
 
-namespace TAS.Database.Common.Interfaces
+namespace TAS.Common.Interfaces.Configurator
 {
     public interface IPluginConfiguratorViewModel: IDisposable
     {

@@ -63,7 +63,6 @@
     <Compile Include="DatabaseLoader.cs" />
     <Compile Include="DbEventExtensions.cs" />
     <Compile Include="HibernationBinder.cs" />
-    <Compile Include="Interfaces\IPluginConfiguratorViewModel.cs" />
     <Compile Include="PluginSerializationBinder.cs" />
     <Compile Include="HibernationContractResolver.cs" />
     <Compile Include="Interfaces\IDatabase.cs" />
