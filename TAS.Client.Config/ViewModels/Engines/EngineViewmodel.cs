@@ -93,7 +93,11 @@ namespace TAS.Client.Config.ViewModels.Engines
             }
         }
 
-        protected override void OnDispose() { }
+        protected override void OnDispose() 
+        {
+            Plugins.PluginChanged -= PluginsViewModel_PluginChanged;
+            Plugins.Dispose();
+        }
 
         public Array VideoFormats { get; } = Enum.GetValues(typeof(TVideoFormat));
 

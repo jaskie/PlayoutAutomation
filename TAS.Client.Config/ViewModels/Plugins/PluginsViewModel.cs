@@ -43,13 +43,9 @@ namespace TAS.Client.Config.ViewModels.Plugins
         public PluginTypeViewModelBase SelectedPluginType
         {
             get => _selectedPluginType;
-            set
-            {
-                if (!SetField(ref _selectedPluginType, value))
-                    return;                                
-            }
+            set => SetField(ref _selectedPluginType, value);
         }
-                                                           
+
         public void Save()
         {
             foreach (var pluginType in PluginTypes)

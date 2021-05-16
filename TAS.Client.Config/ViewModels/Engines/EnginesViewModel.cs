@@ -62,6 +62,8 @@ namespace TAS.Client.Config.ViewModels.Engines
         protected override void OnDispose()
         {
             Engines.CollectionChanged -= _engines_CollectionChanged;
+            foreach (var engine in Engines)
+                engine.Dispose();
             _engines.Dispose();
         }
 
