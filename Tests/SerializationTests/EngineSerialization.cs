@@ -10,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using TAS.Client.Config;
-using TAS.Common.Interfaces.Configurator;
+using TAS.Common.Interfaces;
 using TAS.Database.Common;
 using TAS.Database.Common.Interfaces;
 using TAS.Server;
@@ -75,7 +75,7 @@ namespace SerializationTests
 
         [TestMethod]
         [DynamicData(nameof(GetConfigEngine), DynamicDataSourceType.Method)]
-        public void SerializeAndDeserialize(IConfigEngine configEngine)
+        public void SerializeAndDeserialize(IEnginePersistent configEngine)
         {
             _jsonSerializerSettings.SerializationBinder = new PluginSerializationBinder(ConfigurationPluginManager.Current.Binders);
             var json = JsonConvert.SerializeObject(configEngine, _jsonSerializerSettings);
@@ -99,7 +99,7 @@ namespace SerializationTests
             Assert.AreEqual(configEngine.VideoFormat, deserialized.VideoFormat);
 
             Assert.IsTrue(configEngine.CGElementsController?.IsEnabled ?? false ? deserialized.CGElementsController != null : deserialized.CGElementsController == null);
-            Assert.IsTrue(configEngine.Router?.IsEnabled ?? false ? deserialized.Router != null : deserialized.Router == null);
+            Assert.IsTrue(configEngine.VideoSwitch?.IsEnabled ?? false ? deserialized.VideoSwitch != null : deserialized.VideoSwitch == null);
 
             Assert.AreEqual(configEngine.Gpis?.Count, deserialized.Gpis?.Count, "Gpis did not deserialize properly");
             

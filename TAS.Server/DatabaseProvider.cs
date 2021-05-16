@@ -14,7 +14,7 @@ namespace TAS.Server
             if (!Enum.TryParse<DatabaseType>(ConfigurationManager.AppSettings["DatabaseType"], out var databaseType))
                 throw new ApplicationException("Database type not configured");
             Database = DatabaseLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType) ??
-                throw new ApplicationException($"Database provider {databaseType} not available");
+                throw new ApplicationException($"Database provider plugin for {databaseType} not found");
             Database.Open(ConfigurationManager.ConnectionStrings, false, null);
             Database.InitializeFieldLengths();                        
         }

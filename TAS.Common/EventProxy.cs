@@ -39,7 +39,7 @@ namespace TAS.Common
         public byte Crawl { get; set; }
         public byte Logo { get; set; }
         public byte Parental { get; set; }
-        public int RouterPort { get; set; }        
+        public int VideoSwitchPort { get; set; }        
         public AutoStartFlags AutoStartFlags { get; set; }
         [DefaultValue(default(TemplateMethod))]
         public TemplateMethod Method { get; set; }

@@ -8,7 +8,7 @@ namespace TAS.Server.VideoSwitch.Model
     {        
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();                                          
 
-        public Router(CommunicatorType type = CommunicatorType.Unknown) : base(type)
+        public Router(CommunicatorType type = CommunicatorType.None) : base(type)
         {         
             if (Communicator != null)
                 Communicator.SourceChanged += Communicator_OnInputPortChangeReceived;                                  

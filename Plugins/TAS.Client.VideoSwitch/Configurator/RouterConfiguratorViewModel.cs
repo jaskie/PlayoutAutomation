@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
-using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common.Interfaces;
 using TAS.Server.VideoSwitch.Model;
 
@@ -13,19 +12,19 @@ namespace TAS.Server.VideoSwitch.Configurator
     {
         private bool _isEnabled;
         ConfiguratorViewModelBase _communicatorConfigurator;    
-        private CommunicatorType? _selectedCommunicatorType;
+        private CommunicatorType _selectedCommunicatorType;
         private Router _router;
         private VideoSwitcher _videoSwitcher;
-        IConfigEngine _engine;
+        IEngineProperties _engine;
                
-        public RouterConfiguratorViewModel(IConfigEngine engine)
+        public RouterConfiguratorViewModel(IEngineProperties engine)
         {
             _engine = engine;
-            Undo();
+            Load();
         }
 
         
-        public string PluginName => "VideoSwitch";
+        public string PluginName => "Video switch";
 
         public bool IsEnabled 
         {
@@ -44,7 +43,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         public CommunicatorType[] CommunicatorTypes { get; set; } = Enum.GetValues(typeof(CommunicatorType)).Cast<CommunicatorType>().ToArray();
         
         
-        public CommunicatorType? SelectedCommunicatorType 
+        public CommunicatorType SelectedCommunicatorType 
         { 
             get => _selectedCommunicatorType;
             set
@@ -58,7 +57,6 @@ namespace TAS.Server.VideoSwitch.Configurator
                         CommunicatorConfigurator = new NevionConfiguratorViewModel(_router);                       
                         break;                    
                     case CommunicatorType.BlackmagicSmartVideoHub:
-                    case CommunicatorType.Unknown:
                         CommunicatorConfigurator = new BlackmagicConfiguratorViewModel(_router);
                         break;
                     case CommunicatorType.Atem:
@@ -66,6 +64,9 @@ namespace TAS.Server.VideoSwitch.Configurator
                         break;
                     case CommunicatorType.Ross:
                         CommunicatorConfigurator = new RossConfiguratorViewModel(_videoSwitcher);
+                        break;
+                    case CommunicatorType.None:
+                        CommunicatorConfigurator = null;
                         break;
                 }
 
@@ -144,8 +145,9 @@ namespace TAS.Server.VideoSwitch.Configurator
                 _router = router;
         }
 
-        public void Undo()
+        public void Load()
         {
+
             //CommunicatorConfigurator.Undo();
         }
 

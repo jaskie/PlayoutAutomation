@@ -8,7 +8,7 @@ namespace TAS.Client.ViewModels
         private string _videoSwitchPortName = string.Empty;
         public EventPanelLiveViewModel(IEvent ev, EventPanelViewModelBase parent) : base(ev, parent) 
         {
-            VideoSwitchPortName = EngineViewModel.Router?.Sources?.FirstOrDefault(p => p.PortId == Event.RouterPort)?.PortName;
+            VideoSwitchPortName = EngineViewModel.VideoSwitch?.Sources?.FirstOrDefault(p => p.PortId == Event.VideoSwitchPort)?.PortName;
             Event.PropertyChanged += Event_PropertyChanged;
         }
 
@@ -16,8 +16,8 @@ namespace TAS.Client.ViewModels
         {
             switch(e.PropertyName)
             {
-                case nameof(Event.RouterPort):
-                    VideoSwitchPortName = EngineViewModel.Router?.Sources?.FirstOrDefault(p => p.PortId == Event.RouterPort)?.PortName;
+                case nameof(Event.VideoSwitchPort):
+                    VideoSwitchPortName = EngineViewModel.VideoSwitch?.Sources?.FirstOrDefault(p => p.PortId == Event.VideoSwitchPort)?.PortName;
                     break;
             }
         }

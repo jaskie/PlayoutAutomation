@@ -6,11 +6,11 @@ namespace TAS.Server.VideoSwitch.Model
     [JsonConverter(typeof(StringEnumConverter))]
     public enum CommunicatorType
     {
+        None,
         Nevion,
         BlackmagicSmartVideoHub,
         Atem,
-        Ross,
-        Unknown
+        Ross
     }
     public enum ListTypeEnum
     {

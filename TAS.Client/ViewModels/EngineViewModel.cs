@@ -40,10 +40,10 @@ namespace TAS.Client.ViewModels
             Engine = engine;
             VideoFormat = engine.VideoFormat;
             IsInterlacedFormat = engine.FormatDescription.Interlaced;
-            Router = engine.Router;
+            VideoSwitch = engine.VideoSwitch;
 
-            if (Router != null)
-                EngineRouterViewModel = new EngineRouterViewModel(Router);
+            if (VideoSwitch != null)
+                EngineVideoSwitchViewModel = new EngineVideoSwitchViewModel(VideoSwitch);
 
             RootEventViewModel = new EventPanelRootViewModel(this);
             Engine.EngineTick += _engineTick;
@@ -248,7 +248,7 @@ namespace TAS.Client.ViewModels
 
         public IUiPreview Preview => _preview;
 
-        public EngineRouterViewModel EngineRouterViewModel { get; }
+        public EngineVideoSwitchViewModel EngineVideoSwitchViewModel { get; }
 
         public bool IsSearchPanelVisible { get => _isSearchPanelVisible; set => SetField(ref _isSearchPanelVisible, value); }
 
@@ -306,7 +306,7 @@ namespace TAS.Client.ViewModels
             VideoPreview?.Dispose();
             if (Engine.CGElementsController != null)
                 Engine.CGElementsController.PropertyChanged -= _cGElementsController_PropertyChanged;
-            EngineRouterViewModel?.Dispose();
+            EngineVideoSwitchViewModel?.Dispose();
         }
 
 
@@ -1047,7 +1047,7 @@ namespace TAS.Client.ViewModels
 
         public IVideoPreview VideoPreview { get; }
 
-        public IVideoSwitch Router { get; }
+        public IVideoSwitch VideoSwitch { get; }
 
         public bool IsAnyPluginVisible => _plugins != null && _plugins.Any(p => p.Menu != null);
 

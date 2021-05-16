@@ -17,9 +17,9 @@ namespace TAS.Server.AdvantechTests.Configurator
 
         private GpiViewModel _gpiViewModel = new GpiViewModel();
 
-        public void Init(Gpi router)
+        public void Init(Gpi gpi)
         {
-            _gpiViewModel.Initialize(router);
+            _gpiViewModel.Initialize(gpi);
             _gpiViewModel.IsEnabled = true;
             _gpiViewModel.IsModified = false;
         }

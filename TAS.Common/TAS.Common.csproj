@@ -88,7 +88,6 @@
     <Compile Include="Interfaces\Configurator\IConfigArchiveDirectory.cs" />
     <Compile Include="Interfaces\Configurator\IConfigCasparChannel.cs" />
     <Compile Include="Interfaces\Configurator\IConfigCasparServer.cs" />
-    <Compile Include="Interfaces\Configurator\IConfigEngine.cs" />
     <Compile Include="Interfaces\Configurator\IConfigRecorder.cs" />
     <Compile Include="Interfaces\IVideoSwitcher.cs" />
     <Compile Include="Interfaces\IVideoSwitch.cs" />

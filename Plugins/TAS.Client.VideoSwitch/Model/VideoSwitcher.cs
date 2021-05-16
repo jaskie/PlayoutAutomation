@@ -15,7 +15,7 @@ namespace TAS.Server.VideoSwitch.Model
         public VideoSwitcherTransitionStyle DefaultEffect { get; set; }
         #endregion
 
-        public VideoSwitcher(CommunicatorType type = CommunicatorType.Unknown) : base(type)
+        public VideoSwitcher(CommunicatorType type = CommunicatorType.None) : base(type)
         {         
             if (Communicator != null)            
                 Communicator.SourceChanged += Communicator_SourceChanged;

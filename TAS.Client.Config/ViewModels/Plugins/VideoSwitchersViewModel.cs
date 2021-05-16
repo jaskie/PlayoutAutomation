@@ -11,12 +11,12 @@ namespace TAS.Client.Config.ViewModels.Plugins
 {
     internal class VideoSwitchersViewModel : PluginTypeViewModelBase
     {
-        private IConfigEngine _engine;
+        private IEngineProperties _engine;
 
         private IList<IPluginConfiguratorViewModel> _configurators = new List<IPluginConfiguratorViewModel>();
         private IPluginConfiguratorViewModel _selectedConfigurator;
 
-        public VideoSwitchersViewModel(IConfigEngine engine)
+        public VideoSwitchersViewModel(IEngineProperties engine)
         {
             _engine = engine;
 
@@ -69,7 +69,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
 
         public void Save() { }
 
-        public void Undo() { }
+        public void Load() { }
 
 
         public override string ToString()

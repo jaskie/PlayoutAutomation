@@ -13,7 +13,7 @@ namespace TAS.Client.Config.Model
         readonly IDatabase _db;
         public PlayoutServers(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {
-            _db = DatabaseLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
+            _db = DatabaseLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType) ?? throw new ApplicationException($"Database provider plugin for {databaseType} not found"); ;
             _db.Open(connectionStringSettingsCollection, true, ConfigurationPluginManager.Current.Binders);
             Servers = _db.LoadServers<CasparServer>().ToList();
             Servers.ForEach(s =>

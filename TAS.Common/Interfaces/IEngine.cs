@@ -61,7 +61,7 @@ namespace TAS.Common.Interfaces
             IDictionary<string, string> fields = null,
             TemplateMethod method = TemplateMethod.Add,
             int templateLayer = 10,
-            short routerPort = -1,
+            short videoSwicthPort = -1,
             RecordingInfo recordingInfo = null
         );
 
@@ -94,8 +94,6 @@ namespace TAS.Common.Interfaces
         event EventHandler<EventEventArgs> VisibleEventAdded;
         event EventHandler<EventEventArgs> VisibleEventRemoved;
         event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
-        IVideoSwitch Router { get; }
-        ICGElementsController CGElementsController { get; }
     }
 
     public interface IEngineProperties
@@ -107,7 +105,10 @@ namespace TAS.Common.Interfaces
         TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
         bool StudioMode { get; set; }
         int TimeCorrection { get; set; }
-        int CGStartDelay { get; set; }        
+        int CGStartDelay { get; set; }
+        IVideoSwitch VideoSwitch { get; }
+        ICGElementsController CGElementsController { get; }
+
     }
 
     public interface IEnginePersistent : IEngineProperties, IPersistent
@@ -119,6 +120,7 @@ namespace TAS.Common.Interfaces
         int ServerChannelSEC { get; set; }
         ulong IdServerPRV { get; set; }
         int ServerChannelPRV { get; set; }
-        ulong IdArchive { get; set; }        
+        ulong IdArchive { get; set; }
+        List<IStartGpi> Gpis { get; }
     }
 }

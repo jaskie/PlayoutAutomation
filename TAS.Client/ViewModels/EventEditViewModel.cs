@@ -39,8 +39,8 @@ namespace TAS.Client.ViewModels
         private TimeSpan _scheduledDelay;
         private bool _isEventNameFocused;
 
-        #region Router
-        private int _routerPort = -1;
+        #region VideoSwitch
+        private int _videoSwitchPort = -1;
         private object _selectedSource;
         #endregion
                      
@@ -61,15 +61,15 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewModel = new EventRightsEditViewModel(@event, engineViewModel.Engine.AuthenticationService);
                 EventRightsEditViewModel.ModifiedChanged += RightsModifiedChanged;
             }
-            Router = engineViewModel.Router;
+            VideoSwitch = engineViewModel.VideoSwitch;
             Sources = new List<object>();
 
-            if (Router != null)
+            if (VideoSwitch != null)
             {
                 Sources.Add(string.Empty); //default value in ComboBox
-                foreach (var input in Router.Sources)
+                foreach (var input in VideoSwitch.Sources)
                     Sources.Add(input);
-                _selectedSource = Sources?.FirstOrDefault(param => param is IVideoSwitchPort routerPort && routerPort.PortId == _routerPort) ?? Sources?[0];
+                _selectedSource = Sources?.FirstOrDefault(param => param is IVideoSwitchPort port && port.PortId == _videoSwitchPort) ?? Sources?[0];
             }
                             
             if (@event.EventType == TEventType.Live && Model.Engine.MediaManager.Recorders.Count() > 0)
@@ -563,22 +563,22 @@ namespace TAS.Client.ViewModels
 
         public TVideoFormat VideoFormat => _engineViewModel.VideoFormat;
 
-        #region Router
-        public int RouterPort
+        #region VideoSwitch
+        public int VideoSwitchPort
         {
-            get => _routerPort;
+            get => _videoSwitchPort;
             set
             {
-                if (_routerPort == value)
+                if (_videoSwitchPort == value)
                     return;
 
-                _routerPort = value;
-                _selectedSource = Sources?.FirstOrDefault(p => p is IVideoSwitchPort routerPort && routerPort.PortId == value) ?? Sources?[0];
+                _videoSwitchPort = value;
+                _selectedSource = Sources?.FirstOrDefault(p => p is IVideoSwitchPort port && port.PortId == value) ?? Sources?[0];
                 NotifyPropertyChanged(nameof(SelectedSource));
             }
         }
 
-        public IVideoSwitch Router { get; }
+        public IVideoSwitch VideoSwitch { get; }
 
         public IList<object> Sources { get; }
 
@@ -590,13 +590,13 @@ namespace TAS.Client.ViewModels
                 if (!SetField(ref _selectedSource, value))
                     return;
 
-                if (!(value is IVideoSwitchPort routerPort))
+                if (!(value is IVideoSwitchPort port))
                 {
-                    RouterPort = -1;
+                    VideoSwitchPort = -1;
                     return;
                 }
                 
-                RouterPort = routerPort.PortId;
+                VideoSwitchPort = port.PortId;
             }
         }
 
@@ -881,8 +881,8 @@ namespace TAS.Client.ViewModels
                         _transitionPauseTime = s.TransitionPauseTime;
                         NotifyPropertyChanged(nameof(TransitionPauseTime));
                         break;
-                    case nameof(IEvent.RouterPort):
-                        RouterPort = s.RouterPort;                        
+                    case nameof(IEvent.VideoSwitchPort):
+                        VideoSwitchPort = s.VideoSwitchPort;                        
                         break;                    
                     case nameof(IEvent.CurrentUserRights):
                         InvalidateRequerySuggested();

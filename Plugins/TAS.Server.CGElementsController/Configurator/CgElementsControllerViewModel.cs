@@ -106,7 +106,7 @@ namespace TAS.Server.CgElementsController.Configurator
             IsModified = true;
         }
 
-        private void Load()
+        public void Load()
         {
             IsLoading = true;
             try

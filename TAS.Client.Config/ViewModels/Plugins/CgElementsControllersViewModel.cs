@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using TAS.Common.Interfaces;
-using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Plugins
@@ -10,7 +9,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
     {
         private IPluginConfiguratorViewModel _selectedConfigurator;
                 
-        public CgElementsControllersViewModel(IConfigEngine engine)
+        public CgElementsControllersViewModel(IEngineProperties engine)
         {
             Name = "Channel branding controllers";
 

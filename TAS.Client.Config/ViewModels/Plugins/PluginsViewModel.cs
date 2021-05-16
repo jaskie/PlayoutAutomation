@@ -4,14 +4,13 @@ using System.Linq;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
 using TAS.Common.Interfaces;
-using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {
     public class PluginsViewModel : ViewModelBase
     {
         public static string FileNameSearchPattern { get; } = "TAS.Server.*.dll";
-        private IConfigEngine _engine;
+        private Engine _engine;
         public event EventHandler PluginChanged;
 
         private PluginTypeViewModelBase _selectedPluginType;

@@ -7,7 +7,7 @@ using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Client.Config.Model
 {
-    public class Engine : IEnginePersistent, IConfigEngine
+    public class Engine : IEnginePersistent
     {
         public ulong Id { get; set; }
 
@@ -57,15 +57,16 @@ namespace TAS.Client.Config.Model
         //note for JJ, what is it?
         public bool IsModified = false;
 
-        public bool IsNew = true;
         [Hibernate]        
         public ICGElementsController CGElementsController { get; set; }
+        
         [Hibernate]
-        public IVideoSwitch Router { get; set; }        
+        public IVideoSwitch VideoSwitch { get; set; }        
         
         public IDictionary<string, int> FieldLengths { get; set; }          
 
         public List<IConfigCasparServer> Servers { get; set; }
+        
         [Hibernate]
         public List<IStartGpi> Gpis { get; set; }
 

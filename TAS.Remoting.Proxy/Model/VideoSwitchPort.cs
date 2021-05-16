@@ -4,7 +4,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    class RouterPort : ProxyObjectBase, IVideoSwitchPort
+    class VideoSwitchPort : ProxyObjectBase, IVideoSwitchPort
     {
         #pragma warning disable CS0649
         [DtoMember(nameof(IVideoSwitchPort.PortId))]

@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace TAS.Client.Views
 {
     /// <summary>
-    /// Interaction logic for SwitcherView.xaml
+    /// Interaction logic for EngineVideoSwitchView.xaml
     /// </summary>
-    public partial class SwitcherView : UserControl
+    public partial class EngineVideoSwitchView : UserControl
     {
-        public SwitcherView()
+        public EngineVideoSwitchView()
         {
             InitializeComponent();
         }

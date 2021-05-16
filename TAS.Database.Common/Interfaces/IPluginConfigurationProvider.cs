@@ -1,11 +1,11 @@
 ﻿using System;
-using TAS.Common.Interfaces.Configurator;
+using TAS.Common.Interfaces;
 
 namespace TAS.Database.Common.Interfaces
 {
     public interface IPluginConfigurationProvider
     {
-        IPluginConfiguratorViewModel GetConfiguratorViewModel(IConfigEngine engine);
+        IPluginConfiguratorViewModel GetConfiguratorViewModel(IEngineProperties engine);
         HibernationBinder Binder { get; }
         Type GetPluginModelType();
     }

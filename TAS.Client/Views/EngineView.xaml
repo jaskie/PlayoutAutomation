@@ -414,10 +414,10 @@
                             </StackPanel>
                         </MenuItem>
                     </Menu>
-                    <ContentControl Content="{Binding EngineRouterViewModel}">
+                    <ContentControl Content="{Binding EngineVideoSwitchViewModel}">
                         <ContentControl.Resources>
-                            <DataTemplate DataType="{x:Type vievmodels:EngineRouterViewModel}">
-                                <views:EngineRouterView />
+                            <DataTemplate DataType="{x:Type vievmodels:EngineVideoSwitchViewModel}">
+                                <views:EngineVideoSwitchView />
                             </DataTemplate>
                         </ContentControl.Resources>
                     </ContentControl>

@@ -96,7 +96,7 @@
     <Compile Include="Model\PlayoutServerChannel.cs" />
     <Compile Include="Model\Preview.cs" />
     <Compile Include="Model\Recorder.cs" />
-    <Compile Include="Model\RouterPort.cs" />
+    <Compile Include="Model\VideoSwitchPort.cs" />
     <Compile Include="Model\SearchProvider.cs" />
     <Compile Include="Model\Security\AuthenticationService.cs" />
     <Compile Include="Model\Security\EngineAclRight.cs" />

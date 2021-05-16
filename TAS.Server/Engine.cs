@@ -145,7 +145,7 @@ namespace TAS.Server
         public ICGElementsController CGElementsController { get; set; }        
 
         [DtoMember, Hibernate]
-        public IVideoSwitch Router { get; set; }
+        public IVideoSwitch VideoSwitch { get; set; }
 
         [Hibernate]
         public ServerHost Remote { get; set; }
@@ -310,8 +310,8 @@ namespace TAS.Server
                 Remote.Initialize(this, new PrincipalProvider(_authenticationService));
             }
 
-            if (Router != null)
-                Router.Started += _gpiStartLoaded;
+            if (VideoSwitch != null)
+                VideoSwitch.Started += _gpiStartLoaded;
 
             if (Gpis != null)
                 foreach (var gpi in Gpis)
@@ -675,7 +675,7 @@ namespace TAS.Server
             IDictionary<string, string> fields = null,
             TemplateMethod method = TemplateMethod.Add,
             int templateLayer = 10,
-            short routerPort = -1,
+            short videoSwitchPort = -1,
             RecordingInfo recordingInfo = null
         )
         {
@@ -691,7 +691,7 @@ namespace TAS.Server
                     result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, startType, playState, scheduledDelay, eventName, startTime, isEnabled, command);
                     break;
                 default:
-                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental, routerPort, recordingInfo);
+                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental, videoSwitchPort, recordingInfo);
                     break;
             }
             if (idRundownEvent != 0)
@@ -855,8 +855,8 @@ namespace TAS.Server
                 Remote.UnInitialize();
             }
 
-            if (Router != null)
-                Router.Started -= _gpiStartLoaded;
+            if (VideoSwitch != null)
+                VideoSwitch.Started -= _gpiStartLoaded;
 
             if (Gpis != null)
                 foreach (var gpi in Gpis)
@@ -948,48 +948,48 @@ namespace TAS.Server
             }
         }
 
-        private void SetupRouter(Event aEvent, bool isLoadedForPlaying)
+        private void SetupVideoSwitch(Event aEvent, bool isLoadedForPlaying)
         {
-            if (Router == null)
+            if (VideoSwitch == null)
                 return;
 
             if (isLoadedForPlaying)
             {
-                if (aEvent.EventType == TEventType.Live && _playing != null && Router is IVideoSwitcher videoSwitcher && videoSwitcher.Preload)
+                if (aEvent.EventType == TEventType.Live && _playing != null && VideoSwitch is IVideoSwitcher videoSwitcher && videoSwitcher.Preload)
                 {
                     Logger.Trace("Engine: executing take");
                     videoSwitcher.Take();
                 }
                     
 
-                else if (aEvent.EventType == TEventType.Live && _playing?.RouterPort != aEvent.RouterPort)
-                    Router.SetSource(aEvent.RouterPort);
+                else if (aEvent.EventType == TEventType.Live && _playing?.VideoSwitchPort != aEvent.VideoSwitchPort)
+                    VideoSwitch.SetSource(aEvent.VideoSwitchPort);
             }
             else
             {
                 if ((_playing?.EventType != TEventType.Live || _playing == null) && aEvent.EventType == TEventType.Live)
-                    Router.SetSource(aEvent.RouterPort);
+                    VideoSwitch.SetSource(aEvent.VideoSwitchPort);
             }
 
-            if (!Router.Preload)
+            if (!VideoSwitch.Preload)
                 return;
 
             var successor = aEvent.InternalGetSuccessor();
-            if (successor?.EventType == TEventType.Live && Router is IVideoSwitcher vSwitcher)
+            if (successor?.EventType == TEventType.Live && VideoSwitch is IVideoSwitcher vSwitcher)
             {
-                if (successor.RouterPort < 0)
+                if (successor.VideoSwitchPort < 0)
                     return;
                 
                 Logger.Trace("Engine: preloading source");
-                vSwitcher.PreloadSource(successor.RouterPort);
+                vSwitcher.PreloadSource(successor.VideoSwitchPort);
             }
-            else if (aEvent.EventType != TEventType.Live && successor?.EventType == TEventType.Live && !(Router is IVideoSwitcher))
+            else if (aEvent.EventType != TEventType.Live && successor?.EventType == TEventType.Live && !(VideoSwitch is IVideoSwitcher))
             {
-                if (successor.RouterPort < 0)
+                if (successor.VideoSwitchPort < 0)
                     return;
 
                 Logger.Trace("Engine: preloading source");
-                Router.SetSource(successor.RouterPort);
+                VideoSwitch.SetSource(successor.VideoSwitchPort);
             }                   
         }
 
@@ -1002,7 +1002,7 @@ namespace TAS.Server
             Logger.Info("{0} {1}: Load {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
             var eventType = aEvent.EventType;
 
-            SetupRouter(aEvent, false);            
+            SetupVideoSwitch(aEvent, false);            
 
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
@@ -1036,8 +1036,8 @@ namespace TAS.Server
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
                 
-                if (_playing.EventType != TEventType.Live && eventType == TEventType.Live && !(Router is IVideoSwitcher) && Router.Preload && Router.SelectedSource?.PortId != aEvent.RouterPort)
-                    Router.SetSource(aEvent.RouterPort);
+                if (_playing.EventType != TEventType.Live && eventType == TEventType.Live && !(VideoSwitch is IVideoSwitcher) && VideoSwitch.Preload && VideoSwitch.SelectedSource?.PortId != aEvent.VideoSwitchPort)
+                    VideoSwitch.SetSource(aEvent.VideoSwitchPort);
                                 
                     if (!aEvent.IsHold
                     && CGElementsController?.IsConnected == true
@@ -1096,7 +1096,7 @@ namespace TAS.Server
                 if (aEvent.RecordingInfo != null)
                     _eventRecorder.StartCapture(aEvent);
 
-                SetupRouter(aEvent, true);                                 
+                SetupVideoSwitch(aEvent, true);                                 
 
                 _playoutChannelPRI?.Play(aEvent);
                 _playoutChannelSEC?.Play(aEvent);
@@ -1477,7 +1477,7 @@ namespace TAS.Server
             }
             DatabaseProvider.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
             (CGElementsController as IDisposable)?.Dispose();
-            Router?.Dispose();
+            VideoSwitch?.Dispose();
             Remote?.Dispose();
             _preview?.Dispose();
             _mediaManager.Dispose();            

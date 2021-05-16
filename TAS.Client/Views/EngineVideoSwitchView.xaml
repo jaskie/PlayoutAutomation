@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="TAS.Client.Views.EngineRouterView"
+﻿<UserControl x:Class="TAS.Client.Views.EngineVideoSwitchView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              ResxExtension.DefaultResxName="TAS.Client.Views.EngineRouterView"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

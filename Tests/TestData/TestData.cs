@@ -23,7 +23,7 @@ namespace TestData
 	//Tests get test data from this class. Simply add another objects to collections to test another use cases.
     public class TestEngines
     {
-		public static List<IConfigEngine> ConfigEngines = new List<IConfigEngine>
+		public static List<IEnginePersistent> ConfigEngines = new List<IEnginePersistent>
 		{
 			new TAS.Client.Config.Model.Engine
 			{
@@ -89,7 +89,7 @@ namespace TestData
 				StudioMode = false,
 				TimeCorrection = 0,
 				VideoFormat = TAS.Common.TVideoFormat.HD1080i5000,
-				Router = new TAS.Server.VideoSwitch.Model.VideoSwitcher
+				VideoSwitch = new TAS.Server.VideoSwitch.Model.VideoSwitcher
 				{
 					IpAddress = "127.0.0.1",
 					IsEnabled = true,

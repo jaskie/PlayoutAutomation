@@ -37,7 +37,7 @@ namespace TAS.Server
         private byte _crawl;
         private byte _logo;
         private byte _parental;
-        private int _routerPort = -1;
+        private int _videoSwitchPort = -1;
         private RecordingInfo _recordingInfo;
         private double? _audioVolume;
         private TimeSpan _duration;
@@ -98,7 +98,7 @@ namespace TAS.Server
                     byte crawl,
                     byte logo,
                     byte parental,
-                    short routerPort,
+                    short videoSwitchPort,
                     RecordingInfo recordingInfo)
         {
             _engine = engine;
@@ -178,7 +178,7 @@ namespace TAS.Server
                 rights.ForEach(r => ((EventAclRight)r).Saved += AclEvent_Saved);
                 return rights;
             });
-            _routerPort = routerPort;
+            _videoSwitchPort = videoSwitchPort;
             _recordingInfo = recordingInfo;
 
         FieldLengths = DatabaseProvider.Database.EventFieldLengths;
@@ -637,10 +637,10 @@ namespace TAS.Server
         }
                      
         [DtoMember]
-        public int RouterPort
+        public int VideoSwitchPort
         {
-            get => _routerPort;
-            set => SetField(ref _routerPort, value);
+            get => _videoSwitchPort;
+            set => SetField(ref _videoSwitchPort, value);
         }       
 
         public event EventHandler<EventPositionEventArgs> PositionChanged;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common;
@@ -32,8 +31,8 @@ namespace TAS.Remoting.Model
         [DtoMember(nameof(IEngine.CGElementsController))]
         private CgElementsController _cGElementsController;
 
-        [DtoMember(nameof(IEngine.Router))]
-        private IVideoSwitch _router;
+        [DtoMember(nameof(IEngine.VideoSwitch))]
+        private IVideoSwitch _videoSwitch;
 
         [DtoMember(nameof(IEngine.EnableCGElementsForNewEvents))]
         private bool _enableCGElementsForNewEvents;
@@ -112,7 +111,7 @@ namespace TAS.Remoting.Model
 
         public ICGElementsController CGElementsController => _cGElementsController;
 
-        public IVideoSwitch Router => _router;
+        public IVideoSwitch VideoSwitch => _videoSwitch;
 
         public bool EnableCGElementsForNewEvents
         {
@@ -201,13 +200,13 @@ namespace TAS.Remoting.Model
                     IDictionary<string, string> fields = null,
                     TemplateMethod method = TemplateMethod.Add,
                     int templateLayer = -1,
-                    short routerPort = -1,
+                    short videoSwitchPort = -1,
                     RecordingInfo recordingInfo = null
             )
         {
             return Query<Event>(parameters: new object[] { idRundownEvent, idEventBinding , videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName,
                     startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, isCGEnabled,
-                    crawl, logo, parental, autoStartFlags, command, fields, method, templateLayer, routerPort, recordingInfo});
+                    crawl, logo, parental, autoStartFlags, command, fields, method, templateLayer, videoSwitchPort, recordingInfo});
         }
 
         public void AddRootEvent(IEvent ev)

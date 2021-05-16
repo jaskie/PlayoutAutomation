@@ -4,29 +4,29 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class SwitcherViewModel : OkCancelViewModelBase
+    public class VideoSwitchViewModel : OkCancelViewModelBase
     {
         private IVideoSwitchPort _selectedInputPort;
-        public SwitcherViewModel(IVideoSwitch router)
+        public VideoSwitchViewModel(IVideoSwitch videoSwitch)
         {
-            Router = router;            
-            Router.PropertyChanged += Router_PropertyChanged;
+            VideoSwitch = videoSwitch;            
+            VideoSwitch.PropertyChanged += VideoSwitch_PropertyChanged;
 
-            _selectedInputPort = Router.SelectedSource;
+            _selectedInputPort = VideoSwitch.SelectedSource;
             NotifyPropertyChanged(nameof(SelectedSource));
         }
 
-        private void Router_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void VideoSwitch_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case nameof(Router.Sources):
+                case nameof(VideoSwitch.Sources):
                     NotifyPropertyChanged(nameof(Sources));
                     break;
-                case nameof(Router.SelectedSource):
+                case nameof(VideoSwitch.SelectedSource):
                     NotifyPropertyChanged(nameof(SelectedSource));
                     break;
-                case nameof(Router.IsConnected):
+                case nameof(VideoSwitch.IsConnected):
                     NotifyPropertyChanged(nameof(IsConnected));
                     break;
             }
@@ -37,7 +37,7 @@ namespace TAS.Client.ViewModels
             get => _selectedInputPort;
             set
             {
-                if (Router.Sources == value)
+                if (VideoSwitch.Sources == value)
                     return;
 
                 if (value == null)
@@ -49,19 +49,19 @@ namespace TAS.Client.ViewModels
 
         public override bool CanOk(object obj)
         {
-            if (Router.SelectedSource?.PortId != _selectedInputPort?.PortId && IsConnected)
+            if (VideoSwitch.SelectedSource?.PortId != _selectedInputPort?.PortId && IsConnected)
                 return true;
             return false;
         }
 
         public override bool Ok(object obj)
         {
-            Router.SetSource(_selectedInputPort.PortId);
+            VideoSwitch.SetSource(_selectedInputPort.PortId);
             return true;
         }
 
-        public bool IsConnected => Router.IsConnected;
-        public IVideoSwitch Router { get; }
-        public IList<IVideoSwitchPort> Sources => Router.Sources;
+        public bool IsConnected => VideoSwitch.IsConnected;
+        public IVideoSwitch VideoSwitch { get; }
+        public IList<IVideoSwitchPort> Sources => VideoSwitch.Sources;
     }
 }

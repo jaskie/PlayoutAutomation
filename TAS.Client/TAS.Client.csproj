@@ -95,7 +95,7 @@
     <Compile Include="ViewModels\AclRightViewModel.cs" />
     <Compile Include="ViewModels\CGElementViewModel.cs" />
     <Compile Include="ViewModels\ChannelViewModel.cs" />
-    <Compile Include="ViewModels\EngineRouterViewModel.cs" />
+    <Compile Include="ViewModels\EngineVideoSwitchViewModel.cs" />
     <Compile Include="ViewModels\IngestOperationViewModel.cs" />
     <Compile Include="ViewModels\EngineCGElementsControllerViewModel.cs" />
     <Compile Include="ViewModels\EngineStateViewModel.cs" />
@@ -136,7 +136,7 @@
     <Compile Include="ViewModels\RecordersViewModel.cs" />
     <Compile Include="ViewModels\RecordingInfoViewModel.cs" />
     <Compile Include="ViewModels\SecurityObjectSelectorViewModel.cs" />
-    <Compile Include="ViewModels\SwitcherViewModel.cs" />
+    <Compile Include="ViewModels\VideoSwitchViewModel.cs" />
     <Compile Include="ViewModels\TemplatedEditViewModel.cs" />
     <Compile Include="ViewModels\UserManagerViewModel.cs" />
     <Compile Include="ViewModels\GroupViewModel.cs" />
@@ -144,8 +144,8 @@
     <Compile Include="Views\ChannelView.xaml.cs">
       <DependentUpon>ChannelView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\EngineRouterView.xaml.cs">
-      <DependentUpon>EngineRouterView.xaml</DependentUpon>
+    <Compile Include="Views\EngineVideoSwitchView.xaml.cs">
+      <DependentUpon>EngineVideoSwitchView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\IngestOperationView.xaml.cs">
       <DependentUpon>IngestOperationView.xaml</DependentUpon>
@@ -238,8 +238,8 @@
     <Compile Include="Views\SplashScreenView.xaml.cs">
       <DependentUpon>SplashScreenView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SwitcherView.xaml.cs">
-      <DependentUpon>SwitcherView.xaml</DependentUpon>
+    <Compile Include="Views\VideoSwitchView.xaml.cs">
+      <DependentUpon>VideoSwitchView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TemplatedEditView.xaml.cs">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
@@ -273,7 +273,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\EngineRouterView.xaml">
+    <Page Include="Views\EngineVideoSwitchView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -397,7 +397,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SwitcherView.xaml">
+    <Page Include="Views\VideoSwitchView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -425,11 +425,11 @@
     <EmbeddedResource Include="Views\ChannelView.resx">
       <DependentUpon>ChannelView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\EngineRouterView.pl.resx">
-      <DependentUpon>EngineRouterView.xaml</DependentUpon>
+    <EmbeddedResource Include="Views\EngineVideoSwitchView.pl.resx">
+      <DependentUpon>EngineVideoSwitchView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\EngineRouterView.resx">
-      <DependentUpon>EngineRouterView.xaml</DependentUpon>
+    <EmbeddedResource Include="Views\EngineVideoSwitchView.resx">
+      <DependentUpon>EngineVideoSwitchView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\IngestOperationView.pl.resx">
       <DependentUpon>IngestOperationView.xaml</DependentUpon>
@@ -539,11 +539,11 @@
     <EmbeddedResource Include="Views\SecurityObjectSelectorView.resx">
       <DependentUpon>SecurityObjectSelectorView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\SwitcherView.resx">
-      <DependentUpon>SwitcherView.xaml</DependentUpon>
+    <EmbeddedResource Include="Views\VideoSwitchView.resx">
+      <DependentUpon>VideoSwitchView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\SwitcherView.pl.resx">
-      <DependentUpon>SwitcherView.xaml</DependentUpon>
+    <EmbeddedResource Include="Views\VideoSwitchView.pl.resx">
+      <DependentUpon>VideoSwitchView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TemplatedEditView.pl.resx">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>

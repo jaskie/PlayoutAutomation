@@ -722,7 +722,7 @@ namespace TAS.Database.SQLite
                 flags.Parental(),
                 flags.AutoStartFlags(),
                 dataReader.GetString("Commands"), 
-                routerPort: dataReader.IsDBNull("RouterPort") ? (short)-1 : dataReader.GetInt16("RouterPort"),
+                videoSwicthPort: dataReader.IsDBNull("RouterPort") ? (short)-1 : dataReader.GetInt16("RouterPort"),
                 recordingInfo: dataReader.IsDBNull("RecordingInfo") ? null : Newtonsoft.Json.JsonConvert.DeserializeObject<RecordingInfo>(dataReader.GetString("RecordingInfo"))
                 );
             return newEvent;
@@ -804,7 +804,7 @@ namespace TAS.Database.SQLite
             else
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent.AudioVolume);
             cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
-            cmd.Parameters.AddWithValue("@RouterPort", aEvent.RouterPort == -1 ? (object) DBNull.Value : aEvent.RouterPort);
+            cmd.Parameters.AddWithValue("@RouterPort", aEvent.VideoSwitchPort == -1 ? (object) DBNull.Value : aEvent.VideoSwitchPort);
             cmd.Parameters.AddWithValue("@RecordingInfo", aEvent.RecordingInfo == null ? (object)DBNull.Value : Newtonsoft.Json.JsonConvert.SerializeObject(aEvent.RecordingInfo));
 
             var command = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript

@@ -4,13 +4,13 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class EngineRouterViewModel : ViewModelBase
+    public class EngineVideoSwitchViewModel : ViewModelBase
     {
-        public EngineRouterViewModel(IVideoSwitch router)
+        public EngineVideoSwitchViewModel(IVideoSwitch videoSwitch)
         {
-            Router = router;
-            Router.Connect();
-            Router.PropertyChanged += Router_PropertyChanged;
+            VideoSwitch = videoSwitch;
+            VideoSwitch.Connect();
+            VideoSwitch.PropertyChanged += VideoSwitch_PropertyChanged;
 
             CommandChangeSource = new UiCommand(ChangeSource, CanChangeSource);
         }
@@ -22,37 +22,37 @@ namespace TAS.Client.ViewModels
 
         private void ChangeSource(object obj)
         {
-            using (var switcherVm = new SwitcherViewModel(Router))
+            using (var switcherVm = new VideoSwitchViewModel(VideoSwitch))
             {
                 WindowManager.Current.ShowDialog(switcherVm, resources._caption_Switcher);
             }
         }
 
-        private void Router_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void VideoSwitch_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {                
-                case nameof(Router.SelectedSource):
+                case nameof(VideoSwitch.SelectedSource):
                     NotifyPropertyChanged(nameof(SelectedSource));
                     break;
-                case nameof(Router.IsConnected):
+                case nameof(VideoSwitch.IsConnected):
                     NotifyPropertyChanged(nameof(IsConnected));
                     InvalidateRequerySuggested();
                     break;
             }
         }       
 
-        public IVideoSwitchPort SelectedSource => Router.SelectedSource;        
+        public IVideoSwitchPort SelectedSource => VideoSwitch.SelectedSource;        
 
-        public bool IsConnected => Router.IsConnected;
+        public bool IsConnected => VideoSwitch.IsConnected;
 
-        public IVideoSwitch Router { get; }
+        public IVideoSwitch VideoSwitch { get; }
 
         public UiCommand CommandChangeSource { get; }
 
         protected override void OnDispose()
         {
-            Router.PropertyChanged -= Router_PropertyChanged;
+            VideoSwitch.PropertyChanged -= VideoSwitch_PropertyChanged;
         }        
     }
 }

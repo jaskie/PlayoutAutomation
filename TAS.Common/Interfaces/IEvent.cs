@@ -58,7 +58,7 @@ namespace TAS.Common.Interfaces
         bool IsLoop { get; set; }
         string IdAux { get; set; } // auxiliary Id for external systems
         ulong IdProgramme { get; set; }
-        int RouterPort { get; set; }
+        int VideoSwitchPort { get; set; }
         VideoLayer Layer { get; set; }
         TimeSpan? RequestedStartTime { get; set; } // informational only: when it should run according to schedule. Usefull when adding or removing previous events
         TimeSpan ScheduledDelay { get; set; }

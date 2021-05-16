@@ -9,6 +9,6 @@ namespace TAS.Database.Common.Interfaces
         string PluginName { get; }
         void Initialize(IPlugin model);
         void Save();
-        void Undo();
+        void Load();
     }
 }

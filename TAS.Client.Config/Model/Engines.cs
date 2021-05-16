@@ -17,7 +17,7 @@ namespace TAS.Client.Config.Model
 
         public Engines(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {
-            _db = DatabaseLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType);
+            _db = DatabaseLoader.LoadDatabaseProviders().FirstOrDefault(db => db.DatabaseType == databaseType) ?? throw new ApplicationException($"Database provider plugin for {databaseType} not found");
             _db.Open(connectionStringSettingsCollection, true, ConfigurationPluginManager.Current.Binders);
             ArchiveDirectories = new ArchiveDirectories(_db);
             EngineList = _db.LoadEngines<Engine>().ToList();
@@ -29,7 +29,6 @@ namespace TAS.Client.Config.Model
             }
             foreach (var e in EngineList)
             {
-                e.IsNew = false;
                 e.Servers = Servers.ToList();                
                 e.ArchiveDirectories = ArchiveDirectories;
             }

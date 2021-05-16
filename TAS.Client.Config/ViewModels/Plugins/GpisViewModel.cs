@@ -2,21 +2,21 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Data;
-using TAS.Common.Interfaces.Configurator;
+using TAS.Common.Interfaces;
 using TAS.Database.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {
     internal class GpisViewModel : PluginTypeViewModelBase
     {
-        private IConfigEngine _engine;
+        private IEnginePersistent _engine;
 
         private List<IPluginConfiguratorViewModel> _configurators = new List<IPluginConfiguratorViewModel>();
         private IPluginConfiguratorViewModel _selectedConfigurator;
 
         private bool? _isEnabled = null;
 
-        public GpisViewModel(IConfigEngine engine)
+        public GpisViewModel(IEnginePersistent engine)
         {
             _engine = engine;
             Name = "GPI";

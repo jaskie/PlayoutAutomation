@@ -30,8 +30,8 @@ namespace TAS.Remoting.Model
         [DtoMember(nameof(IEvent.Crawl))]
         private byte _crawl;
 
-        [DtoMember(nameof(IEvent.RouterPort))]
-        private int _routerPort;
+        [DtoMember(nameof(IEvent.VideoSwitchPort))]
+        private int _videoSwitchPort;
 
         [DtoMember(nameof(IEvent.Duration))]
         private TimeSpan _duration;
@@ -145,7 +145,7 @@ namespace TAS.Remoting.Model
 
         public byte Crawl { get => _crawl; set => Set(value); }
 
-        public int RouterPort { get => _routerPort; set => Set(value); }
+        public int VideoSwitchPort { get => _videoSwitchPort; set => Set(value); }
 
         public TimeSpan Duration { get => _duration; set => Set(value); }
 
