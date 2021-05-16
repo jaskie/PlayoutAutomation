@@ -109,9 +109,17 @@ namespace TAS.Remoting.Model
 
         public long FrameTicks => FormatDescription.FrameTicks;
 
-        public ICGElementsController CGElementsController => _cGElementsController;
+        public ICGElementsController CGElementsController
+        {
+            get => _cGElementsController;
+            set { }
+        }
 
-        public IVideoSwitch VideoSwitch => _videoSwitch;
+        public IVideoSwitch VideoSwitch
+        {
+            get => _videoSwitch;
+            set { }
+        }
 
         public bool EnableCGElementsForNewEvents
         {
