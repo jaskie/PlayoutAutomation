@@ -139,6 +139,11 @@ namespace TAS.Server.VideoSwitch.Communicators
         public void Take()
         {
             _atem.Take();
-        }        
+        }
+
+        public void Disconnect()
+        {
+            _atem.Disconnect();
+        }
     }
 }

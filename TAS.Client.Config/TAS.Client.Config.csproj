@@ -109,10 +109,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ViewModels\Plugins\CgElementsControllersViewModel.cs" />
     <Compile Include="ViewModels\Plugins\GpisViewModel.cs" />
     <Compile Include="ViewModels\Plugins\PluginTypeViewModelBase.cs" />
-    <Compile Include="ViewModels\Plugins\VideoSwitchersViewModel.cs" />
+    <Compile Include="ViewModels\Plugins\SingleSelectionPluginsViewModel.cs" />
     <Compile Include="Views\ConfigFile\ConfigFileView.xaml.cs">
       <DependentUpon>ConfigFileView.xaml</DependentUpon>
     </Compile>
@@ -173,8 +172,8 @@
       <DependentUpon>PlayoutServersView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\Playout\PlayoutServersViewModel.cs" />
-    <Compile Include="Views\Plugins\VideoSwitchersView.xaml.cs">
-      <DependentUpon>VideoSwitchersView.xaml</DependentUpon>
+    <Compile Include="Views\Plugins\SingleSelectionPluginsView.xaml.cs">
+      <DependentUpon>SingleSelectionPluginsView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -226,7 +225,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Plugins\VideoSwitchersView.xaml">
+    <Page Include="Views\Plugins\SingleSelectionPluginsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

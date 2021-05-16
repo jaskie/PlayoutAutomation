@@ -3,15 +3,17 @@ using TAS.Client.Common;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {
-    public abstract class PluginTypeViewModelBase : ViewModelBase
+    public abstract class PluginTypeViewModelBase : ModifyableViewModelBase
     {
-        public event EventHandler PluginChanged;
-        protected override void OnDispose() { }
-        public string Name { get; protected set; }
-
-        protected void RaisePluginChanged()
+        public PluginTypeViewModelBase(string pluginTypeName)
         {
-            PluginChanged?.Invoke(this, EventArgs.Empty);
+            Name = pluginTypeName;
         }
+
+        protected override void OnDispose() { }
+        public string Name { get; }
+
+        public abstract void Save();
+
     }
 }

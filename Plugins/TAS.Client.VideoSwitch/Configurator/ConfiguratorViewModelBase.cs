@@ -1,81 +1,59 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
-using TAS.Server.VideoSwitch.Model;
+using TAS.Common.Interfaces.Configurator;
 
 namespace TAS.Server.VideoSwitch.Configurator
 {
-    public abstract class ConfiguratorViewModelBase : ModifyableViewModelBase
+    public abstract class ConfiguratorViewModelBase : ModifyableViewModelBase, IPluginConfiguratorViewModel
     {
         private bool _isEnabled;
-        
-        public ConfiguratorViewModelBase(RouterBase router)
+        private bool _isConnected;
+        protected readonly IEngineProperties Engine;
+
+        public ConfiguratorViewModelBase(IEngineProperties engine)
         {
-            Router = router;
             CommandConnect = new UiCommand(Connect, CanConnect);
-            CommandDisconnect = new UiCommand(Disconnect, CanDisconnect);
+            CommandDisconnect = new UiCommand(Disconnect);
 
-            IsEnabled = Router?.IsEnabled ?? false;
-            Init();
+            IsEnabled = engine.VideoSwitch?.IsEnabled ?? false;
+            Engine = engine;
         }
 
-        private bool CanDisconnect(object obj)
-        {
-            if (TestRouter != null)
-                return true;
+        public abstract IPlugin Model { get; }
 
-            return false;
-        }
 
         protected virtual void Disconnect(object obj)
         {
-            TestRouter.Dispose();
-            TestRouter = null;
-
             NotifyPropertyChanged(nameof(IsConnected));
         }
 
         protected abstract void Connect(object obj);
         protected abstract bool CanConnect(object obj);
-        protected abstract void Init();
         public abstract void Save();
         public abstract bool CanSave();
-        public virtual void Undo()
-        {
-            Init();
-            IsModified = false;
-        }
 
         public virtual bool CanUndo()
         {
             return IsModified;
         }
-        public RouterBase GetModel()
-        {
-            return Router;
-        }
 
-        protected RouterBase Router;
-        protected RouterBase TestRouter;
+        public abstract void Load();
+
+
+        public event EventHandler PluginChanged;
 
         public UiCommand CommandConnect { get; }
         public UiCommand CommandDisconnect { get; }
-               
-        public bool IsConnected => TestRouter?.IsConnected ?? false;    
-        public bool IsEnabled 
-        { 
+
+        public bool IsConnected { get => _isConnected; protected set => _isConnected = value; }
+
+        public bool IsEnabled
+        {
             get => _isEnabled;
-            set
-            {
-                if (value == _isEnabled)
-                    return;
-                _isEnabled = value;
-                if (Router != null)
-                    Router.IsEnabled = value;
-                NotifyPropertyChanged();                
-            }
+            set => SetField(ref _isEnabled, value);
         }
-        public IList<IVideoSwitchPort> TestSources => TestRouter?.Sources;
-          
+
+        public abstract string PluginName { get; }
     }
 }

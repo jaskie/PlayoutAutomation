@@ -106,8 +106,8 @@ namespace TAS.Common.Interfaces
         bool StudioMode { get; set; }
         int TimeCorrection { get; set; }
         int CGStartDelay { get; set; }
-        IVideoSwitch VideoSwitch { get; }
-        ICGElementsController CGElementsController { get; }
+        IVideoSwitch VideoSwitch { get; set; }
+        ICGElementsController CGElementsController { get; set; }
 
     }
 

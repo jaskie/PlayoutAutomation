@@ -19,13 +19,14 @@ namespace TAS.Server.CgElementsController.Configurator
             Aux
         }
 
-        private Model.CgElementsController _cgElementsController = new Model.CgElementsController();
+        private Model.CgElementsController _cgElementsController;
 
         private readonly ObservableCollection<Model.CgElement> _crawls = new ObservableCollection<Model.CgElement>();
         private readonly ObservableCollection<Model.CgElement> _logos = new ObservableCollection<Model.CgElement>();
         private readonly ObservableCollection<Model.CgElement> _auxes = new ObservableCollection<Model.CgElement>();
         private readonly ObservableCollection<Model.CgElement> _parentals = new ObservableCollection<Model.CgElement>();
         private readonly ObservableCollection<string> _startups = new ObservableCollection<string>();
+        private readonly IEngineProperties _engine;
         private Model.CgElement _selectedElement;
         private ElementType _selectedElementType;
         private Model.CgElement _selectedDefaultCrawl;
@@ -37,12 +38,7 @@ namespace TAS.Server.CgElementsController.Configurator
 
         public event EventHandler PluginChanged;
 
-        public CgElementsControllerViewModel()
-        {
-            CreateCommands();
-        }
-
-        private void CreateCommands()
+        public CgElementsControllerViewModel(IEngineProperties engine)
         {
             AddCgElementCommand = new UiCommand(AddCgElement, CanAddCgElement);
             MoveCgElementUpCommand = new UiCommand(MoveCgElementUp, CanMoveCgElementUp);
@@ -53,6 +49,15 @@ namespace TAS.Server.CgElementsController.Configurator
             MoveStartupUpCommand = new UiCommand(MoveStartupUp, CanMoveStartupUp);
             MoveStartupDownCommand = new UiCommand(MoveStartupDown, CanMoveStartupDown);
             DeleteStartupCommand = new UiCommand(DeleteStartup);
+            _engine = engine;
+            _cgElementsController = engine.CGElementsController as Model.CgElementsController
+                ?? new Model.CgElementsController
+                {
+                    Crawls = new[] { new Model.CgElement { Id = 0, Name = "Off", Command = "PLAY CG3 EMPTY MIX 25" } },
+                    Logos = new[] { new Model.CgElement { Id = 0, Name = "None", Command = "PLAY CG4 EMPTY MIX 25" } },
+                    Parentals = new[] { new Model.CgElement { Id = 0, Name = "None", Command = "PLAY CG5 EMPTY MIX 25" } }
+                };
+            Load();
         }
 
         private void DeleteStartup(object obj)
@@ -211,6 +216,7 @@ namespace TAS.Server.CgElementsController.Configurator
             _cgElementsController.StartupsCommands = _startups.ToList();
             _cgElementsController.DefaultCrawl = SelectedDefaultCrawl?.Id ?? 1;
             _cgElementsController.DefaultLogo = SelectedDefaultLogo?.Id ?? 1;
+            _engine.CGElementsController = _cgElementsController;
             IsModified = false;
             PluginChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -286,17 +292,17 @@ namespace TAS.Server.CgElementsController.Configurator
             }
         }
 
-        public UiCommand AddCgElementCommand { get; private set; }
-        public UiCommand MoveCgElementUpCommand { get; private set; }
-        public UiCommand MoveCgElementDownCommand { get; private set; }
-        public UiCommand EditCgElementCommand { get; private set; }
-        public UiCommand DeleteCgElementCommand { get; private set; }
-        public UiCommand AddStartupCommand { get; private set; }
-        public UiCommand MoveStartupUpCommand { get; private set; }
-        public UiCommand MoveStartupDownCommand { get; private set; }
-        public UiCommand DeleteStartupCommand { get; private set; }
-        public UiCommand SaveCommand { get; private set; }
-        public UiCommand UndoCommand { get; private set; }
+        public UiCommand AddCgElementCommand { get; }
+        public UiCommand MoveCgElementUpCommand { get; }
+        public UiCommand MoveCgElementDownCommand { get; }
+        public UiCommand EditCgElementCommand { get; }
+        public UiCommand DeleteCgElementCommand { get; }
+        public UiCommand AddStartupCommand { get; }
+        public UiCommand MoveStartupUpCommand { get; }
+        public UiCommand MoveStartupDownCommand { get; }
+        public UiCommand DeleteStartupCommand { get; }
+        public UiCommand SaveCommand { get; }
+        public UiCommand UndoCommand { get; }
 
         public Array ElementTypes { get; } = Enum.GetValues(typeof(ElementType));
         public ElementType SelectedElementType
@@ -332,6 +338,9 @@ namespace TAS.Server.CgElementsController.Configurator
         }
 
         public string PluginName => "CG elements controller";
+
+        public IPlugin Model => _cgElementsController;
+
         public List<string> Startups { get; } = new List<string>();
         public int SelectedStartupId { get => _selectedStartupId; set => SetField(ref _selectedStartupId, value); }
         public Model.CgElement SelectedDefaultCrawl { get => _selectedDefaultCrawl; set => SetField(ref _selectedDefaultCrawl, value); }
@@ -340,17 +349,6 @@ namespace TAS.Server.CgElementsController.Configurator
 
         protected override void OnDispose() { }
 
-        public void Initialize(IPlugin model)
-        {
-            _cgElementsController = model as Model.CgElementsController
-                ?? new Model.CgElementsController
-                {
-                    Crawls = new[] { new Model.CgElement { Id = 0, Name = "Off", Command = "PLAY CG3 EMPTY MIX 25" } },
-                    Logos = new[] { new Model.CgElement { Id = 0, Name = "None", Command = "PLAY CG4 EMPTY MIX 25" } },
-                    Parentals = new[] { new Model.CgElement { Id = 0, Name = "None", Command = "PLAY CG5 EMPTY MIX 25" } }
-                };
-            Load();
-        }
 
         public object GetModel()
         {

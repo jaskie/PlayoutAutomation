@@ -10,7 +10,7 @@ using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Configurator
 {
-    internal class RossConfiguratorViewModel : ConfiguratorViewModelBase
+    public class RossConfiguratorViewModel : ConfiguratorViewModelBase
     {
         private string _ipAddress;
         private bool _preload;
@@ -18,18 +18,26 @@ namespace TAS.Server.VideoSwitch.Configurator
         private PortInfo _selectedGpiSource;
         private List<PortInfo> _ports;
         private List<PortInfo> _gpiSources;
+        private readonly Ross _ross;
 
-        public RossConfiguratorViewModel(VideoSwitcher videoSwitcher) : base(videoSwitcher)
+        public RossConfiguratorViewModel(IEngineProperties engine) : base(engine)
         {
+            _ross = engine.VideoSwitch as Ross ?? new Ross();
+            _ross.PropertyChanged += Ross_PropertyChanged;
             CommandRefreshSources = new UiCommand(RefreshGpiSources, CanRefreshGpiSources);
             CommandAddPort = new UiCommand(AddOutputPort, CanAddPort);
             CommandDeletePort = new UiCommand(DeleteOutputPort);
+            Load();
         }
 
-        private void TestRouter_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        public override string PluginName => "Ross video switcher";
+
+        public override IPlugin Model => _ross;
+
+        private void Ross_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IVideoSwitch.SelectedSource))
-                NotifyPropertyChanged(nameof(SelectedTestSource));
+                NotifyPropertyChanged(nameof(SelectedSource));
             else if (e.PropertyName == nameof(IVideoSwitch.IsConnected))
                 NotifyPropertyChanged(nameof(IsConnected));
         }
@@ -75,13 +83,13 @@ namespace TAS.Server.VideoSwitch.Configurator
             GpiSources = CollectionViewSource.GetDefaultView(_gpiSources);
             NotifyPropertyChanged(nameof(GpiSources));
 
-            _selectedGpiSource = _gpiSources.FirstOrDefault(p => p.Id == ((VideoSwitcher)Router)?.GpiPort?.Id);
+//            _selectedGpiSource = _gpiSources.FirstOrDefault(p => p.Id == _ross?. .GpiPort?.Id);
             NotifyPropertyChanged(nameof(SelectedGpiSource));
         }
 
         protected override bool CanConnect(object obj)
         {
-            if (TestRouter == null && IpAddress?.Length > 0)
+            if (_ross == null && IpAddress?.Length > 0)
                 return true;
 
             return false;
@@ -89,27 +97,14 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         protected override void Connect(object obj)
         {
-            TestRouter = new VideoSwitcher(CommunicatorType.Ross)
-            {
-                IpAddress = IpAddress,
-                DefaultEffect = _selectedTransitionType ?? VideoSwitcherTransitionStyle.Cut
-            };
-
-            foreach (var port in _ports)
-                TestRouter.Sources.Add(new RouterPort(port.Id, port.Name));
-            
-            NotifyPropertyChanged(nameof(TestSources));
-            TestRouter.PropertyChanged += TestRouter_PropertyChanged;
-            TestRouter.Connect();
         }
 
         protected override void Disconnect(object obj)
         {
-            TestRouter.PropertyChanged -= TestRouter_PropertyChanged;
             base.Disconnect(obj);
         }
 
-        protected override void Init()
+        public override void Load()
         {
             _ports = new List<PortInfo>();
             Ports = CollectionViewSource.GetDefaultView(_ports);
@@ -120,33 +115,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             };
             GpiSources = CollectionViewSource.GetDefaultView(_gpiSources);
 
-            IpAddress = null;
-            SelectedTransitionType = null;
             SelectedGpiSource = _gpiSources.FirstOrDefault();
-            Preload = false;
-
-            if (Router == null)
-            {
-                Ports.Refresh();
-                IsModified = false;
-                return;
-            }
-
-            Preload = Router.Preload;
-            IpAddress = Router.IpAddress;
-            SelectedTransitionType = TransitionTypes.FirstOrDefault(r => r == ((VideoSwitcher)Router).DefaultEffect);
-
-            foreach (var port in Router.Sources)
-            {
-                _ports.Add(new PortInfo(port.PortId, port.PortName));
-                _gpiSources.Add(new PortInfo(port.PortId, port.PortName));
-            }
-
-            Ports.Refresh();
-            NotifyPropertyChanged(nameof(Ports));
-            NotifyPropertyChanged(nameof(GpiSources));
-
-            SelectedGpiSource = _gpiSources.FirstOrDefault(p => ((VideoSwitcher)Router)?.GpiPort?.Id == p.Id) ?? _gpiSources.First();
 
             IsModified = false;
         }
@@ -158,19 +127,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public override void Save()
         {
-            Router = new VideoSwitcher
-            {
-                Type = CommunicatorType.Ross,
-                IsEnabled = IsEnabled,
-                DefaultEffect = _selectedTransitionType ?? VideoSwitcherTransitionStyle.Cut,
-                IpAddress = _ipAddress,
-                GpiPort = _selectedGpiSource?.Id != -1 ? _selectedGpiSource : null,
-                Preload = _preload
-            };
-
-            foreach (var port in _ports)
-                Router.Sources.Add(new RouterPort(port.Id, port.Name));
-
+            Engine.VideoSwitch = _ross;
             IsModified = false;
         }
 
@@ -190,7 +147,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         public VideoSwitcherTransitionStyle? SelectedTransitionType { get => _selectedTransitionType; set => SetField(ref _selectedTransitionType, value); }
         public string IpAddress { get => _ipAddress; set => SetField(ref _ipAddress, value); }
         public PortInfo SelectedGpiSource { get => _selectedGpiSource; set => SetField(ref _selectedGpiSource, value); }
-        public List<VideoSwitcherTransitionStyle> TransitionTypes { get; set; } = new List<VideoSwitcherTransitionStyle>()
+        public List<VideoSwitcherTransitionStyle> TransitionTypes { get; } = new List<VideoSwitcherTransitionStyle>()
         {
             VideoSwitcherTransitionStyle.VFade,
             VideoSwitcherTransitionStyle.FadeAndTake,
@@ -206,19 +163,16 @@ namespace TAS.Server.VideoSwitch.Configurator
         };
 
         public bool Preload { get => _preload; set => SetField(ref _preload, value); }
-        public IVideoSwitchPort SelectedTestSource
+        public IVideoSwitchPort SelectedSource
         {
-            get => TestRouter?.SelectedSource;
+            get => _ross.SelectedSource;
             set
             {
-                if (TestRouter?.Sources == value)
+                if (_ross?.SelectedSource == value)
                     return;
-
-                if (value == null)
-                    return;
-
-                TestRouter?.SetSource(value.PortId);
+                _ross?.SetSource(value.PortId);
             }
         }
+
     }
 }

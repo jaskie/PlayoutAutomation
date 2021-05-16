@@ -7,7 +7,8 @@ namespace TAS.Server.VideoSwitch.Model.Interfaces
     public interface IRouterCommunicator : INotifyPropertyChanged, IDisposable
     {
         PortInfo[] Sources { get; set; }
-        bool Connect();       
+        bool Connect();
+        void Disconnect();
         void SetSource(int inPort);                             
         CrosspointInfo GetSelectedSource();
 

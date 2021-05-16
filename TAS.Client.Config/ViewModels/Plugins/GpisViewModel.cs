@@ -16,10 +16,9 @@ namespace TAS.Client.Config.ViewModels.Plugins
 
         private bool? _isEnabled = null;
 
-        public GpisViewModel(IEnginePersistent engine)
+        public GpisViewModel(IEnginePersistent engine) : base("GPI")
         {
             _engine = engine;
-            Name = "GPI";
 
             //foreach (var plugin in ConfigurationPluginManager.Current.Gpis)
             //{
@@ -34,10 +33,10 @@ namespace TAS.Client.Config.ViewModels.Plugins
 
         private void PluginConfigurator_PluginChanged(object sender, EventArgs e)
         {
-            RaisePluginChanged();
+            IsModified = true;
         }
 
-        public void Save()
+        public override void Save()
         {
             foreach (var configurator in _configurators)
                 configurator.Save();

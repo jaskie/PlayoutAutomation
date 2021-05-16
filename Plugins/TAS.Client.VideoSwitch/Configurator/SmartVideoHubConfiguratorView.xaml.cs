@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace TAS.Server.VideoSwitch.Configurator
 {
     /// <summary>
-    /// Interaction logic for RouterConfiguratorView.xaml
+    /// Interaction logic for SmartVideoHubConfiguratorView.xaml
     /// </summary>
-    public partial class RouterConfiguratorView : UserControl
+    public partial class SmartVideoHubConfiguratorView : UserControl
     {
-        public RouterConfiguratorView()
+        public SmartVideoHubConfiguratorView()
         {
             InitializeComponent();
         }

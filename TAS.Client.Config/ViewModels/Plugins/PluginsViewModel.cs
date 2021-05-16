@@ -4,46 +4,34 @@ using System.Linq;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
 using TAS.Common.Interfaces;
+using TAS.Database.Common.Interfaces;
 
 namespace TAS.Client.Config.ViewModels.Plugins
 {
     public class PluginsViewModel : ViewModelBase
     {
-        public static string FileNameSearchPattern { get; } = "TAS.Server.*.dll";
-        private Engine _engine;
-        public event EventHandler PluginChanged;
-
         private PluginTypeViewModelBase _selectedPluginType;
 
         public PluginsViewModel(Engine engine)
         {
-            _engine = engine;
-            foreach (var configurationProvider in ConfigurationPluginManager.Current.ConfigurationProviders)
-                switch (configurationProvider.GetPluginInterfaceType())
-                {
-                    case Type type when typeof(ICGElementsController) == type:
-                        if (!PluginTypes.Any(pt => pt is CgElementsControllersViewModel))
-                        {
-                            var pluginTypeViewModel = new CgElementsControllersViewModel(engine);
-                            PluginTypes.Add(pluginTypeViewModel);
-                            pluginTypeViewModel.PluginChanged += PluginTypeViewModel_PluginChanged;
-                        }
-                        break;
-                    case Type type when typeof(IVideoSwitch) == type:
-                        if (!PluginTypes.Any(pt => pt is VideoSwitchersViewModel))
-                        {
-                            var videoSwitchersViewModel = new VideoSwitchersViewModel(engine);
-                            PluginTypes.Add(videoSwitchersViewModel);
-                            videoSwitchersViewModel.PluginChanged += PluginTypeViewModel_PluginChanged;
-                        }
-                        break;
-                }
+            var configurationProviders = ConfigurationPluginManager.Current.ConfigurationProviders;
+            AddSingleSelectionPluginType(engine, configurationProviders, typeof(IVideoSwitch), engine.VideoSwitch, "Video switchers and routers");
+            AddSingleSelectionPluginType(engine, configurationProviders, typeof(ICGElementsController), engine.CGElementsController, "Channel branding controllers");
             _selectedPluginType = PluginTypes.FirstOrDefault();
         }
 
-   
+        private void AddSingleSelectionPluginType(IEngineProperties engine, IEnumerable<IPluginConfigurationProvider> configurationProviders, Type interfaceType, IPlugin activePlugin, string pluginTypeName)
+        {
+            if (!configurationProviders.Any(p => p.GetPluginInterfaceType() == interfaceType))
+                return;
+            var pluginTypeVm = new SingleSelectionPluginsViewModel(engine, configurationProviders, interfaceType, activePlugin, pluginTypeName);
+            pluginTypeVm.ModifiedChanged += PluginTypeVm_ModifiedChanged;
+            PluginTypes.Add(pluginTypeVm);
+        }
 
-        private void PluginTypeViewModel_PluginChanged(object sender, EventArgs e)
+        public event EventHandler PluginChanged;
+
+        private void PluginTypeVm_ModifiedChanged(object sender, EventArgs e)
         {
             PluginChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -63,13 +51,15 @@ namespace TAS.Client.Config.ViewModels.Plugins
         }
                                                            
         public void Save()
-        {         
+        {
+            foreach (var pluginType in PluginTypes)
+                pluginType.Save();
         }
 
         protected override void OnDispose()
         {
             foreach (var pluginType in PluginTypes)
-                pluginType.PluginChanged -= PluginChanged;
+                pluginType.ModifiedChanged -= PluginTypeVm_ModifiedChanged;
         }             
     }
 }

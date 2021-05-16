@@ -145,6 +145,11 @@ namespace TAS.Server.VideoSwitch.Helpers
             return false;
         }
 
+        internal void Disconnect()
+        {
+            //TODO: Write disconnection method
+        }
+
         public int GetCurrentInputPort()
         {
             long source = -1;           

@@ -20,7 +20,7 @@ namespace TAS.Server.VideoSwitch.Model
         [Hibernate]
         public string IpAddress { get; set; }
         [Hibernate]
-        public CommunicatorType Type { get; set; }
+        public CommunicatorType Type { get;}
         [Hibernate]
         public int Level { get; set; }
         [Hibernate]
@@ -153,6 +153,12 @@ namespace TAS.Server.VideoSwitch.Model
                 Logger.Error(e);
             }
             return false;
+        }
+
+        public void Disconnect()
+        {
+            Communicator.Disconnect();
+            NotifyPropertyChanged(nameof(IsConnected));
         }
 
         public void RaiseGpiStarted()

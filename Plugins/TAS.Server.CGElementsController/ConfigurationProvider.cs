@@ -23,7 +23,7 @@ namespace TAS.Server.CgElementsController
             { typeof(CGElement), typeof(Configurator.Model.CgElement) }
         });
 
-        public IPluginConfiguratorViewModel GetConfiguratorViewModel(IEngineProperties engine) => new CgElementsControllerViewModel();
+        public IPluginConfiguratorViewModel GetConfiguratorViewModel(IEngineProperties engine) => new CgElementsControllerViewModel(engine);
 
         public Type GetPluginInterfaceType()
         {

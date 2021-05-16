@@ -9,7 +9,7 @@ using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Configurator
 {
-    internal class NevionConfiguratorViewModel : ConfiguratorViewModelBase
+    public class NevionConfiguratorViewModel : ConfiguratorViewModelBase
     {
         private bool _preload;
         private string _login;
@@ -17,19 +17,25 @@ namespace TAS.Server.VideoSwitch.Configurator
         private int _level;
         private string _ipAddress;                     
         private List<PortInfo> _ports;
+        private readonly Nevion _nevion;
 
-        public NevionConfiguratorViewModel(Router router) : base(router)
+        public NevionConfiguratorViewModel(IEngineProperties engine) : base(engine)
         {
+            _nevion = engine.VideoSwitch as Nevion ?? new Nevion();
+            _nevion.PropertyChanged += Nevion_PropertyChanged;
             CommandAddPort = new UiCommand(AddOutputPort, CanAddPort);
             CommandDeletePort = new UiCommand(DeleteOutputPort);
-        }        
+            Load();
+        }
 
-        private void TestRouter_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        public override string PluginName => "Nevion video router";
+
+        public override IPlugin Model => _nevion;
+
+        private void Nevion_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IVideoSwitch.SelectedSource))
-                NotifyPropertyChanged(nameof(SelectedTestSource));
-            else if (e.PropertyName == nameof(IVideoSwitch.Sources))
-                NotifyPropertyChanged(nameof(TestSources));
+                NotifyPropertyChanged(nameof(SelectedSource));
             else if (e.PropertyName == nameof(IVideoSwitch.IsConnected))
                 NotifyPropertyChanged(nameof(IsConnected));
         }
@@ -57,85 +63,56 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         protected override bool CanConnect(object obj)
         {
-            if (TestRouter == null && IpAddress?.Length > 0)
+            if (IpAddress?.Length > 0)
                 return true;
 
             return false;
         }
 
         protected override void Connect(object obj)
-        {            
-            TestRouter = new Router(CommunicatorType.Nevion)
-            {
-                IpAddress = IpAddress,
-                Login = _login,
-                Password = _password,
-                Level = _level
-            };
+        {
+            _nevion.IpAddress = IpAddress;
+            _nevion.Login = _login;
+            _nevion.Password = _password;
+            _nevion.Level = _level;
+            _nevion.OutputPorts = _ports.Select(p => p.Id).ToArray();
 
-            TestRouter.OutputPorts = _ports.Select(p => p.Id).ToArray();
-
-            TestRouter.PropertyChanged += TestRouter_PropertyChanged;
-            TestRouter.Connect();
+            _nevion.Connect();
         }
 
         protected override void Disconnect(object obj)
         {
-            TestRouter.PropertyChanged -= TestRouter_PropertyChanged;
+            _nevion.Disconnect();
             base.Disconnect(obj);
         }
 
-        protected override void Init()
+        public override void Load()
         {
             _ports = new List<PortInfo>();
             Ports = CollectionViewSource.GetDefaultView(_ports);
 
-            Level = 0;
-            IpAddress = null;
-            Login = null;
-            Password = null;
-            Preload = false;
-
-            if (Router == null)
-            {
-                Ports.Refresh();
-                IsModified = false;
-                return;
-            }
-
-            Preload = Router.Preload;
-            IpAddress = Router.IpAddress;
-            Login = Router.Login;
-            Password = Router.Password;
-            Level = Router.Level;            
-
-            if (Router?.OutputPorts != null)
-                foreach (var port in Router.OutputPorts)
-                    _ports.Add(new PortInfo(port, null));
-
+            Level = _nevion.Level;
+            IpAddress = _nevion.IpAddress;
+            Login = _nevion.Login;
+            Password = _nevion.Password;
+            Preload = _nevion.Preload;
             Ports.Refresh();
             IsModified = false;
         }
 
         protected override void OnDispose()
         {
-
+            _nevion.PropertyChanged -= Nevion_PropertyChanged;
         }
 
         public override void Save()
         {
-            Router = new Router
-            {
-                Type = CommunicatorType.Nevion,                
-                IpAddress = _ipAddress,
-                Login = _login,
-                Password = _password,
-                Level = _level,
-                IsEnabled = IsEnabled,
-                Preload = _preload
-            };
-
-            Router.OutputPorts = _ports.Select(p => p.Id).ToArray();
+            _nevion.Level = Level;
+            _nevion.IpAddress = IpAddress;
+            _nevion.Login = Login;
+            _nevion.Password = Password;
+            _nevion.Preload = Preload;
+            Engine.VideoSwitch = _nevion;
             IsModified = false;
         }
 
@@ -154,18 +131,14 @@ namespace TAS.Server.VideoSwitch.Configurator
         public string Password { get => _password; set => SetField(ref _password, value); }
         public int Level { get => _level; set => SetField(ref _level, value); }
         public bool Preload { get => _preload; set => SetField(ref _preload, value); }
-        public IVideoSwitchPort SelectedTestSource
+        public IVideoSwitchPort SelectedSource
         {
-            get => TestRouter?.SelectedSource;
+            get => _nevion.SelectedSource;
             set
             {
-                if (TestRouter?.Sources == value)
+                if (_nevion?.SelectedSource == value)
                     return;
-
-                if (value == null)
-                    return;
-
-                TestRouter?.SetSource(value.PortId);
+                _nevion?.SetSource(value.PortId);
             }
         }
     }

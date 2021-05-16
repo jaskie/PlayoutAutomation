@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TAS.Server.VideoSwitch.Configurator
+namespace TAS.Client.Config.Views.Plugins
 {
     /// <summary>
-    /// Interaction logic for BlackmagicConfiguratorView.xaml
+    /// Interaction logic for SingleSelectionPluginsView.xaml
     /// </summary>
-    public partial class BlackmagicConfiguratorView : UserControl
+    public partial class SingleSelectionPluginsView : UserControl
     {
-        public BlackmagicConfiguratorView()
+        public SingleSelectionPluginsView()
         {
             InitializeComponent();
         }

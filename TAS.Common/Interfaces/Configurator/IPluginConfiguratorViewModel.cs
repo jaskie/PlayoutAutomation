@@ -6,8 +6,8 @@ namespace TAS.Common.Interfaces.Configurator
     {
         event EventHandler PluginChanged;
         string PluginName { get; }
-        void Initialize(IPlugin model);
         void Save();
         void Load();
+        IPlugin Model { get; }
     }
 }

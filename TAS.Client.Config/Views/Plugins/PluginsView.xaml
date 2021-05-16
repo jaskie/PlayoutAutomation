@@ -25,14 +25,11 @@
                   DisplayMemberPath="Name" VerticalAlignment="Center" HorizontalAlignment="Left" Width="200"/>
         <ContentControl Grid.Row="1" Grid.ColumnSpan="2" Content="{Binding SelectedPluginType}">
             <ContentControl.Resources>
-                <DataTemplate DataType="{x:Type pluginsVm:CgElementsControllersViewModel}">
-                    <pluginsView:CgElementsControllersView />
-                </DataTemplate>
                 <DataTemplate DataType="{x:Type pluginsVm:GpisViewModel}">
                     <pluginsView:GpisView />
                 </DataTemplate>
-                <DataTemplate DataType="{x:Type pluginsVm:VideoSwitchersViewModel}">
-                    <pluginsView:VideoSwitchersView />
+                <DataTemplate DataType="{x:Type pluginsVm:SingleSelectionPluginsViewModel}">
+                    <pluginsView:SingleSelectionPluginsView />
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>

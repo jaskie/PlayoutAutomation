@@ -9,24 +9,30 @@ using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Configurator
 {
-    internal class BlackmagicConfiguratorViewModel : ConfiguratorViewModelBase
+    public class SmartVideoHubConfiguratorViewModel : ConfiguratorViewModelBase
     {       
         private string _ipAddress;
         private bool _preload;
         private List<PortInfo> _ports;
+        private readonly SmartVideoHub _smartVideoHub;
 
-        public BlackmagicConfiguratorViewModel(Router router) : base(router)
+        public SmartVideoHubConfiguratorViewModel(IEngineProperties engine) : base(engine)
         {
+            _smartVideoHub = engine.VideoSwitch as SmartVideoHub ?? new SmartVideoHub();
+            _smartVideoHub.PropertyChanged += SmartVideoHub_PropertyChanged;
             CommandAddPort = new UiCommand(AddOutputPort, CanAddPort);
             CommandDeletePort = new UiCommand(DeleteOutputPort);
+            Load();
         }
 
-        private void TestRouter_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        public override string PluginName => "BMD Smart Video Hub router";
+
+        public override IPlugin Model => _smartVideoHub;
+
+        private void SmartVideoHub_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IVideoSwitch.SelectedSource))
-                NotifyPropertyChanged(nameof(SelectedTestSource));
-            else if (e.PropertyName == nameof(IVideoSwitch.Sources))
-                NotifyPropertyChanged(nameof(TestSources));
+                NotifyPropertyChanged(nameof(SelectedSource));
             else if (e.PropertyName == nameof(IVideoSwitch.IsConnected))
                 NotifyPropertyChanged(nameof(IsConnected));
         }
@@ -55,7 +61,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         protected override bool CanConnect(object obj)
         {
-            if (TestRouter == null && IpAddress?.Length > 0)
+            if (IpAddress?.Length > 0)
                 return true;
 
             return false;
@@ -63,45 +69,26 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         protected override void Connect(object obj)
         {
-            TestRouter = new Router(CommunicatorType.BlackmagicSmartVideoHub)
-            {
-                IpAddress = IpAddress,            
-            };
-
-            TestRouter.OutputPorts = _ports.Select(p => p.Id).ToArray();
-
-            TestRouter.PropertyChanged += TestRouter_PropertyChanged;
-            TestRouter.Connect();
+            _smartVideoHub.IpAddress = IpAddress;
+            _smartVideoHub.OutputPorts = _ports.Select(p => p.Id).ToArray();
+            _smartVideoHub.Connect();
         }
 
         protected override void Disconnect(object obj)
         {
-            TestRouter.PropertyChanged -= TestRouter_PropertyChanged;
             base.Disconnect(obj);
         }
 
-        protected override void Init()
+        public override void Load()
         {
             _ports = new List<PortInfo>();
             Ports = CollectionViewSource.GetDefaultView(_ports);
 
-            IpAddress = null;
-            Preload = false;
-
-            if (Router == null)
-            {
-                Ports.Refresh();
-                IsModified = false;
-                return;
-            }
-            
-            IpAddress = Router.IpAddress;
-            Preload = Router.Preload;
-
-            if (Router?.OutputPorts != null)
-                foreach (var port in Router.OutputPorts)
+            IpAddress = _smartVideoHub.IpAddress;
+            Preload = _smartVideoHub.Preload;
+            if (_smartVideoHub.OutputPorts != null)
+                foreach (var port in _smartVideoHub.OutputPorts)
                     _ports.Add(new PortInfo(port, null));
-
             Ports.Refresh();
 
             IsModified = false;
@@ -109,21 +96,16 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         protected override void OnDispose()
         {
-
+            _smartVideoHub.PropertyChanged -= SmartVideoHub_PropertyChanged;
         }
 
         public override void Save()
         {
-            Router = new Router
-            {
-                Type = CommunicatorType.BlackmagicSmartVideoHub,                
-                IpAddress = _ipAddress,
-                IsEnabled = IsEnabled,
-                Preload = _preload
-            };
-
-            Router.OutputPorts = _ports.Select(p => p.Id).ToArray();
-
+            _smartVideoHub.IpAddress = _ipAddress;
+            _smartVideoHub.IsEnabled = IsEnabled;
+            _smartVideoHub.Preload = _preload;
+            _smartVideoHub.OutputPorts = _ports.Select(p => p.Id).ToArray();
+            Engine.VideoSwitch = _smartVideoHub;
             IsModified = false;
         }
 
@@ -140,18 +122,17 @@ namespace TAS.Server.VideoSwitch.Configurator
         public ICollectionView Ports { get; private set; }        
         public string IpAddress { get => _ipAddress; set => SetField(ref _ipAddress, value); }
         public bool Preload { get => _preload; set => SetField(ref _preload, value); }
-        public IVideoSwitchPort SelectedTestSource
+        public IVideoSwitchPort SelectedSource
         {
-            get => TestRouter?.SelectedSource;
+            get => _smartVideoHub?.SelectedSource;
             set
             {
-                if (TestRouter?.Sources == value)
+                if (_smartVideoHub?.Sources == value)
                     return;
 
                 if (value == null)
                     return;
-
-                TestRouter?.SetSource(value.PortId);
+                _smartVideoHub?.SetSource(value.PortId);
             }
         }
     }
