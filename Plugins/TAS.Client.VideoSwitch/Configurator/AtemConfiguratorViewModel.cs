@@ -26,7 +26,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             Load();
         }
 
-        public override string PluginName => "BMD Atem router";
+        public override string PluginName => "BMD Atem switcher";
 
         public override IPlugin Model => _atem;
 

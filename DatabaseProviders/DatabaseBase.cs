@@ -29,7 +29,7 @@ namespace TAS.Database.SQLite
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public void SetConfigMode(bool inConfigMode, IEnumerable<HibernationBinder> pluginTypeResolvers)
+        public void SetConfigMode(bool inConfigMode, IEnumerable<HibernationBinder> pluginHibernationBinders)
         {
             HibernationSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
             {
@@ -38,7 +38,7 @@ namespace TAS.Database.SQLite
                 MetadataPropertyHandling = inConfigMode ? Newtonsoft.Json.MetadataPropertyHandling.Default : Newtonsoft.Json.MetadataPropertyHandling.ReadAhead
             };
             if (inConfigMode)
-                HibernationSerializerSettings.SerializationBinder = new PluginSerializationBinder(pluginTypeResolvers);
+                HibernationSerializerSettings.SerializationBinder = new PluginSerializationBinder(pluginHibernationBinders);
             HibernationSerializerSettings.Error = (sender, args) =>
             {
                 if (args.ErrorContext.Error is Newtonsoft.Json.JsonSerializationException)

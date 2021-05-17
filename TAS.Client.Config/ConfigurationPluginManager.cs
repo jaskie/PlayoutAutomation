@@ -24,6 +24,6 @@ namespace TAS.Client.Config
 
         public IPluginConfigurationProvider[] ConfigurationProviders { get; }
         public bool IsPluginAvailable => ConfigurationProviders.Length > 0;
-        public IEnumerable<HibernationBinder> Binders => ConfigurationProviders.Select(cp => cp.Binder);
+        public IEnumerable<HibernationBinder> Binders => ConfigurationProviders.Select(cp => cp.Binder).Distinct();
     }
 }
