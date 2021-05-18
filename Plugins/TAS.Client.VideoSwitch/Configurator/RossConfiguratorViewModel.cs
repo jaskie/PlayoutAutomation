@@ -58,7 +58,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         private void AddOutputPort(object obj)
         {
             var lastItem = _ports.LastOrDefault();
-            _ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id + 1), String.Empty));
+            _ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id + 1), string.Empty));
             IsModified = true;
             Ports.Refresh();
         }
@@ -101,12 +101,23 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         protected override void Disconnect(object obj)
         {
+            _ross.Disconnect();
             base.Disconnect(obj);
+        }
+
+        protected override void OnDispose()
+        {
+            _ross.PropertyChanged -= Ross_PropertyChanged;
+            _ross.Disconnect();
+            _ross.Dispose();
         }
 
         public override void Load()
         {
-            _ports = new List<PortInfo>();
+            IpAddress = _ross.IpAddress;
+            Preload = _ross.Preload;
+
+            _ports = new List<PortInfo>(_ross.Sources.Select(p => new PortInfo(p.PortId, p.PortName)));
             Ports = CollectionViewSource.GetDefaultView(_ports);
 
             _gpiSources = new List<PortInfo>()
@@ -120,14 +131,12 @@ namespace TAS.Server.VideoSwitch.Configurator
             IsModified = false;
         }
 
-        protected override void OnDispose()
-        {
-
-        }
+        
 
         public override void Save()
         {
             base.Save();
+            _ross.IpAddress = IpAddress;
             Engine.VideoSwitch = _ross;
             IsModified = false;
         }

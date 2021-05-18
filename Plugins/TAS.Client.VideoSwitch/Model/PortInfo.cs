@@ -10,9 +10,9 @@ namespace TAS.Server.VideoSwitch.Model
             Name = name;
         }       
         [Hibernate]
-        public short Id { get; }
+        public short Id { get; set; }
         
         [Hibernate]
-        public string Name { get; }
+        public string Name { get; set; }
     }   
 }
