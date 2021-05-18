@@ -107,6 +107,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public override void Save()
         {
+            base.Save();
             _nevion.Level = Level;
             _nevion.IpAddress = IpAddress;
             _nevion.Login = Login;

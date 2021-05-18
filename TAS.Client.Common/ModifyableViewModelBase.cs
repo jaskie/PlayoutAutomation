@@ -39,5 +39,10 @@ namespace TAS.Client.Common
             IsModified = true;
             return true;
         }
+
+        protected bool SetFieldNoModify<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            return base.SetField(ref field, value, propertyName);
+        }
     }
 }

@@ -31,7 +31,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
             Configurators = CollectionViewSource.GetDefaultView(_configurators);             
         }
 
-        private void PluginConfigurator_PluginChanged(object sender, EventArgs e)
+        private void PluginConfigurator_ModifiedChanged(object sender, EventArgs e)
         {
             IsModified = true;
         }
@@ -78,7 +78,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
         {
             foreach (var configurator in _configurators)
             {
-                configurator.PluginChanged -= PluginConfigurator_PluginChanged;
+                configurator.ModifiedChanged -= PluginConfigurator_ModifiedChanged;
                 configurator.Dispose();                
             }
         }

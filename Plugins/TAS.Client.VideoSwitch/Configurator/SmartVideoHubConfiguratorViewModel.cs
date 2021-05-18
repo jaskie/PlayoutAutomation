@@ -101,6 +101,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public override void Save()
         {
+            base.Save();
             _smartVideoHub.IpAddress = _ipAddress;
             _smartVideoHub.IsEnabled = IsEnabled;
             _smartVideoHub.Preload = _preload;

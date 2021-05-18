@@ -4,10 +4,11 @@ namespace TAS.Common.Interfaces.Configurator
 {
     public interface IPluginConfiguratorViewModel: IDisposable
     {
-        event EventHandler PluginChanged;
+        event EventHandler ModifiedChanged;
         string PluginName { get; }
         void Save();
         void Load();
+        bool IsEnabled { get; set; }
         IPlugin Model { get; }
     }
 }

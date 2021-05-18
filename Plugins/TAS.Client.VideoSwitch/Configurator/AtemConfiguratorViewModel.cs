@@ -124,6 +124,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public override void Save()
         {
+            base.Save();
             _atem.IsEnabled = IsEnabled;
             _atem.DefaultEffect = _selectedTransitionType ?? VideoSwitcherTransitionStyle.Cut;
             _atem.IpAddress = _ipAddress;

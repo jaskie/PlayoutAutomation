@@ -11,33 +11,42 @@ namespace TAS.Client.Config.ViewModels.Plugins
     {
 
         private IPluginConfiguratorViewModel _selectedConfigurator;
+        private bool _allowEnable;
 
-        public SingleSelectionPluginsViewModel(IEngineProperties engine, IEnumerable<IPluginConfigurationProvider> pluginConfigurationProviders, Type interfaceType, IPlugin selectedPlugin, string pluginTypeName): base(pluginTypeName)
+        public SingleSelectionPluginsViewModel(IEngineProperties engine, IEnumerable<IPluginConfigurationProvider> pluginConfigurationProviders, Type interfaceType, IPlugin selectedPlugin, string pluginTypeName) : base(pluginTypeName)
         {
             Configurators = new List<IPluginConfiguratorViewModel> { new EmptyPluginConfiguratorViewModel(engine, interfaceType) };
             Configurators.AddRange(pluginConfigurationProviders.Where(p => p.GetPluginInterfaceType() == interfaceType).Select(p => p.GetConfiguratorViewModel(engine)));
             foreach (var configurator in Configurators)
-                configurator.PluginChanged += Configurator_PluginChanged;
+                configurator.ModifiedChanged += Configurator_ModifiedChanged;
             _selectedConfigurator = Configurators.FirstOrDefault(p => p.Model == selectedPlugin) ?? Configurators.First();
+            _allowEnable = _selectedConfigurator is not EmptyPluginConfiguratorViewModel;
         }
 
-        private void Configurator_PluginChanged(object sender, EventArgs e)
+        private void Configurator_ModifiedChanged(object sender, EventArgs e)
         {
             IsModified = true;
         }
 
         public List<IPluginConfiguratorViewModel> Configurators { get; }
 
+        public bool AllowEnable { get => _allowEnable; private set => SetFieldNoModify(ref _allowEnable, value); }
+
         public IPluginConfiguratorViewModel SelectedConfigurator
         {
             get => _selectedConfigurator;
-            set => SetField(ref _selectedConfigurator, value);
+            set
+            {
+                if (!SetField(ref _selectedConfigurator, value))
+                    return;
+                AllowEnable = value is not EmptyPluginConfiguratorViewModel;
+            }
         }
 
         protected override void OnDispose()
         {
             foreach (var configurator in Configurators)
-                configurator.PluginChanged -= Configurator_PluginChanged;                
+                configurator.ModifiedChanged -= Configurator_ModifiedChanged;
         }
 
         public override void Save()
@@ -59,7 +68,7 @@ namespace TAS.Client.Config.ViewModels.Plugins
 
         public string PluginName { get; } = Common.Properties.Resources._none_;
 
-        public event EventHandler PluginChanged;
+        public event EventHandler ModifiedChanged;
 
         public void Dispose() { }
 
@@ -74,6 +83,8 @@ namespace TAS.Client.Config.ViewModels.Plugins
         public void Load() { }
 
         public IPlugin Model => null;
+
+        public bool IsEnabled { get; set; }
 
         public override string ToString()
         {

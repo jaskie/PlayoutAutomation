@@ -30,7 +30,12 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         protected abstract void Connect(object obj);
         protected abstract bool CanConnect(object obj);
-        public abstract void Save();
+        
+        public virtual void Save()
+        {
+            Model.IsEnabled = IsEnabled;
+        }
+
         public abstract bool CanSave();
 
         public virtual bool CanUndo()
@@ -39,9 +44,6 @@ namespace TAS.Server.VideoSwitch.Configurator
         }
 
         public abstract void Load();
-
-
-        public event EventHandler PluginChanged;
 
         public UiCommand CommandConnect { get; }
         public UiCommand CommandDisconnect { get; }

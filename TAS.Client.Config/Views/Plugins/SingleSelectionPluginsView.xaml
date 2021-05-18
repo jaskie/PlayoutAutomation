@@ -3,8 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"   
-             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:local="clr-namespace:TAS.Client.Config.ViewModels.Plugins"
              mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance local:SingleSelectionPluginsViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Margin="5">
         <Grid.ColumnDefinitions>
@@ -16,12 +17,13 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Text="Plugin in use" VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <TextBlock Text="Selected plugin" VerticalAlignment="Center" HorizontalAlignment="Left" />
         <ComboBox Grid.Column="1" DisplayMemberPath="PluginName" SelectedItem="{Binding SelectedConfigurator}" ItemsSource="{Binding Configurators}" Width="200" HorizontalAlignment="Left"/>
-        <Separator Grid.Row="1" Grid.ColumnSpan="2" Height="1" Margin="0,10"/>
-        <ContentControl Margin="0,10,0,0" Grid.Row="2" Grid.ColumnSpan="2" Content="{Binding SelectedConfigurator}">
+        <CheckBox Grid.Row="1" IsChecked="{Binding SelectedConfigurator.IsEnabled}" VerticalAlignment="Center" IsEnabled="{Binding AllowEnable}">Enabled</CheckBox>
+        <Separator Grid.Row="1" Grid.Column="1" Height="1" Margin="0,10"/>
+        <ContentControl Margin="0,10,0,0" Grid.Row="2" Grid.ColumnSpan="2" Content="{Binding SelectedConfigurator}" IsEnabled="{Binding SelectedConfigurator.IsEnabled}">
             <ContentControl.Resources>
-                <DataTemplate DataType="{x:Type common:ViewModelBase}">
+                <DataTemplate DataType="{x:Type local:EmptyPluginConfiguratorViewModel}">
                     <TextBlock Text="This plugin does not provide any configurator." VerticalAlignment="Center" HorizontalAlignment="Center" />
                 </DataTemplate>
             </ContentControl.Resources>

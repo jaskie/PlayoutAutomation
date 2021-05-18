@@ -127,6 +127,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public override void Save()
         {
+            base.Save();
             Engine.VideoSwitch = _ross;
             IsModified = false;
         }
