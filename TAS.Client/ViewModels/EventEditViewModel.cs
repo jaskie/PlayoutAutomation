@@ -69,7 +69,7 @@ namespace TAS.Client.ViewModels
                 Sources.Add(string.Empty); //default value in ComboBox
                 foreach (var input in VideoSwitch.Sources)
                     Sources.Add(input);
-                _selectedSource = Sources?.FirstOrDefault(param => param is IVideoSwitchPort port && port.PortId == _videoSwitchPort) ?? Sources?[0];
+                _selectedSource = Sources?.FirstOrDefault(param => param is IVideoSwitchPort port && port.Id == _videoSwitchPort) ?? Sources?[0];
             }
                             
             if (@event.EventType == TEventType.Live && Model.Engine.MediaManager.Recorders.Count() > 0)
@@ -573,7 +573,7 @@ namespace TAS.Client.ViewModels
                     return;
 
                 _videoSwitchPort = value;
-                _selectedSource = Sources?.FirstOrDefault(p => p is IVideoSwitchPort port && port.PortId == value) ?? Sources?[0];
+                _selectedSource = Sources?.FirstOrDefault(p => p is IVideoSwitchPort port && port.Id == value) ?? Sources?[0];
                 NotifyPropertyChanged(nameof(SelectedSource));
             }
         }
@@ -596,7 +596,7 @@ namespace TAS.Client.ViewModels
                     return;
                 }
                 
-                VideoSwitchPort = port.PortId;
+                VideoSwitchPort = port.Id;
             }
         }
 

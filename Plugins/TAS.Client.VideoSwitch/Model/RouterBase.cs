@@ -80,15 +80,15 @@ namespace TAS.Server.VideoSwitch.Model
 
                 ports = new PortInfo[Sources.Count];
                 for (int i = 0; i < Sources.Count; ++i)
-                    ports[i] = new PortInfo(Sources[i].PortId, Sources[i].PortName);
+                    ports[i] = new PortInfo(Sources[i].Id, Sources[i].Name);
             }
                 
 
             foreach (var port in ports)
             {
-                if (Sources.FirstOrDefault(inPort => inPort.PortId == port.Id && inPort.PortName != port.Name) is RouterPort foundPort)
-                    foundPort.PortName = port.Name;
-                else if (Sources.All(inPort => inPort.PortId != port.Id))
+                if (Sources.FirstOrDefault(inPort => inPort.Id == port.Id && inPort.Name != port.Name) is RouterPort foundPort)
+                    foundPort.Name = port.Name;
+                else if (Sources.All(inPort => inPort.Id != port.Id))
                     Sources.Add(new RouterPort(port.Id, port.Name));
             }
 
@@ -99,8 +99,8 @@ namespace TAS.Server.VideoSwitch.Model
                 return;
             
 
-            if (SelectedSource == null || SelectedSource.PortId != selectedInput.InPort)
-                SelectedSource = Sources.FirstOrDefault(port => port.PortId == selectedInput.InPort);
+            if (SelectedSource == null || SelectedSource.Id != selectedInput.InPort)
+                SelectedSource = Sources.FirstOrDefault(port => port.Id == selectedInput.InPort);
         }
 
         protected IRouterCommunicator Communicator { get; private set; }                

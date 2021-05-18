@@ -77,7 +77,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             //NotifyPropertyChanged(nameof(SelectedGpiSource));
         }
 
-        protected override bool CanConnect(object obj)
+        protected override bool CanConnect()
         {
             if (IpAddress?.Length > 0)
                 return true;
@@ -85,17 +85,16 @@ namespace TAS.Server.VideoSwitch.Configurator
             return false;
         }
 
-        protected override void Connect(object obj)
+        protected override void Connect()
         {
             _atem.IpAddress = IpAddress;
             _atem.DefaultEffect = _selectedTransitionType ?? VideoSwitcherTransitionStyle.Cut;
             _atem.Connect();            
         }
 
-        protected override void Disconnect(object obj)
+        protected override void Disconnect()
         {
             _atem.Disconnect();
-            base.Disconnect(obj);
         }
 
         public override void Load()
@@ -162,7 +161,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             {
                 if (_atem?.SelectedSource == value)
                     return;
-                _atem?.SetSource(value.PortId);
+                _atem?.SetSource(value.Id);
             }
         }
 

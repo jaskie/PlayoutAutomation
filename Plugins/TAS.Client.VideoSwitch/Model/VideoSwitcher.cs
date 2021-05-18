@@ -11,8 +11,9 @@ namespace TAS.Server.VideoSwitch.Model
         #region Configuration
         [Hibernate]
         public PortInfo GpiPort { get; set; }
+
         [Hibernate]
-        public VideoSwitcherTransitionStyle DefaultEffect { get; set; }
+        public VideoSwitcherTransitionStyle DefaultEffect { get; set; } = VideoSwitcherTransitionStyle.Cut;
         #endregion
 
         public VideoSwitcher(CommunicatorType type = CommunicatorType.None) : base(type)
@@ -27,7 +28,7 @@ namespace TAS.Server.VideoSwitch.Model
             if (e.Value.InPort == GpiPort?.Id)
                 RaiseGpiStarted();
 
-            SelectedSource = Sources.FirstOrDefault(param => param.PortId == e.Value.InPort);
+            SelectedSource = Sources.FirstOrDefault(param => param.Id == e.Value.InPort);
         }
         
         public void PreloadSource(int sourceId)

@@ -14,18 +14,18 @@ namespace TAS.Server.VideoSwitch.Model
         public RouterPort(short id, string portName)
         {
             _portId = id;
-            PortName = portName;
+            Name = portName;
         }
 
         [DtoMember, Hibernate]
-        public short PortId
+        public short Id
         { 
             get => _portId; 
             set => SetField(ref _portId, value);
         }
         
         [DtoMember, Hibernate]
-        public string PortName
+        public string Name
         {
             get => _portName;
             set => SetField(ref _portName, value);

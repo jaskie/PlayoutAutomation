@@ -56,12 +56,12 @@ namespace TAS.Server.VideoSwitch.Configurator
         private void AddOutputPort(object obj)
         {
             var lastItem = _ports.LastOrDefault();
-            _ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id + 1), String.Empty));
+            _ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id + 1), string.Empty));
             IsModified = true;
             Ports.Refresh();
         }
 
-        protected override bool CanConnect(object obj)
+        protected override bool CanConnect()
         {
             if (IpAddress?.Length > 0)
                 return true;
@@ -69,7 +69,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             return false;
         }
 
-        protected override void Connect(object obj)
+        protected override void Connect()
         {
             _nevion.IpAddress = IpAddress;
             _nevion.Login = _login;
@@ -80,10 +80,9 @@ namespace TAS.Server.VideoSwitch.Configurator
             _nevion.Connect();
         }
 
-        protected override void Disconnect(object obj)
+        protected override void Disconnect()
         {
             _nevion.Disconnect();
-            base.Disconnect(obj);
         }
 
         public override void Load()
@@ -139,7 +138,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             {
                 if (_nevion?.SelectedSource == value)
                     return;
-                _nevion?.SetSource(value.PortId);
+                _nevion?.SetSource(value.Id);
             }
         }
     }

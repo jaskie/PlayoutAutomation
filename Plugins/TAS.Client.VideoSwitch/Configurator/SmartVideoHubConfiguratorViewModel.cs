@@ -59,7 +59,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         }
 
 
-        protected override bool CanConnect(object obj)
+        protected override bool CanConnect()
         {
             if (IpAddress?.Length > 0)
                 return true;
@@ -67,16 +67,16 @@ namespace TAS.Server.VideoSwitch.Configurator
             return false;
         }
 
-        protected override void Connect(object obj)
+        protected override void Connect()
         {
             _smartVideoHub.IpAddress = IpAddress;
             _smartVideoHub.OutputPorts = _ports.Select(p => p.Id).ToArray();
             _smartVideoHub.Connect();
         }
 
-        protected override void Disconnect(object obj)
+        protected override void Disconnect()
         {
-            base.Disconnect(obj);
+            _smartVideoHub.Disconnect();
         }
 
         public override void Load()
@@ -133,7 +133,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
                 if (value == null)
                     return;
-                _smartVideoHub?.SetSource(value.PortId);
+                _smartVideoHub?.SetSource(value.Id);
             }
         }
     }

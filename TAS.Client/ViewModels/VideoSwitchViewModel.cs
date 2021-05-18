@@ -49,14 +49,14 @@ namespace TAS.Client.ViewModels
 
         public override bool CanOk(object obj)
         {
-            if (VideoSwitch.SelectedSource?.PortId != _selectedInputPort?.PortId && IsConnected)
+            if (VideoSwitch.SelectedSource?.Id != _selectedInputPort?.Id && IsConnected)
                 return true;
             return false;
         }
 
         public override bool Ok(object obj)
         {
-            VideoSwitch.SetSource(_selectedInputPort.PortId);
+            VideoSwitch.SetSource(_selectedInputPort.Id);
             return true;
         }
 

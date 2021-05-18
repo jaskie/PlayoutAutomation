@@ -1036,7 +1036,7 @@ namespace TAS.Server
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
                 
-                if (_playing.EventType != TEventType.Live && eventType == TEventType.Live && !(VideoSwitch is IVideoSwitcher) && VideoSwitch.Preload && VideoSwitch.SelectedSource?.PortId != aEvent.VideoSwitchPort)
+                if (_playing.EventType != TEventType.Live && eventType == TEventType.Live && !(VideoSwitch is IVideoSwitcher) && VideoSwitch.Preload && VideoSwitch.SelectedSource?.Id != aEvent.VideoSwitchPort)
                     VideoSwitch.SetSource(aEvent.VideoSwitchPort);
                                 
                     if (!aEvent.IsHold

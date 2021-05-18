@@ -2,10 +2,15 @@
 
 namespace TAS.Common.Interfaces
 {
-    public interface IVideoSwitchPort : INotifyPropertyChanged
+    public interface IVideoSwitchPort : IVideoSwitchPortProperties
     {
-        short PortId { get; }
-        string PortName { get; }
         bool? IsSignalPresent { get; }
+    }
+
+    public interface IVideoSwitchPortProperties
+    {
+        short Id { get; }
+        string Name { get; }
+
     }
 }

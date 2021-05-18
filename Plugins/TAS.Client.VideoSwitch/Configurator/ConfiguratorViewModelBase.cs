@@ -7,29 +7,20 @@ namespace TAS.Server.VideoSwitch.Configurator
 {
     public abstract class ConfiguratorViewModelBase : ModifyableViewModelBase, IPluginConfiguratorViewModel
     {
-        private bool _isEnabled;
-        private bool _isConnected;
         protected readonly IEngineProperties Engine;
 
         public ConfiguratorViewModelBase(IEngineProperties engine)
         {
-            CommandConnect = new UiCommand(Connect, CanConnect);
-            CommandDisconnect = new UiCommand(Disconnect);
-
-            IsEnabled = engine.VideoSwitch?.IsEnabled ?? false;
+            CommandConnect = new UiCommand(_ => Connect(), _ => CanConnect());
+            CommandDisconnect = new UiCommand(_ => Disconnect());
             Engine = engine;
         }
 
         public abstract IPlugin Model { get; }
 
-
-        protected virtual void Disconnect(object obj)
-        {
-            NotifyPropertyChanged(nameof(IsConnected));
-        }
-
-        protected abstract void Connect(object obj);
-        protected abstract bool CanConnect(object obj);
+        protected abstract void Connect();
+        protected abstract void Disconnect();
+        protected abstract bool CanConnect();
         
         public virtual void Save()
         {
@@ -48,13 +39,9 @@ namespace TAS.Server.VideoSwitch.Configurator
         public UiCommand CommandConnect { get; }
         public UiCommand CommandDisconnect { get; }
 
-        public bool IsConnected { get => _isConnected; protected set => _isConnected = value; }
+        public bool IsConnected => (Model as IVideoSwitch)?.IsConnected ?? false;
 
-        public bool IsEnabled
-        {
-            get => _isEnabled;
-            set => SetField(ref _isEnabled, value);
-        }
+        public bool IsEnabled { get => Model.IsEnabled; set => Model.IsEnabled = value; }
 
         public abstract string PluginName { get; }
     }

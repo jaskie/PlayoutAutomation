@@ -30,7 +30,7 @@ namespace TAS.Server.VideoSwitch.Model
             if (changedIn == null)
                 return;
 
-            SelectedSource = Sources.FirstOrDefault(param => param.PortId == changedIn.InPort);
+            SelectedSource = Sources.FirstOrDefault(param => param.Id == changedIn.InPort);
         }
 
         protected override void Dispose(bool disposing)

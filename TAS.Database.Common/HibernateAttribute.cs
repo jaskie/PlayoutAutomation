@@ -1,17 +1,14 @@
 ﻿using System;
-using TAS.Common;
 
 namespace TAS.Database.Common
 {
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class HibernateAttribute: Attribute
     {       
-        public HibernateAttribute(string propertyName = null, DataType modelType = DataType.Main)
+        public HibernateAttribute(string propertyName = null)
         {
-            ModelType = modelType;
             PropertyName = propertyName;
         }
         public string PropertyName { get; set; }
-        public DataType ModelType { get; }
     }
 }

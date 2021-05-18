@@ -107,7 +107,7 @@
                 </Button>
 
                 <TextBlock Grid.Row="1" Text="Input Port" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsEnabled="{Binding IsConnected}" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="80" ItemsSource="{Binding TestSources}" DisplayMemberPath="PortName" SelectedItem="{Binding SelectedTestSource}" />
+                <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsEnabled="{Binding IsConnected}" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="80" ItemsSource="{Binding GpiSources}" DisplayMemberPath="PortName" SelectedItem="{Binding SelectedGpiSource}" />
             </Grid>
         </GroupBox>
     </Grid>

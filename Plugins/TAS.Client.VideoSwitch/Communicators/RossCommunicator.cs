@@ -294,7 +294,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         public PortInfo[] GetSources()
         {
-            return _mc.Sources.Select(p => new PortInfo(p.PortId, p.PortName)).ToArray();
+            return _mc.Sources.Select(p => new PortInfo(p.Id, p.Name)).ToArray();
         }
 
         private string SerializeInputIndex(int b)
