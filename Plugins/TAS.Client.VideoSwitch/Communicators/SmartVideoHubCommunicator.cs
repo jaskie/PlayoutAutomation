@@ -7,13 +7,12 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Server.VideoSwitch.Model;
 using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Communicators
 {
-    internal class BlackmagicSmartVideoHubCommunicator : IRouterCommunicator
+    internal class SmartVideoHubCommunicator : IRouterCommunicator
     {
         /// <summary>
         /// In Blackmagic CrosspointStatus and CrosspointChange responses have the same syntax. CrosspointStatus semaphore initial value is set to 1 to help notify ProcessCommand method
@@ -25,7 +24,6 @@ namespace TAS.Server.VideoSwitch.Communicators
         private TcpClient _tcpClient;
 
         private NetworkStream _stream;
-        private readonly RouterBase _router;
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
         private ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>> _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
@@ -44,12 +42,6 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         private PortInfo[] _sources;
         
-
-        public BlackmagicSmartVideoHubCommunicator(IVideoSwitch device)
-        {
-            _router = device as RouterBase;
-        }               
-
         private PortInfo[] GetSources()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
@@ -238,7 +230,8 @@ namespace TAS.Server.VideoSwitch.Communicators
                         var lineParams = line.Split(new[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
                         if (lineParams.Length >= 2 &&
                             short.TryParse(lineParams[0], out var outPort) &&
-                            outPort == _router.OutputPorts[0] &&
+                            //TODO:fixme
+                            //outPort == _router.OutputPorts[0] &&
                             short.TryParse(lineParams[1], out var inPort))
                             return new CrosspointInfo(inPort, outPort);
 
@@ -377,7 +370,8 @@ namespace TAS.Server.VideoSwitch.Communicators
                         var lineParams = line.Split(new[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
                         if (lineParams.Length >= 2 &&
                             short.TryParse(lineParams[0], out var outPort) &&
-                            outPort == _router.OutputPorts[0] &&
+//TODO: fix
+//                          outPort == _router.OutputPorts[0] &&
                             short.TryParse(lineParams[1], out var inPort))
                             return new CrosspointInfo(inPort, outPort);
 
@@ -394,7 +388,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        public bool Connect()
+        public bool Connect(string address)
         {
             _disposed = default(int);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -409,7 +403,14 @@ namespace TAS.Server.VideoSwitch.Communicators
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    _tcpClient.Connect(_router.IpAddress.Split(':')[0], Int32.Parse(_router.IpAddress.Split(':')[1]));
+                    var addressParts = address.Split(new char[] { ':' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                    if (addressParts.Length == 0)
+                        throw new ApplicationException($"Invalid address provided: {address}");
+                    int port = 9990;
+                    if (addressParts.Length > 1)
+                        int.TryParse(addressParts[1], out port);
+
+                    _tcpClient.Connect(addressParts[0], port);
                     if (!_tcpClient.Connected)
                     {
                         _tcpClient.Close();
@@ -451,7 +452,8 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         public void SetSource(int inPort)
         {
-            AddToRequestQueue(_router.OutputPorts.Aggregate("VIDEO OUTPUT ROUTING:\n", (current, outPort) => current + string.Concat(outPort, " ", inPort, "\n")));
+            //TODO: fix
+            //AddToRequestQueue(_router.OutputPorts.Aggregate("VIDEO OUTPUT ROUTING:\n", (current, outPort) => current + string.Concat(outPort, " ", inPort, "\n")));
         }
 
         public void Disconnect()

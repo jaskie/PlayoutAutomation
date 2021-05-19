@@ -16,12 +16,10 @@ namespace TAS.Server.VideoSwitch.Model
         public VideoSwitcherTransitionStyle DefaultEffect { get; set; } = VideoSwitcherTransitionStyle.Cut;
         #endregion
 
-        public VideoSwitcher(CommunicatorType type = CommunicatorType.None) : base(type)
-        {         
-            if (Communicator != null)            
-                Communicator.SourceChanged += Communicator_SourceChanged;
-                                         
-        }       
+        internal VideoSwitcher(IVideoSwitchCommunicator communicator) : base(communicator)
+        {
+            communicator.SourceChanged += Communicator_SourceChanged;
+        } 
 
         private void Communicator_SourceChanged(object sender, EventArgs<CrosspointInfo> e)
         {

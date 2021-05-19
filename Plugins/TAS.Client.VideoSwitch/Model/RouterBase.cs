@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Database.Common;
-using TAS.Server.VideoSwitch.Communicators;
 using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Model
@@ -19,8 +18,6 @@ namespace TAS.Server.VideoSwitch.Model
         public bool IsEnabled { get; set; }
         [Hibernate]
         public string IpAddress { get; set; }
-        [Hibernate]
-        public CommunicatorType Type { get;}
         [Hibernate]
         public int Level { get; set; }
         [Hibernate]
@@ -40,28 +37,12 @@ namespace TAS.Server.VideoSwitch.Model
         private bool _isDisposed = false;
         private IVideoSwitchPort _selectedInputPort;
         
-        public RouterBase(CommunicatorType type)
+        internal RouterBase(IRouterCommunicator communicator)
         {
-            Type = type;
-            switch (type)
-            {
-                case CommunicatorType.Nevion:
-                    Communicator = new NevionCommunicator(this);
-                    break;
-                case CommunicatorType.BlackmagicSmartVideoHub:
-                    Communicator = new BlackmagicSmartVideoHubCommunicator(this);
-                    break;
-                case CommunicatorType.Atem:
-                    Communicator = new AtemCommunicator(this);
-                    break;
-                case CommunicatorType.Ross:
-                    Communicator = new RossCommunicator(this);
-                    break;
-                default:
-                    return;
-            }
-            Communicator.ConnectionChanged += Communicator_ConnectionChanged;
+            Communicator = communicator;
+            communicator.ConnectionChanged += Communicator_ConnectionChanged;
         }
+
         private void Communicator_ConnectionChanged(object sender, EventArgs<bool> e)
         {
             IsConnected = e.Value;
@@ -141,7 +122,7 @@ namespace TAS.Server.VideoSwitch.Model
 
             try
             {
-                IsConnected = Communicator.Connect();
+                IsConnected = Communicator.Connect(IpAddress);
                 if (IsConnected)
                 {                    
                     SetupDevice(Communicator.Sources);

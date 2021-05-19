@@ -8,6 +8,6 @@ namespace TAS.Server.VideoSwitch.Model
 {
     public class Atem: VideoSwitcher
     {
-        public Atem() : base(CommunicatorType.Atem) { }
+        public Atem() : base(new Communicators.AtemCommunicator()) { }
     }
 }

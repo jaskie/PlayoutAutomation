@@ -7,7 +7,6 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Server.VideoSwitch.Model;
 using TAS.Server.VideoSwitch.Model.Interfaces;
 
@@ -20,7 +19,6 @@ namespace TAS.Server.VideoSwitch.Communicators
         private TcpClient _tcpClient;
 
         private NetworkStream _stream;
-        private readonly Router _router;
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
         private ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>> _responsesQueue =new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
@@ -36,21 +34,20 @@ namespace TAS.Server.VideoSwitch.Communicators
         private string _response;
         private int _disposed;
 
-        private PortInfo[] _sources;        
+        private PortInfo[] _sources;
 
-        public NevionCommunicator(IVideoSwitch device)
-        {
-            _router = device as Router;               
-        }
-                
+        public int Level { get; set; }
+
+        public short[] OutputPorts { get; set; }
+
 
         private PortInfo[] GetSources()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
                 return null;
 
-            AddToRequestQueue($"inlist l{_router.Level}");
-            while (_disposed == default(int))
+            AddToRequestQueue($"inlist l{Level}");
+            while (_disposed == default)
             {
                 try
                 {
@@ -86,7 +83,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         {
             try
             {
-                while (_disposed == default(int))
+                while (_disposed == default)
                 {
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
@@ -117,7 +114,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         {
             try
             {
-                while (_disposed == default(int))
+                while (_disposed == default)
                 {
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
@@ -155,15 +152,15 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        private async void StartListener()
+        private void StartListener()
         {
             var bytesReceived = new byte[256];
             Logger.Debug("Nevion listener started!");
-            while (_disposed == default(int))
+            while (_disposed == default)
             {
                 try
                 {
-                    var bytes = await _stream.ReadAsync(bytesReceived, 0, bytesReceived.Length).ConfigureAwait(false);
+                    var bytes = _stream.Read(bytesReceived, 0, bytesReceived.Length);
                     if (bytes == 0) continue;
                     var response = System.Text.Encoding.ASCII.GetString(bytesReceived, 0, bytes);
                     ParseMessage(response);
@@ -190,9 +187,9 @@ namespace TAS.Server.VideoSwitch.Communicators
             if (!_semaphores.TryGetValue(ListTypeEnum.SignalPresence, out var semaphore))
                 return;
 
-            AddToRequestQueue($"sspi l{_router.Level}");
+            AddToRequestQueue($"sspi l{Level}");
             
-            while (_disposed == default(int))
+            while (_disposed == default)
             {
                 try
                 {
@@ -213,7 +210,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     ExtendedStatusReceived?.Invoke(this, new EventArgs<PortState[]>(portsSignal));
 
                     await Task.Delay(3000);
-                    AddToRequestQueue($"sspi l{_router.Level}");
+                    AddToRequestQueue($"sspi l{Level}");
                 }
                 catch (Exception ex)
                 {
@@ -231,7 +228,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointChange, out var semaphore))
                 return;
             
-            while (_disposed == default(int))
+            while (_disposed == default)
             {
                 try
                 {
@@ -248,8 +245,8 @@ namespace TAS.Server.VideoSwitch.Communicators
                     {
                         var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         if (lineParams.Length >= 4 && lineParams[0] == "x" &&
-                            lineParams[1] == $"l{_router.Level}" &&
-                            lineParams[3] == _router.OutputPorts[0].ToString() &&
+                            lineParams[1] == $"l{Level}" &&
+                            lineParams[3] == OutputPorts[0].ToString() &&
                             short.TryParse(lineParams[2], out var inPort) &&
                             short.TryParse(lineParams[3], out var outPort))
                             return new CrosspointInfo(inPort, outPort);
@@ -293,7 +290,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                 return;
             var trimmedLines = lines.Skip(1).Where(param => !string.IsNullOrEmpty(param)).ToArray();
 
-            if (lines[0].Contains($"inlist l{_router.Level}"))
+            if (lines[0].Contains($"inlist l{Level}"))
             {
                 if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
                     return;
@@ -305,7 +302,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
             }                
 
-            else if (lines[0].Contains("si") && lines[0].Contains($"l{_router.Level}"))
+            else if (lines[0].Contains("si") && lines[0].Contains($"l{Level}"))
             {
                 if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
                     return;
@@ -316,7 +313,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     semaphore.Release();
             }
                                 
-            else if (lines[0].Contains($"sspi l{_router.Level}"))
+            else if (lines[0].Contains($"sspi l{Level}"))
             {
                 if (!_semaphores.TryGetValue(ListTypeEnum.SignalPresence, out var semaphore))
                     return;
@@ -327,7 +324,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     semaphore.Release();                
             }
 
-            else if (lines.Length>1 && lines[0].StartsWith("%") && lines[1].Contains($"x l{_router.Level}"))
+            else if (lines.Length>1 && lines[0].StartsWith("%") && lines[1].Contains($"x l{Level}"))
             {
                 if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointChange, out var semaphore))
                     return;
@@ -361,11 +358,11 @@ namespace TAS.Server.VideoSwitch.Communicators
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool Connect()
+        public bool Connect(string address)
         {
             _cancellationTokenSource = new CancellationTokenSource();
 
-            while (_disposed == default(int))
+            while (_disposed == default)
             {
                 _tcpClient = new TcpClient();
 
@@ -375,7 +372,14 @@ namespace TAS.Server.VideoSwitch.Communicators
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    _tcpClient.Connect(_router.IpAddress.Split(':')[0], Int32.Parse(_router.IpAddress.Split(':')[1]));
+                    var addressParts = address.Split(new char[] { ':' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                    if (addressParts.Length == 0)
+                        throw new ApplicationException($"Invalid address provided: {address}");
+                    int port = 9990;
+                    if (addressParts.Length > 1)
+                        int.TryParse(addressParts[1], out port);
+
+                    _tcpClient.Connect(addressParts[0], port);
 
                     if (_tcpClient.Client?.Connected != true)
                     {
@@ -398,7 +402,6 @@ namespace TAS.Server.VideoSwitch.Communicators
                     Sources = GetSources();
                     Logger.Info("Nevion router connected and ready!");
 
-                    AddToRequestQueue($"login {_router.Login} {_router.Password}");
                     return true;
                 }
 
@@ -418,9 +421,15 @@ namespace TAS.Server.VideoSwitch.Communicators
             return false;
         }
 
+        public void Login(string user, string password)
+        {
+            AddToRequestQueue($"login {user} {password}");
+        }
+
+
         public void SetSource(int inPort)
         {
-            AddToRequestQueue($"x l{_router.Level} {inPort} {string.Join(",", _router.OutputPorts.Select(param => param.ToString()))}");
+            AddToRequestQueue($"x l{Level} {inPort} {string.Join(",", OutputPorts.Select(param => param.ToString()))}");
         }
 
         public void Disconnect()
@@ -432,7 +441,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _disposed, 1) != default(int))
+            if (Interlocked.Exchange(ref _disposed, 1) != default)
                 return;
             Disconnect();
             Logger.Debug("Nevion communicator disposed");
@@ -443,8 +452,8 @@ namespace TAS.Server.VideoSwitch.Communicators
             if (!_semaphores.TryGetValue(ListTypeEnum.CrosspointStatus, out var semaphore))
                 return null;
 
-            AddToRequestQueue($"si l{_router.Level} {string.Join(",", _router.OutputPorts)}");
-            while (_disposed == default(int))
+            AddToRequestQueue($"si l{Level} {string.Join(",", OutputPorts)}");
+            while (_disposed == default)
             {
                 try
                 {
@@ -461,8 +470,8 @@ namespace TAS.Server.VideoSwitch.Communicators
                     {
                         var lineParams = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         if (lineParams.Length >= 4 && lineParams[0] == "x" &&
-                            lineParams[1] == $"l{_router.Level}" &&
-                            lineParams[3] == _router.OutputPorts[0].ToString() &&
+                            lineParams[1] == $"l{Level}" &&
+                            lineParams[3] == OutputPorts[0].ToString() &&
                             short.TryParse(lineParams[2], out var inPort) &&
                             short.TryParse(lineParams[3], out var outPort))
                             return new CrosspointInfo(inPort, outPort);

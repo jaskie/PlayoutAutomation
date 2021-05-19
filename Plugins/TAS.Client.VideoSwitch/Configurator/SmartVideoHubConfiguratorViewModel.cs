@@ -58,14 +58,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             Ports.Refresh();
         }
 
-
-        protected override bool CanConnect()
-        {
-            if (IpAddress?.Length > 0)
-                return true;
-
-            return false;
-        }
+        protected override bool CanConnect() => IpAddress?.Length > 0;
 
         protected override void Connect()
         {
@@ -97,6 +90,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         protected override void OnDispose()
         {
             _smartVideoHub.PropertyChanged -= SmartVideoHub_PropertyChanged;
+            _smartVideoHub.Dispose();
         }
 
         public override void Save()

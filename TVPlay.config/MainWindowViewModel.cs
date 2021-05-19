@@ -14,7 +14,8 @@ namespace TAS.Client.Config
         private Model.ConfigFile _configFile;
         
         public MainWindowViewModel()
-        {            
+        {
+            TAS.Common.LoggerConfig.AddDebuggerTarget();
             if (File.Exists("TVPlay.exe"))
                 ConfigFile = new Model.ConfigFile(ConfigurationManager.OpenExeConfiguration("TVPlay.exe"));
             CommandIngestFoldersSetup = new UiCommand(_ingestFoldersSetup, _canShowDialog);

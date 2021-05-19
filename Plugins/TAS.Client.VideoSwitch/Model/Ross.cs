@@ -8,6 +8,8 @@ namespace TAS.Server.VideoSwitch.Model
 {
     public class Ross: VideoSwitcher
     {
-        public Ross() : base(CommunicatorType.Ross) { }
+        public Ross(): base(new Communicators.RossCommunicator())
+        {
+        }
     }
 }

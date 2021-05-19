@@ -24,8 +24,8 @@ namespace TAS.Server.VideoSwitch.Configurator
         {
             _ross = engine.VideoSwitch as Ross ?? new Ross();
             _ross.PropertyChanged += Ross_PropertyChanged;
-            CommandRefreshSources = new UiCommand(RefreshGpiSources, CanRefreshGpiSources);
-            CommandAddPort = new UiCommand(AddOutputPort, CanAddPort);
+            CommandRefreshSources = new UiCommand(RefreshGpiSources);
+            CommandAddPort = new UiCommand(AddOutputPort);
             CommandDeletePort = new UiCommand(DeleteOutputPort);
             Load();
         }
@@ -50,24 +50,12 @@ namespace TAS.Server.VideoSwitch.Configurator
             Ports.Refresh();
         }
 
-        private bool CanAddPort(object obj)
-        {
-            return IsEnabled;
-        }
-
         private void AddOutputPort(object obj)
         {
             var lastItem = _ports.LastOrDefault();
             _ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id + 1), string.Empty));
             IsModified = true;
             Ports.Refresh();
-        }
-
-        private bool CanRefreshGpiSources(object obj)
-        {
-            if (_ports.Count > 0)
-                return true;
-            return false;
         }
 
         private void RefreshGpiSources(object _ = null)
@@ -83,16 +71,11 @@ namespace TAS.Server.VideoSwitch.Configurator
             NotifyPropertyChanged(nameof(SelectedGpiSource));
         }
 
-        protected override bool CanConnect()
-        {
-            if (_ross == null && IpAddress?.Length > 0)
-                return true;
-
-            return false;
-        }
+        protected override bool CanConnect() => IpAddress?.Length > 0;
 
         protected override void Connect()
         {
+            _ross.IpAddress = IpAddress;
             _ross.Connect();
         }
 
@@ -104,7 +87,6 @@ namespace TAS.Server.VideoSwitch.Configurator
         protected override void OnDispose()
         {
             _ross.PropertyChanged -= Ross_PropertyChanged;
-            _ross.Disconnect();
             _ross.Dispose();
         }
 

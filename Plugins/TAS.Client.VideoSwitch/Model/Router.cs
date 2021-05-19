@@ -1,18 +1,18 @@
 ﻿using System;
 using TAS.Common;
 using System.Linq;
+using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Model
 {	    
     public class Router : RouterBase
     {        
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();                                          
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public Router(CommunicatorType type = CommunicatorType.None) : base(type)
-        {         
-            if (Communicator != null)
-                Communicator.SourceChanged += Communicator_OnInputPortChangeReceived;                                  
-        }                                                                                                 
+        public Router(IRouterCommunicator communicator) : base(communicator)
+        {
+            communicator.SourceChanged += Communicator_OnInputPortChangeReceived;
+        }
 
         //private void Communicator_OnRouterPortStateReceived(object sender, EventArgs<PortState[]> e)
         //{

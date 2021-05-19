@@ -3,7 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
+             xmlns:local="clr-namespace:TAS.Server.VideoSwitch.Configurator"
              mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance local:NevionConfiguratorViewModel}"
              d:DesignHeight="400" d:DesignWidth="250">
 
     <UserControl.Resources>
@@ -142,7 +144,7 @@
 
                 <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
                     <TextBlock Text="Input Port" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                    <ComboBox IsEnabled="{Binding IsConnected}" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="80" ItemsSource="{Binding TestSources}" DisplayMemberPath="PortName" SelectedItem="{Binding SelectedTestSource}" />
+                    <ComboBox IsEnabled="{Binding IsConnected}" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="80" ItemsSource="{Binding GpiSources}" DisplayMemberPath="PortName" SelectedItem="{Binding SelectedTestSource}" />
                 </StackPanel>
             </Grid>
         </GroupBox>

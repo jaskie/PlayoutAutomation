@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
@@ -13,21 +14,23 @@ using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Communicators
 {   
+    /// <summary>
+    /// Class to communicate with Ross MC-1 MCR switcher using Pressmaster protocol (default on port 9001)
+    /// </summary>
     public class RossCommunicator : IVideoSwitchCommunicator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
-        
         public event EventHandler<EventArgs<bool>> ConnectionChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
         private TcpClient _tcpClient;
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource _shutdownTokenSource = new CancellationTokenSource();
         private int _disposed;
-        private VideoSwitcher _mc;
         private bool _transitionTypeChanged;
         private bool _takeExecuting;
+        private VideoSwitcherTransitionStyle _videoSwitcherTransitionStyle;
 
         private readonly object _syncObject = new object();
 
@@ -38,23 +41,18 @@ namespace TAS.Server.VideoSwitch.Communicators
         private readonly SemaphoreSlim _requestQueueSemaphore = new SemaphoreSlim(0);        
         private readonly SemaphoreSlim _waitForTransitionEndSemaphore = new SemaphoreSlim(0);
 
-        private PortInfo[] _sources;        
+        private PortInfo[] _sources;
+        private List<Thread> _threads;
+        
 
-        public RossCommunicator(IVideoSwitch videoSwitch)
-        {
-            _mc = videoSwitch as VideoSwitcher;
-        }        
-
-        private async void StartRequestQueueHandler()
+        private void RequestQueueHandlerProc()
         {
             try
             {
-                while (true)
+                while (!_shutdownTokenSource.IsCancellationRequested)
                 {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    await _requestQueueSemaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                    _requestQueueSemaphore.Wait(_shutdownTokenSource.Token);
                     while (!_requestsQueue.IsEmpty)
                     {
                         if (!_requestsQueue.TryDequeue(out var request))
@@ -72,8 +70,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                             }
                             bytes[i]= b;
                         }                        
-
-                        await _tcpClient.GetStream().WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
+                        _tcpClient.GetStream().Write(bytes, 0, bytes.Length);
                         Logger.Debug($"Ross message sent: {request}");
                     }
                 }
@@ -175,25 +172,28 @@ namespace TAS.Server.VideoSwitch.Communicators
                 ParseCommand(buffer);           
         }
 
-        private async void StartListener()
+        private void ListenerProc()
         {
             var bytesReceived = new byte[256];
             Logger.Debug("Ross listener started!");
-            while (true)
+            while (!_shutdownTokenSource.IsCancellationRequested)
             {
                 try
                 {
-                    var bytes = await _tcpClient.GetStream().ReadAsync(bytesReceived, 0, bytesReceived.Length).ConfigureAwait(false);
-                    if (bytes == 0) 
-                        continue;
-                    
+                    var bytes = _tcpClient.GetStream().Read(bytesReceived, 0, bytesReceived.Length);
+                    if (bytes == 0)
+                    {
+                        Logger.Debug("Remote endpoint closed connection.");
+                        Disconnect();
+                        return;
+                    }                    
                     ParseMessage(BitConverter.ToString(bytesReceived, 0, bytes).Split('-'));
                 }
                 catch (Exception ex)
                 {
                     if (ex is ObjectDisposedException || ex is System.IO.IOException)
                     {
-                        Logger.Debug("Ross listener network stream closed/disposed.");
+                        Logger.Debug("Network stream closed/disposed.");
                         Disconnect();
                     }
                     else
@@ -212,41 +212,31 @@ namespace TAS.Server.VideoSwitch.Communicators
             _requestQueueSemaphore.Release();
         }        
 
-        private async void ConnectionWatcher()
+        private void ConnectionWatcherProc()
         {
+            //PING, non functional command
             const string pingCommand = "FF 1E";
 
             if (!_semaphores.TryGetValue(ListTypeEnum.SignalPresence, out var semaphore))
                 return;
-            
-            //PING, non functional command
-            AddToRequestQueue(pingCommand);
 
-            while (true)
+            while (!_shutdownTokenSource.IsCancellationRequested)
             {
-                try
-                {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
-
-                    await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
-                    await Task.Delay(3000, _cancellationTokenSource.Token).ConfigureAwait(false);
                     AddToRequestQueue(pingCommand);
-                }
-                catch (Exception ex)
-                {
-                    if (ex is OperationCanceledException)
-                        Logger.Debug("Router Ping cancelled");
-
-                    return;
-                }
+                    if (semaphore.Wait(3000, _shutdownTokenSource.Token))
+                        _shutdownTokenSource.Token.WaitHandle.WaitOne(3000);
             }
+            Logger.Debug("Connection watcher thread finished.");
         }
 
         public void Disconnect()
         {
-            _cancellationTokenSource?.Cancel();
+            _shutdownTokenSource?.Cancel();
+            _shutdownTokenSource = null;
             _tcpClient?.Close();
+            _tcpClient = null;
+            _threads?.ForEach(t => t.Join());
+            _threads = null;
             ConnectionChanged?.Invoke(this, new EventArgs<bool>(false));
         }
 
@@ -269,11 +259,11 @@ namespace TAS.Server.VideoSwitch.Communicators
             {
                 try
                 {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+                    if (_shutdownTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_shutdownTokenSource.Token);
 
                     if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
-                        semaphore.Wait(_cancellationTokenSource.Token);
+                        semaphore.Wait(_shutdownTokenSource.Token);
 
                     if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out response))
                         continue;
@@ -292,11 +282,6 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        public PortInfo[] GetSources()
-        {
-            return _mc.Sources.Select(p => new PortInfo(p.Id, p.Name)).ToArray();
-        }
-
         private string SerializeInputIndex(int b)
         {
             if (b < 21)
@@ -305,12 +290,12 @@ namespace TAS.Server.VideoSwitch.Communicators
             return BitConverter.ToString(new byte[] { 127, (byte)((b >> 7) & 0x7F), (byte)(b & 0x7F) });
         }
 
-        public async void SetSource(int inPort)
+        public void SetSource(int inPort)
         {
             while (_takeExecuting)
             {
                 Logger.Trace("Waiting Program");
-                await _waitForTransitionEndSemaphore.WaitAsync();
+                _waitForTransitionEndSemaphore.Wait(1000, _shutdownTokenSource.Token);
             }
 
             AddToRequestQueue($"FF 09 {SerializeInputIndex(inPort)}");
@@ -319,15 +304,16 @@ namespace TAS.Server.VideoSwitch.Communicators
                 _waitForTransitionEndSemaphore.Release();
 
             if (!_transitionTypeChanged)
-                return;            
-            SetTransitionStyle(_mc.DefaultEffect);
+                return;
+            SetTransitionStyle(_videoSwitcherTransitionStyle);
             _transitionTypeChanged = false;
         }
 
-        public bool Connect()
+        public bool Connect(string address)
         {
-            _disposed = default(int);
-            _cancellationTokenSource = new CancellationTokenSource();
+            Debug.Assert(_threads is null);
+            _shutdownTokenSource = new CancellationTokenSource();
+            _threads = new List<Thread>();
 
             while (true)
             {
@@ -336,10 +322,15 @@ namespace TAS.Server.VideoSwitch.Communicators
                 Logger.Debug("Connecting to Ross...");
                 try
                 {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
-
-                    _tcpClient.Connect(_mc.IpAddress.Split(':')[0], Int32.Parse(_mc.IpAddress.Split(':')[1]));
+                    if (_shutdownTokenSource.IsCancellationRequested)
+                        throw new OperationCanceledException(_shutdownTokenSource.Token);
+                    var addressParts = address.Split(new char[] { ':' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                    if (addressParts.Length == 0)
+                        throw new ApplicationException($"Invalid address provided: {address}");
+                    int port = 9001;
+                    if (addressParts.Length > 1)
+                        int.TryParse(addressParts[1], out port);
+                    _tcpClient.Connect(addressParts[0], port);
 
                     if (!_tcpClient.Connected)
                     {
@@ -351,11 +342,24 @@ namespace TAS.Server.VideoSwitch.Communicators
 
                     _requestsQueue = new ConcurrentQueue<string>();
 
-                    StartRequestQueueHandler();
-                    StartListener();
-                    ConnectionWatcher();
+                    _threads.Add(new Thread(RequestQueueHandlerProc) 
+                    { 
+                        IsBackground = true,
+                        Name = $"{nameof(RossCommunicator)} request queue handler thread"
+                    });
+                    _threads.Add(new Thread(ListenerProc)
+                    { 
+                        IsBackground = true,
+                        Name = $"{nameof(RossCommunicator)} listener thread"
+                    });
+                    _threads.Add(new Thread(ConnectionWatcherProc)
+                    {
+                        IsBackground = true,
+                        Name = $"{nameof(RossCommunicator)} connection watcher thread"
+                    });
+                    _threads.ForEach(t => t.Start());
 
-                    SetTransitionStyle(_mc.DefaultEffect);
+                    SetTransitionStyle(_videoSwitcherTransitionStyle);
                     _transitionTypeChanged = false;
 
                     Logger.Info("Ross router connected and ready!");
@@ -412,7 +416,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                 default:
                     return;
             }
-
+            _videoSwitcherTransitionStyle = videoSwitchEffect;
             _transitionTypeChanged = true;
         }
 

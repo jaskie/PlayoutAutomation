@@ -9,6 +9,6 @@ namespace TAS.Server.VideoSwitch.Model
 {
     public class SmartVideoHub: RouterBase
     {
-        public SmartVideoHub() : base(CommunicatorType.BlackmagicSmartVideoHub) { }
+        public SmartVideoHub() : base(new Communicators.SmartVideoHubCommunicator()) { }
     }
 }

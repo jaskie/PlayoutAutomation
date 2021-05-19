@@ -61,13 +61,8 @@ namespace TAS.Server.VideoSwitch.Configurator
             Ports.Refresh();
         }
 
-        protected override bool CanConnect()
-        {
-            if (IpAddress?.Length > 0)
-                return true;
+        protected override bool CanConnect() => IpAddress?.Length > 0;
 
-            return false;
-        }
 
         protected override void Connect()
         {
@@ -102,6 +97,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         protected override void OnDispose()
         {
             _nevion.PropertyChanged -= Nevion_PropertyChanged;
+            _nevion.Dispose();
         }
 
         public override void Save()

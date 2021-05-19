@@ -73,7 +73,7 @@
             </Button>
         </Grid>
         
-        <GroupBox Grid.Row="6" Margin="5" Header="Test connection" HorizontalAlignment="Center" Grid.ColumnSpan="2">
+        <GroupBox Grid.Row="6" Margin="5" Width="200" Header="Test connection" HorizontalAlignment="Center" Grid.ColumnSpan="2">
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -107,7 +107,7 @@
                 </Button>
 
                 <TextBlock Grid.Row="1" Text="Input Port" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsEnabled="{Binding IsConnected}" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="80" ItemsSource="{Binding GpiSources}" DisplayMemberPath="PortName" SelectedItem="{Binding SelectedGpiSource}" />
+                <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsEnabled="{Binding IsConnected}" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="80" ItemsSource="{Binding GpiSources}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedGpiSource}" />
             </Grid>
         </GroupBox>
     </Grid>

@@ -112,7 +112,7 @@
     <Compile Include="Resources.xaml.cs">
       <DependentUpon>Resources.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Communicators\BlackmagicSmartVideoHubCommunicator.cs" />
+    <Compile Include="Communicators\SmartVideoHubCommunicator.cs" />
     <Compile Include="Model\RouterPort.cs" />
     <Compile Include="Communicators\NevionCommunicator.cs" />
     <Compile Include="Model\Router.cs" />

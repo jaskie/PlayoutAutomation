@@ -77,13 +77,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             //NotifyPropertyChanged(nameof(SelectedGpiSource));
         }
 
-        protected override bool CanConnect()
-        {
-            if (IpAddress?.Length > 0)
-                return true;
-            
-            return false;
-        }
+        protected override bool CanConnect() => IpAddress?.Length > 0;
 
         protected override void Connect()
         {
@@ -118,7 +112,8 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         protected override void OnDispose()
         {
-            
+            _atem.PropertyChanged -= Atem_PropertyChanged;
+            _atem.Dispose();
         }
 
         public override void Save()

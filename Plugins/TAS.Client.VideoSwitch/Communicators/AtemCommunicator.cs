@@ -16,8 +16,8 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();        
         private int _disposed;
+        private VideoSwitcherTransitionStyle _videoSwitcherTransitionStyle;
 
-        private VideoSwitcher _device;
         private BMDSwitcherWrapper _atem;
 
         private PortInfo[] _sources;
@@ -33,14 +33,14 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
+        public int Level { get; set; }
+
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
         public event EventHandler<EventArgs<bool>> ConnectionChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public AtemCommunicator(IVideoSwitch device)
+        public AtemCommunicator()
         {            
-            _device = device as VideoSwitcher;
-
             //ensure MTA
             Task.Run(() => _atem = new BMDSwitcherWrapper()).Wait();            
             
@@ -58,7 +58,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo((short)e.ProgramInput, -1)));
         }        
                 
-        public bool Connect()
+        public bool Connect(string address)
         {
             _disposed = default(int);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -71,7 +71,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    var isConnected = _atem.Connect(_device.IpAddress, _device.Level);
+                    var isConnected = _atem.Connect(address, Level);
                     
                     if (!isConnected)
                     {                        
@@ -81,7 +81,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                     }
 
                     Sources = _atem.GetInputPorts();
-                    SetTransitionStyle(_device.DefaultEffect);
+                    SetTransitionStyle(_videoSwitcherTransitionStyle);
                     Logger.Trace("Connected to ATEM TVS");                                                                                    
                     return true;
                 }
@@ -129,6 +129,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         public void SetTransitionStyle(VideoSwitcherTransitionStyle transitionStyle)
         {
             _atem.SetTransition(transitionStyle);
+            _videoSwitcherTransitionStyle = transitionStyle;
         }
 
         public void SetMixSpeed(double rate)

@@ -8,6 +8,6 @@ namespace TAS.Server.VideoSwitch.Model
 {
     public class Nevion: Router
     {
-        public Nevion() :base(CommunicatorType.Nevion) { }
+        public Nevion() :base(new Communicators.NevionCommunicator()) { }
     }
 }

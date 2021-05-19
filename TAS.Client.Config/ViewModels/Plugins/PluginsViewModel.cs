@@ -55,7 +55,10 @@ namespace TAS.Client.Config.ViewModels.Plugins
         protected override void OnDispose()
         {
             foreach (var pluginType in PluginTypes)
+            {
                 pluginType.ModifiedChanged -= PluginTypeVm_ModifiedChanged;
+                pluginType.Dispose();
+            }
         }             
     }
 }

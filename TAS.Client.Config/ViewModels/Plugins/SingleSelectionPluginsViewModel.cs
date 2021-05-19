@@ -46,7 +46,10 @@ namespace TAS.Client.Config.ViewModels.Plugins
         protected override void OnDispose()
         {
             foreach (var configurator in Configurators)
+            {
                 configurator.ModifiedChanged -= Configurator_ModifiedChanged;
+                configurator.Dispose();
+            }
         }
 
         public override void Save()
