@@ -36,7 +36,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         public int Level { get; set; }
 
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
-        public event EventHandler<EventArgs<bool>> ConnectionChanged;
+        public event EventHandler<EventArgs<bool>> ConnectionStatusChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public AtemCommunicator()
@@ -50,7 +50,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         private void Atem_Disconnected(object sender, EventArgs e)
         {
-            ConnectionChanged?.Invoke(this, new EventArgs<bool>(false));
+            ConnectionStatusChanged?.Invoke(this, new EventArgs<bool>(false));
         }
 
         private void Switcher_ProgramInputChanged(object sender, MixEffectEventArgs e)

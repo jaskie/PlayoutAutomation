@@ -40,7 +40,7 @@ namespace TAS.Server.VideoSwitch.Model
         internal RouterBase(IRouterCommunicator communicator)
         {
             Communicator = communicator;
-            communicator.ConnectionChanged += Communicator_ConnectionChanged;
+            communicator.ConnectionStatusChanged += Communicator_ConnectionChanged;
         }
 
         private void Communicator_ConnectionChanged(object sender, EventArgs<bool> e)
@@ -160,7 +160,7 @@ namespace TAS.Server.VideoSwitch.Model
 
             if (disposing)
             {
-                Communicator.ConnectionChanged -= Communicator_ConnectionChanged;
+                Communicator.ConnectionStatusChanged -= Communicator_ConnectionChanged;
                 Communicator.Dispose();
             }
             

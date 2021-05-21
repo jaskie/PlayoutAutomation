@@ -90,7 +90,9 @@
     <Compile Include="Configurator\RossConfiguratorViewModel.cs" />
     <Compile Include="Helpers\BMDSwitcherWrapper.cs" />
     <Compile Include="Helpers\AtemMonitor.cs" />
+    <Compile Include="Helpers\MessageRequest.cs" />
     <Compile Include="Helpers\QueryInterfaceWrapper.cs" />
+    <Compile Include="Helpers\SocketConnection.cs" />
     <Compile Include="Model\CrosspointInfo.cs" />
     <Compile Include="Model\Interfaces\IVideoSwitchCommunicator.cs" />
     <Compile Include="Model\MixEffectEventArgs.cs" />

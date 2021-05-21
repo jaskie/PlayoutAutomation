@@ -13,6 +13,5 @@ namespace TAS.Server.VideoSwitch.Model.Interfaces
         CrosspointInfo GetSelectedSource();
 
         event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;        
-        event EventHandler<EventArgs<bool>> ConnectionChanged;
     }
 }

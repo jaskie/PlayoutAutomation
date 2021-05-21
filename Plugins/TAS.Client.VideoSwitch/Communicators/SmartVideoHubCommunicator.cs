@@ -329,7 +329,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        public event EventHandler<EventArgs<bool>> ConnectionChanged;
+        public event EventHandler<EventArgs<bool>> ConnectionStatusChanged;
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -460,7 +460,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         {
             _cancellationTokenSource?.Cancel();
             _tcpClient?.Close();
-            ConnectionChanged?.Invoke(this, new EventArgs<bool>(false));
+            ConnectionStatusChanged?.Invoke(this, new EventArgs<bool>(false));
         }
 
         public void Dispose()
