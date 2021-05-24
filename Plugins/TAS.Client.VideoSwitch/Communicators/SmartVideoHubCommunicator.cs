@@ -450,6 +450,9 @@ namespace TAS.Server.VideoSwitch.Communicators
             return false;
         }
 
+
+        public bool IsConnected { get; private set; }
+
         public void SetSource(int inPort)
         {
             //TODO: fix

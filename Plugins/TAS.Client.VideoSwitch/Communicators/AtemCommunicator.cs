@@ -57,6 +57,8 @@ namespace TAS.Server.VideoSwitch.Communicators
         {
             SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo((short)e.ProgramInput, -1)));
         }        
+
+        public bool IsConnected { get; set; }
                 
         public bool Connect(string address)
         {
@@ -132,9 +134,9 @@ namespace TAS.Server.VideoSwitch.Communicators
             _videoSwitcherTransitionStyle = transitionStyle;
         }
 
-        public void SetMixSpeed(double rate)
+        public void SetMixSpeed(byte rate)
         {
-            _atem.SetMixSpeed(100);
+            _atem.SetMixSpeed(rate);
         }
 
         public void Take()

@@ -26,9 +26,9 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         private bool _transitionTypeChanged;
 
-        private MessageRequest _takeRequest;
-        private MessageRequest _crosspointStatusRequest;
-        private MessageRequest _signalPresenceRequest;
+        private MessageRequest _takeRequest = new MessageRequest();
+        private MessageRequest _crosspointStatusRequest = new MessageRequest();
+        private MessageRequest _signalPresenceRequest = new MessageRequest();
 
         private VideoSwitcherTransitionStyle _videoSwitcherTransitionStyle;
 
@@ -39,36 +39,18 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         }
 
-        private void ParseCommand(byte[] message)
+        protected override void OnMessageReceived(byte[] message)
         {
+            Logger.Trace("Message received: {0}", BitConverter.ToString(message));
             if (message.Length < 2 || (message[0] != 0xFF && message[0] != 0xFE))
                 return;
-            
 
             switch (message[1])
             {
                 //Program has been set
                 case 0x49:
-                    if (message[2] != 0x7F)
-                    {
-                        try
-                        {
-                            short inPort = message[2];
-                            _crosspointStatusRequest?.SetResult(message);
-                            SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo(inPort, -1)));
-                            return;
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Warn(ex, "Could not parse 'Input changed' data {0}", string.Join(" ", message));
-                        }                        
-                    }
-                    //Tally extended message formula
-                    else if (message.Length >= 5)
-                    {
-                        SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo((short)((message[4] & 0x7F) | ((message[3] & 0x7F) << 7)), -1)));
-                        return;
-                    }
+                    _crosspointStatusRequest?.SetResult(message);
+                    SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo(DeserializeInputIndex(message), -1)));
                     break;
 
                 //Response from non functional command. I use it as ping
@@ -109,79 +91,66 @@ namespace TAS.Server.VideoSwitch.Communicators
         public override void Dispose()
         {
             base.Dispose();
+            _crosspointStatusRequest.Dispose();
+            _signalPresenceRequest.Dispose();
+            _takeRequest.Dispose();
             Logger.Debug("Ross communicator disposed");
         }
 
         public CrosspointInfo GetSelectedSource()
         {
-            using (_crosspointStatusRequest = new MessageRequest())
+            lock (_crosspointStatusRequest.SyncRoot)
             {
                 Send(new byte[] { 0xFF, 0x02 });
                 try
                 {
-                    var result = _crosspointStatusRequest.WaitForResult(DisconnectTokenSource.Token);
+                    return new CrosspointInfo(DeserializeInputIndex(_crosspointStatusRequest.WaitForResult(DisconnectTokenSource.Token)), -1);
                 }
                 catch (Exception ex)
                 {
                     if (ex is OperationCanceledException)
                         Logger.Debug("Current Input Port request cancelled");
-                    return null;
-                }
-            }
-            _crosspointStatusRequest = null;
-
-            while (true)
-            {
-                try
-                {
-                    if (_shutdownTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_shutdownTokenSource.Token);
-
-                    if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
-                        semaphore.Wait(_shutdownTokenSource.Token);
-
-                    if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out response))
-                        continue;
-
-                    semaphore.Release(); // reset semaphore to 1
-
-                    return new CrosspointInfo((short)response, -1);
-                }
-                catch (Exception ex)
-                {
-                    if (ex is OperationCanceledException)
-                        Logger.Debug("Current Input Port request cancelled");
-                    
                     return null;
                 }
             }
         }
 
-        private string SerializeInputIndex(int b)
+        private byte[] SerializeInputIndex(int b)
         {
             if (b < 21)
-                return BitConverter.ToString(new byte[] { (byte)b });
+                return new byte[] { (byte)b };
 
-            return BitConverter.ToString(new byte[] { 127, (byte)((b >> 7) & 0x7F), (byte)(b & 0x7F) });
+            return new byte[] { 127, (byte)((b >> 7) & 0x7F), (byte)(b & 0x7F) };
+        }
+
+        private short DeserializeInputIndex(byte[] message)
+        {
+            if (message.Length == 3 && message[2] != 0x7F)
+                return message[2];
+            //Tally extended message formula
+            else if (message.Length == 5 && message[2] == 0x7F)
+                return (short)((message[4] & 0x7F) | ((message[3] & 0x7F) << 7));
+            Logger.Error("Invalid input: {0}", BitConverter.ToString(message));
+            return -1;
         }
 
         public void SetSource(int inPort)
         {
-            while (_takeExecuting)
-            {
-                Logger.Trace("Waiting Program");
-                _waitForTransitionEndSemaphore.Wait(1000, _shutdownTokenSource.Token);
-            }
+            //while (_takeExecuting)
+            //{
+            //    Logger.Trace("Waiting Program");
+            //    _waitForTransitionEndSemaphore.Wait(1000, _shutdownTokenSource.Token);
+            //}
 
-            AddToRequestQueue($"FF 09 {SerializeInputIndex(inPort)}");
+            //AddToRequestQueue($"FF 09 {SerializeInputIndex(inPort)}");
 
-            if (_waitForTransitionEndSemaphore.CurrentCount == 0)
-                _waitForTransitionEndSemaphore.Release();
+            //if (_waitForTransitionEndSemaphore.CurrentCount == 0)
+            //    _waitForTransitionEndSemaphore.Release();
 
-            if (!_transitionTypeChanged)
-                return;
-            SetTransitionStyle(_videoSwitcherTransitionStyle);
-            _transitionTypeChanged = false;
+            //if (!_transitionTypeChanged)
+            //    return;
+            //SetTransitionStyle(_videoSwitcherTransitionStyle);
+            //_transitionTypeChanged = false;
         }
 
         public override bool Connect(string address)
@@ -232,43 +201,37 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         public void Preload(int sourceId)
         {
-            while (_takeExecuting)
-            {
-                Logger.Trace("Waiting Preload");
-                _waitForTransitionEndSemaphore.Wait();
-            }
+            //while (_takeExecuting)
+            //{
+            //    Logger.Trace("Waiting Preload");
+            //    _waitForTransitionEndSemaphore.Wait();
+            //}
 
-            Logger.Trace("Setting preview {0}", sourceId);
-            AddToRequestQueue($"FF 0B {SerializeInputIndex(sourceId)}");
+            //Logger.Trace("Setting preview {0}", sourceId);
+            //AddToRequestQueue($"FF 0B {SerializeInputIndex(sourceId)}");
 
-            if (_waitForTransitionEndSemaphore.CurrentCount == 0)
-                _waitForTransitionEndSemaphore.Release();
+            //if (_waitForTransitionEndSemaphore.CurrentCount == 0)
+            //    _waitForTransitionEndSemaphore.Release();
         }
        
-        public void SetMixSpeed(double rate)
+        public void SetMixSpeed(byte rate)
         {
-            AddToRequestQueue($"FF 03 {rate}");
+            Send(new byte[]{ 0xFF, 0x03, rate});
         }
 
         public void Take()
         {
-            lock (_syncObject)            
-                _takeExecuting = true;
+            //lock (_syncObject)            
+            //    _takeExecuting = true;
 
-            Logger.Trace("Executing take");
-            AddToRequestQueue("FF 0F");
+            //Logger.Trace("Executing take");
+            //AddToRequestQueue("FF 0F");
         }
 
         public PortInfo[] Sources
         {
             get => _sources;
-            set
-            {
-                if (value == _sources)
-                    return;
-                _sources = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sources)));
-            }
-        }       
+            set => SetField(ref _sources, value);
+        }
     }
 }

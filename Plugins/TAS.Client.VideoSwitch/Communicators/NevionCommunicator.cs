@@ -40,6 +40,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         public short[] OutputPorts { get; set; }
 
+        public bool IsConnected { get; }
 
         private PortInfo[] GetSources()
         {

@@ -25,5 +25,7 @@ namespace TAS.Server.VideoSwitch.Helpers
             return _result;
         }
 
+        public object SyncRoot { get; } = new object();
+
     }
 }

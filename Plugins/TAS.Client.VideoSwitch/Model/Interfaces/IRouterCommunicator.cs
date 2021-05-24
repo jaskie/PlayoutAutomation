@@ -12,6 +12,9 @@ namespace TAS.Server.VideoSwitch.Model.Interfaces
         void SetSource(int inPort);                             
         CrosspointInfo GetSelectedSource();
 
+        bool IsConnected { get; }
+
+
         event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;        
     }
 }

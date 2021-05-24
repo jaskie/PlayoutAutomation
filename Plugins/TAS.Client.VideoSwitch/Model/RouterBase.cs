@@ -40,16 +40,18 @@ namespace TAS.Server.VideoSwitch.Model
         internal RouterBase(IRouterCommunicator communicator)
         {
             Communicator = communicator;
-            communicator.ConnectionStatusChanged += Communicator_ConnectionChanged;
+            communicator.PropertyChanged += Communicator_PropertyChanged;
         }
 
-        private void Communicator_ConnectionChanged(object sender, EventArgs<bool> e)
+        private void Communicator_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            IsConnected = e.Value;
-            if (e.Value)
-                return;
-
-            Connect();
+            switch (e.PropertyName)
+            {
+                case nameof(IRouterCommunicator.IsConnected):
+                    if (!Communicator.IsConnected)
+                        Connect();
+                    break;
+            }
         }                
 
         private void SetupDevice(PortInfo[] ports)
@@ -160,7 +162,7 @@ namespace TAS.Server.VideoSwitch.Model
 
             if (disposing)
             {
-                Communicator.ConnectionStatusChanged -= Communicator_ConnectionChanged;
+                Communicator.PropertyChanged -= Communicator_PropertyChanged;
                 Communicator.Dispose();
             }
             
