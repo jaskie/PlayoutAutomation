@@ -6,7 +6,7 @@ using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Model
 {
-    public class VideoSwitcher : RouterBase, IVideoSwitcher
+    public abstract class VideoSwitcher : RouterBase, IVideoSwitcher
     {
         #region Configuration
         [Hibernate]
@@ -16,12 +16,7 @@ namespace TAS.Server.VideoSwitch.Model
         public VideoSwitcherTransitionStyle DefaultEffect { get; set; } = VideoSwitcherTransitionStyle.Cut;
         #endregion
 
-        internal VideoSwitcher(IVideoSwitchCommunicator communicator) : base(communicator)
-        {
-            communicator.SourceChanged += Communicator_SourceChanged;
-        } 
-
-        private void Communicator_SourceChanged(object sender, EventArgs<CrosspointInfo> e)
+        protected override void Communicator_SourceChanged(object sender, EventArgs<CrosspointInfo> e)
         {
             if (e.Value.InPort == GpiPort?.Id)
                 RaiseGpiStarted();
@@ -51,11 +46,5 @@ namespace TAS.Server.VideoSwitch.Model
             videoSwitch.Take();
         }        
 
-        protected override void Dispose(bool disposing)
-        {
-            if (Communicator != null)
-                Communicator.SourceChanged -= Communicator_SourceChanged;
-            base.Dispose(disposing);
-        }        
     }
 }

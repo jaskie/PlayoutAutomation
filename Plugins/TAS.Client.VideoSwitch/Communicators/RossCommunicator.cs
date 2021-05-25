@@ -21,14 +21,16 @@ namespace TAS.Server.VideoSwitch.Communicators
     public class RossCommunicator : SocketConnection, IVideoSwitchCommunicator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
+        static readonly byte[] PingCommand = { 0xFF, 0x1E };
+        
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
 
         private bool _transitionTypeChanged;
 
-        private MessageRequest _takeRequest = new MessageRequest();
-        private MessageRequest _crosspointStatusRequest = new MessageRequest();
-        private MessageRequest _signalPresenceRequest = new MessageRequest();
+        private readonly MessageRequest _takeRequest = new MessageRequest();
+        private readonly MessageRequest _crosspointStatusRequest = new MessageRequest();
+        private readonly MessageRequest _signalPresenceRequest = new MessageRequest();
+        private Thread _connectionWatcherThread;
 
         private VideoSwitcherTransitionStyle _videoSwitcherTransitionStyle;
 
@@ -55,7 +57,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
                 //Response from non functional command. I use it as ping
                 case 0x5E:
-                    _signalPresenceRequest.SetResult(message);
+                    _signalPresenceRequest?.SetResult(message);
                     Logger.Trace("Ross ping successful");
                     break;
 
@@ -68,24 +70,29 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         private void ConnectionWatcherProc()
         {
-            //PING, non functional command
-            const string pingCommand = "FF 1E";
-            
-            //if (!_semaphores.TryGetValue(ListTypeEnum.SignalPresence, out var semaphore))
-            //    return;
-
-            //while (!_shutdownTokenSource.IsCancellationRequested)
-            //{
-            //        AddToRequestQueue(pingCommand);
-            //        if (semaphore.Wait(3000, _shutdownTokenSource.Token))
-            //            _shutdownTokenSource.Token.WaitHandle.WaitOne(3000);
-            //}
-            //Logger.Debug("Connection watcher thread finished.");
+            while (true)
+            {
+                var tokenSource = DisconnectTokenSource;
+                if (tokenSource is null)
+                    break;
+                Send(PingCommand);
+                try
+                {
+                    _signalPresenceRequest.WaitForResult(tokenSource.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                Thread.Sleep(3000);
+            }
+            Logger.Debug("Connection watcher thread finished.");
         }
 
         public override void Disconnect()
         {
             base.Disconnect();
+            _connectionWatcherThread?.Join();
         }
 
         public override void Dispose()
@@ -104,7 +111,10 @@ namespace TAS.Server.VideoSwitch.Communicators
                 Send(new byte[] { 0xFF, 0x02 });
                 try
                 {
-                    return new CrosspointInfo(DeserializeInputIndex(_crosspointStatusRequest.WaitForResult(DisconnectTokenSource.Token)), -1);
+                    var tokenSource = DisconnectTokenSource;
+                    return tokenSource is null ? 
+                        throw new OperationCanceledException() :
+                        new CrosspointInfo(DeserializeInputIndex(_crosspointStatusRequest.WaitForResult(tokenSource.Token)), -1);
                 }
                 catch (Exception ex)
                 {
@@ -156,7 +166,14 @@ namespace TAS.Server.VideoSwitch.Communicators
         public override bool Connect(string address)
         {
             var connected = base.Connect(address);
-
+            if (!connected)
+                return false;
+            _connectionWatcherThread = new Thread(ConnectionWatcherProc)
+            {
+                Name = $"Ross connection watcher for {address}",
+                IsBackground = true
+            };
+            _connectionWatcherThread.Start();
             return connected;
         }
 

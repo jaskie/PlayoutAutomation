@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TAS.Server.VideoSwitch.Communicators;
+using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Model
 {
-    public class Nevion: Router
+    public class Nevion : Router
     {
-        public Nevion() :base(new Communicators.NevionCommunicator()) { }
+        protected override IRouterCommunicator CreateCommunicator()
+        {
+            return new NevionCommunicator();
+        }
     }
 }

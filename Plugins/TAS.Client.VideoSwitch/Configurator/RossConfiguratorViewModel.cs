@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common;
@@ -19,6 +20,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         private List<PortInfo> _ports;
         private List<PortInfo> _gpiSources;
         private readonly Ross _ross;
+        private bool _isConnecting;
 
         public RossConfiguratorViewModel(IEngineProperties engine) : base(engine)
         {
@@ -39,7 +41,10 @@ namespace TAS.Server.VideoSwitch.Configurator
             if (e.PropertyName == nameof(IVideoSwitch.SelectedSource))
                 NotifyPropertyChanged(nameof(SelectedSource));
             else if (e.PropertyName == nameof(IVideoSwitch.IsConnected))
+            {
                 NotifyPropertyChanged(nameof(IsConnected));
+                InvalidateRequerySuggested();
+            }
         }
 
         private void DeleteOutputPort(object obj)
@@ -71,12 +76,19 @@ namespace TAS.Server.VideoSwitch.Configurator
             NotifyPropertyChanged(nameof(SelectedGpiSource));
         }
 
-        protected override bool CanConnect() => IpAddress?.Length > 0;
+        protected override bool CanConnect() => IpAddress?.Length > 0 && !_isConnecting && !IsConnected;
 
-        protected override void Connect()
+        protected async override void Connect()
         {
+            _isConnecting = true;
             _ross.IpAddress = IpAddress;
-            _ross.Connect();
+            InvalidateRequerySuggested(); 
+            await Task.Run(() =>
+            {
+                var connected  = _ross.Connect();
+            });
+            _isConnecting = false;
+            InvalidateRequerySuggested();
         }
 
         protected override void Disconnect()

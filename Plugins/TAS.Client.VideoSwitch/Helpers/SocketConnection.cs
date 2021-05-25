@@ -39,10 +39,8 @@ namespace TAS.Server.VideoSwitch.Helpers
         /// <returns></returns>
         public virtual bool Connect(string address)
         {
-            var token = DisconnectTokenSource;
-            if (!(token is null))
-                throw new ApplicationException("Can't connect twice");
-            DisconnectTokenSource = new CancellationTokenSource();
+            Disconnect();
+
             int port = _defaultPort;
             var addressParts = address.Split(':');
             if (addressParts.Length > 1)
@@ -57,6 +55,7 @@ namespace TAS.Server.VideoSwitch.Helpers
             {
                 Logger.Info("Connecting to {0}:{1}", addressParts[0], port);
                 _client.Connect(addressParts[0], port);
+                DisconnectTokenSource = new CancellationTokenSource();
                 Logger.Info("Connected to {0}:{1}", addressParts[0], port);
                 StartThreads();
                 IsConnected = true;
@@ -64,7 +63,7 @@ namespace TAS.Server.VideoSwitch.Helpers
             }
             catch
             {
-                Disconnect();
+                DisconnectTokenSource?.Cancel();
             }
             return false;
         }
@@ -80,14 +79,14 @@ namespace TAS.Server.VideoSwitch.Helpers
                 if (!_sendQueue.TryAdd(message))
                 {
                     Logger.Error("Message queue overflow with message {0}", message);
-                    Disconnect();
+                    DisconnectTokenSource?.Cancel();
                     return;
                 }
             }
             catch (Exception e)
             {
                 Logger.Error(e);
-                Disconnect();
+                DisconnectTokenSource?.Cancel();
             }
         }
 
@@ -96,18 +95,18 @@ namespace TAS.Server.VideoSwitch.Helpers
             var tokenSource = DisconnectTokenSource;
             if (tokenSource?.IsCancellationRequested == false)
                 tokenSource.Cancel();
-            _client.Client?.Dispose();
+            _client?.Client?.Dispose();
             _readThread?.Join();
             _writeThread?.Join();
             tokenSource?.Dispose();
             DisconnectTokenSource = null;
-            _sendQueue.Dispose();
             IsConnected = false;
         }
 
         public virtual void Dispose()
         {
             Disconnect();
+            _sendQueue.Dispose();
         }
 
         protected void StartThreads()
@@ -131,17 +130,18 @@ namespace TAS.Server.VideoSwitch.Helpers
 
         private void WriteThreadProc()
         {
-            while (!DisconnectTokenSource.IsCancellationRequested)
+            while (DisconnectTokenSource?.IsCancellationRequested == false)
             {
                 try
                 {
                     var serializedMessage = _sendQueue.Take(DisconnectTokenSource.Token);
+                    Logger.Trace("Message sent: {0}", BitConverter.ToString(serializedMessage));
                     _client.Client.Send(serializedMessage);
                 }
                 catch (Exception e) when (e is IOException || e is ObjectDisposedException || e is SocketException || e is OperationCanceledException)
                 {
-                    _writeThread = null;
-                    Disconnect();
+
+                    DisconnectTokenSource?.Cancel();
                     return;
                 }
                 catch (Exception e)
@@ -155,22 +155,23 @@ namespace TAS.Server.VideoSwitch.Helpers
         {
             var stream = _client.GetStream();
             var buffer = new byte[256];
-            while (!DisconnectTokenSource.IsCancellationRequested)
+            while (DisconnectTokenSource?.IsCancellationRequested == false)
             {
                 try
                 {
-                    var receivedCount = stream.Read(buffer, 0, sizeof(int));
+                    var receivedCount = stream.Read(buffer, 0, buffer.Length);
                     if (receivedCount == 0)
                     {
-                        Disconnect();
+                        DisconnectTokenSource?.Cancel();
                         return;
                     }
-                    OnMessageReceived(buffer);
+                    var response = new byte[receivedCount];
+                    Buffer.BlockCopy(buffer, 0, response, 0, receivedCount);
+                    OnMessageReceived(response);
                 }
                 catch (Exception e) when (e is IOException || e is ObjectDisposedException || e is SocketException)
                 {
-                    _readThread = null;
-                    Disconnect();
+                    DisconnectTokenSource?.Cancel();
                     return;
                 }
                 catch (Exception e)
@@ -184,7 +185,7 @@ namespace TAS.Server.VideoSwitch.Helpers
 
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)

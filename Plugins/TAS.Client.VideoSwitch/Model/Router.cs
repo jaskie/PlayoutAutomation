@@ -1,26 +1,11 @@
-﻿using System;
-using TAS.Common;
+﻿using TAS.Common;
 using System.Linq;
-using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Model
-{	    
-    public class Router : RouterBase
+{
+    public abstract class Router : RouterBase
     {        
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-        public Router(IRouterCommunicator communicator) : base(communicator)
-        {
-            communicator.SourceChanged += Communicator_OnInputPortChangeReceived;
-        }
-
-        //private void Communicator_OnRouterPortStateReceived(object sender, EventArgs<PortState[]> e)
-        //{
-        //    foreach (var port in Sources)
-        //        ((RouterPort)port).IsSignalPresent = e.Value?.FirstOrDefault(param => param.PortId == port.PortId)?.IsSignalPresent;
-        //}
-
-        private void Communicator_OnInputPortChangeReceived(object sender, EventArgs<CrosspointInfo> e)
+        protected override void Communicator_SourceChanged(object sender, EventArgs<CrosspointInfo> e)
         {
             if (OutputPorts.Length == 0)
                 return;
@@ -31,13 +16,6 @@ namespace TAS.Server.VideoSwitch.Model
                 return;
 
             SelectedSource = Sources.FirstOrDefault(param => param.Id == changedIn.InPort);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (Communicator != null)
-                Communicator.SourceChanged -= Communicator_OnInputPortChangeReceived;
-            base.Dispose(disposing);
         }
     }
 }

@@ -33,27 +33,9 @@ namespace TAS.Server.VideoSwitch.Model
         #endregion
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        private bool _isConnected;
-        private bool _isDisposed = false;
         private IVideoSwitchPort _selectedInputPort;
+        private IRouterCommunicator _communicator;
         
-        internal RouterBase(IRouterCommunicator communicator)
-        {
-            Communicator = communicator;
-            communicator.PropertyChanged += Communicator_PropertyChanged;
-        }
-
-        private void Communicator_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(IRouterCommunicator.IsConnected):
-                    if (!Communicator.IsConnected)
-                        Connect();
-                    break;
-            }
-        }                
-
         private void SetupDevice(PortInfo[] ports)
         {
             if (ports == null)
@@ -64,8 +46,7 @@ namespace TAS.Server.VideoSwitch.Model
                 ports = new PortInfo[Sources.Count];
                 for (int i = 0; i < Sources.Count; ++i)
                     ports[i] = new PortInfo(Sources[i].Id, Sources[i].Name);
-            }
-                
+            }                
 
             foreach (var port in ports)
             {
@@ -86,7 +67,31 @@ namespace TAS.Server.VideoSwitch.Model
                 SelectedSource = Sources.FirstOrDefault(port => port.Id == selectedInput.InPort);
         }
 
-        protected IRouterCommunicator Communicator { get; private set; }                
+        protected IRouterCommunicator Communicator { get
+            {
+                if (_communicator is null)
+                {
+                    _communicator = CreateCommunicator();
+                    _communicator.SourceChanged += Communicator_SourceChanged;
+                    _communicator.PropertyChanged += Communicator_PropertyChanged;
+                }
+                return _communicator;
+            }
+        }
+
+        private void Communicator_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(IRouterCommunicator.IsConnected):
+                    NotifyPropertyChanged(nameof(IsConnected));
+                    break;
+            }
+        }
+
+        protected abstract void Communicator_SourceChanged(object sender, EventArgs<CrosspointInfo> e);
+
+        protected abstract IRouterCommunicator CreateCommunicator();
 
         [DtoMember]
         public IVideoSwitchPort SelectedSource
@@ -99,32 +104,19 @@ namespace TAS.Server.VideoSwitch.Model
                 _selectedInputPort = value;
                 NotifyPropertyChanged();
             }
-        }        
+        }
 
         [DtoMember]
-        public bool IsConnected 
-        { 
-            get => _isConnected; 
-            set
-            {
-                if (_isConnected == value)
-                    return;
-                _isConnected = value;
-                NotifyPropertyChanged();
-            }
-        }
+        public bool IsConnected => _communicator?.IsConnected ?? false;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler Started;
 
         public bool Connect()
         {
-            if (Communicator == null)
-                return false;
-
             try
             {
-                IsConnected = Communicator.Connect(IpAddress);
+                Communicator.Connect(IpAddress);
                 if (IsConnected)
                 {                    
                     SetupDevice(Communicator.Sources);
@@ -155,19 +147,15 @@ namespace TAS.Server.VideoSwitch.Model
         }
 
         public void Dispose() => Dispose(true);
+
         protected virtual void Dispose(bool disposing)
         {
-            if (_isDisposed)
+            if (_communicator is null || !disposing)
                 return;
-
-            if (disposing)
-            {
-                Communicator.PropertyChanged -= Communicator_PropertyChanged;
-                Communicator.Dispose();
-            }
-            
-            _isDisposed = true;
-        }         
+            _communicator.SourceChanged -= Communicator_SourceChanged;
+            _communicator.PropertyChanged -= Communicator_PropertyChanged;
+            _communicator.Dispose();
+        }
 
         public void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
         {
