@@ -256,7 +256,7 @@
                                         <ComboBoxItem>
                                             <ComboBoxItem.Style>
                                                 <Style TargetType="ComboBoxItem">
-                                                    <Setter Property="Content" Value="{Binding PortName}" />
+                                                    <Setter Property="Content" Value="{Binding Name}" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding}" Value="">
                                                             <Setter Property="Content" Value="{Resx _noInputPort, ResxName=TAS.Client.Views.EventEditView}" />

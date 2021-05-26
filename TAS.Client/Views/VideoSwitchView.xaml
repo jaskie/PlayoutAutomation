@@ -3,9 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" 
+             xmlns:viewmodels="clr-namespace:TAS.Client.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance viewmodels:VideoSwitchViewModel}"
              d:DesignHeight="80" d:DesignWidth="220">
-
-
-    <ListView Margin="10" MaxHeight="400" ItemsSource="{Binding Sources}" SelectedItem="{Binding SelectedSource}" DisplayMemberPath="PortName" HorizontalAlignment="Stretch" FontSize="16" />
+    <ListView Margin="10" MaxHeight="400" ItemsSource="{Binding Sources}" SelectedItem="{Binding SelectedSource}" DisplayMemberPath="Name" HorizontalAlignment="Stretch" FontSize="16" />
 </UserControl>

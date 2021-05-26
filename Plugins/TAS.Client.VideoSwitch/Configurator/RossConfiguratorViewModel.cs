@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,8 +18,6 @@ namespace TAS.Server.VideoSwitch.Configurator
         private bool _preload;
         private VideoSwitcherTransitionStyle _selectedTransitionType;
         private PortInfo _selectedGpiSource;
-        private List<PortInfo> _ports;
-        private List<PortInfo> _gpiSources;
         private readonly Ross _ross;
         private bool _isConnecting;
 
@@ -26,7 +25,6 @@ namespace TAS.Server.VideoSwitch.Configurator
         {
             _ross = engine.VideoSwitch as Ross ?? new Ross();
             _ross.PropertyChanged += Ross_PropertyChanged;
-            CommandRefreshSources = new UiCommand(RefreshGpiSources);
             CommandAddPort = new UiCommand(AddOutputPort);
             CommandDeletePort = new UiCommand(DeleteOutputPort);
             Load();
@@ -51,29 +49,14 @@ namespace TAS.Server.VideoSwitch.Configurator
         {
             if (!(obj is PortInfo port))
                 return;
-            _ports.Remove(port);
-            Ports.Refresh();
+            Ports.Remove(port);
         }
 
         private void AddOutputPort(object obj)
         {
-            var lastItem = _ports.LastOrDefault();
-            _ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id + 1), string.Empty));
+            var lastItem = Ports.LastOrDefault();
+            Ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id + 1), string.Empty));
             IsModified = true;
-            Ports.Refresh();
-        }
-
-        private void RefreshGpiSources(object _ = null)
-        {
-            var gpiSources = new List<PortInfo>()
-            {
-                new PortInfo(-1, "None")
-            };
-            foreach (var port in _ports)
-                gpiSources.Add(new PortInfo(port.Id, port.Name));
-            GpiSources = gpiSources;
-            _selectedGpiSource = GpiSources.FirstOrDefault(p => p.Id == _ross.GpiPort?.Id);
-            NotifyPropertyChanged(nameof(SelectedGpiSource));
         }
 
         protected override bool CanConnect() => IpAddress?.Length > 0 && !_isConnecting && !IsConnected;
@@ -82,10 +65,10 @@ namespace TAS.Server.VideoSwitch.Configurator
         {
             _isConnecting = true;
             _ross.IpAddress = IpAddress;
-            InvalidateRequerySuggested(); 
+            InvalidateRequerySuggested();
             await Task.Run(() =>
             {
-                var connected  = _ross.Connect();
+                var connected = _ross.Connect();
             });
             _isConnecting = false;
             InvalidateRequerySuggested();
@@ -107,12 +90,11 @@ namespace TAS.Server.VideoSwitch.Configurator
             IpAddress = _ross.IpAddress;
             Preload = _ross.Preload;
             SelectedTransitionType = _ross.DefaultEffect;
-
-            _ports = new List<PortInfo>(_ross.Sources.Select(p => new PortInfo(p.Id, p.Name)));
-            Ports = CollectionViewSource.GetDefaultView(_ports);
-
-            RefreshGpiSources();
-
+            Ports.Clear();
+            foreach (var source in _ross.Sources.Select(p => new PortInfo(p.Id, p.Name)))
+                Ports.Add(source);
+            _selectedGpiSource = Ports.FirstOrDefault(p => p.Id == _ross.GpiPort?.Id);
+            NotifyPropertyChanged(nameof(SelectedGpiSource));
             IsModified = false;
         }
 
@@ -122,6 +104,8 @@ namespace TAS.Server.VideoSwitch.Configurator
             _ross.IpAddress = IpAddress;
             _ross.Preload = Preload;
             _ross.DefaultEffect = SelectedTransitionType;
+            _ross.GpiPort = SelectedGpiSource;
+            _ross.Sources = Ports.Cast<IVideoSwitchPort>().ToList();
             Engine.VideoSwitch = _ross;
             IsModified = false;
         }
@@ -133,11 +117,9 @@ namespace TAS.Server.VideoSwitch.Configurator
             return false;
         }
 
-        public UiCommand CommandRefreshSources { get; }
         public UiCommand CommandAddPort { get; }
         public UiCommand CommandDeletePort { get; }
-        public ICollectionView Ports { get; private set; }
-        public List<PortInfo> GpiSources { get => _gpiSources; private set => SetFieldNoModify(ref _gpiSources, value); }
+        public ObservableCollection<PortInfo> Ports { get; } = new ObservableCollection<PortInfo>();
         public VideoSwitcherTransitionStyle SelectedTransitionType { get => _selectedTransitionType; set => SetField(ref _selectedTransitionType, value); }
         public string IpAddress { get => _ipAddress; set => SetField(ref _ipAddress, value); }
         public PortInfo SelectedGpiSource { get => _selectedGpiSource; set => SetField(ref _selectedGpiSource, value); }
@@ -156,12 +138,13 @@ namespace TAS.Server.VideoSwitch.Configurator
         };
 
         public bool Preload { get => _preload; set => SetField(ref _preload, value); }
-        public IVideoSwitchPort SelectedSource
+
+        public PortInfo SelectedSource
         {
-            get => _ross.SelectedSource;
+            get => Ports.FirstOrDefault(p => p.Id == _ross.SelectedSource?.Id);
             set
             {
-                if (_ross?.SelectedSource == value)
+                if (_ross?.SelectedSource?.Id == value.Id)
                     return;
                 _ross?.SetSource(value.Id);
             }

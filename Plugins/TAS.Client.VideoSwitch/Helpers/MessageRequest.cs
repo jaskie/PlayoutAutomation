@@ -5,7 +5,7 @@ namespace TAS.Server.VideoSwitch.Helpers
 {
     internal class MessageRequest: IDisposable
     {
-        private readonly ManualResetEventSlim _mutex = new ManualResetEventSlim();
+        private readonly ManualResetEvent _mutex = new ManualResetEvent(false);
         private byte[] _result;
 
         public void Dispose()
@@ -21,8 +21,9 @@ namespace TAS.Server.VideoSwitch.Helpers
 
         public byte[] WaitForResult(CancellationToken token)
         {
-            _mutex.Wait(token);
-            return _result;
+            WaitHandle.WaitAny(new [] { token.WaitHandle, _mutex });
+            _mutex.Reset();
+            return Interlocked.Exchange(ref _result, null);
         }
 
         public object SyncRoot { get; } = new object();

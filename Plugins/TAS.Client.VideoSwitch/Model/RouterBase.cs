@@ -19,8 +19,6 @@ namespace TAS.Server.VideoSwitch.Model
         [Hibernate]
         public string IpAddress { get; set; }
         [Hibernate]
-        public int Level { get; set; }
-        [Hibernate]
         public string Login { get; set; }
         [Hibernate]
         public string Password { get; set; }
@@ -29,7 +27,7 @@ namespace TAS.Server.VideoSwitch.Model
         [Hibernate]
         public bool Preload { get; set; }                
         [DtoMember, Hibernate]
-        public IList<IVideoSwitchPort> Sources { get; set; } = new List<IVideoSwitchPort>();
+        public List<IVideoSwitchPort> Sources { get; set; } = new List<IVideoSwitchPort>();
         #endregion
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

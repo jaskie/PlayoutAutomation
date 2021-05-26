@@ -41,34 +41,65 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         }
 
-        protected override void OnMessageReceived(byte[] message)
+        protected override void OnMessageReceived(byte[] messages)
         {
-            Logger.Trace("Message received: {0}", BitConverter.ToString(message));
-            if (message.Length < 2 || (message[0] != 0xFF && message[0] != 0xFE))
-                return;
-
-            switch (message[1])
+            foreach (var message in Split(messages))
             {
-                //Program has been set
-                case 0x49:
-                    _crosspointStatusRequest?.SetResult(message);
-                    SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo(DeserializeInputIndex(message), -1)));
-                    break;
+                Logger.Trace("Message received: {0}", BitConverter.ToString(message));
+                if (message.Length < 2 || (message[0] != 0xFF && message[0] != 0xFE))
+                    return;
 
-                //Response from non functional command. I use it as ping
-                case 0x5E:
-                    _signalPresenceRequest?.SetResult(message);
-                    Logger.Trace("Ross ping successful");
-                    break;
+                switch (message[1])
+                {
+                    //Program has been set
+                    case 0x49:
+                        _crosspointStatusRequest?.SetResult(message);
+                        SourceChanged?.Invoke(this, new EventArgs<CrosspointInfo>(new CrosspointInfo(DeserializeInputIndex(message), -1)));
+                        break;
 
-                case 0x4F:
-                    _takeRequest.SetResult(message);
-                    break;
+                    //Response from ping command.
+                    case 0x5E:
+                        _signalPresenceRequest?.SetResult(message);
+                        break;
+                    
+                    // Take completed
+                    case 0x4F: 
+                        _takeRequest?.SetResult(message);
+                        break;
+                }
+            }
+        }
+
+        private IEnumerable<byte[]> Split(byte[] messages)
+        {
+            int start = 0, end;
+            while (true)
+            {
+                var endSimple = Array.IndexOf<byte>(messages, 0xFF, start+1);
+                var endExtended = Array.IndexOf<byte>(messages, 0xFE, start+1);
+                if ((endSimple > 0) && (endExtended > 0))
+                    end = Math.Min(endSimple, endExtended);
+                else if (endSimple >= 0)
+                    end = endSimple;
+                else if (endExtended >= 0)
+                    end = endExtended;
+                else break;
+                var result = new byte[end - start];
+                Buffer.BlockCopy(messages, start, result, 0, end - start);
+                yield return result;
+                start = end;
+            }
+            end = messages.Length;
+            if ((end - start) > 0)
+            {
+                var result = new byte[end - start];
+                Buffer.BlockCopy(messages, start, result, 0, end - start);
+                yield return result;
             }
         }
 
 
-        private void ConnectionWatcherProc()
+        private async void ConnectionWatcherProc()
         {
             while (true)
             {
@@ -79,12 +110,16 @@ namespace TAS.Server.VideoSwitch.Communicators
                 try
                 {
                     _signalPresenceRequest.WaitForResult(tokenSource.Token);
+#if DEBUG
+                    await Task.Delay(30000, tokenSource.Token);
+#else
+                    await Task.Delay(5000,  tokenSource.Token); 
+#endif
                 }
                 catch (OperationCanceledException)
                 {
                     break;
                 }
-                Thread.Sleep(3000);
             }
             Logger.Debug("Connection watcher thread finished.");
         }
@@ -125,16 +160,18 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        private byte[] SerializeInputIndex(int b)
+        private byte[] SerializeInputIndexMessage(byte command, int b)
         {
             if (b < 21)
-                return new byte[] { (byte)b };
+                return new byte[] { 0xFF, command, (byte)b };
 
-            return new byte[] { 127, (byte)((b >> 7) & 0x7F), (byte)(b & 0x7F) };
+            return new byte[] { 0xFF, command, 127, (byte)((b >> 7) & 0x7F), (byte)(b & 0x7F) };
         }
 
         private short DeserializeInputIndex(byte[] message)
         {
+            if (message is null)
+                return -1;
             if (message.Length == 3 && message[2] != 0x7F)
                 return message[2];
             //Tally extended message formula
@@ -152,7 +189,8 @@ namespace TAS.Server.VideoSwitch.Communicators
             //    _waitForTransitionEndSemaphore.Wait(1000, _shutdownTokenSource.Token);
             //}
 
-            //AddToRequestQueue($"FF 09 {SerializeInputIndex(inPort)}");
+            Logger.Debug("Setting PGM source to {0}", inPort);
+            Send(SerializeInputIndexMessage(0x09 /*set crosspoint on PGM bus*/, inPort));
 
             //if (_waitForTransitionEndSemaphore.CurrentCount == 0)
             //    _waitForTransitionEndSemaphore.Release();
@@ -224,8 +262,8 @@ namespace TAS.Server.VideoSwitch.Communicators
             //    _waitForTransitionEndSemaphore.Wait();
             //}
 
-            //Logger.Trace("Setting preview {0}", sourceId);
-            //AddToRequestQueue($"FF 0B {SerializeInputIndex(sourceId)}");
+            Logger.Debug("Setting preview {0}", sourceId);
+            Send(SerializeInputIndexMessage(0x0B /*set crosspoint on PST bus*/, sourceId));
 
             //if (_waitForTransitionEndSemaphore.CurrentCount == 0)
             //    _waitForTransitionEndSemaphore.Release();
@@ -241,8 +279,8 @@ namespace TAS.Server.VideoSwitch.Communicators
             //lock (_syncObject)            
             //    _takeExecuting = true;
 
-            //Logger.Trace("Executing take");
-            //AddToRequestQueue("FF 0F");
+            Logger.Debug("Executing take");
+            Send(new byte[] { 0xFF, 0x0F });
         }
 
         public PortInfo[] Sources

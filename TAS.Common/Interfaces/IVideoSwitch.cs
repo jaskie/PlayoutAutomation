@@ -7,7 +7,7 @@ namespace TAS.Common.Interfaces
     public interface IVideoSwitch : IDisposable, INotifyPropertyChanged, IPlugin, IStartGpi
     {        
         bool Connect();
-        IList<IVideoSwitchPort> Sources { get; }        
+        List<IVideoSwitchPort> Sources { get; }        
         void SetSource(int inputId);       
         IVideoSwitchPort SelectedSource { get; }
         bool IsConnected { get; }           

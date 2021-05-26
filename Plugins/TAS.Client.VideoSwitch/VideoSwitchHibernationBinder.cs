@@ -12,7 +12,7 @@ namespace TAS.Server.VideoSwitch
             { typeof(Ross), typeof(Ross) },
             { typeof(Nevion), typeof(Nevion) },
             { typeof(Atem), typeof(Atem) },
-            { typeof(RouterPort), typeof(RouterPort) }
+            { typeof(RouterPort), typeof(PortInfo)}
         })
         { }
 

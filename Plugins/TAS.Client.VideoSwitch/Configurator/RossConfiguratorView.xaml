@@ -4,14 +4,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
              xmlns:local="clr-namespace:TAS.Server.VideoSwitch.Configurator"
+             xmlns:model="clr-namespace:TAS.Server.VideoSwitch.Model"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance local:RossConfiguratorViewModel}"
              d:DesignHeight="350" d:DesignWidth="300">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+        <CollectionViewSource x:Key="Ports" Source="{Binding Path=Ports}" />
     </UserControl.Resources>
 
-    <Grid>
+    <Grid x:Name="rootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
@@ -43,12 +45,12 @@
         </Button>
         <DataGrid Grid.Row="4" Grid.ColumnSpan="2" MinHeight="50" Margin="5" ItemsSource="{Binding Ports}" CanUserAddRows="False" AutoGenerateColumns="False" CanUserDeleteRows="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Id}" Header="ID" />
-                <DataGridTextColumn Binding="{Binding Name}" Header="Name" Width="*" />
-                <DataGridTemplateColumn>
+                <DataGridTextColumn Binding="{Binding Id}" Header="Id" Width="40"/>
+                <DataGridTextColumn Binding="{Binding Name}" Header="Name" Width="200" />
+                <DataGridTemplateColumn Width="30">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Margin="1,2" Command="{Binding DataContext.CommandDeletePort, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
+                            <Button Margin="1,2" Command="{Binding DataContext.CommandDeletePort, ElementName=rootGrid}" CommandParameter="{Binding}">
                                 <Button.Content>
                                     <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                 </Button.Content>
@@ -63,14 +65,29 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition />
-                <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
 
             <Label Margin="0,5" VerticalAlignment="Center" HorizontalAlignment="Left" >Gpi signal</Label>
-            <ComboBox Margin="5" Grid.Column="1" MinWidth="100" ItemsSource="{Binding GpiSources}" SelectedItem="{Binding SelectedGpiSource}" IsSynchronizedWithCurrentItem="True" DisplayMemberPath="Name" VerticalAlignment="Center" />
-            <Button Grid.Column="2" Margin="5" Command="{Binding CommandRefreshSources}" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Load sources from table above">
-                <Image Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-            </Button>
+            <ComboBox Margin="5" Grid.Column="1" MinWidth="100" SelectedItem="{Binding SelectedGpiSource}" IsSynchronizedWithCurrentItem="True" VerticalAlignment="Center">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type model:PortInfo}">
+                        <Grid HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock HorizontalAlignment="Left" Text="{Binding Id}"/>
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Left" Text="{Binding Name}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+                <ComboBox.ItemsSource>
+                    <CompositeCollection>
+                        <model:PortInfo Id="-1" Name="None"/>
+                        <CollectionContainer Collection="{Binding Source={StaticResource Ports}}" />
+                    </CompositeCollection>
+                </ComboBox.ItemsSource>
+            </ComboBox>
         </Grid>
         
         <GroupBox Grid.Row="6" Margin="5" Width="200" Header="Test connection" HorizontalAlignment="Center" Grid.ColumnSpan="2">
@@ -107,7 +124,7 @@
                 </Button>
 
                 <TextBlock Grid.Row="1" Text="Input Port" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsEnabled="{Binding IsConnected}" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="80" ItemsSource="{Binding GpiSources}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedGpiSource}" />
+                <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsEnabled="{Binding IsConnected}" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="80" ItemsSource="{Binding Ports}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedSource}" />
             </Grid>
         </GroupBox>
     </Grid>

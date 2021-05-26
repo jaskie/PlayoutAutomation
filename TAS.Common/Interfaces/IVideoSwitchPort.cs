@@ -1,16 +1,10 @@
-﻿using System.ComponentModel;
-
-namespace TAS.Common.Interfaces
+﻿namespace TAS.Common.Interfaces
 {
-    public interface IVideoSwitchPort : IVideoSwitchPortProperties
-    {
-        bool? IsSignalPresent { get; }
-    }
-
-    public interface IVideoSwitchPortProperties
+    public interface IVideoSwitchPort
     {
         short Id { get; }
         string Name { get; }
-
+        bool? IsSignalPresent { get; }
     }
+
 }
