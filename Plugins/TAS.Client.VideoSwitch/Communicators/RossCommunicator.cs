@@ -25,15 +25,10 @@ namespace TAS.Server.VideoSwitch.Communicators
         
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
 
-        private bool _transitionTypeChanged;
-
         private readonly MessageRequest _takeRequest = new MessageRequest();
         private readonly MessageRequest _crosspointStatusRequest = new MessageRequest();
         private readonly MessageRequest _signalPresenceRequest = new MessageRequest();
         private Thread _connectionWatcherThread;
-
-        private VideoSwitcherTransitionStyle _videoSwitcherTransitionStyle;
-
         private PortInfo[] _sources;
         
         public RossCommunicator(): base(9001)
@@ -250,8 +245,6 @@ namespace TAS.Server.VideoSwitch.Communicators
                 default:
                     return;
             }
-            _videoSwitcherTransitionStyle = videoSwitchEffect;
-            _transitionTypeChanged = true;
         }
 
         public void Preload(int sourceId)

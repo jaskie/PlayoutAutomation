@@ -9,7 +9,6 @@ namespace TAS.Client.ViewModels
         public EngineVideoSwitchViewModel(IVideoSwitch videoSwitch)
         {
             VideoSwitch = videoSwitch;
-            VideoSwitch.Connect();
             VideoSwitch.PropertyChanged += VideoSwitch_PropertyChanged;
 
             CommandChangeSource = new UiCommand(ChangeSource, CanChangeSource);

@@ -16,7 +16,6 @@ using TAS.Server.Media;
 using TAS.Server.Security;
 using TAS.Database.Common;
 using jNet.RPC;
-using Newtonsoft.Json;
 
 namespace TAS.Server
 {
@@ -69,6 +68,7 @@ namespace TAS.Server
         private bool _studioMode;
         private ConnectionStateRedundant _databaseConnectionState;
         private TVideoFormat _videoFormat;
+        private CancellationTokenSource _shutdownTokenSource;
 
         public Engine()
         {
@@ -262,6 +262,7 @@ namespace TAS.Server
         public void Initialize(IList<CasparServer> servers)
         {
             Logger.Debug("Initializing engine {0}", this);
+            _shutdownTokenSource = new CancellationTokenSource();
             _authenticationService = Security.AuthenticationService.Current;
             var recorders = new List<CasparRecorder>();
             var sPRI = servers.FirstOrDefault(s => s.Id == IdServerPRI);
@@ -281,10 +282,6 @@ namespace TAS.Server
             _mediaManager.SetRecorders(recorders);
             _eventRecorder = new EventRecorder(this, servers);
 
-            //Gpis = this.ComposeParts<IGpi>();
-            //_plugins = this.ComposeParts<IPlugin>();
-            //CGElementsController = this.ComposePart<ICGElementsController>();
-            //Router = this.ComposePart<IRouter>();
             _isWideScreen = FormatDescription.IsWideScreen;
             var chPRI = PlayoutChannelPRI as CasparServerChannel;
             var chSEC = PlayoutChannelSEC as CasparServerChannel;
@@ -311,7 +308,11 @@ namespace TAS.Server
             }
 
             if (VideoSwitch != null)
+            {
                 VideoSwitch.Started += _gpiStartLoaded;
+                VideoSwitch.PropertyChanged += VideoSwitch_PropertyChanged;
+                Task.Run(ConnectToVideoSwitch);
+            }
 
             if (Gpis != null)
                 foreach (var gpi in Gpis)
@@ -327,7 +328,7 @@ namespace TAS.Server
             _engineThread.Start();
             Logger.Debug("Engine {0} initialized", this);
         }
-
+                
         [DtoMember]
         public ConnectionStateRedundant DatabaseConnectionState { get => _databaseConnectionState; set => SetField(ref _databaseConnectionState, value); }
 
@@ -836,9 +837,9 @@ namespace TAS.Server
         // internal methods
         internal void UnInitialize()
         {
-            Debug.WriteLine(this, "Aborting engine thread");
-            _engineThread.Abort();
+            _shutdownTokenSource.Cancel();
             _engineThread.Join();
+            
             EngineState = TEngineState.NotInitialized;
 
             var chPRI = PlayoutChannelPRI as CasparServerChannel;
@@ -856,18 +857,20 @@ namespace TAS.Server
             }
 
             if (VideoSwitch != null)
+            {
                 VideoSwitch.Started -= _gpiStartLoaded;
+                VideoSwitch.PropertyChanged -= VideoSwitch_PropertyChanged;
+                VideoSwitch.Disconnect();
+            }
 
             if (Gpis != null)
                 foreach (var gpi in Gpis)
                     gpi.Started -= _gpiStartLoaded;
 
-            if (CGElementsController is IDisposable cgElementsController)
-            {
-            }
-
+            _shutdownTokenSource.Dispose();
             Debug.WriteLine(this, "Engine uninitialized");
         }
+
         internal void AddFixedTimeEvent(Event e)
         {
             _fixedTimeEvents.Add(e);
@@ -1468,6 +1471,7 @@ namespace TAS.Server
 
         protected override void DoDispose()
         {
+            UnInitialize();
             foreach (var e in _rootEvents)
                 e.SaveLoadedTree();
             lock (_rights)
@@ -1476,7 +1480,7 @@ namespace TAS.Server
                     _rights.Value.ForEach(r => ((EngineAclRight)r).Saved -= AclRight_Saved);
             }
             DatabaseProvider.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
-            (CGElementsController as IDisposable)?.Dispose();
+            CGElementsController?.Dispose();
             VideoSwitch?.Dispose();
             Remote?.Dispose();
             _preview?.Dispose();
@@ -1529,7 +1533,7 @@ namespace TAS.Server
             var frameDuration = (ulong)FrameTicks;
             QueryUnbiasedInterruptTime(out var currentTime);
             var prevTime = currentTime - frameDuration;
-            while (!IsDisposed)
+            while (!_shutdownTokenSource.IsCancellationRequested)
             {
                 try
                 {
@@ -1644,6 +1648,31 @@ namespace TAS.Server
         private void AclRight_Saved(object sender, EventArgs e)
         {
             NotifyPropertyChanged(nameof(CurrentUserRights));
+        }
+
+        private void VideoSwitch_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(IVideoSwitch.IsConnected):
+                    if (!VideoSwitch.IsConnected)
+                        Task.Run(ConnectToVideoSwitch);                        
+                    break;
+            }
+        }
+
+        private async void ConnectToVideoSwitch()
+        {
+            Logger.Trace("Connecting to VideoSwitch {0}", VideoSwitch);
+            while (!_shutdownTokenSource.IsCancellationRequested)
+            {
+                if (VideoSwitch.Connect())
+                {
+                    Logger.Trace("VideoSwitch {0} connected", VideoSwitch);
+                    return;
+                }
+                await Task.Delay(5000, _shutdownTokenSource.Token);
+            }
         }
 
 

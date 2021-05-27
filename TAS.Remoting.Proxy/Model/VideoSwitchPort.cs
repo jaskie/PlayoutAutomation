@@ -4,6 +4,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
+    [DtoType(typeof(IVideoSwitchPort))]
     class VideoSwitchPort : ProxyObjectBase, IVideoSwitchPort
     {
         #pragma warning disable CS0649

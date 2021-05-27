@@ -11,7 +11,7 @@ namespace TAS.Remoting.Model
     public class VideoSwitcher : ProxyObjectBase, IVideoSwitcher
     {
         [DtoMember(nameof(IVideoSwitcher.Sources))]
-        private IList<IVideoSwitchPort> _sources;
+        private List<IVideoSwitchPort> _sources;
 
         [DtoMember(nameof(IVideoSwitcher.SelectedSource))]
         private IVideoSwitchPort _selectedSource;
@@ -30,7 +30,7 @@ namespace TAS.Remoting.Model
 
         public VideoSwitcherTransitionStyle DefaultEffect => _defaultEffect;
 
-        public IList<IVideoSwitchPort> Sources => _sources;
+        public List<IVideoSwitchPort> Sources => _sources;
 
         public IVideoSwitchPort SelectedSource => _selectedSource;
 
@@ -40,12 +40,18 @@ namespace TAS.Remoting.Model
 
         public bool IsEnabled { get => _isEnabled; set => Set(value); }
 
+
         public event EventHandler Started;
 
         public bool Connect()
         {
             return Query<bool>();
-        }        
+        }
+
+        public void Disconnect()
+        {
+            throw new InvalidOperationException();
+        }
 
         public void PreloadSource(int sourceId)
         {

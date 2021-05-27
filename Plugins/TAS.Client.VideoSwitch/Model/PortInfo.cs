@@ -18,6 +18,6 @@ namespace TAS.Server.VideoSwitch.Model
         [Hibernate]
         public string Name { get; set; }
 
-        public bool? IsSignalPresent => throw new System.NotImplementedException();
+        public bool? IsSignalPresent { get; set; }
     }   
 }

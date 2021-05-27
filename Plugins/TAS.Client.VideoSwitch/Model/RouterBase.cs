@@ -11,7 +11,7 @@ using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Model
 {
-    public abstract class RouterBase : IVideoSwitch
+    public abstract class RouterBase : jNet.RPC.Server.ServerObjectBase, IVideoSwitch
     {
         #region Configuration        
         [Hibernate]
@@ -107,7 +107,6 @@ namespace TAS.Server.VideoSwitch.Model
         [DtoMember]
         public bool IsConnected => _communicator?.IsConnected ?? false;
 
-        public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler Started;
 
         public bool Connect()
@@ -144,20 +143,15 @@ namespace TAS.Server.VideoSwitch.Model
             Communicator.SetSource(sourceId);
         }
 
-        public void Dispose() => Dispose(true);
-
-        protected virtual void Dispose(bool disposing)
+        protected override void DoDispose()
         {
-            if (_communicator is null || !disposing)
+            base.DoDispose();
+            if (_communicator is null)
                 return;
             _communicator.SourceChanged -= Communicator_SourceChanged;
             _communicator.PropertyChanged -= Communicator_PropertyChanged;
             _communicator.Dispose();
         }
 
-        public void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

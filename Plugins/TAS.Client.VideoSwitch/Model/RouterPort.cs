@@ -5,6 +5,7 @@ using TAS.Database.Common;
 
 namespace TAS.Server.VideoSwitch.Model
 {
+    [DtoType(typeof(IVideoSwitchPort))]
     public class RouterPort : ServerObjectBase, IVideoSwitchPort
     {
         private short _portId;
