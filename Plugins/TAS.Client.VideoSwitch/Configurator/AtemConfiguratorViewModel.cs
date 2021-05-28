@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common;
@@ -83,7 +84,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         {
             _atem.IpAddress = IpAddress;
             _atem.DefaultEffect = _selectedTransitionType ?? VideoSwitcherTransitionStyle.Cut;
-            _atem.Connect();            
+            _atem.Connect(CancellationToken.None);            
         }
 
         protected override void Disconnect()

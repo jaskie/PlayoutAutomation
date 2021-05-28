@@ -3,13 +3,12 @@ using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Server.VideoSwitch.Helpers;
 using TAS.Server.VideoSwitch.Model;
 using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Communicators
-{    
+{
     public class AtemCommunicator : IVideoSwitchCommunicator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -60,7 +59,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         public bool IsConnected { get; set; }
                 
-        public bool Connect(string address)
+        public async void Connect(string address, CancellationToken cancellationToken)
         {
             _disposed = default(int);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -73,9 +72,9 @@ namespace TAS.Server.VideoSwitch.Communicators
                     if (_cancellationTokenSource.IsCancellationRequested)
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
-                    var isConnected = _atem.Connect(address, Level);
+                    await Task.Run(() => _atem.Connect(address, Level), cancellationToken);
                     
-                    if (!isConnected)
+                    if (IsConnected)
                     {                        
                         Logger.Trace("Could not connect to ATEM. Reconnecting in 3 seconds...");
                         Thread.Sleep(3000);
@@ -85,7 +84,6 @@ namespace TAS.Server.VideoSwitch.Communicators
                     Sources = _atem.GetInputPorts();
                     SetTransitionStyle(_videoSwitcherTransitionStyle);
                     Logger.Trace("Connected to ATEM TVS");                                                                                    
-                    return true;
                 }
                 catch (Exception ex)
                 {
@@ -102,7 +100,6 @@ namespace TAS.Server.VideoSwitch.Communicators
                     }
                 }
             }
-            return false;
         }
 
         public void Dispose()

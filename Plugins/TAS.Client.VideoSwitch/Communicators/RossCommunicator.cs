@@ -96,11 +96,9 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         private async void ConnectionWatcherProc()
         {
-            while (true)
+            var tokenSource = DisconnectTokenSource;
+            while (!tokenSource.IsCancellationRequested)
             {
-                var tokenSource = DisconnectTokenSource;
-                if (tokenSource is null)
-                    break;
                 Send(PingCommand);
                 try
                 {
@@ -196,18 +194,17 @@ namespace TAS.Server.VideoSwitch.Communicators
             //_transitionTypeChanged = false;
         }
 
-        public override bool Connect(string address)
+        public override void Connect(string address, CancellationToken cancellationToken)
         {
-            var connected = base.Connect(address);
-            if (!connected)
-                return false;
+            base.Connect(address, cancellationToken);
+            if (!IsConnected)
+                return;
             _connectionWatcherThread = new Thread(ConnectionWatcherProc)
             {
                 Name = $"Ross connection watcher for {address}",
                 IsBackground = true
             };
             _connectionWatcherThread.Start();
-            return connected;
         }
 
         public void SetTransitionStyle(VideoSwitcherTransitionStyle videoSwitchEffect)

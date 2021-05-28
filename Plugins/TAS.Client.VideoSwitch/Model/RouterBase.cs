@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Database.Common;
@@ -109,22 +110,18 @@ namespace TAS.Server.VideoSwitch.Model
 
         public event EventHandler Started;
 
-        public bool Connect()
+        public void Connect(CancellationToken cancellationToken)
         {
             try
             {
-                Communicator.Connect(IpAddress);
+                Communicator.Connect(IpAddress, cancellationToken);
                 if (IsConnected)
-                {                    
                     SetupDevice(Communicator.Sources);
-                    return true;
-                }
             }
             catch (Exception e)
             {
                 Logger.Error(e);
             }
-            return false;
         }
 
         public void Disconnect()

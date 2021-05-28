@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
@@ -72,7 +73,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             _nevion.Level = _level;
             _nevion.OutputPorts = _ports.Select(p => p.Id).ToArray();
 
-            _nevion.Connect();
+            _nevion.Connect(CancellationToken.None);
         }
 
         protected override void Disconnect()

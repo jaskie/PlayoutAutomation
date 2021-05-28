@@ -359,7 +359,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool Connect(string address)
+        public void Connect(string address, CancellationToken cancellationToken)
         {
             _cancellationTokenSource = new CancellationTokenSource();
 
@@ -402,8 +402,6 @@ namespace TAS.Server.VideoSwitch.Communicators
                     InputPortWatcher();
                     Sources = GetSources();
                     Logger.Info("Nevion router connected and ready!");
-
-                    return true;
                 }
 
                 catch (Exception ex)
@@ -419,7 +417,6 @@ namespace TAS.Server.VideoSwitch.Communicators
                 }
 
             }
-            return false;
         }
 
         public void Login(string user, string password)

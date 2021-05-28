@@ -388,7 +388,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        public bool Connect(string address)
+        public void Connect(string address, CancellationToken cancellationToken)
         {
             _disposed = default(int);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -432,8 +432,6 @@ namespace TAS.Server.VideoSwitch.Communicators
 
                     Sources = GetSources();
                     Logger.Info("Blackmagic router connected and ready!");
-
-                    return true;
                 }
                 catch (Exception ex)
                 {
@@ -447,7 +445,6 @@ namespace TAS.Server.VideoSwitch.Communicators
                     break;
                 }
             }
-            return false;
         }
 
 

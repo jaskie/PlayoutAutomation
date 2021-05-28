@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using TAS.Client.Common;
@@ -66,10 +67,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             _isConnecting = true;
             _ross.IpAddress = IpAddress;
             InvalidateRequerySuggested();
-            await Task.Run(() =>
-            {
-                var connected = _ross.Connect();
-            });
+            await Task.Run(() => _ross.Connect(CancellationToken.None));
             _isConnecting = false;
             InvalidateRequerySuggested();
         }

@@ -1666,12 +1666,21 @@ namespace TAS.Server
             Logger.Trace("Connecting to VideoSwitch {0}", VideoSwitch);
             while (!_shutdownTokenSource.IsCancellationRequested)
             {
-                if (VideoSwitch.Connect())
+                try
                 {
-                    Logger.Trace("VideoSwitch {0} connected", VideoSwitch);
+                    VideoSwitch.Connect(_shutdownTokenSource.Token);
+                    if (VideoSwitch.IsConnected)
+                    {
+                        Logger.Trace("VideoSwitch {0} connected", VideoSwitch);
+                        return;
+                    }
+                    await Task.Delay(5000, _shutdownTokenSource.Token);
+                }
+                catch(TaskCanceledException)
+                {
+                    Logger.Debug("Connecting to VideoSwitch {0} was cancelled", VideoSwitch);
                     return;
                 }
-                await Task.Delay(5000, _shutdownTokenSource.Token);
             }
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
@@ -64,7 +65,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         {
             _smartVideoHub.IpAddress = IpAddress;
             _smartVideoHub.OutputPorts = _ports.Select(p => p.Id).ToArray();
-            _smartVideoHub.Connect();
+            _smartVideoHub.Connect(CancellationToken.None);
         }
 
         protected override void Disconnect()
