@@ -8,6 +8,7 @@ namespace TAS.Server.VideoSwitch.Configurator
     public abstract class ConfiguratorViewModelBase : ModifyableViewModelBase, IPluginConfiguratorViewModel
     {
         protected readonly IEngineProperties Engine;
+        private bool _isEnabled;
 
         public ConfiguratorViewModelBase(IEngineProperties engine)
         {
@@ -21,7 +22,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         protected abstract void Connect();
         protected abstract void Disconnect();
         protected abstract bool CanConnect();
-        
+
         public virtual void Save()
         {
             Model.IsEnabled = IsEnabled;
@@ -34,14 +35,17 @@ namespace TAS.Server.VideoSwitch.Configurator
             return IsModified;
         }
 
-        public abstract void Load();
+        public virtual void Load()
+        {
+            _isEnabled = Model.IsEnabled;
+        }
 
         public UiCommand CommandConnect { get; }
         public UiCommand CommandDisconnect { get; }
 
         public bool IsConnected => (Model as IVideoSwitch)?.IsConnected ?? false;
 
-        public bool IsEnabled { get => Model.IsEnabled; set => Model.IsEnabled = value; }
+        public bool IsEnabled { get => _isEnabled; set => SetField(ref _isEnabled, value); }
 
         public abstract string PluginName { get; }
     }

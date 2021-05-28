@@ -150,7 +150,7 @@ namespace TAS.Server
         [Hibernate]
         public ServerHost Remote { get; set; }
 
-        //[Hibernate]
+        [Hibernate]
         public List<IStartGpi> Gpis { get; set; }
 
         [DtoMember, Hibernate]
@@ -307,7 +307,7 @@ namespace TAS.Server
                 Remote.Initialize(this, new PrincipalProvider(_authenticationService));
             }
 
-            if (VideoSwitch != null)
+            if (VideoSwitch?.IsEnabled == true)
             {
                 VideoSwitch.Started += _gpiStartLoaded;
                 VideoSwitch.PropertyChanged += VideoSwitch_PropertyChanged;
@@ -856,7 +856,7 @@ namespace TAS.Server
                 Remote.UnInitialize();
             }
 
-            if (VideoSwitch != null)
+            if (VideoSwitch?.IsEnabled == true)
             {
                 VideoSwitch.Started -= _gpiStartLoaded;
                 VideoSwitch.PropertyChanged -= VideoSwitch_PropertyChanged;
@@ -1039,7 +1039,9 @@ namespace TAS.Server
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
                 
-                if (_playing.EventType != TEventType.Live && eventType == TEventType.Live && !(VideoSwitch is IVideoSwitcher) && VideoSwitch.Preload && VideoSwitch.SelectedSource?.Id != aEvent.VideoSwitchPort)
+                if (_playing.EventType != TEventType.Live && eventType == TEventType.Live 
+                    && VideoSwitch?.IsEnabled == true
+                    && !(VideoSwitch is IVideoSwitcher) && VideoSwitch.Preload && VideoSwitch.SelectedSource?.Id != aEvent.VideoSwitchPort)
                     VideoSwitch.SetSource(aEvent.VideoSwitchPort);
                                 
                     if (!aEvent.IsHold

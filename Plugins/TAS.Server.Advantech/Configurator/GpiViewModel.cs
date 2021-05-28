@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
+using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common.Interfaces;
 
 namespace TAS.Server.Advantech.Configurator
@@ -22,7 +23,7 @@ namespace TAS.Server.Advantech.Configurator
             AddGpiBindingCommand = new UiCommand(AddGpiBinding, CanAddGpiBinding);
             DeleteGpiBindingCommand = new UiCommand(DeleteGpiBinding);
             SaveCommand = new UiCommand(UpdateModel, CanLocalSave);
-            UndoCommand = new UiCommand(Undo, CanUndo);
+            UndoCommand = new UiCommand(_ => Load(), CanUndo);
             GpiBindings = CollectionViewSource.GetDefaultView(_gpiBindings);
         }        
 
@@ -31,11 +32,6 @@ namespace TAS.Server.Advantech.Configurator
             if (_gpiBindingViewModel == null)
                 return true;
             return false;
-        }
-
-        private void Undo(object obj)
-        {
-            Init();
         }
 
         private bool CanUndo(object obj)
@@ -48,7 +44,7 @@ namespace TAS.Server.Advantech.Configurator
             return IsModified;
         }
         
-        private void Init()
+        public void Load()
         {            
             if (_gpi == null)
                 return;
@@ -92,7 +88,7 @@ namespace TAS.Server.Advantech.Configurator
         public void Initialize(object model)
         {
             _gpi = (IStartGpi)model as Model.Gpi;
-            Init();
+            Load();
         }
 
         public void Save()
@@ -163,6 +159,8 @@ namespace TAS.Server.Advantech.Configurator
                 NotifyPropertyChanged();
             }
         }
+
+        public IPlugin Model => _gpi;
 
         private void GpiBindingViewModel_Closing(object sender, EventArgs e)
         {

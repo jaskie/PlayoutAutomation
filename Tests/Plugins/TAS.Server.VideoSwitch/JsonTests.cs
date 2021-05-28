@@ -34,13 +34,13 @@ namespace TAS.Server.VideoSwitchTests
 
         [TestMethod]
         [DynamicData(nameof(GetRouter), DynamicDataSourceType.Method)]
-        public void SerializeAndDeserialize(VideoSwitch.VideoSwitch router)
+        public void SerializeAndDeserialize(VideoSwitch.Model.Router router)
         {
             var json = JsonConvert.SerializeObject(router, _jsonSerializerSettings);
-            var deserialized = JsonConvert.DeserializeObject<VideoSwitch.VideoSwitch>(json, _jsonSerializerSettings);
+            var deserialized = JsonConvert.DeserializeObject<VideoSwitch.Model.Router>(json, _jsonSerializerSettings);
 
             if (deserialized == null && router != null)
-                Assert.Fail("Failed to deserialize CgElementsController");
+                Assert.Fail("Failed to deserialize router");
 
             if (deserialized == null)
                 return;
@@ -49,8 +49,6 @@ namespace TAS.Server.VideoSwitchTests
             Assert.AreEqual(router.IpAddress, deserialized.IpAddress);
             Assert.AreEqual(router.Login, deserialized.Login);
             Assert.AreEqual(router.Password, deserialized.Password);
-            Assert.AreEqual(router.Level, deserialized.Level);
-            Assert.AreEqual(router.Type, deserialized.Type);
 
             for (int i=0; i<router.OutputPorts.Length; ++i)
             {

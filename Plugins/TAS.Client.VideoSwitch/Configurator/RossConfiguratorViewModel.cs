@@ -85,6 +85,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public override void Load()
         {
+            base.Load();
             IpAddress = _ross.IpAddress;
             Preload = _ross.Preload;
             SelectedTransitionType = _ross.DefaultEffect;

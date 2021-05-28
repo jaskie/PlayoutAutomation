@@ -89,14 +89,12 @@ namespace TestData
 				StudioMode = false,
 				TimeCorrection = 0,
 				VideoFormat = TAS.Common.TVideoFormat.HD1080i5000,
-				VideoSwitch = new TAS.Server.VideoSwitch.Model.VideoSwitcher
+				VideoSwitch = new TAS.Server.VideoSwitch.Model.Ross
 				{
 					IpAddress = "127.0.0.1",
 					IsEnabled = true,
 					Login = "testLogin",
 					Password = "testPassword",
-					Level = 1,
-					Type = TAS.Server.VideoSwitch.Model.CommunicatorType.BlackmagicSmartVideoHub,
 					OutputPorts = new short[2] { 0,1 }
 				}
 			},

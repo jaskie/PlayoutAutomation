@@ -94,6 +94,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public override void Load()
         {
+            base.Load();
             _sources = new List<PortInfo>()
             {
                 new PortInfo(-1, "None")

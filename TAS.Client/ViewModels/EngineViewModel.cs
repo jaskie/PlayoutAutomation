@@ -40,7 +40,7 @@ namespace TAS.Client.ViewModels
             Engine = engine;
             VideoFormat = engine.VideoFormat;
             IsInterlacedFormat = engine.FormatDescription.Interlaced;
-            VideoSwitch = engine.VideoSwitch;
+            VideoSwitch = engine.VideoSwitch?.IsEnabled == true ? engine.VideoSwitch : null;
 
             if (VideoSwitch != null)
                 EngineVideoSwitchViewModel = new EngineVideoSwitchViewModel(VideoSwitch);

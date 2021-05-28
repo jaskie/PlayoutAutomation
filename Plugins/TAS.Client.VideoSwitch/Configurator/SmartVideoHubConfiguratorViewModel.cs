@@ -54,7 +54,7 @@ namespace TAS.Server.VideoSwitch.Configurator
         private void AddOutputPort(object obj)
         {
             var lastItem = _ports.LastOrDefault();
-            _ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id + 1), String.Empty));
+            _ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id + 1), string.Empty));
             IsModified = true;
             Ports.Refresh();
         }
@@ -75,6 +75,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public override void Load()
         {
+            base.Load();
             _ports = new List<PortInfo>();
             Ports = CollectionViewSource.GetDefaultView(_ports);
 

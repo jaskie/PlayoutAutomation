@@ -83,6 +83,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public override void Load()
         {
+            base.Load();
             _ports = new List<PortInfo>();
             Ports = CollectionViewSource.GetDefaultView(_ports);
 
