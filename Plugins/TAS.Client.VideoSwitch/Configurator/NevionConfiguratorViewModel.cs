@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
 using System.Threading;
-using System.Windows.Data;
-using TAS.Client.Common;
 using TAS.Common.Interfaces;
 using TAS.Server.VideoSwitch.Model;
 
@@ -16,16 +12,12 @@ namespace TAS.Server.VideoSwitch.Configurator
         private string _login;
         private string _password;
         private int _level;
-        private string _ipAddress;                     
-        private List<PortInfo> _ports;
         private readonly Nevion _nevion;
 
         public NevionConfiguratorViewModel(IEngineProperties engine) : base(engine)
         {
             _nevion = engine.VideoSwitch as Nevion ?? new Nevion();
             _nevion.PropertyChanged += Nevion_PropertyChanged;
-            CommandAddPort = new UiCommand(AddOutputPort, CanAddPort);
-            CommandDeletePort = new UiCommand(DeleteOutputPort);
             Load();
         }
 
@@ -41,27 +33,6 @@ namespace TAS.Server.VideoSwitch.Configurator
                 NotifyPropertyChanged(nameof(IsConnected));
         }
 
-        private void DeleteOutputPort(object obj)
-        {
-            if (!(obj is PortInfo port))
-                return;
-            _ports.Remove(port);
-            Ports.Refresh();
-        }
-
-        private bool CanAddPort(object obj)
-        {
-            return IsEnabled;
-        }
-
-        private void AddOutputPort(object obj)
-        {
-            var lastItem = _ports.LastOrDefault();
-            _ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id + 1), string.Empty));
-            IsModified = true;
-            Ports.Refresh();
-        }
-
         protected override bool CanConnect() => IpAddress?.Length > 0;
 
 
@@ -71,7 +42,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             _nevion.Login = _login;
             _nevion.Password = _password;
             _nevion.Level = _level;
-            _nevion.OutputPorts = _ports.Select(p => p.Id).ToArray();
+            _nevion.OutputPorts = Ports.Select(p => p.Id).ToArray();
 
             _nevion.Connect(CancellationToken.None);
         }
@@ -84,15 +55,14 @@ namespace TAS.Server.VideoSwitch.Configurator
         public override void Load()
         {
             base.Load();
-            _ports = new List<PortInfo>();
-            Ports = CollectionViewSource.GetDefaultView(_ports);
-
+            Ports.Clear();
+            foreach (var source in _nevion.Sources.Select(p => new PortInfo(p.Id, p.Name)))
+                Ports.Add(source);
             Level = _nevion.Level;
             IpAddress = _nevion.IpAddress;
             Login = _nevion.Login;
             Password = _nevion.Password;
             Preload = _nevion.Preload;
-            Ports.Refresh();
             IsModified = false;
         }
 
@@ -116,15 +86,11 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public override bool CanSave()
         {
-            if (IsModified && _ipAddress?.Length>0 && _login?.Length > 0 && _password?.Length > 0)
+            if (IsModified && IpAddress?.Length>0 && _login?.Length > 0 && _password?.Length > 0)
                 return true;
             return false;
         }
 
-        public UiCommand CommandAddPort { get; }
-        public UiCommand CommandDeletePort { get; }
-        public ICollectionView Ports { get; private set; }                
-        public string IpAddress { get => _ipAddress; set => SetField(ref _ipAddress, value); }                
         public string Login { get => _login; set => SetField(ref _login, value); }
         public string Password { get => _password; set => SetField(ref _password, value); }
         public int Level { get => _level; set => SetField(ref _level, value); }

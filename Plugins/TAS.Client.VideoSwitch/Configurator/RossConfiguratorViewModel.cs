@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Data;
-using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Server.VideoSwitch.Model;
@@ -15,7 +11,6 @@ namespace TAS.Server.VideoSwitch.Configurator
 {
     public class RossConfiguratorViewModel : ConfiguratorViewModelBase
     {
-        private string _ipAddress;
         private bool _preload;
         private VideoSwitcherTransitionStyle _selectedTransitionType;
         private PortInfo _selectedGpiSource;
@@ -26,8 +21,6 @@ namespace TAS.Server.VideoSwitch.Configurator
         {
             _ross = engine.VideoSwitch as Ross ?? new Ross();
             _ross.PropertyChanged += Ross_PropertyChanged;
-            CommandAddPort = new UiCommand(AddOutputPort);
-            CommandDeletePort = new UiCommand(DeleteOutputPort);
             Load();
         }
 
@@ -45,21 +38,7 @@ namespace TAS.Server.VideoSwitch.Configurator
                 InvalidateRequerySuggested();
             }
         }
-
-        private void DeleteOutputPort(object obj)
-        {
-            if (!(obj is PortInfo port))
-                return;
-            Ports.Remove(port);
-        }
-
-        private void AddOutputPort(object obj)
-        {
-            var lastItem = Ports.LastOrDefault();
-            Ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id + 1), string.Empty));
-            IsModified = true;
-        }
-
+                
         protected override bool CanConnect() => IpAddress?.Length > 0 && !_isConnecting && !IsConnected;
 
         protected async override void Connect()
@@ -111,16 +90,12 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public override bool CanSave()
         {
-            if (IsModified && _ipAddress?.Length > 0)
+            if (IsModified && IpAddress?.Length > 0)
                 return true;
             return false;
         }
 
-        public UiCommand CommandAddPort { get; }
-        public UiCommand CommandDeletePort { get; }
-        public ObservableCollection<PortInfo> Ports { get; } = new ObservableCollection<PortInfo>();
         public VideoSwitcherTransitionStyle SelectedTransitionType { get => _selectedTransitionType; set => SetField(ref _selectedTransitionType, value); }
-        public string IpAddress { get => _ipAddress; set => SetField(ref _ipAddress, value); }
         public PortInfo SelectedGpiSource { get => _selectedGpiSource; set => SetField(ref _selectedGpiSource, value); }
         public List<VideoSwitcherTransitionStyle> TransitionTypes { get; } = new List<VideoSwitcherTransitionStyle>()
         {

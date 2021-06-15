@@ -72,21 +72,12 @@
   <ItemGroup>
     <Compile Include="Communicators\AtemCommunicator.cs" />
     <Compile Include="Communicators\RossCommunicator.cs" />
-    <Compile Include="Configurator\AtemConfiguratorView.xaml.cs">
-      <DependentUpon>AtemConfiguratorView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Configurator\AtemConfiguratorViewModel.cs" />
-    <Compile Include="Configurator\SmartVideoHubConfiguratorView.xaml.cs">
-      <DependentUpon>SmartVideoHubConfiguratorView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Configurator\SmartVideoHubConfiguratorViewModel.cs" />
     <Compile Include="Configurator\ConfiguratorViewModelBase.cs" />
-    <Compile Include="Configurator\NevionConfiguratorView.xaml.cs">
-      <DependentUpon>NevionConfiguratorView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Configurator\NevionConfiguratorViewModel.cs" />
-    <Compile Include="Configurator\RossConfiguratorView.xaml.cs">
-      <DependentUpon>RossConfiguratorView.xaml</DependentUpon>
+    <Compile Include="Configurator\ConfiguratorView.xaml.cs">
+      <DependentUpon>ConfiguratorView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Configurator\RossConfiguratorViewModel.cs" />
     <Compile Include="Helpers\BMDSwitcherWrapper.cs" />
@@ -148,19 +139,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Configurator\AtemConfiguratorView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>XamlIntelliSenseFileGenerator</Generator>
-    </Page>
-    <Page Include="Configurator\SmartVideoHubConfiguratorView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>XamlIntelliSenseFileGenerator</Generator>
-    </Page>
-    <Page Include="Configurator\NevionConfiguratorView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>XamlIntelliSenseFileGenerator</Generator>
-    </Page>
-    <Page Include="Configurator\RossConfiguratorView.xaml">
+    <Page Include="Configurator\ConfiguratorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -6,7 +6,6 @@ using TAS.Common.Interfaces.Configurator;
 using TAS.Database.Common;
 using TAS.Database.Common.Interfaces;
 using TAS.Server.VideoSwitch.Configurator;
-using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch
 {
@@ -15,7 +14,7 @@ namespace TAS.Server.VideoSwitch
     {
         static NevionConfigurationProvider()
         {
-            WindowManager.Current.AddDataTemplate(typeof(NevionConfiguratorViewModel), typeof(NevionConfiguratorView));
+            WindowManager.Current.AddDataTemplate(typeof(NevionConfiguratorViewModel), typeof(ConfiguratorView));
         }
 
         public HibernationBinder Binder => VideoSwitchHibernationBinder.Current;

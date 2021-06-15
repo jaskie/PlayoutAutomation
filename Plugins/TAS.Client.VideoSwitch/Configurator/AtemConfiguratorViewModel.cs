@@ -12,7 +12,6 @@ namespace TAS.Server.VideoSwitch.Configurator
 {
     public class AtemConfiguratorViewModel : ConfiguratorViewModelBase
     {
-        private string _ipAddress;
         private bool _preload;
         private VideoSwitcherTransitionStyle? _selectedTransitionType;
         private PortInfo _selectedGpiSource;
@@ -41,12 +40,7 @@ namespace TAS.Server.VideoSwitch.Configurator
                 NotifyPropertyChanged(nameof(IsConnected));
         }
 
-        private bool CanRefreshGpiSources(object obj)
-        {
-            if (_ipAddress?.Length > 0)
-                return true;
-            return false;
-        }
+        private bool CanRefreshGpiSources(object obj) => !string.IsNullOrWhiteSpace(IpAddress);
 
         private void RefreshGpiSources(object obj)
         {
@@ -123,7 +117,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             base.Save();
             _atem.IsEnabled = IsEnabled;
             _atem.DefaultEffect = _selectedTransitionType ?? VideoSwitcherTransitionStyle.Cut;
-            _atem.IpAddress = _ipAddress;
+            _atem.IpAddress = IpAddress;
             _atem.GpiPort = _selectedGpiSource?.Id != -1 ? _selectedGpiSource : null;
             _atem.Preload = _preload;
             Engine.VideoSwitch = _atem;
@@ -132,7 +126,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public override bool CanSave()
         {
-            if (IsModified && _ipAddress?.Length > 0 && _selectedTransitionType != null)
+            if (IsModified && IpAddress?.Length > 0 && _selectedTransitionType != null)
                 return true;
             return false;
         }
@@ -140,7 +134,6 @@ namespace TAS.Server.VideoSwitch.Configurator
         public UiCommand CommandRefreshSources { get; }
         public ICollectionView Sources { get; private set; }
         public VideoSwitcherTransitionStyle? SelectedTransitionType { get => _selectedTransitionType; set => SetField(ref _selectedTransitionType, value); }
-        public string IpAddress { get => _ipAddress; set => SetField(ref _ipAddress, value); }
         public PortInfo SelectedGpiSource { get => _selectedGpiSource; set => SetField(ref _selectedGpiSource, value); }
         public List<VideoSwitcherTransitionStyle> TransitionTypes { get; set; } = new List<VideoSwitcherTransitionStyle>()
         {
