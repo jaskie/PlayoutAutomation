@@ -25,7 +25,8 @@ namespace TAS.Server
 
         internal void UnInitialize()
         {
-            _serverHost?.UnInitialize();
+            _serverHost?.Dispose();
+            _serverHost = null;
         }
     }
 }
