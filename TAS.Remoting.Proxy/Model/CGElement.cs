@@ -12,7 +12,7 @@ namespace TAS.Remoting.Model
         [DtoMember(nameof(ICGElement.Id))]
         private byte _id;
 
-        [DtoMember(nameof(ICGElement.Image))]
+        [DtoMember(nameof(ICGElement.Thumbnail))]
         private Bitmap _image;
 
         [DtoMember(nameof(ICGElement.Name))]
@@ -22,7 +22,7 @@ namespace TAS.Remoting.Model
 
         public byte Id => _id;
         
-        public Bitmap Image => _image;
+        public Bitmap Thumbnail => _image;
 
         public string Name => _name;
 

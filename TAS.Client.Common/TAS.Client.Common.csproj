@@ -101,6 +101,7 @@
   <ItemGroup>
     <Compile Include="AttachedProperties\FocusProperty.cs" />
     <Compile Include="Behaviors\TreeViewTwoWaySelectedItem.cs" />
+    <Compile Include="BitmapTools.cs" />
     <Compile Include="Controls\AutoGreyableImage.cs" />
     <Compile Include="Behaviors\BindableSelectedItems.cs" />
     <Compile Include="BindingProxy.cs" />

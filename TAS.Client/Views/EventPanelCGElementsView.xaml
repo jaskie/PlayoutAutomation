@@ -18,9 +18,9 @@
             </Style>
         </StackPanel.Resources>
         <StackPanel Orientation="Horizontal" Visibility="{Binding IsCGEnabled, Converter={StaticResource BoolToVis}}">
-            <Image Height="20" MaxWidth="50" Margin="1" Source="{Binding Parental.Image}" ToolTip="{Binding Parental.Name}"/>
-            <Image Height="20" MaxWidth="50" Margin="1" Source="{Binding Logo.Image}" ToolTip="{Binding Logo.Name}"/>
-            <Image Height="20" MaxWidth="50" Margin="1" Source="{Binding Crawl.Image}" ToolTip="{Binding Crawl.Name}"/>
+            <Image Height="20" MaxWidth="50" Margin="1" Source="{Binding Parental.Thumbnail}" ToolTip="{Binding Parental.Name}"/>
+            <Image Height="20" MaxWidth="50" Margin="1" Source="{Binding Logo.Thumbnail}" ToolTip="{Binding Logo.Name}"/>
+            <Image Height="20" MaxWidth="50" Margin="1" Source="{Binding Crawl.Thumbnail}" ToolTip="{Binding Crawl.Name}"/>
             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
         </StackPanel>
         <Button Command="{Binding CommandToggleLayer}" CommandParameter="CG1" ToolTip="{Resx _toggleLayer.ToolTip}">

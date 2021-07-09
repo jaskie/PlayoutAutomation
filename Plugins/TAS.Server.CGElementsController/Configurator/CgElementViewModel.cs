@@ -1,39 +1,59 @@
-﻿using TAS.Client.Common;
+﻿using System.Drawing;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using TAS.Client.Common;
 
 namespace TAS.Server.CgElementsController.Configurator
 {
     public class CgElementViewModel : ModifyableViewModelBase
     {
         private string _name = string.Empty;
-        private string _command = string.Empty;        
+        private string _command = string.Empty;
+        private byte _id;
+        private Bitmap _thumbnail;
+        private BitmapImage _displayThumbnail;
         private readonly Model.CgElement _cgElement;
 
         public CgElementViewModel(Model.CgElement cgElement)
         {
-            LoadCommands();
             _cgElement = cgElement;
-            LoadData();
+            SelectThumbnailCommand = new UiCommand(SelectThumbnail);
+            Load();
         }
+
+        public byte Id { get => _id; set => SetField(ref _id, value); }
+
         public string Name { get => _name; set => SetField(ref _name, value); }
+
         public string Command { get => _command; set => SetField(ref _command, value); }
 
-        private void LoadData()
+        public Bitmap Thumbnail
+        {
+            get => _thumbnail;
+            set
+            {
+                if (!SetField(ref _thumbnail, value))
+                    return;
+                DisplayThumbnail = BitmapTools.BitmapToImageSource(value);
+            }
+        }
+
+        public BitmapImage DisplayThumbnail { get => _displayThumbnail; set => SetFieldNoModify(ref _displayThumbnail, value); }
+
+        public ICommand SelectThumbnailCommand { get; }
+
+        private void Load()
         {
             _name = _cgElement.Name;
             _command = _cgElement.Command;
+            _id = _cgElement.Id;
+            _thumbnail = _cgElement.Thumbnail;
             IsModified = false;
-        }        
-
-        private void LoadCommands()
-        {
         }
 
-        private void ClearClientImage(object obj)
+        public void Update()
         {
-        }
-
-        public void Update(object _)
-        {
+            _cgElement.Id = _id;
             _cgElement.Name = _name;
             _cgElement.Command = _command;
         }
@@ -42,5 +62,12 @@ namespace TAS.Server.CgElementsController.Configurator
         {
             //
         }
+
+
+        private void SelectThumbnail(object obj)
+        {
+
+        }
+
     }
 }

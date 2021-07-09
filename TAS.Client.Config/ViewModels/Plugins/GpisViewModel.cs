@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Data;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
@@ -11,7 +12,6 @@ namespace TAS.Client.Config.ViewModels.Plugins
     {
         private IEnginePersistent _engine;
 
-        private List<IPluginConfiguratorViewModel> _configurators = new List<IPluginConfiguratorViewModel>();
         private IPluginConfiguratorViewModel _selectedConfigurator;
 
         private bool? _isEnabled = null;
@@ -20,16 +20,17 @@ namespace TAS.Client.Config.ViewModels.Plugins
         {
             _engine = engine;
 
-            //foreach (var plugin in ConfigurationPluginManager.Current.Gpis)
-            //{
-            //    var configuratorVm = plugin.GetConfiguratorViewModel();
-            //    configuratorVm.PluginChanged += PluginConfigurator_PluginChanged;
-            //    configuratorVm.Initialize(_engine.Gpis?.FirstOrDefault(g => g?.GetType() == configuratorVm.GetModel().GetType()));
-            //    _configurators.Add(configuratorVm);
-            //}
-
-            Configurators = CollectionViewSource.GetDefaultView(_configurators);             
+            Configurators = new List<IPluginConfiguratorViewModel>(ConfigurationPluginManager.Current.ConfigurationProviders
+                .Where(p => typeof(IStartGpi).IsAssignableFrom(p.GetPluginInterfaceType()))
+                .Select(p =>
+                {
+                    var vm = p.GetConfiguratorViewModel(engine);
+                    vm.ModifiedChanged += PluginConfigurator_ModifiedChanged;
+                    return vm;
+                }));
+            SelectedConfigurator = Configurators.FirstOrDefault();
         }
+        public List<IPluginConfiguratorViewModel> Configurators { get; }
 
         private void PluginConfigurator_ModifiedChanged(object sender, EventArgs e)
         {
@@ -38,11 +39,10 @@ namespace TAS.Client.Config.ViewModels.Plugins
 
         public override void Save()
         {
-            foreach (var configurator in _configurators)
+            foreach (var configurator in Configurators)
                 configurator.Save();
         }
 
-        public ICollectionView Configurators { get; }
         
         public IPluginConfiguratorViewModel SelectedConfigurator
         {
@@ -51,9 +51,6 @@ namespace TAS.Client.Config.ViewModels.Plugins
             {
                 if (!SetField(ref _selectedConfigurator, value))
                     return;
-
-                //_isEnabled = _selectedConfigurator?.IsEnabled ?? false;
-                //NotifyPropertyChanged(nameof(IsEnabled));                
             }
         }
 
@@ -62,21 +59,15 @@ namespace TAS.Client.Config.ViewModels.Plugins
             get => _isEnabled;
             set
             {
-                //if (!SetField(ref _isEnabled, value))
-                //    return;
-
-                //if (value == null)
-                //    return;
-
-                //foreach (var configurator in _configurators)
-                //    configurator.IsEnabled = (bool)value;
+                if (!SetField(ref _isEnabled, value))
+                    return;
             }
         }
 
 
         protected override void OnDispose()
         {
-            foreach (var configurator in _configurators)
+            foreach (var configurator in Configurators)
             {
                 configurator.ModifiedChanged -= PluginConfigurator_ModifiedChanged;
                 configurator.Dispose();                
