@@ -9,7 +9,7 @@ It can be used as a simple (even multi-) channel-in-a-box solution, as well as i
 - redundant output for every channel
 - GPI as start source, aspect ratio control and external graphics trigger
 - partial clip playout (via media trimming or logical sub-clips)
-- XKeys devices support (i.e. [XK-12 Jog&Shuttle](https://xkeys.com/xk12jsh.html))
+- X-keys controllers support (i.e. [XK-12 Jog&Shuttle](https://xkeys.com/xk12jsh.html))
 
 ### Rundowns
 - variety of rundown event types: movie, live, graphics, Flash CG templates
