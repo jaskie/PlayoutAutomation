@@ -9,6 +9,7 @@ namespace TAS.Client.XKeys
     {
         Unsupported,
         Xk24,
+        Xk6080,
         Xk12JogAndShuttle
     }
 
@@ -48,10 +49,19 @@ namespace TAS.Client.XKeys
             {
                 lock (_oldData)
                 {
-                    CheckKeys(data[1], 0, data[3], _oldData[3], data);
-                    CheckKeys(data[1], 1, data[4], _oldData[4], data);
-                    CheckKeys(data[1], 2, data[5], _oldData[5], data);
-                    CheckKeys(data[1], 3, data[6], _oldData[6], data);
+                    CheckKeys(0, data[3], _oldData[3], data);
+                    CheckKeys(1, data[4], _oldData[4], data);
+                    CheckKeys(2, data[5], _oldData[5], data);
+                    CheckKeys(3, data[6], _oldData[6], data);
+                    if (DeviceModel == DeviceModelEnum.Xk6080)
+                    {
+                        CheckKeys(4, data[7], _oldData[7], data);
+                        CheckKeys(5, data[8], _oldData[8], data);
+                        CheckKeys(6, data[9], _oldData[9], data);
+                        CheckKeys(7, data[10], _oldData[10], data);
+                        CheckKeys(8, data[11], _oldData[11], data);
+                        CheckKeys(9, data[12], _oldData[12], data);
+                    }
                     Buffer.BlockCopy(data, 0, _oldData, 0, (int) PieDevice.ReadLength);
                 }
             }
@@ -71,7 +81,7 @@ namespace TAS.Client.XKeys
             PieDevice.CloseInterface();
         }
 
-        private void CheckKeys(byte unitId, int column, byte newValues, byte oldValues, byte[] alldata)
+        private void CheckKeys(int column, byte newValues, byte oldValues, byte[] alldata)
         {
             var changedBits = newValues ^ oldValues;
             for (byte bit = 0; bit < 8; bit++)
@@ -130,6 +140,17 @@ namespace TAS.Client.XKeys
 
         public void SetBackLight(int keyNr, BacklightColorEnum color, bool blinking)
         {
+            int bank2offset = 0;
+            switch(DeviceModel)
+            {
+                case DeviceModelEnum.Xk12JogAndShuttle:
+                case DeviceModelEnum.Xk24:
+                    bank2offset = 32;
+                    break;
+                case DeviceModelEnum.Xk6080:
+                    bank2offset = 80;
+                    break;
+            }
             var wData = new byte[PieDevice.WriteLength];
             wData[1] = 181; //b5
             var result = 404;
@@ -141,7 +162,7 @@ namespace TAS.Client.XKeys
                     while (result != 0)
                         result = PieDevice.WriteData(wData);
                     result = 404;
-                    wData[2] = (byte) (keyNr + 32);
+                    wData[2] = (byte) (keyNr + bank2offset);
                     wData[3] = 0;
                     while (result != 0)
                         result = PieDevice.WriteData(wData);
@@ -152,7 +173,7 @@ namespace TAS.Client.XKeys
                     while (result != 0)
                         result = PieDevice.WriteData(wData);
                     result = 404;
-                    wData[2] = (byte) (keyNr + 32);
+                    wData[2] = (byte) (keyNr + bank2offset);
                     wData[3] = blinking ? (byte) 2 : (byte) 1;
                     while (result != 0)
                         result = PieDevice.WriteData(wData);
@@ -163,7 +184,7 @@ namespace TAS.Client.XKeys
                     while (result != 0)
                         result = PieDevice.WriteData(wData);
                     result = 404;
-                    wData[2] = (byte) (keyNr + 32);
+                    wData[2] = (byte) (keyNr + bank2offset);
                     wData[3] = 0;
                     while (result != 0)
                         result = PieDevice.WriteData(wData);
@@ -174,7 +195,7 @@ namespace TAS.Client.XKeys
                     while (result != 0)
                         result = PieDevice.WriteData(wData);
                     result = 404;
-                    wData[2] = (byte) (keyNr + 32);
+                    wData[2] = (byte) (keyNr + bank2offset);
                     wData[3] = blinking ? (byte) 2 : (byte) 1;
                     while (result != 0)
                         result = PieDevice.WriteData(wData);
@@ -203,6 +224,8 @@ namespace TAS.Client.XKeys
             {
                 case 1029:
                     return DeviceModelEnum.Xk24;
+                case 1121:
+                    return DeviceModelEnum.Xk6080;
                 case 1062:
                     return DeviceModelEnum.Xk12JogAndShuttle;
                 default:
