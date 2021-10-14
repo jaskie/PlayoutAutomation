@@ -45,13 +45,12 @@
 
         <Image Source="{Binding DisplayThumbnail}"/>
 
-        <Label Grid.Row="4">Upload preview image</Label>
         <StackPanel Grid.Row="4" Grid.Column="1"  Orientation="Horizontal">
-            <Image Source="{Binding ClientBitmap}" Height="20" Margin="5" VerticalAlignment="Center" />
-            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding UploadClientImageCommand}">
+            <Image Source="{Binding Thumbnail}" Height="20" Margin="5" VerticalAlignment="Center" />
+            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding SelectThumbnailCommand}">
                 <Image Width="20" Source="/TAS.Client.Common;component/Images/Actions/media-ingest.png" />
             </Button>
-            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding ClearClientImageCommand}">
+            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding ClearThumbnailCommand}">
                 <Image Width="20" Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
             </Button>
         </StackPanel>

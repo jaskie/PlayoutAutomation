@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using TAS.Client.Common;
@@ -12,12 +13,13 @@ namespace TAS.Server.CgElementsController.Configurator
         private byte _id;
         private Bitmap _thumbnail;
         private BitmapImage _displayThumbnail;
-        private readonly Model.CgElement _cgElement;
+        private readonly Model.CgElement _element;
 
         public CgElementViewModel(Model.CgElement cgElement)
         {
-            _cgElement = cgElement;
+            _element = cgElement;
             SelectThumbnailCommand = new UiCommand(SelectThumbnail);
+            ClearThumbnailCommand = new UiCommand(ClearThumbnail, o => !(DisplayThumbnail is null));
             Load();
         }
 
@@ -38,33 +40,39 @@ namespace TAS.Server.CgElementsController.Configurator
             }
         }
 
+        public Model.CgElement Element => _element;
+
         public BitmapImage DisplayThumbnail { get => _displayThumbnail; set => SetFieldNoModify(ref _displayThumbnail, value); }
 
         public ICommand SelectThumbnailCommand { get; }
 
+        public ICommand ClearThumbnailCommand { get; }
+
         private void Load()
         {
-            _name = _cgElement.Name;
-            _command = _cgElement.Command;
-            _id = _cgElement.Id;
-            _thumbnail = _cgElement.Thumbnail;
+            _name = _element.Name;
+            _command = _element.Command;
+            _id = _element.Id;
+            _thumbnail = _element.Thumbnail;
             IsModified = false;
         }
 
         public void Update()
         {
-            _cgElement.Id = _id;
-            _cgElement.Name = _name;
-            _cgElement.Command = _command;
+            _element.Id = _id;
+            _element.Name = _name;
+            _element.Command = _command;
         }
 
-        protected override void OnDispose()
-        {
-            //
-        }
+        protected override void OnDispose() { }
 
 
         private void SelectThumbnail(object obj)
+        {
+
+        }
+
+        private void ClearThumbnail(object obj)
         {
 
         }

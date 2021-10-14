@@ -9,7 +9,7 @@
              mc:Ignorable="d"                     
              d:DataContext="{d:DesignInstance vm:PluginsViewModel}"             
              d:DesignHeight="350" d:DesignWidth="400"
-             MinWidth="400">
+             >
       
     <Grid>
         <Grid.ColumnDefinitions>
@@ -33,6 +33,5 @@
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>
-
     </Grid>
 </UserControl>

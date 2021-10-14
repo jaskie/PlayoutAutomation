@@ -59,7 +59,7 @@ namespace TAS.Server.CgElementsController
             set => SetField(ref _isWideScreen, value);
         }
 
-        [DtoMember]        
+        [DtoMember]
         public byte Crawl
         {
             get => _crawl;
@@ -71,7 +71,7 @@ namespace TAS.Server.CgElementsController
             }
         }
 
-        [DtoMember, Hibernate]        
+        [DtoMember, Hibernate]
         public IEnumerable<ICGElement> Crawls { get; set; }               
 
         [DtoMember]        
@@ -86,10 +86,10 @@ namespace TAS.Server.CgElementsController
             }
         }
 
-        [DtoMember, Hibernate]        
-        public IEnumerable<ICGElement> Logos { get; set; }                
+        [DtoMember, Hibernate]
+        public IEnumerable<ICGElement> Logos { get; set; }
 
-        [DtoMember]        
+        [DtoMember]
         public byte Parental
         {
             get => _parental;
@@ -101,7 +101,7 @@ namespace TAS.Server.CgElementsController
             }
         }
 
-        [DtoMember, Hibernate]        
+        [DtoMember, Hibernate]
         public IEnumerable<ICGElement> Parentals { get; set; }                                       
         
         [Hibernate]

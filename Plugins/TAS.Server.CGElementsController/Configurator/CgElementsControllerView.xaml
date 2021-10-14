@@ -3,25 +3,26 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
-             xmlns:cg="clr-namespace:TAS.Server.CgElementsController.Configurator"             
+             xmlns:local="clr-namespace:TAS.Server.CgElementsController.Configurator"             
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="720">
+             d:DataContext="{d:DesignInstance local:CgElementsControllerViewModel}"
+             d:DesignHeight="450" >
 
-    <Grid>
+    <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
         <TabControl Margin="5">
-            <TabItem Header="Cg">
-                <Grid MinWidth="180">
+            <TabItem Header="Elements">
+                <Grid >
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
+                        <RowDefinition />
                         <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition />
                         <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
 
@@ -37,51 +38,32 @@
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Orientation="Horizontal">
-                            <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding AddCgElementCommand}">
+                            <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding AddElementCommand}">
                                 <Button.Content>
                                     <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                 </Button.Content>
                             </Button>
-                            <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveCgElementUpCommand}">
+                            <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveElementUpCommand}">
                                 <Button.Content>
                                     <Image Source="/TAS.Client.Common;component/Images/Actions/go-up.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                 </Button.Content>
                             </Button>
-                            <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveCgElementDownCommand}">
+                            <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveElementDownCommand}">
                                 <Button.Content>
                                     <Image Source="/TAS.Client.Common;component/Images/Actions/go-down.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                 </Button.Content>
                             </Button>
                         </StackPanel>
-                        <DataGrid Grid.Row="2" Margin="5" ItemsSource="{Binding CgElements}" SelectionMode="Single" SelectedItem="{Binding SelectedElement}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
+                        <DataGrid Width="300" Grid.Row="2" Margin="5" ItemsSource="{Binding Elements}" SelectionMode="Single" SelectedItem="{Binding SelectedElement}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
                             <DataGrid.Columns>
-                                <DataGridTemplateColumn Header="Name">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Command">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock VerticalAlignment="Center" Text="{Binding Command}" />
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Name" Width="*" Binding="{Binding Name}" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Command" Width="2*" Binding="{Binding Command}" IsReadOnly="True" />
                                 <DataGridTemplateColumn>
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
-                                                <Button Margin="1,2" Command="{Binding DataContext.EditCgElementCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
-                                                    <Button.Content>
-                                                        <Image Source="/TAS.Client.Common;component/Images/Actions/edit.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                                    </Button.Content>
-                                                </Button>
-                                                <Button Margin="1,2" Command="{Binding DataContext.DeleteCgElementCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
-                                                    <Button.Content>
-                                                        <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                                    </Button.Content>
+                                                <Button Command="{Binding DataContext.DeleteElementCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}" Height="16" ToolTip="Remove" >
+                                                    <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
                                                 </Button>
                                             </StackPanel>
                                         </DataTemplate>
@@ -91,10 +73,10 @@
                         </DataGrid>
                     </Grid>
 
-                    <ContentControl VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}" Grid.Column="1" Content="{Binding CgElementViewModel}" ContentTemplate="{StaticResource OkCancelBase}">
+                    <ContentControl VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}" Grid.Column="1" Content="{Binding SelectedElement}" >
                         <ContentControl.Resources>
-                            <DataTemplate DataType="{x:Type cg:CgElementViewModel}">
-                                <cg:CgElementView />
+                            <DataTemplate DataType="{x:Type local:CgElementViewModel}">
+                                <local:CgElementView />
                             </DataTemplate>
                         </ContentControl.Resources>
                     </ContentControl>

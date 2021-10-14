@@ -40,7 +40,7 @@ namespace TAS.Server.CgElementsControllerTests.Configurator
             foreach(var type in Enum.GetNames(typeof(CgElement.Type)))
             {                
                 _cgElementsControllerViewModel.SelectedElementType = type;
-                _cgElementsControllerViewModel.AddCgElementCommand.Execute(null);
+                _cgElementsControllerViewModel.AddElementCommand.Execute(null);
                 ((CgElementViewModel)_cgElementsControllerViewModel.CgElementViewModel).Command = type;                
                 _cgElementsControllerViewModel.CgElementViewModel.CommandOk.Execute(null);
             }            
@@ -81,7 +81,7 @@ namespace TAS.Server.CgElementsControllerTests.Configurator
             var testString = "CommandEdit";
             CgElement cgElement = new CgElement();
 
-            _cgElementsControllerViewModel.AddCgElementCommand.Execute(cgElement);
+            _cgElementsControllerViewModel.AddElementCommand.Execute(cgElement);
             _cgElementsControllerViewModel.EditCgElementCommand.Execute(cgElement);
             Assert.IsTrue(_cgElementsControllerViewModel.CgElementViewModel != null, "VM has not created CgElement wizard");
             ((CgElementViewModel)_cgElementsControllerViewModel.CgElementViewModel).Command = testString;
@@ -115,7 +115,7 @@ namespace TAS.Server.CgElementsControllerTests.Configurator
 
             CgElement cgElement = new CgElement { Command = String.Empty };
 
-            _cgElementsControllerViewModel.AddCgElementCommand.Execute(cgElement);
+            _cgElementsControllerViewModel.AddElementCommand.Execute(cgElement);
             _cgElementsControllerViewModel.EditCgElementCommand.Execute(cgElement);
             Assert.IsTrue(_cgElementsControllerViewModel.CgElementViewModel != null, "VM has not created CgElement wizard");
             ((CgElementViewModel)_cgElementsControllerViewModel.CgElementViewModel).Command = "DummyData";
@@ -140,7 +140,7 @@ namespace TAS.Server.CgElementsControllerTests.Configurator
                 _cgElementsControllerViewModel.SelectedElementType = Enum.GetName(typeof(CgElement.Type), type);
                 Assert.IsFalse(_cgElementsControllerViewModel.IsModified);
 
-                _cgElementsControllerViewModel.AddCgElementCommand.Execute(cgElement);
+                _cgElementsControllerViewModel.AddElementCommand.Execute(cgElement);
                 Assert.IsFalse(_cgElementsControllerViewModel.IsModified);                
 
                 _cgElementsControllerViewModel.IsModified = false;

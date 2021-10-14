@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance local:SingleSelectionPluginsViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Margin="5">
+    <Grid Margin="5" HorizontalAlignment="Left">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100" />
             <ColumnDefinition Width="*" />

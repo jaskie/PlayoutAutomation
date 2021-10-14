@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
@@ -21,30 +22,27 @@ namespace TAS.Server.CgElementsController.Configurator
 
         private Model.CgElementsController _cgElementsController;
 
-        private readonly ObservableCollection<Model.CgElement> _crawls = new ObservableCollection<Model.CgElement>();
-        private readonly ObservableCollection<Model.CgElement> _logos = new ObservableCollection<Model.CgElement>();
-        private readonly ObservableCollection<Model.CgElement> _auxes = new ObservableCollection<Model.CgElement>();
-        private readonly ObservableCollection<Model.CgElement> _parentals = new ObservableCollection<Model.CgElement>();
+        private readonly ObservableCollection<CgElementViewModel> _crawls    = new ObservableCollection<CgElementViewModel>();
+        private readonly ObservableCollection<CgElementViewModel> _logos     = new ObservableCollection<CgElementViewModel>();
+        private readonly ObservableCollection<CgElementViewModel> _auxes     = new ObservableCollection<CgElementViewModel>();
+        private readonly ObservableCollection<CgElementViewModel> _parentals = new ObservableCollection<CgElementViewModel>();
         private readonly ObservableCollection<string> _startups = new ObservableCollection<string>();
         private readonly IEngineProperties _engine;
-        private Model.CgElement _selectedElement;
+        private CgElementViewModel _selectedElement;
         private ElementType _selectedElementType;
-        private Model.CgElement _selectedDefaultCrawl;
-        private Model.CgElement _selectedDefaultLogo;
+        private CgElementViewModel _selectedDefaultCrawl;
+        private CgElementViewModel _selectedDefaultLogo;
         private int _selectedStartupId;
-        private CgElementViewModel _currentViewModel;
         private bool _isEnabled;
-        private Model.CgElement _newElement;
 
         public event EventHandler PluginChanged;
 
         public CgElementsControllerViewModel(IEngineProperties engine)
         {
-            AddCgElementCommand = new UiCommand(AddCgElement, CanAddCgElement);
-            MoveCgElementUpCommand = new UiCommand(MoveCgElementUp, CanMoveCgElementUp);
-            MoveCgElementDownCommand = new UiCommand(MoveCgElementDown, CanMoveCgElementDown);
-            EditCgElementCommand = new UiCommand(EditElement);
-            DeleteCgElementCommand = new UiCommand(DeleteElement);
+            AddElementCommand = new UiCommand(AddElement, CanAddElement);
+            MoveElementUpCommand = new UiCommand(MoveElementUp, CanMoveElementUp);
+            MoveElementDownCommand = new UiCommand(MoveCgElementDown, CanMoveElementDown);
+            DeleteElementCommand = new UiCommand(DeleteElement, CanDeleteElement);
             AddStartupCommand = new UiCommand(AddStartup);
             MoveStartupUpCommand = new UiCommand(MoveStartupUp, CanMoveStartupUp);
             MoveStartupDownCommand = new UiCommand(MoveStartupDown, CanMoveStartupDown);
@@ -123,13 +121,13 @@ namespace TAS.Server.CgElementsController.Configurator
                 _startups.Clear();
    
                 foreach (Model.CgElement element in _cgElementsController.Crawls)
-                    _crawls.Add(element);
+                    _crawls.Add(new CgElementViewModel(element));
                 foreach (Model.CgElement element in _cgElementsController.Logos)
-                    _logos.Add(element);
+                    _logos.Add(new CgElementViewModel(element));
                 foreach (Model.CgElement element in _cgElementsController.Auxes)
-                    _auxes.Add(element);
+                    _auxes.Add(new CgElementViewModel(element));
                 foreach (Model.CgElement element in _cgElementsController.Parentals)
-                    _parentals.Add(element);
+                    _parentals.Add(new CgElementViewModel(element));
                 foreach (var startupCommand in _cgElementsController.StartupsCommands)
                     _startups.Add(startupCommand);
 
@@ -144,23 +142,22 @@ namespace TAS.Server.CgElementsController.Configurator
             }
         }
 
-        private void DeleteElement(object obj)
-        {
-            if (!(obj is Model.CgElement element))
-                return;
 
+        private bool CanDeleteElement(object o)
+        {
+            return o is CgElementViewModel;
         }
 
-        private void EditElement(object obj)
+        private void DeleteElement(object o)
         {
-            if (!(obj is Model.CgElement element))
-                return;
-            CgElementViewModel = new CgElementViewModel(element);
+            var vm = o as CgElementViewModel ?? throw new ArgumentException(nameof(o));
+            Elements.Remove(vm);
         }
 
-        private bool CanMoveCgElementDown(object obj)
+
+        private bool CanMoveElementDown(object obj)
         {
-            if (_selectedElement != null && _selectedElement.Id < (SelectedElementList.Count() - 1))
+            if (_selectedElement != null && _selectedElement.Id < (Elements.Count() - 1))
                 return true;
 
             return false;
@@ -168,14 +165,14 @@ namespace TAS.Server.CgElementsController.Configurator
 
         private void MoveCgElementDown(object obj)
         {
-            var swapElement = SelectedElementList.FirstOrDefault(c => c.Id == _selectedElement.Id + 1);
+            var swapElement = Elements.FirstOrDefault(c => c.Id == _selectedElement.Id + 1);
 
             swapElement.Id = _selectedElement.Id;
             _selectedElement.Id += 1;
             IsModified = true;
         }
 
-        private bool CanMoveCgElementUp(object obj)
+        private bool CanMoveElementUp(object obj)
         {
             if (_selectedElement != null && _selectedElement.Id > 0)
                 return true;
@@ -183,35 +180,39 @@ namespace TAS.Server.CgElementsController.Configurator
             return false;
         }
 
-        private void MoveCgElementUp(object obj)
+        private void MoveElementUp(object obj)
         {
-            var swapElement = SelectedElementList.FirstOrDefault(c => c.Id == _selectedElement.Id - 1);
+            var swapElement = Elements.FirstOrDefault(c => c.Id == _selectedElement.Id - 1);
 
             swapElement.Id = _selectedElement.Id;
             _selectedElement.Id -= 1;
             IsModified = true;
         }
 
-        private bool CanAddCgElement(object obj)
+        private bool CanAddElement(object obj)
         {
-            if (_newElement == null)
-                return true;
-
-            return false;
+            return true;
         }
 
-        private void AddCgElement(object obj)
+        private void AddElement(object obj)
         {
-            _newElement = new Model.CgElement();
-            CgElementViewModel = new CgElementViewModel(_newElement);
+            var newElement = new Model.CgElement();
+            var newVm = new CgElementViewModel(newElement);
+            Elements.Add(newVm);
+            SelectedElement = newVm;
         }
 
         public void Save()
         {
-            _cgElementsController.Auxes = _auxes.ToArray();
-            _cgElementsController.Crawls = _crawls.ToArray();
-            _cgElementsController.Logos = _logos.ToArray();
-            _cgElementsController.Parentals = _parentals.ToArray();
+            foreach (var e in _auxes
+                .Union(_crawls)
+                .Union(_logos)
+                .Union(_parentals))
+                e.Update();
+            _cgElementsController.Auxes = _auxes.Select(e => e.Element).ToArray();
+            _cgElementsController.Crawls = _crawls.Select(e => e.Element).ToArray();
+            _cgElementsController.Logos = _logos.Select(e => e.Element).ToArray();
+            _cgElementsController.Parentals = _parentals.Select(e => e.Element).ToArray();
             _cgElementsController.IsEnabled = _isEnabled;
             _cgElementsController.StartupsCommands = _startups.ToList();
             _cgElementsController.DefaultCrawl = SelectedDefaultCrawl?.Id ?? 1;
@@ -221,55 +222,14 @@ namespace TAS.Server.CgElementsController.Configurator
             PluginChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        private void CgElementWizardClosed(object sender, EventArgs e)
-        {
-            if (!(sender is OkCancelViewModelBase okCancelVm))
-                return;
-
-            //if (okCancelVm.DialogResult)
-            //{
-            //    if (_newElement != null)
-            //    {
-            //        _newElement.Id = (byte)_cgElements.Count();
-            //        _cgElements.Add(_newElement);
-            //        if (_newElement.CgType == Model.CgElement.Type.Crawl)
-            //            Crawls.Refresh();
-            //        else if (_newElement.CgType == Model.CgElement.Type.Logo)
-            //            Logos.Refresh();
-            //    }
-
-            //    IsModified = true;
-            //}
-
-            //_newElement = null;
-            //CgElementViewModel = null;
-            //CgElements.Refresh();
-
-        }
-
-        public CgElementViewModel CgElementViewModel
-        {
-            get => _currentViewModel;
-            set
-            {
-                if (_currentViewModel == value)
-                    return;
-                _currentViewModel = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        public Model.CgElement SelectedElement
+        public CgElementViewModel SelectedElement
         {
             get => _selectedElement;
             set
             {
                 if (value == _selectedElement)
                     return;
-
                 _selectedElement = value;
-                _newElement = null;
-
                 NotifyPropertyChanged();
             }
         }
@@ -292,17 +252,14 @@ namespace TAS.Server.CgElementsController.Configurator
             }
         }
 
-        public UiCommand AddCgElementCommand { get; }
-        public UiCommand MoveCgElementUpCommand { get; }
-        public UiCommand MoveCgElementDownCommand { get; }
-        public UiCommand EditCgElementCommand { get; }
-        public UiCommand DeleteCgElementCommand { get; }
-        public UiCommand AddStartupCommand { get; }
-        public UiCommand MoveStartupUpCommand { get; }
-        public UiCommand MoveStartupDownCommand { get; }
-        public UiCommand DeleteStartupCommand { get; }
-        public UiCommand SaveCommand { get; }
-        public UiCommand UndoCommand { get; }
+        public ICommand AddElementCommand { get; }
+        public ICommand MoveElementUpCommand { get; }
+        public ICommand MoveElementDownCommand { get; }
+        public ICommand DeleteElementCommand { get; }
+        public ICommand AddStartupCommand { get; }
+        public ICommand MoveStartupUpCommand { get; }
+        public ICommand MoveStartupDownCommand { get; }
+        public ICommand DeleteStartupCommand { get; }
 
         public Array ElementTypes { get; } = Enum.GetValues(typeof(ElementType));
         public ElementType SelectedElementType
@@ -314,11 +271,11 @@ namespace TAS.Server.CgElementsController.Configurator
                     return;
                 _selectedElementType = value;
                 NotifyPropertyChanged();
-                NotifyPropertyChanged(nameof(SelectedElementList));
+                NotifyPropertyChanged(nameof(Elements));
             }
         }
 
-        public IList<Model.CgElement> SelectedElementList
+        public IList<CgElementViewModel> Elements
         {
             get
             {
@@ -332,8 +289,9 @@ namespace TAS.Server.CgElementsController.Configurator
                         return _logos;
                     case ElementType.Parental:
                         return _parentals;
-                }
+                    default:
                 throw new InvalidOperationException("Invalid SelectedElementType");
+                }
             }
         }
 
@@ -343,12 +301,11 @@ namespace TAS.Server.CgElementsController.Configurator
 
         public List<string> Startups { get; } = new List<string>();
         public int SelectedStartupId { get => _selectedStartupId; set => SetField(ref _selectedStartupId, value); }
-        public Model.CgElement SelectedDefaultCrawl { get => _selectedDefaultCrawl; set => SetField(ref _selectedDefaultCrawl, value); }
-        public Model.CgElement SelectedDefaultLogo { get => _selectedDefaultLogo; set => SetField(ref _selectedDefaultLogo, value); }
+        public CgElementViewModel SelectedDefaultCrawl { get => _selectedDefaultCrawl; set => SetField(ref _selectedDefaultCrawl, value); }
+        public CgElementViewModel SelectedDefaultLogo { get => _selectedDefaultLogo; set => SetField(ref _selectedDefaultLogo, value); }
 
 
         protected override void OnDispose() { }
-
 
         public object GetModel()
         {
