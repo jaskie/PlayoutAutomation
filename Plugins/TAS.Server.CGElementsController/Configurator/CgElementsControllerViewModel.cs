@@ -121,13 +121,13 @@ namespace TAS.Server.CgElementsController.Configurator
                 _startups.Clear();
    
                 foreach (Model.CgElement element in _cgElementsController.Crawls)
-                    _crawls.Add(new CgElementViewModel(element));
+                    _crawls.Add(AddElementViewModel(element));
                 foreach (Model.CgElement element in _cgElementsController.Logos)
-                    _logos.Add(new CgElementViewModel(element));
+                    _logos.Add(AddElementViewModel(element));
                 foreach (Model.CgElement element in _cgElementsController.Auxes)
-                    _auxes.Add(new CgElementViewModel(element));
+                    _auxes.Add(AddElementViewModel(element));
                 foreach (Model.CgElement element in _cgElementsController.Parentals)
-                    _parentals.Add(new CgElementViewModel(element));
+                    _parentals.Add(AddElementViewModel(element));
                 foreach (var startupCommand in _cgElementsController.StartupsCommands)
                     _startups.Add(startupCommand);
 
@@ -138,9 +138,18 @@ namespace TAS.Server.CgElementsController.Configurator
             finally
             {
                 IsLoading = false;
-                IsModified = false;
             }
+            IsModified = false;
         }
+
+        private CgElementViewModel AddElementViewModel(Model.CgElement element)
+        {
+            var vm = new CgElementViewModel(element);
+            vm.ModifiedChanged += CgElement_ModifiedChanged;
+            IsModified = true;
+            return vm;
+        }
+
 
 
         private bool CanDeleteElement(object o)
@@ -151,7 +160,9 @@ namespace TAS.Server.CgElementsController.Configurator
         private void DeleteElement(object o)
         {
             var vm = o as CgElementViewModel ?? throw new ArgumentException(nameof(o));
-            Elements.Remove(vm);
+            if (Elements.Remove(vm))
+                vm.ModifiedChanged -= CgElement_ModifiedChanged;
+            IsModified = true;
         }
 
 
@@ -159,7 +170,6 @@ namespace TAS.Server.CgElementsController.Configurator
         {
             if (_selectedElement != null && _selectedElement.Id < (Elements.Count() - 1))
                 return true;
-
             return false;
         }
 
@@ -176,7 +186,6 @@ namespace TAS.Server.CgElementsController.Configurator
         {
             if (_selectedElement != null && _selectedElement.Id > 0)
                 return true;
-
             return false;
         }
 
@@ -197,7 +206,7 @@ namespace TAS.Server.CgElementsController.Configurator
         private void AddElement(object obj)
         {
             var newElement = new Model.CgElement();
-            var newVm = new CgElementViewModel(newElement);
+            var newVm = AddElementViewModel(newElement);
             Elements.Add(newVm);
             SelectedElement = newVm;
         }
@@ -290,7 +299,7 @@ namespace TAS.Server.CgElementsController.Configurator
                     case ElementType.Parental:
                         return _parentals;
                     default:
-                throw new InvalidOperationException("Invalid SelectedElementType");
+                        throw new InvalidOperationException("Invalid SelectedElementType");
                 }
             }
         }
@@ -310,6 +319,11 @@ namespace TAS.Server.CgElementsController.Configurator
         public object GetModel()
         {
             return _cgElementsController;
+        }
+        
+        private void CgElement_ModifiedChanged(object sender, EventArgs e)
+        {
+            IsModified = true;
         }
     }
 }

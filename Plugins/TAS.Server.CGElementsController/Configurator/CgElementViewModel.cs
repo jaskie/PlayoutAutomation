@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using TAS.Client.Common;
@@ -15,11 +14,13 @@ namespace TAS.Server.CgElementsController.Configurator
         private BitmapImage _displayThumbnail;
         private readonly Model.CgElement _element;
 
+        internal System.Windows.Window Window;
+
         public CgElementViewModel(Model.CgElement cgElement)
         {
             _element = cgElement;
             SelectThumbnailCommand = new UiCommand(SelectThumbnail);
-            ClearThumbnailCommand = new UiCommand(ClearThumbnail, o => !(DisplayThumbnail is null));
+            ClearThumbnailCommand = new UiCommand(ClearThumbnail, o => !(Thumbnail is null));
             Load();
         }
 
@@ -50,10 +51,11 @@ namespace TAS.Server.CgElementsController.Configurator
 
         private void Load()
         {
-            _name = _element.Name;
-            _command = _element.Command;
-            _id = _element.Id;
-            _thumbnail = _element.Thumbnail;
+            SetFieldNoModify(ref _name, _element.Name, nameof(Name));
+            SetFieldNoModify(ref _command, _element.Command, nameof(Command));
+            SetFieldNoModify(ref _id, _element.Id, nameof(Id));
+            SetFieldNoModify(ref _thumbnail, _element.Thumbnail, nameof(Thumbnail));
+            SetFieldNoModify(ref _displayThumbnail, BitmapTools.BitmapToImageSource(_thumbnail), nameof(DisplayThumbnail));
             IsModified = false;
         }
 
@@ -62,19 +64,28 @@ namespace TAS.Server.CgElementsController.Configurator
             _element.Id = _id;
             _element.Name = _name;
             _element.Command = _command;
+            _element.Thumbnail = _thumbnail;
         }
 
         protected override void OnDispose() { }
 
 
-        private void SelectThumbnail(object obj)
+        private void SelectThumbnail(object _)
         {
-
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Select file for thumbnail",
+                Filter = "Portable Network Graphics|*.png",
+                CheckFileExists = true,
+            };
+            if (dlg.ShowDialog(Window) != true)
+                return;
+            Thumbnail = new Bitmap(dlg.FileName);
         }
 
         private void ClearThumbnail(object obj)
         {
-
+            Thumbnail = null;
         }
 
     }

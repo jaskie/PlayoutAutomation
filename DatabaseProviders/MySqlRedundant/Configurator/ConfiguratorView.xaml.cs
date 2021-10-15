@@ -26,11 +26,10 @@ namespace TAS.Database.MySqlRedundant.Configurator
 
         }
 
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+        protected override void OnVisualParentChanged(DependencyObject oldParent)
         {
-            base.OnPropertyChanged(e);
-            if (e.Property.Name == nameof(IsVisible)
-                && DataContext is ConfiguratorViewModel configuratorViewModel)
+            base.OnVisualParentChanged(oldParent);
+            if (DataContext is ConfiguratorViewModel configuratorViewModel)
                 configuratorViewModel.Window = Window.GetWindow(this);
         }
     }

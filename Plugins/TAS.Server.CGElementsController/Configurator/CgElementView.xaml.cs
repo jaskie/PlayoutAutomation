@@ -24,5 +24,13 @@ namespace TAS.Server.CgElementsController.Configurator
         {
             InitializeComponent();
         }
+
+        protected override void OnVisualParentChanged(DependencyObject oldParent)
+        {
+            base.OnVisualParentChanged(oldParent);
+            if (DataContext is CgElementViewModel viewModel)
+                viewModel.Window = Window.GetWindow(this);
+        }
+
     }
 }

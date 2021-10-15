@@ -52,6 +52,7 @@
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -59,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BitmapJsonConverter.cs" />
     <Compile Include="ConcreteListConverter.cs" />
     <Compile Include="DatabaseLoader.cs" />
     <Compile Include="DbEventExtensions.cs" />

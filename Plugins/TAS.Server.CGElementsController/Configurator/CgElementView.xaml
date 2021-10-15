@@ -4,10 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
              xmlns:vm="clr-namespace:TAS.Server.CgElementsController.Configurator"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance vm:CgElementViewModel}"
              d:DesignHeight="320" d:DesignWidth="400"
-             MinWidth="410">
+             MinWidth="410" 
+             >
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
@@ -33,25 +35,24 @@
         </Grid.Resources>
 
         <Label Grid.Row="0">Id</Label>
-        <TextBox Grid.Row="0" Margin="5" HorizontalAlignment="Left" MinWidth="150" Text="{Binding Id, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="0" Margin="5" HorizontalAlignment="Left" MinWidth="150" Text="{Binding Id, UpdateSourceTrigger=PropertyChanged}" ToolTip="Number that will be stored in rundown for this element"/>
 
         <Label Grid.Row="1">Name</Label>
-        <TextBox Grid.Row="1" Margin="5" HorizontalAlignment="Left" MinWidth="150" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="1" Margin="5" HorizontalAlignment="Left" MinWidth="150" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" ToolTip="Name visible in event properties" />
 
         <Label Grid.Row="2" Margin="5">Command</Label>
-        <TextBox Grid.Row="2" HorizontalAlignment="Stretch" Text="{Binding Command, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="2" HorizontalAlignment="Stretch" Text="{Binding Command, UpdateSourceTrigger=PropertyChanged}" ToolTip="Command to execute on CasparCG server"/>
 
         <Label Grid.Row="3">Thumbnail image</Label>
 
-        <Image Source="{Binding DisplayThumbnail}"/>
+        <Image Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Source="{Binding DisplayThumbnail}"/>
 
-        <StackPanel Grid.Row="4" Grid.Column="1"  Orientation="Horizontal">
-            <Image Source="{Binding Thumbnail}" Height="20" Margin="5" VerticalAlignment="Center" />
-            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding SelectThumbnailCommand}">
-                <Image Width="20" Source="/TAS.Client.Common;component/Images/Actions/media-ingest.png" />
+        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding ClearThumbnailCommand}" ToolTip="Clear thumbnail">
+                <controls:AutoGreyableImage Width="20" Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
             </Button>
-            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding ClearThumbnailCommand}">
-                <Image Width="20" Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
+            <Button Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding SelectThumbnailCommand}" ToolTip="Select thumbnail image">
+                <controls:AutoGreyableImage Width="20" Source="/TAS.Client.Common;component/Images/Actions/media-ingest.png" />
             </Button>
         </StackPanel>
     </Grid>

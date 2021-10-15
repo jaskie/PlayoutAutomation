@@ -13,6 +13,6 @@ namespace TAS.Server.CgElementsController.Configurator.Model
         [Hibernate]
         public string Command { get; set; }
         [Hibernate]
-        public Bitmap Thumbnail { get; }
+        public Bitmap Thumbnail { get; set; }
     }
 }

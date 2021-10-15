@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using TAS.Common.Interfaces;
 
 namespace TAS.Database.Common
 {
@@ -45,6 +44,14 @@ namespace TAS.Database.Common
             contract.IsReference = false;
             //if (typeof(IPlugin).IsAssignableFrom(objectType))
             //    contract.Converter = PluginConverter.Current;
+            return contract;
+        }
+
+        protected override JsonStringContract CreateStringContract(Type objectType)
+        {
+            var contract = base.CreateStringContract(objectType);
+            if (typeof(System.Drawing.Bitmap).IsAssignableFrom(objectType))
+                contract.Converter = BitmapJsonConverter.Current;
             return contract;
         }
     }
