@@ -149,7 +149,7 @@ namespace TAS.Server.CgElementsControllerTests.Configurator
             }           
 
             _cgElementsControllerViewModel.IsModified = false;
-            _cgElementsControllerViewModel.AddStartupCommand.Execute(cgElement);            
+            _cgElementsControllerViewModel.AddStartupCommandCommand.Execute(cgElement);            
             Assert.IsTrue(_cgElementsControllerViewModel.IsModified);
           
             _cgElementsControllerViewModel.IsModified = false;
@@ -213,10 +213,10 @@ namespace TAS.Server.CgElementsControllerTests.Configurator
             Init(cgElementsController);
             var initialStartupsCount = cgElementsController?.StartupsCommands?.Count;
 
-            var enumerator = _cgElementsControllerViewModel.Startups.SourceCollection.GetEnumerator();
+            var enumerator = _cgElementsControllerViewModel.StartupCommands.SourceCollection.GetEnumerator();
             if (!enumerator.MoveNext())
                 return;
-            _cgElementsControllerViewModel.DeleteStartupCommand.Execute(enumerator.Current);
+            _cgElementsControllerViewModel.DeleteStartupCommandCommand.Execute(enumerator.Current);
             _cgElementsControllerViewModel.SaveCommand.Execute(null);
 
             var result = (CgElementsController.Configurator.Model.CgElementsController)_cgElementsControllerViewModel.GetModel();
@@ -241,10 +241,10 @@ namespace TAS.Server.CgElementsControllerTests.Configurator
             }
 
             _cgElementsControllerViewModel.IsModified = false;
-            var enumerator = _cgElementsControllerViewModel.Startups.SourceCollection.GetEnumerator();
+            var enumerator = _cgElementsControllerViewModel.StartupCommands.SourceCollection.GetEnumerator();
             if (!enumerator.MoveNext())
                 return;
-            _cgElementsControllerViewModel.DeleteStartupCommand.Execute(enumerator.Current);
+            _cgElementsControllerViewModel.DeleteStartupCommandCommand.Execute(enumerator.Current);
             Assert.IsTrue(_cgElementsControllerViewModel.IsModified);
         }
     }

@@ -8,8 +8,9 @@ namespace TAS.Common.Interfaces
     {
         IEnumerable<ICGElement> Crawls { get; }
         IEnumerable<ICGElement> Logos { get; }
-        IEnumerable<ICGElement> Parentals { get; }  
+        IEnumerable<ICGElement> Parentals { get; }
         IEnumerable<ICGElement> Auxes { get; }
+        IEnumerable<string> StartupsCommands { get; set; }
         void SetState(ICGElementsState state);
         byte DefaultCrawl { get; }
         byte DefaultLogo { get; }
@@ -17,5 +18,6 @@ namespace TAS.Common.Interfaces
         bool IsConnected { get; }
         void Clear();
         bool IsWideScreen { get; set; }
+        void AssignToEngine(IEngine engine);
     }
 }

@@ -299,9 +299,9 @@ namespace TAS.Server
             Debug.WriteLine(this, "Reading Root Events");
             DatabaseProvider.Database.ReadRootEvents(this);
 
-            EngineState = TEngineState.Idle;            
+            EngineState = TEngineState.Idle;    
 
-            if (Remote != null)
+            if (!(Remote is null))
             {
                 Debug.WriteLine(this, "Initializing Remote interface");
                 Remote.Initialize(this, new PrincipalProvider(_authenticationService));
@@ -313,6 +313,9 @@ namespace TAS.Server
                 VideoSwitch.PropertyChanged += VideoSwitch_PropertyChanged;
                 Task.Run(ConnectToVideoSwitch);
             }
+
+            if (!(CGElementsController is null))
+                CGElementsController.AssignToEngine(this);
 
             if (Gpis != null)
                 foreach (var gpi in Gpis)
@@ -1578,8 +1581,12 @@ namespace TAS.Server
 
         private void _server_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            var server = sender as IPlayoutServer ?? throw new ArgumentException(nameof(sender));
             void ChannelConnected(CasparServerChannel channel, List<Event> ve)
             {
+                if (!(CGElementsController?.StartupsCommands is null))
+                    foreach (var command in CGElementsController.StartupsCommands)
+                        Execute(command);
                 foreach (Event ev in ve)
                 {
                     channel.ReStart(ev, EngineState == TEngineState.Running);
@@ -1594,14 +1601,14 @@ namespace TAS.Server
                 }
             }
 
-            if (e.PropertyName == nameof(IPlayoutServer.IsConnected) && ((IPlayoutServer)sender).IsConnected)
+            if (e.PropertyName == nameof(IPlayoutServer.IsConnected) && server.IsConnected)
             {
                 List<Event> ve;
                 lock (((IList)_visibleEvents).SyncRoot)
                     ve = _visibleEvents.ToList();
-                if (sender == ((CasparServerChannel)PlayoutChannelPRI)?.Owner)
+                if (server == ((CasparServerChannel)PlayoutChannelPRI)?.Owner)
                     ChannelConnected(_playoutChannelPRI, ve);
-                if (sender == ((CasparServerChannel)PlayoutChannelSEC)?.Owner
+                if (server == ((CasparServerChannel)PlayoutChannelSEC)?.Owner
                     && PlayoutChannelSEC != PlayoutChannelPRI)
                     ChannelConnected(_playoutChannelSEC, ve);
             }

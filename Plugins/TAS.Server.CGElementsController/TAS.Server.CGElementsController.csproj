@@ -96,6 +96,7 @@
     <Compile Include="Configurator\Model\CgElement.cs" />
     <Compile Include="Configurator\Model\CgElementsController.cs" />
     <Compile Include="ConfigurationProvider.cs" />
+    <Compile Include="Configurator\StartupCommandViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

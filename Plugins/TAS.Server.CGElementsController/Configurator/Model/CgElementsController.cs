@@ -5,23 +5,30 @@ using TAS.Common.Interfaces;
 using TAS.Database.Common;
 
 namespace TAS.Server.CgElementsController.Configurator.Model
-{    
+{
     public class CgElementsController : ICGElementsController
-    {   
+    {
         [Hibernate]
-        public List<string> StartupsCommands { get; set; }
-        [Hibernate]        
+        public IEnumerable<string> StartupsCommands { get; set; }
+        
+        [Hibernate]
         public IEnumerable<ICGElement> Logos { get; set; }
-        [Hibernate]        
+        
+        [Hibernate]
         public IEnumerable<ICGElement> Parentals { get; set; }
-        [Hibernate]        
+        
+        [Hibernate]
         public IEnumerable<ICGElement> Crawls { get; set; }
-        [Hibernate]                
+        
+        [Hibernate]
         public IEnumerable<ICGElement> Auxes { get; set; }
+        
         [Hibernate]
         public bool IsEnabled { get; set; }
+        
         [Hibernate]
         public byte DefaultCrawl { get; set; }
+        
         [Hibernate]
         public byte DefaultLogo { get; set; }        
 
@@ -40,10 +47,16 @@ namespace TAS.Server.CgElementsController.Configurator.Model
         public bool IsConnected => throw new NotImplementedException();
 
         public bool IsCGEnabled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        
         public byte Crawl { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        
         public byte Logo { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        
         public byte Parental { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        
         public bool IsWideScreen { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public void AssignToEngine(IEngine engine) { }
 
 #pragma warning disable CS0067
         public event PropertyChangedEventHandler PropertyChanged;

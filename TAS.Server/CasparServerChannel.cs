@@ -20,6 +20,9 @@ namespace TAS.Server
     [DtoType(typeof(IPlayoutServerChannel))]
     public class CasparServerChannel : ServerObjectBase, IPlayoutServerChannel, IPlayoutServerChannelProperties
     {
+
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private Channel _casparChannel;
         private readonly ConcurrentDictionary<VideoLayer, bool> _outputAspectNarrow = new ConcurrentDictionary<VideoLayer, bool>();
         private readonly ConcurrentDictionary<VideoLayer, Event> _loadedNext = new ConcurrentDictionary<VideoLayer, Event>();
@@ -289,7 +292,7 @@ namespace TAS.Server
                 channel.Stop((int)aEvent.Layer);
                 _visible.TryRemove(aEvent.Layer, out var _);
                 _loadedNext.TryRemove(aEvent.Layer, out _);
-                Debug.WriteLine(aEvent, $"CasprarStop {aEvent} layer {aEvent.Layer}");
+                Debug.WriteLine(aEvent, $"CasparStop {aEvent} layer {aEvent.Layer}");
                 return true;
             }
             else
@@ -437,7 +440,10 @@ namespace TAS.Server
         {
             var channel = _casparChannel;
             if (string.IsNullOrWhiteSpace(command) || !CheckConnected(channel))
+            {
+                Logger.Error("Command not executed, empty command or not connected to channel: {0}", command);
                 return false;
+            }
             Match match = RegexMixerFill.Match(command);
             if (match.Success)
             {
@@ -453,6 +459,7 @@ namespace TAS.Server
                     ? (TEasing)Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true)
                     : TEasing.Linear;
                 channel.Fill((int)layer, x, y, sx, sy, duration, (Easing)easing);
+                Logger.Trace("Command executed successfully: {0}", command);
                 return true;
             }
             match = RegexMixerClip.Match(command);
@@ -470,6 +477,7 @@ namespace TAS.Server
                     ? (TEasing)Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true)
                     : TEasing.Linear;
                 channel.Clip((int)layer, x, y, sx, sy, duration, (Easing)easing);
+                Logger.Trace("Command CLIP executed successfully: {0}", command);
                 return true;
             }
             match = RegexMixerClear.Match(command);
@@ -477,6 +485,7 @@ namespace TAS.Server
             {
                 VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
                 channel.ClearMixer((int)layer);
+                Logger.Trace("Command CLEAR MIXER executed successfully: {0}", command);
                 return true;
             }
             match = RegexPlay.Match(command);
@@ -485,6 +494,7 @@ namespace TAS.Server
                 VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
                 string file = match.Groups["file"].Value;
                 channel.Play(new CasparItem((int)layer, file));
+                Logger.Trace("Command PLAY executed successfully: {0}", command);
                 return true;
             }
             match = RegexCall.Match(command);
@@ -493,6 +503,7 @@ namespace TAS.Server
                 VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
                 string function = match.Groups["function"].Value;
                 channel.Call((int)layer, function);
+                Logger.Trace("Command CALL executed successfully: {0}", command);
                 return true;
             }
             match = RegexCg.Match(command);
@@ -508,48 +519,75 @@ namespace TAS.Server
                     }
                     var matchWithCgLayer = RegexCgWithLayer.Match(command);
                     if (!matchWithCgLayer.Success || !int.TryParse(matchWithCgLayer.Groups["cg_layer"].Value, out var cgLayer))
+                    {
+                        Logger.Error("Command not executed - layer not found: {0}", command);
                         return false;
+                    }
                     switch (methodEnum)
                     {
                         case TemplateMethod.Play:
                             channel.CG.Play((int)layer, cgLayer);
+                            Logger.Trace("Command CG PLAY executed successfully: {0}", command);
                             return true;
                         case TemplateMethod.Next:
                             channel.CG.Next((int)layer, cgLayer);
+                            Logger.Trace("Command CG NEXT executed successfully: {0}", command);
                             return true;
                         case TemplateMethod.Stop:
                             channel.CG.Stop((int)layer, cgLayer);
+                            Logger.Trace("Command CG STOP executed successfully: {0}", command);
                             return true;
                         case TemplateMethod.Remove:
+                            Logger.Trace("Command CG REMOVE executed successfully: {0}", command);
                             channel.CG.Remove((int)layer, cgLayer);
                             return true;
                         case TemplateMethod.Add:
                             var matchAdd = RegexCgAdd.Match(command);
                             if (!matchAdd.Success)
+                            {
+                                Logger.Error("Command CG ADD not executed, parameters not found: {0}", command);
                                 return false;
+                            }
                             var file = matchAdd.Groups["file"].Value;
                             if (string.IsNullOrWhiteSpace(file))
+                            {
+                                Logger.Error("Command CG ADD not executed, file name empty: {0}", command);
                                 return false;
+                            }
                             int.TryParse(matchAdd.Groups["play_on_load"].Value, out var playOnLoadAsInt);
                             channel.CG.Add((int)layer, cgLayer, file, playOnLoadAsInt == 1,
                                 matchAdd.Groups["data"].Value);
+                            Logger.Trace("Command CG ADD executed successfully: {0}", command);
                             return true;
                         case TemplateMethod.Invoke:
                             var matchInvoke = RegexCgInvoke.Match(command);
                             if (!matchInvoke.Success)
+                            {
+                                Logger.Error("Command CG INVOKE not executed, method not found: {0}", command);
                                 return false;
+                            }
                             var cgMethod = matchInvoke.Groups["cg_method"].Value;
                             if (string.IsNullOrWhiteSpace(cgMethod))
+                            {
+                                Logger.Error("Command CG INVOKE not executed, method empty: {0}", command);
                                 return false;
+                            }
                             channel.CG.Invoke((int)layer, cgLayer, cgMethod);
+                            Logger.Trace("Command CG INVOKE executed successfully: {0}", command);
                             return true;
                         case TemplateMethod.Update:
                             var matchUpdate = RegexCgUpdate.Match(command);
                             if (!matchUpdate.Success)
+                            {
+                                Logger.Error("Command CG UPDATE not executed, data not found: {0}", command);
                                 return false;
+                            }
                             var data = matchUpdate.Groups["data"].Value;
                             if (string.IsNullOrWhiteSpace(data))
+                            {
+                                Logger.Error("Command CG UPDATE not executed, data empty: {0}", command);
                                 return false;
+                            }
                             channel.CG.Update((int)layer, cgLayer, data);
                             return true;
                     }

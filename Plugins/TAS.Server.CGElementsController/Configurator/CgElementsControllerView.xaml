@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
-             xmlns:local="clr-namespace:TAS.Server.CgElementsController.Configurator"             
+             xmlns:local="clr-namespace:TAS.Server.CgElementsController.Configurator"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance local:CgElementsControllerViewModel}"
              d:DesignHeight="450" >
@@ -40,17 +41,17 @@
                         <StackPanel Grid.Row="1" Orientation="Horizontal">
                             <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding AddElementCommand}">
                                 <Button.Content>
-                                    <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                 </Button.Content>
                             </Button>
                             <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveElementUpCommand}">
                                 <Button.Content>
-                                    <Image Source="/TAS.Client.Common;component/Images/Actions/go-up.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-up.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                 </Button.Content>
                             </Button>
                             <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveElementDownCommand}">
                                 <Button.Content>
-                                    <Image Source="/TAS.Client.Common;component/Images/Actions/go-down.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-down.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                 </Button.Content>
                             </Button>
                         </StackPanel>
@@ -72,6 +73,12 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
+                    <StackPanel Grid.Row="2">
+                        <Label>Default logo</Label>
+                        <ComboBox ItemsSource="{Binding Logos}" SelectedItem="{Binding SelectedDefaultLogo}" DisplayMemberPath="Name" MaxWidth="300"/>
+                        <Label>Default crawl</Label>
+                        <ComboBox ItemsSource="{Binding Crawls}" SelectedItem="{Binding SelectedDefaultCrawl}" DisplayMemberPath="Name" MaxWidth="300"/>
+                    </StackPanel>
 
                     <ContentControl VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}" Grid.Column="1" Content="{Binding SelectedElement}" >
                         <ContentControl.Resources>
@@ -82,40 +89,38 @@
                     </ContentControl>
                 </Grid>
             </TabItem>
-            <TabItem Header="Startup">
-                <Grid IsEnabled="{Binding IsEnabled}" MinWidth="180" Grid.Column="0">
+            <TabItem Header="Startup commands">
+                <Grid IsEnabled="{Binding IsEnabled}" Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
                     <StackPanel Orientation="Horizontal">
-                        <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding AddStartupCommand}">
+                        <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding AddStartupCommandCommand}">
                             <Button.Content>
-                                <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-green.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                             </Button.Content>
                         </Button>
-                        <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveStartupUpCommand}">
+                        <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveStartupCommandUpCommand}">
                             <Button.Content>
-                                <Image Source="/TAS.Client.Common;component/Images/Actions/go-up.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-up.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                             </Button.Content>
                         </Button>
-                        <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveStartupDownCommand}">
+                        <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,0,0" Command="{Binding MoveStartupCommandDownCommand}">
                             <Button.Content>
-                                <Image Source="/TAS.Client.Common;component/Images/Actions/go-down.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-down.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                             </Button.Content>
                         </Button>
                     </StackPanel>
-                    <DataGrid Grid.Row="2" Margin="5" ItemsSource="{Binding Startups}" SelectionMode="Single" SelectedIndex="{Binding SelectedStartupId}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
+                    <DataGrid Grid.Row="1" Margin="5" Width="300" ItemsSource="{Binding StartupCommands}" SelectionMode="Single" SelectedItem="{Binding SelectedStartupCommand}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Command" Binding="{Binding Command}" />
+                            <DataGridTextColumn Width="*" Header="Command" Binding="{Binding Command, UpdateSourceTrigger=PropertyChanged}" />
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Margin="1,2" Command="{Binding DataContext.DeleteStartupCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
-                                            <Button.Content>
-                                                <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                            </Button.Content>
+                                        <Button Margin="0" Height="16" Command="{Binding DataContext.DeleteStartupCommandCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}" ToolTip="Remove">
+                                            <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                         </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>

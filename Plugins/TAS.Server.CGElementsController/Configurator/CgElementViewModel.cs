@@ -5,7 +5,7 @@ using TAS.Client.Common;
 
 namespace TAS.Server.CgElementsController.Configurator
 {
-    public class CgElementViewModel : ModifyableViewModelBase
+    internal class CgElementViewModel : ModifyableViewModelBase
     {
         private string _name = string.Empty;
         private string _command = string.Empty;
@@ -68,7 +68,6 @@ namespace TAS.Server.CgElementsController.Configurator
         }
 
         protected override void OnDispose() { }
-
 
         private void SelectThumbnail(object _)
         {

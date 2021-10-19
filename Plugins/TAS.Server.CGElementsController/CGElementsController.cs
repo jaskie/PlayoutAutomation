@@ -13,14 +13,16 @@ namespace TAS.Server.CgElementsController
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         
         private IEngine _engine;
-        internal IEngine Engine
+
+        public void AssignToEngine(IEngine engine)
         {
-            get => _engine;
-            set
+            if (_engine != null)
             {
-                _engine = value;
-                _engine.EngineOperation += Engine_EngineOperation;
+                Logger.Error("Engine was already initialized");
+                _engine.EngineOperation -= Engine_EngineOperation;
             }
+            _engine = engine;
+            engine.EngineOperation += Engine_EngineOperation;
         }
 
         private bool _isCgEnabled = true;
@@ -28,7 +30,7 @@ namespace TAS.Server.CgElementsController
         private byte _logo;
         private byte _crawl;
         private byte _parental;
-        private bool _isStartupExecuted = false;        
+        private bool _isStartupExecuted = false;  
 
         [Hibernate]
         public bool IsEnabled { get; set; }
@@ -67,7 +69,7 @@ namespace TAS.Server.CgElementsController
             {
                 if (!SetField(ref _crawl, value))
                     return;
-                Engine.Execute(((CGElement)Crawls.ElementAtOrDefault(value))?.Command);
+                _engine.Execute(((CGElement)Crawls.FirstOrDefault(e => e.Id == value))?.Command);
             }
         }
 
@@ -82,7 +84,7 @@ namespace TAS.Server.CgElementsController
             {
                 if (!SetField(ref _logo, value))
                     return;
-                Engine.Execute(((CGElement)Logos.ElementAtOrDefault(value))?.Command);
+                _engine.Execute(((CGElement)Logos.FirstOrDefault(e => e.Id == value))?.Command);
             }
         }
 
@@ -97,18 +99,18 @@ namespace TAS.Server.CgElementsController
             {
                 if (!SetField(ref _parental, value))
                     return;
-                Engine.Execute(((CGElement)Parentals.ElementAtOrDefault(value))?.Command);
+                _engine.Execute(((CGElement)Parentals.FirstOrDefault(e => e.Id == value))?.Command);
             }
         }
 
         [DtoMember, Hibernate]
-        public IEnumerable<ICGElement> Parentals { get; set; }                                       
-        
+        public IEnumerable<ICGElement> Parentals { get; set; }
+
         [Hibernate]
-        public IEnumerable<ICGElement> Auxes { get; }
-        
+        public IEnumerable<ICGElement> Auxes { get; set; }
+
         [Hibernate]
-        public IEnumerable<string> Startups { get; }
+        public IEnumerable<string> StartupsCommands { get; set; }
 
         public event EventHandler Started;
 
@@ -163,10 +165,10 @@ namespace TAS.Server.CgElementsController
                     return;
 
                 Logger.Debug("Executing startup items");
-                foreach (var command in Startups)
+                foreach (var command in StartupsCommands)
                 {
                     Logger.Trace("Executing startup command: {0}", command);
-                    Engine.Execute(command);
+                    _engine.Execute(command);
                 }
                 _isStartupExecuted = true;
             }
