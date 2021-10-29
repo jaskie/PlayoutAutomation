@@ -7,12 +7,13 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
+using TAS.Server.VideoSwitch.Helpers;
 using TAS.Server.VideoSwitch.Model;
 using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Communicators
 {
-    internal class SmartVideoHubCommunicator : IRouterCommunicator
+    internal class SmartVideoHubCommunicator : SocketConnection, IRouterCommunicator
     {
         /// <summary>
         /// In Blackmagic CrosspointStatus and CrosspointChange responses have the same syntax. CrosspointStatus semaphore initial value is set to 1 to help notify ProcessCommand method
@@ -20,10 +21,6 @@ namespace TAS.Server.VideoSwitch.Communicators
         /// </summary>
         /// 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-        private TcpClient _tcpClient;
-
-        private NetworkStream _stream;
 
         private ConcurrentQueue<string> _requestsQueue = new ConcurrentQueue<string>();
         private ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>> _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
@@ -35,28 +32,27 @@ namespace TAS.Server.VideoSwitch.Communicators
         private readonly SemaphoreSlim _requestQueueSemaphore = new SemaphoreSlim(0);
         private readonly SemaphoreSlim _responsesQueueSemaphore = new SemaphoreSlim(0);
 
-        private CancellationTokenSource _cancellationTokenSource;
-
-        private string _response;
-        private int _disposed;
-
         private PortInfo[] _sources;
-        
+        private CancellationToken _cancellationToken;
+
+        public SmartVideoHubCommunicator() : base(9990)
+        { }
+
         private PortInfo[] GetSources()
         {
             if (!_semaphores.TryGetValue(ListTypeEnum.Input, out var semaphore))
                 return null;
 
-            AddToRequestQueue("INPUT LABELS:");
+            SendString("INPUT LABELS:");
             while (true)
             {
                 try
                 {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+                    if (_cancellationToken.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationToken);
 
                     if (!_responseDictionary.TryRemove(ListTypeEnum.Input, out var response))
-                        semaphore.Wait(_cancellationTokenSource.Token);
+                        semaphore.Wait(_cancellationToken);
 
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.Input, out response))
                         continue;
@@ -65,7 +61,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
                     return response.Select(line =>
                     {
-                        var lineParams = line.Split(new[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
+                        var lineParams = line.Split(new[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
                         return lineParams.Length >= 2
                             ? new PortInfo(short.Parse(lineParams[0]), lineParams.ElementAtOrDefault(1) ?? string.Empty)
                             : null;
@@ -80,103 +76,11 @@ namespace TAS.Server.VideoSwitch.Communicators
                 }
             }
         }
-        
-        private async void StartRequestQueueHandler()
+
+        private void SendString(string s)
         {
-            try
-            {
-                while (true)
-                {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
-
-                    await _requestQueueSemaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
-                    while (!_requestsQueue.IsEmpty)
-                    {
-                        if (!_requestsQueue.TryDequeue(out var request))
-                            continue;
-                        var data = System.Text.Encoding.ASCII.GetBytes(string.Concat(request, "\n\n"));
-                        await _stream.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
-                        Logger.Debug($"Blackmagic message sent: {request}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex is ObjectDisposedException || ex is System.IO.IOException)
-                    Logger.Debug("Router request handler stream closed/disposed.");
-                else if (ex is OperationCanceledException)
-                    Logger.Debug("Router request handler cancelled");
-                else
-                    Logger.Error(ex, "Unexpected exception in Blackmagic request handler");
-            }
-        }
-
-        private async void StartResponseQueueHandler()
-        {
-            try
-            {
-                while (true)
-                {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
-
-                    await _responsesQueueSemaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
-                    while (!_responsesQueue.IsEmpty)
-                    {
-                        if (_cancellationTokenSource.IsCancellationRequested)
-                            throw new OperationCanceledException(_cancellationTokenSource.Token);
-
-                        if (!_responsesQueue.TryDequeue(out var response))
-                            continue;
-
-                        if (_responseDictionary.TryAdd(response.Key, response.Value))
-                        {
-                            if (!_semaphores.TryGetValue(response.Key, out var semaphore))
-                                continue;
-                            semaphore.Release();
-                        }
-                        else
-                            _responsesQueue.Enqueue(response);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex is ObjectDisposedException || ex is System.IO.IOException)
-                    Logger.Debug("Router response handler stream closed/disposed.");
-                else if (ex is OperationCanceledException)
-                    Logger.Debug("Router response handler cancelled");
-                else
-                    Logger.Error(ex, "Unexpected exception in Blackmagic response handler");
-            }
-        }
-
-        private async void StartListener()
-        {
-            var bytesReceived = new byte[256];
-            Logger.Debug("Blackmagic listener started!");
-            while (true)
-            {
-                try
-                {
-                    var bytes = await _stream.ReadAsync(bytesReceived, 0, bytesReceived.Length).ConfigureAwait(false);
-                    if (bytes == 0) continue;
-                    var response = System.Text.Encoding.ASCII.GetString(bytesReceived, 0, bytes);
-                    ParseMessage(response);
-                }
-                catch (Exception ex)
-                {
-                    if (ex is ObjectDisposedException || ex is System.IO.IOException)
-                    {
-                        Logger.Debug("Router listener network stream closed/disposed.");
-                        Disconnect();
-                    }
-                    else
-                        Logger.Error(ex);
-                    return;
-                }
-            }
+            var data = System.Text.Encoding.ASCII.GetBytes(s);
+            Send(data);
         }
 
         private async void ConnectionWatcher()
@@ -190,11 +94,11 @@ namespace TAS.Server.VideoSwitch.Communicators
             {
                 try
                 {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+                    if (_cancellationToken.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationToken);
 
-                    await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
-                    await Task.Delay(3000, _cancellationTokenSource.Token).ConfigureAwait(false);
+                    await semaphore.WaitAsync(_cancellationToken).ConfigureAwait(false);
+                    await Task.Delay(3000, _cancellationToken).ConfigureAwait(false);
                     AddToRequestQueue("PING:");
                 }
                 catch (Exception ex)
@@ -216,18 +120,18 @@ namespace TAS.Server.VideoSwitch.Communicators
             {
                 try
                 {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+                    if (_cancellationToken.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationToken);
 
                     if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out var response))
-                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                        await semaphore.WaitAsync(_cancellationToken).ConfigureAwait(false);
 
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out response))
                         continue;
-                   
+
                     var crosspoints = response.Select(line =>
                     {
-                        var lineParams = line.Split(new[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
+                        var lineParams = line.Split(new[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
                         if (lineParams.Length >= 2 &&
                             short.TryParse(lineParams[0], out var outPort) &&
                             //TODO:fixme
@@ -320,29 +224,21 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         private void ParseMessage(string response)
         {
-            _response += response;
-            while (_response.Contains("\n\n"))
+            while (response.Contains("\n\n"))
             {
-                var command = _response.Substring(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
-                _response = _response.Remove(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);                              
+                var command = response.Substring(0, response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
+                response = response.Remove(0, response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
                 ProcessCommand(command);
             }
         }
 
         public event EventHandler<EventArgs<bool>> ConnectionStatusChanged;
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public PortInfo[] Sources
         {
             get => _sources;
-            set
-            {
-                if (value == _sources)
-                    return;
-                _sources = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sources)));
-            }
+            set => SetField(ref _sources, value);
         }
 
         public CrosspointInfo GetSelectedSource()
@@ -355,11 +251,11 @@ namespace TAS.Server.VideoSwitch.Communicators
             {
                 try
                 {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
+                    if (_cancellationToken.IsCancellationRequested)
+                        throw new OperationCanceledException(_cancellationToken);
 
                     if (!_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out var response))
-                        semaphore.Wait(_cancellationTokenSource.Token);
+                        semaphore.Wait(_cancellationToken);
 
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointStatus, out response))
                         continue;
@@ -370,8 +266,8 @@ namespace TAS.Server.VideoSwitch.Communicators
                         var lineParams = line.Split(new[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
                         if (lineParams.Length >= 2 &&
                             short.TryParse(lineParams[0], out var outPort) &&
-//TODO: fix
-//                          outPort == _router.OutputPorts[0] &&
+                            //TODO: fix
+                            //                          outPort == _router.OutputPorts[0] &&
                             short.TryParse(lineParams[1], out var inPort))
                             return new CrosspointInfo(inPort, outPort);
 
@@ -388,67 +284,20 @@ namespace TAS.Server.VideoSwitch.Communicators
             }
         }
 
-        public void Connect(string address, CancellationToken cancellationToken)
+        public override void Connect(string address, CancellationToken cancellationToken)
         {
-            _disposed = default(int);
-            _cancellationTokenSource = new CancellationTokenSource();
+            _cancellationToken = cancellationToken;
 
-            while (true)
-            {
-                _tcpClient = new TcpClient();
+            base.Connect(address, cancellationToken);
+            _requestsQueue = new ConcurrentQueue<string>();
+            _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
+            ConnectionWatcher();
+            InputPortWatcher();
 
-                Logger.Debug("Connecting to Blackmagic...");
-                try
-                {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        throw new OperationCanceledException(_cancellationTokenSource.Token);
-
-                    var addressParts = address.Split(new char[] { ':' }, 2, StringSplitOptions.RemoveEmptyEntries);
-                    if (addressParts.Length == 0)
-                        throw new ApplicationException($"Invalid address provided: {address}");
-                    int port = 9990;
-                    if (addressParts.Length > 1)
-                        int.TryParse(addressParts[1], out port);
-
-                    _tcpClient.Connect(addressParts[0], port);
-                    if (!_tcpClient.Connected)
-                    {
-                        _tcpClient.Close();
-                        continue;
-                    }
-
-                    Logger.Debug("Blackmagic connected!");
-
-                    _requestsQueue = new ConcurrentQueue<string>();
-                    _responsesQueue = new ConcurrentQueue<KeyValuePair<ListTypeEnum, string[]>>();
-                    StartRequestQueueHandler();
-                    StartResponseQueueHandler();
-
-                    _stream = _tcpClient.GetStream();
-                    StartListener();
-
-                    ConnectionWatcher();
-                    InputPortWatcher();
-
-                    Sources = GetSources();
-                    Logger.Info("Blackmagic router connected and ready!");
-                }
-                catch (Exception ex)
-                {
-                    if (ex is ObjectDisposedException || ex is System.IO.IOException)
-                        Logger.Debug("Network stream closed");
-                    else if (ex is OperationCanceledException)
-                        Logger.Debug("Router connecting canceled");
-                    else
-                        Logger.Error(ex);
-
-                    break;
-                }
-            }
+            Sources = GetSources();
         }
+    
 
-
-        public bool IsConnected { get; private set; }
 
         public void SetSource(int inPort)
         {
@@ -456,19 +305,9 @@ namespace TAS.Server.VideoSwitch.Communicators
             //AddToRequestQueue(_router.OutputPorts.Aggregate("VIDEO OUTPUT ROUTING:\n", (current, outPort) => current + string.Concat(outPort, " ", inPort, "\n")));
         }
 
-        public void Disconnect()
+        protected override void OnMessageReceived(byte[] message)
         {
-            _cancellationTokenSource?.Cancel();
-            _tcpClient?.Close();
-            ConnectionStatusChanged?.Invoke(this, new EventArgs<bool>(false));
-        }
-
-        public void Dispose()
-        {
-            if (Interlocked.Exchange(ref _disposed, 1) != default(int))
-                return;
-            Disconnect();
-            Logger.Debug("Blackmagic communicator disposed");
+            throw new NotImplementedException();
         }
     }
 }

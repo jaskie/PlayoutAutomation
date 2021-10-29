@@ -1,20 +1,14 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
-using TAS.Common.Interfaces;
 using TAS.Server.VideoSwitch.Helpers;
 using TAS.Server.VideoSwitch.Model;
 using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Communicators
-{   
+{
     /// <summary>
     /// Class to communicate with Ross MC-1 MCR switcher using Pressmaster protocol (default on port 9001)
     /// </summary>
