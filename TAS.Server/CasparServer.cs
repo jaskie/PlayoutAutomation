@@ -18,8 +18,6 @@ using jNet.RPC;
 namespace TAS.Server
 {
 
-    public delegate void CommandNotifier(DateTime when, string command, Event sender);
-
     [DtoType(typeof(IPlayoutServer))]
 
     public class CasparServer : ServerObjectBase, IPlayoutServer, IPlayoutServerProperties
@@ -28,6 +26,7 @@ namespace TAS.Server
         private int _isInitialized;
         private bool _needUpdateChannels;
         private Svt.Caspar.CasparDevice _casparDevice;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         #region IPersistent
 
@@ -101,6 +100,10 @@ namespace TAS.Server
                     return;
                 RecordersSer.ForEach(r => r.IsServerConnected = value);
                 ChannelsSer.ForEach(c => c.IsServerConnected = value);
+                if (value)
+                    Logger.Info("Server {0} connected", ServerAddress);
+                else
+                    Logger.Error("Server {0} disconnected", ServerAddress);
             }
         }
 
