@@ -622,7 +622,10 @@ namespace TAS.Server
             if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie)
                 item.ChannelLayout = GetAudioChannelLayout();
             if (aEvent.EventType == TEventType.Movie)
+            {
                 item.FieldOrderInverted = media.FieldOrderInverted;
+                item.Length = (int)aEvent.LengthInFrames;
+            }
             item.VideoLayer = (int)aEvent.Layer;
             item.Loop = false;
 
