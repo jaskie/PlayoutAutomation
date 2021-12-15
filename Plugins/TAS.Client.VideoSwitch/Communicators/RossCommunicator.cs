@@ -12,16 +12,16 @@ namespace TAS.Server.VideoSwitch.Communicators
     /// <summary>
     /// Class to communicate with Ross MC-1 MCR switcher using Pressmaster protocol (default on port 9001)
     /// </summary>
-    public class RossCommunicator : SocketConnection, IVideoSwitchCommunicator
+    public class RossCommunicator : SocketConnection, IVideoSwitcherCommunicator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         static readonly byte[] PingCommand = { 0xFF, 0x1E };
         
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
 
-        private readonly MessageRequest _takeRequest = new MessageRequest();
-        private readonly MessageRequest _crosspointStatusRequest = new MessageRequest();
-        private readonly MessageRequest _signalPresenceRequest = new MessageRequest();
+        private readonly MessageRequest<byte[]> _takeRequest = new MessageRequest<byte[]>();
+        private readonly MessageRequest<byte[]> _crosspointStatusRequest = new MessageRequest<byte[]>();
+        private readonly MessageRequest<byte[]> _signalPresenceRequest = new MessageRequest<byte[]>();
         private Thread _connectionWatcherThread;
         private PortInfo[] _sources;
         
@@ -188,9 +188,9 @@ namespace TAS.Server.VideoSwitch.Communicators
             //_transitionTypeChanged = false;
         }
 
-        public override void Connect(string address, CancellationToken cancellationToken)
+        public override async Task Connect(string address, CancellationToken cancellationToken)
         {
-            base.Connect(address, cancellationToken);
+            await base.Connect(address, cancellationToken);
             if (!IsConnected)
                 return;
             _connectionWatcherThread = new Thread(ConnectionWatcherProc)
@@ -267,7 +267,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             Send(new byte[] { 0xFF, 0x0F });
         }
 
-        public PortInfo[] Sources
+        public PortInfo[] Inputs
         {
             get => _sources;
             set => SetField(ref _sources, value);

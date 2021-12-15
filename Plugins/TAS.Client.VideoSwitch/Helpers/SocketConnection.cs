@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,7 +12,7 @@ namespace TAS.Server.VideoSwitch.Helpers
     /// <summary>
     /// Class to ensure non-blocking send and preserving order of messages
     /// </summary>
-    public abstract class SocketConnection : INotifyPropertyChanged, IDisposable
+    public abstract class SocketConnection : jNet.RPC.Server.ServerObjectBase
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private bool _isConnected;
@@ -25,6 +22,7 @@ namespace TAS.Server.VideoSwitch.Helpers
         private Thread _writeThread;
         private TcpClient _client;
         private readonly int _defaultPort;
+        private string _address;
 
         protected CancellationTokenSource DisconnectTokenSource;
 
@@ -38,10 +36,10 @@ namespace TAS.Server.VideoSwitch.Helpers
         /// </summary>
         /// <param name="address">address and port to connect to</param>
         /// <returns></returns>
-        public virtual async void Connect(string address, CancellationToken cancellationToken)
+        protected virtual async Task Connect(string address, CancellationToken cancellationToken)
         {
             Disconnect();
-
+            _address = address;
             int port = _defaultPort;
             var addressParts = address.Split(':');
             if (addressParts.Length > 1)
@@ -49,7 +47,7 @@ namespace TAS.Server.VideoSwitch.Helpers
 
             _client = new TcpClient
             {
-                NoDelay = true,                
+                NoDelay = true,
             };
             var disconnectTokenSource = new CancellationTokenSource();
             try
@@ -97,6 +95,9 @@ namespace TAS.Server.VideoSwitch.Helpers
 
         public virtual void Disconnect()
         {
+            if (!IsConnected)
+                return;
+            Logger.Info("Disconnected from {0}", _address);
             var tokenSource = DisconnectTokenSource;
             if (tokenSource?.IsCancellationRequested == false)
                 tokenSource.Cancel();
@@ -108,8 +109,9 @@ namespace TAS.Server.VideoSwitch.Helpers
             IsConnected = false;
         }
 
-        public virtual void Dispose()
+        protected override void DoDispose()
         {
+            base.DoDispose();
             Disconnect();
             _sendQueue.Dispose();
         }
@@ -130,8 +132,6 @@ namespace TAS.Server.VideoSwitch.Helpers
             };
             _writeThread.Start();            
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         private void WriteThreadProc()
         {
@@ -192,20 +192,6 @@ namespace TAS.Server.VideoSwitch.Helpers
         }
 
         protected abstract void OnMessageReceived(byte[] message);
-
-        protected void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            NotifyPropertyChanged(propertyName);
-            return true;
-        }
-
 
     }
 }

@@ -5,11 +5,10 @@ using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Server.VideoSwitch.Helpers;
 using TAS.Server.VideoSwitch.Model;
-using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Communicators
 {
-    public class AtemCommunicator : IVideoSwitchCommunicator
+    public class AtemCommunicator
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -20,7 +19,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         private BMDSwitcherWrapper _atem;
 
         private PortInfo[] _sources;
-        public PortInfo[] Sources
+        public PortInfo[] Inputs
         {
             get => _sources;
             set
@@ -28,7 +27,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                 if (value == _sources)
                     return;
                 _sources = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sources)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Inputs)));
             }
         }
 
@@ -59,7 +58,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
         public bool IsConnected { get; set; }
                 
-        public async void Connect(string address, CancellationToken cancellationToken)
+        public async Task Connect(string address, CancellationToken cancellationToken)
         {
             _disposed = default(int);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -81,7 +80,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                         continue;
                     }
 
-                    Sources = _atem.GetInputPorts();
+                    Inputs = _atem.GetInputPorts();
                     SetTransitionStyle(_videoSwitcherTransitionStyle);
                     Logger.Trace("Connected to ATEM TVS");                                                                                    
                 }

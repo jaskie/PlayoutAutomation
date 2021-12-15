@@ -11,7 +11,7 @@ namespace TAS.Server.VideoSwitch.Model
     {
         public Atem() : base() { }
 
-        protected override IRouterCommunicator CreateCommunicator()
+        protected override IRouterCommunicatorBase CreateCommunicator()
         {
             return new Communicators.AtemCommunicator();
         }

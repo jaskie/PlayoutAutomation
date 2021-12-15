@@ -10,69 +10,72 @@ using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Configurator
 {
-    public class SmartVideoHubConfiguratorViewModel : ConfiguratorViewModelBase
+    public class SmartVideoHubConfiguratorViewModel : ConfiguratorViewModelBase<SmartVideoHub>
     {       
         private bool _preload;
-        private readonly SmartVideoHub _smartVideoHub;
 
         public SmartVideoHubConfiguratorViewModel(IEngineProperties engine) : base(engine)
         {
-            _smartVideoHub = engine.VideoSwitch as SmartVideoHub ?? new SmartVideoHub();
-            _smartVideoHub.PropertyChanged += SmartVideoHub_PropertyChanged;
+            VideoSwitch.PropertyChanged += SmartVideoHub_PropertyChanged;
             Load();
         }
 
         public override string PluginName => "BMD Smart Video Hub router";
 
-        public override IPlugin Model => _smartVideoHub;
-
         private void SmartVideoHub_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IVideoSwitch.SelectedSource))
-                NotifyPropertyChanged(nameof(SelectedSource));
-            else if (e.PropertyName == nameof(IVideoSwitch.IsConnected))
-                NotifyPropertyChanged(nameof(IsConnected));
+            switch (e.PropertyName)
+            {
+                case nameof(IVideoSwitch.SelectedSource):
+                    NotifyPropertyChanged(nameof(SelectedSource));
+                    break;
+                case nameof(IVideoSwitch.IsConnected):
+                    NotifyPropertyChanged(nameof(IsConnected));
+                    break;
+                case nameof(SmartVideoHub.AllOutputs):
+                    break;
+            }
         }
 
         protected override bool CanConnect() => IpAddress?.Length > 0;
 
         protected override void Connect()
         {
-            _smartVideoHub.IpAddress = IpAddress;
-            _smartVideoHub.OutputPorts = Ports.Select(p => p.Id).ToArray();
-            _smartVideoHub.Connect(CancellationToken.None);
+            VideoSwitch.IpAddress = IpAddress;
+            VideoSwitch.Outputs = OutputPorts.Select(p => p.Id).ToArray();
+            VideoSwitch.Connect(CancellationToken.None);
         }
 
         protected override void Disconnect()
         {
-            _smartVideoHub.Disconnect();
+            VideoSwitch.Disconnect();
         }
 
         public override void Load()
         {
             base.Load();
-            Ports.Clear();
-            foreach (var source in _smartVideoHub.Sources.Select(p => new PortInfo(p.Id, p.Name)))
-                Ports.Add(source);
-            IpAddress = _smartVideoHub.IpAddress;
-            Preload = _smartVideoHub.Preload;
+            if (!(VideoSwitch.Outputs is null))
+                foreach (var source in VideoSwitch.Outputs.Select(p => new OutputPortViewModel(p, $"Port {p + 1}", true)))
+                    OutputPorts.Add(source);
+            IpAddress = VideoSwitch.IpAddress;
+            Preload = VideoSwitch.Preload;
             IsModified = false;
         }
 
         protected override void OnDispose()
         {
-            _smartVideoHub.PropertyChanged -= SmartVideoHub_PropertyChanged;
-            _smartVideoHub.Dispose();
+            VideoSwitch.PropertyChanged -= SmartVideoHub_PropertyChanged;
+            VideoSwitch.Dispose();
         }
 
         public override void Save()
         {
             base.Save();
-            _smartVideoHub.IpAddress = IpAddress;
-            _smartVideoHub.IsEnabled = IsEnabled;
-            _smartVideoHub.Preload = _preload;
-            _smartVideoHub.OutputPorts = Ports.Select(p => p.Id).ToArray();
-            Engine.VideoSwitch = _smartVideoHub;
+            VideoSwitch.IpAddress = IpAddress;
+            VideoSwitch.IsEnabled = IsEnabled;
+            VideoSwitch.Preload = _preload;
+            VideoSwitch.Outputs = OutputPorts.Where(p => p.IsSelected).Select(p => p.Id).ToArray();
+            Engine.VideoSwitch = VideoSwitch;
             IsModified = false;
         }
 
@@ -87,16 +90,15 @@ namespace TAS.Server.VideoSwitch.Configurator
         public bool Preload { get => _preload; set => SetField(ref _preload, value); }
         public IVideoSwitchPort SelectedSource
         {
-            get => _smartVideoHub?.SelectedSource;
+            get => VideoSwitch?.SelectedSource;
             set
             {
-                if (_smartVideoHub?.Sources == value)
+                if (VideoSwitch?.SelectedSource == value)
                     return;
-
-                if (value == null)
-                    return;
-                _smartVideoHub?.SetSource(value.Id);
+                VideoSwitch?.SetSource(value.Id);
             }
         }
+
+        public override bool IsVideoSwitcher => false;
     }
 }

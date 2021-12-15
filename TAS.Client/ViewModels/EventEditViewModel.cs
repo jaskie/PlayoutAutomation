@@ -67,7 +67,7 @@ namespace TAS.Client.ViewModels
             if (VideoSwitch != null)
             {
                 Sources.Add(string.Empty); //default value in ComboBox
-                foreach (var input in VideoSwitch.Sources)
+                foreach (var input in VideoSwitch.Inputs)
                     Sources.Add(input);
                 _selectedSource = Sources?.FirstOrDefault(param => param is IVideoSwitchPort port && port.Id == _videoSwitchPort) ?? Sources?[0];
             }

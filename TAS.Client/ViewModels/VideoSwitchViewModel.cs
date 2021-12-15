@@ -20,7 +20,7 @@ namespace TAS.Client.ViewModels
         {
             switch (e.PropertyName)
             {
-                case nameof(VideoSwitch.Sources):
+                case nameof(VideoSwitch.Inputs):
                     NotifyPropertyChanged(nameof(Sources));
                     break;
                 case nameof(VideoSwitch.SelectedSource):
@@ -37,7 +37,7 @@ namespace TAS.Client.ViewModels
             get => _selectedInputPort;
             set
             {
-                if (VideoSwitch.Sources == value)
+                if (VideoSwitch.Inputs == value)
                     return;
 
                 if (value == null)
@@ -62,6 +62,6 @@ namespace TAS.Client.ViewModels
 
         public bool IsConnected => VideoSwitch.IsConnected;
         public IVideoSwitch VideoSwitch { get; }
-        public IList<IVideoSwitchPort> Sources => VideoSwitch.Sources;
+        public IList<IVideoSwitchPort> Sources => VideoSwitch.Inputs;
     }
 }

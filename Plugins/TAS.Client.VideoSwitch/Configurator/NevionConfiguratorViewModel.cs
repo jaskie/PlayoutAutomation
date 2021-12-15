@@ -42,7 +42,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             _nevion.Login = _login;
             _nevion.Password = _password;
             _nevion.Level = _level;
-            _nevion.OutputPorts = Ports.Select(p => p.Id).ToArray();
+            _nevion.OutputPorts = SelectedOutputPorts.Select(p => p.Id).ToArray();
 
             _nevion.Connect(CancellationToken.None);
         }
@@ -55,9 +55,9 @@ namespace TAS.Server.VideoSwitch.Configurator
         public override void Load()
         {
             base.Load();
-            Ports.Clear();
+            SelectedOutputPorts.Clear();
             foreach (var source in _nevion.Sources.Select(p => new PortInfo(p.Id, p.Name)))
-                Ports.Add(source);
+                SelectedOutputPorts.Add(source);
             Level = _nevion.Level;
             IpAddress = _nevion.IpAddress;
             Login = _nevion.Login;
@@ -105,5 +105,7 @@ namespace TAS.Server.VideoSwitch.Configurator
                 _nevion?.SetSource(value.Id);
             }
         }
+
+        public override bool IsVideoSwitcher => false;
     }
 }

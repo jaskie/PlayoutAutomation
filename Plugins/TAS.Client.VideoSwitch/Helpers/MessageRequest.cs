@@ -3,27 +3,44 @@ using System.Threading;
 
 namespace TAS.Server.VideoSwitch.Helpers
 {
-    internal class MessageRequest: IDisposable
+    internal class MessageRequest<T>: IDisposable where T: class
     {
         private readonly ManualResetEvent _mutex = new ManualResetEvent(false);
-        private byte[] _result;
+        private T _result;
 
         public void Dispose()
         {
             _mutex.Dispose();
         }
 
-        public void SetResult(byte[] message)
+        public void SetResult(T result)
         {
-            _result = message;
+            _result = result;
             _mutex.Set();
         }
 
-        public byte[] WaitForResult(CancellationToken token)
+        public T WaitForResult(CancellationToken token)
         {
-            WaitHandle.WaitAny(new [] { token.WaitHandle, _mutex });
+            if (WaitHandle.WaitAny(new [] { _mutex, token.WaitHandle }) == 1)
+                throw new OperationCanceledException();
             _mutex.Reset();
-            return Interlocked.Exchange(ref _result, null);
+            return _result;
+        }
+
+        public T WaitForResult(CancellationToken token, int millisecondsTimeout)
+        {
+            switch (WaitHandle.WaitAny(new[] { _mutex, token.WaitHandle }, millisecondsTimeout))
+            {
+                case 1:
+                    throw new OperationCanceledException();
+                case WaitHandle.WaitTimeout:
+                    throw new TimeoutException("Timeout waiting for result");
+                case 0:
+                    _mutex.Reset();
+                    return Interlocked.Exchange(ref _result, null);
+                default:
+                    throw new InvalidOperationException();
+            }
         }
 
         public object SyncRoot { get; } = new object();

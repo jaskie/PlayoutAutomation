@@ -1,5 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using System.Linq;
+using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
@@ -7,8 +7,9 @@ using TAS.Server.VideoSwitch.Model;
 
 namespace TAS.Server.VideoSwitch.Configurator
 {
-    public abstract class ConfiguratorViewModelBase : ModifyableViewModelBase, IPluginConfiguratorViewModel
+    public abstract class ConfiguratorViewModelBase<TVideoSwitch> : ModifyableViewModelBase, IPluginConfiguratorViewModel where TVideoSwitch : VideoSwitchBase,  new()
     {
+        protected readonly TVideoSwitch VideoSwitch;
         protected readonly IEngineProperties Engine;
         private bool _isEnabled;
         private string _ipAddress;
@@ -16,13 +17,12 @@ namespace TAS.Server.VideoSwitch.Configurator
         public ConfiguratorViewModelBase(IEngineProperties engine)
         {
             Engine = engine;
+            VideoSwitch = engine.VideoSwitch as TVideoSwitch ?? new TVideoSwitch();
             CommandConnect = new UiCommand(_ => Connect(), _ => CanConnect());
             CommandDisconnect = new UiCommand(_ => Disconnect());
-            CommandAddPort = new UiCommand(AddOutputPort);
-            CommandDeletePort = new UiCommand(DeleteOutputPort);
         }
 
-        public abstract IPlugin Model { get; }
+        public IPlugin Model => VideoSwitch;
 
         public string IpAddress { get => _ipAddress; set => SetField(ref _ipAddress, value); }
 
@@ -32,7 +32,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public virtual void Save()
         {
-            Model.IsEnabled = IsEnabled;
+            VideoSwitch.IsEnabled = IsEnabled;
         }
 
         public abstract bool CanSave();
@@ -44,36 +44,25 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public virtual void Load()
         {
-            _isEnabled = Model.IsEnabled;
+            _isEnabled = VideoSwitch.IsEnabled;
         }
 
         public UiCommand CommandAddPort { get; }
         public UiCommand CommandDeletePort { get; }
 
-        public ObservableCollection<PortInfo> Ports { get; } = new ObservableCollection<PortInfo>();
+        public ObservableCollection<OutputPortViewModel> OutputPorts { get; }
 
         public UiCommand CommandConnect { get; }
         public UiCommand CommandDisconnect { get; }
 
-        public bool IsConnected => (Model as IVideoSwitch)?.IsConnected ?? false;
+        public bool IsConnected => (VideoSwitch as IVideoSwitch)?.IsConnected ?? false;
 
         public bool IsEnabled { get => _isEnabled; set => SetField(ref _isEnabled, value); }
 
         public abstract string PluginName { get; }
 
-        private void DeleteOutputPort(object obj)
-        {
-            if (!(obj is PortInfo port))
-                return;
-            Ports.Remove(port);
-        }
+        public abstract bool IsVideoSwitcher { get; }
 
-        private void AddOutputPort(object obj)
-        {
-            var lastItem = Ports.LastOrDefault();
-            Ports.Add(new PortInfo((short)(lastItem == null ? 0 : lastItem.Id + 1), string.Empty));
-            IsModified = true;
-        }
 
     }
 }

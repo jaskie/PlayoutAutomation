@@ -9,10 +9,10 @@ namespace TAS.Common.Interfaces
     {        
         void Connect(CancellationToken cancellationToken);
         void Disconnect();
-        List<IVideoSwitchPort> Sources { get; }        
-        void SetSource(int inputId);       
+        IVideoSwitchPort[] Inputs { get; }
+        void SetSource(int inputId);
         IVideoSwitchPort SelectedSource { get; }
-        bool IsConnected { get; }           
-        bool Preload { get; }                
+        bool IsConnected { get; }
+        bool Preload { get; }
     }
 }

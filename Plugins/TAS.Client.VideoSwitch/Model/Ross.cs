@@ -7,7 +7,7 @@ namespace TAS.Server.VideoSwitch.Model
     [DtoType(typeof(IVideoSwitcher))]
     public class Ross: VideoSwitcher
     {
-        protected override IRouterCommunicator CreateCommunicator()
+        protected override IRouterCommunicatorBase CreateCommunicator()
         {
             return new Communicators.RossCommunicator();
         }

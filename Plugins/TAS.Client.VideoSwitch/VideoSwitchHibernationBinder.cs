@@ -9,9 +9,9 @@ namespace TAS.Server.VideoSwitch
     {
         private VideoSwitchHibernationBinder() : base(new Dictionary<Type, Type> {
             { typeof(SmartVideoHub), typeof(SmartVideoHub) },
-            { typeof(Ross), typeof(Ross) },
-            { typeof(Nevion), typeof(Nevion) },
-            { typeof(Atem), typeof(Atem) },
+            //{ typeof(Ross), typeof(Ross) },
+            //{ typeof(Nevion), typeof(Nevion) },
+            //{ typeof(Atem), typeof(Atem) },
             { typeof(RouterPort), typeof(PortInfo)}
         })
         { }

@@ -34,10 +34,10 @@ namespace TAS.Server.VideoSwitchTests
 
         [TestMethod]
         [DynamicData(nameof(GetRouter), DynamicDataSourceType.Method)]
-        public void SerializeAndDeserialize(VideoSwitch.Model.Router router)
+        public void SerializeAndDeserialize(VideoSwitch.Model.RouterBase router)
         {
             var json = JsonConvert.SerializeObject(router, _jsonSerializerSettings);
-            var deserialized = JsonConvert.DeserializeObject<VideoSwitch.Model.Router>(json, _jsonSerializerSettings);
+            var deserialized = JsonConvert.DeserializeObject<VideoSwitch.Model.RouterBase>(json, _jsonSerializerSettings);
 
             if (deserialized == null && router != null)
                 Assert.Fail("Failed to deserialize router");
@@ -50,12 +50,12 @@ namespace TAS.Server.VideoSwitchTests
             Assert.AreEqual(router.Login, deserialized.Login);
             Assert.AreEqual(router.Password, deserialized.Password);
 
-            for (int i=0; i<router.OutputPorts.Length; ++i)
+            for (int i=0; i<router.Outputs.Length; ++i)
             {
-                if (i >= deserialized.OutputPorts.Length)
+                if (i >= deserialized.Outputs.Length)
                     Assert.Fail("Count of deserialized OutputPorts does not match original");
 
-                Assert.AreEqual(router.OutputPorts[i], deserialized.OutputPorts[i], "Deserialized OutputPorts do not match original");
+                Assert.AreEqual(router.Outputs[i], deserialized.Outputs[i], "Deserialized OutputPorts do not match original");
             }                    
         }
     }

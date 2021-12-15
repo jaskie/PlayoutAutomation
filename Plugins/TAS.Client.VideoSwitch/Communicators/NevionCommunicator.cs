@@ -8,11 +8,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Server.VideoSwitch.Model;
-using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Communicators
 {
-    internal class NevionCommunicator : IRouterCommunicator
+    internal class NevionCommunicator 
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -359,7 +358,7 @@ namespace TAS.Server.VideoSwitch.Communicators
         public event EventHandler<EventArgs<CrosspointInfo>> SourceChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void Connect(string address, CancellationToken cancellationToken)
+        public async Task Connect(string address, CancellationToken cancellationToken)
         {
             _cancellationTokenSource = new CancellationTokenSource();
 
@@ -400,7 +399,7 @@ namespace TAS.Server.VideoSwitch.Communicators
 
                     SignalPresenceWatcher();
                     InputPortWatcher();
-                    Sources = GetSources();
+                    Inputs = GetSources();
                     Logger.Info("Nevion router connected and ready!");
                 }
 
@@ -487,7 +486,7 @@ namespace TAS.Server.VideoSwitch.Communicators
             return null;
         }
 
-        public PortInfo[] Sources
+        public PortInfo[] Inputs
         {
             get => _sources;
             set
@@ -495,7 +494,7 @@ namespace TAS.Server.VideoSwitch.Communicators
                 if (_sources == value)
                     return;
                 _sources = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sources)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Inputs)));
             }
         }
     }

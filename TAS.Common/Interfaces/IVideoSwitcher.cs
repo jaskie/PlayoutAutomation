@@ -3,7 +3,7 @@
     public interface IVideoSwitcher : IVideoSwitch
     {
         void PreloadSource(int sourceId);
-        void SetTransitionStyle(VideoSwitcherTransitionStyle videoSwitchEffect);        
+        void SetTransitionStyle(VideoSwitcherTransitionStyle videoSwitchEffect);
         VideoSwitcherTransitionStyle DefaultEffect { get; }
         void Take();
     }

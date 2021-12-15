@@ -9,15 +9,15 @@ using TAS.Server.VideoSwitch.Model.Interfaces;
 
 namespace TAS.Server.VideoSwitch.Model
 {
-    public class Nevion : Router
+    public class Nevion : RouterBase
     {
 
         [Hibernate]
         public int Level { get; set; }
 
-        protected override IRouterCommunicator CreateCommunicator()
+        protected override IRouterCommunicatorBase CreateCommunicator()
         {
-            return new NevionCommunicator();
+            return new NevionCommunicator { OutputPorts = this.OutputPorts };
         }
     }
 }

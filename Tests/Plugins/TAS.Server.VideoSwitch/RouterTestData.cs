@@ -14,7 +14,7 @@ namespace TAS.Server.VideoSwitchTests
             {
                 IsEnabled = true,
                 IpAddress = "192.168.0.1",
-                OutputPorts = new short[] {0,1}
+                Outputs = new short[] {0,1}
             },
             new VideoSwitch.Model.Nevion()
             {

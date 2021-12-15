@@ -155,6 +155,6 @@ namespace TAS.Server.VideoSwitch.Configurator
             }
         }
 
-        
+        public override bool IsVideoSwitcher => true;
     }
 }

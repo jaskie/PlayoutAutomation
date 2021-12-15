@@ -68,10 +68,10 @@ namespace TAS.Server.VideoSwitch.Configurator
             IpAddress = _ross.IpAddress;
             Preload = _ross.Preload;
             SelectedTransitionType = _ross.DefaultEffect;
-            Ports.Clear();
+            SelectedOutputPorts.Clear();
             foreach (var source in _ross.Sources.Select(p => new PortInfo(p.Id, p.Name)))
-                Ports.Add(source);
-            _selectedGpiSource = Ports.FirstOrDefault(p => p.Id == _ross.GpiPort?.Id);
+                SelectedOutputPorts.Add(source);
+            _selectedGpiSource = SelectedOutputPorts.FirstOrDefault(p => p.Id == _ross.GpiPort?.Id);
             NotifyPropertyChanged(nameof(SelectedGpiSource));
             IsModified = false;
         }
@@ -83,7 +83,7 @@ namespace TAS.Server.VideoSwitch.Configurator
             _ross.Preload = Preload;
             _ross.DefaultEffect = SelectedTransitionType;
             _ross.GpiPort = SelectedGpiSource;
-            _ross.Sources = Ports.Cast<IVideoSwitchPort>().ToList();
+            _ross.Sources = SelectedOutputPorts.Cast<IVideoSwitchPort>().ToList();
             Engine.VideoSwitch = _ross;
             IsModified = false;
         }
@@ -115,7 +115,7 @@ namespace TAS.Server.VideoSwitch.Configurator
 
         public PortInfo SelectedSource
         {
-            get => Ports.FirstOrDefault(p => p.Id == _ross.SelectedSource?.Id);
+            get => SelectedOutputPorts.FirstOrDefault(p => p.Id == _ross.SelectedSource?.Id);
             set
             {
                 if (_ross?.SelectedSource?.Id == value.Id)
@@ -124,5 +124,6 @@ namespace TAS.Server.VideoSwitch.Configurator
             }
         }
 
+        public override bool IsVideoSwitcher => true;
     }
 }

@@ -71,45 +71,33 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Communicators\AtemCommunicator.cs" />
-    <Compile Include="Communicators\RossCommunicator.cs" />
-    <Compile Include="Configurator\AtemConfiguratorViewModel.cs" />
+    <Compile Include="Configurator\OutputPortViewModel.cs" />
     <Compile Include="Configurator\SmartVideoHubConfiguratorViewModel.cs" />
     <Compile Include="Configurator\ConfiguratorViewModelBase.cs" />
-    <Compile Include="Configurator\NevionConfiguratorViewModel.cs" />
     <Compile Include="Configurator\ConfiguratorView.xaml.cs">
       <DependentUpon>ConfiguratorView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Configurator\RossConfiguratorViewModel.cs" />
     <Compile Include="Helpers\BMDSwitcherWrapper.cs" />
     <Compile Include="Helpers\AtemMonitor.cs" />
     <Compile Include="Helpers\MessageRequest.cs" />
     <Compile Include="Helpers\QueryInterfaceWrapper.cs" />
     <Compile Include="Helpers\SocketConnection.cs" />
     <Compile Include="Model\CrosspointInfo.cs" />
-    <Compile Include="Model\Interfaces\IVideoSwitchCommunicator.cs" />
     <Compile Include="Model\MixEffectEventArgs.cs" />
-    <Compile Include="Model\Atem.cs" />
-    <Compile Include="Model\Nevion.cs" />
     <Compile Include="Model\PortInfo.cs" />
     <Compile Include="Model\PortState.cs" />
     <Compile Include="Model\Enums.cs" />
-    <Compile Include="Model\Interfaces\IRouterCommunicator.cs" />
-    <Compile Include="Model\Ross.cs" />
-    <Compile Include="Model\RouterBase.cs" />
+    <Compile Include="Model\VideoSwitchBase.cs" />
     <Compile Include="Model\SmartVideoHub.cs" />
     <Compile Include="Model\TransitionEffect.cs" />
     <Compile Include="Model\VideoSwitcher.cs" />
-    <Compile Include="AtemConfigurationProvider.cs" />
     <Compile Include="SmartVideoHubConfigurationProvider.cs" />
-    <Compile Include="NevionConfigurationProvider.cs" />
-    <Compile Include="RossConfigurationProvider.cs" />
     <Compile Include="Resources.xaml.cs">
       <DependentUpon>Resources.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Communicators\SmartVideoHubCommunicator.cs" />
     <Compile Include="Model\RouterPort.cs" />
     <Compile Include="Communicators\NevionCommunicator.cs" />
-    <Compile Include="Model\Router.cs" />
+    <Compile Include="Model\RouterBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VideoSwitchHibernationBinder.cs" />
   </ItemGroup>
