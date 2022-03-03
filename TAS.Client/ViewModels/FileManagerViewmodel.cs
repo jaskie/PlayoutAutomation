@@ -57,11 +57,11 @@ namespace TAS.Client.ViewModels
                 return;
             OnUiThread(() =>
             {
-                if (_clearFinished && e.Operation.OperationStatus != FileOperationStatus.Failed)
+                if (_clearFinished && e.Operation.OperationStatus != FileOperationStatus.Failed && (e.Operation.OperationWarning?.Count ?? 0) == 0) // don't remove failed or with warnings
                 {
                     FileOperationViewmodel
                         fovm = OperationList.FirstOrDefault(vm =>
-                            vm.FileOperation == e.Operation); // don't remove failed
+                            vm.FileOperation == e.Operation); 
                     if (fovm != null)
                     {
                         OperationList.Remove(fovm);
