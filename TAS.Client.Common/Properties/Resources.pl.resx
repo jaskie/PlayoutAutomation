@@ -379,4 +379,7 @@ Wskazane jest wykonanie kopii bezpieczeństwa.
 
 Kontynuować?</value>
   </data>
+  <data name="_validate_InvalidVideoFormat" xml:space="preserve">
+    <value>Nieprawidłowy format wideo.</value>
+  </data>
 </root>

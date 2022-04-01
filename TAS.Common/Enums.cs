@@ -229,6 +229,7 @@ namespace TAS.Common
         HD2160p5000 = 0x25,
         HD2160p5994 = 0x26,
         HD2160p6000 = 0x27,
+        Unknown = 0xFE,
         Other = 0xFF
     }
     class TVideoFormatEnumConverter : ResourceEnumConverter

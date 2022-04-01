@@ -14,6 +14,11 @@ namespace TAS.Common
             switch (format)
             {
                 case TVideoFormat.Other:
+                case TVideoFormat.Unknown:
+                    ImageSize = new Size(0, 0);
+                    FrameRate = new RationalNumber(25, 1);
+                    SAR = new RationalNumber(0, 1);
+                    break;
                 case TVideoFormat.PAL_FHA:
                     Interlaced = true;
                     ImageSize = new Size(720, 576);
@@ -277,6 +282,7 @@ namespace TAS.Common
             {TVideoFormat.HD720p5994, new VideoFormatDescription(TVideoFormat.HD720p5994)},
             {TVideoFormat.HD720p6000, new VideoFormatDescription(TVideoFormat.HD720p6000)},
             {TVideoFormat.Other, new VideoFormatDescription(TVideoFormat.Other)},
+            {TVideoFormat.Unknown, new VideoFormatDescription(TVideoFormat.Unknown)},
         };
         
         public static VideoFormatDescription Match(Size imageSize, RationalNumber frameRate, RationalNumber sar, bool interlaced)

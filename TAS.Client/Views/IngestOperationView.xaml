@@ -20,6 +20,15 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip"
+                    Value="{Binding RelativeSource={RelativeSource Self}, 
+                           Path=(Validation.Errors)/ErrorContent}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <Style TargetType="controls:TimecodeEdit" BasedOn="{StaticResource {x:Type TextBox}}">
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="true">
@@ -42,7 +51,7 @@
             <TextBox Text="{Binding DestFileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
             <StackPanel Visibility="{Binding IsStill, Converter={StaticResource BoolToVis}}">
                 <Label Content="{Resx _videoFormat}" />
-                <ComboBox ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding DestMediaVideoFormat}"  />
+                <ComboBox ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding DestMediaVideoFormat, ValidatesOnDataErrors=True}" />
             </StackPanel>
             <StackPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                 <Label Content="{Resx _category}" />

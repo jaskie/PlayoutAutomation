@@ -465,4 +465,7 @@
   <data name="TAudioChannelMappingConversion_ThirdTwoChannels" xml:space="preserve">
     <value>Tracks 5 &amp; 6 -&gt; Stereo</value>
   </data>
+  <data name="TVideoFormat_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
 </root>
