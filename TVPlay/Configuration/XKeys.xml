@@ -38,7 +38,7 @@
     </Backlights>
   </Plugin>
   <!-- Sample configuration for XK-12 Jog&Shuttle - preview control -->
-  <Plugin EngineName="TVP Szczecin" UnitId="1">
+  <Plugin EngineName="TVP Szczecin" UnitId="1" JogStep="2">
     <Commands>
       <Command Key="0"   ActiveOn="Press" CommandTarget="Engine" Method="LoadSelected"/>
       <Command Key="8"   ActiveOn="Press" CommandTarget="Engine" Method="StartLoaded"/>

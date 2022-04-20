@@ -40,6 +40,9 @@ namespace TAS.Client.XKeys
             CurrentPreview = previewProvider.Preview;
         }
 
+        [XmlAttribute]
+        public long JogStep { get; set; } = 2;
+
         [XmlIgnore]
         public IUiPreview CurrentPreview
         {
@@ -156,22 +159,22 @@ namespace TAS.Client.XKeys
             }
         }
 
-        private static long ShuttlePositionToFrames(ShuttlePositionEnum shuttlePosition)
+        private long ShuttlePositionToFrames(ShuttlePositionEnum shuttlePosition)
         {
             switch (shuttlePosition)
             {
                 case ShuttlePositionEnum.Backward7:
-                    return -15625;
+                    return -Pow(JogStep, 6);
                 case ShuttlePositionEnum.Backward6:
-                    return -3125;
+                    return -Pow(JogStep, 5);
                 case ShuttlePositionEnum.Backward5:
-                    return -625;
+                    return -Pow(JogStep, 4);
                 case ShuttlePositionEnum.Backward4:
-                    return -125;
+                    return -Pow(JogStep, 3);
                 case ShuttlePositionEnum.Backward3:
-                    return -25;
+                    return -Pow(JogStep, 2);
                 case ShuttlePositionEnum.Backward2:
-                    return -5;
+                    return -JogStep;
                 case ShuttlePositionEnum.Backward1:
                     return -1;
                 case ShuttlePositionEnum.Neutral:
@@ -179,20 +182,28 @@ namespace TAS.Client.XKeys
                 case ShuttlePositionEnum.Forward1:
                     return 1;
                 case ShuttlePositionEnum.Forward2:
-                    return 5;
+                    return JogStep;
                 case ShuttlePositionEnum.Forward3:
-                    return 25;
+                    return Pow(JogStep, 2);
                 case ShuttlePositionEnum.Forward4:
-                    return 125;
+                    return Pow(JogStep, 3);
                 case ShuttlePositionEnum.Forward5:
-                    return 625;
+                    return Pow(JogStep, 4);
                 case ShuttlePositionEnum.Forward6:
-                    return 3125;
+                    return Pow(JogStep, 5);
                 case ShuttlePositionEnum.Forward7:
-                    return 15625;
+                    return Pow(JogStep, 6);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(shuttlePosition));
             }
+        }
+
+        private static long Pow(long number, int powerOf)
+        {
+            long result = number;
+            for (int i = 2; i <= powerOf; i++)
+                result *= number;
+            return result;
         }
 
         private static void ExecuteOnKeyboard(string method)
