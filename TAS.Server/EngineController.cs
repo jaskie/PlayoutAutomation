@@ -12,16 +12,16 @@ namespace TAS.Server
 {
     public class EngineController
     {
+        public double ReferenceLoudnessLevel => _referenceLoudnessLevel;
 
         private EngineController()
         {
-            if (double.TryParse(ConfigurationManager.AppSettings["ReferenceLoudnessLevel"], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var referenceLoudnessLevel))
-                ReferenceLoudnessLevel = referenceLoudnessLevel;
-            else
-                ReferenceLoudnessLevel = -23;
+            if (!double.TryParse(ConfigurationManager.AppSettings["ReferenceLoudnessLevel"], NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out _referenceLoudnessLevel))
+                _referenceLoudnessLevel = -23;
         }
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly double _referenceLoudnessLevel;
 
         public static EngineController Current { get; } = new EngineController();
 
@@ -32,8 +32,6 @@ namespace TAS.Server
         public ReadOnlyCollection<Engine> Engines { get; private set; }
 
         public ReadOnlyCollection<ArchiveDirectory> ArchiveDirectories { get; private set; }
-
-        public double ReferenceLoudnessLevel { get; }
 
         public void InitializeEngines()
         {

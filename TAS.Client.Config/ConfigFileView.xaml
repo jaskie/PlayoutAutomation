@@ -45,7 +45,7 @@
                     </TextBox.ToolTip>
                 </TextBox>
                 <Label Grid.Row="1">Reference loudness level</Label>
-                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ReferenceLoudnessLevel}"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ReferenceLoudnessLevel, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
             <CheckBox Margin="0, 5" IsChecked="{Binding IsBackupInstance}" Content="Backup instance"/>
             <Label Content="User interface language"/>
