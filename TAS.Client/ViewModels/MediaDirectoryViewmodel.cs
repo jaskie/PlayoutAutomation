@@ -18,7 +18,7 @@ namespace TAS.Client.ViewModels
 
         public IMediaDirectory Directory { get; }
 
-        public bool IsOK => ((Directory as IWatcherDirectory)?.IsInitialized ?? true) && DirectoryFreePercentage >= 20;
+        public bool IsOK => (((Directory as IWatcherDirectory)?.IsInitialized ?? true) && DirectoryFreePercentage >= 20) || (Directory as IIngestDirectory)?.AccessType == TDirectoryAccessType.FTP;
 
         public long VolumeTotalSize => Directory.VolumeTotalSize;
 
