@@ -34,12 +34,6 @@
         <KeyBinding Command="{Binding CommandToggleHold}" Gesture="F6" />
         <KeyBinding Command="{Binding CommandToggleEnabled}" Gesture="F7" />
 
-        <KeyBinding Command="{Binding CommandCutSelected}" Gesture="Ctrl+X" />
-        <KeyBinding Command="{Binding CommandCopySelected}" Gesture="Ctrl+C" />
-        <KeyBinding Command="{Binding CommandPasteSelected}" CommandParameter="After" Gesture="Ctrl+V" />
-        <KeyBinding Command="{Binding CommandDeleteSelected}" Gesture="Ctrl+Delete" />
-        <KeyBinding Command="{Binding CommandUndelete}" Gesture="Ctrl+Z" />
-
         <KeyBinding Command="{Binding CommandFocusRundown}" Gesture="Esc" />
         <KeyBinding Command="{Binding CommandFocusEventName}" Gesture="Ctrl+E" />
         <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="Ctrl+S" />
@@ -657,6 +651,13 @@
                             <views:EventPanelCommandScriptView />
                         </DataTemplate>
                     </TreeView.Resources>
+                    <TreeView.InputBindings>
+                        <KeyBinding Command="{Binding CommandCutSelected}" Gesture="Ctrl+X" />
+                        <KeyBinding Command="{Binding CommandCopySelected}" Gesture="Ctrl+C" />
+                        <KeyBinding Command="{Binding CommandPasteSelected}" CommandParameter="After" Gesture="Ctrl+V" />
+                        <KeyBinding Command="{Binding CommandDeleteSelected}" Gesture="Ctrl+Delete" />
+                        <KeyBinding Command="{Binding CommandUndelete}" Gesture="Ctrl+Z" />
+                    </TreeView.InputBindings>
                 </TreeView>
             </DockPanel>
             <!--</TabItem>
