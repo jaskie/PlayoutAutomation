@@ -88,20 +88,6 @@ namespace TAS.Common
             }
         }
 
-        public static void SaveDelayed(this IEventPersistent aEvent)
-        {
-            if (aEvent.IsModified)
-                Task.Run(() => aEvent.Save());
-        }
-
-
-
-        public static long TransitionInFrames(this IEvent aEvent)
-        {
-            return aEvent.TransitionTime.Ticks / aEvent.Engine.FrameTicks; 
-        }
-
-
         public static double GetAudioVolume(this IEvent aEvent)
         {
             var volume = aEvent.AudioVolume;

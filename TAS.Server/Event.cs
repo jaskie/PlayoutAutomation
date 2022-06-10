@@ -14,6 +14,7 @@ using TAS.Common.Interfaces.Security;
 using TAS.Server.Media;
 using TAS.Server.Security;
 using jNet.RPC;
+using System.Threading.Tasks;
 
 namespace TAS.Server
 {
@@ -133,19 +134,19 @@ namespace TAS.Server
             _parental = parental;
             _autoStartFlags = autoStartFlags;
             _mediaGuid = mediaGuid;
-             _subEvents = new Lazy<SynchronizedCollection<Event>>(() =>
-             {
-                 var result = new SynchronizedCollection<Event>();
-                 if (Id == 0)
-                     return result;
-                 var seList = DatabaseProvider.Database.ReadSubEvents(_engine, this);
-                 foreach (Event e in seList)
-                 {
-                     e.SetParent(this);
-                     result.Add(e);
-                 }
-                 return result;
-             });
+            _subEvents = new Lazy<SynchronizedCollection<Event>>(() =>
+            {
+                var result = new SynchronizedCollection<Event>();
+                if (Id == 0)
+                    return result;
+                var seList = DatabaseProvider.Database.ReadSubEvents(_engine, this);
+                foreach (Event e in seList)
+                {
+                    e.SetParent(this);
+                    result.Add(e);
+                }
+                return result;
+            });
 
             _next = new Lazy<Event>(() =>
             {
@@ -214,7 +215,25 @@ namespace TAS.Server
         public TimeSpan Duration
         {
             get => _duration;
-            set => _setDuration(((Engine)Engine).AlignTimeSpan(value));
+            set
+            {
+                var oldDuration = _duration;
+                value = ((Engine)Engine).AlignTimeSpan(value);
+                if (!SetField(ref _duration, value, nameof(Duration)))
+                    return;
+                if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
+                {
+                    lock (_subEvents)
+                    {
+                        foreach (Event e in _subEvents.Value.Where(ev => ev.EventType == TEventType.StillImage))
+                        {
+                            var nd = e._duration + value - oldDuration;
+                            e.Duration = nd > TimeSpan.Zero ? nd : TimeSpan.Zero;
+                        }
+                    }
+                }
+                _durationChanged();
+            }
         }
 
         [DtoMember]
@@ -223,12 +242,9 @@ namespace TAS.Server
             get => _isEnabled;
             set
             {
-                if (SetField(ref _isEnabled, value))
-                {
-                    if (value)
-                        _uppdateScheduledTime();
-                    _durationChanged();
-                }
+                if (!SetField(ref _isEnabled, value))
+                    return;
+                _durationChanged();
             }
         }
 
@@ -662,7 +678,7 @@ namespace TAS.Server
                     next.SetPrior(prior);
                     next.StartType = startType;
                     if (prior == null)
-                        next._uppdateScheduledTime();
+                        next.UpdateScheduledTimeWithSuccessors();
                 }
                 if (parent != null)
                 {
@@ -734,6 +750,7 @@ namespace TAS.Server
             }
             _uppdateScheduledTime();
             e4?.Save();
+            e2._uppdateScheduledTime();
             e2.Save();
             Save();
             NotifyLocated();
@@ -780,6 +797,7 @@ namespace TAS.Server
             }
             e3._uppdateScheduledTime();
             e4?.Save();
+            _uppdateScheduledTime();
             Save();
             e3.Save();
             NotifyLocated();
@@ -907,10 +925,11 @@ namespace TAS.Server
                 {
                     prior.SetNext(null);
                     subEventToAdd.SetPrior(null);
-                    prior._durationChanged();
+                    prior.UpdateScheduledTimeWithSuccessors();
                 }
             }
-            subEventToAdd._uppdateScheduledTime();
+            subEventToAdd.UpdateScheduledTimeWithSuccessors();
+            
             // notify about relocation
             subEventToAdd.NotifyLocated();
             if (IdEventBinding == 0)
@@ -1004,7 +1023,6 @@ namespace TAS.Server
                 else
                     DatabaseProvider.Database.UpdateEvent(this);
                 IsModified = false;
-                Debug.WriteLine(this, "Event saved");
             }
             catch (Exception e)
             {
@@ -1052,27 +1070,24 @@ namespace TAS.Server
 
         internal PersistentMedia ServerMediaPRV => (_eventType == TEventType.Animation ? (WatcherDirectory)Engine.MediaManager.AnimationDirectoryPRV : (WatcherDirectory)Engine.MediaManager.MediaDirectoryPRV)?.FindMediaByMediaGuid(MediaGuid) as PersistentMedia;
 
-        internal void SaveLoadedTree()
+        internal static void SaveLoadedTree(Event ev)
         {
-            if (IsModified && _engine != null)
-                Save();
-            lock (_subEvents)
+            Debug.Assert(!(ev._engine is null));
+            while (!(ev is null))
             {
-                if (_subEvents == null || !_subEvents.IsValueCreated || _subEvents.Value == null)
-                    return;
-                foreach (var e in _subEvents.Value)
+                if (ev.IsModified)
+                    ev.Save();
+                lock (ev._subEvents)
                 {
-                    var ce = e;
-                    do
-                    {
-                        ce.SaveLoadedTree();
-                        var lne = ce._next;
-                        if (lne != null && lne.IsValueCreated)
-                            ce = lne.Value;
-                        else
-                            ce = null;
-                    } while (ce != null);
+                    if (!ev._subEvents.IsValueCreated || ev._subEvents.Value == null)
+                        return;
+                    foreach (var e in ev._subEvents.Value)
+                        SaveLoadedTree(e);
                 }
+                if (ev._next.IsValueCreated)
+                    ev = ev._next.Value;
+                else
+                    break;
             }
         }
 
@@ -1119,7 +1134,18 @@ namespace TAS.Server
         {
             return _position >= _duration.Ticks / Engine.FrameTicks;
         }
-        
+
+        internal long TransitionInFrames()
+        {
+            return TransitionTime.Ticks / Engine.FrameTicks;
+        }
+
+        internal void SaveDelayed()
+        {
+            if (IsModified)
+                Task.Run(Save);
+        }
+
         protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (!base.SetField(ref field, value, propertyName))
@@ -1127,7 +1153,6 @@ namespace TAS.Server
             IsModified = true;
             return true;
         }
-
 
         private void _delete()
         {
@@ -1165,7 +1190,7 @@ namespace TAS.Server
                     StartTime = default(DateTime);
                     StartTc = ScheduledTc;
                     Position = 0;
-                    _uppdateScheduledTime();
+                    UpdateScheduledTimeWithSuccessors();
                     break;
                 case TPlayState.Paused:
                     Position = 0;
@@ -1253,19 +1278,21 @@ namespace TAS.Server
 
         private void _durationChanged()
         {
-            if (_eventType == TEventType.Movie || _eventType == TEventType.Rundown || _eventType == TEventType.Live)
+            NotifyPropertyChanged(nameof(EndTime));
+            if (!(_next.Value is null))
             {
-                Event owner = _getVisualParent();
-                if (owner != null && owner._eventType == TEventType.Rundown)
-                    owner.Duration = owner._computedDuration();
-                Event ev = _getSuccessor();
-                if (ev != null)
-                    ev._uppdateScheduledTime();
-                NotifyPropertyChanged(nameof(EndTime));
+                _next.Value._uppdateScheduledTime();
+                foreach (var e in GetSubAndNextEvents(_next.Value))
+                {
+                    e._uppdateScheduledTime();
+                }
             }
+            Event owner = _getVisualParent();
+            if (owner != null && owner._eventType == TEventType.Rundown)
+                owner.Duration = owner._computedDuration();
         }
 
-        private void _uppdateScheduledTime()
+        private bool _uppdateScheduledTime()
         {
             Event baseEvent;
             DateTime determinedTime = DateTime.MinValue;
@@ -1287,10 +1314,15 @@ namespace TAS.Server
                         determinedTime = ((Engine)Engine).AlignDateTime(baseEvent.EndTime - _scheduledDelay - _duration);
                     break;
                 default:
-                    return;
+                    return false;
             }
-            if (determinedTime != DateTime.MinValue)
-                _setScheduledTime(determinedTime);
+            if (determinedTime != DateTime.MinValue && SetField(ref _scheduledTime, determinedTime, nameof(ScheduledTime)))
+            {
+                NotifyPropertyChanged(nameof(Offset));
+                NotifyPropertyChanged(nameof(EndTime));
+                return true;
+            }
+            return false;
         }
 
         private void _subEventsRemove(Event subEventToRemove)
@@ -1308,38 +1340,58 @@ namespace TAS.Server
         }
 
 
-        private void _setDuration(TimeSpan newDuration)
+        private void UpdateScheduledTimeWithSuccessors()
         {
-            var oldDuration = _duration;
-            if (SetField(ref _duration, newDuration, nameof(Duration)))
+            if (_uppdateScheduledTime())
+                foreach (Event e in GetSuccessors())
+                    if (!e._uppdateScheduledTime())
+                        break;
+        }
+
+        private static IEnumerable<Event> GetSubAndNextEvents(Event ev)
+        {
+            while (!(ev is null))
             {
-                if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
+                lock (ev._subEvents)
                 {
-                    foreach (Event e in GetSubEvents().Where(ev => ev.EventType == TEventType.StillImage))
+                    foreach (var se in ev._subEvents.Value)
                     {
-                        var nd = e._duration + newDuration - oldDuration;
-                        e._setDuration(nd > TimeSpan.Zero ? nd : TimeSpan.Zero);
+                        yield return se;
+                        foreach (var s in GetSubAndNextEvents(se))
+                            yield return s;
                     }
                 }
-                _durationChanged();
+                ev = ev._next.Value;
+                if (!(ev is null))
+                    yield return ev;
             }
+        }
 
+        private IEnumerable<Event> GetSuccessors()
+        {
+            foreach (var ev in GetSubAndNextEvents(this))
+                yield return ev;
+            Event current = this;
+            while (!((current = current._getVisualParent()) is null))
+            {
+                if (current._next.Value is null)
+                    continue;
+                yield return current._next.Value;
+                foreach (var ev in GetSubAndNextEvents(current._next.Value))
+                    yield return ev;
+            }
+            yield break;
         }
 
         private void _setScheduledTime(DateTime time)
         {
             if (SetField(ref _scheduledTime, time, nameof(ScheduledTime)))
             {
-                Debug.WriteLine($"Scheduled time updated: {this}");
-                var toUpdate = _getSuccessor();
-                toUpdate?._uppdateScheduledTime();  // trigger update all next events
-                lock (_subEvents)
-                {
-                    foreach (var ev in _subEvents.Value) //update all sub-events
-                        ev._uppdateScheduledTime();
-                }
                 NotifyPropertyChanged(nameof(Offset));
                 NotifyPropertyChanged(nameof(EndTime));
+                foreach (Event e in GetSuccessors())
+                    if (!e._uppdateScheduledTime())
+                        break;
             }
         }
 

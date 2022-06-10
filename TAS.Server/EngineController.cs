@@ -82,6 +82,7 @@ namespace TAS.Server
 
         public void ShutDown()
         {
+            Logger.Info("Engines shutdown started");
             if (Engines != null)
                 foreach (var e in Engines)
                     e.Dispose();

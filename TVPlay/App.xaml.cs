@@ -56,9 +56,9 @@ namespace TAS.Client
                 bool.TryParse(ConfigurationManager.AppSettings["IsBackupInstance"], out var isBackupInstance);
                 if ((!Mutex.WaitOne(5000) &&
                      (MessageBox.Show(Common.Properties.Resources._query_StartAnotherInstance, Common.Properties.Resources._caption_Confirmation,
-                          MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                          MessageBoxButton.OKCancel) == MessageBoxResult.Cancel))
                      || (isBackupInstance && MessageBox.Show(Common.Properties.Resources._query_StartBackupInstance,
-                             Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes)))
+                             Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes))
                 {
                     IsShutdown = true;
                     Shutdown(0);
