@@ -20,6 +20,7 @@ namespace TVPlayClient
         private ChannelViewmodel _channel;
         private bool _isLoading = true;
         private string _tabName;
+        private bool _isDisposed;
 
         public ChannelWrapperViewmodel(ChannelConfiguration channel)
         {
@@ -51,6 +52,9 @@ namespace TVPlayClient
 
         protected override void OnDispose()
         {
+            if (_isDisposed)
+                return;
+            _isDisposed = true;
             _channel?.Dispose();
             if (_client != null)
             {
@@ -81,18 +85,27 @@ namespace TVPlayClient
 
         private async void CreateView()
         {
-            _client = new RemoteClient(ClientTypeNameBinder.Current);
-            _client.Disconnected += ClientDisconnected;
-            if (await _client.ConnectAsync(_channelConfiguration.Address))
-            {
-                var engine = _client.GetRootObject<Engine>();
-                if (engine != null)
+            while (!_isDisposed)
+                try
                 {
-                    OnUiThread(() => SetupChannel(engine));
-                    return;
+                    _client = new RemoteClient(_channelConfiguration.Address, ClientTypeNameBinder.Current);
+                    var engine = _client.GetRootObject<Engine>();
+                    if (engine is null)
+                    {
+                        _client.Dispose();
+                        await Task.Delay(5000);
+                    }
+                    else
+                    {
+                        _client.Disconnected += ClientDisconnected;
+                        OnUiThread(() => SetupChannel(engine));
+                        return;
+                    }
                 }
-            }
-            await Task.Delay(1000);
+                catch
+                {
+                    await Task.Delay(5000);
+                }
         }
     }
 }

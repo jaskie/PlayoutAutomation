@@ -7,7 +7,6 @@ using System.Windows.Data;
 using System.Windows;
 using System.Collections;
 using System.Collections.ObjectModel;
-using System.Dynamic;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
@@ -474,22 +473,17 @@ namespace TAS.Client.ViewModels
                         {
                             if (!CanSearch(null))
                                 return;
-                            try
-                            {
-                                await Task.Run(() => StartMediaSearchProvider(ingestDirectory));
-                            }
-                            catch (Exception e)
-                            {
-                                if (ingestDirectory == SelectedDirectory.Directory)
-                                    MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message),
-                                        resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
-                            }
+                            await Task.Run(() => StartMediaSearchProvider(ingestDirectory));
                         }
                         break;
                 }
 #if DEBUG
                 Debug.WriteLine("MediaManagerViewmodel:ReloadFiles took {0} ms", stopwatch.ElapsedMilliseconds);
 #endif
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
             }
             finally
             {
@@ -512,6 +506,8 @@ namespace TAS.Client.ViewModels
         private void StartMediaSearchProvider(IMediaDirectory mediaDirectory)
         {
             var newSearch = mediaDirectory.Search(MediaCategory as TMediaCategory?, SearchText?.ToLower());
+            if (newSearch is null)
+                throw new ApplicationException($"IMediaSearchProvider for {mediaDirectory} not created");
             _currentSearchProvider = newSearch;
             newSearch.ItemAdded += Search_ItemAdded;
             newSearch.Finished += Search_Finished;
