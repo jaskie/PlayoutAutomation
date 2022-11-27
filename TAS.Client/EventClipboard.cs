@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using TAS.Client.ViewModels;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -33,18 +32,15 @@ namespace TAS.Client
             ClipboardChanged?.Invoke();
         }
         #region Undo
-        public static async Task SaveUndo(List<IEvent> items, IEvent undoDest)
+        public static void SaveUndo(List<IEvent> items, IEvent undoDest)
         {
-            await Task.Run(() =>
-            {
-                if (items == null)
-                    return;
-                Undos.Clear();
-                _undoDest = undoDest;
-                _undoEngine = items.FirstOrDefault()?.Engine;
-                foreach (var e in items)
-                    Undos.Add(EventProxy.FromEvent(e));
-            });
+            if (items == null)
+                return;
+            Undos.Clear();
+            _undoDest = undoDest;
+            _undoEngine = items.FirstOrDefault()?.Engine;
+            foreach (var e in items)
+                Undos.Add(EventProxy.FromEvent(e));
         }
 
         public static bool CanUndo()
@@ -57,21 +53,18 @@ namespace TAS.Client
             return Undos.Count > 0 && _undoEngine != null && _undoDest?.HaveRight(EventRight.Create) == true;
         }
 
-        public static async Task Undo()
+        public static void Undo()
         {
-            await Task.Run(() =>
+            using (var enumerator = Undos.GetEnumerator())
             {
-                using (var enumerator = Undos.GetEnumerator())
+                if (enumerator.MoveNext())
                 {
-                    if (enumerator.MoveNext())
-                    {
-                        var dest = _pasteUndo(enumerator.Current);
-                        while (enumerator.MoveNext())
-                            dest = _paste(enumerator.Current, dest, PasteLocation.After, ClipboardOperation.Copy);
-                    }
+                    var dest = _pasteUndo(enumerator.Current);
+                    while (enumerator.MoveNext())
+                        dest = _paste(enumerator.Current, dest, PasteLocation.After, ClipboardOperation.Copy);
                 }
-                _clearUndo();
-            });
+            }
+            _clearUndo();
         }
 
         private static void _clearUndo()
@@ -113,51 +106,42 @@ namespace TAS.Client
 
         #endregion //Undo
 
-        public static async Task Copy(IEnumerable<EventPanelViewmodelBase> items)
+        public static void Copy(IEnumerable<EventPanelViewmodelBase> items)
         {
-            await Task.Run(() =>
-            {
-                Clipboard.Clear();
-                foreach (var e in items)
-                    Clipboard.Add(EventProxy.FromEvent(e.Event));
-                _operation = ClipboardOperation.Copy;
-                _notifyClipboardChanged();
-            });
+            Clipboard.Clear();
+            foreach (var e in items)
+                Clipboard.Add(EventProxy.FromEvent(e.Event));
+            _operation = ClipboardOperation.Copy;
+            _notifyClipboardChanged();
         }
 
-        public static async Task Cut(IEnumerable<EventPanelViewmodelBase> items)
+        public static void Cut(IEnumerable<EventPanelViewmodelBase> items)
         {
-            await Task.Run(() =>
-            {
-                Clipboard.Clear();
-                foreach (var e in items)
-                    Clipboard.Add(e.Event);
-                _operation = ClipboardOperation.Cut;
-                _notifyClipboardChanged();
-            });
+            Clipboard.Clear();
+            foreach (var e in items)
+                Clipboard.Add(e.Event);
+            _operation = ClipboardOperation.Cut;
+            _notifyClipboardChanged();
         }
 
-        public static async Task<IEvent> Paste(EventPanelViewmodelBase destination, PasteLocation location)
+        public static IEvent Paste(EventPanelViewmodelBase destination, PasteLocation location)
         {
-            return await Task.Run(() =>
+            var dest = destination.Event;
+            if (CanPaste(destination, location))
             {
-                var dest = destination.Event;
-                if (CanPaste(destination, location))
+                var operation = _operation;
+                using (var enumerator = Clipboard.GetEnumerator())
                 {
-                    var operation = _operation;
-                    using (var enumerator = Clipboard.GetEnumerator())
-                    {
-                        if (!enumerator.MoveNext())
-                            return null;
-                        dest = _paste(enumerator.Current, dest, location, operation);
-                        while (enumerator.MoveNext())
-                            dest = _paste(enumerator.Current, dest, PasteLocation.After, operation);
-                    }
+                    if (!enumerator.MoveNext())
+                        return null;
+                    dest = _paste(enumerator.Current, dest, location, operation);
+                    while (enumerator.MoveNext())
+                        dest = _paste(enumerator.Current, dest, PasteLocation.After, operation);
                 }
-                if (_operation == ClipboardOperation.Cut)
-                    Clipboard.Clear();
-                return dest;
-            });
+            }
+            if (_operation == ClipboardOperation.Cut)
+                Clipboard.Clear();
+            return dest;
         }
 
         static IEvent _paste(IEventProperties source, IEvent dest, PasteLocation location, ClipboardOperation operation)
@@ -215,9 +199,7 @@ namespace TAS.Client
                 else
                     throw new InvalidOperationException($"Cannot paste from type: {source?.GetType().Name}");
             }
-            
         }
-
 
         public static bool CanPaste(EventPanelViewmodelBase destEventVm, PasteLocation location)
         {
@@ -246,7 +228,7 @@ namespace TAS.Client
             }
             return true;
         }
-        
+
         private static bool _canPaste(IEventProperties source, IEventProperties dest, PasteLocation location, ClipboardOperation operation)
         {
             var sourceEvent = source as IEvent;

@@ -33,7 +33,7 @@ namespace TAS.Client.ViewModels
         private MediaSearchViewmodel _mediaSearchViewModel;
         private readonly ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
         private readonly ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
-        private readonly ObservableCollection<EventPanelViewmodelBase> _multiSelectedEvents;
+        private readonly ObservableCollection<EventPanelViewmodelBase> _multiSelectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
 
         internal Views.EngineView View;
 
@@ -62,10 +62,9 @@ namespace TAS.Client.ViewModels
             if (preview != null && engine.HaveRight(EngineRight.Preview))
                 _preview = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit), false) { IsSegmentsVisible = true };
 
-
-            _multiSelectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
             _multiSelectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged += _engineViewmodel_ClipboardChanged;
+
             if (engine.PlayoutChannelPRI != null)
                 engine.PlayoutChannelPRI.PropertyChanged += OnServerChannelPropertyChanged;
             if (engine.PlayoutChannelSEC != null)
@@ -374,10 +373,10 @@ namespace TAS.Client.ViewModels
 
         private bool _canUndelete(object obj) => EventClipboard.CanUndo();
 
-        private async void _undelete(object obj)
+        private void _undelete(object obj)
         {
             if (MessageBox.Show(string.Format(resources._query_Undelete), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
-                await EventClipboard.Undo();
+                EventClipboard.Undo();
         }
 
         private bool _canClear(object obj) => Engine.HaveRight(EngineRight.Play);
@@ -507,17 +506,17 @@ namespace TAS.Client.ViewModels
 
         private void _eventHide(object obj) => (SelectedEventPanel as EventPanelContainerViewmodel)?.CommandHide.Execute(obj);
 
-        private async void _pasteSelected(object obj)
+        private void _pasteSelected(object obj)
         {
-            var added = await EventClipboard.Paste(_selectedEventPanel, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), (string)obj, true));
+            var added = EventClipboard.Paste(_selectedEventPanel, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), (string)obj, true));
             var vm = RootEventViewModel.Find(added, true);
             if (vm != null)
                 vm.IsSelected = true;
         }
 
-        private async void _copySelected(object obj) => await EventClipboard.Copy(_multiSelectedEvents.ToList());
+        private void _copySelected(object obj) => EventClipboard.Copy(_multiSelectedEvents.ToList());
 
-        private async void _cutSelected(object obj) => await EventClipboard.Cut(_multiSelectedEvents.ToList());
+        private void _cutSelected(object obj) => EventClipboard.Cut(_multiSelectedEvents.ToList());
 
         private bool _canExportMedia(object obj)
         {
@@ -649,7 +648,7 @@ namespace TAS.Client.ViewModels
                 || MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count, evmList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
                 return;
             var firstEvent = evmList.First().Event;
-            await EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.GetPrior() : firstEvent.GetParent());
+            EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.GetPrior() : firstEvent.GetParent());
             await Task.Run(
                 () =>
                 {

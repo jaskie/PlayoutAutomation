@@ -103,7 +103,7 @@ namespace TAS.Client.ViewModels
                 {
                     if (MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
                         return;
-                    await EventClipboard.SaveUndo(new List<IEvent> {Model},
+                    EventClipboard.SaveUndo(new List<IEvent> {Model},
                         Model.StartType == TStartType.After ? Model.GetPrior() : Model.GetParent());
                     await Task.Run(() => Model.Delete());
                 },
