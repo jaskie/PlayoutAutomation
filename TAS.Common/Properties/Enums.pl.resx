@@ -466,6 +466,6 @@
     <value>Ścieżki 5 i 6 -&gt; Stereo</value>
   </data>
   <data name="TVideoFormat_Unknown" xml:space="preserve">
-    <value>Unknown</value>
+    <value>Nieznany</value>
   </data>
 </root>
