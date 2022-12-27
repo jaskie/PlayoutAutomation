@@ -357,6 +357,9 @@ namespace TAS.Client.ViewModels
                 case nameof(IMedia.TcPlay):
                     StartTC = _operation.Source.TcPlay;
                     break;
+                case (nameof(IMedia.VideoFormat)):
+                    DestMediaVideoFormat = _operation.Source.VideoFormat;
+                    break;
                 case nameof(IMedia.IsVerified):
                     NotifyPropertyChanged(nameof(IsValid));
                     break;
