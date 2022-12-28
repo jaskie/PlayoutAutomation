@@ -1138,15 +1138,20 @@ namespace TAS.Client.ViewModels
 
         private void SetOnTopView(IEvent pe)
         {
-            var rootTrack = pe.GetVisualRootTrack().ToArray();
+            var rootTrack = pe.GetVisualRootTrack().ToArray().Reverse();
             EventPanelViewmodelBase vm = RootEventViewModel;
-            for (var i = rootTrack.Length - 1; i >= 0; i--)
+            foreach (var ev in rootTrack)
             {
-                vm = vm.Find(rootTrack[i], false);
-                if (vm?.IsVisible != true)
+                vm = vm.Find(ev, false);
+                if (vm is null)
                     return;
+                if (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Container)
+                    vm.IsExpanded = true;
                 if (vm.Event == pe)
-                    vm.SetOnTop();
+                    Application.Current?.Dispatcher.BeginInvoke(
+                        (Action)vm.SetOnTop,
+                        System.Windows.Threading.DispatcherPriority.Input // after expanded tree is rendered
+                        );
             }
         }
 
