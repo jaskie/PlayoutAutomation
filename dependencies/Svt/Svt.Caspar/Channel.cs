@@ -93,7 +93,6 @@ namespace Svt.Caspar
             if (item.Seek > 0) command.AppendFormat(" SEEK {0}", item.Seek);
             if (item.Length > 0) command.AppendFormat(" LENGTH {0}", item.Length);
             if (item.Loop) command.Append(" LOOP");
-            if (item.ChannelLayout != ChannelLayout.Default) command.AppendFormat(" CHANNEL_LAYOUT {0}", item.ChannelLayout.ToString().ToUpperInvariant());
             var transition = item.Transition?.Type;
             if (transition != null && transition != TransitionType.CUT)
                 command.AppendFormat(" {0}", item.Transition);

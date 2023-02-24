@@ -376,6 +376,9 @@ Wskazane jest wykonanie kopii bezpieczeństwa.
 
 Kontynuować?</value>
   </data>
+  <data name="_validate_InvalidVideoFormat" xml:space="preserve">
+    <value>Nieprawidłowy format wideo.</value>
+  </data>
   <data name="_button_Cancel" xml:space="preserve">
     <value>Anuluj</value>
   </data>

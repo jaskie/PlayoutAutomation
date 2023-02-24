@@ -499,7 +499,8 @@ namespace TAS.Server.Media
                 _ftpClient = Kind == TIngestDirectoryKind.XDCAM ?
                     new XdcamClient(uri)
                     {
-                        Credentials = GetNetworkCredential()
+                        Credentials = GetNetworkCredential(),
+                        ReadTimeout = 30000
                     }
                     : new FtpClient
                     {

@@ -108,16 +108,6 @@
       <Name>jNet.RPC</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj">
-      <Project>{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}</Project>
-      <Name>TAS.Client.Common</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TAS.Client.Config\TAS.Client.Config.csproj">
-      <Project>{86071de4-1a5d-4889-b54a-08da101b2b51}</Project>
-      <Name>TAS.Client.Config</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
       <Name>TAS.Common</Name>

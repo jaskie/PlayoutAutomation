@@ -27,7 +27,7 @@ namespace TAS.Server.Media
         private TimeSpan _durationPlay;
         private TimeSpan _tcStart;
         private TimeSpan _tcPlay;
-        private TVideoFormat _videoFormat;
+        private TVideoFormat _videoFormat = TVideoFormat.Unknown;
         private bool _fieldOrderInverted;
         private TAudioChannelMapping _audioChannelMapping;
         private double _audioVolume;

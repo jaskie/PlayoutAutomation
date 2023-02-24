@@ -37,9 +37,6 @@ namespace TAS.Client.ViewModels
             get => _selectedInputPort;
             set
             {
-                if (VideoSwitch.Inputs == value)
-                    return;
-
                 if (value == null)
                     return;
 

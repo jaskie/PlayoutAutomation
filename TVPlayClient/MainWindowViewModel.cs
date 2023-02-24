@@ -24,7 +24,7 @@ namespace TVPlayClient
             System.Threading.Thread.Sleep(2000); // wait for server startup
 #endif
             Application.Current.Dispatcher.ShutdownStarted += _dispatcher_ShutdownStarted;
-            _configurationFile = Path.Combine(FileUtils.LocalApplicationDataPath, ConfigurationFileName);
+            _configurationFile = Path.Combine(FileUtils.ApplicationDataPath, ConfigurationFileName);
             _loadTabs();
             CommandConfigure = new UiCommand(_configure);
         }

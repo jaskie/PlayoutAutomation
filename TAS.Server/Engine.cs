@@ -1,4 +1,5 @@
-﻿using System;
+﻿#undef DEBUG
+using System;
 using System.Collections;
 using System.Threading;
 using System.Collections.Generic;
@@ -331,7 +332,7 @@ namespace TAS.Server
             _engineThread.Start();
             Logger.Debug("Engine {0} initialized", this);
         }
-                
+
         [DtoMember]
         public ConnectionStateRedundant DatabaseConnectionState { get => _databaseConnectionState; set => SetField(ref _databaseConnectionState, value); }
 
@@ -352,7 +353,7 @@ namespace TAS.Server
                     return _visibleEvents.Cast<IEventPersistent>().ToList();
                 }
             }
-        }        
+        }
 
         [DtoMember]
         public IEvent Playing
@@ -1384,9 +1385,6 @@ namespace TAS.Server
                 }
 
                 _executeAutoStartEvents();
-
-                // preview controls
-                _preview?.Tick(_currentTicks, nFrames);
             }
         }
 
@@ -1478,7 +1476,7 @@ namespace TAS.Server
         {
             UnInitialize();
             foreach (var e in _rootEvents)
-                e.SaveLoadedTree();
+                Event.SaveLoadedTree(e);
             lock (_rights)
             {
                 if (_rights.IsValueCreated)
@@ -1536,18 +1534,19 @@ namespace TAS.Server
                 }
 
             var frameDuration = (ulong)FrameTicks;
-            QueryUnbiasedInterruptTime(out var currentTime);
-            var prevTime = currentTime - frameDuration;
+            QueryUnbiasedInterruptTime(out var unbiasedTime);
+            var prevTime = unbiasedTime - frameDuration;
             while (!_shutdownTokenSource.IsCancellationRequested)
             {
                 try
                 {
                     CurrentTime = AlignDateTime(DateTime.UtcNow + TimeSpan.FromMilliseconds(_timeCorrection));
-                    QueryUnbiasedInterruptTime(out currentTime);
+                    QueryUnbiasedInterruptTime(out unbiasedTime);
                     _currentTicks = CurrentTime.Ticks;
-                    var nFrames = (currentTime - prevTime) / frameDuration;
+                    var nFrames = (unbiasedTime - prevTime) / frameDuration;
                     prevTime += nFrames * frameDuration;
                     _tick((long)nFrames);
+                    _preview?.Tick(_currentTicks, (long)nFrames);
                     EngineTick?.Invoke(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
                     if (nFrames > 1)
                     {
@@ -1562,13 +1561,13 @@ namespace TAS.Server
                 {
                     Logger.Error($"Exception in Engine tick: {e}");
                 }
-                QueryUnbiasedInterruptTime(out currentTime);
-                var waitTime = (int)((prevTime + frameDuration - currentTime + 10000) / 10000);
+                QueryUnbiasedInterruptTime(out unbiasedTime);
+                var waitTime = (int)((prevTime + frameDuration - unbiasedTime + 10000) / 10000);
                 if (waitTime > 0)
                     Thread.Sleep(waitTime);
 #if DEBUG
                 else
-                    Debug.WriteLine("Negative waitTime");
+                    Debug.WriteLineIf(waitTime < 0, "Negative waitTime");
 #endif
             }
             Logger.Debug("Engine thread finished: {0}", this);
@@ -1697,7 +1696,7 @@ namespace TAS.Server
         #region PInvoke
         [DllImport("kernel32.dll")]
         private static extern int QueryUnbiasedInterruptTime(out ulong unbiasedTime);
-        #endregion // static methods
+        #endregion // static PInvoke
 
     }
 

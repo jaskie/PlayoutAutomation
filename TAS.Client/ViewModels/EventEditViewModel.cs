@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using resources = TAS.Client.Common.Properties.Resources;
+using System.Threading.Tasks;
 
 namespace TAS.Client.ViewModels
 {
@@ -104,9 +105,9 @@ namespace TAS.Client.ViewModels
                 {
                     if (MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
                         return;
-                    await EventClipboard.SaveUndo(new List<IEvent> {Model},
+                    EventClipboard.SaveUndo(new List<IEvent> {Model},
                         Model.StartType == TStartType.After ? Model.GetPrior() : Model.GetParent());
-                    Model.Delete();
+                    await Task.Run(() => Model.Delete());
                 },
                 o => Model.HaveRight(EventRight.Delete) && Model.AllowDelete()
             );
@@ -129,9 +130,9 @@ namespace TAS.Client.ViewModels
 
         public void UndoEdit()
         {
-            RecordingInfoViewModel?.Load();
-            TemplatedEditViewModel?.UndoEdit();
-            EventRightsEditViewModel?.UndoEdit();            
+            RecordingInfoViewmodel?.Load();
+            TemplatedEditViewmodel?.UndoEdit();
+            EventRightsEditViewmodel?.UndoEdit();
             Load();
         }
         

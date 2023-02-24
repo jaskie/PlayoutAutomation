@@ -7,7 +7,6 @@ using System.Windows.Data;
 using System.Windows;
 using System.Collections;
 using System.Collections.ObjectModel;
-using System.Dynamic;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
@@ -42,6 +41,7 @@ namespace TAS.Client.ViewModels
         private IMedia _selectedMedia;
         private IMediaSearchProvider _currentSearchProvider;
         private bool _isSearching;
+        private bool _isRefreshing;
 
         public MediaManagerViewModel(IEngine engine, IPreview preview)
         {
@@ -91,7 +91,7 @@ namespace TAS.Client.ViewModels
             CommandSweepStaleMedia = new UiCommand(SweepStaleMedia, o => CurrentUser.IsAdmin);
             CommandGetLoudness = new UiCommand(GetLoudness, o => IsSomethingSelected() && engine.HaveRight(EngineRight.MediaEdit));
             CommandExport = new UiCommand(Export, CanExport);
-            CommandRefresh = new UiCommand(ob => ReloadFiles(), CanRefresh);
+            CommandRefresh = new UiCommand(ob => RefreshFiles(), CanRefresh);
             CommandSyncPriToSec = new UiCommand(SyncSecToPri, o => (_selectedDirectory.IsServerDirectory || _selectedDirectory.IsAnimationDirectory) && CurrentUser.IsAdmin);
             CommandCloneAnimation = new UiCommand(CloneAnimation, CanCloneAnimation);
             CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
@@ -255,7 +255,7 @@ namespace TAS.Client.ViewModels
                         value.Directory.MediaAdded += SelectedDirectory_MediaAdded;
                         value.Directory.MediaRemoved += SelectedDirectory_MediaRemoved;
                         value.Directory.PropertyChanged += SelectedDirectory_PropertyChanged;
-                        ReloadFiles();
+                        RefreshFiles();
                         SetupPreview(value.Directory);
                     }
                     else
@@ -412,7 +412,7 @@ namespace TAS.Client.ViewModels
 
         private bool CanRefresh(object obj)
         {
-            return _selectedDirectory?.Directory is IIngestDirectory;
+            return _selectedDirectory?.Directory is IIngestDirectory && !_isRefreshing;
         }
 
         private void RecordersViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -444,48 +444,51 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private async void ReloadFiles()
+        private async void RefreshFiles()
         {
-            UiServices.Current.SetBusyState();
-#if DEBUG
-            var stopwatch = Stopwatch.StartNew();
-#endif
-            CancelMediaSearchProvider();
-            SetMediaItems(null);
-            switch (SelectedDirectory.Directory)
+            UiServices.SetBusyState();
+            _isRefreshing = true;
+            try
             {
-                case IServerDirectory serverDirectory:
-                    SetMediaItems(serverDirectory.GetAllFiles());
-                    break;
-                case IAnimationDirectory animationDirectory:
-                    SetMediaItems(animationDirectory.GetAllFiles());
-                    break;
-                case IArchiveDirectory archiveDirectory:
-                    await Task.Run(() => StartMediaSearchProvider(archiveDirectory));
-                    break;
-                case IIngestDirectory ingestDirectory:
-                    if (ingestDirectory.HaveFileWatcher)
-                        SetMediaItems(ingestDirectory.GetAllFiles());
-                    else
-                    {
-                        if (!CanSearch(null))
-                            return;
-                        try
+#if DEBUG
+                var stopwatch = Stopwatch.StartNew();
+#endif
+                CancelMediaSearchProvider();
+                SetMediaItems(null);
+                switch (SelectedDirectory.Directory)
+                {
+                    case IServerDirectory serverDirectory:
+                        SetMediaItems(serverDirectory.GetAllFiles());
+                        break;
+                    case IAnimationDirectory animationDirectory:
+                        SetMediaItems(animationDirectory.GetAllFiles());
+                        break;
+                    case IArchiveDirectory archiveDirectory:
+                        await Task.Run(() => StartMediaSearchProvider(archiveDirectory));
+                        break;
+                    case IIngestDirectory ingestDirectory:
+                        if (ingestDirectory.HaveFileWatcher)
+                            SetMediaItems(ingestDirectory.GetAllFiles());
+                        else
                         {
+                            if (!CanSearch(null))
+                                return;
                             await Task.Run(() => StartMediaSearchProvider(ingestDirectory));
                         }
-                        catch (Exception e)
-                        {
-                            if (ingestDirectory == SelectedDirectory.Directory)
-                                MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message),
-                                    resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
-                        }
-                    }
-                    break;
-            }
+                        break;
+                }
 #if DEBUG
-            Debug.WriteLine("MediaManagerViewModel:ReloadFiles took {0} ms", stopwatch.ElapsedMilliseconds);
+                Debug.WriteLine("MediaManagerViewmodel:ReloadFiles took {0} ms", stopwatch.ElapsedMilliseconds);
 #endif
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+            }
+            finally
+            {
+                _isRefreshing = false;
+            }
         }
 
         private void CancelMediaSearchProvider()
@@ -503,6 +506,8 @@ namespace TAS.Client.ViewModels
         private void StartMediaSearchProvider(IMediaDirectory mediaDirectory)
         {
             var newSearch = mediaDirectory.Search(MediaCategory as TMediaCategory?, SearchText?.ToLower());
+            if (newSearch is null)
+                throw new ApplicationException($"IMediaSearchProvider for {mediaDirectory} not created");
             _currentSearchProvider = newSearch;
             newSearch.ItemAdded += Search_ItemAdded;
             newSearch.Finished += Search_Finished;
@@ -753,7 +758,7 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(ItemsCount));
                 return;
             }
-            ReloadFiles();
+            RefreshFiles();
         }
 
         private void SetupPreview(IMediaDirectory directory)

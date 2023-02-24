@@ -752,6 +752,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid video format..
+        /// </summary>
+        public static string _validate_InvalidVideoFormat {
+            get {
+                return ResourceManager.GetString("_validate_InvalidVideoFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sum of duration and start delay exceeds item length..
         /// </summary>
         public static string _validate_ScheduledDelayInvalid {

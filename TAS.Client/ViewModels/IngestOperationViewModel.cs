@@ -221,7 +221,12 @@ namespace TAS.Client.ViewModels
         public TVideoFormat DestMediaVideoFormat
         {
             get => _destMediaVideoFormat;
-            set => SetField(ref _destMediaVideoFormat, value);
+            set
+            {
+                if (!SetField(ref _destMediaVideoFormat, value))
+                    return;
+                NotifyPropertyChanged(nameof(IsValid));
+            }
         }
 
         public bool ShowParentalCombo => _engine?.CGElementsController?.Parentals != null;
@@ -296,6 +301,10 @@ namespace TAS.Client.ViewModels
                         if (_engine.ServerMediaFieldLengths.TryGetValue(nameof(IServerMedia.IdAux), out var iaLength) && IdAux.Length > iaLength)
                             return resources._validate_TextTooLong;
                         break;
+                    case nameof(DestMediaVideoFormat):
+                        if (DestMediaVideoFormat == TVideoFormat.Unknown)
+                            return resources._validate_InvalidVideoFormat;
+                        break;
                 }
                 return null;
             }
@@ -350,6 +359,9 @@ namespace TAS.Client.ViewModels
                 case nameof(IMedia.TcPlay):
                     StartTC = _operation.Source.TcPlay;
                     NotifyPropertyChanged(nameof(CanTrim));
+                    break;
+                case (nameof(IMedia.VideoFormat)):
+                    DestMediaVideoFormat = _operation.Source.VideoFormat;
                     break;
                 case nameof(IMedia.IsVerified):
                     NotifyPropertyChanged(nameof(IsValid));

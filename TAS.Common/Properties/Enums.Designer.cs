@@ -1103,5 +1103,14 @@ namespace TAS.Common.Properties {
                 return ResourceManager.GetString("TVideoFormat_PAL_P", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown.
+        /// </summary>
+        public static string TVideoFormat_Unknown {
+            get {
+                return ResourceManager.GetString("TVideoFormat_Unknown", resourceCulture);
+            }
+        }
     }
 }

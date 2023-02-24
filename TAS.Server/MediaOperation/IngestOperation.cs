@@ -333,12 +333,10 @@ namespace TAS.Server.MediaOperation
                     }
                     if (audioStreams.Length > 1 && requiredOutputChannels > audioStreams[0].ChannelCount)
                     {
-                        //int audio_stream_count = 0;
                         var pf = new StringBuilder();
                         foreach (StreamInfo stream in audioStreams)
                         {
                             pf.AppendFormat("[0:{0}]", stream.Index);
-                            //audio_stream_count += stream.ChannelCount;
                         }
                         audioFilters.Add($"{pf}amerge=inputs={audioStreams.Length}");
                     }
@@ -347,6 +345,8 @@ namespace TAS.Server.MediaOperation
                     if (Math.Abs(AudioVolume) > double.Epsilon)
                         AddConversion(new MediaConversion(AudioVolume), audioFilters);
                     ep.Append(" -ar 48000");
+                    ep.Append($" -channel_layout {GetAudioChannelLayoutBitmask(requiredOutputChannels)}");
+                   
                 }
             }
             lastFilterIndex = audioFilters.Count - 1;
@@ -366,6 +366,16 @@ namespace TAS.Server.MediaOperation
             if (filters.Length > 0)
                 ep.AppendFormat(" -filter_complex \"{0}\"", string.Join(",", filters));
             return ep.ToString();
+        }
+
+        private long GetAudioChannelLayoutBitmask(int channels)
+        {
+            long result = 0;
+            while (channels-- > 0)
+            {
+                result = (result << 1) | 1;
+            }
+            return result;
         }
 
         private bool IsTrimmed()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
@@ -33,9 +34,9 @@ namespace TAS.Client.ViewModels
             );
             CommandToggleEnabled = new UiCommand
             (
-                o =>
+                async o =>
                 {
-                    Event.IsEnabled = !Event.IsEnabled;
+                    await Task.Run(() => Event.IsEnabled = !Event.IsEnabled);
                     Event.Save();
                 },
                 o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)

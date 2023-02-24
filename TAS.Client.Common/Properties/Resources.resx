@@ -376,6 +376,9 @@ Backup is strongly recommended.
 
 Proceed with update?</value>
   </data>
+  <data name="_validate_InvalidVideoFormat" xml:space="preserve">
+    <value>Invalid video format.</value>
+  </data>
   <data name="_button_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
