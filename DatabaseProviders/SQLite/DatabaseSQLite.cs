@@ -14,7 +14,7 @@ namespace TAS.Database.SQLite
     [Export(typeof(IDatabase))]
     public class DatabaseSQLite : DatabaseBase
     {
-       
+
         private static readonly string DatabaseFile = Path.Combine(FileUtils.ApplicationDataPath, "TVPlay.db");
 
         private long Version()
@@ -59,6 +59,7 @@ namespace TAS.Database.SQLite
 
         public override void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection, bool inConfigMode, IEnumerable<HibernationBinder> pluginTypeBinders)
         {
+            var path = FileUtils.ApplicationDataPath;
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
             var builder = new SQLiteConnectionStringBuilder

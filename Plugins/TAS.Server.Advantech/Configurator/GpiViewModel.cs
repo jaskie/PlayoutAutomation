@@ -5,13 +5,11 @@ using System.Windows.Data;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Configurator;
-using TAS.Database.Common.Interfaces;
 
 namespace TAS.Server.Advantech.Configurator
 {
     public class GpiViewModel : ModifyableViewModelBase, IPluginConfiguratorViewModel
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private Model.Gpi _gpi = new Model.Gpi();
         private Model.Gpi _testGpi = new Model.Gpi();
         private ObservableCollection<Model.GpiBinding> _gpiBindings = new ObservableCollection<Model.GpiBinding>();
@@ -19,13 +17,13 @@ namespace TAS.Server.Advantech.Configurator
         private bool _isEnabled;
         
         public GpiViewModel()
-        {            
+        {
             AddGpiBindingCommand = new UiCommand(AddGpiBinding, CanAddGpiBinding);
             DeleteGpiBindingCommand = new UiCommand(DeleteGpiBinding);
             SaveCommand = new UiCommand(UpdateModel, CanLocalSave);
             UndoCommand = new UiCommand(_ => Load(), CanUndo);
             GpiBindings = CollectionViewSource.GetDefaultView(_gpiBindings);
-        }        
+        }
 
         private bool CanAddGpiBinding(object obj)
         {
@@ -43,12 +41,12 @@ namespace TAS.Server.Advantech.Configurator
         {
             return IsModified;
         }
-        
+
         public void Load()
         {            
             if (_gpi == null)
                 return;
-            
+
             _gpiBindings = _gpi.Bindings;
             GpiBindings = CollectionViewSource.GetDefaultView(_gpiBindings);
             IsEnabled = _gpi.IsEnabled;
@@ -74,11 +72,11 @@ namespace TAS.Server.Advantech.Configurator
         }
 
         private void AddGpiBinding(object obj)
-        {                        
-            GpiBindingViewModel = new GpiBindingViewModel();            
+        {
+            GpiBindingViewModel = new GpiBindingViewModel();
         }
 
-        public event EventHandler PluginChanged;               
+        public event EventHandler PluginChanged;
 
         public object GetModel()
         {
@@ -93,7 +91,6 @@ namespace TAS.Server.Advantech.Configurator
 
         public void Save()
         {
-           
         }
 
         private void UpdateModel(object obj = null)
@@ -134,7 +131,7 @@ namespace TAS.Server.Advantech.Configurator
                 else
                     UpdateModel();
                     
-                NotifyPropertyChanged();                
+                NotifyPropertyChanged();
             }
         }
 
@@ -155,7 +152,6 @@ namespace TAS.Server.Advantech.Configurator
 
                 if (value != null)
                     _gpiBindingViewModel.Closing += GpiBindingViewModel_Closing;
-                
                 NotifyPropertyChanged();
             }
         }
@@ -172,15 +168,13 @@ namespace TAS.Server.Advantech.Configurator
                 _gpiBindings.Add(gpiBindingVm.GpiBinding);
                 _testGpi.Bindings.Add(gpiBindingVm.GpiBinding);
                 IsModified = true;
-            }            
-            
+            }
             gpiBindingVm.Dispose();
             GpiBindingViewModel = null;
         }
 
         protected override void OnDispose()
         {
-            
         }
     }
 }

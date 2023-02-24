@@ -9,7 +9,7 @@ namespace TAS.Client.ViewModels
         private IVideoSwitchPort _selectedInputPort;
         public VideoSwitchViewModel(IVideoSwitch videoSwitch)
         {
-            VideoSwitch = videoSwitch;            
+            VideoSwitch = videoSwitch;
             VideoSwitch.PropertyChanged += VideoSwitch_PropertyChanged;
 
             _selectedInputPort = VideoSwitch.SelectedSource;
@@ -35,13 +35,7 @@ namespace TAS.Client.ViewModels
         public IVideoSwitchPort SelectedSource
         {
             get => _selectedInputPort;
-            set
-            {
-                if (value == null)
-                    return;
-
-                SetField(ref _selectedInputPort, value);
-            }
+            set => SetField(ref _selectedInputPort, value);
         }
 
         public override bool CanOk(object obj)

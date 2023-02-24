@@ -106,7 +106,7 @@ namespace TAS.Client
 
         #endregion //Undo
 
-        public static void Copy(IEnumerable<EventPanelViewmodelBase> items)
+        public static void Copy(IEnumerable<EventPanelViewModelBase> items)
         {
             Clipboard.Clear();
             foreach (var e in items)
@@ -115,7 +115,7 @@ namespace TAS.Client
             _notifyClipboardChanged();
         }
 
-        public static void Cut(IEnumerable<EventPanelViewmodelBase> items)
+        public static void Cut(IEnumerable<EventPanelViewModelBase> items)
         {
             Clipboard.Clear();
             foreach (var e in items)
@@ -124,7 +124,7 @@ namespace TAS.Client
             _notifyClipboardChanged();
         }
 
-        public static IEvent Paste(EventPanelViewmodelBase destination, PasteLocation location)
+        public static IEvent Paste(EventPanelViewModelBase destination, PasteLocation location)
         {
             var dest = destination.Event;
             if (CanPaste(destination, location))
@@ -201,7 +201,7 @@ namespace TAS.Client
             }
         }
 
-        public static bool CanPaste(EventPanelViewmodelBase destEventVm, PasteLocation location)
+        public static bool CanPaste(EventPanelViewModelBase destEventVm, PasteLocation location)
         {
             if (destEventVm?.Event == null)
                 return false;

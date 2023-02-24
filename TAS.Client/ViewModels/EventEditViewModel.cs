@@ -130,9 +130,6 @@ namespace TAS.Client.ViewModels
 
         public void UndoEdit()
         {
-            RecordingInfoViewmodel?.Load();
-            TemplatedEditViewmodel?.UndoEdit();
-            EventRightsEditViewmodel?.UndoEdit();
             Load();
         }
         
@@ -141,8 +138,8 @@ namespace TAS.Client.ViewModels
             Model.RecordingInfo = RecordingInfoViewModel?.GetRecordingInfo();
             base.Update(Model);
             EventRightsEditViewModel?.Save();
-            TemplatedEditViewModel?.Save();            
-            Model.Save();            
+            TemplatedEditViewModel?.Save();
+            Model.Save();
         }
 
         public ICommand CommandUndoEdit { get; }

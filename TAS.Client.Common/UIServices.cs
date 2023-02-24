@@ -17,7 +17,7 @@ namespace TAS.Client.Common
         ///   A value indicating whether the UI is currently busy
         /// </summary>
         /// 
-        private static bool _isBusy;        
+        private static bool _isBusy;
 
        
         /// <summary>
@@ -29,7 +29,7 @@ namespace TAS.Client.Common
             if (busy == _isBusy)
                 return;
             _isBusy = busy;
-            RootDispatcher.Dispatcher.BeginInvoke((Action)(() => Mouse.OverrideCursor = busy ? Cursors.Wait : null ));                                
+            RootDispatcher.Dispatcher.BeginInvoke((Action)(() => Mouse.OverrideCursor = busy ? Cursors.Wait : null ));
             if (_isBusy)
                 new DispatcherTimer(TimeSpan.Zero, DispatcherPriority.ContextIdle, dispatcherTimer_Tick, RootDispatcher.Dispatcher);
         }
@@ -47,6 +47,6 @@ namespace TAS.Client.Common
             dispatcherTimer.Stop();
             dispatcherTimer.Tick -= dispatcherTimer_Tick;
         }
-                
+
     }
 }

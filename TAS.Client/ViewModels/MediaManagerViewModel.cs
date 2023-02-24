@@ -446,7 +446,7 @@ namespace TAS.Client.ViewModels
 
         private async void RefreshFiles()
         {
-            UiServices.SetBusyState();
+            UiServices.Current.SetBusyState();
             _isRefreshing = true;
             try
             {

@@ -32,7 +32,7 @@ namespace TAS.Client.ViewModels
         private MediaSearchViewModel _mediaSearchViewModel;
         private readonly ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
         private readonly ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
-        private readonly ObservableCollection<EventPanelViewmodelBase> _multiSelectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
+        private readonly ObservableCollection<EventPanelViewModelBase> _multiSelectedEvents = new ObservableCollection<EventPanelViewModelBase>();
 
         public EngineViewModel(IEngine engine, IPreview preview)
         {
@@ -60,7 +60,7 @@ namespace TAS.Client.ViewModels
                 _preview = new PreviewViewModel(preview, engine.HaveRight(EngineRight.MediaEdit), false) { IsSegmentsVisible = true };
 
             _multiSelectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
-            EventClipboard.ClipboardChanged += _engineViewmodel_ClipboardChanged;
+            EventClipboard.ClipboardChanged += _engineViewModel_ClipboardChanged;
 
             if (engine.PlayoutChannelPRI != null)
                 engine.PlayoutChannelPRI.PropertyChanged += OnServerChannelPropertyChanged;
@@ -1132,7 +1132,7 @@ namespace TAS.Client.ViewModels
         private void SetOnTopView(IEvent pe)
         {
             var rootTrack = pe.GetVisualRootTrack().ToArray().Reverse();
-            EventPanelViewmodelBase vm = RootEventViewModel;
+            EventPanelViewModelBase vm = RootEventViewModel;
             foreach (var ev in rootTrack)
             {
                 vm = vm.Find(ev, false);
