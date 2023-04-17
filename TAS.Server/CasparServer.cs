@@ -167,7 +167,6 @@ namespace TAS.Server
         {
             if (e.Connected)
             {
-                _casparDevice.RefreshTemplates();
                 _needUpdateChannels = true;
             }
             IsConnected = e.Connected;

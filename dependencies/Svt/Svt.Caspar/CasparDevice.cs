@@ -16,10 +16,6 @@ namespace Svt.Caspar
         public CasparDeviceSettings Settings { get; private set; }
         public Channel[] Channels { get; private set; }
         public Recorder[] Recorders { get; private set; }
-        public TemplatesCollection Templates { get; private set; }
-        public List<MediaInfo> Mediafiles { get; private set; }
-        public List<string> Datafiles { get; private set; }
-
         public string Version { get; private set; }
 
         public bool IsConnected => Connection != null && Connection.IsConnected;
@@ -35,9 +31,6 @@ namespace Svt.Caspar
 		public event EventHandler<DataEventArgs> DataRetrieved;
 		public event EventHandler<EventArgs> UpdatedChannels;
         public event EventHandler<EventArgs> UpdatedRecorders;
-        public event EventHandler<EventArgs> UpdatedTemplates;
-		public event EventHandler<EventArgs> UpdatedMediafiles;
-		public event EventHandler<EventArgs> UpdatedDatafiles;
         public event EventHandler<Network.Osc.OscPacketEventArgs> OscMessage;
 
         volatile bool bIsDisconnecting = false;
@@ -48,9 +41,6 @@ namespace Svt.Caspar
             Connection = new Network.ServerConnection();
             Channels = new Channel[0];
             Recorders = new Recorder[0];
-		    Templates = new TemplatesCollection();
-		    Mediafiles = new List<MediaInfo>();
-		    Datafiles = new List<string>();
             HostAddresses = new System.Net.IPAddress[0];
 
             Version = "unknown";
@@ -133,7 +123,6 @@ namespace Svt.Caspar
                 {
                     if (Connected != null)
                     {
-                        Connection.SendString("TLS");
                         Connected(this, new Svt.Network.NetworkEventArgs(e.Hostname, e.Port));
                     }
                 }
@@ -183,31 +172,6 @@ namespace Svt.Caspar
             if (IsConnected)
                 Connection.SendString(command);
         }
-		public void RefreshMediafiles()
-		{
-			if (IsConnected)
-                Connection.SendString("CLS");
-		}
-		public void RefreshTemplates()
-		{
-			if (IsConnected)
-                Connection.SendString("TLS");
-		}
-		public void RefreshDatalist()
-		{
-			if (IsConnected)
-                Connection.SendString("DATA LIST");
-		}
-		public void StoreData(string name, ICGDataContainer data)
-		{
-            if (IsConnected)
-                Connection.SendString(string.Format("DATA STORE \"{0}\" \"{1}\"", name, data.ToAMCPEscapedXml())); 
-		}
-		public void RetrieveData(string name)
-		{
-			if (IsConnected)
-                Connection.SendString(string.Format("DATA RETRIEVE \"{0}\"", name));
-		}
 
 		#region Connection
         public bool Connect(string host, int port)
@@ -305,22 +269,6 @@ namespace Svt.Caspar
             }
         }
 
-        internal void OnUpdatedTemplatesList(List<TemplateInfo> templates)
-		{
-            TemplatesCollection newTemplates = new TemplatesCollection();
-            newTemplates.Populate(templates);
-            Templates = newTemplates;
-
-            UpdatedTemplates?.Invoke(this, EventArgs.Empty);
-        }
-
-		internal void OnUpdatedMediafiles(List<MediaInfo> mediafiles)
-		{
-            Mediafiles = mediafiles;
-
-            UpdatedMediafiles?.Invoke(this, EventArgs.Empty);
-        }
-
 		internal void OnVersion(string version)
 		{
 			Version = version;
@@ -347,12 +295,6 @@ namespace Svt.Caspar
 		internal void OnLoadBG(string clipname)
 		{
 		}
-
-		internal void OnUpdatedDataList(List<string> datafiles)
-		{
-            Datafiles = datafiles;
-            UpdatedDatafiles?.Invoke(this, EventArgs.Empty);
-        }
 
 		internal void OnDataRetrieved(string data)
 		{
