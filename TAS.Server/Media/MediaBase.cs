@@ -357,8 +357,8 @@ namespace TAS.Server.Media
             }
             catch (Exception e)
             {
-                Logger.Error(e, "Verify {0} exception", this);
-                Debug.WriteLine(e);
+                MediaStatus = TMediaStatus.ValidationError;
+                Logger.Error(e, "Verify of {0} failed with exception: {1}", this, e.Message);
             }
         }
 
