@@ -60,8 +60,6 @@ namespace TAS.Server
         [DtoMember]
         public IArchiveDirectory ArchiveDirectory { get; private set; }
 
-        public ICGElementsController CGElementsController => _engine.CGElementsController;
-
         [DtoMember]
         public IEnumerable<IIngestDirectory> IngestDirectories => EngineController.Current.IngestDirectories;
 

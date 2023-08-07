@@ -68,13 +68,11 @@ namespace TAS.Server.Security
         private void Users_AcoOperation(object sender, CollectionOperationEventArgs<User> e)
         {
             UsersOperation?.Invoke(this, new CollectionOperationEventArgs<IUser>(e.Item, e.Operation));
-            NotifyPropertyChanged(nameof(Users));
         }
 
         private void Groups_AcoOperation(object sender, CollectionOperationEventArgs<IGroup> e)
         {
             GroupsOperation?.Invoke(this, new CollectionOperationEventArgs<IGroup>(e.Item, e.Operation));
-            NotifyPropertyChanged(nameof(Groups));
         }
     }
 }

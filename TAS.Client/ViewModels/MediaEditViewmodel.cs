@@ -244,9 +244,9 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _doNotArchive, value);
         }
 
-        public bool ShowParentalCombo => _mediaManager?.CGElementsController?.Parentals!= null;
+        public bool ShowParentalCombo => _mediaManager?.Engine.CGElementsController?.Parentals!= null;
 
-        public IEnumerable<ICGElement> Parentals => _mediaManager?.CGElementsController?.Parentals;
+        public IEnumerable<ICGElement> Parentals => _mediaManager?.Engine.CGElementsController?.Parentals;
 
         public byte Parental
         {

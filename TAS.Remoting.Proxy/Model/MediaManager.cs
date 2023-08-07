@@ -44,12 +44,7 @@ namespace TAS.Remoting.Model
         [DtoMember(nameof(IMediaManager.MediaDirectoryPRV))]
         private ServerDirectory _mediaDirectoryPrv;
 
-        [DtoMember(nameof(IEngine.CGElementsController))]
-        private CGElementsController _cgElementsController;
-
         #pragma warning restore
-
-        public ICGElementsController CGElementsController => _cgElementsController;
 
         public IEngine Engine => Get<Engine>();
 

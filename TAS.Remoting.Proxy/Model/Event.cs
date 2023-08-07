@@ -245,8 +245,8 @@ namespace TAS.Remoting.Model
                 EventRemove(_positionChanged);
             }
         }
-        private event EventHandler<CollectionOperationEventArgs<IEvent>> _subEventChanged;
 
+        private event EventHandler<CollectionOperationEventArgs<IEvent>> _subEventChanged;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged
         {
             add
@@ -306,7 +306,7 @@ namespace TAS.Remoting.Model
 
         public void DeleteRight(IAclRight item) { Invoke(parameters: new object[] { item }); }
 
-        public ulong CurrentUserRights => _currentUserRights;        
+        public ulong CurrentUserRights => _currentUserRights;
     
 
         public bool HaveRight(EventRight right)
