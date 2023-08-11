@@ -11,19 +11,11 @@
 // FFMpeg
 extern "C" 
 {
-#include "libavcodec/avcodec.h"
-#include "libavformat/avformat.h"
-#include "libavutil/pixdesc.h"
-#include "libavutil/rational.h"
-#include "libavutil/mathematics.h"
+#include <libavcodec\avcodec.h>
+#include <libavformat\avformat.h>
+#include <libavutil\rational.h>
+#include <libavutil\mathematics.h>
 }
 
 // Windows Header Files:
-#include <Windows.h>
-#include <MMSystem.h>
-#include <assert.h>
-
-#define IFC(x) { hr = (x); if (FAILED(hr)) goto Cleanup; }
-#define IFCOOM(x) { if ((x) == NULL) { hr = E_OUTOFMEMORY; IFC(hr); } }
-#define SAFE_RELEASE(x) { if (x) { x->Release(); x = NULL; } }
 

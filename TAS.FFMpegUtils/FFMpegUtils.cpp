@@ -5,7 +5,7 @@
 namespace TAS {
 	namespace FFMpegUtils {
 
-		AVFormatContext * open_file(char * fileName)
+		AVFormatContext * open_file(const char * fileName)
 		{
 			AVFormatContext * ctx = nullptr;
 			int ret = avformat_open_input(&ctx, fileName, NULL, NULL);
@@ -13,10 +13,10 @@ namespace TAS {
 			{
 				ret = avformat_find_stream_info(ctx, NULL);
 				if (ret < 0)
-					OutputDebugString(L"avformat_find_stream_info failed");
+					throw std::exception("avformat_find_stream_info failed");
 			}
 			else
-				OutputDebugString(L"avformat_open_input failed");
+				throw std::exception("avformat_open_input failed");
 			return ctx;
 		}
 
@@ -30,7 +30,7 @@ namespace TAS {
 		}
 
 		// unmanaged object
-		_FFMpegWrapper::_FFMpegWrapper(char* fileName)
+		_FFMpegWrapper::_FFMpegWrapper(const char* fileName)
 		{
 			pFormatCtx = std::unique_ptr<AVFormatContext, std::function<void(AVFormatContext *)>>(open_file(fileName), ([](AVFormatContext * ctx)
 			{			

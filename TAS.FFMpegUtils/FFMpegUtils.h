@@ -12,6 +12,15 @@ struct AVDictionary {};
 namespace TAS {
 	namespace FFMpegUtils {
 
+	static std::string ClrStringToStdString(String^ str)
+	{
+		if (str == nullptr)
+			return "";
+		array<Byte>^ bytes = System::Text::Encoding::UTF8->GetBytes(str + "\0");
+		pin_ptr<Byte> pinnedBytes = &bytes[0];
+		return reinterpret_cast<char*>(pinnedBytes);
+	}
+	
 	public enum class FieldOrder 
 	{
 		    UNKNOWN,
@@ -55,7 +64,7 @@ namespace TAS {
 		int64_t countFrames(unsigned int streamIndex);
 		AVFrame* decodeFirstFrame();
 	public:
-		_FFMpegWrapper(char* fileName);
+		_FFMpegWrapper(const char* fileName);
 		int64_t getVideoDuration();
 		int64_t getAudioDuration();
 		int64_t getFileDuration();
@@ -79,10 +88,16 @@ namespace TAS {
 		public:
 			FFMpegWrapper(String^ fileName)
 			{
-				_fileName = fileName;
-				IntPtr fn = Marshal::StringToHGlobalAnsi(fileName);
-				wrapper = new _FFMpegWrapper((char *)fn.ToPointer());
-				Marshal::FreeHGlobal(fn);
+				try
+				{
+					_fileName = fileName;
+					std::string fn = ClrStringToStdString(fileName);
+					wrapper = new _FFMpegWrapper(fn.c_str());
+				}
+				catch (const std::exception& ex)
+				{
+					throw gcnew System::ApplicationException(gcnew System::String(ex.what()));
+				}
 			}
 
 			~FFMpegWrapper() {

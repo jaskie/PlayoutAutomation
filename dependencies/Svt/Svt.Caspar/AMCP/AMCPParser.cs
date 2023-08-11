@@ -19,12 +19,9 @@ namespace Svt.Caspar.AMCP
 		PLAY,
 		STOP,
 		CG,
-		CLS,
 		CINF,
 		VERSION,
-		TLS,
 		INFO, 
-		DATA,
 		CLEAR,
 		SET,
         MIXER,
@@ -174,11 +171,6 @@ namespace Svt.Caspar.AMCP
 						return ParseClientErrorHeader(tokens);
 					case '5':
 						return ParseServerErrorHeader(tokens);
-
-					default:
-						//oops, what to do now? That was NOT expected.
-						//Just consume the line and hope the next one really IS a header
-						return HackParseRetrieveData(line);
 				}
 			}
 			else
@@ -187,14 +179,6 @@ namespace Svt.Caspar.AMCP
 				//Just consume the line and hope the next one really IS a header
 			}
 			return false;
-		}
-
-		private bool HackParseRetrieveData(string line)
-		{
-			nextParserEventArgs_.Command = AMCPCommand.DATA;
-			nextParserEventArgs_.Subcommand = "RETRIEVE";
-			nextParserEventArgs_.Data.Add(line.Replace("\\n", "\n"));
-			return true;
 		}
 
 		bool ParseSuccessHeader(string[] tokens)
