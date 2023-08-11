@@ -60,7 +60,7 @@ namespace TAS.Server
                     portValue = (byte)(portValue | 0x1 << pin);
                 else
                     portValue = (byte)(portValue & ~(0x1 << pin));
-                return _do.Write(portValue, portValue) == ErrorCode.Success;
+                return _do.Write(port, portValue) == ErrorCode.Success;
             }
         }
 
