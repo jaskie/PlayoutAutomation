@@ -88,6 +88,11 @@ namespace TAS.Common
             }
         }
 
+        public static bool IsRundownOrCommandScript(this IEvent aEvent)
+        {
+            return aEvent.EventType == TEventType.Rundown || aEvent.EventType == TEventType.CommandScript;
+        }
+
         public static double GetAudioVolume(this IEvent aEvent)
         {
             var volume = aEvent.AudioVolume;

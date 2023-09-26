@@ -646,17 +646,17 @@ namespace TAS.Server
             TEventType eventType = TEventType.Rundown,
             TStartType startType = TStartType.None,
             TPlayState playState = TPlayState.Scheduled,
-            DateTime scheduledTime = default(DateTime),
-            TimeSpan duration = default(TimeSpan),
-            TimeSpan scheduledDelay = default(TimeSpan),
-            TimeSpan scheduledTC = default(TimeSpan),
-            Guid mediaGuid = default(Guid),
+            DateTime scheduledTime = default,
+            TimeSpan duration = default,
+            TimeSpan scheduledDelay = default,
+            TimeSpan scheduledTC = default,
+            Guid mediaGuid = default,
             string eventName = "",
-            DateTime startTime = default(DateTime),
-            TimeSpan startTC = default(TimeSpan),
+            DateTime startTime = default,
+            TimeSpan startTC = default,
             TimeSpan? requestedStartTime = null,
-            TimeSpan transitionTime = default(TimeSpan),
-            TimeSpan transitionPauseTime = default(TimeSpan),
+            TimeSpan transitionTime = default,
+            TimeSpan transitionPauseTime = default,
             TTransitionType transitionType = TTransitionType.Cut,
             TEasing transitionEasing = TEasing.Linear,
             double? audioVolume = null,
@@ -1090,7 +1090,7 @@ namespace TAS.Server
                 aEvent.PlayState = TPlayState.Playing;
                 if (aEvent.SubEventsCount > 0)
                     foreach (Event se in aEvent.GetSubEvents())
-                        if (se.ScheduledDelay == TimeSpan.Zero)
+                        if (se.ScheduledDelay == TimeSpan.Zero && (se.IsRundownOrCommandScript() || se.Layer != aEvent.Layer))
                             _play(se, fromBeginning);
             }
             aEvent.SaveDelayed();
@@ -1290,7 +1290,7 @@ namespace TAS.Server
                         {
                             TimeSpan playingEventPosition = TimeSpan.FromTicks(playingEvent.Position * FrameTicks);
                             TimeSpan playingEventDuration = playingEvent.Duration;
-                            var sel = playingEvent.GetSubEvents().Where(e => e.PlayState == TPlayState.Scheduled);
+                            var sel = playingEvent.GetSubEvents().Where(e => e.PlayState == TPlayState.Scheduled && (e.IsRundownOrCommandScript() || e.Layer != playingEvent.Layer));
                             foreach (Event se in sel)
                             {
                                 IEvent preloaded;

@@ -99,7 +99,7 @@ namespace TAS.Client.ViewModels
             CommandDeleteSelected = new UiCommand(_deleteSelected, _canDeleteSelected);
             CommandCopySelected = new UiCommand(_copySelected, o => _multiSelectedEvents.Count > 0);
             CommandCutSelected = new UiCommand(_cutSelected, _canDeleteSelected);
-            CommandPasteSelected = new UiCommand(_pasteSelected, o => EventClipboard.CanPaste(_selectedEventPanel, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), o.ToString(), true)));
+            CommandPasteSelected = new UiCommand(_pasteSelected, _canPasteSelected);
             CommandExportMedia = new UiCommand(_exportMedia, _canExportMedia);
             CommandUndelete = new UiCommand(_undelete, _canUndelete);
 
@@ -508,10 +508,19 @@ namespace TAS.Client.ViewModels
 
         private void _pasteSelected(object obj)
         {
-            var added = EventClipboard.Paste(_selectedEventPanel, (EventClipboard.PasteLocation)Enum.Parse(typeof(EventClipboard.PasteLocation), (string)obj, true));
+            if (!Enum.TryParse<EventClipboard.PasteLocation>((string)obj, out EventClipboard.PasteLocation location))
+                return;
+            var added = EventClipboard.Paste(_selectedEventPanel, location);
             var vm = RootEventViewModel.Find(added, true);
             if (vm != null)
                 vm.IsSelected = true;
+        }
+
+        private bool _canPasteSelected(object obj)
+        {
+            if (!Enum.TryParse<EventClipboard.PasteLocation>((string)obj, out EventClipboard.PasteLocation location))
+                return false;
+            return EventClipboard.CanPaste(_selectedEventPanel, location);
         }
 
         private void _copySelected(object obj) => EventClipboard.Copy(_multiSelectedEvents.ToList());
