@@ -58,7 +58,7 @@ namespace TAS.Remoting.Model
                     _finished?.Invoke(this, EventArgs.Empty);
                     break;
                 case nameof(ItemAdded):
-                    _itemAdded?.Invoke(this, Deserialize<EventArgs<T>>(message));
+                    _itemAdded?.Invoke(this, DeserializeEventArgs<EventArgs<T>>(message));
                     break;
             }
         }

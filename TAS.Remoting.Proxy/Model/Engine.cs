@@ -344,16 +344,16 @@ namespace TAS.Remoting.Model
             switch (message.MemberName)
             {
                 case nameof(IEngine.EngineTick):
-                    _engineTick?.Invoke(this, Deserialize<EngineTickEventArgs>(message));
+                    _engineTick?.Invoke(this, DeserializeEventArgs<EngineTickEventArgs>(message));
                     break;
                 case nameof(IEngine.EngineOperation):
-                    _engineOperation?.Invoke(this, Deserialize<EngineOperationEventArgs>(message));
+                    _engineOperation?.Invoke(this, DeserializeEventArgs<EngineOperationEventArgs>(message));
                     break;
                 case nameof(IEngine.EventLocated):
-                    _eventLocated?.Invoke(this, Deserialize<EventEventArgs>(message));
+                    _eventLocated?.Invoke(this, DeserializeEventArgs<EventEventArgs>(message));
                     break;
                 case nameof(IEngine.EventDeleted):
-                    _eventDeleted?.Invoke(this, Deserialize<EventEventArgs>(message));
+                    _eventDeleted?.Invoke(this, DeserializeEventArgs<EventEventArgs>(message));
                     break;
             }
         }

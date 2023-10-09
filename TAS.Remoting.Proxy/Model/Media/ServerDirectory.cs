@@ -42,7 +42,7 @@ namespace TAS.Remoting.Model.Media
             switch (message.MemberName)
             {
                 case nameof(IngestStatusUpdated):
-                    IngestStatusUpdatedEvent?.Invoke(this, Deserialize<MediaIngestStatusEventArgs>(message));
+                    IngestStatusUpdatedEvent?.Invoke(this, DeserializeEventArgs<MediaIngestStatusEventArgs>(message));
                     break;
             }
         }

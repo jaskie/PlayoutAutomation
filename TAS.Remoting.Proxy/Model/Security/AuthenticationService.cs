@@ -76,10 +76,10 @@ namespace TAS.Remoting.Model.Security
             {
 
                 case nameof(UsersOperation):
-                    _usersOperation?.Invoke(this, Deserialize<CollectionOperationEventArgs<IUser>>(message));
+                    _usersOperation?.Invoke(this, DeserializeEventArgs<CollectionOperationEventArgs<IUser>>(message));
                     break;
                 case nameof(GroupsOperation):
-                    _groupsOperation?.Invoke(this, Deserialize<CollectionOperationEventArgs<IGroup>>(message));
+                    _groupsOperation?.Invoke(this, DeserializeEventArgs<CollectionOperationEventArgs<IGroup>>(message));
                     break;
             }
         }

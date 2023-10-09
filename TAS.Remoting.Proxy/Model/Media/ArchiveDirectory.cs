@@ -44,7 +44,7 @@ namespace TAS.Remoting.Model.Media
             switch (message.MemberName)
             { 
                 case nameof(MediaIsArchived):
-                    MediaIsArchivedEvent?.Invoke(this, Deserialize<MediaIsArchivedEventArgs>(message));
+                    MediaIsArchivedEvent?.Invoke(this, DeserializeEventArgs<MediaIsArchivedEventArgs>(message));
                     break;
             }
         }

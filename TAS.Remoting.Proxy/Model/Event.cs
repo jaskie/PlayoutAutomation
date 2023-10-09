@@ -266,10 +266,10 @@ namespace TAS.Remoting.Model
             switch (message.MemberName)
             {
                 case nameof(IEvent.PositionChanged):
-                    _positionChanged?.Invoke(this, Deserialize<EventPositionEventArgs>(message));
+                    _positionChanged?.Invoke(this, DeserializeEventArgs<EventPositionEventArgs>(message));
                     break;
                 case nameof(IEvent.SubEventChanged):
-                    var ea = Deserialize<CollectionOperationEventArgs<IEvent>>(message);
+                    var ea = DeserializeEventArgs<CollectionOperationEventArgs<IEvent>>(message);
                     _subEventChanged?.Invoke(this, ea);
                     break;
             }

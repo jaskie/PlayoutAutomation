@@ -48,7 +48,7 @@ namespace TAS.Remoting.Model.MediaOperation
         protected override void OnEventNotification(SocketMessage message)
         {
             if (message.MemberName == nameof(AudioVolumeMeasured))
-                _audioVolumeMeasured?.Invoke(this, Deserialize<AudioVolumeEventArgs>(message));
+                _audioVolumeMeasured?.Invoke(this, DeserializeEventArgs<AudioVolumeEventArgs>(message));
             else
                 base.OnEventNotification(message);
         }

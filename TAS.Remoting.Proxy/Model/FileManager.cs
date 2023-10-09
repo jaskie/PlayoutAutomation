@@ -68,11 +68,11 @@ namespace TAS.Remoting.Model
         {
             if (message.MemberName == nameof(OperationAdded))
             {
-                _operationAdded?.Invoke(this, Deserialize<FileOperationEventArgs>(message));
+                _operationAdded?.Invoke(this, DeserializeEventArgs<FileOperationEventArgs>(message));
             }
             if (message.MemberName == nameof(OperationCompleted))
             {
-                _operationCompleted?.Invoke(this, Deserialize<FileOperationEventArgs>(message));
+                _operationCompleted?.Invoke(this, DeserializeEventArgs<FileOperationEventArgs>(message));
             }
         }
 

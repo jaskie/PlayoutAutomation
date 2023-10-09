@@ -89,7 +89,7 @@ namespace TAS.Remoting.Model.MediaOperation
         {
             if (message.MemberName == nameof(Finished))
             {
-                _finished?.Invoke(this, Deserialize<EventArgs>(message));
+                _finished?.Invoke(this, DeserializeEventArgs<EventArgs>(message));
             }
         }
     }

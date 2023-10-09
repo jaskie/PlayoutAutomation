@@ -139,10 +139,10 @@ namespace TAS.Remoting.Model
             switch (message.MemberName)
             {
                 case nameof(IPreview.StillImageLoaded):
-                    _stillImageLoaded?.Invoke(this, Deserialize<MediaOnLayerEventArgs>(message));
+                    _stillImageLoaded?.Invoke(this, DeserializeEventArgs<MediaOnLayerEventArgs>(message));
                     break;
                 case nameof(IPreview.StillImageUnLoaded):
-                    _stillImageUnLoaded?.Invoke(this, Deserialize<MediaOnLayerEventArgs>(message));
+                    _stillImageUnLoaded?.Invoke(this, DeserializeEventArgs<MediaOnLayerEventArgs>(message));
                     break;
             }
         }

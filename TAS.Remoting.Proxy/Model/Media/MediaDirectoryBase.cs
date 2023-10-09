@@ -105,13 +105,13 @@ namespace TAS.Remoting.Model.Media
             switch (message.MemberName)
             {
                 case nameof(MediaAdded):
-                    MediaAddedEvent?.Invoke(this, Deserialize<MediaEventArgs>(message));
+                    MediaAddedEvent?.Invoke(this, DeserializeEventArgs<MediaEventArgs>(message));
                     break;
                 case nameof(MediaRemoved):
-                    MediaRemovedEvent?.Invoke(this, Deserialize<MediaEventArgs>(message));
+                    MediaRemovedEvent?.Invoke(this, DeserializeEventArgs<MediaEventArgs>(message));
                     break;
                 case nameof(MediaVerified):
-                    MediaVerifiedEvent?.Invoke(this, Deserialize<MediaEventArgs>(message));
+                    MediaVerifiedEvent?.Invoke(this, DeserializeEventArgs<MediaEventArgs>(message));
                     break;
             }
         }

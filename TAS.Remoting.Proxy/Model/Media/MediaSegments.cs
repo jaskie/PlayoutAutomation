@@ -65,12 +65,12 @@ namespace TAS.Remoting.Model.Media
             switch (message.MemberName)
             {
                 case nameof(IMediaSegments.SegmentAdded):
-                    var eAdded = Deserialize<MediaSegmentEventArgs>(message);
+                    var eAdded = DeserializeEventArgs<MediaSegmentEventArgs>(message);
                     _segments.Add(eAdded.Segment as MediaSegment);
                     _segmentAdded?.Invoke(this, eAdded);
                     break;
                 case nameof(IMediaSegments.SegmentRemoved):
-                    var eRemoved = Deserialize<MediaSegmentEventArgs>(message);
+                    var eRemoved = DeserializeEventArgs<MediaSegmentEventArgs>(message);
                     _segments.Remove(eRemoved.Segment as MediaSegment);
                     _segmentRemoved?.Invoke(this, eRemoved);
                     break;
