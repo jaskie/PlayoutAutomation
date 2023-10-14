@@ -12,7 +12,7 @@ namespace TAS.Remoting.Model
     public class MediaManager : ProxyObjectBase, IMediaManager
     {
 
-        #pragma warning disable CS0649
+        #pragma warning disable CS0649, IDE0044
 
         [DtoMember(nameof(IMediaManager.AnimationDirectoryPRI))]
         private AnimationDirectory _animationDirectoryPRI;

@@ -183,8 +183,8 @@ namespace TAS.Server
                 _casparDevice.UpdatedRecorders -= CasparDevice_UpdatedRecorders;
                 _casparDevice.Dispose();
             }
-            MediaDirectory?.Dispose();
-            AnimationDirectory?.Dispose();
+            (MediaDirectory as IDisposable)?.Dispose();
+            (AnimationDirectory as IDisposable)?.Dispose();
         }
     }
 

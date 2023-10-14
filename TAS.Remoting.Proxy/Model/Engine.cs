@@ -12,7 +12,7 @@ namespace TAS.Remoting.Model
 {
     public class Engine : ProxyObjectBase, IEngine
     {
-        #pragma warning disable CS0649
+        #pragma warning disable CS0649, IDE0044
 
         [DtoMember(nameof(IEngine.CurrentTime))]
         private DateTime _currentTime;
@@ -173,17 +173,17 @@ namespace TAS.Remoting.Model
                     TEventType eventType = TEventType.Rundown,
                     TStartType startType = TStartType.None,
                     TPlayState playState = TPlayState.Scheduled,
-                    DateTime scheduledTime = default(DateTime),
-                    TimeSpan duration = default(TimeSpan),
-                    TimeSpan scheduledDelay = default(TimeSpan),
-                    TimeSpan scheduledTC = default(TimeSpan),
-                    Guid mediaGuid = default(Guid),
+                    DateTime scheduledTime = default,
+                    TimeSpan duration = default,
+                    TimeSpan scheduledDelay = default,
+                    TimeSpan scheduledTC = default,
+                    Guid mediaGuid = default,
                     string eventName = "",
-                    DateTime startTime = default(DateTime),
-                    TimeSpan startTC = default(TimeSpan),
+                    DateTime startTime = default,
+                    TimeSpan startTC = default,
                     TimeSpan? requestedStartTime = null,
-                    TimeSpan transitionTime = default(TimeSpan),
-                    TimeSpan transitionPauseTime = default(TimeSpan),
+                    TimeSpan transitionTime = default,
+                    TimeSpan transitionPauseTime = default,
                     TTransitionType transitionType = TTransitionType.Cut,
                     TEasing transitionEasing = TEasing.Linear,
                     double? audioVolume = null,

@@ -4,7 +4,7 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Common.Interfaces.MediaDirectory
 {
-    public interface IWatcherDirectory : IMediaDirectory, IDisposable
+    public interface IWatcherDirectory : IMediaDirectory
     {
         bool IsInitialized { get; }
 

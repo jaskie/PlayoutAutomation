@@ -832,41 +832,6 @@ namespace TAS.Server
             }
         }
 
-        // internal methods
-        internal void UnInitialize()
-        {
-            Debug.WriteLine(this, "Aborting engine thread");
-            _engineThread.Abort();
-            _engineThread.Join();
-            EngineState = TEngineState.NotInitialized;
-
-            var chPRI = PlayoutChannelPRI as CasparServerChannel;
-            var chSEC = PlayoutChannelSEC as CasparServerChannel;
-            if (chSEC != null
-                && chSEC != chPRI)
-                chSEC.Owner.PropertyChanged -= _server_PropertyChanged;
-            if (chPRI != null)
-                chPRI.Owner.PropertyChanged -= _server_PropertyChanged;
-
-            if (Remote != null)
-            {
-                Debug.WriteLine(this, "UnInitializing Remote interface");
-                Remote.UnInitialize();
-            }
-            if (_localGpis != null)
-                foreach (var gpi in _localGpis)
-                    gpi.Started -= _gpiStartLoaded;
-
-            var cgElementsController = CGElementsController;
-            if (cgElementsController != null)
-            {
-                Debug.WriteLine(this, "Uninitializing CGElementsController");
-                cgElementsController.Started -= _gpiStartLoaded;
-                cgElementsController.Dispose();
-            }
-
-            Debug.WriteLine(this, "Engine uninitialized");
-        }
         internal void AddFixedTimeEvent(Event e)
         {
             _fixedTimeEvents.Add(e);
@@ -1434,8 +1399,8 @@ namespace TAS.Server
                     _rights.Value.ForEach(r => ((EngineAclRight)r).Saved -= AclRight_Saved);
             }
             DatabaseProvider.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
-            CGElementsController?.Dispose();
-            Router?.Dispose();
+            (CGElementsController as IDisposable)?.Dispose();
+            (Router as IDisposable)?.Dispose();
             Remote?.Dispose();
             _preview?.Dispose();
             _mediaManager.Dispose();

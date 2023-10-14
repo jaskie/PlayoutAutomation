@@ -526,9 +526,9 @@ namespace TAS.Client.ViewModels
         {
             if (!(sender is IMediaSearchProvider provider))
                 return;
-            provider.Dispose();
             provider.ItemAdded -= Search_ItemAdded;
             provider.Finished -= Search_Finished;
+            provider.Dispose();
             if (provider != _currentSearchProvider)
                 return;
             _currentSearchProvider = null;
