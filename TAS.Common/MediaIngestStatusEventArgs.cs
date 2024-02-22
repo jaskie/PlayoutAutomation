@@ -10,11 +10,10 @@ namespace TAS.Common
             Media = media;
             IngestStatus = ingestStatus;
         }
-                
+
         public IMedia Media { get; }
-                
+
         public TIngestStatus IngestStatus { get; }
     }
-
 
 }

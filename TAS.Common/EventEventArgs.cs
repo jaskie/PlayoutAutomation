@@ -9,7 +9,7 @@ namespace TAS.Common
         {
             Event = @event;
         }
-        
+
         public IEvent Event { get; }
     }
 }

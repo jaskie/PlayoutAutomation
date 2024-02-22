@@ -73,7 +73,9 @@ namespace TAS.Remoting.Model
 
         public byte Parental { get { return _parental; } set { Set(value); }  }
 
+#pragma warning disable CS0067
         public event EventHandler Started;
+#pragma warning restore
 
         public void SetState(ICGElementsState state)
         {

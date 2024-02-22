@@ -1,297 +1,48 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TAS.Client.Common</RootNamespace>
-    <AssemblyName>TAS.Client.Common</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
-    <UseVSHostingProcess>true</UseVSHostingProcess>
-    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="PresentationFramework.Aero" />
-    <Reference Include="PresentationFramework.Classic" />
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
-    <Reference Include="Xceed.Wpf.AvalonDock, Version=3.6.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extended.Wpf.Toolkit.3.6.0\lib\net40\Xceed.Wpf.AvalonDock.dll</HintPath>
-    </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Aero, Version=3.6.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extended.Wpf.Toolkit.3.6.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.Aero.dll</HintPath>
-    </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock.Themes.Metro, Version=3.6.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extended.Wpf.Toolkit.3.6.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.Metro.dll</HintPath>
-    </Reference>
-    <Reference Include="Xceed.Wpf.AvalonDock.Themes.VS2010, Version=3.6.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extended.Wpf.Toolkit.3.6.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.VS2010.dll</HintPath>
-    </Reference>
-    <Reference Include="Xceed.Wpf.Toolkit, Version=3.6.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <HintPath>..\packages\Extended.Wpf.Toolkit.3.6.0\lib\net40\Xceed.Wpf.Toolkit.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj" />
+    <ProjectReference Include="..\TAS.Common\TAS.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Behaviors\TreeViewTwoWaySelectedItem.cs" />
-    <Compile Include="Controls\AutoGreyableImage.cs" />
-    <Compile Include="Behaviors\BindableSelectedItems.cs" />
-    <Compile Include="BindingProxy.cs" />
-    <Compile Include="Controls\SearchTextBox.cs" />
-    <Compile Include="Controls\FrameEdit.cs" />
-    <Compile Include="Controls\TimecodeTextBlock.cs" />
-    <Compile Include="Controls\WrapPanelFill.cs" />
-    <Compile Include="DispatcherHelper.cs" />
-    <Compile Include="IgnoreOnUpdateAttribute.cs" />
-    <Compile Include="MediaDirectoryExtensions.cs" />
-    <Compile Include="ModifyableViewModelBase.cs" />
-    <Compile Include="EditViewModelBase.cs" />
-    <Compile Include="EnumerableExtensions.cs" />
-    <Compile Include="Behaviors\Focus.cs" />
-    <Compile Include="Controls\FilenameEntry.xaml.cs">
-      <DependentUpon>FilenameEntry.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="IngestDirectoryExtensions.cs" />
-    <Compile Include="OkCancelView.xaml.cs">
-      <DependentUpon>OkCancelView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="OkCancelViewmodelBase.cs" />
-    <Compile Include="Plugin\IUiEngine.cs" />
-    <Compile Include="Plugin\IUiPluginContext.cs" />
-    <Compile Include="Plugin\IUiPreview.cs" />
-    <Compile Include="Plugin\IUiPreviewProvider.cs" />
-    <Compile Include="Plugin\UiMenuItemBase.cs" />
-    <Compile Include="Plugin\IUiPluginFactory.cs" />
-    <Compile Include="Plugin\UiPluginManager.cs" />
-    <Compile Include="Plugin\IUiMenuItem.cs" />
-    <Compile Include="Controls\MediaSeekSlider.cs" />
-    <Compile Include="MouseDoubleClick.cs" />
-    <Compile Include="Plugin\IUiPlugin.cs" />
-    <Compile Include="Plugin\IVideoPreview.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <DependentUpon>Resources.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Properties\Resources.pl.Designer.cs">
-      <DependentUpon>Resources.pl.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Controls\StatusIndicator.xaml.cs">
-      <DependentUpon>StatusIndicator.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\TimecodeEdit.cs" />
-    <Compile Include="TreeViewExtensions.cs" />
-    <Compile Include="UiCommand.cs" />
-    <Compile Include="UiServices.cs" />
-    <Compile Include="ValueConverters.cs" />
-    <Compile Include="ViewModelBase.cs" />
-    <Compile Include="WpfHacks.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
-      <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
-      <Name>Infralution.Localization.Wpf</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TAS.Common\TAS.Common.csproj">
-      <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
-      <Name>TAS.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="OkCancelView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Styles\StretchedTreeViewItem.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\Generic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Converters.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Controls\FilenameEntry.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\Resources.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\StatusIndicator.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Styles\Buttons.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Styles\Images.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Styles\Styles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.pl.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.pl.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Styles\Styles.pl.resx" />
-    <EmbeddedResource Include="Styles\Styles.resx" />
+    <PackageReference Include="System.ComponentModel.Composition" Version="8.0.0" />
+    <PackageReference Include="Expression.Blend.Sdk.WPF" Version="1.0.1" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.6.0" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Actions\apply.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\delete.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\PlayStates\Played.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\PlayStates\Playing.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\PlayStates\Paused.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\PlayStates\Aborted.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\PlayStates\Fading.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\file-open.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\document-add.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\document-delete.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\document-cancel.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\document-done.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\document-edit.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\document-save.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Indicators\gearwheel.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\edit.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\connect-test.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\database-new.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\playlist-config.png" />
     <Resource Include="Images\Config\video_display_setup.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\folder-development.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\config.png" />
     <Resource Include="Images\Config\database.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\database_config.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\archive-export-delete.png" />
     <Resource Include="Images\Actions\archive-export.png" />
     <Resource Include="Images\Actions\volume-measure.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\media-delete.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\FileOperationStates\Waiting.png" />
     <Resource Include="Images\FileOperationStates\InProgress.png" />
     <Resource Include="Images\FileOperationStates\Finished.png" />
@@ -317,246 +68,94 @@
     <Resource Include="Images\MediaNavigation\OneFrameForward.png" />
     <Resource Include="Images\MediaNavigation\OneFrameBack.png" />
     <Resource Include="Images\Indicators\warning.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventTypes\Container.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventTypes\Live.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventTypes\Movie.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventTypes\Rundown.gif" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventTypes\StillImage.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Indicators\tick_circle.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Layers\layer1.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Layers\layer2.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Layers\layer3.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Layers\layerA.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\undo.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\select.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventActions\new-empty-movie.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventActions\new-movie.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventActions\new-next-live.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventActions\new-rundown.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventActions\new-sub-live.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventActions\new-sub-movie.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventActions\new-sub-rundown.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\go-down.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\go-up.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\VideoFormats\4-3.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\VideoFormats\FHA.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\VideoFormats\HD.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\PlayStates\Cue.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Indicators\on-air.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Indicators\loop.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\database-create.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\database-clone.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\database-connect.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\database-secondary-connect.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\direction-down.png" />
     <Resource Include="Images\Config\direction-up.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\add-green.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Layers\layer1-active.png" />
     <Resource Include="Images\Layers\layer2-active.png" />
     <Resource Include="Images\Layers\layer3-active.png" />
     <Resource Include="Images\Layers\layerA-active.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Indicators\error-overlay.png" />
     <Resource Include="Images\Indicators\warning-overlay.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\PlayStates\ForceNext.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\media-ingest.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\media-export.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\MediaCategories\insert.png" />
     <Resource Include="Images\MediaCategories\show.png" />
     <Resource Include="Images\MediaCategories\promo.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\MediaCategories\commercial.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\MediaCategories\sponsored.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\MediaCategories\fill.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Indicators\archive.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventTypes\Animation.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\IngestStates\InProgress.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\IngestStates\Ready.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\MediaCategories\jingle.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventActions\clock-play.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventActions\clock-stop.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Indicators\clock.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\AutoStartPlayStates\Disabled.png" />
     <Resource Include="Images\AutoStartPlayStates\Playing.png" />
     <Resource Include="Images\AutoStartPlayStates\Played.png" />
     <Resource Include="Images\AutoStartPlayStates\ScheduledFuture.png" />
     <Resource Include="Images\AutoStartPlayStates\ScheduledPast.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\copy.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Layers\layerS.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\EventTypes\CommandScript.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\add-finish-small.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\search.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\close.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\search_clear.png" />
     <Resource Include="Images\Actions\search_glyph.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Config\document-folder-add.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\import-movie.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\MediaNavigation\media-playback-start.png" />
     <Resource Include="Images\MediaNavigation\media-playback-stop.png" />
     <Resource Include="Images\MediaNavigation\media-seek-backward.png" />
     <Resource Include="Images\MediaNavigation\media-seek-forward.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\MediaNavigation\media-record.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\MediaNavigation\media-capture.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\go-jump.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Secutity\group.png" />
     <Resource Include="Images\Secutity\user.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\MediaNavigation\media-playback-pause.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\MediaNavigation\media-playback-end.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\time-update.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\list-add-3.png" />
     <Resource Include="Images\Actions\list-remove-3.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\edit-find-6.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\hourglass.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\MediaNavigation\media-playback-cue.png" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

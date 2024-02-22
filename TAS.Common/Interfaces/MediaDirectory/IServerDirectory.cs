@@ -8,5 +8,4 @@ namespace TAS.Common.Interfaces.MediaDirectory
         TMovieContainerFormat MovieContainerFormat { get; }
         event EventHandler<MediaIngestStatusEventArgs> IngestStatusUpdated;
     }
-
 }

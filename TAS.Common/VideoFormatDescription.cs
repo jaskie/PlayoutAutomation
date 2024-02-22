@@ -237,7 +237,7 @@ namespace TAS.Common
 
         private VideoFormatDescription() { }
         #endregion
-        
+
         public TVideoFormat Format { get; }
         
         public Size ImageSize { get; }

@@ -1,117 +1,22 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{41219373-E25E-48C8-AD64-EAB58244E713}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TAS.Client.NDIVideoPreview</RootNamespace>
-    <AssemblyName>TAS.Client.NDIVideoPreview</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\TVPlay\bin\Debug\Plugins\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\TVPlay\bin\Release\Plugins\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NAudio, Version=1.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\NAudio.1.9.0\lib\net35\NAudio.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
+    <ProjectReference Include="..\..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj" />
+    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj" />
+    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioLevelBarViewmodel.cs" />
-    <Compile Include="Audio\AudioDevice.cs" />
-    <Compile Include="Interop\Emums.cs" />
-    <Compile Include="Interop\Ndi.cs" />
-    <Compile Include="Interop\Structs.cs" />
-    <Compile Include="Interop\Utilities.cs" />
-    <Compile Include="VideoPreviewViewmodel.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VideoPreviewView.xaml.cs">
-      <DependentUpon>VideoPreviewView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="VideoPreviewViewmodelFactory.cs" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="VideoPreviewView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
-      <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
-      <Name>Infralution.Localization.Wpf</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj">
-      <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
-      <Name>TAS.Client.Common</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj">
-      <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
-      <Name>TAS.Common</Name>
-      <Private>False</Private>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="VideoPreviewView.pl.resx">
-      <DependentUpon>VideoPreviewView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="VideoPreviewView.resx">
-      <DependentUpon>VideoPreviewView.xaml</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-</Project>
+    <PluginFiles Include="$(OutDir)$(TargetFileName)"/>
+    <PluginFiles Include="$(OutDir)$(TargetName).pdb"/>
+    <!-- TODO: include the resources -->
+    <!--<PluginFiles Include="$(OutDir)pl\$(TargetName).resources.dll" />-->
+    <PluginFiles Include="$(OutDir)NAudio*.dll"/>
+  </ItemGroup></Project>

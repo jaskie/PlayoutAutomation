@@ -14,25 +14,27 @@ namespace TAS.Common
             Duration = duration;
             AudioVolume = audioVolume;
         }
-                
+
         public IMedia Media { get; private set; }
         
         public List<IMedia> Logos { get; }
-        
+
         public TimeSpan Duration;
-        
+
         public TimeSpan StartTC;
-        
+
         public double AudioVolume;
 
         public void AddLogo(IMedia logo)
         {
             Logos.Add(logo);
         }
+
         public void RemoveLogo(IMedia logo)
         {
             Logos.Remove(logo);
         }
+
         public override string ToString()
         {
             return Media.MediaName;

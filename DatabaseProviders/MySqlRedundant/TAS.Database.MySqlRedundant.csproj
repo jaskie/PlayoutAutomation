@@ -1,184 +1,59 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TAS.Database.MySqlRedundant</RootNamespace>
-    <AssemblyName>TAS.Database.MySqlRedundant</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>..\..\TVPlay\bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;MYSQL</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
     <OutputPath>..\..\TVPlay\bin\Release\</OutputPath>
     <DefineConstants>TRACE;MYSQL</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Google.Protobuf, Version=3.19.4.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Google.Protobuf.3.19.4\lib\net45\Google.Protobuf.dll</HintPath>
-    </Reference>
-    <Reference Include="K4os.Compression.LZ4, Version=1.2.6.0, Culture=neutral, PublicKeyToken=2186fa9121ef231d, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\K4os.Compression.LZ4.1.2.6\lib\net45\K4os.Compression.LZ4.dll</HintPath>
-    </Reference>
-    <Reference Include="K4os.Compression.LZ4.Streams, Version=1.2.6.0, Culture=neutral, PublicKeyToken=2186fa9121ef231d, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\K4os.Compression.LZ4.Streams.1.2.6\lib\net45\K4os.Compression.LZ4.Streams.dll</HintPath>
-    </Reference>
-    <Reference Include="K4os.Hash.xxHash, Version=1.0.6.0, Culture=neutral, PublicKeyToken=32cd54395057cec3, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\K4os.Hash.xxHash.1.0.6\lib\net45\K4os.Hash.xxHash.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data, Version=8.0.31.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MySql.Data.8.0.31\lib\net452\MySql.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\System.Buffers.4.5.1\lib\netstandard1.1\System.Buffers.dll</HintPath>
-    </Reference>
     <Reference Include="System.ComponentModel" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Drawing.Design" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\System.Memory.4.5.4\lib\netstandard1.1\System.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\System.Runtime.CompilerServices.Unsafe.5.0.0\lib\net45\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Windows" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
-    <Reference Include="ZstdNet, Version=1.4.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MySql.Data.8.0.31\lib\net452\ZstdNet.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\DatabaseBase.cs">
       <Link>DatabaseBase.cs</Link>
     </Compile>
-    <Compile Include="Configurator\ConfiguratorView.xaml.cs">
-      <DependentUpon>ConfiguratorView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Configurator\ConfiguratorViewModel.cs" />
-    <Compile Include="Configurator\ConnectionStringView.xaml.cs">
-      <DependentUpon>ConnectionStringView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Configurator\ConnectionStringViewmodel.cs" />
-    <Compile Include="Configurator\CreateDatabaseView.xaml.cs">
-      <DependentUpon>CreateDatabaseView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Configurator\CreateDatabaseViewmodel.cs" />
-    <Compile Include="Configurator\Model\CreateDatabase.cs" />
-    <Compile Include="ConnectionStringsNames.cs" />
-    <Compile Include="DatabaseMySqlRedundant.cs" />
-    <Compile Include="DbCommandRedundant.cs" />
-    <Compile Include="DbConnectionRedundant.cs" />
-    <Compile Include="DbDataReaderRedundant.cs" />
-    <Compile Include="DbParameterCollectionRedundant.cs" />
-    <Compile Include="DbParameterRedundant.cs" />
-    <Compile Include="DbTransactionRedundant.cs" />
-    <Compile Include="MySqlRedundantConfigurator.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UpdateBase.cs" />
-    <Compile Include="UpdateManager.cs" />
-    <Compile Include="Updates\Update014.cs" />
-    <Compile Include="Updates\Update013.cs" />
-    <Compile Include="Updates\Update012.cs" />
-    <Compile Include="Updates\Update011.cs" />
-    <Compile Include="Updates\Update010.cs" />
-    <Compile Include="Updates\Update009.cs" />
-    <Compile Include="Updates\Update008.cs" />
-    <Compile Include="Updates\Update007.cs" />
-    <Compile Include="Updates\Update006.cs" />
-    <Compile Include="Updates\Update005.cs" />
-    <Compile Include="Updates\Update004.cs" />
-    <Compile Include="Updates\Update003.cs" />
-    <Compile Include="Updates\Update002.cs" />
-    <Compile Include="Updates\Update001.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="database.sql" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dependencies\MySqlBackup\MySqlBackup.csproj">
-      <Project>{2625a6b7-505a-43f7-9282-24afe5a3db64}</Project>
-      <Name>MySqlBackup</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj">
-      <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
-      <Name>TAS.Client.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj">
-      <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
-      <Name>TAS.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TAS.Database.Common\TAS.Database.Common.csproj">
-      <Project>{f73445a5-2375-49ea-bd4f-8c6778d8736d}</Project>
-      <Name>TAS.Database.Common</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj" />
+    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
+    <ProjectReference Include="..\..\TAS.Database.Common\TAS.Database.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.3.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.25.3" />
+    <PackageReference Include="K4os.Compression.LZ4" Version="1.3.6" />
+    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.3.6" />
+    <PackageReference Include="K4os.Hash.xxHash" Version="1.0.8" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
+    <PackageReference Include="MySql.Data" Version="8.3.0" />
+    <PackageReference Include="MySqlBackup.NET" Version="2.3.8" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NLog" Version="5.2.8" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+    <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
+    <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="ZstdSharp.Port" Version="0.7.5" />
   </ItemGroup>
-  <ItemGroup>
-    <Page Include="Configurator\ConfiguratorView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Configurator\ConnectionStringView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Configurator\CreateDatabaseView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

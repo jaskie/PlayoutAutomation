@@ -1,115 +1,26 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{296D2876-8284-4E2A-8273-BC88CE854392}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TAS.Client.XKeys</RootNamespace>
-    <AssemblyName>TAS.Client.XKeys</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>false</Deterministic>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\TVPlay\bin\Debug\Plugins\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\TVPlay\bin\Release\Plugins\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="PIEHid64Net">
+    <Reference Include="PIEHid64Net" Private="True">
       <HintPath>.\PIEHid64Net.dll</HintPath>
     </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActiveOnEnum.cs" />
-    <Compile Include="Backlight.cs" />
-    <Compile Include="BacklightColorEnum.cs" />
-    <Compile Include="CommandTargetEnum.cs" />
-    <Compile Include="ShuttlePositionEnum.cs" />
-    <Compile Include="XKeysDevice.cs" />
-    <Compile Include="XKeysDeviceEnumerator.cs" />
-    <Compile Include="InputSimulator\IInputDeviceStateAdaptor.cs" />
-    <Compile Include="InputSimulator\IInputMessageDispatcher.cs" />
-    <Compile Include="InputSimulator\IInputSimulator.cs" />
-    <Compile Include="InputSimulator\IKeyboardSimulator.cs" />
-    <Compile Include="InputSimulator\InputBuilder.cs" />
-    <Compile Include="InputSimulator\InputSimulator.cs" />
-    <Compile Include="InputSimulator\KeyboardSimulator.cs" />
-    <Compile Include="InputSimulator\WindowsInputDeviceStateAdaptor.cs" />
-    <Compile Include="InputSimulator\WindowsInputMessageDispatcher.cs" />
-    <Compile Include="KeyNotifyEventArgs.cs" />
-    <Compile Include="InputSimulator\Native\HARDWAREINPUT.cs" />
-    <Compile Include="InputSimulator\Native\INPUT.cs" />
-    <Compile Include="InputSimulator\Native\InputType.cs" />
-    <Compile Include="InputSimulator\Native\KEYBDINPUT.cs" />
-    <Compile Include="InputSimulator\Native\KeyboardFlag.cs" />
-    <Compile Include="InputSimulator\Native\MouseFlag.cs" />
-    <Compile Include="InputSimulator\Native\MOUSEINPUT.cs" />
-    <Compile Include="InputSimulator\Native\MOUSEKEYBDHARDWAREINPUT.cs" />
-    <Compile Include="InputSimulator\Native\NativeMethods.cs" />
-    <Compile Include="InputSimulator\Native\VirtualKeyCode.cs" />
-    <Compile Include="InputSimulator\Native\XButton.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Command.cs" />
-    <Compile Include="Plugin.cs" />
-    <Compile Include="PluginFactory.cs" />
+    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj" />
+    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj">
-      <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
-      <Name>TAS.Client.Common</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj">
-      <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
-      <Name>TAS.Common</Name>
-      <Private>False</Private>
-    </ProjectReference>
+    <PluginFiles Include="$(OutDir)$(TargetFileName)"/>
+    <PluginFiles Include="$(OutDir)$(TargetName).pdb"/>
+    <PluginFiles Include="$(OutDir)PIEHid64Net.dll"/>
   </ItemGroup>
-  <ItemGroup>
-    <AdditionalFiles Include="PIEHid64Net.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AdditionalFiles>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

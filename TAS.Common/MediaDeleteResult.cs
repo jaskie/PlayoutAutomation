@@ -6,6 +6,7 @@ namespace TAS.Common
     public struct MediaDeleteResult
     {
         public static MediaDeleteResult NoDeny = new MediaDeleteResult { Result = MediaDeleteResultEnum.Success };
+
         public enum MediaDeleteResultEnum
         {
             Success,
@@ -14,11 +15,11 @@ namespace TAS.Common
             Unknown,
             InsufficentRights
         }
-                
+
         public MediaDeleteResultEnum Result;
-                
+
         public IEventProperties Event;
-                
+
         public IMedia Media;
     }
 }

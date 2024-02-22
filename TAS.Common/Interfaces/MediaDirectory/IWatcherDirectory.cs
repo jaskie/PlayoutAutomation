@@ -17,6 +17,4 @@ namespace TAS.Common.Interfaces.MediaDirectory
         event EventHandler<MediaEventArgs> MediaVerified;
         
     }
-
-
 }

@@ -17,7 +17,7 @@ namespace TAS.Common
         public static readonly string TempFileExtension = ".tmp";
         public static readonly string ConfigurationPath = Path.Combine(Directory.GetCurrentDirectory(), "Configuration");
         public static readonly string ApplicationDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "TVPlay");
-        
+
         public static string DefaultFileExtension(TMediaType type)
         {
             switch (type)

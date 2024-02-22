@@ -12,9 +12,7 @@ namespace TAS.Common
         }
 
         public IMedia Media { get; }
-                
+
         public bool IsArchived { get; }
     }
-
-
 }

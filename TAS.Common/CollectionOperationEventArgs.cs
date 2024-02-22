@@ -17,7 +17,7 @@ namespace TAS.Common
         }
 
         public CollectionOperation Operation { get; }
-        
+
         public T Item { get; }
     }
 }

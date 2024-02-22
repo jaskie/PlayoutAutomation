@@ -10,11 +10,9 @@ namespace TAS.Common
             Media = media;
             Layer = layer;
         }
-                
+
         public IMedia Media { get; }
-                
+
         public VideoLayer Layer { get; }
     }
-
-
 }

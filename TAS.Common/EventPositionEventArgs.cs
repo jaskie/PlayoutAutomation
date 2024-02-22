@@ -9,9 +9,9 @@ namespace TAS.Common
             Position = position;
             TimeToFinish = timeToFinish;
         }
-        
+
         public long Position { get; }
-        
+
         public TimeSpan TimeToFinish { get; }
     }
 }

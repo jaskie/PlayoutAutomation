@@ -125,6 +125,7 @@ namespace System.Net.FtpClient
             }
         }
 
+        /// <inheritdoc/>
         public override void Disconnect()
         {
             Debug.WriteLine($"XDCAM Disconnect {Threading.Thread.CurrentThread.ManagedThreadId}" );
@@ -132,17 +133,19 @@ namespace System.Net.FtpClient
             Threading.Thread.Sleep(1000); // have to wait until device notifies the disconnection
         }
 
-
+        /// <inheritdoc/>
         public override Stream OpenRead(string path, FtpDataType type, long restart)
         {
             return base.OpenRead(_root + path, type, restart);
         }
 
+        /// <inheritdoc/>
         public override Stream OpenWrite(string path, FtpDataType type)
         {
             return base.OpenWrite(_root + path, type);
         }
 
+        /// <inheritdoc/>
         public override Stream OpenAppend(string path, FtpDataType type)
         {
             return base.OpenAppend(_root + path, type);

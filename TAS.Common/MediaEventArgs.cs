@@ -9,7 +9,7 @@ namespace TAS.Common
         {
             Media = media;
         }
-                
+
         public IMedia Media { get; }
     }
 

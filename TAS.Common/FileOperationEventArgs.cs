@@ -9,7 +9,7 @@ namespace TAS.Common
         {
             Operation = operation;
         }
-        
+
         public IFileOperationBase Operation { get; }
     }
 }

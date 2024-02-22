@@ -21,7 +21,6 @@ namespace TAS.Common.Interfaces
             Segment = segment;
         }
 
-        
         public IMediaSegment Segment { get; private set; }
     }
 }
