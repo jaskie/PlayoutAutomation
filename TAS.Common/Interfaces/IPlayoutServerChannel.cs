@@ -9,6 +9,7 @@ namespace TAS.Common.Interfaces
         int AudioLevel { get; }
         string ChannelName { get; }
         TVideoFormat VideoFormat { get; }
+        TMovieContainerFormat MovieContainerFormat { get; }
         string PreviewUrl { get; }
         int AudioChannelCount { get; }
     }

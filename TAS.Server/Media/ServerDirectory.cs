@@ -29,6 +29,7 @@ namespace TAS.Server.Media
         [DtoMember]
         public bool IsRecursive { get; }
 
+        [DtoMember]
         public TMovieContainerFormat MovieContainerFormat { get; }
 
         public override void Initialize()

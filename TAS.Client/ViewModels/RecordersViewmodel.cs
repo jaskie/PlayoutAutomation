@@ -110,6 +110,8 @@ namespace TAS.Client.ViewModels
                     return;
                 VideoFormat = value.VideoFormat;
                 IsAudioChannelMappingConversionVisible = value.AudioChannelCount >= 4;
+                FileFormat = value.MovieContainerFormat;
+                NotifyPropertyChanged(nameof(FileName));
             }
         }
 
@@ -432,10 +434,11 @@ namespace TAS.Client.ViewModels
             RecorderTimeLeft = _selectedRecorder.TimeLimit;
             DeckState = _selectedRecorder.DeckState;
             DeckControl = _selectedRecorder.DeckControl;
-            FileFormat = TMovieContainerFormat.mov;
+            FileFormat = Channel?.MovieContainerFormat ?? TMovieContainerFormat.mov;
             RecordingMedia = _selectedRecorder.RecordingMedia;
             IsNarrowMode = false;
             SelectedAudioChannelMappingConversion = TAudioChannelMappingConversion.FirstTwoChannels;
+            NotifyPropertyChanged(nameof(FileName));
         }
 
     }

@@ -60,7 +60,11 @@ namespace TAS.Server
 
         [XmlIgnore]
         [DtoMember]
-        public TVideoFormat VideoFormat { get; set; }
+        public TVideoFormat VideoFormat { get; private set; }
+
+        [XmlIgnore]
+        [DtoMember]
+        public TMovieContainerFormat MovieContainerFormat => Owner.MovieContainerFormat;
 
         [XmlIgnore]
         [DtoMember]

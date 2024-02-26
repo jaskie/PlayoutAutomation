@@ -14,6 +14,7 @@ using TAS.Server.Media;
 using System.ComponentModel;
 using TAS.Database.Common;
 using jNet.RPC;
+using Svt.Caspar;
 
 namespace TAS.Server
 {
@@ -74,6 +75,7 @@ namespace TAS.Server
         public IAnimationDirectory AnimationDirectory { get; private set; }
 
         [XmlArray(nameof(Channels)), Hibernate(nameof(Channels))]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public List<CasparServerChannel> ChannelsSer { get; set; }
 
         [XmlIgnore]
@@ -107,10 +109,10 @@ namespace TAS.Server
             Debug.WriteLine(this, "CasparServer initialize");
             if (Interlocked.Exchange(ref _isInitialized, 1) != default(int))
                 return;
-            MediaDirectory = new ServerDirectory(this) {Folder = MediaFolder};
+            MediaDirectory = new ServerDirectory(this) { Folder = MediaFolder };
             if (!string.IsNullOrWhiteSpace(AnimationFolder))
-                AnimationDirectory = new AnimationDirectory(this) {Folder = AnimationFolder};
-            _casparDevice = new Svt.Caspar.CasparDevice {IsRecordingSupported = ServerType == TServerType.CasparTVP};
+                AnimationDirectory = new AnimationDirectory(this) { Folder = AnimationFolder };
+            _casparDevice = new Svt.Caspar.CasparDevice { IsRecordingSupported = ServerType == TServerType.CasparTVP };
             _casparDevice.ConnectionStatusChanged += CasparDevice_ConnectionStatusChanged;
             _casparDevice.UpdatedChannels += CasparDevice_UpdatedChannels;
             _casparDevice.UpdatedRecorders += CasparDevice_UpdatedRecorders;

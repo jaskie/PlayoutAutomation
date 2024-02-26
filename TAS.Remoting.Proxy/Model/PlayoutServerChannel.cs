@@ -21,6 +21,9 @@ namespace TAS.Remoting.Model
         [DtoMember(nameof(IPlayoutServerChannel.VideoFormat))]
         private TVideoFormat _videoFormat;
 
+        [DtoMember(nameof(IPlayoutServerChannel.MovieContainerFormat))]
+        private TMovieContainerFormat _movieContainerFormat;
+
         [DtoMember(nameof(IPlayoutServerChannel.AudioLevel))]
         private int _audioLevel;
 
@@ -39,6 +42,8 @@ namespace TAS.Remoting.Model
         public bool IsServerConnected => _isServerConnected;
 
         public TVideoFormat VideoFormat => _videoFormat;
+
+        public TMovieContainerFormat MovieContainerFormat => _movieContainerFormat;
 
         public int AudioLevel => _audioLevel;
 
