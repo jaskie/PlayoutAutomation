@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -15,6 +16,7 @@ namespace TAS.Server.Media
     {
         internal readonly IPlayoutServerProperties Server;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private int _initializationStarted = default;
 
         public ServerDirectory(IPlayoutServerProperties server)
         {
@@ -32,12 +34,12 @@ namespace TAS.Server.Media
         [DtoMember]
         public TMovieContainerFormat MovieContainerFormat { get; }
 
-        public override void Initialize()
+        public override async Task Initialize()
         {
-            if (IsInitialized)
+            if (Interlocked.Exchange(ref _initializationStarted, 1) != default)
                 return;
             DatabaseProvider.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
-            BeginWatch(IsRecursive);
+            await BeginWatch(IsRecursive);
             Debug.WriteLine(this, "Directory initialized");
         }
 
@@ -153,7 +155,7 @@ namespace TAS.Server.Media
         protected override void OnError(object source, ErrorEventArgs e)
         {
             base.OnError(source, e);
-            BeginWatch(IsRecursive);
+            Task.Run(() => BeginWatch(IsRecursive));
         }
 
         public override string ToString()

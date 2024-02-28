@@ -48,13 +48,9 @@ namespace TAS.Server
             foreach (var e in Engines)
                 e.Initialize(Servers);
             Logger.Debug("Engines initialized");
-            Task.Run(() =>
-            {
-                foreach (var e in Engines)
-                    ((MediaManager)e.MediaManager).Initialize(
-                        ArchiveDirectories.FirstOrDefault(a => a.IdArchive == e.IdArchive));
-                Logger.Debug("All media managers initialized");
-            });
+            Parallel.ForEach(Engines, async e => 
+                await ((MediaManager)e.MediaManager).Initialize(ArchiveDirectories.FirstOrDefault(a => a.IdArchive == e.IdArchive)));
+            Logger.Debug("All media managers initialized");
         }
 
         private void LoadArchiveDirectories()

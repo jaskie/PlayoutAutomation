@@ -277,7 +277,7 @@ namespace TAS.Server
             var previewChannel = sPRV?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV) as CasparServerChannel;
             if (previewChannel != null)
                 _preview = new Preview(this, previewChannel);
-            _mediaManager.SetRecorders(recorders);
+            _mediaManager.SetupRecorders(recorders);
             _eventRecorder = new EventRecorder(this, servers);
 
             _localGpis = this.ComposeParts<IGpi>();

@@ -14,6 +14,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 using TAS.Server.MediaOperation;
 using jNet.RPC;
+using System.Collections.Concurrent;
 
 namespace TAS.Server
 {
@@ -27,6 +28,7 @@ namespace TAS.Server
         private readonly List<CasparRecorder> _recorders;
         private List<IngestDirectory> _ingestDirectories;
         private int _isInitialMediaSecToPriSynchronized;
+        private ConcurrentBag<Action> _delegateUnregisterActions = new ConcurrentBag<Action>();
 
         public MediaManager(Engine engine)
         {
@@ -66,7 +68,7 @@ namespace TAS.Server
         [DtoMember]
         public IEnumerable<IRecorder> Recorders => _recorders;
 
-        public void Initialize(ArchiveDirectory archiveDirectory)
+        public async Task Initialize(ArchiveDirectory archiveDirectory)
         {
             Logger.Debug("Begin initializing");
             ArchiveDirectory = archiveDirectory;
@@ -79,40 +81,129 @@ namespace TAS.Server
                 MediaDirectoryPRV = ((CasparServerChannel)_engine.Preview.Channel)?.Owner.MediaDirectory;
                 AnimationDirectoryPRV = ((CasparServerChannel)_engine.Preview.Channel)?.Owner.AnimationDirectory;
             }
-
-            ((WatcherDirectory)MediaDirectoryPRI)?.Initialize();
-            ((WatcherDirectory)MediaDirectorySEC)?.Initialize();
-            ((WatcherDirectory)MediaDirectoryPRV)?.Initialize();
-            ((WatcherDirectory)AnimationDirectoryPRI)?.Initialize();
-            ((WatcherDirectory)AnimationDirectorySEC)?.Initialize();
-            ((WatcherDirectory)AnimationDirectoryPRV)?.Initialize();
-
-            if (MediaDirectoryPRI is ServerDirectory sdir)
-            {
-                sdir.MediaPropertyChanged += _serverMediaPropertyChanged;
-                sdir.MediaSaved += _serverDirectoryMediaSaved;
-                sdir.MediaVerified += _mediaPRIVerified;
-                sdir.MediaRemoved += _mediaPRIRemoved;
-            }
-            sdir = MediaDirectorySEC as ServerDirectory;
-            if (MediaDirectoryPRI != MediaDirectorySEC && sdir != null)
-            {
-                sdir.MediaPropertyChanged += _serverMediaPropertyChanged;
-                sdir.MediaSaved += _serverDirectoryMediaSaved;
-            }
-            if (AnimationDirectoryPRI is AnimationDirectory adir)
-            {
-                adir.MediaSaved += _animationDirectoryMediaSaved;
-                adir.PropertyChanged += _animationDirectoryPropertyChanged;
-                adir.MediaAdded += _animationDirectoryMediaAdded;
-                adir.MediaRemoved += _animationDirectoryMediaRemoved;
-                adir.MediaPropertyChanged += _animationDirectoryMediaPropertyChanged;
-            }
-            adir = AnimationDirectorySEC as AnimationDirectory;
-            if (adir != null)
-                adir.PropertyChanged += _animationDirectoryPropertyChanged;
+            var initTasks = new Task[] {
+                Task.Run(InitializeMediaDirectoryPRI),
+                Task.Run(InitializeMediaDirectorySEC),
+                Task.Run(InitializeMediaDirectoryPRV),
+                Task.Run(InitializeAnimationDirectoryPRI),
+                Task.Run(InitializeAnimationDirectorySEC),
+                Task.Run(InitializeAnimationDirectoryPRV)
+            };
+            await Task.WhenAll(initTasks);
             InitialMediaSynchronization();
             Logger.Debug("End initializing");
+        }
+
+        private async Task InitializeMediaDirectoryPRI()
+        {
+            if (MediaDirectoryPRI is ServerDirectory sdir)
+            {
+                try
+                {
+                    await sdir.Initialize();
+                    sdir.MediaPropertyChanged += _serverMediaPropertyChanged;
+                    sdir.MediaSaved += _serverDirectoryMediaSaved;
+                    sdir.MediaVerified += _mediaPRIVerified;
+                    sdir.MediaRemoved += _mediaPRIRemoved;
+                    _delegateUnregisterActions.Add(() => sdir.MediaPropertyChanged -= _serverMediaPropertyChanged);
+                    _delegateUnregisterActions.Add(() => sdir.MediaSaved -= _serverDirectoryMediaSaved);
+                    _delegateUnregisterActions.Add(() => sdir.MediaVerified -= _mediaPRIVerified);
+                    _delegateUnregisterActions.Add(() => sdir.MediaRemoved -= _mediaPRIRemoved);
+                }
+                catch (TaskCanceledException) 
+                {
+                    Logger.Warn("Initializaton of {0} cancelled", sdir);
+                }
+            }
+        }
+
+        private async Task InitializeMediaDirectorySEC()
+        {
+            if (MediaDirectoryPRI == MediaDirectorySEC)
+                return;
+            if (MediaDirectorySEC is ServerDirectory sdir)
+            {
+                try
+                {
+                    await sdir.Initialize();
+                    sdir.MediaPropertyChanged += _serverMediaPropertyChanged;
+                    sdir.MediaSaved += _serverDirectoryMediaSaved;
+                    _delegateUnregisterActions.Add(() => sdir.MediaPropertyChanged -= _serverMediaPropertyChanged);
+                    _delegateUnregisterActions.Add(() => sdir.MediaSaved -= _serverDirectoryMediaSaved);
+                }
+                catch (TaskCanceledException) 
+                {
+                    Logger.Warn("Initializaton of {0} cancelled", sdir);
+                }
+            }
+        }
+
+        private async Task InitializeMediaDirectoryPRV()
+        {
+            try
+            {
+                await (MediaDirectoryPRV as ServerDirectory)?.Initialize();
+            }
+            catch (TaskCanceledException)
+            {
+                Logger.Warn("Initializaton of {0} cancelled", MediaDirectoryPRV);
+            }
+        }
+
+        private async Task InitializeAnimationDirectoryPRI()
+        {
+            if (AnimationDirectoryPRI is AnimationDirectory adir)
+            {
+                try
+                {
+                    await adir.Initialize();
+                    adir.MediaSaved += _animationDirectoryMediaSaved;
+                    adir.PropertyChanged += _animationDirectoryPropertyChanged;
+                    adir.MediaAdded += _animationDirectoryMediaAdded;
+                    adir.MediaRemoved += _animationDirectoryMediaRemoved;
+                    adir.MediaPropertyChanged += _animationDirectoryMediaPropertyChanged;
+                    _delegateUnregisterActions.Add(() => adir.MediaSaved -= _animationDirectoryMediaSaved);
+                    _delegateUnregisterActions.Add(() => adir.PropertyChanged -= _animationDirectoryPropertyChanged);
+                    _delegateUnregisterActions.Add(() => adir.MediaAdded -= _animationDirectoryMediaAdded);
+                    _delegateUnregisterActions.Add(() => adir.MediaRemoved -= _animationDirectoryMediaRemoved);
+                    _delegateUnregisterActions.Add(() => adir.MediaPropertyChanged -= _animationDirectoryMediaPropertyChanged);
+                }
+                catch (TaskCanceledException)
+                {
+                    Logger.Warn("Initializaton of {0} cancelled", adir);
+                }
+            }
+        }
+
+        private async Task InitializeAnimationDirectorySEC()
+        {
+            if (AnimationDirectorySEC == AnimationDirectoryPRI)
+                return;
+            if (AnimationDirectorySEC is AnimationDirectory adir) 
+            {
+                try
+                {
+                    await adir.Initialize();
+                    adir.PropertyChanged += _animationDirectoryPropertyChanged;
+                    _delegateUnregisterActions.Add(() => adir.PropertyChanged -= _animationDirectoryPropertyChanged);
+                }
+                catch (TaskCanceledException)
+                {
+                    Logger.Warn("Initializaton of {0} cancelled", adir);
+                }
+            }
+        }
+
+        private async Task InitializeAnimationDirectoryPRV()
+        {
+            try
+            {
+                await (AnimationDirectoryPRV as AnimationDirectory)?.Initialize();
+            }
+            catch (TaskCanceledException)
+            {
+                Logger.Warn("Initializaton of {0} cancelled", AnimationDirectoryPRV);
+            }
         }
 
         public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList)
@@ -290,16 +381,14 @@ namespace TAS.Server
             return _engine.EngineName + ":MediaManager";
         }
 
-        internal void SetRecorders(List<CasparRecorder> recorders)
+        internal void SetupRecorders(List<CasparRecorder> recorders)
         {
-            foreach (var recorder in _recorders)
-                recorder.CaptureSuccess -= _recorder_CaptureSuccess;
-            _recorders.Clear();
             foreach (var recorder in recorders)
             {
                 recorder.ArchiveDirectory = ArchiveDirectory;
                 _recorders.Add(recorder);
                 recorder.CaptureSuccess += _recorder_CaptureSuccess;
+                _delegateUnregisterActions.Add(() => recorder.CaptureSuccess -= _recorder_CaptureSuccess);
             }
         }
 
@@ -591,35 +680,11 @@ namespace TAS.Server
         protected override void DoDispose()
         {
             base.DoDispose();
-
-            if (MediaDirectoryPRI is ServerDirectory sdir)
-            {
-                sdir.MediaPropertyChanged -= _serverMediaPropertyChanged;
-                sdir.MediaSaved -= _serverDirectoryMediaSaved;
-                sdir.MediaVerified -= _mediaPRIVerified;
-                sdir.MediaRemoved -= _mediaPRIRemoved;
-            }
-            sdir = MediaDirectorySEC as ServerDirectory;
-            if (MediaDirectoryPRI != MediaDirectorySEC && sdir != null)
-            {
-                sdir.MediaPropertyChanged -= _serverMediaPropertyChanged;
-                sdir.MediaSaved -= _serverDirectoryMediaSaved;
-            }
-            if (AnimationDirectoryPRI is AnimationDirectory adir)
-            {
-                adir.PropertyChanged -= _animationDirectoryPropertyChanged;
-                adir.MediaAdded -= _animationDirectoryMediaAdded;
-                adir.MediaRemoved -= _animationDirectoryMediaRemoved;
-                adir.MediaPropertyChanged -= _animationDirectoryMediaPropertyChanged;
-                adir.MediaSaved -= _animationDirectoryMediaSaved;
-            }
-            adir = AnimationDirectorySEC as AnimationDirectory;
-            if (adir != null)
-                adir.PropertyChanged -= _animationDirectoryPropertyChanged;
+            foreach(var action in _delegateUnregisterActions)
+                action();
             UnloadIngestDirs();
         }
 
     }
-
 
 }

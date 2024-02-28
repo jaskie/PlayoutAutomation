@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.FtpClient;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using jNet.RPC;
@@ -32,7 +33,7 @@ namespace TAS.Server.Media
 
         public bool DeleteSource { get; set; }
 
-        public override void Initialize()
+        public override async Task Initialize()
         {
             if (!string.IsNullOrWhiteSpace(Folder))
             {
@@ -54,12 +55,12 @@ namespace TAS.Server.Media
                     HaveFileWatcher = true;
                     if (IsImport && ConnectDirectory())
                     {
-                        BeginWatch(IsRecursive);
+                        await BeginWatch(IsRecursive);
                         IsInitialized = true;
                     }
                 }
             }
-            _subDirectories?.ToList().ForEach(d => d.Initialize());
+            Parallel.ForEach(_subDirectories?.ToList(), async d => await d.Initialize());
         }
 
         public string EncodeParams { get; set; }

@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using TAS.Common;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
@@ -10,6 +12,7 @@ namespace TAS.Server.Media
 {
     public class AnimationDirectory : WatcherDirectory, IAnimationDirectory
     {
+        private int _initializationRequested = default;
         public readonly CasparServer Server;
 
         internal AnimationDirectory(CasparServer server)
@@ -18,13 +21,12 @@ namespace TAS.Server.Media
             HaveFileWatcher = true;
         }
 
-        public override void Initialize()
+        public override async Task Initialize()
         {
-            if (IsInitialized)
+            if (Interlocked.Exchange(ref _initializationRequested, 1) != default)
                 return;
             DatabaseProvider.Database.LoadAnimationDirectory<AnimatedMedia>(this, Server.Id);
-            BeginWatch(false);
-            IsInitialized = true;
+            await BeginWatch(false);
             Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
         }
 

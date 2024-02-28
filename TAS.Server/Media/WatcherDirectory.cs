@@ -49,7 +49,7 @@ namespace TAS.Server.Media
             protected set => SetField(ref _isInitialized, value);
         }
 
-        public abstract void Initialize();
+        public abstract Task Initialize();
 
         public virtual void UnInitialize()
         {
@@ -147,7 +147,7 @@ namespace TAS.Server.Media
                 EnumerateFiles(d.FullName, true);
         }
 
-        protected void BeginWatch(bool includeSubdirectories)
+        protected async Task BeginWatch(bool includeSubdirectories)
         {
             _beginWatchCancelationTokenSource = new CancellationTokenSource();
             _includeSubdirectories = includeSubdirectories;
@@ -183,9 +183,13 @@ namespace TAS.Server.Media
                     Logger.Error(e, "Directory {0} watcher setup error", Folder);
                 }
                 if (_watcher != null)
+                {
                     DisposeWatcher(_watcher);
-                _watcher = null;
-                Thread.Sleep(30000); //Wait for retry 30 sec.
+                    _watcher = null;
+                }
+                if (_beginWatchCancelationTokenSource.IsCancellationRequested)
+                    return;
+                await Task.Delay(30000, _beginWatchCancelationTokenSource.Token); //Wait for retry 30 sec.
             }
             if (_watcher?.EnableRaisingEvents == true)
                 Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)Folder);
@@ -203,7 +207,7 @@ namespace TAS.Server.Media
             if (cts == null)
                 return;
             cts.Cancel();
-            Logger.Debug("BeginWatch for {0} canceled.", Folder, null);
+            Logger.Debug("BeginWatch for {0} cancelled.", Folder, null);
         }
 
         protected virtual void FileRemoved(string fullPath)

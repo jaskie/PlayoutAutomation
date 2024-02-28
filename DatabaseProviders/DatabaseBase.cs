@@ -178,7 +178,7 @@ namespace TAS.Database.SQLite
                             engine.ServerChannelSEC = dataReader.GetInt32("ServerChannelSEC");
                             engine.IdServerPRV = dataReader.GetUInt64("idServerPRV");
                             engine.ServerChannelPRV = dataReader.GetInt32("ServerChannelPRV");
-                            engine.IdArchive = dataReader.GetUInt64("IdArchive");
+                            engine.IdArchive = dataReader.GetUInt64("idArchive");
                             engine.Instance = dataReader.GetUInt64("Instance");
                             engines.Add(engine);
                         }
@@ -203,7 +203,7 @@ namespace TAS.Database.SQLite
                         cmd.Parameters.AddWithValue("@ServerChannelSEC", engine.ServerChannelSEC);
                         cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
                         cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
-                        cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
+                        cmd.Parameters.AddWithValue("@idArchive", engine.IdArchive);
                         cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(engine, HibernationSerializerSettings));
                         cmd.ExecuteNonQuery();
                         engine.Id = (ulong)cmd.GetLastInsertedId();
@@ -226,7 +226,7 @@ namespace TAS.Database.SQLite
                     cmd.Parameters.AddWithValue("@ServerChannelSEC", engine.ServerChannelSEC);
                     cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
                     cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
-                    cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
+                    cmd.Parameters.AddWithValue("@idArchive", engine.IdArchive);
                     cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(engine, HibernationSerializerSettings));
                     cmd.ExecuteNonQuery();
                 }
