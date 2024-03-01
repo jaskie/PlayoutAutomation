@@ -71,6 +71,8 @@ namespace TAS.Client.ViewModels
 
         public List<MediaDirectoryViewmodel> SubDirectories { get; }
 
+        public bool IsInitialzied => (Directory as IWatcherDirectory)?.IsInitialized ?? true;
+
         public override string ToString()
         {
             return DirectoryName;

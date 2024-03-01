@@ -55,7 +55,7 @@ namespace TAS.Server.Media
                     HaveFileWatcher = true;
                     if (IsImport && ConnectDirectory())
                     {
-                        await BeginWatch(IsRecursive);
+                        await BeginWatch();
                         IsInitialized = true;
                     }
                 }
@@ -83,13 +83,11 @@ namespace TAS.Server.Media
         public int XdcamClipCount { get => _xdcamClipCount; protected set => SetField(ref _xdcamClipCount, value); }
 
         [DtoMember]
-        public bool IsRecursive { get; set; }
-
-        [DtoMember]
         public bool IsExport { get; set; }
 
         [DtoMember]
         public TVideoCodec VideoCodec { get; set; }
+
         [DtoMember]
         public TAudioCodec AudioCodec { get; set; }
 
@@ -351,8 +349,6 @@ namespace TAS.Server.Media
         {
             ClearFiles();
             base.OnError(source, e);
-            if (HaveFileWatcher)
-                BeginWatch(IsRecursive);
         }
 
         internal override void RefreshVolumeInfo()
@@ -428,9 +424,9 @@ namespace TAS.Server.Media
                 m.IsVerified = false;
         }
 
-        protected override void EnumerateFiles(string directory, bool includeSubdirectories)
+        protected override void EnumerateFiles(string directory)
         {
-            base.EnumerateFiles(directory, includeSubdirectories);
+            base.EnumerateFiles(directory);
             if (Kind == TIngestDirectoryKind.BmdMediaExpressWatchFolder)
                 lock (((IList) _bMdXmlFiles).SyncRoot)
                     foreach (string xml in _bMdXmlFiles)

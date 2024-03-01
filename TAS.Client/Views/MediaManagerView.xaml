@@ -47,8 +47,16 @@
         <KeyBinding Command="{Binding CommandTogglePropertiesPanel}" Gesture="F11"/>
 
     </UserControl.InputBindings>
-    <DockPanel>
-        <Expander DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" Collapsed="Expander_OnCollapsed" >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Expander Grid.Column="1" Grid.Row="0" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" Collapsed="Expander_OnCollapsed" >
             <Expander.Resources>
                 <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
                     <Style.Triggers>
@@ -103,7 +111,7 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="2" Margin="3, 3, 0, 0" Content="{Binding VideoPreview.View}"/>
             </Grid>
         </Expander>
-        <StatusBar DockPanel.Dock="Bottom" >
+        <StatusBar Grid.Row="2" >
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
                 <controls:StatusIndicator IsGreen="{Binding IsMediaDirectoryOk}" Margin="10,0,0,0"/>
                 <TextBlock Text="{Resx _statusbar.TotalItems}" Margin="5, 0"/>
@@ -118,7 +126,7 @@
             </StackPanel>
         </StatusBar>
 
-        <Grid>
+        <Grid Grid.Row="0" Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition Height="250"/>
@@ -136,60 +144,77 @@
                     </Style>
                 </TabControl.Resources>
                 <TabItem Header="{Resx _media}">
-                    <DockPanel >
-                        <DockPanel Height="26" Margin="2" DockPanel.Dock="Top">
-                            <DockPanel.Resources>
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Grid.Resources>
+                            <Style TargetType="Label">
+                                <Setter Property="Padding" Value="3"/>
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                            </Style>
+                        </Grid.Resources>
+                        <Grid Grid.Row="0" Height="26" Margin="2" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.Resources>
                                 <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
                                     <Setter Property="Width" Value="120"/>
                                     <Setter Property="Margin" Value="5, 1"/>
                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                 </Style>
-                            </DockPanel.Resources>
-                            <Label Content="{Resx _directory}"/>
-                            <toolkit:DropDownButton x:Name="DirectoryCombo"  VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory}" ToolTip="{Binding SelectedDirectory.Folder}" Margin="1">
-                                <toolkit:DropDownButton.DropDownContent>
-                                    <TreeView x:Name="DirectorySelector" MinWidth="140" 
+                            </Grid.Resources>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Label Content="{Resx _directory}"/>
+                                <toolkit:DropDownButton x:Name="DirectoryCombo" Width="120" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory}" ToolTip="{Binding SelectedDirectory.Folder}" Margin="2">
+                                    <toolkit:DropDownButton.DropDownContent>
+                                        <TreeView x:Name="DirectorySelector" MinWidth="140" 
                                               ItemsSource="{Binding MediaDirectories}" 
-                                              SelectedItemChanged="TreeViewEx_SelectedItemChanged" ItemContainerStyle="{StaticResource StretchedTreeViewItemStyle}" 
-                                    >
-                                        <i:Interaction.Behaviors>
-                                            <behaviors:TreeViewTwoWaySelectedItem SelectedItem="{Binding SelectedDirectory, Mode=TwoWay}"/>
-                                        </i:Interaction.Behaviors>
-                                        <TreeView.ItemTemplate>
-                                            <HierarchicalDataTemplate DataType="{x:Type viewmodels:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
-                                                <TextBlock Padding="2" Text="{Binding DirectoryName}" ToolTip="{Binding Folder}" />
-                                            </HierarchicalDataTemplate>
-                                        </TreeView.ItemTemplate>
-                                    </TreeView>
-                                </toolkit:DropDownButton.DropDownContent>
-                            </toolkit:DropDownButton>
+                                              SelectedItemChanged="TreeViewEx_SelectedItemChanged" ItemContainerStyle="{StaticResource StretchedTreeViewItemStyle}" >
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:TreeViewTwoWaySelectedItem SelectedItem="{Binding SelectedDirectory, Mode=TwoWay}"/>
+                                            </i:Interaction.Behaviors>
+                                            <TreeView.ItemTemplate>
+                                                <HierarchicalDataTemplate DataType="{x:Type viewmodels:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
+                                                    <TextBlock Padding="2" Text="{Binding DirectoryName}" ToolTip="{Binding Folder}" />
+                                                </HierarchicalDataTemplate>
+                                            </TreeView.ItemTemplate>
+                                        </TreeView>
+                                    </toolkit:DropDownButton.DropDownContent>
+                                </toolkit:DropDownButton>
 
-                            <Button ToolTip="{Resx _refresh}" Margin="0, 2, 5, 2" Command="{Binding CommandRefresh}" VerticalAlignment="Center">
-                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
-                            </Button>
-                            <ComboBox ItemsSource="{Binding MediaTypes}"  SelectedValue="{Binding MediaType}" Margin="0,1" ToolTip="{Resx _mediaType}"/>
-                            <ComboBox Visibility="{Binding IsMediaCategoryVisible, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" ToolTip="{Resx _mediaCategory}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Image Width="13" Style="{StaticResource MediaCategoryImage}"/>
-                                            <TextBlock Margin="2, 0, 0, 0" Text="{Binding}"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Label Content="{Resx _search}"  VerticalAlignment="Center" />
-                            <Button DockPanel.Dock="Right" Margin="1, 2" Style="{StaticResource ClearButton}" Command="{Binding CommandClearFilters}" ToolTip="{Resx _toolbar.Clear.ToolTip}">
-                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
-                            </Button>
-                            <controls:SearchTextBox Prompt="{Resx _searchFor}" Margin="0, 2" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" IsSearching="{Binding IsSearching}" TabIndex="0" Command="{Binding CommandSearch}" />
-                        </DockPanel>
-                        <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True" Height="35" >
-                            <ToolBar.Resources>
-                                <Style TargetType="Label">
-                                    <Setter Property="Padding" Value="3"/>
-                                </Style>
-                            </ToolBar.Resources>
+                                <Button ToolTip="{Resx _refresh}" Margin="0, 2, 5, 2" Command="{Binding CommandRefresh}" VerticalAlignment="Center">
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
+                                </Button>
+                                <ComboBox ItemsSource="{Binding MediaTypes}"  SelectedValue="{Binding MediaType}" Margin="0,1" ToolTip="{Resx _mediaType}"/>
+                                <ComboBox Visibility="{Binding IsMediaCategoryVisible, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" ToolTip="{Resx _mediaCategory}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Width="13" Style="{StaticResource MediaCategoryImage}"/>
+                                                <TextBlock Margin="2, 0, 0, 0" Text="{Binding}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Label Content="{Resx _search}"  VerticalAlignment="Center" />
+                            </StackPanel>
+                            <Grid Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="1" Margin="1, 2" Style="{StaticResource ClearButton}" Command="{Binding CommandClearFilters}" ToolTip="{Resx _toolbar.Clear.ToolTip}">
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
+                                </Button>
+                                <controls:SearchTextBox Grid.Column="0" Prompt="{Resx _searchFor}" Margin="0, 2" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" IsSearching="{Binding IsSearching}" TabIndex="0" Command="{Binding CommandSearch}" />
+                            </Grid>
+                        </Grid>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Height="30" Margin="5">
                             <Button ToolTip="{Resx _toolbar.Ingest.ToolTip}" Margin="10, 0" Command="{Binding CommandIngestSelectedToServer}" Visibility="{Binding IsIngestOrArchiveDirectory, Converter={StaticResource BoolToVis}}">
                                 <StackPanel  Orientation="Horizontal" >
                                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-ingest.png" />
@@ -227,17 +252,17 @@
                                     <Label Content="{Resx _toolbar.Export}"/>
                                 </StackPanel>
                             </Button>
-                            <Button ToolTip="{Resx _toolbar.Delete.ToolTip}" Margin="30,0" Command="{Binding CommandDeleteSelected}">
-                                <StackPanel Orientation="Horizontal">
-                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
-                                    <Label Content="{Resx _toolbar.Delete}"/>
-                                </StackPanel>
-                            </Button>
                             <Button HorizontalAlignment="Right" Margin="5" Width="30" Command="{Binding CommandSweepStaleMedia}" Visibility="Hidden">
                                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
                             </Button>
-                        </ToolBar>
-                        <DataGrid x:Name="MediaListGrid" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItemsView}" SelectedItem="{Binding Path=SelectedMediaVm, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
+                        </StackPanel>
+                        <Button Grid.Row="1" ToolTip="{Resx _toolbar.Delete.ToolTip}" HorizontalAlignment="Right" Margin="5" Command="{Binding CommandDeleteSelected}">
+                            <StackPanel Orientation="Horizontal">
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
+                                <Label Content="{Resx _toolbar.Delete}"/>
+                            </StackPanel>
+                        </Button>
+                        <DataGrid Grid.Row="2" x:Name="MediaListGrid" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItemsView}" SelectedItem="{Binding Path=SelectedMediaVm, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
                             <i:Interaction.Behaviors>
                                 <behaviors:BindableSelectedItems SelectedItems="{Binding SelectedMediaList, Mode=OneWayToSource}"/>
                             </i:Interaction.Behaviors>
@@ -504,7 +529,10 @@
                                 </DataTemplate>
                             </DataGrid.RowDetailsTemplate>
                         </DataGrid>
-                    </DockPanel>
+                        <Border Grid.Row="1" Grid.RowSpan="2" Background="DarkGray" Opacity="0.5" Visibility="{Binding SelectedDirectory.IsInitialzied, Converter={StaticResource InvertedBoolToVis}}">
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Resx _directoryNotInitialized}"/>
+                        </Border>
+                    </Grid>
                 </TabItem>
                 <TabItem Header="{Resx _recorders}" Visibility="{Binding IsShowRecorders, Converter={StaticResource BoolToVis}}">
                     <views:RecordersView DataContext="{Binding RecordersViewmodel}"/>
@@ -515,5 +543,5 @@
             <views:FileManagerView Grid.Row="1" DataContext="{Binding FileManagerViewmodel}" />
         </Grid>
 
-    </DockPanel>
+    </Grid>
 </UserControl>

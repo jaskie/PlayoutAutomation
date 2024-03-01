@@ -255,4 +255,7 @@
   <data name="_media.ClipName.IsExpired" xml:space="preserve">
     <value>Przekroczona data ważności</value>
   </data>
+  <data name="_directoryNotInitialized" xml:space="preserve">
+    <value>Folder nie został jeszcze zainicjalizowany</value>
+  </data>
 </root>

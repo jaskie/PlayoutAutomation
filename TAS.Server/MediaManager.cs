@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using jNet.RPC;
 using jNet.RPC.Server;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -13,8 +15,6 @@ using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Server.Media;
 using TAS.Server.MediaOperation;
-using jNet.RPC;
-using System.Collections.Concurrent;
 
 namespace TAS.Server
 {
@@ -28,7 +28,7 @@ namespace TAS.Server
         private readonly List<CasparRecorder> _recorders;
         private List<IngestDirectory> _ingestDirectories;
         private int _isInitialMediaSecToPriSynchronized;
-        private ConcurrentBag<Action> _delegateUnregisterActions = new ConcurrentBag<Action>();
+        private readonly ConcurrentBag<Action> _delegateUnregisterActions = new ConcurrentBag<Action>();
 
         public MediaManager(Engine engine)
         {
@@ -110,7 +110,7 @@ namespace TAS.Server
                     _delegateUnregisterActions.Add(() => sdir.MediaVerified -= _mediaPRIVerified);
                     _delegateUnregisterActions.Add(() => sdir.MediaRemoved -= _mediaPRIRemoved);
                 }
-                catch (TaskCanceledException) 
+                catch (TaskCanceledException)
                 {
                     Logger.Warn("Initializaton of {0} cancelled", sdir);
                 }
@@ -142,7 +142,8 @@ namespace TAS.Server
         {
             try
             {
-                await (MediaDirectoryPRV as ServerDirectory)?.Initialize();
+                if (MediaDirectoryPRV is ServerDirectory sdir)
+                    await sdir.Initialize();
             }
             catch (TaskCanceledException)
             {
@@ -198,7 +199,8 @@ namespace TAS.Server
         {
             try
             {
-                await (AnimationDirectoryPRV as AnimationDirectory)?.Initialize();
+                if (AnimationDirectoryPRV is AnimationDirectory adir)
+                    await adir.Initialize();
             }
             catch (TaskCanceledException)
             {
@@ -208,8 +210,8 @@ namespace TAS.Server
 
         public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList)
         {
-            var destDir = MediaDirectoryPRI != null && MediaDirectoryPRI.DirectoryExists? (ServerDirectory)MediaDirectoryPRI :
-                MediaDirectoryPRV != null && MediaDirectoryPRV.DirectoryExists? (ServerDirectory)MediaDirectoryPRV :
+            var destDir = MediaDirectoryPRI != null && MediaDirectoryPRI.IsInitialized ? (ServerDirectory)MediaDirectoryPRI :
+                MediaDirectoryPRV != null && MediaDirectoryPRV.IsInitialized ? (ServerDirectory)MediaDirectoryPRV :
                     throw new ApplicationException("No ServerDirectory available to copy media to");
             foreach (var sourceMedia in mediaList)
             {
@@ -237,9 +239,9 @@ namespace TAS.Server
         {
             var pri = MediaDirectoryPRI;
             var sec = MediaDirectorySEC;
-            if (pri?.DirectoryExists== true)
+            if (pri?.IsInitialized == true)
                 return pri;
-            if (sec?.DirectoryExists== true)
+            if (sec?.IsInitialized == true)
                 return sec;
             return null;
         }

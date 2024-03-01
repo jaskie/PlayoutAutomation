@@ -26,7 +26,7 @@ namespace TAS.Server.Media
             if (Interlocked.Exchange(ref _initializationRequested, 1) != default)
                 return;
             DatabaseProvider.Database.LoadAnimationDirectory<AnimatedMedia>(this, Server.Id);
-            await BeginWatch(false);
+            await BeginWatch();
             Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
         }
 

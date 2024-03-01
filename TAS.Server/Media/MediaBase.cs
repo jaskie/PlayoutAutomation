@@ -328,7 +328,7 @@ namespace TAS.Server.Media
             if (_mediaStatus == TMediaStatus.Copying || _mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required || 
                 (Directory is IngestDirectory ingestDirectory && ingestDirectory.AccessType != TDirectoryAccessType.Direct))
                 return;
-            if (Directory?.DirectoryExists== true && !FileExists())
+            if (Directory?.DirectoryExists == true && !FileExists())
             {
                 _mediaStatus = TMediaStatus.Deleted;
                 return; // in case that no file was found, and directory exists

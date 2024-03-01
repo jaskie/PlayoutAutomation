@@ -20,7 +20,6 @@ namespace TAS.Server.Media
     { 
         private FileSystemWatcher _watcher;
         private bool _isInitialized;
-        private bool _includeSubdirectories;
         private CancellationTokenSource _beginWatchCancelationTokenSource;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -41,6 +40,10 @@ namespace TAS.Server.Media
             Debug.WriteLine("{0} finalized: {1}", GetType(), this);
         }
 #endif
+
+        [DtoMember]
+        public bool IsRecursive { get; set; }
+
 
         [XmlIgnore, DtoMember]
         public bool IsInitialized
@@ -129,7 +132,7 @@ namespace TAS.Server.Media
         }
 
 
-        protected virtual void EnumerateFiles(string directory, bool includeSubdirectories)
+        protected virtual void EnumerateFiles(string directory)
         {
             IEnumerable<FileSystemInfo> list = new DirectoryInfo(directory).EnumerateFiles("*");
             foreach (var f in list)
@@ -141,16 +144,17 @@ namespace TAS.Server.Media
                     continue;
                 AddMediaFromPath(f.FullName, f.LastWriteTimeUtc);
             }
-            if (!includeSubdirectories) return;
-            list = new DirectoryInfo(directory).EnumerateDirectories();
-            foreach (var d in list)
-                EnumerateFiles(d.FullName, true);
+            if (IsRecursive)
+            {
+                list = new DirectoryInfo(directory).EnumerateDirectories();
+                foreach (var d in list)
+                    EnumerateFiles(d.FullName);
+            }
         }
 
-        protected async Task BeginWatch(bool includeSubdirectories)
+        protected async Task BeginWatch()
         {
             _beginWatchCancelationTokenSource = new CancellationTokenSource();
-            _includeSubdirectories = includeSubdirectories;
             while (_watcher?.EnableRaisingEvents != true && !_beginWatchCancelationTokenSource.IsCancellationRequested)
             {
                 try
@@ -158,11 +162,11 @@ namespace TAS.Server.Media
                     if (Directory.Exists(Folder))
                     {
                         RefreshVolumeInfo();
-                        EnumerateFiles(Folder, includeSubdirectories);
+                        EnumerateFiles(Folder);
                         _watcher = new FileSystemWatcher()
                         {
                             Path = Folder,
-                            IncludeSubdirectories = includeSubdirectories,
+                            IncludeSubdirectories = IsRecursive,
                             NotifyFilter =
                                 NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite |
                                 NotifyFilters.Size | NotifyFilters.CreationTime,
@@ -290,10 +294,13 @@ namespace TAS.Server.Media
 
         protected virtual void OnError(object source, ErrorEventArgs e)
         {
-            Debug.WriteLine("MediaDirectory: Watcher {0} returned error: {1}.", Folder, e.GetException());
             Logger.Warn("MediaDirectory: Watcher {0} returned error: {1} and will be restarted.", Folder, e.GetException());
             if (source is FileSystemWatcher watcher)
+            {
                 DisposeWatcher(watcher);
+            }
+            IsInitialized = false;
+            Task.Run(() => BeginWatch());
         }
 
         protected MediaBase FindMediaFirstByFullPath(string fullPath)

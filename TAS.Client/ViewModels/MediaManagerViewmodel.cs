@@ -26,7 +26,7 @@ namespace TAS.Client.ViewModels
         private const int MinSearchLength = 3;
         private readonly IMediaManager _mediaManager;
         bool _isDisplayPreview;
-        private PreviewViewmodel _preview;
+        private readonly PreviewViewmodel _preview;
         private MediaViewViewmodel _selectedMediaVm;
         private MediaEditViewmodel _editMedia;
         private IList _selectedMediaList;
@@ -687,6 +687,9 @@ namespace TAS.Client.ViewModels
                 return;
             var ingestList = new List<IIngestOperation>();
             var selectedMediaList = GetSelections();
+            var destDirectory = _mediaManager.DetermineValidServerDirectory();
+            if (destDirectory == null)
+                return;
             Task.Run(() =>
             {
                 selectedMediaList.ForEach(m =>
@@ -700,7 +703,7 @@ namespace TAS.Client.ViewModels
                 {
                     var operation = (IIngestOperation)_mediaManager.FileManager.CreateFileOperation(TFileOperationKind.Ingest);
                     operation.Source = media;
-                    operation.DestDirectory = _mediaManager.DetermineValidServerDirectory();
+                    operation.DestDirectory = destDirectory;
                     operation.AudioVolume = currentDir.AudioVolume;
                     operation.SourceFieldOrderEnforceConversion = currentDir.SourceFieldOrder;
                     operation.AspectConversion = currentDir.AspectConversion;

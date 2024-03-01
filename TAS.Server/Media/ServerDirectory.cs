@@ -26,11 +26,6 @@ namespace TAS.Server.Media
             HaveFileWatcher = true;
         }
 
-        internal bool RequiresInitialization { get; set; }
-
-        [DtoMember]
-        public bool IsRecursive { get; }
-
         [DtoMember]
         public TMovieContainerFormat MovieContainerFormat { get; }
 
@@ -39,7 +34,7 @@ namespace TAS.Server.Media
             if (Interlocked.Exchange(ref _initializationStarted, 1) != default)
                 return;
             DatabaseProvider.Database.LoadServerDirectory<ServerMedia>(this, Server.Id);
-            await BeginWatch(IsRecursive);
+            await BeginWatch();
             Debug.WriteLine(this, "Directory initialized");
         }
 
@@ -122,9 +117,9 @@ namespace TAS.Server.Media
             base.OnMediaRenamed(media, newFullPath);
         }
 
-        protected override void EnumerateFiles(string directory, bool includeSubdirectories)
+        protected override void EnumerateFiles(string directory)
         {
-            base.EnumerateFiles(directory, includeSubdirectories);
+            base.EnumerateFiles(directory);
             var unverifiedFiles = FindMediaList(mf => ((ServerMedia)mf).IsVerified == false);
             unverifiedFiles.ForEach(media => media.Verify(true));
         }
@@ -150,12 +145,6 @@ namespace TAS.Server.Media
             AddMedia(newMedia);
             newMedia.Save();
             return newMedia;
-        }
-
-        protected override void OnError(object source, ErrorEventArgs e)
-        {
-            base.OnError(source, e);
-            Task.Run(() => BeginWatch(IsRecursive));
         }
 
         public override string ToString()

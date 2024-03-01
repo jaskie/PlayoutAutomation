@@ -59,22 +59,11 @@ namespace TAS.Client.ViewModels
             SetupSearchDirectory(closeAfterAdd, mediaType);
         }
 
-        private async void SetupSearchDirectory(bool closeAfterAdd, TMediaType mediaType)
+        private void SetupSearchDirectory(bool closeAfterAdd, TMediaType mediaType)
         {
-            var pri = _mediaType == TMediaType.Animation
-                ? (IWatcherDirectory)Engine.MediaManager.AnimationDirectoryPRI
-                : Engine.MediaManager.MediaDirectoryPRI;
-            var sec = _mediaType == TMediaType.Animation
-                ? (IWatcherDirectory)Engine.MediaManager.AnimationDirectorySEC
-                : Engine.MediaManager.MediaDirectorySEC;
-            _searchDirectory = pri != null && await Task.Run(() => pri.DirectoryExists)
-                ? pri
-                : sec != null && await Task.Run(() => sec.DirectoryExists)
-                    ? sec
-                    : null;
+            _searchDirectory = Engine.MediaManager.DetermineValidServerDirectory();
             if (_searchDirectory == null)
                 return;
-
             _searchDirectory.MediaAdded += _searchDirectory_MediaAdded;
             _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
             _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;
