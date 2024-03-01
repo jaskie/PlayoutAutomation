@@ -91,7 +91,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Thumb Name="SidePanelResizer" HorizontalAlignment="Left" Width="3"  BorderThickness="0" Background="DarkGray" Grid.Column="0" Grid.RowSpan="3" Cursor="SizeWE" DragDelta="SidePanelResizer_OnDragDelta"/>
+                <GridSplitter Name="SidePanelResizer" HorizontalAlignment="Left" Width="3" Grid.RowSpan="3" Cursor="SizeWE" Background="DarkGray" DragDelta="SidePanelResizer_OnDragDelta"/>
                 <ContentControl Grid.Row="0" Content="{Binding EditMedia}" Margin="3, 0, 0, 0">
                     <ContentControl.Resources>
                         <DataTemplate DataType="{x:Type viewmodels:MediaEditViewmodel}">
@@ -100,7 +100,7 @@
                     </ContentControl.Resources>
                 </ContentControl>
                 <GridSplitter Grid.Row="0" Visibility="{Binding IsDisplayPreview, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
-                <ContentControl Visibility="{Binding IsDisplayPreview, Converter={StaticResource BoolToVis}}" Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding Preview}">
+                <ContentControl Visibility="{Binding IsDisplayPreview, Converter={StaticResource BoolToVis}}" Grid.Row="1" Margin="4, 0, 0, 3" Content="{Binding Preview}">
                     <ContentControl.Resources>
                         <DataTemplate DataType="{x:Type viewmodels:PreviewViewmodel}" >
                             <views:PreviewView/>
