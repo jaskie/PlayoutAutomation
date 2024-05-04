@@ -45,8 +45,8 @@ namespace TAS.Client
                 MessageBox.Show(e.Exception.Message, Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             else
                 MessageBox.Show(window, e.Exception.Message, Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-            Logger.Error(e.Exception);
             e.Handled = true;
+            Logger.Error("DispatcherUnhandledException", e.Exception);
         }
 
         protected override async void OnStartup(StartupEventArgs eventArgs)
@@ -75,7 +75,7 @@ namespace TAS.Client
             var splash = MainWindow as SplashScreenView;
             if (!IsShutdown)
             {
-                AppDomain.CurrentDomain.SetThreadPrincipal(new GenericPrincipal(new LocalUser(), new string[0]));
+                AppDomain.CurrentDomain.SetThreadPrincipal(new GenericPrincipal(new LocalUser(), Array.Empty<string>()));
                 if (await AppLoader.LoadApp())
                 {
                     MainWindow = new MainWindow();

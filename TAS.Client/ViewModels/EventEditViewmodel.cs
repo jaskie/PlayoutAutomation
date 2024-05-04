@@ -39,12 +39,13 @@ namespace TAS.Client.ViewModels
         private TimeSpan _duration;
         private TimeSpan _scheduledDelay;
         private bool _isEventNameFocused;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         #region Router
         private int _routerPort = -1;
         private object _selectedInputPort;
         #endregion
-                     
+
         public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
         public static readonly Regex RegexMixerClip = new Regex(TAS.Common.EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
         public static readonly Regex RegexMixerClear = new Regex(TAS.Common.EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase);
@@ -99,13 +100,17 @@ namespace TAS.Client.ViewModels
             );
             CommandDelete = new UiCommand
             (
-                async o =>
+                _ =>
                 {
                     if (MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
                         return;
                     EventClipboard.SaveUndo(new List<IEvent> {Model},
                         Model.StartType == TStartType.After ? Model.GetPrior() : Model.GetParent());
-                    await Task.Run(() => Model.Delete());
+                    Task.Run(() =>
+                    {
+                        Model.Delete();
+                        Logger.LogEventDeletion(Model);
+                    });
                 },
                 o => Model.HaveRight(EventRight.Delete) && Model.AllowDelete()
             );
@@ -885,14 +890,14 @@ namespace TAS.Client.ViewModels
                         NotifyPropertyChanged(nameof(TransitionPauseTime));
                         break;
                     case nameof(IEvent.RouterPort):
-                        RouterPort = s.RouterPort;                        
-                        break;                    
+                        RouterPort = s.RouterPort;
+                        break;
                     case nameof(IEvent.CurrentUserRights):
                         InvalidateRequerySuggested();
                         break;
                     case nameof(IEvent.RecordingInfo):
                         RecordingInfoViewmodel?.UpdateInfo(s.RecordingInfo);
-                        break;                    
+                        break;
                 }
             });
         }

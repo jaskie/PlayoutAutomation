@@ -34,6 +34,7 @@ namespace TAS.Client.ViewModels
         private readonly ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
         private readonly ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
         private readonly ObservableCollection<EventPanelViewmodelBase> _multiSelectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         internal Views.EngineView View;
 
@@ -650,24 +651,27 @@ namespace TAS.Client.ViewModels
             LastAddedEvent = newEvent;
         }
 
-        private async void _deleteSelected(object ob)
+        private void _deleteSelected(object ob)
         {
             var evmList = _multiSelectedEvents.ToList();
             if (evmList.Count == 0
                 || MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count, evmList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
                 return;
+            _multiSelectedEvents.Clear();
             var firstEvent = evmList.First().Event;
             EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.GetPrior() : firstEvent.GetParent());
-            await Task.Run(
+            Task.Run(
                 () =>
                 {
                     try
                     {
                         foreach (var evm in evmList)
                         {
-                            if (evm.Event != null
-                                && (evm.Event.PlayState == TPlayState.Scheduled || evm.Event.PlayState == TPlayState.Played || evm.Event.PlayState == TPlayState.Aborted))
-                                evm.Event.Delete();
+                            if (evm.Event is null
+                                || !(evm.Event.PlayState == TPlayState.Scheduled || evm.Event.PlayState == TPlayState.Played || evm.Event.PlayState == TPlayState.Aborted))
+                                continue;
+                            evm.Event.Delete();
+                            Logger.LogEventDeletion(evm.Event);
                         }
                     }
                     catch (Exception e)
@@ -679,7 +683,6 @@ namespace TAS.Client.ViewModels
                     }
                 }
             );
-            _multiSelectedEvents.Clear();
         }
 
         private void _debugShow(object o)

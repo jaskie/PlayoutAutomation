@@ -8,6 +8,9 @@
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="NLog" Version="5.2.8" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="Plugins\FolderInfo.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Configuration\**\*" CopyToOutputDirectory="PreserveNewest" />
     <None Update="NLog.config" CopyToOutputDirectory="PreserveNewest" />
@@ -23,8 +26,8 @@
   </ItemGroup>
   <Target Name="CopyFFmpeg" AfterTargets="Build">
     <ItemGroup>
-      <FFmpegFiles Include="$(SolutionDir)ffmpeg\x64\bin\**\*.*"/>
+      <FFmpegFiles Include="$(SolutionDir)ffmpeg\x64\bin\**\*.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(FFmpegFiles)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+    <Copy SourceFiles="@(FFmpegFiles)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
 </Project>

@@ -3,6 +3,7 @@
     <TargetFramework>net48</TargetFramework>
     <TVPlayDir>TVPlay</TVPlayDir>
     <PluginsDir>Plugins</PluginsDir>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <Deterministic>false</Deterministic>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
