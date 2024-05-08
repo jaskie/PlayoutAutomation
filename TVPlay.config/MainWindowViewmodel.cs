@@ -13,11 +13,11 @@ namespace TAS.Client.Config
         {
             if (File.Exists("TVPlay.exe"))
                 ConfigFile = new Model.ConfigFile(ConfigurationManager.OpenExeConfiguration("TVPlay.exe"));
-            CommandIngestFoldersSetup = new UiCommand(_ingestFoldersSetup, _canShowDialog);
-            CommandConfigFileEdit = new UiCommand(_configFileEdit, _canShowDialog);
-            CommandConfigFileSelect = new UiCommand(_configFileSelect, _canShowDialog);
-            CommandPlayoutServersSetup = new UiCommand(_serversSetup, _canShowDialog);
-            CommandEnginesSetup = new UiCommand(_enginesSetup, _canShowDialog);
+            CommandIngestFoldersSetup = new UiCommand(CommandName(nameof(IngestFoldersSetup)), IngestFoldersSetup, CanShowDialog);
+            CommandConfigFileEdit = new UiCommand(CommandName(nameof(ConfigFileEdit)), ConfigFileEdit, CanShowDialog);
+            CommandConfigFileSelect = new UiCommand(CommandName(nameof(ConfigFileSelect)), ConfigFileSelect, CanShowDialog);
+            CommandPlayoutServersSetup = new UiCommand(CommandName(nameof(ServersSetup)), ServersSetup, CanShowDialog);
+            CommandEnginesSetup = new UiCommand(CommandName(nameof(EnginesSetup)), EnginesSetup, CanShowDialog);
         }
 
         public ICommand CommandIngestFoldersSetup { get; }
@@ -34,41 +34,41 @@ namespace TAS.Client.Config
 
         protected override void OnDispose() { }
 
-        private bool _canShowDialog(object o)
+        private bool CanShowDialog(object _)
         {
             return _configFile != null;
         }
         
-        private void _enginesSetup(object obj)
+        private void EnginesSetup(object _)
         {
             using (var vm = new EnginesViewmodel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
             {
                 vm.ShowDialog();
             }
         }
-        
-        private void _serversSetup(object obj)
+
+        private void ServersSetup(object _)
         {
             using (var vm = new PlayoutServersViewmodel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
             {
                 vm.ShowDialog();
             }
         }
-                
-        private void _configFileSelect(object obj)
+
+        private void ConfigFileSelect(object _)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog() { Filter = "Executables (*.exe)|*.exe" };
             if (dlg.ShowDialog() == true)
                 ConfigFile = new Model.ConfigFile(ConfigurationManager.OpenExeConfiguration(dlg.FileName));
         }
 
-        private void _configFileEdit(object obj)
+        private void ConfigFileEdit(object _)
         {
             ConfigFileViewmodel vm = new ConfigFileViewmodel(_configFile);
             vm.ShowDialog();
         }
 
-        private void _ingestFoldersSetup(object obj)
+        private void IngestFoldersSetup(object _)
         {
             IngestDirectoriesViewmodel vm = new IngestDirectoriesViewmodel(_configFile.AppSettings.IngestFolders);
             vm.ShowDialog();

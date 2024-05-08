@@ -24,10 +24,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svt.Caspar", "dependencies\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{3F907958-AD04-4245-AE71-DC8D06A473E9}"
 	ProjectSection(SolutionItems) = preProject
-		Plugins\Directory.Build.targets = Plugins\Directory.Build.targets
+		Plugins\Directory.Build.props = Plugins\Directory.Build.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.Advantech", "Plugins\TAS.Server.Advantech\TAS.Server.Advantech.csproj", "{08504AA1-0378-4F07-94AE-F1A40911E1AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Server.Advantech", "Plugins\TAS.Server.Advantech\TAS.Server.Advantech.csproj", "{08504AA1-0378-4F07-94AE-F1A40911E1AD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Common", "TAS.Common\TAS.Common.csproj", "{9ACA6AE7-49ED-4599-91AC-927680CF9623}"
 EndProject
@@ -38,7 +38,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Client.Common", "TAS.Cl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Client.Config", "TAS.Client.Config\TAS.Client.Config.csproj", "{86071DE4-1A5D-4889-B54A-08DA101B2B51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPlay.config", "TVPlay.config\TVPlay.config.csproj", "{0BB48447-B299-4CE9-AF50-174384B269D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPlay.config", "TVPlay.config\TVPlay.config.csproj", "{0BB48447-B299-4CE9-AF50-174384B269D0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D} = {4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}
 		{8E491E24-FFA4-44CF-976F-37D5CC904536} = {8E491E24-FFA4-44CF-976F-37D5CC904536}
@@ -53,17 +53,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPlayClient", "TVPlayClien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Server", "TAS.Server\TAS.Server.csproj", "{F268CD0E-804F-49CD-A3F2-341E5B6A9927}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.UiPluginExample", "Plugins\TAS.Client.UiPluginExample\TAS.Client.UiPluginExample.csproj", "{D91C7587-4BF6-4D93-A853-B6D7D30FA319}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Client.UiPluginExample", "Plugins\TAS.Client.UiPluginExample\TAS.Client.UiPluginExample.csproj", "{D91C7587-4BF6-4D93-A853-B6D7D30FA319}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.NowPlayingNotifier", "Plugins\TAS.Server.NowPlayingNotifier\TAS.Server.NowPlayingNotifier.csproj", "{12EE9232-10AD-4E0F-A848-42C8A79876B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Server.NowPlayingNotifier", "Plugins\TAS.Server.NowPlayingNotifier\TAS.Server.NowPlayingNotifier.csproj", "{12EE9232-10AD-4E0F-A848-42C8A79876B8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.CgElementsController", "Plugins\TAS.Server.CGElementsController\TAS.Server.CgElementsController.csproj", "{7970C290-A9E8-4ED3-83BC-9E8654ECD8D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Server.CgElementsController", "Plugins\TAS.Server.CGElementsController\TAS.Server.CgElementsController.csproj", "{7970C290-A9E8-4ED3-83BC-9E8654ECD8D6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
 	EndProjectSection
@@ -76,7 +76,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPlaySvc", "TVPlaySvc\TVPl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External dependencies", "External dependencies", "{9E587B86-2AD9-446D-8DD5-D710167A7F54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.NDIVideoPreview", "Plugins\TAS.Client.NDIVideoPreview\TAS.Client.NDIVideoPreview.csproj", "{41219373-E25E-48C8-AD64-EAB58244E713}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Client.NDIVideoPreview", "Plugins\TAS.Client.NDIVideoPreview\TAS.Client.NDIVideoPreview.csproj", "{41219373-E25E-48C8-AD64-EAB58244E713}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
 	EndProjectSection
@@ -87,13 +87,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DatabaseProviders", "Databa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Database.Common", "TAS.Database.Common\TAS.Database.Common.csproj", "{F73445A5-2375-49EA-BD4F-8C6778D8736D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.XKeys", "Plugins\TAS.Client.XKeys\TAS.Client.XKeys.csproj", "{296D2876-8284-4E2A-8273-BC88CE854392}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Client.XKeys", "Plugins\TAS.Client.XKeys\TAS.Client.XKeys.csproj", "{296D2876-8284-4E2A-8273-BC88CE854392}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Client.ExportRundownAsXml", "Plugins\TAS.Client.ExportRundownAsXml\TAS.Client.ExportRundownAsXml.csproj", "{811B2F72-5DFA-4FA2-AEF5-250D69B64711}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "jNet.RPC", "dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj", "{15324B69-7D18-49F3-9141-B024079356E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.Router", "Plugins\TAS.Client.Router\TAS.Server.Router.csproj", "{AD45E333-FBC5-42EE-BA3F-66DA6B2C8C1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Server.Router", "Plugins\TAS.Client.Router\TAS.Server.Router.csproj", "{AD45E333-FBC5-42EE-BA3F-66DA6B2C8C1C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Database.SQLite", "DatabaseProviders\SQLite\TAS.Database.SQLite.csproj", "{8E491E24-FFA4-44CF-976F-37D5CC904536}"
 EndProject

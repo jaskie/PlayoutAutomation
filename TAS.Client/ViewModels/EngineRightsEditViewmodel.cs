@@ -27,11 +27,11 @@ namespace TAS.Client.ViewModels
             Rights = new ObservableCollection<EngineRightViewmodel>(_originalRights.Select(r => new EngineRightViewmodel(r)));
             foreach (var eventRightViewmodel in Rights)
             {
-                eventRightViewmodel.ModifiedChanged += EventRightViewmodelModifiedChanged;
+                eventRightViewmodel.ModifiedChanged += EventRightViewmodel_ModifiedChanged;
             }
-            CommandAddRight = new UiCommand(_addRight, _canAddRight);
-            CommandDeleteRight = new UiCommand(_deleteRight, _canDeleteRight);
-            CommandOk = new UiCommand(o => _save(), o => IsModified);
+            CommandAddRight = new UiCommand(CommandName(nameof(AddRight)), AddRight, CanAddRight);
+            CommandDeleteRight = new UiCommand(CommandName(nameof(DeleteRight)), DeleteRight, CanDeleteRight);
+            CommandOk = new UiCommand(CommandName(nameof(Save)), _ => Save(), _ => IsModified);
         }
 
         public ICommand CommandAddRight { get; }
@@ -68,7 +68,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _save()
+        private void Save()
         {
             foreach (var aclRightViewmodel in Rights)
             {
@@ -87,11 +87,11 @@ namespace TAS.Client.ViewModels
             foreach (var aclRightViewmodel in Rights)
             {
                 aclRightViewmodel.Dispose();
-                aclRightViewmodel.ModifiedChanged -= EventRightViewmodelModifiedChanged;
+                aclRightViewmodel.ModifiedChanged -= EventRightViewmodel_ModifiedChanged;
             }
         }
 
-        private void _addRight(object obj)
+        private void AddRight(object _)
         {
             using (var selector = new SecurityObjectSelectorViewmodel(_authenticationService))
             {
@@ -103,36 +103,27 @@ namespace TAS.Client.ViewModels
                 var newRightVm = new EngineRightViewmodel(right);
                 Rights.Add(newRightVm);
                 SelectedRight = newRightVm;
-                SelectedRight.ModifiedChanged += EventRightViewmodelModifiedChanged;
+                SelectedRight.ModifiedChanged += EventRightViewmodel_ModifiedChanged;
                 IsModified = true;
             }
         }
 
-        private bool _canAddRight(object obj)
-        {
-            return true;
-        }
+        private bool CanAddRight(object _) => true;
 
-        private bool _canDeleteRight(object obj)
-        {
-            return SelectedRight != null;
-        }
+        private bool CanDeleteRight(object _) => SelectedRight != null;
 
-        private void _deleteRight(object obj)
+        private void DeleteRight(object _)
         {
             var rightToDelete = SelectedRight;
             if (Rights.Remove(rightToDelete))
             {
                 rightToDelete.Dispose();
-                rightToDelete.ModifiedChanged -= EventRightViewmodelModifiedChanged;
+                rightToDelete.ModifiedChanged -= EventRightViewmodel_ModifiedChanged;
                 IsModified = true;
             }
         }
 
-        private void EventRightViewmodelModifiedChanged(object sender, EventArgs e)
-        {
-            IsModified = true;
-        }
+        private void EventRightViewmodel_ModifiedChanged(object sender, EventArgs e) => IsModified = true;
 
     }
 }

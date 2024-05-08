@@ -12,8 +12,8 @@ namespace TAS.Client.Common
 
         protected OkCancelViewmodelBase(TM model, Type editor, string windowTitle) : base(model)
         {
-            CommandCancel = new UiCommand(Close, CanClose);
-            CommandOk = new UiCommand(Ok, CanOk);
+            CommandCancel = new UiCommand(CommandName(nameof(Close)), Close, CanClose);
+            CommandOk = new UiCommand(CommandName(nameof(Ok)), Ok, CanOk);
             Title = windowTitle;
             Editor = (UserControl)Activator.CreateInstance(editor);
         }

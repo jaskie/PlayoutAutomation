@@ -22,9 +22,9 @@ namespace TAS.Client.ViewModels
             VideoFormat = videoFormat;
             IsFieldListReadOnly = isFieldListReadOnly;
             Model.PropertyChanged += Model_PropertyChanged;
-            CommandAddField = new UiCommand(_addField, _canAddField);
-            CommandDeleteField = new UiCommand(_deleteField, _canDeleteField);
-            CommandEditField = new UiCommand(_editField, _canDeleteField);
+            CommandAddField = new UiCommand(CommandName(nameof(AddField)), AddField, CanAddField);
+            CommandDeleteField = new UiCommand(CommandName(nameof(DeleteField)), DeleteField, CanEditOrDeleteField);
+            CommandEditField = new UiCommand(CommandName(nameof(EditField)), EditField, CanEditOrDeleteField);
         }
 
 
@@ -128,8 +128,7 @@ namespace TAS.Client.ViewModels
             Model.PropertyChanged -= Model_PropertyChanged;
         }
 
-
-        private void _editField(object obj)
+        private void EditField(object obj)
         {
             var editObject = obj ?? SelectedField;
             if (editObject == null)
@@ -145,12 +144,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private bool _canDeleteField(object obj)
-        {
-            return SelectedField != null;
-        }
+        private bool CanEditOrDeleteField(object _) => SelectedField != null;
 
-        private void _deleteField(object obj)
+        private void DeleteField(object _)
         {
             if (SelectedField == null)
                 return;
@@ -161,12 +157,9 @@ namespace TAS.Client.ViewModels
             IsModified = true;
         }
 
-        private bool _canAddField(object obj)
-        {
-            return !IsFieldListReadOnly;
-        }
+        private bool CanAddField(object _) => !IsFieldListReadOnly;
 
-        private void _addField(object obj)
+        private void AddField(object _)
         {
             using (var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), true))
             {
@@ -178,14 +171,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public void Save()
-        {
-            Update();
-        }
+        public void Save() => Update();
 
-        public void UndoEdit()
-        {
-            Load();
-        }
+        public void UndoEdit() => Load();
     }
 }

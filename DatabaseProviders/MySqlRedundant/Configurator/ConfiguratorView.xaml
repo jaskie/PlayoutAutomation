@@ -41,7 +41,7 @@
             <Button Grid.Column="2" HorizontalAlignment="Center" ToolTip="Clone primary database to mirror" Command="{Binding CommandCloneDatabase}" Visibility="{Binding IsSConnectionStringSecondary, Converter={StaticResource BoolToVis}}">
                 <Image Source="/TAS.Client.Common;component/Images/Actions/database-clone.png" Stretch="None"/>
             </Button>
-            <Button Grid.Column="3" HorizontalAlignment="Center" ToolTip="Test connectivity to secondary database" Command="{Binding CommandTestConnectivitySecodary}">
+            <Button Grid.Column="3" HorizontalAlignment="Center" ToolTip="Test connectivity to secondary database" Command="{Binding CommandTestConnectivitySecondary}">
                 <Image Source="/TAS.Client.Common;component/Images/Actions/database-secondary-connect.png" Stretch="None"/>
             </Button>
         </Grid>

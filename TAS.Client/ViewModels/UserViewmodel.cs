@@ -24,7 +24,9 @@ namespace TAS.Client.ViewModels
         {
             _owner = owner;
             GroupMember = new ObservableCollection<GroupViewmodel>(user.GetGroups().Select(g => owner.Groups.FirstOrDefault(vm => vm.Model == g)));
-            GroupMember.CollectionChanged += _groupMember_CollectionChanged;
+            GroupMember.CollectionChanged += GroupMember_CollectionChanged;
+            CommandSave = new UiCommand(CommandName(nameof(Update)), Update, _ => IsModified);
+            CommandUndo = new UiCommand(CommandName(nameof(Load)), Load, _ => IsModified);
         }
 
         public string Name
@@ -71,16 +73,16 @@ namespace TAS.Client.ViewModels
 
         public ObservableCollection<GroupViewmodel> GroupMember { get; }
 
-        public ICommand CommandSave => new UiCommand(Update, o => IsModified);
+        public ICommand CommandSave { get; }
 
-        public ICommand CommandUndo => new UiCommand(Load, o => IsModified);
+        public ICommand CommandUndo { get; }
 
         protected override void OnDispose()
         {
-            GroupMember.CollectionChanged -= _groupMember_CollectionChanged;
+            GroupMember.CollectionChanged -= GroupMember_CollectionChanged;
         }
 
-        private void _groupMember_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void GroupMember_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             IsModified = true;
         }

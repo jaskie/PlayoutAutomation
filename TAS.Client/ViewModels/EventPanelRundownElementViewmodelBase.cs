@@ -23,29 +23,32 @@ namespace TAS.Client.ViewModels
 
             CommandToggleHold = new UiCommand
             (
-                o =>
+                CommandName(nameof(CommandToggleHold)),
+                _ =>
                 {
                     Event.IsHold = !Event.IsHold;
                     Event.Save();
                 },
-                _canToggleHold
+                CanToggleHold
             );
             CommandToggleEnabled = new UiCommand
             (
-                async o =>
+                CommandName(nameof(CommandToggleEnabled)),
+                async _ =>
                 {
                     await Task.Run(() => Event.IsEnabled = !Event.IsEnabled);
                     Event.Save();
                 },
-                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+                _ => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             );
             CommandToggleLayer = new UiCommand
             (
+                CommandName(nameof(CommandToggleLayer)),
                 l =>
                 {
                     if (!(l is string layerName) || !Enum.TryParse(layerName, true, out VideoLayer layer))
                         return;
-                    if (_hasSubItemsOnLayer(layer))
+                    if (HasSubItemsOnLayer(layer))
                     {
                         var layerEvent = Event.GetSubEvents().FirstOrDefault(e => e.Layer == layer);
                         layerEvent?.Delete();
@@ -53,49 +56,55 @@ namespace TAS.Client.ViewModels
                     else
                         EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, TMediaType.Still, layer, true);
                 },
-                _canToggleLayer
+                CanToggleLayer
             );
             CommandAddNextRundown = new UiCommand
             (
-                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, false),
-                _canAddNextItem
+                CommandName(nameof(CommandAddNextRundown)),
+                _ => EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, false),
+                _ =>_canAddNextItem()
             );
             CommandAddNextEmptyMovie = new UiCommand
             (
-                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Movie, false),
+                CommandName(nameof(CommandAddNextEmptyMovie)),
+                _ => EngineViewmodel.AddSimpleEvent(Event, TEventType.Movie, false),
                 CanAddNextMovie
             );
             CommandAddNextLive = new UiCommand
             (
-                o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, false),
+                CommandName(nameof(CommandAddNextLive)),
+                _ => EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, false),
                 CanAddNewLive
             );
             CommandAddNextMovie = new UiCommand
             (
-                o => EngineViewmodel.AddMediaEvent(Event, TStartType.After, TMediaType.Movie,
+                CommandName(nameof(CommandAddNextMovie)),
+                _ => EngineViewmodel.AddMediaEvent(Event, TStartType.After, TMediaType.Movie,
                     VideoLayer.Program, false),
                 CanAddNextMovie
             );
             CommandAddAnimation = new UiCommand
             (
-                o => EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent,
+                CommandName(nameof(CommandAddAnimation)),
+                _ => EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent,
                     TMediaType.Animation, VideoLayer.Animation, true),
-                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+                _ => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             );
             CommandAddCommandScript = new UiCommand
             (
-                o => EngineViewmodel.AddCommandScriptEvent(Event),
-                o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
+                CommandName(nameof(CommandAddCommandScript)),
+                _ => EngineViewmodel.AddCommandScriptEvent(Event),
+                _ => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             );
         }
 
-        private bool _canToggleLayer(object obj)
+        private bool CanToggleLayer(object _)
         {
             return (Event.PlayState == TPlayState.Scheduled || Event.PlayState == TPlayState.Playing || Event.PlayState == TPlayState.Paused)
                    && Event.HaveRight(EventRight.Modify);
         }
 
-        private bool _canToggleHold(object o)
+        private bool CanToggleHold(object _)
         {
             return Event.PlayState == TPlayState.Scheduled
                    && Event.StartType == TStartType.After
@@ -119,17 +128,17 @@ namespace TAS.Client.ViewModels
         public ICommand CommandAddCommandScript { get; }
 
 
-        protected virtual bool CanAddNextMovie(object o)
+        protected virtual bool CanAddNextMovie(object _)
         {
-            return _canAddNextItem(o);
+            return _canAddNextItem();
         }
 
-        protected virtual bool CanAddNewLive(object o)
+        protected virtual bool CanAddNewLive(object _)
         {
-            return _canAddNextItem(o);
+            return _canAddNextItem();
         }
 
-        bool _canAddNextItem(object o)
+        bool _canAddNextItem()
         {
             return Event.PlayState != TPlayState.Played 
                    && !Event.IsLoop
@@ -156,16 +165,16 @@ namespace TAS.Client.ViewModels
 
         public bool IsForcedNext => Event != null && Event.IsForcedNext;
 
-        public bool HasSubItemOnLayer1 => _hasSubItemsOnLayer(VideoLayer.CG1);
+        public bool HasSubItemOnLayer1 => HasSubItemsOnLayer(VideoLayer.CG1);
 
-        public bool HasSubItemOnLayer2 => _hasSubItemsOnLayer(VideoLayer.CG2);
+        public bool HasSubItemOnLayer2 => HasSubItemsOnLayer(VideoLayer.CG2);
 
-        public bool HasSubItemOnLayer3 => _hasSubItemsOnLayer(VideoLayer.CG3);
+        public bool HasSubItemOnLayer3 => HasSubItemsOnLayer(VideoLayer.CG3);
 
 
-        public string Layer1SubItemMediaName => _subItemMediaName(VideoLayer.CG1);
-        public string Layer2SubItemMediaName => _subItemMediaName(VideoLayer.CG2);
-        public string Layer3SubItemMediaName => _subItemMediaName(VideoLayer.CG3);
+        public string Layer1SubItemMediaName => SubItemMediaName(VideoLayer.CG1);
+        public string Layer2SubItemMediaName => SubItemMediaName(VideoLayer.CG2);
+        public string Layer3SubItemMediaName => SubItemMediaName(VideoLayer.CG3);
 
         public TimeSpan? Offset => Event.Offset;
 
@@ -381,14 +390,14 @@ namespace TAS.Client.ViewModels
                 VideoFormat = ((IMedia)sender).VideoFormat;
         }
 
-        private string _subItemMediaName(VideoLayer layer)
+        private string SubItemMediaName(VideoLayer layer)
         {
             var se = Event?.GetSubEvents().FirstOrDefault(e => e.Layer == layer && e.EventType == TEventType.StillImage);
             var m = se?.Media;
             return m?.MediaName ?? string.Empty;
         }
 
-        private bool _hasSubItemsOnLayer(VideoLayer layer)
+        private bool HasSubItemsOnLayer(VideoLayer layer)
         {
             return Event.GetSubEvents().Any(e => e.Layer == layer && e.EventType == TEventType.StillImage);
         }

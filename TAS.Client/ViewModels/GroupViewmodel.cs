@@ -10,6 +10,8 @@ namespace TAS.Client.ViewModels
 
         public GroupViewmodel(IGroup group): base(group)
         {
+            CommandSave = new UiCommand(CommandName(nameof(Update)), Update, _ => IsModified);
+            CommandUndo = new UiCommand(nameof(Load), Load, _ => IsModified);
         }
 
         public string Name
@@ -23,13 +25,11 @@ namespace TAS.Client.ViewModels
             base.Update(destObject);
             Model.Save();
         }
-        
-        public ICommand CommandSave => new UiCommand(Update, o => IsModified);
 
-        public ICommand CommandUndo => new UiCommand(Load, o => IsModified);
+        public ICommand CommandSave { get; }
 
-        protected override void OnDispose()
-        {
-        }
+        public ICommand CommandUndo { get; }
+
+        protected override void OnDispose() { }
     }
 }

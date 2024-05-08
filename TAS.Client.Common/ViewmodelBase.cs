@@ -126,6 +126,11 @@ namespace TAS.Client.Common
             Application.Current?.Dispatcher.BeginInvoke((Action)CommandManager.InvalidateRequerySuggested);
         }
 
+        protected string CommandName(string methodName)
+        {
+            return $"{GetType().Name}:{methodName}";
+        }
+
         public void OnUiThread(Action action)
         {
             if (Thread.CurrentThread == Application.Current?.Dispatcher.Thread)

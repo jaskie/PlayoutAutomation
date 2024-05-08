@@ -12,8 +12,8 @@ using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
-using resources = TAS.Client.Common.Properties.Resources;
 using TAS.Client.Common.Plugin;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
@@ -52,8 +52,8 @@ namespace TAS.Client.ViewModels
                 _videoFormatDescription = videoFormatDescription;
             _mediaType = mediaType;
             if (_preview != null)
-                _preview.PropertyChanged += _onPreviewViewModelPropertyChanged;
-            CommandAdd = new UiCommand(_add, _allowAdd);
+                _preview.PropertyChanged += PreviewViewModel_PropertyChanged;
+            CommandAdd = new UiCommand(CommandName(nameof(Add)), Add, CanAdd);
             _mediaCategory = MediaCategories.FirstOrDefault();
             NewEventStartType = TStartType.After;
             SetupSearchDirectory(closeAfterAdd, mediaType);
@@ -64,18 +64,18 @@ namespace TAS.Client.ViewModels
             _searchDirectory = Engine.MediaManager.DetermineValidServerDirectory();
             if (_searchDirectory == null)
                 return;
-            _searchDirectory.MediaAdded += _searchDirectory_MediaAdded;
-            _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
-            _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;
+            _searchDirectory.MediaAdded += SearchDirectory_MediaAdded;
+            _searchDirectory.MediaRemoved += SearchDirectory_MediaRemoved;
+            _searchDirectory.MediaVerified += SearchDirectory_MediaVerified;
 
             if (!closeAfterAdd)
                 OkButtonText = resources._button_Add;
             Items = new ObservableCollection<MediaViewViewmodel>(
                 _searchDirectory.GetAllFiles()
-                    .Where(m => _canAddMediaToCollection(m, mediaType))
+                    .Where(m => CanAddMediaToCollection(m, mediaType))
                     .Select(m => new MediaViewViewmodel(m, Engine.MediaManager)));
             _itemsView = CollectionViewSource.GetDefaultView(Items);
-            _itemsView.Filter += _itemsFilter;
+            _itemsView.Filter += ItemsFilter;
 
             IsRecursive = _searchDirectory is IServerDirectory sd && sd.IsRecursive;
 
@@ -191,11 +191,11 @@ namespace TAS.Client.ViewModels
                 if (b != value)
                 {
                     if (b != null)
-                        b.PropertyChanged -= _onBaseEventPropertyChanged;
+                        b.PropertyChanged -= BaseEvent_PropertyChanged;
                     _baseEvent = value;
                     InvalidateRequerySuggested();
                     if (value != null)
-                        value.PropertyChanged += _onBaseEventPropertyChanged;
+                        value.PropertyChanged += BaseEvent_PropertyChanged;
                 }
             }
         }
@@ -206,7 +206,7 @@ namespace TAS.Client.ViewModels
 
         public IUiPreview Preview => _preview;
 
-        private bool _canAddMediaToCollection(IMedia media, TMediaType requiredMediaType)
+        private bool CanAddMediaToCollection(IMedia media, TMediaType requiredMediaType)
         {
             return
                 media != null
@@ -217,12 +217,12 @@ namespace TAS.Client.ViewModels
                  || media.MediaType == TMediaType.Animation);
         }
 
-        private void _searchDirectory_MediaVerified(object sender, MediaEventArgs e)
+        private void SearchDirectory_MediaVerified(object _, MediaEventArgs e)
         {
             OnUiThread(() => _itemsView?.Refresh());
         }
 
-        private void _searchDirectory_MediaRemoved(object sender, MediaEventArgs e)
+        private void SearchDirectory_MediaRemoved(object _, MediaEventArgs e)
         {
             OnUiThread(() =>
             {
@@ -235,18 +235,18 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        private void _searchDirectory_MediaAdded(object sender, MediaEventArgs e)
+        private void SearchDirectory_MediaAdded(object _, MediaEventArgs e)
         {
             OnUiThread(() =>
             {
                 IMedia media = e.Media;
                 if (media != null
-                    && _canAddMediaToCollection(media, _mediaType))
+                    && CanAddMediaToCollection(media, _mediaType))
                     Items.Add(new MediaViewViewmodel(media, Engine.MediaManager));
             });
         }
 
-        private bool _itemsFilter(object item)
+        private bool ItemsFilter(object item)
         {
             var mvm = item as MediaViewViewmodel;
             if (mvm?.Media == null)
@@ -306,7 +306,7 @@ namespace TAS.Client.ViewModels
             return SelectedItem.SelectedSegment == null ? SelectedItem.MediaName : $"{SelectedItem.MediaName} [{SelectedItem.SelectedSegment.SegmentName}]";
         }
 
-        private bool _allowAdd(object o)
+        private bool CanAdd(object _)
         {
             if (SelectedMedia == null)
                 return false;
@@ -347,19 +347,19 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _onBaseEventPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void BaseEvent_PropertyChanged(object _, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IEvent.PlayState))
                 InvalidateRequerySuggested();
         }
 
-        private void _onPreviewViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void PreviewViewModel_PropertyChanged(object _, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(_preview.LoadedMedia))
                 InvalidateRequerySuggested();
         }
 
-        private void _add(object param)
+        private void Add(object _)
         {
             var sm = SelectedItem;
             var handler = MediaChoosen;
@@ -372,14 +372,14 @@ namespace TAS.Client.ViewModels
             BaseEvent = null;
             if (_preview != null)
             {
-                _preview.PropertyChanged -= _onPreviewViewModelPropertyChanged;
+                _preview.PropertyChanged -= PreviewViewModel_PropertyChanged;
                 _preview.Dispose();
             }
             if (_searchDirectory != null)
             {
-                _searchDirectory.MediaAdded -= _searchDirectory_MediaAdded;
-                _searchDirectory.MediaRemoved -= _searchDirectory_MediaRemoved;
-                _searchDirectory.MediaVerified -= _searchDirectory_MediaVerified;
+                _searchDirectory.MediaAdded -= SearchDirectory_MediaAdded;
+                _searchDirectory.MediaRemoved -= SearchDirectory_MediaRemoved;
+                _searchDirectory.MediaVerified -= SearchDirectory_MediaVerified;
             }
             foreach (var item in Items)
                 item.Dispose();

@@ -6,15 +6,19 @@ namespace TAS.Client.Common
 {
     public class UiCommand : ICommand
     {
-        public UiCommand(Action<object> executeDelegate): this(executeDelegate, null) { }
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly string _name;
 
-        public UiCommand(Action<object> executeDelegate, Predicate<object> canExecuteDelegate)
+        public UiCommand(string name, Action<object> executeDelegate): this(name, executeDelegate, null) { }
+
+        public UiCommand(string name, Action<object> executeDelegate, Predicate<object> canExecuteDelegate)
         {
+            _name = name;
             ExecuteDelegate = executeDelegate;
             CanExecuteDelegate = canExecuteDelegate;
         }
 
-        public Predicate<object> CanExecuteDelegate { get;  }
+        public Predicate<object> CanExecuteDelegate { get; }
         public Action<object> ExecuteDelegate { get; }
         public bool HandleExceptions { get; set; } = true;
         public bool CheckBeforeExecute { get; set; } = true;
@@ -34,7 +38,7 @@ namespace TAS.Client.Common
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine(e);
+                        Logger.Error(e, $"{_name}: CanExecute thrown an exception");
                     }
                 }
                 else
@@ -63,7 +67,7 @@ namespace TAS.Client.Common
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine(e);
+                        Logger.Error(e, $"{_name}: Execute thrown an exception");
                         System.Windows.MessageBox.Show(string.Format(Properties.Resources._message_CommandFailed,
 #if DEBUG
                             e

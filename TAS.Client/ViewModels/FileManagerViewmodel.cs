@@ -13,6 +13,7 @@ namespace TAS.Client.ViewModels
     {
         private readonly IFileManager _fileManager;
         private readonly IMediaManager _mediaManager;
+        private bool _clearFinished;
 
         public FileManagerViewmodel(IMediaManager mediaManager)
         {
@@ -21,8 +22,8 @@ namespace TAS.Client.ViewModels
             _fileManager.OperationAdded += FileManager_OperationAdded;
             _fileManager.OperationCompleted += FileManager_OperationCompleted;
             OperationList = new ObservableCollection<FileOperationViewmodel>(_fileManager.GetOperationQueue().Select(fo => new FileOperationViewmodel(fo, mediaManager)));
-            CommandClearFinished = new UiCommand(_clearFinishedOperations, o => OperationList.Any(op => op.Finished));
-            CommandCancelPending = new UiCommand(o => _fileManager.CancelPending(), o => OperationList.Any(op => op.OperationStatus == FileOperationStatus.Waiting));
+            CommandClearFinished = new UiCommand(CommandName(nameof(ClearFinishedOperations)), ClearFinishedOperations, _ => OperationList.Any(o => o.Finished));
+            CommandCancelPending = new UiCommand(CommandName(nameof(IFileManager.CancelPending)), _ => _fileManager.CancelPending(), _ => OperationList.Any(o => o.OperationStatus == FileOperationStatus.Waiting));
             DispatcherTimer clearTimer = new DispatcherTimer();
             clearTimer.Tick += (o, e) =>
             {
@@ -47,7 +48,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (SetField(ref _clearFinished, value) && value)
-                    _clearFinishedOperations(null);
+                    ClearFinishedOperations(null);
             }
         }
 
@@ -76,13 +77,13 @@ namespace TAS.Client.ViewModels
         {
             if (e.Operation == null)
                 return;
-            OnUiThread(() => 
+            OnUiThread(() =>
             {
                 OperationList.Insert(0, new FileOperationViewmodel(e.Operation, _mediaManager));
             });
         }
 
-        private void _clearFinishedOperations(object parameter)
+        private void ClearFinishedOperations(object _)
         {
             foreach (FileOperationViewmodel vm in OperationList.Where(f => f.Finished).ToList())
             {
@@ -90,8 +91,6 @@ namespace TAS.Client.ViewModels
                 vm.Dispose();
             }
         }
-
-        private bool _clearFinished;
 
         protected override void OnDispose()
         {

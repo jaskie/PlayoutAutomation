@@ -295,36 +295,36 @@ namespace TAS.Client.ViewModels
 
         private void CreateCommands()
         {
-            CommandFastForward = new UiCommand(FastForward, o => CanExecute(TDeckState.ShuttleForward));
-            CommandRewind = new UiCommand(Rewind, CanRewind);
-            CommandPlay = new UiCommand(Play, o => CanExecute(TDeckState.Playing));
-            CommandStop = new UiCommand(Stop, o => CanExecute(TDeckState.Stopped));
-            CommandCapture = new UiCommand(Capture, CanCapture);
-            CommandStartRecord = new UiCommand(StartRecord, CanStartRecord);
-            CommandGetCurrentTcToIn = new UiCommand(o => TcIn = CurrentTc);
-            CommandGetCurrentTcToOut = new UiCommand(o => TcOut = CurrentTc);
-            CommandGoToTimecode = new UiCommand(GoToTimecode, CanGoToTimecode);
-            CommandSetRecordLimit = new UiCommand(SetRecordTimeLimit, CanSetRecordTimeLimit);
-            CommandRecordFinish = new UiCommand(FinishRecord, CanFinishRecord);
+            CommandFastForward = new UiCommand(CommandName(nameof(FastForward)), FastForward, o => CanExecute(TDeckState.ShuttleForward));
+            CommandRewind = new UiCommand(CommandName(nameof(Rewind)), Rewind, CanRewind);
+            CommandPlay = new UiCommand(CommandName(nameof(Play)), Play, o => CanExecute(TDeckState.Playing));
+            CommandStop = new UiCommand(CommandName(nameof(Stop)), Stop, o => CanExecute(TDeckState.Stopped));
+            CommandCapture = new UiCommand(CommandName(nameof(Capture)), Capture, CanCapture);
+            CommandStartRecord = new UiCommand(CommandName(nameof(StartRecord)), StartRecord, CanStartRecord);
+            CommandGetCurrentTcToIn = new UiCommand(CommandName(nameof(CommandGetCurrentTcToIn)), _ => TcIn = CurrentTc);
+            CommandGetCurrentTcToOut = new UiCommand(CommandName(nameof(CommandGetCurrentTcToOut)), _ => TcOut = CurrentTc);
+            CommandGoToTimecode = new UiCommand(CommandName(nameof(GoToTimecode)), GoToTimecode, CanGoToTimecode);
+            CommandSetRecordLimit = new UiCommand(CommandName(nameof(SetRecordTimeLimit)), SetRecordTimeLimit, CanSetRecordTimeLimit);
+            CommandRecordFinish = new UiCommand(CommandName(nameof(FinishRecord)), FinishRecord, CanFinishRecord);
         }
 
-        private bool CanFinishRecord(object obj)
+        private bool CanFinishRecord(object _)
         {
             return _selectedRecorder != null && _recordMedia?.MediaStatus == TMediaStatus.Copying;
         }
 
-        private void FinishRecord(object obj)
+        private void FinishRecord(object _)
         {
             _selectedRecorder.Finish();
             RecordingMedia = null;
         }
 
-        private void StartRecord(object obj)
+        private void StartRecord(object _)
         {
             RecordingMedia = _selectedRecorder?.Capture(_channel, _timeLimit, IsNarrowMode, MediaName, FileName, GetChannelMap());
         }
 
-        private bool CanStartRecord(object obj)
+        private bool CanStartRecord(object _)
         {
             return _channel != null
                    && _selectedRecorder?.IsServerConnected == true
@@ -335,38 +335,38 @@ namespace TAS.Client.ViewModels
                    && _selectedRecorder.RecordingMedia == null;
         }
 
-        private bool CanSetRecordTimeLimit(object obj)
+        private bool CanSetRecordTimeLimit(object _)
         {
             return _selectedRecorder?.RecordingMedia != null;
         }
 
-        private void SetRecordTimeLimit(object obj)
+        private void SetRecordTimeLimit(object _)
         {
             _selectedRecorder.SetTimeLimit(TimeLimit);
         }
 
-        private void GoToTimecode(object obj)
+        private void GoToTimecode(object _)
         {
             _selectedRecorder.GoToTimecode(_currentTc, _channel.VideoFormat);
         }
 
-        private bool CanGoToTimecode(object obj)
+        private bool CanGoToTimecode(object _)
         {
             IRecorder recorder = _selectedRecorder;
             return recorder != null && recorder.IsDeckConnected && _channel != null;
         }
 
-        private void Rewind(object obj)
+        private void Rewind(object _)
         {
             _selectedRecorder?.DeckRewind();
         }
 
-        private bool CanRewind(object obj)
+        private bool CanRewind(object _)
         {
             return CanExecute(TDeckState.ShuttleForward);
         }
 
-        private void Capture(object obj)
+        private void Capture(object _)
         {
             RecordingMedia = _selectedRecorder.Capture(_channel, TcIn, TcOut, IsNarrowMode, MediaName, FileName, GetChannelMap());
         }
@@ -391,7 +391,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private bool CanCapture(object obj)
+        private bool CanCapture(object _)
         {
             return _channel != null && _tcOut > _tcIn
                    && _selectedRecorder?.IsServerConnected == true
@@ -407,18 +407,18 @@ namespace TAS.Client.ViewModels
             return recorder != null && recorder.IsDeckConnected && recorder.DeckState != state;
         }
 
-        private void Stop(object obj)
+        private void Stop(object _)
         {
             _selectedRecorder?.DeckStop();
             RecordingMedia = null;
         }
 
-        private void Play(object obj)
+        private void Play(object _)
         {
             _selectedRecorder?.DeckPlay();
         }
 
-        private void FastForward(object obj)
+        private void FastForward(object _)
         {
             _selectedRecorder?.DeckFastForward();
         }

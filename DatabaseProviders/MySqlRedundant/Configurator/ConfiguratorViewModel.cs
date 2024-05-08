@@ -3,7 +3,6 @@ using System.Configuration;
 using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Client.Config;
 
 namespace TAS.Database.MySqlRedundant.Configurator
 {
@@ -19,19 +18,19 @@ namespace TAS.Database.MySqlRedundant.Configurator
         public ICommand CommandTestConnectivity { get; }
         public ICommand CommandCreateDatabase { get; }
         public ICommand CommandCloneDatabase { get; }
-        public ICommand CommandTestConnectivitySecodary { get; }
+        public ICommand CommandTestConnectivitySecondary { get; }
 
         internal Window Window;
         private Configuration _configuration;
 
         public ConfiguratorViewModel()
         {
-            CommandEditConnectionString = new UiCommand(EditConnectionString);
-            CommandEditConnectionStringSecondary = new UiCommand(EditConnectionStringSecondary);
-            CommandTestConnectivity = new UiCommand(TestConnectivity, o => !string.IsNullOrWhiteSpace(ConnectionStringPrimary));
-            CommandTestConnectivitySecodary = new UiCommand(TestConnectivitySecondary, o => !string.IsNullOrWhiteSpace(ConnectionStringSecondary) && _isConnectionStringSecondary);
-            CommandCreateDatabase = new UiCommand(CreateDatabase, o => !string.IsNullOrWhiteSpace(ConnectionStringPrimary));
-            CommandCloneDatabase = new UiCommand(ClonePrimaryDatabase, o => !(string.IsNullOrWhiteSpace(ConnectionStringPrimary) || string.IsNullOrWhiteSpace(ConnectionStringSecondary)));
+            CommandEditConnectionString = new UiCommand(CommandName(nameof(EditConnectionString)), EditConnectionString);
+            CommandEditConnectionStringSecondary = new UiCommand(CommandName(nameof(EditConnectionStringSecondary)), EditConnectionStringSecondary);
+            CommandTestConnectivity = new UiCommand(CommandName(nameof(TestConnectivity)), TestConnectivity, _ => !string.IsNullOrWhiteSpace(ConnectionStringPrimary));
+            CommandTestConnectivitySecondary = new UiCommand(CommandName(nameof(TestConnectivitySecondary)), TestConnectivitySecondary, _ => !string.IsNullOrWhiteSpace(ConnectionStringSecondary) && _isConnectionStringSecondary);
+            CommandCreateDatabase = new UiCommand(CommandName(nameof(CreateDatabase)), CreateDatabase, _ => !string.IsNullOrWhiteSpace(ConnectionStringPrimary));
+            CommandCloneDatabase = new UiCommand(CommandName(nameof(CloneDatabase)), CloneDatabase, _ => !(string.IsNullOrWhiteSpace(ConnectionStringPrimary) || string.IsNullOrWhiteSpace(ConnectionStringSecondary)));
         }
 
         public Configuration Configuration
@@ -130,7 +129,7 @@ namespace TAS.Database.MySqlRedundant.Configurator
             }
         }
 
-        private void ClonePrimaryDatabase(object obj)
+        private void CloneDatabase(object obj)
         {
             try
             {
@@ -218,9 +217,6 @@ namespace TAS.Database.MySqlRedundant.Configurator
             }
         }
 
-        protected override void OnDispose()
-        {
-
-        }
+        protected override void OnDispose() { }
     }
 }

@@ -2,9 +2,9 @@
 using System.ComponentModel;
 using System.Windows.Input;
 using TAS.Client.Common;
-using resources = TAS.Client.Common.Properties.Resources;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
@@ -18,9 +18,10 @@ namespace TAS.Client.ViewModels
             _mediaManager = mediaManager;
             FileOperation = fileOperation;
             FileOperation.PropertyChanged += OnFileOperationPropertyChanged;
-            CommandAbort = new UiCommand(o => FileOperation.Abort(), o => FileOperation.OperationStatus == FileOperationStatus.Waiting || FileOperation.OperationStatus == FileOperationStatus.InProgress);
+            CommandAbort = new UiCommand(CommandName(nameof(IFileOperationBase.Abort)), _ => FileOperation.Abort(), _ => FileOperation.OperationStatus == FileOperationStatus.Waiting || FileOperation.OperationStatus == FileOperationStatus.InProgress);
             CommandShowOutput = new UiCommand(
-                o =>
+                CommandName(nameof(CommandShowOutput)),
+                _ =>
                 {
                     var view = new Views.OperationOutputView
                     {
@@ -32,7 +33,7 @@ namespace TAS.Client.ViewModels
                     view.ShowDialog();
                 }
             );
-            CommandShowWarning = new UiCommand(o => System.Windows.MessageBox.Show(OperationWarning, resources._caption_Warning, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation));
+            CommandShowWarning = new UiCommand(CommandName(nameof(CommandShowWarning)), _ => System.Windows.MessageBox.Show(OperationWarning, resources._caption_Warning, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation));
         }
 
         public ICommand CommandAbort { get; }

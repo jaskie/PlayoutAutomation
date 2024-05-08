@@ -23,18 +23,15 @@ namespace TVPlayClient
             }
             else
                 _channels = new ObservableCollection<ChannelConfiguration>();
-            CommandAdd = new UiCommand(_add);
-            CommandDelete = new UiCommand(_delete, _canDelete);
-            CommandSave = new UiCommand(_save);
-            CommandCancel = new UiCommand(_cancel);
+            CommandAdd = new UiCommand(CommandName(nameof(Add)), Add);
+            CommandDelete = new UiCommand(CommandName(nameof(Delete)), Delete, CanDelete);
+            CommandSave = new UiCommand(CommandName(nameof(Save)), Save);
+            CommandCancel = new UiCommand(CommandName(nameof(Cancel)), Cancel);
         }
 
-        private void _cancel(object obj)
-        {
-            Closed?.Invoke(this, EventArgs.Empty);
-        }
+        private void Cancel(object _) => Closed?.Invoke(this, EventArgs.Empty);
 
-        private void _save(object obj)
+        private void Save(object _)
         {
             var directoryName = Path.GetDirectoryName(_configurationFile);
             if (string.IsNullOrEmpty(directoryName))
@@ -47,20 +44,11 @@ namespace TVPlayClient
             Closed?.Invoke(this, EventArgs.Empty);
         }
 
-        private bool _canDelete(object obj)
-        {
-            return _selectedChannel != null;
-        }
+        private bool CanDelete(object _) => _selectedChannel != null;
 
-        private void _delete(object obj)
-        {
-            _channels.Remove(_selectedChannel);
-        }
+        private void Delete(object _) => _channels.Remove(_selectedChannel);
 
-        private void _add(object obj)
-        {
-            _channels.Add(new ChannelConfiguration { Address = "127.0.0.1:1061" });
-        }
+        private void Add(object _) => _channels.Add(new ChannelConfiguration { Address = "127.0.0.1:1061" });
 
         public IEnumerable<ChannelConfiguration> Channels => _channels;
 

@@ -18,8 +18,8 @@ namespace TAS.Client.Config
         {
             PlayoutServers = new ObservableCollection<PlayoutServerViewmodel>(Model.Servers.Select(s => new PlayoutServerViewmodel(s)));
             PlayoutServers.CollectionChanged += PlayoutServers_CollectionChanged;
-            CommandAdd = new UiCommand(Add);
-            CommandDelete = new UiCommand(o => PlayoutServers.Remove(_selectedServer), o => _selectedServer != null);
+            CommandAdd = new UiCommand(CommandName(nameof(Add)), Add);
+            CommandDelete = new UiCommand(CommandName(nameof(Delete)), Delete, _ => _selectedServer != null);
         }
 
         public override bool IsModified { get { return _isCollectionChanged || PlayoutServers.Any(s => s.IsModified); } }
@@ -70,14 +70,16 @@ namespace TAS.Client.Config
             _isCollectionChanged = true;
         }
 
-        private void Add(object obj)
+        private void Add(object _)
         {
             var newPlayoutServer = new Model.CasparServer();
             Model.Servers.Add(newPlayoutServer);
             var newPlayoutServerViewmodel = new PlayoutServerViewmodel(newPlayoutServer);
             PlayoutServers.Add(newPlayoutServerViewmodel);
-            SelectedServer = newPlayoutServerViewmodel;            
+            SelectedServer = newPlayoutServerViewmodel;
         }
+
+        private void Delete(object _) => PlayoutServers.Remove(_selectedServer);
 
     }
 }

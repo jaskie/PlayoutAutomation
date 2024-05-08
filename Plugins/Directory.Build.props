@@ -1,11 +1,11 @@
 <Project>
   <PropertyGroup>
-    <TVPlayDir>TVPlay</TVPlayDir>
     <TargetFramework>net48</TargetFramework>
+    <TVPlayDir>TVPlay</TVPlayDir>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>$(SolutionDir)$(TVPlayDir)\bin\$(Configuration)</OutputPath>
     <Deterministic>false</Deterministic>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <OutputPath>$(SolutionDir)$(TVPlayDir)\bin\$(Configuration)\Plugins</OutputPath>
   </PropertyGroup>
 </Project>

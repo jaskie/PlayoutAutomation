@@ -45,10 +45,10 @@ namespace TAS.Client.Config
                 _remoteHostEnabled = true;
                 _remoteHostListenPort = Model.Remote.ListenPort;
             }
-            CommandManageArchiveDirectories = new Common.UiCommand(_manageArchiveDirectories);
+            CommandManageArchiveDirectories = new Common.UiCommand(nameof(ManageArchiveDirectories), ManageArchiveDirectories);
         }
 
-        private void _manageArchiveDirectories(object obj)
+        private void ManageArchiveDirectories(object _)
         {
             using (var dialog = new ArchiveDirectoriesViewmodel(Model.ArchiveDirectories))
             {

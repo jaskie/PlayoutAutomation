@@ -1,17 +1,16 @@
 ﻿using TAS.Client.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Client.ViewModels
 {
-    public class ExportMediaLogoViewmodel
+    public class ExportMediaLogoViewmodel: ViewModelBase
     {
         private readonly ExportMediaViewmodel _owner;
-        public ExportMediaLogoViewmodel(ExportMediaViewmodel owner, IMedia logo )
+        public ExportMediaLogoViewmodel(ExportMediaViewmodel owner, IMedia logo)
         {
             Logo = logo;
             _owner = owner;
-            CommandRemove = new UiCommand(_remove);
+            CommandRemove = new UiCommand(CommandName(nameof(Remove)), Remove);
         }
 
         public IMedia Logo { get; }
@@ -23,8 +22,9 @@ namespace TAS.Client.ViewModels
             return Logo.MediaName;
         }
 
+        protected override void OnDispose() { }
 
-        private void _remove(object obj)
+        private void Remove(object _)
         {
             _owner.Remove(this);
         }

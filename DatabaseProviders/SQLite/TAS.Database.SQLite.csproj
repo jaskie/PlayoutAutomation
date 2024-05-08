@@ -2,14 +2,7 @@
   <PropertyGroup>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\TVPlay\bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;SQLITE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\..\TVPlay\bin\Release\</OutputPath>
-    <DefineConstants>TRACE;SQLITE</DefineConstants>
+    <DefineConstants>SQLITE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />

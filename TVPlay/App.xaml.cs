@@ -41,12 +41,12 @@ namespace TAS.Client
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             var window = Current?.MainWindow;
+            Logger.Error(e.Exception, "DispatcherUnhandledException");
             if (window == null)
                 MessageBox.Show(e.Exception.Message, Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             else
                 MessageBox.Show(window, e.Exception.Message, Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
-            Logger.Error("DispatcherUnhandledException", e.Exception);
         }
 
         protected override async void OnStartup(StartupEventArgs eventArgs)

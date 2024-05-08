@@ -11,7 +11,7 @@ namespace TAS.Database.MySqlRedundant.Configurator
 
         public CreateDatabaseViewmodel(DatabaseMySqlRedundant db) : base(new Model.CreateDatabase(db), typeof(CreateDatabaseView), "Create database") 
         {
-            CommandEditConnectionString = new UiCommand(_editConnectionString);
+            CommandEditConnectionString = new UiCommand(CommandName(nameof(EditConnectionString)), EditConnectionString);
         }
 
         public string ConnectionString
@@ -39,7 +39,7 @@ namespace TAS.Database.MySqlRedundant.Configurator
                 base.Ok(o);
         }
 
-        private void _editConnectionString(object obj)
+        private void EditConnectionString(object _)
         {
             using (var vm = new ConnectionStringViewmodel(ConnectionString))
             {

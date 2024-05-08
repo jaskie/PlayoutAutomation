@@ -9,8 +9,8 @@ using TAS.Common;
 using System.Text.RegularExpressions;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
-using resources = TAS.Client.Common.Properties.Resources;
 using System.Threading.Tasks;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
@@ -78,28 +78,17 @@ namespace TAS.Client.ViewModels
                 RecordingInfoViewmodel.ModifiedChanged += RecordingInfoViewmodel_ModifiedChanged;
             }
 
-            CommandSaveEdit = new UiCommand(o => Save(), o => CanSave);
-            CommandUndoEdit = new UiCommand(o => UndoEdit(), o => IsModified);
-            CommandChangeMovie = new UiCommand(_changeMovie, _canChangeMovie);
-            CommandEditMovie = new UiCommand(_editMovie, _canEditMovie);
-            CommandCheckVolume = new UiCommand(_checkVolume, _canCheckVolume);
-            CommandTriggerStartType = new UiCommand
-            (
-                _triggerStartType,
-                _canTriggerStartType
-            );
-            CommandMoveUp = new UiCommand
-            (
-                o => Model.MoveUp(),
-                o => Model.CanMoveUp()
-            );
-            CommandMoveDown = new UiCommand
-            (
-                o => Model.MoveDown(),
-                o => Model.CanMoveDown()
-            );
+            CommandSaveEdit = new UiCommand(CommandName(nameof(Save)), _ => Save(), _ => CanSave);
+            CommandUndoEdit = new UiCommand(CommandName(nameof(UndoEdit)), _ => UndoEdit(), _ => IsModified);
+            CommandChangeMovie = new UiCommand(CommandName(nameof(ChangeMovie)), ChangeMovie, CanChangeMovie);
+            CommandEditMovie = new UiCommand(CommandName(nameof(EditMovie)), EditMovie, CanEditMovie);
+            CommandCheckVolume = new UiCommand(CommandName(nameof(CheckVolume)), CheckVolume, CanCheckVolume);
+            CommandTriggerStartType = new UiCommand(CommandName(nameof(TriggerStartType)), TriggerStartType, CanTriggerStartType);
+            CommandMoveUp = new UiCommand(CommandName(nameof(Model.MoveUp)), _ => Model.MoveUp(), _ => Model.CanMoveUp());
+            CommandMoveDown = new UiCommand(CommandName(nameof(Model.MoveDown)), _ => Model.MoveDown(), _ => Model.CanMoveDown());
             CommandDelete = new UiCommand
             (
+                CommandName(nameof(Model.Delete)),
                 _ =>
                 {
                     if (MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) != MessageBoxResult.OK)
@@ -112,7 +101,7 @@ namespace TAS.Client.ViewModels
                         Logger.LogEventDeletion(Model);
                     });
                 },
-                o => Model.HaveRight(EventRight.Delete) && Model.AllowDelete()
+                _ => Model.HaveRight(EventRight.Delete) && Model.AllowDelete()
             );
             if (@event is ITemplated templated)
             {
@@ -144,8 +133,8 @@ namespace TAS.Client.ViewModels
             Model.RecordingInfo = RecordingInfoViewmodel?.GetRecordingInfo();
             base.Update(Model);
             EventRightsEditViewmodel?.Save();
-            TemplatedEditViewmodel?.Save();            
-            Model.Save();            
+            TemplatedEditViewmodel?.Save();
+            Model.Save();
         }
 
         public ICommand CommandUndoEdit { get; }
@@ -169,23 +158,23 @@ namespace TAS.Client.ViewModels
                 switch (propertyName)
                 {
                     case nameof(Duration):
-                        return _validateDuration();
+                        return ValidateDuration();
                     case nameof(ScheduledTc):
-                        return _validateScheduledTc();
+                        return ValidateScheduledTc();
                     case nameof(ScheduledTime):
                     case nameof(ScheduledTimeOfDay):
                     case nameof(ScheduledDate):
-                        return _validateScheduledTime();
+                        return ValidateScheduledTime();
                     case nameof(TransitionTime):
-                        return _validateTransitionTime();
+                        return ValidateTransitionTime();
                     case nameof(TransitionPauseTime):
-                        return _validateTransitionPauseTime();
+                        return ValidateTransitionPauseTime();
                     case nameof(ScheduledDelay):
-                        return _validateScheduledDelay();
+                        return ValidateScheduledDelay();
                     case nameof(EventName):
-                        return _validateEventName();
+                        return ValidateEventName();
                     case nameof(RecordingInfoViewmodel):
-                        return _validateRecordingInfo();
+                        return ValidateRecordingInfo();
                     case nameof(Command):
                         return IsValidCommand(_command)
                             ? string.Empty
@@ -643,12 +632,9 @@ namespace TAS.Client.ViewModels
         public TemplatedEditViewmodel TemplatedEditViewmodel { get; }
         public RecordingInfoViewModel RecordingInfoViewmodel { get; }
 
-        public override string ToString()
-        {
-            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {EventName}";
-        }
+        public override string ToString() => $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {EventName}";
 
-        internal void _previewPropertyChanged(object sender, PropertyChangedEventArgs e)
+        internal void Preview_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Media))
                 InvalidateRequerySuggested();
@@ -686,7 +672,7 @@ namespace TAS.Client.ViewModels
 
         #region Command methods
 
-        private void _triggerStartType(object obj)
+        private void TriggerStartType(object _)
         {
             if (StartType == TStartType.Manual)
                 StartType = TStartType.OnFixedTime;
@@ -694,21 +680,21 @@ namespace TAS.Client.ViewModels
                 StartType = TStartType.Manual;
         }
 
-        private bool _canTriggerStartType(object obj)
+        private bool CanTriggerStartType(object _)
         {
             return (StartType == TStartType.Manual || StartType == TStartType.OnFixedTime)
                    && Model.HaveRight(EventRight.Modify);
         }
 
-        private void _changeMovie(object o)
+        private void ChangeMovie(object _)
         {
             if (Model.EventType == TEventType.Movie)
             {
-                _chooseMedia(TMediaType.Movie, Model, Model.StartType);
+                ChooseMedia(TMediaType.Movie, Model, Model.StartType);
             }
         }
 
-        private void _editMovie(object obj)
+        private void EditMovie(object _)
         {
             using (var evm = new MediaEditWindowViewmodel(Model.Media, Model.Engine.MediaManager) )
             {
@@ -717,7 +703,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _checkVolume(object obj)
+        private void CheckVolume(object _)
         {
             if (_media == null)
                 return;
@@ -727,31 +713,28 @@ namespace TAS.Client.ViewModels
             operation.Source = Model.Media;
             operation.MeasureStart = Model.ScheduledTc - _media.TcStart;
             operation.MeasureDuration =  Model.Duration;
-            operation.AudioVolumeMeasured += _audioVolumeMeasured;
-            operation.Finished += _audioVolumeFinished;
+            operation.AudioVolumeMeasured += AudioVolumeMeasured;
+            operation.Finished += AudioVolumeFinished;
             fileManager.Queue(operation);
         }
 
-        private void _audioVolumeFinished(object sender, EventArgs e)
+        private void AudioVolumeFinished(object sender, EventArgs e)
         {
             IsVolumeChecking = false;
-            ((ILoudnessOperation) sender).Finished -= _audioVolumeFinished;
-            ((ILoudnessOperation) sender).AudioVolumeMeasured -= _audioVolumeFinished;
+            ((ILoudnessOperation) sender).Finished -= AudioVolumeFinished;
+            ((ILoudnessOperation) sender).AudioVolumeMeasured -= AudioVolumeFinished;
         }
 
-        private void _audioVolumeMeasured(object sender, AudioVolumeEventArgs e)
-        {
-            AudioVolume = e.AudioVolume;
-        }
+        private void AudioVolumeMeasured(object _, AudioVolumeEventArgs e) => AudioVolume = e.AudioVolume;
 
-        private bool _canChangeMovie(object o)
+        private bool CanChangeMovie(object _)
         {
             return Model.PlayState == TPlayState.Scheduled
                    && Model.EventType == TEventType.Movie
                    && Model.HaveRight(EventRight.Modify);
         }
 
-        private bool _canEditMovie(object o)
+        private bool CanEditMovie(object _)
         {
             return Model.Media != null
                    && Model.PlayState == TPlayState.Scheduled
@@ -759,14 +742,11 @@ namespace TAS.Client.ViewModels
                    && Model.Engine.HaveRight(EngineRight.MediaEdit);
         }
 
-        private bool _canCheckVolume(object o)
-        {
-            return !_isVolumeChecking && _canChangeMovie(o);
-        }
+        private bool CanCheckVolume(object o) => !_isVolumeChecking && CanChangeMovie(o);
 
         public bool CanSave => IsModified && IsValid && Model.HaveRight(EventRight.Modify);
 
-        private void _setCGElements(IMedia media)
+        private void SetCGElements(IMedia media)
         {
             IsCGEnabled = Model.Engine.EnableCGElementsForNewEvents;
             if (media != null)
@@ -909,14 +889,14 @@ namespace TAS.Client.ViewModels
         }
 
 
-        private string _validateEventName()
+        private string ValidateEventName()
         {
             if (Model.FieldLengths.TryGetValue(nameof(IEvent.EventName), out var length) && EventName.Length > length)
                 return resources._validate_TextTooLong;
             return null;
         }
 
-        private string _validateScheduledDelay()
+        private string ValidateScheduledDelay()
         {
             if (Model.EventType != TEventType.StillImage && Model.EventType != TEventType.CommandScript)
                 return null;
@@ -926,7 +906,7 @@ namespace TAS.Client.ViewModels
             return null;
         }
 
-        private string _validateScheduledTime()
+        private string ValidateScheduledTime()
         {
             if (((_startType == TStartType.OnFixedTime && (_autoStartFlags & AutoStartFlags.Daily) == AutoStartFlags.None)
                 || _startType == TStartType.Manual) && Model.PlayState == TPlayState.Scheduled && _scheduledTime < Model.Engine.CurrentTime)
@@ -934,7 +914,7 @@ namespace TAS.Client.ViewModels
             return null;
         }
 
-        private string _validateScheduledTc()
+        private string ValidateScheduledTc()
         {
             var media = Media;
             if (Model.EventType != TEventType.Movie || media == null)
@@ -948,7 +928,7 @@ namespace TAS.Client.ViewModels
             return null;
         }
 
-        private string _validateRecordingInfo()
+        private string ValidateRecordingInfo()
         {
             if (RecordingInfoViewmodel != null && RecordingInfoViewmodel.IsRecordingScheduled && RecordingInfoViewmodel.SelectedRecorder != null && RecordingInfoViewmodel.SelectedRecorderChannel != null)
                 return null;
@@ -960,7 +940,7 @@ namespace TAS.Client.ViewModels
             return resources._validateRecordingInfo;
         }
 
-        private string _validateDuration()
+        private string ValidateDuration()
         {
             var media = Media;
             if (Model.EventType == TEventType.Movie && media != null
@@ -974,21 +954,21 @@ namespace TAS.Client.ViewModels
             return null;
         }
 
-        private string _validateTransitionPauseTime()
+        private string ValidateTransitionPauseTime()
         {
             if (_transitionPauseTime > _transitionTime)
                 return resources._validate_TransitionPauseTimeInvalid;
             return null;
         }
 
-        private string _validateTransitionTime()
+        private string ValidateTransitionTime()
         {
             if (_transitionTime > _duration)
                 return resources._validate_TransitionTimeInvalid;
             return null;
         }
 
-        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType,
+        private void ChooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType,
             VideoFormatDescription videoFormatDescription = null)
         {
             using (var vm = new MediaSearchViewmodel(
@@ -1009,7 +989,7 @@ namespace TAS.Client.ViewModels
                     ScheduledTc = media.TcPlay;
                     AudioVolume = null;
                     EventName = media.MediaName;
-                    _setCGElements(media);
+                    SetCGElements(media);
                 }
             }
 
@@ -1028,16 +1008,10 @@ namespace TAS.Client.ViewModels
                 ;
         }
 
-        private void RightsModifiedChanged(object sender, EventArgs e)
-        {
-            IsModified = true;
-        }
+        private void RightsModifiedChanged(object sender, EventArgs e) => IsModified = true;
 
 
-        public void SetFocusOnEventName()
-        {
-            IsEventNameFocused = true;
-        }
+        public void SetFocusOnEventName() => IsEventNameFocused = true;
     }
 
 }

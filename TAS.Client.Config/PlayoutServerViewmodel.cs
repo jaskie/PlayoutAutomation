@@ -30,8 +30,8 @@ namespace TAS.Client.Config
                     return newVm;
                 }));
             PlayoutServerChannels.CollectionChanged += _playoutServerChannels_CollectionChanged;
-            CommandAddChannel = new UiCommand(_addChannel);
-            CommandDeleteChannel = new UiCommand(_removeChannel, o => _selectedPlayoutServerChannel != null);
+            CommandAddChannel = new UiCommand(CommandName(nameof(AddChannel)), AddChannel);
+            CommandDeleteChannel = new UiCommand(CommandName(nameof(RemoveChannel)), RemoveChannel, o => _selectedPlayoutServerChannel != null);
 
             PlayoutServerRecorders = new ObservableCollection<PlayoutRecorderViewmodel>(playoutServer.Recorders.Select(r =>
             {
@@ -39,8 +39,8 @@ namespace TAS.Client.Config
                 return newVm;
             }));
             PlayoutServerRecorders.CollectionChanged += _playoutRecorders_CollectionChanged;
-            CommandAddRecorder = new UiCommand(_addRecorder);
-            CommandDeleteRecorder = new UiCommand(_removeRecorder, o => _selectedPlayoutRecorder != null);
+            CommandAddRecorder = new UiCommand(CommandName(nameof(AddRecorder)), AddRecorder);
+            CommandDeleteRecorder = new UiCommand(CommandName(nameof(RemoveRecorder)), RemoveRecorder, o => _selectedPlayoutRecorder != null);
         }
 
 
@@ -145,12 +145,12 @@ namespace TAS.Client.Config
             PlayoutServerChannels.CollectionChanged -= _playoutServerChannels_CollectionChanged;
             PlayoutServerRecorders.CollectionChanged -= _playoutRecorders_CollectionChanged;
         }
-        private void _removeRecorder(object obj)
+        private void RemoveRecorder(object obj)
         {
             PlayoutServerRecorders.Remove(_selectedPlayoutRecorder);
         }
 
-        private void _addRecorder(object obj)
+        private void AddRecorder(object obj)
         {
             PlayoutServerRecorders.Add(new PlayoutRecorderViewmodel(new Model.CasparRecorder { RecorderName = "New recorder" }));
         }
@@ -181,14 +181,14 @@ namespace TAS.Client.Config
             _isAnyChildChanged = true;
         }
 
-        private void _addChannel(object o)
+        private void AddChannel(object o)
         {
             var newChannelVm = new PlayoutServerChannelViewmodel(new Model.CasparServerChannel { Id = PlayoutServerChannels.Any() ? PlayoutServerChannels.Max(c => c.Id) + 1 : 1 });
             PlayoutServerChannels.Add(newChannelVm);
             SelectedPlayoutServerChannel = newChannelVm;
         }
 
-        private void _removeChannel(object o)
+        private void RemoveChannel(object o)
         {
             PlayoutServerChannels.Remove(_selectedPlayoutServerChannel);
         }

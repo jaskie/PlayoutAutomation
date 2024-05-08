@@ -23,10 +23,10 @@ namespace TVPlayClient
 #if DEBUG
             System.Threading.Thread.Sleep(2000); // wait for server startup
 #endif
-            Application.Current.Dispatcher.ShutdownStarted += _dispatcher_ShutdownStarted;
+            Application.Current.Dispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
             _configurationFile = Path.Combine(FileUtils.ApplicationDataPath, ConfigurationFileName);
-            _loadTabs();
-            CommandConfigure = new UiCommand(_configure);
+            LoadTabs();
+            CommandConfigure = new UiCommand(CommandName(nameof(Configure)), Configure);
         }
 
         public ICommand CommandConfigure { get; }
@@ -40,32 +40,29 @@ namespace TVPlayClient
             (_content as ChannelsViewmodel)?.Dispose();
         }
 
-        private void _configure(object obj)
+        private void Configure(object obj)
         {
             (_content as ChannelsViewmodel)?.Dispose();
             var vm = new ConfigurationViewmodel(_configurationFile);
-            vm.Closed += _configClosed;
+            vm.Closed += Config_Closed;
             ShowConfigButton = false;
             Content = vm;
         }
 
-        private void _configClosed(object sender, EventArgs e)
+        private void Config_Closed(object sender, EventArgs e)
         {
             if (sender is ConfigurationViewmodel vm)
             {
-                vm.Closed -= _configClosed;
+                vm.Closed -= Config_Closed;
                 vm.Dispose();
             }
             ShowConfigButton = true;
-            _loadTabs();
+            LoadTabs();
         }
 
-        private void _dispatcher_ShutdownStarted(object sender, EventArgs e)
-        {
-            Dispose();
-        }
+        private void Dispatcher_ShutdownStarted(object _, EventArgs e) => Dispose();
 
-        private void _loadTabs()
+        private void LoadTabs()
         {
             if (!File.Exists(_configurationFile))
                 return;

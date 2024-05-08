@@ -25,7 +25,7 @@ namespace TAS.Client.ViewModels
             Items = new ObservableCollection<ExportMediaViewmodel>(exportList.Select(media => new ExportMediaViewmodel(engine, media)));
             Directories = engine.MediaManager.IngestDirectories.Where(d => d.ContainsExport()).Select(d => new MediaDirectoryViewmodel(d, d.DirectoryName, false, true)).ToList();
             SelectedDirectory = Directories.FirstOrDefault();
-            CommandExport = new UiCommand(_export, _canExport);
+            CommandExport = new UiCommand(CommandName(nameof(Export)), Export, CanExport);
         }
 
         public ICommand CommandExport { get; }
@@ -96,8 +96,7 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan TotalTime { get { return TimeSpan.FromTicks(Items.Sum(m => m.Duration.Ticks)); } }
 
-
-        private void _export (object o)
+        private void Export (object _)
         {
             _checking = true;
             try
@@ -113,15 +112,12 @@ namespace TAS.Client.ViewModels
         }
 
         private bool _checking;
-        private bool _canExport(object o)
-        {
-            return !_checking && Items.Count > 0
-                && SelectedDirectory.IsExport
-                && (!IsConcatMediaNameVisible || !string.IsNullOrWhiteSpace(_concatMediaName));
-        }
-        
-        protected override void OnDispose()
-        {
-        }
+        private bool CanExport(object _) =>
+            !_checking &&
+            Items.Count > 0 &&
+            SelectedDirectory.IsExport &&
+            (!IsConcatMediaNameVisible || !string.IsNullOrWhiteSpace(_concatMediaName));
+
+        protected override void OnDispose() { }
     }
 }

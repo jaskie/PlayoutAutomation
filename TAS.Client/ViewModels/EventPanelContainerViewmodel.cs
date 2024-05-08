@@ -17,10 +17,9 @@ namespace TAS.Client.ViewModels
                 throw new ApplicationException($"Invalid panel type:{GetType()} for event type:{ev.EventType}");
             _isVisible = !HiddenEventsStorage.Contains(ev);
 
-            CommandHide = new UiCommand(o => IsVisible = false, o => _isVisible);
-            CommandShow = new UiCommand(o => IsVisible = true, o => !_isVisible);
-            CommandAddSubRundown = new UiCommand(_addSubRundown, o => Event.HaveRight(EventRight.Create));
-            ev.SubEventChanged += SubEventChanged;
+            CommandHide = new UiCommand(CommandName(nameof(CommandHide)), _ => IsVisible = false, _ => _isVisible);
+            CommandShow = new UiCommand(CommandName(nameof(CommandShow)), _ => IsVisible = true, _ => !_isVisible);
+            CommandAddSubRundown = new UiCommand(CommandName(nameof(AddSubRundown)), AddSubRundown, _ => Event.HaveRight(EventRight.Create));
         }
 
         public ICommand CommandHide { get; }
@@ -46,19 +45,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _addSubRundown(object o)
+        private void AddSubRundown(object _)
         {
             EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, true);
-        }
-        protected override void OnDispose()
-        {
-            Event.SubEventChanged -= SubEventChanged;
-            base.OnDispose();
-        }
-
-        private void SubEventChanged(object sender, CollectionOperationEventArgs<IEvent> e)
-        {
-            
         }
     }
 }

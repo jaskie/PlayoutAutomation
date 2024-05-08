@@ -82,20 +82,20 @@ namespace TAS.Client.ViewModels
             VideoPreview = UiPluginManager.ComposePart<IVideoPreview>(this);
             VideoPreview?.SetSource(RecordersViewmodel.Channel?.PreviewUrl);
 
-            CommandSearch = new UiCommand(Search, CanSearch);
-            CommandClearFilters = new UiCommand(ClearFilters, CanClearFilters);
-            CommandDeleteSelected = new UiCommand(DeleteSelected, o => IsSomethingSelected() && engine.HaveRight(EngineRight.MediaDelete));
-            CommandIngestSelectedToServer = new UiCommand(IngestSelectedToServer, CanIngestSelectedToServer);
-            CommandMoveSelectedToArchive = new UiCommand(MoveSelectedToArchive, o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && IsSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive) && engine.HaveRight(EngineRight.MediaDelete));
-            CommandCopySelectedToArchive = new UiCommand(CopySelectedToArchive, o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && IsSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive));
-            CommandSweepStaleMedia = new UiCommand(SweepStaleMedia, o => CurrentUser.IsAdmin);
-            CommandGetLoudness = new UiCommand(GetLoudness, o => IsSomethingSelected() && engine.HaveRight(EngineRight.MediaEdit));
-            CommandExport = new UiCommand(Export, CanExport);
-            CommandRefresh = new UiCommand(ob => RefreshFiles(), CanRefresh);
-            CommandSyncPriToSec = new UiCommand(SyncSecToPri, o => (_selectedDirectory.IsServerDirectory || _selectedDirectory.IsAnimationDirectory) && CurrentUser.IsAdmin);
-            CommandCloneAnimation = new UiCommand(CloneAnimation, CanCloneAnimation);
-            CommandTogglePropertiesPanel = new UiCommand(o => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
-            CommandVerifyAllMedia = new UiCommand(VerifyAllMedia, o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
+            CommandSearch = new UiCommand(CommandName(nameof(Search)), Search, CanSearch);
+            CommandClearFilters = new UiCommand(CommandName(nameof(ClearFilters)), ClearFilters, CanClearFilters);
+            CommandDeleteSelected = new UiCommand(CommandName(nameof(DeleteSelected)), DeleteSelected, _ => IsSomethingSelected() && engine.HaveRight(EngineRight.MediaDelete));
+            CommandIngestSelectedToServer = new UiCommand(CommandName(nameof(IngestSelectedToServer)), IngestSelectedToServer, CanIngestSelectedToServer);
+            CommandMoveSelectedToArchive = new UiCommand(CommandName(nameof(MoveSelectedToArchive)), MoveSelectedToArchive, _ => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && IsSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive) && engine.HaveRight(EngineRight.MediaDelete));
+            CommandCopySelectedToArchive = new UiCommand(CommandName(nameof(CopySelectedToArchive)), CopySelectedToArchive, _ => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && IsSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive));
+            CommandSweepStaleMedia = new UiCommand(CommandName(nameof(SweepStaleMedia)), SweepStaleMedia, _ => CurrentUser.IsAdmin);
+            CommandGetLoudness = new UiCommand(CommandName(nameof(GetLoudness)), GetLoudness, _ => IsSomethingSelected() && engine.HaveRight(EngineRight.MediaEdit));
+            CommandExport = new UiCommand(CommandName(nameof(Export)), Export, CanExport);
+            CommandRefresh = new UiCommand(CommandName(nameof(RefreshFiles)), _ => RefreshFiles(), CanRefresh);
+            CommandSyncPriToSec = new UiCommand(CommandName(nameof(SyncSecToPri)), SyncSecToPri, _ => (_selectedDirectory.IsServerDirectory || _selectedDirectory.IsAnimationDirectory) && CurrentUser.IsAdmin);
+            CommandCloneAnimation = new UiCommand(CommandName(nameof(CloneAnimation)), CloneAnimation, CanCloneAnimation);
+            CommandTogglePropertiesPanel = new UiCommand(CommandName(nameof(CommandTogglePropertiesPanel)), _ => IsPropertiesPanelVisible = !IsPropertiesPanelVisible);
+            CommandVerifyAllMedia = new UiCommand(CommandName(nameof(VerifyAllMedia)), VerifyAllMedia, _ => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin);
         }
 
         public ICommand CommandSearch { get; }
@@ -372,7 +372,7 @@ namespace TAS.Client.ViewModels
                    MessageBoxResult.Yes;
         }
 
-        private void DeleteSelected(object o)
+        private void DeleteSelected(object _)
         {
             var selections = GetSelections();
             if (MessageBox.Show(
@@ -384,7 +384,7 @@ namespace TAS.Client.ViewModels
                 _mediaManager.MediaDelete(reasons.Where(r => r.Result != MediaDeleteResult.MediaDeleteResultEnum.Success).Select(r => r.Media).ToArray(), true);
         }
 
-        private void MoveSelectedToArchive(object o)
+        private void MoveSelectedToArchive(object _)
         {
             var selections = GetSelections();
             var reasons = _mediaManager.MediaArchive(selections, true, false);
@@ -392,7 +392,7 @@ namespace TAS.Client.ViewModels
                 _mediaManager.MediaArchive(reasons.Where(r => r.Result != MediaDeleteResult.MediaDeleteResultEnum.Success).Select(r => r.Media).ToArray(), true, true);
         }
 
-        private void CopySelectedToArchive(object o)
+        private void CopySelectedToArchive(object _)
         {
             _mediaManager.MediaArchive(GetSelections(), false, false);
         }
@@ -410,7 +410,7 @@ namespace TAS.Client.ViewModels
                    && (!(_mediaType is TMediaType mediaType) || m.Media.MediaType == mediaType);
         }
 
-        private bool CanRefresh(object obj)
+        private bool CanRefresh(object _)
         {
             return _selectedDirectory?.Directory is IIngestDirectory && !_isRefreshing;
         }
@@ -607,17 +607,17 @@ namespace TAS.Client.ViewModels
             return _selectedMediaList != null && _selectedMediaList.Count > 0;
         }
 
-        private bool CanIngestSelectedToServer(object o)
+        private bool CanIngestSelectedToServer(object _)
         {
             return _selectedDirectory != null && Engine.HaveRight(EngineRight.MediaIngest) && (_selectedDirectory.IsIngestDirectory || _selectedDirectory.IsArchiveDirectory) && IsSomethingSelected();
         }
 
-        private bool CanExport(object o)
+        private bool CanExport(object _)
         {
             return _selectedMediaList != null && _selectedMediaList.Cast<MediaViewViewmodel>().Any(m => m.Media.MediaType == TMediaType.Movie);
         }
 
-        private bool CanClearFilters(object obj)
+        private bool CanClearFilters(object _)
         {
             return IsMediaCategoryVisible && _mediaCategory != MediaCategories.FirstOrDefault()
                    || _mediaType != MediaTypes.FirstOrDefault()
@@ -635,20 +635,20 @@ namespace TAS.Client.ViewModels
                 Search(obj);
         }
 
-        private void CloneAnimation(object obj)
+        private void CloneAnimation(object _)
         {
             var dir = _selectedDirectory?.Directory as IAnimationDirectory;
             if (_selectedMediaVm?.Media is IAnimatedMedia media)
                 dir?.CloneMedia(media, Guid.NewGuid());
         }
 
-        private bool CanCloneAnimation(object obj)
+        private bool CanCloneAnimation(object _)
         {
             return _selectedMediaVm?.Media is IAnimatedMedia && Engine.HaveRight(EngineRight.MediaEdit);
         }
 
 
-        private void SyncSecToPri(object o)
+        private void SyncSecToPri(object _)
         {
             if (_selectedDirectory?.Directory is IServerDirectory)
                 _mediaManager.SynchronizeMediaSecToPri();
@@ -656,13 +656,13 @@ namespace TAS.Client.ViewModels
                 _mediaManager.SynchronizeAnimationsPropertiesSecToPri();
         }
 
-        private async void VerifyAllMedia(object o)
+        private async void VerifyAllMedia(object _)
         {
             foreach (var media in _mediaItems.Where(m => !m.IsVerified).Select(m => m.Media).ToArray())
                 await Task.Run(() => media.Verify(true));
         }
 
-        private void Export(object obj)
+        private void Export(object _)
         {
             var selections = GetSelections().Select(m => new MediaExportDescription(m, new List<IMedia>(), m.TcPlay, m.DurationPlay, m.AudioVolume));
             using (var vm = new ExportViewmodel(Engine, selections))
@@ -671,12 +671,12 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void SweepStaleMedia(object o)
+        private void SweepStaleMedia(object _)
         {
             SelectedDirectory.SweepStaleMedia();
         }
 
-        private void GetLoudness(object o)
+        private void GetLoudness(object _)
         {
             _mediaManager.MeasureLoudness(GetSelections());
         }
@@ -734,7 +734,7 @@ namespace TAS.Client.ViewModels
             return true;
         }
 
-        private void IngestSelectedToServer(object o)
+        private void IngestSelectedToServer(object _)
         {
             if (!CheckEditMediaSaved())
                 return;
@@ -745,7 +745,7 @@ namespace TAS.Client.ViewModels
                 _mediaManager.CopyMediaToPlayout(GetSelections());
         }
 
-        private bool CanSearch(object o)
+        private bool CanSearch(object _)
         {
             var dir = _selectedDirectory?.Directory;
             if (dir == null)
@@ -755,7 +755,7 @@ namespace TAS.Client.ViewModels
                    || (dir is IIngestDirectory ingestDirectory && (!(ingestDirectory.Kind == TIngestDirectoryKind.SimpleFolder && ingestDirectory.IsWAN) || _searchText.Length >= MinSearchLength));
         }
 
-        private void Search(object o)
+        private void Search(object _)
         {
             var dir = SelectedDirectory?.Directory;
             if (dir == null)

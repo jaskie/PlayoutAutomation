@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("TAS.Client.XKeys")]
-[assembly: AssemblyCopyright("2021")]
+[assembly: AssemblyCopyright("2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

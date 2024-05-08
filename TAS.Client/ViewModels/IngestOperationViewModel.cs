@@ -57,7 +57,7 @@ namespace TAS.Client.ViewModels
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             if (engine.Preview != null)
                 _preview = new PreviewViewmodel(engine.Preview, true, false) { SelectedIngestOperation = operation };
-            CommandRemove = new UiCommand(o => Removed?.Invoke(this, EventArgs.Empty));
+            CommandRemove = new UiCommand(CommandName(nameof(CommandRemove)), _ => Removed?.Invoke(this, EventArgs.Empty));
         }
 
         public ICommand CommandRemove { get; }

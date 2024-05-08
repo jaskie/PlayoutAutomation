@@ -8,35 +8,31 @@ namespace TAS.Client.Config
 {
     public class ArchiveDirectoriesViewmodel: OkCancelViewmodelBase<ArchiveDirectories>
     {
-       
+        ArchiveDirectory _selectedDirectory;
+
         public ArchiveDirectoriesViewmodel(ArchiveDirectories directories) : base(directories, typeof(ArchiveDirectoriesView), "Archive directories")
         {
             Directories = new ObservableCollection<ArchiveDirectory>(Model.Directories);
-            _createCommands();
+            CommandAdd = new UiCommand(CommandName(nameof(Add)), Add);
+            CommandDelete = new UiCommand(CommandName(nameof(Delete)), Delete, CanDelete);
         }
 
-        public ICommand CommandAdd { get; private set; }
-        public ICommand CommandDelete { get; private set; }
+        public ICommand CommandAdd { get; }
+        public ICommand CommandDelete { get; }
 
-        private void _createCommands()
-        {
-            CommandAdd = new UiCommand(_add);
-            CommandDelete = new UiCommand(_delete, _canDelete);
-        }
-
-        private void _delete(object obj)
+        private void Delete(object _)
         {
             SelectedDirectory.Delete();
             Directories.Remove(SelectedDirectory);
             SelectedDirectory = null;
         }
 
-        private bool _canDelete(object obj)
+        private bool CanDelete(object _)
         {
             return SelectedDirectory != null;
         }
 
-        private void _add(object obj)
+        private void Add(object _)
         {
             var newDir = new ArchiveDirectory();
             Directories.Add(newDir);
@@ -45,8 +41,6 @@ namespace TAS.Client.Config
         }
 
         public ObservableCollection<ArchiveDirectory> Directories { get; }
-
-        ArchiveDirectory _selectedDirectory;
 
         public ArchiveDirectory SelectedDirectory
         {
@@ -59,11 +53,9 @@ namespace TAS.Client.Config
                 NotifyPropertyChanged();
             }
         }
-        
-        protected override void OnDispose()
-        {
-        }
-        
+
+        protected override void OnDispose() { }
+
         public override bool IsModified { get { return Model.Directories.Any(d => d.IsModified || d.IsDeleted | d.IsNew); } }
 
         protected override void Update(object parameter = null)

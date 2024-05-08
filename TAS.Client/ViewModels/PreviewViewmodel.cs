@@ -110,14 +110,14 @@ namespace TAS.Client.ViewModels
                 {
                     if (pm != null)
                     {
-                        pm.GetMediaSegments().SegmentAdded -= _mediaSegments_SegmentAdded;
-                        pm.GetMediaSegments().SegmentRemoved -= _mediaSegments_SegmentRemoved;
+                        pm.GetMediaSegments().SegmentAdded -= MediaSegments_SegmentAdded;
+                        pm.GetMediaSegments().SegmentRemoved -= MediaSegments_SegmentRemoved;
                     }
                     pm = value as IPersistentMedia;
                     if (pm != null)
                     {
-                        pm.GetMediaSegments().SegmentAdded += _mediaSegments_SegmentAdded;
-                        pm.GetMediaSegments().SegmentRemoved += _mediaSegments_SegmentRemoved;
+                        pm.GetMediaSegments().SegmentAdded += MediaSegments_SegmentAdded;
+                        pm.GetMediaSegments().SegmentRemoved += MediaSegments_SegmentRemoved;
                     }
                     NotifyPropertyChanged(nameof(IsLoaded));
                 }
@@ -224,7 +224,7 @@ namespace TAS.Client.ViewModels
                         SegmentName = string.Empty;
                     NotifyPropertyChanged(nameof(SelectedSegment));
                     InvalidateRequerySuggested();
-                    _mediaLoad(_loadedMedia, false);
+                    MediaLoad(_loadedMedia, false);
                 }
             }
         }
@@ -249,7 +249,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (SetField(ref _playWholeClip, value))
-                    _mediaLoad(_loadedMedia, false);
+                    MediaLoad(_loadedMedia, false);
             }
         }
 
@@ -295,10 +295,11 @@ namespace TAS.Client.ViewModels
         {
             CommandCue = new UiCommand
             (
-                o =>
+                CommandName(nameof(CommandCue)),
+                _ =>
                     {
                         if (LoadedMedia == null)
-                            _mediaLoad(MediaToLoad, true);
+                            MediaLoad(MediaToLoad, true);
                         else
                             if (_preview.IsPlaying)
                             _preview.Pause();
@@ -308,11 +309,12 @@ namespace TAS.Client.ViewModels
                             NotifyPropertyChanged(nameof(Position));
                         }
                     },
-                o => (IsEnabled && IsLoaded) || CanLoad(MediaToLoad)
+                _ => (IsEnabled && IsLoaded) || CanLoad(MediaToLoad)
             );
             CommandTogglePlay = new UiCommand
             (
-                o =>
+                CommandName(nameof(CommandTogglePlay)),
+                _ =>
                     {
                         if (LoadedMedia != null)
                         {
@@ -328,26 +330,29 @@ namespace TAS.Client.ViewModels
                                 _preview.Play();
                         }
                     },
-                o => (IsEnabled && IsLoaded) || CanLoad(MediaToLoad)
+                _ => (IsEnabled && IsLoaded) || CanLoad(MediaToLoad)
             );
             CommandPlayTheEnd = new UiCommand
             (
-                o =>
+                CommandName(nameof(CommandPlayTheEnd)),
+                _ =>
                 {
                     if (LoadedMedia == null)
                         return;
                     Position = LoadedMedia.TcStart + Duration - EndDuration;
                     _preview.Play();
                 },
-                o => IsEnabled && IsLoaded && Duration > EndDuration
+                _ => IsEnabled && IsLoaded && Duration > EndDuration
             );
             CommandUnload = new UiCommand
             (
-                o => _mediaUnload(),
+                CommandName(nameof(CommandUnload)),
+                _ => MediaUnload(),
                 CanUnload
             );
             CommandSeek = new UiCommand
             (
+                CommandName(nameof(CommandSeek)),
                 param =>
                     {
                         long seekFrames = 0;
@@ -380,19 +385,22 @@ namespace TAS.Client.ViewModels
 
             CommandCopyToTcIn = new UiCommand
             (
-                o => TcIn = Position,
+                CommandName(nameof(CommandCopyToTcIn)),
+                _ => TcIn = Position,
                 CanUnload
             );
 
             CommandCopyToTcOut = new UiCommand
             (
-                o => TcOut = Position,
+                CommandName(nameof(CommandCopyToTcOut)),
+                _ => TcOut = Position,
                 CanUnload
             );
 
             CommandSaveSegment = new UiCommand
             (
-                o =>
+                CommandName(nameof(CommandSaveSegment)),
+                _ =>
                     {
                         if (!(LoadedMedia is IPersistentMedia media))
                             return;
@@ -409,7 +417,7 @@ namespace TAS.Client.ViewModels
                             _selectedSegment.Save();
                         }
                     },
-                o =>
+                _ =>
                     {
                         var ss = SelectedSegment;
                         return (LoadedMedia != null
@@ -419,12 +427,14 @@ namespace TAS.Client.ViewModels
             );
             CommandDeleteSegment = new UiCommand
             (
-                o => _selectedSegment?.MediaSegment.Delete(),
-                o => _selectedSegment != null
+                CommandName(nameof(CommandDeleteSegment)),
+                _ => _selectedSegment?.MediaSegment.Delete(),
+                _ => _selectedSegment != null
             );
             CommandNewSegment = new UiCommand
             (
-                o =>
+                CommandName(nameof(CommandNewSegment)),
+                _ =>
                     {
                         if (LoadedMedia is IPersistentMedia media)
                             _lastAddedSegment = media.GetMediaSegments().Add(TcIn, TcOut, Common.Properties.Resources._title_NewSegment);
@@ -432,7 +442,8 @@ namespace TAS.Client.ViewModels
             );
             CommandSetSegmentNameFocus = new UiCommand
             (
-                o =>
+                CommandName(nameof(CommandSetSegmentNameFocus)),
+                _ =>
                     {
                         IsSegmentNameFocused = true;
                         NotifyPropertyChanged(nameof(IsSegmentNameFocused));
@@ -441,7 +452,8 @@ namespace TAS.Client.ViewModels
 
             CommandTrimSource = new UiCommand
             (
-                o =>
+                CommandName(nameof(CommandTrimSource)),
+                _ =>
                 {
                     var durationSelection = TcOut.Ticks - TcIn.Ticks + FormatDescription.FrameTicks;
                     if (SelectedMedia is IPersistentMedia media)
@@ -462,7 +474,7 @@ namespace TAS.Client.ViewModels
                         SelectedIngestOperation.Duration = new TimeSpan(durationSelection);
                     }
                 },
-                o =>
+                _ =>
                 {
                     if (!_canTrimMedia)
                         return false;
@@ -481,41 +493,46 @@ namespace TAS.Client.ViewModels
             );
             CommandFastForwardOneFrame = new UiCommand
             (
-                o => SliderPosition = Math.Min(SliderPosition + 1, LoadedDuration),
-                o => IsLoaded && SliderPosition < LoadedDuration
+                CommandName(nameof(CommandFastForwardOneFrame)),
+                _ => SliderPosition = Math.Min(SliderPosition + 1, LoadedDuration),
+                _ => IsLoaded && SliderPosition < LoadedDuration
             );
             CommandFastForward = new UiCommand
             (
-                o => SliderPosition = Math.Min(SliderPosition + FramesPerSecond, LoadedDuration),
-                o => IsLoaded && SliderPosition < LoadedDuration
+                CommandName(nameof(CommandFastForward)),
+                _ => SliderPosition = Math.Min(SliderPosition + FramesPerSecond, LoadedDuration),
+                _ => IsLoaded && SliderPosition < LoadedDuration
             );
             CommandBackwardOneFrame = new UiCommand
             (
-                o => SliderPosition = Math.Max(SliderPosition - 1, 0),
-                o => IsLoaded && SliderPosition > 0
+                CommandName(nameof(CommandBackwardOneFrame)),
+                _ => SliderPosition = Math.Max(SliderPosition - 1, 0),
+                _ => IsLoaded && SliderPosition > 0
             );
             CommandBackward = new UiCommand
             (
-                o => SliderPosition = Math.Max(SliderPosition - FramesPerSecond, 0),
-                o => IsLoaded && SliderPosition > 0
+                CommandName(nameof(CommandBackward)),
+                _ => SliderPosition = Math.Max(SliderPosition - FramesPerSecond, 0),
+                _ => IsLoaded && SliderPosition > 0
             );
-            CommandToggleLayer = new UiCommand(_stillToggle, _canStillToggle);
+            CommandToggleLayer = new UiCommand(CommandName(nameof(StillToggle)), StillToggle, CanStillToggle);
 
             CommandLoadLiveDevice = new UiCommand
             (
-                o => _preview.PlayLiveDevice(),
-                o => !_preview.IsLivePlaying
+                CommandName(nameof(CommandLoadLiveDevice)),
+                _ => _preview.PlayLiveDevice(),
+                _ => !_preview.IsLivePlaying
             );
         }
 
-        private bool _canStillToggle(object obj)
+        private bool CanStillToggle(object obj)
         {
             if (!(obj is string s && Enum.TryParse(s, out VideoLayer layer)))
                 return false;
             return _selectedMedia?.MediaType == TMediaType.Still || _loadedStillImages.ContainsKey(layer);
         }
 
-        private void _stillToggle(object obj)
+        private void StillToggle(object obj)
         {
             if (!(obj is string s && Enum.TryParse(s, out VideoLayer layer)))
                 return;
@@ -527,7 +544,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private bool CanUnload(object o)
+        private bool CanUnload(object _)
         {
             if (_preview.IsLivePlaying)
                 return true;
@@ -563,7 +580,7 @@ namespace TAS.Client.ViewModels
             SelectedSegment = null;
         }
 
-        private void _mediaLoad(IMedia media, bool reloadSegments)
+        private void MediaLoad(IMedia media, bool reloadSegments)
         {
             if (media == null)
                 return;
@@ -597,7 +614,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _mediaUnload()
+        private void MediaUnload()
         {
             _preview.UnloadMovie();
             LoadedMedia = null;
@@ -660,7 +677,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _mediaSegments_SegmentRemoved(object sender, MediaSegmentEventArgs e)
+        private void MediaSegments_SegmentRemoved(object sender, MediaSegmentEventArgs e)
         {
             OnUiThread(() =>
             {
@@ -674,7 +691,7 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        private void _mediaSegments_SegmentAdded(object sender, MediaSegmentEventArgs e)
+        private void MediaSegments_SegmentAdded(object sender, MediaSegmentEventArgs e)
         {
             OnUiThread(() =>
             {

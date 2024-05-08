@@ -43,13 +43,14 @@ namespace TAS.Client.ViewModels
 
         public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, bool showButtons) : base(media)
         {
-            CommandSaveEdit = new UiCommand(o => Save(), o => CanSave());
-            CommandCancelEdit = new UiCommand(_undoEdit, o => IsModified);
-            CommandRefreshStatus = new UiCommand(_refreshStatus);
+            CommandSaveEdit = new UiCommand(CommandName(nameof(Save)), _ => Save(), _ => CanSave());
+            CommandCancelEdit = new UiCommand(CommandName(nameof(UndoEdit)), UndoEdit, _ => IsModified);
+            CommandRefreshStatus = new UiCommand(CommandName(nameof(RefreshStatus)), RefreshStatus);
             CommandCheckVolume = new UiCommand
             (
-                _checkVolume,
-                o => !_isVolumeChecking
+                CommandName(nameof(CheckVolume)),
+                CheckVolume,
+                _ => !_isVolumeChecking
             );
             _mediaManager = mediaManager;
             ShowButtons = showButtons;
@@ -301,16 +302,16 @@ namespace TAS.Client.ViewModels
                 switch (propertyName)
                 {
                     case nameof(MediaName):
-                        validationResult = _validateMediaName();
+                        validationResult = ValidateMediaName();
                         break;
                     case nameof(FileName):
-                        validationResult = _validateFileName();
+                        validationResult = ValidateFileName();
                         break;
                     case nameof(TcPlay):
-                        validationResult = _validateTcPlay();
+                        validationResult = ValidateTcPlay();
                         break;
                     case nameof(DurationPlay):
-                        validationResult = _validateDurationPlay();
+                        validationResult = ValidateDurationPlay();
                         break;
                 }
                 return validationResult;
@@ -341,7 +342,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private string _validateMediaName()
+        private string ValidateMediaName()
         {
             if (Model is IPersistentMedia pm 
                 && MediaName != null
@@ -351,7 +352,7 @@ namespace TAS.Client.ViewModels
             return null;
         }
 
-        private string _validateFileName()
+        private string ValidateFileName()
         {
             var dir = Model.Directory;
             if (dir == null || _fileName == null)
@@ -377,7 +378,7 @@ namespace TAS.Client.ViewModels
             return null;
         }
 
-        private string _validateTcPlay()
+        private string ValidateTcPlay()
         {
             return TcPlay < TcStart
                    || TcPlay > TcStart + Duration
@@ -385,7 +386,7 @@ namespace TAS.Client.ViewModels
                 : null;
         }
 
-        private string _validateDurationPlay()
+        private string ValidateDurationPlay()
         {
             return DurationPlay + TcPlay > Duration + TcStart ? resources._validate_DurationInvalid : null;
         }
@@ -393,14 +394,14 @@ namespace TAS.Client.ViewModels
         #region Command methods
 
 
-        private async void _refreshStatus(object o)
+        private async void RefreshStatus(object _)
         {
             Model.MediaStatus = TMediaStatus.Unknown;
             await Task.Run(() => Model.Verify(true));
         }
 
         private AutoResetEvent _checkVolumeSignal;
-        private void _checkVolume(object o)
+        private void CheckVolume(object _)
         {
             if (_isVolumeChecking)
                 return;
@@ -410,26 +411,26 @@ namespace TAS.Client.ViewModels
             operation.Source = Model;
             operation.MeasureStart = TcPlay - TcStart;
             operation.MeasureDuration = DurationPlay;
-            operation.AudioVolumeMeasured += _audioVolumeMeasured;
-            operation.Finished += _audioVolumeFinished;
+            operation.AudioVolumeMeasured += AudioVolumeMeasured;
+            operation.Finished += AudioVolumeFinished;
             _checkVolumeSignal = new AutoResetEvent(false);
             fileManager.Queue(operation);
         }
 
-        private void _audioVolumeFinished(object sender, EventArgs e)
+        private void AudioVolumeFinished(object sender, EventArgs e)
         {
             Task.Run(() =>
             {
                 _checkVolumeSignal.WaitOne(5000);
                 IsVolumeChecking = false; // finishCallback
-                ((ILoudnessOperation)sender).Finished -= _audioVolumeFinished;
-                ((ILoudnessOperation)sender).AudioVolumeMeasured -= _audioVolumeMeasured;
+                ((ILoudnessOperation)sender).Finished -= AudioVolumeFinished;
+                ((ILoudnessOperation)sender).AudioVolumeMeasured -= AudioVolumeMeasured;
                 _checkVolumeSignal.Dispose();
                 _checkVolumeSignal = null;
             });
         }
 
-        private void _audioVolumeMeasured(object sender, AudioVolumeEventArgs e)
+        private void AudioVolumeMeasured(object _, AudioVolumeEventArgs e)
         {
             AudioVolume = e.AudioVolume;
             AutoResetEvent signal = _checkVolumeSignal;
@@ -465,7 +466,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _undoEdit(object o)
+        private void UndoEdit(object _)
         {
             TemplatedEditViewmodel?.UndoEdit();
             Load();

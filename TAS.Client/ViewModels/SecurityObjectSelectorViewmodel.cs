@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
 
 namespace TAS.Client.ViewModels
 {
-    public class SecurityObjectSelectorViewmodel: ViewModelBase
+    public class SecurityObjectSelectorViewmodel : ViewModelBase
     {
         private ISecurityObject _selectedSecurityObject;
         
@@ -14,7 +13,7 @@ namespace TAS.Client.ViewModels
         {
             Users = authenticationService.Users;
             Groups = authenticationService.Groups;
-            CommandOk = new UiCommand(o => { }, _canOk);
+            CommandOk = new UiCommand(CommandName(nameof(CommandOk)), _ => { }, _canOk);
         }
 
         public IEnumerable<IUser> Users { get; }
@@ -30,12 +29,11 @@ namespace TAS.Client.ViewModels
             }
         }
 
-
         public ICommand CommandOk { get; }
 
-        protected override void OnDispose() {}
+        protected override void OnDispose() { }
 
-        private bool _canOk(object obj)
+        private bool _canOk(object _)
         {
             return _selectedSecurityObject != null;
         }

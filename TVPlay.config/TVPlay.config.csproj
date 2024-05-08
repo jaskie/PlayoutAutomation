@@ -6,7 +6,6 @@
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <ApplicationIcon>Setup.ico</ApplicationIcon>
-    <OutDir>$(SolutionDir)$(TVPlayDir)\bin\$(Configuration)\$(TargetFramework)</OutDir>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />

@@ -13,16 +13,16 @@ namespace TAS.Client.Config
 
         private EngineViewmodel _selectedEngine;
         private bool _isCollectionCanged;
-        
+
         public EnginesViewmodel(DatabaseType databaseType, ConnectionStringSettingsCollection connectionStringSettingsCollection)
             : base(new Model.Engines(databaseType, connectionStringSettingsCollection), typeof(EnginesView), "Engines")
         {
             Engines = new ObservableCollection<EngineViewmodel>(Model.EngineList.Select(e => new EngineViewmodel(e)));
-            Engines.CollectionChanged += _engines_CollectionChanged;
-            CommandAdd = new UiCommand(_add);
-            CommandDelete = new UiCommand(o => Engines.Remove(_selectedEngine), o => _selectedEngine != null);
+            Engines.CollectionChanged += Engines_CollectionChanged;
+            CommandAdd = new UiCommand(CommandName(nameof(Add)), Add);
+            CommandDelete = new UiCommand(CommandName(nameof(Delete)), Delete, _ => _selectedEngine != null);
         }
-        
+
         public ICommand CommandAdd { get; }
 
         public ICommand CommandDelete { get; }
@@ -60,11 +60,11 @@ namespace TAS.Client.Config
 
         protected override void OnDispose()
         {
-            Engines.CollectionChanged -= _engines_CollectionChanged;
+            Engines.CollectionChanged -= Engines_CollectionChanged;
             Model.Dispose();
         }
 
-        private void _engines_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void Engines_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
@@ -78,14 +78,16 @@ namespace TAS.Client.Config
             _isCollectionCanged = true;
         }
 
-        private void _add(object obj)
+        private void Add(object _)
         {
             var newEngine = new Model.Engine() { Servers = Model.Servers, ArchiveDirectories = Model.ArchiveDirectories };
             Model.EngineList.Add(newEngine);
             var newPlayoutServerViewmodel = new EngineViewmodel(newEngine);
             Engines.Add(newPlayoutServerViewmodel);
-            SelectedEngine = newPlayoutServerViewmodel;            
+            SelectedEngine = newPlayoutServerViewmodel;
         }
+
+        private void Delete(object _) => Engines.Remove(_selectedEngine);
 
     }
 }

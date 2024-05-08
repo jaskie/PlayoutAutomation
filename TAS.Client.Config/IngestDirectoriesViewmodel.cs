@@ -23,18 +23,23 @@ namespace TAS.Client.Config
                 Directories.Add(item);
             }
             _fileName = fileName;
-            _createCommands();
+
+            CommandAdd = new UiCommand(CommandName(nameof(Add)), Add);
+            CommandAddSub = new UiCommand(CommandName(nameof(AddSub)), AddSub, CanAddSub);
+            CommandDelete = new UiCommand(CommandName(nameof(Delete)), Delete, CanDelete);
+            CommandUp = new UiCommand(CommandName(nameof(Up)), Up, CanUp);
+            CommandDown = new UiCommand(CommandName(nameof(Down)), Down, CanDown);
         }
 
-        public ICommand CommandAdd { get; private set; }
+        public ICommand CommandAdd { get; }
 
-        public ICommand CommandDelete { get; private set; }
+        public ICommand CommandDelete { get; }
 
-        public ICommand CommandUp { get; private set; }
+        public ICommand CommandUp { get; }
 
-        public ICommand CommandDown { get; private set; }
+        public ICommand CommandDown { get; }
 
-        public ICommand CommandAddSub { get; private set; }
+        public ICommand CommandAddSub { get; }
 
         public ObservableCollection<IngestDirectoryViewmodel> Directories { get; } = new ObservableCollection<IngestDirectoryViewmodel>();
         
@@ -63,39 +68,27 @@ namespace TAS.Client.Config
             }
         }
 
-        protected override void OnDispose()
-        {
+        protected override void OnDispose() { }
 
-        }
-
-        private void _createCommands()
-        {
-            CommandAdd = new UiCommand(_add);
-            CommandAddSub = new UiCommand(_addSub, _canAddSub);
-            CommandDelete = new UiCommand(_delete, _canDelete);
-            CommandUp = new UiCommand(_up, _canUp);
-            CommandDown = new UiCommand(_down, _canDown);
-        }
-
-        private bool _canAddSub(object obj)
+        private bool CanAddSub(object obj)
         {
             return SelectedDirectory != null;
         }
 
-        private void _addSub(object obj)
+        private void AddSub(object obj)
         {
             SelectedDirectory = SelectedDirectory.AddSubdirectory();
         }
 
-        private void _delete(object obj)
+        private void Delete(object obj)
         {
-            if (!_deleteDirectory(_selectedDirectory))
+            if (!DeleteDirectory(_selectedDirectory))
                 return;
             IsModified = true;
             SelectedDirectory = Directories.FirstOrDefault();
         }
 
-        private bool _deleteDirectory(IngestDirectoryViewmodel item)
+        private bool DeleteDirectory(IngestDirectoryViewmodel item)
         {
             var collection = item.OwnerCollection;
             if (!collection.Contains(item))
@@ -104,12 +97,12 @@ namespace TAS.Client.Config
             return true;
         }
 
-        private bool _canDelete(object obj)
+        private bool CanDelete(object obj)
         {
             return SelectedDirectory != null;
         }
 
-        private void _add(object obj)
+        private void Add(object obj)
         {
             var newDir = new IngestDirectoryViewmodel(new IngestDirectory(), this) { DirectoryName = Common.Properties.Resources._title_NewDirectory };
             Directories.Add(newDir);
@@ -117,7 +110,7 @@ namespace TAS.Client.Config
             SelectedDirectory = newDir;
         }
 
-        private void _up(object o)
+        private void Up(object o)
         {
             var collection = SelectedDirectory?.OwnerCollection;
             if (collection != null)
@@ -131,7 +124,7 @@ namespace TAS.Client.Config
             }
         }
 
-        private bool _canDown(object o)
+        private bool CanDown(object o)
         {
             var collection = SelectedDirectory?.OwnerCollection;
             if (collection != null)
@@ -142,7 +135,7 @@ namespace TAS.Client.Config
             return false;
         }
 
-        private void _down(object o)
+        private void Down(object o)
         {
             var collection = SelectedDirectory?.OwnerCollection;
             if (collection != null)
@@ -156,7 +149,7 @@ namespace TAS.Client.Config
             }
         }
 
-        private bool _canUp(object o)
+        private bool CanUp(object o)
         {
             var collection = SelectedDirectory?.OwnerCollection;
             return collection?.IndexOf(_selectedDirectory) > 0;

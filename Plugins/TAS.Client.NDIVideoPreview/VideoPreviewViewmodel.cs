@@ -102,10 +102,10 @@ namespace TAS.Client.NDIVideoPreview
         {
             _videoSources = new ObservableCollection<string>(new[] {Common.Properties.Resources._none_});
             _videoSource = _videoSources.FirstOrDefault();
-            CommandRefreshSources = new UiCommand(RefreshSources, o => NdiFindInstance != IntPtr.Zero);
-            CommandGotoNdiWebsite = new UiCommand(GotoNdiWebsite);
-            CommandShowPopup = new UiCommand(o => DisplayPopup = true);
-            CommandHidePopup = new UiCommand(o => DisplayPopup = false);
+            CommandRefreshSources = new UiCommand(CommandName(nameof(RefreshSources)), RefreshSources, o => NdiFindInstance != IntPtr.Zero);
+            CommandGotoNdiWebsite = new UiCommand(CommandName(nameof(GotoNdiWebsite)), GotoNdiWebsite);
+            CommandShowPopup = new UiCommand(CommandName(nameof(CommandShowPopup)), o => DisplayPopup = true);
+            CommandHidePopup = new UiCommand(CommandName(nameof(CommandHidePopup)), o => DisplayPopup = false);
             SourceRefreshed += OnSourceRefreshed;
             RefreshAudioDevices();
             View = new VideoPreviewView { DataContext = this };

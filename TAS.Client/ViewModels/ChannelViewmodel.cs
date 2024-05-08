@@ -17,7 +17,7 @@ namespace TAS.Client.ViewModels
                 Engine = new EngineViewmodel(engine, engine.Preview);
             if (showMedia)
                 MediaManager = new MediaManagerViewmodel(engine, engine.HaveRight(EngineRight.Preview) ? engine.Preview : null);
-            CommandSwitchTab = new UiCommand(o => SelectedTabIndex = _selectedTabIndex == 0 ? 1 : 0, o => showEngine && showMedia);
+            CommandSwitchTab = new UiCommand(CommandName(nameof(SwitchTab)), SwitchTab, _ => showEngine && showMedia);
             SelectedTabIndex = showEngine ? 0 : 1;
         }
 
@@ -49,5 +49,7 @@ namespace TAS.Client.ViewModels
             Engine?.Dispose();
             MediaManager?.Dispose();
         }
+
+        private void SwitchTab(object _) => SelectedTabIndex = _selectedTabIndex == 0 ? 1 : 0;
     }
 }

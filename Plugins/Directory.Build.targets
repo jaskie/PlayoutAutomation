@@ -1,9 +1,0 @@
-<Project>
-  <Target Name="CopyFilesToPluginFolders" AfterTargets="Build" >
-    <PropertyGroup>
-      <TVPlayPluginsDir>$(SolutionDir)$(TVPlayDir)\$(OutputPath)$(PluginsDir)\</TVPlayPluginsDir>
-    </PropertyGroup>
-    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(TVPlayPluginsDir)" SkipUnchangedFiles="true" />
-    <Message Text="Files copied to $(TVPlayPluginsDir): @(PluginFiles)" Importance="high" />
-  </Target>
-</Project>
