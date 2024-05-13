@@ -8,6 +8,8 @@ namespace TAS.Client
 {
     internal class AppLoader
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static async Task<bool> LoadApp()
         {
             return await Task.Run(() =>
@@ -32,12 +34,14 @@ namespace TAS.Client
                 }
                 catch (TypeInitializationException e)
                 {
+                    Logger.Error(e, "Can't initialize application");
                     MessageBox.Show(string.Format(Common.Properties.Resources._message_CantInitializeEngines, e.InnerException),
                         Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
                 catch (Exception e)
                 {
+                    Logger.Error(e, "Can't load application");
                     var exceptionToShow = e;
                     while (exceptionToShow.InnerException != null)
                         exceptionToShow = exceptionToShow.InnerException;
