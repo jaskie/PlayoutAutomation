@@ -210,19 +210,13 @@ namespace TAS.Server
                             foreach (var ev in _runningEvents.Where(e =>
                                 (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) &&
                                 e.IsFinished()).ToArray())
-                            {
                                 _pause(ev, true);
-                                Debug.WriteLine(ev, "Hold: Played");
-                            }
                         if (value == TEngineState.Idle && _runningEvents.Count > 0)
                         {
                             foreach (var ev in _runningEvents.Where(e =>
                                 (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) &&
                                 e.IsFinished()).ToArray())
-                            {
                                 _pause(ev, true);
-                                Debug.WriteLine(ev, "Idle: Played");
-                            }
                         }
                     }
             }
@@ -260,7 +254,7 @@ namespace TAS.Server
 
         public void Initialize(IList<CasparServer> servers)
         {
-            Logger.Debug("Initializing engine {0}", this);
+            Logger.Debug("{0}: Initializing", EngineName);
             _authenticationService = Security.AuthenticationService.Current;
             var recorders = new List<CasparRecorder>();
             var sPRI = servers.FirstOrDefault(s => s.Id == IdServerPRI);
@@ -298,7 +292,6 @@ namespace TAS.Server
                 chPRI.Owner.PropertyChanged += _server_PropertyChanged;
             }
 
-            Debug.WriteLine(this, "Reading Root Events");
             DatabaseProvider.Database.ReadRootEvents(this);
 
             EngineState = TEngineState.Idle;
@@ -307,17 +300,12 @@ namespace TAS.Server
                 CGElementsController.Started += _gpiStartLoaded;
             }
 
-            if (Remote != null)
-            {
-                Debug.WriteLine(this, "Initializing Remote interface");
-                Remote.Initialize(this, new PrincipalProvider(_authenticationService));
-            }
+            Remote?.Initialize(this, new PrincipalProvider(_authenticationService));
 
             if (_localGpis != null)
                 foreach (var gpi in _localGpis)
                     gpi.Started += _gpiStartLoaded;
 
-            Debug.WriteLine(this, "Creating engine thread");
             _engineThread = new Thread(ThreadProc)
             {
                 Priority = ThreadPriority.Highest,
@@ -325,7 +313,7 @@ namespace TAS.Server
                 IsBackground = true
             };
             _engineThread.Start();
-            Logger.Debug("Engine {0} initialized", this);
+            Logger.Debug("{0}: Initialized", EngineName);
         }
 
         [DtoMember]
@@ -411,7 +399,6 @@ namespace TAS.Server
                     var oldForcedNext = _forcedNext;
                     if (SetField(ref _forcedNext, (Event)value))
                     {
-                        Debug.WriteLine(value, "ForcedNext");
                         NotifyPropertyChanged(nameof(NextToPlay));
                         if (_forcedNext != null)
                             _forcedNext.IsForcedNext = true;
@@ -461,7 +448,6 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Play))
                 return;
 
-            Debug.WriteLine(aEvent, "Load");
             lock (_tickLock)
             {
                 EngineState = TEngineState.Hold;
@@ -480,7 +466,6 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Play))
                 return;
 
-            Debug.WriteLine("StartLoaded executed");
             _startLoaded();
         }
 
@@ -489,7 +474,6 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Play))
                 return;
 
-            Debug.WriteLine(aEvent, "Start");
             if (!(aEvent is Event ets))
                 return;
             _start(ets);
@@ -500,7 +484,6 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Play))
                 return;
 
-            Debug.WriteLine(aEvent, $"Schedule {aEvent.PlayState}");
             lock (_tickLock)
             {
                 EngineState = TEngineState.Running;
@@ -514,7 +497,7 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Play))
                 return;
 
-            Logger.Info("{0} {1}: Clear layer {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aVideoLayer);
+            Logger.Info("{0}: Clear layer {1}", EngineName, aVideoLayer);
             Event ev;
             lock (((IList)_visibleEvents).SyncRoot)
                 ev = _visibleEvents.FirstOrDefault(e => e.Layer == aVideoLayer);
@@ -541,7 +524,7 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Play))
                 return;
 
-            Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this);
+            Logger.Info("{0}: Clear all", EngineName);
             lock (_tickLock)
             {
                 _eventRecorder.EndCapture(Playing);
@@ -562,7 +545,7 @@ namespace TAS.Server
                     }
                     catch (Exception e)
                     {
-                        Logger.Error(e);
+                        Logger.Error(e, "{0}: Error clearing CG", EngineName);
                     }
             }
             NotifyEngineOperation(null, TEngineOperation.Clear);
@@ -582,7 +565,7 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Play))
                 return;
 
-            Logger.Info("{0} {1}: Restart", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this);
+            Logger.Info("{0}: Restart", EngineName);
             List<Event> le;
             lock (((IList)_visibleEvents).SyncRoot)
                 le = _visibleEvents.ToList();
@@ -712,7 +695,7 @@ namespace TAS.Server
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(e, "ReSchedule exception");
+                    Logger.Error(e, "{0}: ReSchedule exception", EngineName);
                 }
             });
         }
@@ -918,7 +901,7 @@ namespace TAS.Server
                 aEvent = aEvent.InternalGetSuccessor();
             if (aEvent == null)
                 return;
-            Logger.Info("{0} {1}: Load {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
+            Logger.Info("{0}: Load {1}", EngineName, aEvent);
             var eventType = aEvent.EventType;
 
             if (eventType == TEventType.Live)
@@ -951,7 +934,7 @@ namespace TAS.Server
             if ((eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage) &&
                 !(_preloadedEvents.TryGetValue(aEvent.Layer, out var preloaded) && preloaded == aEvent))
             {
-                Logger.Info("{0} {1}: Preload {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent);
+                Logger.Info("{0}: Preload {1}", EngineName, aEvent);
                 _preloadedEvents[aEvent.Layer] = aEvent;
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
@@ -973,7 +956,7 @@ namespace TAS.Server
                         }
                         catch (Exception e)
                         {
-                            Logger.Error(e);
+                            Logger.Error(e, "{0}: Error setting CG state", EngineName);
                         }
                     });
                 }
@@ -989,7 +972,7 @@ namespace TAS.Server
             var eventType = aEvent.EventType;
             if (!aEvent.IsEnabled || (aEvent.Length == TimeSpan.Zero && eventType != TEventType.Animation && eventType != TEventType.CommandScript))
                 aEvent = aEvent.InternalGetSuccessor();
-            Logger.Info("{0} {1}: Play {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent.EventName);
+            Logger.Info("{0}: Play {1}", EngineName, aEvent);
             eventType = aEvent.EventType;
             if (aEvent == _forcedNext)
             {
@@ -1084,7 +1067,6 @@ namespace TAS.Server
 
         private void _clearRunning()
         {
-            Debug.WriteLine("_clearRunning");
             foreach (var e in _runningEvents.ToArray())
             {
                 _runningEvents.Remove(e);
@@ -1128,7 +1110,7 @@ namespace TAS.Server
                     var eventType = aEvent.EventType;
                     if (eventType != TEventType.Live && eventType != TEventType.CommandScript)
                     {
-                        Logger.Info("{0} {1}: Stop {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent.EventName);
+                        Logger.Info("{0}: Stop {1}", EngineName, aEvent);
                         _playoutChannelPRI?.Stop(aEvent);
                         _playoutChannelSEC?.Stop(aEvent);
                     }
@@ -1143,7 +1125,7 @@ namespace TAS.Server
             lock (((IList)_visibleEvents).SyncRoot)
                 if (_visibleEvents.Contains(aEvent))
                 {
-                    Logger.Info("{0} {1}: Pause {2}", CurrentTime.TimeOfDay.ToSmpteTimecodeString(FrameRate), this, aEvent.EventName);
+                    Logger.Info("{0}: Pause {1}", EngineName, aEvent);
                     if (aEvent.EventType != TEventType.Live && aEvent.EventType != TEventType.StillImage)
                     {
                         _playoutChannelPRI?.Pause(aEvent);
@@ -1418,7 +1400,7 @@ namespace TAS.Server
 
         private void ThreadProc()
         {
-            Logger.Debug("Started engine thread for {0}", this);
+            Logger.Debug("{0}: Started engine thread", EngineName);
             CurrentTime = AlignDateTime(DateTime.UtcNow + TimeSpan.FromMilliseconds(_timeCorrection));
             _currentTicks = CurrentTime.Ticks;
 
@@ -1426,7 +1408,6 @@ namespace TAS.Server
             var playing = playingEvents.FirstOrDefault(e => e.Layer == VideoLayer.Program && (e.EventType == TEventType.Live || e.EventType == TEventType.Movie));
             if (playing != null)
             {
-                Debug.WriteLine(playing, "Playing event found");
                 if (_currentTicks < playing.StartTime.Ticks + playing.Duration.Ticks)
                 {
                     foreach (var e in playingEvents)
@@ -1470,15 +1451,14 @@ namespace TAS.Server
                     if (nFrames > 1)
                     {
                         if (nFrames > 20)
-                            Logger.Error("LateFrame: {0}", nFrames);
+                            Logger.Warn("{0} LateFrame: {1}", EngineName, nFrames);
                         else
-                            Logger.Warn("LateFrame: {0}", nFrames);
+                            Logger.Debug("{0} LateFrame: {1}", EngineName, nFrames);
                     }
-                    Debug.WriteLineIf(nFrames == 0, "Zero frames tick");
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"Exception in Engine tick: {e}");
+                    Logger.Error(e, "{0}: Exception in Engine tick", EngineName);
                 }
                 QueryUnbiasedInterruptTime(out unbiasedTime);
                 var waitTime = (int)((prevTime + frameDuration - unbiasedTime + 10000) / 10000);
@@ -1489,7 +1469,7 @@ namespace TAS.Server
                     Debug.WriteLineIf(waitTime < 0, "Negative waitTime");
 #endif
             }
-            Logger.Debug("Engine thread finished: {0}", this);
+            Logger.Debug("{0}: Thread finished", EngineName);
         }
 
         private void _gpiStartLoaded(object o, EventArgs e)

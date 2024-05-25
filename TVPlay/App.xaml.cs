@@ -36,6 +36,7 @@ namespace TAS.Client
             base.OnExit(e);
             if (!IsShutdown)
                 Mutex.ReleaseMutex();
+            NLog.LogManager.Shutdown();
         }
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
