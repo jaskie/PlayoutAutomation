@@ -39,25 +39,18 @@ namespace TAS.Common
         /// <summary>
         /// When primary connection is broken
         /// </summary>
-        BrokenPrimary  = 64,
+        BrokenPrimary = 64,
         /// <summary>
         /// When secondary connection is broken
         /// </summary>
         BrokenSecondary = 128,
+        /// <summary>
+        /// When priamry connection is open
+        /// </summary>
         OpenPrimary = 256,
+        /// <summary>
+        /// When secondary connection is open
+        /// </summary>
         OpenSecondary = 512
-    }
-
-    public class RedundantConnectionStateEventArgs : EventArgs
-    {
-        public RedundantConnectionStateEventArgs(ConnectionStateRedundant oldState, ConnectionStateRedundant newState)
-        {
-            OldState = oldState;
-            NewState = newState;
-        }
-        
-        public ConnectionStateRedundant OldState { get; }
-        
-        public ConnectionStateRedundant NewState { get; }
     }
 }

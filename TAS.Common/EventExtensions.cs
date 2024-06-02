@@ -87,11 +87,6 @@ namespace TAS.Common
             }
         }
 
-        public static bool IsRundownOrCommandScript(this IEvent aEvent)
-        {
-            return aEvent.EventType == TEventType.Rundown || aEvent.EventType == TEventType.CommandScript;
-        }
-
         public static double GetAudioVolume(this IEvent aEvent)
         {
             var volume = aEvent.AudioVolume;
@@ -116,6 +111,14 @@ namespace TAS.Common
                 while ((nextItem = nextItem.GetNext()) != null)
                     yield return nextItem;
             }
+        }
+
+        public static bool OccupiesSameVideoLayerAs(this IEvent e, IEvent other)
+        {
+            return e != null 
+                && e.Layer == other?.Layer 
+                && (e.EventType == TEventType.Movie || e.EventType == TEventType.StillImage || e.EventType == TEventType.Live)
+                && (other.EventType == TEventType.Movie || other.EventType == TEventType.StillImage || other.EventType == TEventType.Live);
         }
     }
 }

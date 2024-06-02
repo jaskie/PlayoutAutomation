@@ -31,5 +31,11 @@ namespace TAS.Client
             MainWindow.Show();
             splash.Close();
         }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            NLog.LogManager.Shutdown();
+            base.OnExit(e);
+        }
     }
 }

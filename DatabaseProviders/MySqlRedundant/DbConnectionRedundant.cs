@@ -2,11 +2,11 @@
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using MySql.Data.MySqlClient;
 using TAS.Common;
+using TAS.Database.Common;
 
 namespace TAS.Database.MySqlRedundant
 {

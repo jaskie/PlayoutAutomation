@@ -5,10 +5,10 @@ using System.ComponentModel.Composition;
 using System.Configuration;
 using System.Data;
 using System.Linq;
-using TAS.Common;
 using TAS.Database.Common.Interfaces;
 using TAS.Database.Common.Interfaces.Media;
 using TAS.Common.Interfaces;
+using TAS.Common;
 
 namespace TAS.Database.MySqlRedundant
 {

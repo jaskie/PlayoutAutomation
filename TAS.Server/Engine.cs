@@ -1037,9 +1037,18 @@ namespace TAS.Server
             {
                 aEvent.PlayState = TPlayState.Playing;
                 if (aEvent.SubEventsCount > 0)
+                {
                     foreach (Event se in aEvent.GetSubEvents())
-                        if (se.ScheduledDelay == TimeSpan.Zero && (se.IsRundownOrCommandScript() || se.Layer != aEvent.Layer))
-                            _play(se, fromBeginning);
+                        if (aEvent.OccupiesSameVideoLayerAs(se))
+                        {
+                            Logger.Error("{0}: Tried to play {1} on the same layer as parent {2}. Play ignored.", EngineName, se, aEvent);
+                        }
+                        else
+                        {
+                            if (se.ScheduledDelay == TimeSpan.Zero && (aEvent.EventType == TEventType.Rundown || se.EventType == TEventType.CommandScript || se.EventType == TEventType.Animation || se.Layer != aEvent.Layer))
+                                _play(se, fromBeginning);
+                        }
+                }
             }
             aEvent.SaveDelayed();
             if (_pst2Prv)
@@ -1232,13 +1241,17 @@ namespace TAS.Server
                                     _play(succEvent, true);
                             }
                         }
+
+                        // preload and play subevents, which was not started immediately with parent
                         playingEvent = _playing; // in case when succEvent just started 
                         if (playingEvent != null && playingEvent.SubEventsCount > 0)
                         {
                             TimeSpan playingEventPosition = TimeSpan.FromTicks(playingEvent.Position * FrameTicks);
                             TimeSpan playingEventDuration = playingEvent.Duration;
-                            var sel = playingEvent.GetSubEvents().Where(e => e.PlayState == TPlayState.Scheduled && (e.IsRundownOrCommandScript() || e.Layer != playingEvent.Layer));
-                            foreach (Event se in sel)
+                            foreach (Event se in playingEvent.GetSubEvents().Where(e =>
+                                    e.PlayState == TPlayState.Scheduled &&
+                                    !playingEvent.OccupiesSameVideoLayerAs(e) // we can't log this errorneous situation, as it would flood the log, so just ignore it and not process such items
+                                    ))
                             {
                                 IEvent preloaded;
                                 TEventType eventType = se.EventType;
