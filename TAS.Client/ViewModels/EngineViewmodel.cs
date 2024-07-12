@@ -385,7 +385,7 @@ namespace TAS.Client.ViewModels
             OnUiThread(() => _visibleEvents.Add(e.Event));
         }
 
-        private async void LoadRundown(object obj)
+        private void LoadRundown(object obj)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog()
             {
@@ -394,33 +394,29 @@ namespace TAS.Client.ViewModels
             };
             if (dlg.ShowDialog() != true)
                 return;
-            UiServices.SetBusyState();
-            await Task.Run(() =>
+            using (var reader = File.OpenText(dlg.FileName))
+            using (var jreader = new Newtonsoft.Json.JsonTextReader(reader))
             {
-                using (var reader = File.OpenText(dlg.FileName))
-                using (var jreader = new Newtonsoft.Json.JsonTextReader(reader))
+                var proxy = new Newtonsoft.Json.JsonSerializer
                 {
-                    var proxy = new Newtonsoft.Json.JsonSerializer
-                    {
-                        DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Populate
-                    }
-                        .Deserialize<EventProxy>(jreader);
-                    if (proxy != null)
-                    {
-                        var mediaFiles =
-                            (Engine.MediaManager.MediaDirectoryPRI ?? Engine.MediaManager.MediaDirectorySEC)
-                            ?.GetAllFiles();
-                        var animationFiles =
-                            (Engine.MediaManager.AnimationDirectoryPRI ?? Engine.MediaManager.AnimationDirectorySEC)
-                            ?.GetAllFiles();
-                        var newEvent = obj.Equals("Under")
-                            ? proxy.InsertUnder(SelectedEventPanel.Event, false, mediaFiles, animationFiles)
-                            : proxy.InsertAfter(SelectedEventPanel.Event, mediaFiles, animationFiles);
-                        LastAddedEvent = newEvent;
-                    }
-
+                    DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Populate
                 }
-            });
+                    .Deserialize<EventProxy>(jreader);
+                if (proxy != null)
+                {
+                    var mediaFiles =
+                        (Engine.MediaManager.MediaDirectoryPRI ?? Engine.MediaManager.MediaDirectorySEC)
+                        ?.GetAllFiles();
+                    var animationFiles =
+                        (Engine.MediaManager.AnimationDirectoryPRI ?? Engine.MediaManager.AnimationDirectorySEC)
+                        ?.GetAllFiles();
+                    var newEvent = obj.Equals("Under")
+                        ? proxy.InsertUnder(SelectedEventPanel.Event, false, mediaFiles, animationFiles)
+                        : proxy.InsertAfter(SelectedEventPanel.Event, mediaFiles, animationFiles);
+                    LastAddedEvent = newEvent;
+                }
+
+            }
         }
 
         private void SaveRundown(object _)

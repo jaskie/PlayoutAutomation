@@ -738,7 +738,6 @@ namespace TAS.Client.ViewModels
         {
             if (!CheckEditMediaSaved())
                 return;
-            UiServices.SetBusyState();
             if (_selectedDirectory.IsIngestDirectory)
                 IngestSelectionToDir();
             else

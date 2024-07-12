@@ -8,18 +8,19 @@ namespace TAS.Client.Common
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly string _name;
+        private readonly Action<object> _executeDelegate;
+        private Predicate<object> _canExecuteDelegate;
 
-        public UiCommand(string name, Action<object> executeDelegate): this(name, executeDelegate, null) { }
+        public UiCommand(string name, Action<object> executeDelegate) : this(name, executeDelegate, null) { }
 
         public UiCommand(string name, Action<object> executeDelegate, Predicate<object> canExecuteDelegate)
         {
             _name = name;
-            ExecuteDelegate = executeDelegate;
-            CanExecuteDelegate = canExecuteDelegate;
+            _executeDelegate = executeDelegate;
+            _canExecuteDelegate = canExecuteDelegate;
         }
 
-        public Predicate<object> CanExecuteDelegate { get; }
-        public Action<object> ExecuteDelegate { get; }
+
         public bool HandleExceptions { get; set; } = true;
         public bool CheckBeforeExecute { get; set; } = true;
 
@@ -28,13 +29,13 @@ namespace TAS.Client.Common
         [DebuggerStepThrough]
         public bool CanExecute(object parameter)
         {
-            if (CanExecuteDelegate != null)
+            if (_canExecuteDelegate != null)
             {
                 if (HandleExceptions)
                 {
                     try
                     {
-                        return CanExecuteDelegate(parameter);
+                        return _canExecuteDelegate(parameter);
                     }
                     catch (Exception e)
                     {
@@ -42,7 +43,7 @@ namespace TAS.Client.Common
                     }
                 }
                 else
-                    return CanExecuteDelegate(parameter);
+                    return _canExecuteDelegate(parameter);
             }
             return true;// if there is no can execute default to true
         }
@@ -55,32 +56,36 @@ namespace TAS.Client.Common
 
         public void Execute(object parameter)
         {
+            UiServices.SetBusyState();
             if (CheckBeforeExecute && !CanExecute(parameter))
                 return;
-            if (ExecuteDelegate != null)
+            if (_executeDelegate != null)
             {
-                UiServices.SetBusyState();
                 if (HandleExceptions)
                     try
                     {
-                        ExecuteDelegate(parameter);
+                        _executeDelegate(parameter);
                     }
                     catch (Exception e)
                     {
-                        Logger.Error(e, $"{_name}: Execute thrown an exception");
-                        System.Windows.MessageBox.Show(string.Format(Properties.Resources._message_CommandFailed,
+                        HandleException(e);
+                    }
+                else
+                    _executeDelegate(parameter);
+            }
+        }
+        #endregion
+
+        private void HandleException(Exception e)
+        {
+            Logger.Error(e, $"{_name}: Execute thrown exception");
+            System.Windows.MessageBox.Show(string.Format(Properties.Resources._message_CommandFailed,
 #if DEBUG
                             e
 #else
                             e.Message
 #endif
                             ), Properties.Resources._caption_Error, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                    }
-                else
-                    ExecuteDelegate(parameter);
-            }
         }
-
-#endregion
     }
 }
