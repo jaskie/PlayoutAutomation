@@ -2,7 +2,7 @@
 
 namespace TAS.Common.Interfaces
 {
-    public interface ISearchProvider<T> : IDisposable
+    public interface ISearchProvider<T>
     {
         void Start();
         void Cancel();

@@ -14,7 +14,6 @@
         public override void Delete()
         {
             DatabaseProvider.Database.DeleteEventAcl(this);
-            Dispose();
         }
     }
 }

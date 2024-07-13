@@ -76,7 +76,6 @@ namespace TAS.Server
                     continue;
                 }
                 OperationCompleted?.Invoke(this, new FileOperationEventArgs(operation));
-                operation.Dispose();
             }
         }
 

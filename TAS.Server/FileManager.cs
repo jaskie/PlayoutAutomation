@@ -28,12 +28,11 @@ namespace TAS.Server
             _queueExportOperation.OperationCompleted += _queue_OperationCompleted;
         }
 
-        protected override void DoDispose()
+        internal void Shutdown()
         {
             _queueSimpleOperation.OperationCompleted -= _queue_OperationCompleted;
             _queueConvertOperation.OperationCompleted -= _queue_OperationCompleted;
             _queueExportOperation.OperationCompleted -= _queue_OperationCompleted;
-            base.DoDispose();
         }
 
         private void _queue_OperationCompleted(object sender, FileOperationEventArgs e)

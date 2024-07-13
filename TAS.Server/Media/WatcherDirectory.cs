@@ -16,7 +16,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 namespace TAS.Server.Media
 {
     [DebuggerDisplay("{" + nameof(Folder) + "}")]
-    public abstract class WatcherDirectory : MediaDirectoryBase, IWatcherDirectory
+    public abstract class WatcherDirectory : MediaDirectoryBase, IWatcherDirectory, IDisposable
     { 
         private FileSystemWatcher _watcher;
         private bool _isInitialized;
@@ -24,6 +24,7 @@ namespace TAS.Server.Media
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         protected readonly Dictionary<Guid, MediaBase> Files = new Dictionary<Guid, MediaBase>();
+        private bool _disposed;
 
         public virtual async void Refresh()
         {
@@ -344,7 +345,6 @@ namespace TAS.Server.Media
                 Files.Remove(media.MediaGuid);
             base.RemoveMedia(media);
             media.PropertyChanged -= _media_PropertyChanged;
-            ((MediaBase)media).Dispose();
         }
 
         public override IMediaSearchProvider Search(TMediaCategory? category, string searchString)
@@ -372,12 +372,17 @@ namespace TAS.Server.Media
                 Files.Values.ToList().ForEach(m => m.Remove());
         }
 
-        protected override void DoDispose()
+        public void Dispose()
         {
-            base.DoDispose();
+            if (_disposed)
+                return;
+            _disposed = true;
+            DoDispose();
+        }
+
+        protected virtual void DoDispose()
+        {
             CancelBeginWatch();
-            lock (((IDictionary)Files).SyncRoot)
-                Files.Values.ToList().ForEach(m => m.Dispose());
             DisposeWatcher(_watcher);
             _watcher = null;
         }
@@ -399,6 +404,7 @@ namespace TAS.Server.Media
             watcher.Changed -= OnFileChanged;
             watcher.Error -= OnError;
             watcher.Dispose();
+            Logger.Debug("Watcher disposed for {0}", Folder);
         }
     }
 

@@ -28,7 +28,6 @@ namespace TAS.Server.Security
         {
             AuthenticationService.RemoveGroup(this);
             DatabaseProvider.Database.DeleteSecurityObject(this);
-            Dispose();
         }
     }
 }

@@ -109,7 +109,6 @@ namespace TAS.Server.Security
         {
             AuthenticationService.RemoveUser(this);
             DatabaseProvider.Database.DeleteSecurityObject(this);
-            Dispose();
         }
 
         internal void PopulateGroups(List<Group> allGroups)

@@ -2,7 +2,7 @@
 
 namespace TAS.Common.Interfaces.Media
 {
-    public interface ITempMedia: IMedia, IDisposable
+    public interface ITempMedia: IMedia
     {
     }
 }

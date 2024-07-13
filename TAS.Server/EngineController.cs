@@ -78,16 +78,18 @@ namespace TAS.Server
 
         public void ShutDown()
         {
-            Logger.Info("Engines shutdown started");
             if (Engines != null)
                 foreach (var e in Engines)
                     e.Dispose();
-            Logger.Info("Engines shutdown completed");
             if (Servers != null)
                 foreach (var s in Servers)
                     s.Dispose();
-            DatabaseProvider.Database?.Close();
-            Logger.Info("Database closed");
+            if (DatabaseProvider.Database != null)
+            {
+                DatabaseProvider.Database.Close();
+                Logger.Info("Database closed");
+            }
+            FileManager.Current.Shutdown();
         }
 
         public int GetConnectedClientCount() => Engines.Sum(e => e.Remote?.ClientCount ?? 0);

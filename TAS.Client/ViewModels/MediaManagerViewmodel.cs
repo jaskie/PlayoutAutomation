@@ -498,7 +498,6 @@ namespace TAS.Client.ViewModels
             _currentSearchProvider.ItemAdded -= Search_ItemAdded;
             _currentSearchProvider.Finished -= Search_Finished;
             _currentSearchProvider.Cancel();
-            _currentSearchProvider.Dispose();
             _currentSearchProvider = null;
             IsSearching = false;
         }
@@ -528,7 +527,6 @@ namespace TAS.Client.ViewModels
                 return;
             provider.ItemAdded -= Search_ItemAdded;
             provider.Finished -= Search_Finished;
-            provider.Dispose();
             if (provider != _currentSearchProvider)
                 return;
             _currentSearchProvider = null;

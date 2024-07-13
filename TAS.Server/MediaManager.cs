@@ -18,7 +18,7 @@ using TAS.Server.MediaOperation;
 
 namespace TAS.Server
 {
-    public class MediaManager : ServerObjectBase, IMediaManager
+    public class MediaManager : ServerObjectBase, IMediaManager, IDisposable
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -26,9 +26,9 @@ namespace TAS.Server
         private readonly FileManager _fileManager = Server.FileManager.Current;
         private readonly Engine _engine;
         private readonly List<CasparRecorder> _recorders;
-        private List<IngestDirectory> _ingestDirectories;
         private int _isInitialMediaSecToPriSynchronized;
         private readonly ConcurrentBag<Action> _delegateUnregisterActions = new ConcurrentBag<Action>();
+        private bool _disposed;
 
         public MediaManager(Engine engine)
         {
@@ -292,15 +292,6 @@ namespace TAS.Server
             else
                 foreach (MediaExportDescription e in exportList)
                     _export(e, directory, mXFAudioExportFormat, mXFVideoExportFormat);
-        }
-
-        public void UnloadIngestDirs()
-        {
-            if (_ingestDirectories == null)
-                return;
-            foreach (var d in _ingestDirectories)
-                d.Dispose();
-            _ingestDirectories = null;
         }
 
         public async void SynchronizeMediaSecToPri()
@@ -679,12 +670,13 @@ namespace TAS.Server
             }
         }
 
-        protected override void DoDispose()
+        public void Dispose()
         {
-            base.DoDispose();
+            if (_disposed)
+                return;
+            _disposed = true;
             foreach(var action in _delegateUnregisterActions)
                 action();
-            UnloadIngestDirs();
         }
 
     }

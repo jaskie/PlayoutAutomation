@@ -20,7 +20,7 @@ using jNet.RPC;
 
 namespace TAS.Server
 {
-    public class Engine : jNet.RPC.Server.ServerObjectBase, IEngine, IEnginePersistent
+    public class Engine : jNet.RPC.Server.ServerObjectBase, IEngine, IEnginePersistent, IDisposable
     {
 
         private string _engineName;
@@ -44,7 +44,6 @@ namespace TAS.Server
         Thread _engineThread;
         private long _currentTicks;
         public readonly object RundownSync = new object();
-        private readonly object _tickLock = new object();
 
         private readonly List<Event> _visibleEvents = new List<Event>(); // list of visible events
         private readonly List<Event> _runningEvents = new List<Event>(); // list of events loaded and playing 
@@ -71,6 +70,7 @@ namespace TAS.Server
         private bool _studioMode;
         private ConnectionStateRedundant _databaseConnectionState;
         private TVideoFormat _videoFormat;
+        private bool _disposed;
 
         public Engine()
         {
@@ -203,7 +203,7 @@ namespace TAS.Server
             get => _engineState;
             private set
             {
-                lock (_tickLock)
+                lock (RundownSync)
                     if (SetField(ref _engineState, value))
                     {
                         if (value == TEngineState.Hold)
@@ -394,7 +394,7 @@ namespace TAS.Server
             private set
             {
 
-                lock (_tickLock)
+                lock (RundownSync)
                 {
                     var oldForcedNext = _forcedNext;
                     if (SetField(ref _forcedNext, (Event)value))
@@ -448,7 +448,7 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Play))
                 return;
 
-            lock (_tickLock)
+            lock (RundownSync)
             {
                 EngineState = TEngineState.Hold;
                 List<Event> el;
@@ -484,7 +484,7 @@ namespace TAS.Server
             if (!HaveRight(EngineRight.Play))
                 return;
 
-            lock (_tickLock)
+            lock (RundownSync)
             {
                 EngineState = TEngineState.Running;
                 _run((Event)aEvent);
@@ -501,7 +501,7 @@ namespace TAS.Server
             Event ev;
             lock (((IList)_visibleEvents).SyncRoot)
                 ev = _visibleEvents.FirstOrDefault(e => e.Layer == aVideoLayer);
-            lock (_tickLock)
+            lock (RundownSync)
             {
                 if (ev != null)
                 {
@@ -515,7 +515,7 @@ namespace TAS.Server
                 _playoutChannelSEC?.Clear(aVideoLayer);
             }
             if (aVideoLayer == VideoLayer.Program)
-                lock (_tickLock)
+                lock (RundownSync)
                     Playing = null;
         }
 
@@ -525,7 +525,7 @@ namespace TAS.Server
                 return;
 
             Logger.Info("{0}: Clear all", EngineName);
-            lock (_tickLock)
+            lock (RundownSync)
             {
                 _eventRecorder.EndCapture(Playing);
                 _clearRunning();
@@ -577,7 +577,7 @@ namespace TAS.Server
         {
             if (!HaveRight(EngineRight.Play))
                 return;
-            lock (_tickLock)
+            lock (RundownSync)
             {
                 _restartRundown(aRundown);
                 EngineState = TEngineState.Running;
@@ -855,7 +855,7 @@ namespace TAS.Server
         // private methods
         private void _start(Event aEvent)
         {
-            lock (_tickLock)
+            lock (RundownSync)
             {
                 EngineState = TEngineState.Running;
                 List<Event> eventsToStop;
@@ -884,7 +884,7 @@ namespace TAS.Server
                             _reSchedule(se);
                     }
 
-                    Event next = aEvent.InternalGetSuccessor();
+                    var next = aEvent.InternalGetSuccessor();
                     if (next != null)
                         _reSchedule(next);
                 }
@@ -1061,7 +1061,7 @@ namespace TAS.Server
 
         private void _startLoaded()
         {
-            lock (_tickLock)
+            lock (RundownSync)
                 if (EngineState == TEngineState.Hold)
                 {
                     _visibleEvents.Where(e => e.PlayState == TPlayState.Played).ToList().ForEach(e => _stop(e));
@@ -1212,7 +1212,7 @@ namespace TAS.Server
 
         private void _tick(long nFrames)
         {
-            lock (_tickLock)
+            lock (RundownSync)
             {
                 if (EngineState == TEngineState.Running)
                 {
@@ -1342,7 +1342,7 @@ namespace TAS.Server
                 _stop((Event)e.Item);
             else
             {
-                lock (_tickLock)
+                lock (RundownSync)
                 {
                     var ps = ((Event)sender).PlayState;
                     if (ps != TPlayState.Playing && ps != TPlayState.Paused ||
@@ -1384,10 +1384,13 @@ namespace TAS.Server
             Logger.Error("Database state changed from {0} to {1}. Stack trace was {2}", e.OldState, e.NewState, new StackTrace());
         }
 
-        protected override void DoDispose()
+        public void Dispose()
         {
+            if (_disposed)
+                return;
+            _disposed = true;
             foreach (var e in _rootEvents)
-                Event.SaveLoadedTree(e);
+                e.SaveLoadedTree();
             lock (_rights)
             {
                 if (_rights.IsValueCreated)
@@ -1402,7 +1405,7 @@ namespace TAS.Server
             if (_plugins != null)
                 foreach (var plugin in _plugins)
                     plugin.Dispose();
-            base.DoDispose();
+            Logger.Info("{0}: Engine disposed", EngineName);
         }
 
         private void NotifyEngineOperation(IEvent aEvent, TEngineOperation operation)
@@ -1449,7 +1452,7 @@ namespace TAS.Server
             var frameDuration = (ulong)FrameTicks;
             QueryUnbiasedInterruptTime(out var unbiasedTime);
             var prevTime = unbiasedTime - frameDuration;
-            while (!IsDisposed)
+            while (!_disposed)
             {
                 try
                 {

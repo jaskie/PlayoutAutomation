@@ -12,11 +12,13 @@ using TAS.Server.Media;
 
 namespace TAS.Server
 {
-    public class Preview: ServerObjectBase, IPreview
+    public class Preview: ServerObjectBase, IPreview, IDisposable
     {
         private const int PerviewPositionSetDelay = 100;
 
         private readonly Engine _engine;
+        private readonly ConcurrentDictionary<VideoLayer, IMedia> _previewLoadedStills = new ConcurrentDictionary<VideoLayer, IMedia>();
+        private readonly CasparServerChannel _channel;
 
         [DtoMember(nameof(LoadedMovie))]
         private IMedia _loadedMovie;
@@ -29,8 +31,7 @@ namespace TAS.Server
         private long _currentTicks;
         private CancellationTokenSource _previewPositionCancellationTokenSource;
         private long _previewLastPositionSetTick;
-        private readonly ConcurrentDictionary<VideoLayer, IMedia> _previewLoadedStills = new ConcurrentDictionary<VideoLayer, IMedia>();
-        private readonly CasparServerChannel _channel;
+        private bool _disposed;
 
         public Preview(Engine engine, CasparServerChannel previewChannel)
         {
@@ -249,9 +250,11 @@ namespace TAS.Server
             }
         }
 
-        protected override void DoDispose()
+        public void Dispose()
         {
-            base.DoDispose();
+            if (_disposed)
+                return;
+            _disposed = true;
            _channel.PropertyChanged -= ChannelPropertyChanged;
         }
 

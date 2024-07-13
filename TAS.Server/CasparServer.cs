@@ -21,12 +21,13 @@ namespace TAS.Server
 
     public delegate void CommandNotifier(DateTime when, string command, Event sender);
 
-    public class CasparServer : ServerObjectBase, IPlayoutServer, IPlayoutServerProperties
+    public class CasparServer : ServerObjectBase, IPlayoutServer, IPlayoutServerProperties, IDisposable
     {
         private bool _isConnected;
         private int _isInitialized;
         private bool _needUpdateChannels;
         private Svt.Caspar.CasparDevice _casparDevice;
+        private bool _disposed;
 
         #region IPersistent
 
@@ -175,8 +176,11 @@ namespace TAS.Server
             Debug.WriteLine(e.Connected, "Caspar connected");
         }
         
-        protected override void DoDispose()
+        public void Dispose()
         {
+            if (_disposed)
+                return;
+            _disposed = true;
             Disconnect();
             if (_casparDevice != null)
             {

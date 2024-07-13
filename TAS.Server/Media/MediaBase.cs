@@ -373,13 +373,6 @@ namespace TAS.Server.Media
                 });
         }
 
-        protected override void DoDispose()
-        {
-            Debug.WriteLine(this, "Disposed");
-            base.DoDispose();
-        }
-
-
         private string _getFullPath(string fileName)
         {
             return string.IsNullOrWhiteSpace(_folder) ?

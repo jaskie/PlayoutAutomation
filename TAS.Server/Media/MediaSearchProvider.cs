@@ -6,7 +6,7 @@ namespace TAS.Server.Media
 {
     public class MediaSearchProvider : SearchProvider<IMedia>, IMediaSearchProvider
     {
-        public MediaSearchProvider(IEnumerable<IMedia> result) : base(result)
+        public MediaSearchProvider(IEnumerable<IMedia> source) : base(source)
         {
         }
     }

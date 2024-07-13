@@ -103,7 +103,7 @@ namespace TAS.Common
 
         public static IEnumerable<IEvent> AllSubEvents(this IEvent e)
         {
-            IEnumerable<IEvent> sel = e.GetSubEvents();
+            var sel = e.GetSubEvents();
             foreach (var selItem in sel)
             {
                 yield return selItem;

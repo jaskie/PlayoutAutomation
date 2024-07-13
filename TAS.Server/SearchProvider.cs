@@ -11,29 +11,30 @@ namespace TAS.Server
     public abstract class SearchProvider<T> : ServerObjectBase, ISearchProvider<T>
     {
 
-        private readonly IEnumerable<T> _result;
+        private readonly IEnumerable<T> _source;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private bool _isCancellationRequested;
 
-        protected SearchProvider(IEnumerable<T> result)
+        protected SearchProvider(IEnumerable<T> source)
         {
-            _result = result;
-            TokenSource = new CancellationTokenSource();
+            _source = source;
         }
 
         public async void Start()
         {
+            _isCancellationRequested = false;
             try
             {
                 await Task.Run(() =>
                 {
-                    using (var enumerator = _result.GetEnumerator())
+                    using (var enumerator = _source.GetEnumerator())
                         while (enumerator.MoveNext())
                         {
-                            if (TokenSource.IsCancellationRequested)
+                            if (_isCancellationRequested)
                                 break;
                             ItemAdded?.Invoke(this, new EventArgs<T>(enumerator.Current));
                         }
-                }, TokenSource.Token);
+                });
                 Finished?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception e)
@@ -42,16 +43,10 @@ namespace TAS.Server
             }
         }
 
-        public CancellationTokenSource TokenSource { get; }
 
         public void Cancel()
         {
-            TokenSource.Cancel();
-        }
-
-        protected override void DoDispose()
-        {
-            TokenSource.Dispose();
+            _isCancellationRequested = true;
         }
 
         public event EventHandler<EventArgs<T>> ItemAdded;

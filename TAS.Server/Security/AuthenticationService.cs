@@ -58,13 +58,6 @@ namespace TAS.Server.Security
 
         public event EventHandler<CollectionOperationEventArgs<IGroup>> GroupsOperation;
 
-        protected override void DoDispose()
-        {
-            _users.AcoOperartion -= Users_AcoOperation;
-            _groups.AcoOperartion -= Groups_AcoOperation;
-            base.DoDispose();
-        }
-
         private void Users_AcoOperation(object sender, CollectionOperationEventArgs<User> e)
         {
             UsersOperation?.Invoke(this, new CollectionOperationEventArgs<IUser>(e.Item, e.Operation));

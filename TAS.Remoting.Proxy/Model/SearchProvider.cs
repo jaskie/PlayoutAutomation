@@ -15,8 +15,6 @@ namespace TAS.Remoting.Model
         public void Start() => Invoke();
 
         public void Cancel() => Invoke();
-        
-        public void Dispose() => Invoke();
 
         public event EventHandler<EventArgs<T>> ItemAdded
         {

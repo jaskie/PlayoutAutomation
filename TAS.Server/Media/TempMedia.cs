@@ -6,9 +6,9 @@ using TAS.Common.Interfaces.Media;
 
 namespace TAS.Server.Media
 {
-    public class TempMedia: MediaBase, ITempMedia
+    public class TempMedia: MediaBase, ITempMedia, IDisposable
     {
-       
+        private bool _disposed;
         public TempMedia(TempDirectory directory, IMediaProperties originalMedia)
         {
             OriginalMedia = originalMedia;
@@ -100,11 +100,13 @@ namespace TAS.Server.Media
             get => OriginalMedia?.FieldOrderInverted ?? false;
             set { }
         }
-        
-        protected override void DoDispose()
+
+        public void Dispose()
         {
+            if (_disposed)
+                return;
+            _disposed = true;
             Delete();
-            base.DoDispose();
         }
     }
 }
