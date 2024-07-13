@@ -1,11 +1,6 @@
 <Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\'))" />
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <TVPlayDir>TVPlay</TVPlayDir>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <Deterministic>false</Deterministic>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
     <OutputPath>$(SolutionDir)$(TVPlayDir)\bin\$(Configuration)\Plugins</OutputPath>
   </PropertyGroup>
 </Project>
