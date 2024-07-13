@@ -1404,7 +1404,7 @@ namespace TAS.Server
             _mediaManager.Dispose();
             if (_plugins != null)
                 foreach (var plugin in _plugins)
-                    plugin.Dispose();
+                    (plugin as IDisposable)?.Dispose();
             Logger.Info("{0}: Engine disposed", EngineName);
         }
 

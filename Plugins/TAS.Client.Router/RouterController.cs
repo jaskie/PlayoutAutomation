@@ -17,6 +17,7 @@ namespace TAS.Server
         private readonly RouterDevice _device;
         private IRouterPort _selectedInputPort;
         private bool _isConnected;
+        private bool _isDisposed;
 
         public RouterController(RouterDevice device)
         {
@@ -128,8 +129,11 @@ namespace TAS.Server
             SelectedInputPort = InputPorts.FirstOrDefault(param => param.PortId == changedIn.InPort);
         }
 
-        protected override void DoDispose()
+        public void Dispose()
         {
+            if (_isDisposed)
+                return;
+            _isDisposed = true;
             _routerCommunicator.OnInputPortChangeReceived -= Communicator_OnInputPortChangeReceived;
             _routerCommunicator.OnRouterPortsStatesReceived -= Communicator_OnRouterPortStateReceived;
             _routerCommunicator.OnRouterConnectionStateChanged -= Communicator_OnRouterConnectionStateChanged;
