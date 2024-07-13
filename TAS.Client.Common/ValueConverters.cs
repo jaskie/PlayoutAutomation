@@ -330,6 +330,20 @@ namespace TAS.Client.Common
         }
     }
 
+    [ValueConversion(typeof(bool), typeof(bool))]
+    public class InvertedBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (bool)value == true ? false : true;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Binding.DoNothing;
+        }
+    }
+
     [ValueConversion(typeof(object[]), typeof(System.Windows.Visibility))]
     public class MultiBooleanOrNotNullToVisibilityConverter : IMultiValueConverter
     {

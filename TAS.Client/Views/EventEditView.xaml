@@ -62,6 +62,9 @@
                                     Value="{Binding RelativeSource={RelativeSource Self}, 
                                     Path=(Validation.Errors)/ErrorContent}"/>
                         </Trigger>
+                        <Trigger Property="IsReadOnly" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                        </Trigger>
                     </Style.Triggers>
                 </Style>
                 <Style TargetType="TextBox" >
@@ -193,9 +196,10 @@
                             </Grid.ColumnDefinitions>
                             <Label Content="{Resx _scheduledTime}" />
                             <DatePicker Grid.Column="1" Margin="1" Width="110" 
-                                            SelectedDate="{Binding ScheduledDate, ValidatesOnDataErrors=True}" 
-                                            Visibility="{Binding IsScheduledDateVisible, Converter={StaticResource BoolToVis}}" 
-                                            SelectedDateFormat="Short" >
+                                        SelectedDate="{Binding ScheduledDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" 
+                                        Visibility="{Binding IsScheduledDateVisible, Converter={StaticResource BoolToVis}}" 
+                                        IsEnabled="{Binding IsStartEvent}"
+                                        SelectedDateFormat="Short" >
                                 <DatePicker.Resources>
                                     <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}"/>
                                 </DatePicker.Resources>
@@ -212,7 +216,12 @@
                                 </DatePicker.Style>
                             </DatePicker>
                             <Label Grid.Column="2" Content="{Resx _at}" Width="Auto"/>
-                            <controls:TimecodeEdit VerticalContentAlignment="Center" Grid.Column="3" Timecode="{Binding ScheduledTimeOfDay, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
+                            <controls:TimecodeEdit Grid.Column="3"
+                                                   VerticalContentAlignment="Center"
+                                                   IsReadOnly="{Binding IsStartEvent, Converter={StaticResource InvertedBooleanConverter}}"
+                                                   Timecode="{Binding ScheduledTimeOfDay, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                                                   VideoFormat="{Binding VideoFormat}"
+                                                   />
                         </Grid>
                         <Grid Grid.Row="1" Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>
