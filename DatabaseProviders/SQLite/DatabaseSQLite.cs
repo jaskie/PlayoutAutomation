@@ -7,6 +7,7 @@ using System.Reflection;
 using TAS.Common;
 using TAS.Database.Common.Interfaces;
 using TAS.Database.Common;
+using System;
 
 namespace TAS.Database.SQLite
 {
@@ -15,8 +16,10 @@ namespace TAS.Database.SQLite
     {
        
         private static readonly string DatabaseFile = Path.Combine(FileUtils.ApplicationDataPath, "TVPlay.db");
+        private const long ExpectedVersion = 2;
+        private long _currentVersion;
 
-        private long Version()
+        private long GetCurrentVersion()
         {
             using (var cmd = new SQLiteCommand("PRAGMA user_version", Connection))
             {
@@ -36,7 +39,7 @@ namespace TAS.Database.SQLite
 
         public bool CreateEmptyDatabase()
         {
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TAS.Database.SQLite.Schema.sql"))
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TAS.Database.SQLite.Schema.Schema.sql"))
             using (var reader = new StreamReader(stream))
                 ExecuteScript(reader.ReadToEnd());
             return true;
@@ -68,7 +71,8 @@ namespace TAS.Database.SQLite
             Connection = new SQLiteConnection(builder.ToString());
             Connection.StateChange += Connection_StateChange;
             Connection.Open();
-            if (Version() == 0)
+            _currentVersion = GetCurrentVersion();
+            if (_currentVersion == 0)
                 CreateEmptyDatabase();
         }
 
@@ -80,12 +84,22 @@ namespace TAS.Database.SQLite
 
         public override void UpdateDb()
         {
+            var nextVersion = _currentVersion;
+            while (nextVersion++ < ExpectedVersion)
+            {
+                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"TAS.Database.SQLite.Schema.Update{nextVersion:D4}.sql"))
+                using (var reader = new StreamReader(stream))
+                    ExecuteScript(reader.ReadToEnd());
+                _currentVersion = GetCurrentVersion();
+                if (_currentVersion != nextVersion)
+                    throw new ApplicationException($"Database update failed. Expected version {nextVersion}, got version {_currentVersion} after the update.");
+            }
         }
 
 
         public override bool UpdateRequired()
         {
-            return false;
+            return _currentVersion < ExpectedVersion;
         }
 
         protected override string TrimText(string tableName, string columnName, string value)

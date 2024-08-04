@@ -391,28 +391,7 @@ namespace TAS.Server
             var adirSec = MediaDirectorySEC;
             if (!(e.Media is ServerMedia media) ||
                 adirPri == null || adirSec == null || adirPri == adirSec ||
-                (
-                    e.PropertyName != nameof(IServerMedia.DoNotArchive) &&
-                    e.PropertyName != nameof(IServerMedia.IdAux) &&
-                    e.PropertyName != nameof(IServerMedia.IdProgramme) &&
-                    e.PropertyName != nameof(IServerMedia.KillDate) &&
-                    e.PropertyName != nameof(IServerMedia.AudioVolume) &&
-                    e.PropertyName != nameof(IServerMedia.MediaCategory) &&
-                    e.PropertyName != nameof(IServerMedia.Parental) &&
-                    e.PropertyName != nameof(IServerMedia.MediaEmphasis) &&
-                    e.PropertyName != nameof(IServerMedia.FileName) &&
-                    e.PropertyName != nameof(IServerMedia.MediaName) &&
-                    e.PropertyName != nameof(IServerMedia.Duration) &&
-                    e.PropertyName != nameof(IServerMedia.DurationPlay) &&
-                    e.PropertyName != nameof(IServerMedia.TcStart) &&
-                    e.PropertyName != nameof(IServerMedia.TcPlay) &&
-                    e.PropertyName != nameof(IServerMedia.VideoFormat) &&
-                    e.PropertyName != nameof(IServerMedia.AudioChannelMapping) &&
-                    e.PropertyName != nameof(IServerMedia.AudioLevelIntegrated) &&
-                    e.PropertyName != nameof(IServerMedia.AudioLevelPeak) &&
-                    e.PropertyName != nameof(IServerMedia.IsProtected) &&
-                    e.PropertyName != nameof(IServerMedia.FieldOrderInverted)
-                ))
+                !_isMediaPropertySynchronized(e.PropertyName))
                 return;
             var compMedia = _findComplementaryMedia(media);
             if (compMedia == null)
@@ -424,6 +403,31 @@ namespace TAS.Server
                 compMedia.RenameFileTo(newFileName);
             else
                 pi.SetValue(compMedia, pi.GetValue(media, null), null);
+        }
+
+        private static bool _isMediaPropertySynchronized(string propertyName)
+        {
+            return propertyName == nameof(IServerMedia.LastPlayed) ||
+                   propertyName == nameof(IServerMedia.DoNotArchive) ||
+                   propertyName == nameof(IServerMedia.IdAux) ||
+                   propertyName == nameof(IServerMedia.IdProgramme) ||
+                   propertyName == nameof(IServerMedia.KillDate) ||
+                   propertyName == nameof(IServerMedia.AudioVolume) ||
+                   propertyName == nameof(IServerMedia.MediaCategory) ||
+                   propertyName == nameof(IServerMedia.Parental) ||
+                   propertyName == nameof(IServerMedia.MediaEmphasis) ||
+                   propertyName == nameof(IServerMedia.FileName) ||
+                   propertyName == nameof(IServerMedia.MediaName) ||
+                   propertyName == nameof(IServerMedia.Duration) ||
+                   propertyName == nameof(IServerMedia.DurationPlay) ||
+                   propertyName == nameof(IServerMedia.TcStart) ||
+                   propertyName == nameof(IServerMedia.TcPlay) ||
+                   propertyName == nameof(IServerMedia.VideoFormat) ||
+                   propertyName == nameof(IServerMedia.AudioChannelMapping) ||
+                   propertyName == nameof(IServerMedia.AudioLevelIntegrated) ||
+                   propertyName == nameof(IServerMedia.AudioLevelPeak) ||
+                   propertyName == nameof(IServerMedia.IsProtected) ||
+                   propertyName == nameof(IServerMedia.FieldOrderInverted);
         }
 
         private void _animationDirectoryPropertyChanged(object dir, PropertyChangedEventArgs e)

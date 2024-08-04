@@ -153,6 +153,7 @@ CREATE TABLE `servermedia` (
   `FileName` varchar(255) DEFAULT NULL,
   `FileSize` bigint(20) unsigned DEFAULT NULL,
   `LastUpdated` datetime NULL DEFAULT NULL,
+  `LastPlayed` datetime(3) NULL DEFAULT NULL,
   `Duration` time(6) DEFAULT NULL,
   `DurationPlay` time(6) DEFAULT NULL,
   `typVideo` tinyint(3) unsigned DEFAULT NULL,
@@ -211,4 +212,4 @@ CREATE TABLE `engine_acl` (
 );
 
 
-INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '14');
+INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '15');

@@ -33,7 +33,7 @@ namespace TAS.Client.ViewModels
         private string _destFileName;
         private TMediaEmphasis _destMediaEmphasis;
         private TVideoFormat _destMediaVideoFormat;
-        private DateTime? _killDate;
+        private DateTime _killDate;
 
         public IngestOperationViewModel(IIngestOperation operation, IEngine engine)
             : base(operation, engine.MediaManager)
@@ -136,7 +136,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public DateTime? KillDate
+        public DateTime KillDate
         {
             get => _killDate;
             set
@@ -149,7 +149,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsKillDate
         {
-            get => _killDate != null;
+            get => _killDate != default;
             set
             {
                 if (value == IsKillDate)
@@ -157,7 +157,7 @@ namespace TAS.Client.ViewModels
                 if (value)
                     _killDate = DateTime.UtcNow.Date.AddDays(30);
                 else
-                    _killDate = null;
+                    _killDate = default;
                 NotifyPropertyChanged(nameof(KillDate));
                 NotifyPropertyChanged();
             }

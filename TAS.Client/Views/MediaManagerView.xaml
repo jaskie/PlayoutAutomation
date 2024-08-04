@@ -6,13 +6,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
-             mc:Ignorable="d" 
-             d:DesignHeight="800" d:DesignWidth="1200"
              xmlns:viewmodels="clr-namespace:TAS.Client.ViewModels"
              xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1200"
              d:DataContext="{d:DesignInstance viewmodels:MediaManagerViewmodel}"
              FontSize="13" KeyUp="UserControl_KeyUp"
              >
@@ -275,7 +275,7 @@
                                 <common:BoolToStringConverter x:Key="isArchivedConverter" TrueValue="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.IsArchived}" />
                                 <common:BoolToStringConverter x:Key="isTrimmedConverter" TrueValue="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.IsTrimmed}" />
                                 <Style TargetType="DataGridColumnHeader">
-                                    <Setter Property="Padding" Value="2"/>
+                                    <Setter Property="Padding" Value="3 5 3 3"/>
                                 </Style>
                             </DataGrid.Resources>
                             <DataGrid.Columns>
@@ -435,6 +435,11 @@
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
+                                <DataGridTextColumn Width="12" Binding="{Binding LastPlayedAge}" CanUserResize="False" Visibility="{Binding Data.IsServerDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="LastPlayedAge" >
+                                    <DataGridTextColumn.Header>
+                                        <Image Source="/TAS.Client.Common;component/Images/Indicators/hourglass.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.LastPlayedAge.ToolTip}"/>
+                                    </DataGridTextColumn.Header>
+                                </DataGridTextColumn>
                                 <DataGridTextColumn x:Name="clipNrColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipNr}" Width="50" Visibility="{Binding Data.IsXdcam, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="ClipNr" >
                                     <DataGridTextColumn.Binding>
                                         <MultiBinding StringFormat="{}{0}/{1}">

@@ -17,6 +17,7 @@
   <ItemGroup>
     <Resource Include="Images\Actions\apply.png" />
     <Resource Include="Images\Actions\delete.png" />
+    <Resource Include="Images\Indicators\hourglass.png" />
     <Resource Include="Images\PlayStates\Played.png" />
     <Resource Include="Images\PlayStates\Playing.png" />
     <Resource Include="Images\PlayStates\Paused.png" />

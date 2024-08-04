@@ -10,6 +10,7 @@ namespace TAS.Server.Media
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private bool _doNotArchive;
+        private DateTime _lastPlayed;
 
         [DtoMember]
         public override IDictionary<string, int> FieldLengths { get; } = DatabaseProvider.Database.ServerMediaFieldLengths;
@@ -21,11 +22,21 @@ namespace TAS.Server.Media
             set => SetField(ref _doNotArchive, value);
         }
 
+        [DtoMember]
+        public DateTime LastPlayed
+        {
+            get => _lastPlayed;
+            set => SetField(ref _lastPlayed, value);
+        }
+
         internal override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
             if (fromMedia is IServerMediaProperties serverMediaProperties)
+            {
                 DoNotArchive = serverMediaProperties.DoNotArchive;
+                LastPlayed = serverMediaProperties.LastPlayed;
+            }
         }
 
         public override void Save()

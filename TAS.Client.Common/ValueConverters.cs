@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Media;
 using TAS.Common;
+using System.Windows;
 
 namespace TAS.Client.Common
 {
@@ -213,6 +214,24 @@ namespace TAS.Client.Common
             return new SolidColorBrush((Color)value);
         }
 
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Binding.DoNothing;
+        }
+    }
+
+    [ValueConversion(typeof(int?), typeof(Brush))]
+    public class AgeToBrushConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            //TODO: write correct logic for conversion
+            if (!(value is int intValue)) 
+                return DependencyProperty.UnsetValue;
+            byte b = (byte)(intValue > 365 ? 0 : byte.MaxValue - (intValue * byte.MaxValue / 365));
+            var color = Color.FromRgb(byte.MaxValue, 128 , 128);
+            return new SolidColorBrush(color);
+        }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;

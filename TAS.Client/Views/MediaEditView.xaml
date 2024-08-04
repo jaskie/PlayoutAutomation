@@ -71,9 +71,13 @@
                     <Label Content="{Resx _ingestTime}" />
                     <TextBox IsReadOnly="True" Text="{Binding LastUpdated, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}" />
                 </DockPanel>
+                <DockPanel Visibility="{Binding IsServerMedia, Converter={StaticResource BoolToVis}}">
+                    <Label Content="{Resx _lastPlayed}" />
+                    <TextBox Text="{Binding LastPlayed, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}" IsReadOnly="True" ToolTip="{Resx _lastPlayed.ToolTip}"/>
+                </DockPanel>
                 <DockPanel Visibility="{Binding IsMovieOrStill, Converter={StaticResource BoolToVis}}">
                     <Label Content="{Resx _videoFormat}" />
-                    <ComboBox  ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding VideoFormat}" />
+                    <ComboBox ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding VideoFormat}" />
                 </DockPanel>
                 <DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
                     <Label Content="{Resx _emphasis}" />

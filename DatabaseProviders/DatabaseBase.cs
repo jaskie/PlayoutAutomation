@@ -118,7 +118,7 @@ namespace TAS.Database.SQLite
                     {
                         cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(server, HibernationSerializerSettings));
                         cmd.ExecuteNonQuery();
-                        server.Id = (ulong)cmd.GetLastInsertedId();
+                        server.Id = (ulong)cmd.LastInsertedId();
                     }
                 }
             }
@@ -206,7 +206,7 @@ namespace TAS.Database.SQLite
                         cmd.Parameters.AddWithValue("@idArchive", engine.IdArchive);
                         cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(engine, HibernationSerializerSettings));
                         cmd.ExecuteNonQuery();
-                        engine.Id = (ulong)cmd.GetLastInsertedId();
+                        engine.Id = (ulong)cmd.LastInsertedId();
                     }
                 }
             }
@@ -414,7 +414,7 @@ namespace TAS.Database.SQLite
                     {
                         cmd.Parameters.AddWithValue("@Folder", dir.Folder);
                         cmd.ExecuteNonQuery();
-                        dir.IdArchive = (ulong)cmd.GetLastInsertedId();
+                        dir.IdArchive = (ulong)cmd.LastInsertedId();
                     }
                 }
             }
@@ -828,7 +828,7 @@ VALUES
                     using (var cmd = CreateCommand(query))
                         if (EventFillParamsAndExecute(cmd, aEvent))
                         {
-                            aEvent.Id = (ulong)cmd.GetLastInsertedId();
+                            aEvent.Id = (ulong)cmd.LastInsertedId();
                             Debug.WriteLine("DbInsertEvent Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
                             if (aEvent is ITemplated eventTemplated)
                                 EventAnimatedSave(aEvent.Id, eventTemplated, true);
@@ -1038,7 +1038,7 @@ VALUES
                     cmd.Parameters.AddWithValue("@idACO", acl.SecurityObject.Id);
                     cmd.Parameters.AddWithValue("@ACL", acl.Acl);
                     if (cmd.ExecuteNonQuery() == 1)
-                        acl.Id = (ulong) cmd.GetLastInsertedId();
+                        acl.Id = (ulong) cmd.LastInsertedId();
                     return true;
                 }
             }
@@ -1110,7 +1110,7 @@ VALUES
                     cmd.Parameters.AddWithValue("@idACO", acl.SecurityObject.Id);
                     cmd.Parameters.AddWithValue("@ACL", acl.Acl);
                     if (cmd.ExecuteNonQuery() == 1)
-                        acl.Id = (ulong)cmd.GetLastInsertedId();
+                        acl.Id = (ulong)cmd.LastInsertedId();
                     return true;
                 }
             }
@@ -1156,16 +1156,16 @@ VALUES
                 cmd.Parameters.AddWithValue("@MediaGuid", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
-            if (!media.KillDate.HasValue)
+            if (media.KillDate == default)
                 cmd.Parameters.AddWithValue("@KillDate", DBNull.Value);
             else
 #if MYSQL
-                cmd.Parameters.AddWithValue("@KillDate", media.KillDate.Value);
+                cmd.Parameters.AddWithValue("@KillDate", media.KillDate);
 #elif SQLITE
-                cmd.Parameters.AddWithValue("@KillDate", media.KillDate.Value.Ticks);
+                cmd.Parameters.AddWithValue("@KillDate", media.KillDate.Ticks);
 #endif
-
-            var flags = ((media is IServerMedia serverMedia && serverMedia.DoNotArchive) ? 0x1 : (uint)0x0)
+            var serverMedia = media as IServerMedia;
+            var flags = ((serverMedia?.DoNotArchive == true) ? 0x1 : (uint)0x0)
                         | (media.IsProtected ? 0x2 : (uint)0x0)
                         | (media.FieldOrderInverted ? 0x4 : (uint)0x0)
                         | ((uint)media.MediaCategory << 4) // bits 4-7 of 1st byte
@@ -1173,15 +1173,24 @@ VALUES
                         | ((uint)media.Parental << 12) // bits 4-7 of second byte
                         ;
             cmd.Parameters.AddWithValue("@flags", flags);
-            if (media is IServerMedia && media.Directory is IServerDirectory)
+            if (serverMedia != null && serverMedia.Directory is IServerDirectory)
             {
                 cmd.Parameters.AddWithValue("@idServer", serverId);
-                cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
-            }
+                cmd.Parameters.AddWithValue("@typVideo", (byte)serverMedia.VideoFormat);
+                if (serverMedia.LastPlayed != default)
+#if MYSQL
+                    cmd.Parameters.AddWithValue("@LastPlayed", serverMedia.LastPlayed);
+#elif SQLITE
+                    cmd.Parameters.AddWithValue("@LastPlayed", serverMedia.LastPlayed.Ticks);
+#endif
+                else
+                    cmd.Parameters.AddWithValue("@LastPlayed", DBNull.Value);
+            } 
             if (media is IAnimatedMedia && media.Directory is IAnimationDirectory)
             {
                 cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typVideo", DBNull.Value);
+                cmd.Parameters.AddWithValue("@LastPlayed", DBNull.Value);
             }
             if (media is IArchiveMedia && media.Directory is IArchiveDirectoryServerSide archiveDirectory)
             {
@@ -1257,11 +1266,14 @@ VALUES
                 media.AudioChannelMapping = dataReader.IsDBNull("typAudio") ? TAudioChannelMapping.Stereo : (TAudioChannelMapping)dataReader.GetByte("typAudio");
                 media.VideoFormat = dataReader.IsDBNull("typVideo") ? TVideoFormat.Other : (TVideoFormat)dataReader.GetByte("typVideo");
                 media.IdAux = dataReader.IsDBNull("idAux") ? string.Empty : dataReader.GetString("idAux");
-                media.KillDate = dataReader.IsDBNull("KillDate") ? (DateTime?)null : dataReader.GetDateTime("KillDate");
+                media.KillDate = dataReader.IsDBNull("KillDate") ? default : dataReader.GetDateTime("KillDate");
                 media.MediaEmphasis = (TMediaEmphasis)((flags >> 8) & 0xF);
                 media.Parental = (byte)((flags >> 12) & 0xF);
                 if (media is IServerMedia serverMedia)
+                {
                     serverMedia.DoNotArchive = (flags & 0x1) != 0;
+                    serverMedia.LastPlayed = dataReader.IsDBNull("LastPlayed") ? default : dataReader.GetDateTime("LastPlayed");
+                }
                 media.IsProtected = (flags & 0x2) != 0;
                 media.FieldOrderInverted = (flags & 0x4) != 0;
                 media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
@@ -1462,12 +1474,12 @@ VALUES
         private bool DbInsertMedia(IPersistentMedia media, ulong serverId)
         {
             using (var cmd = CreateCommand(@"INSERT INTO servermedia 
-(idServer, MediaName, Folder, FileName, FileSize, LastUpdated, Duration, DurationPlay, idProgramme, statusMedia, typMedia, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
+(idServer, MediaName, Folder, FileName, FileSize, LastUpdated, LastPlayed, Duration, DurationPlay, idProgramme, statusMedia, typMedia, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
 VALUES 
-(@idServer, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);"))
+(@idServer, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @LastPlayed, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);"))
             {
                 var result = MediaFillParamsAndExecute(cmd, "servermedia", media, serverId);
-                media.IdPersistentMedia = (ulong)cmd.GetLastInsertedId();
+                media.IdPersistentMedia = (ulong)cmd.LastInsertedId();
                 Debug.WriteLine(media, "ServerMediaInserte-d");
                 return result;
             }
@@ -1483,7 +1495,7 @@ VALUES
 (@idArchive, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);"))
                 {
                     MediaFillParamsAndExecute(cmd, "archivemedia", archiveMedia, serverid);
-                    archiveMedia.IdPersistentMedia = (ulong)cmd.GetLastInsertedId();
+                    archiveMedia.IdPersistentMedia = (ulong)cmd.LastInsertedId();
                 }
             }
         }
@@ -1573,33 +1585,33 @@ VALUES
         {
             using (var cmd = CreateCommand(
 @"UPDATE servermedia SET 
-idServer=@idServer, 
-MediaName=@MediaName, 
-Folder=@Folder, 
-FileName=@FileName, 
-FileSize=@FileSize, 
-LastUpdated=@LastUpdated, 
-Duration=@Duration, 
-DurationPlay=@DurationPlay, 
-idProgramme=@idProgramme, 
-statusMedia=@statusMedia, 
-typMedia=@typMedia, 
-typAudio=@typAudio, 
-typVideo=@typVideo, 
-TCStart=@TCStart, 
-TCPlay=@TCPlay, 
-AudioVolume=@AudioVolume, 
+idServer=@idServer,
+MediaName=@MediaName,
+Folder=@Folder,
+FileName=@FileName,
+FileSize=@FileSize,
+LastUpdated=@LastUpdated,
+LastPlayed=@LastPlayed,
+Duration=@Duration,
+DurationPlay=@DurationPlay,
+idProgramme=@idProgramme,
+statusMedia=@statusMedia,
+typMedia=@typMedia,
+typAudio=@typAudio,
+typVideo=@typVideo,
+TCStart=@TCStart,
+TCPlay=@TCPlay,
+AudioVolume=@AudioVolume,
 AudioLevelIntegrated=@AudioLevelIntegrated,
 AudioLevelPeak=@AudioLevelPeak,
-idAux=@idAux, 
-KillDate=@KillDate, 
-MediaGuid=@MediaGuid, 
+idAux=@idAux,
+KillDate=@KillDate,
+MediaGuid=@MediaGuid,
 flags=@flags 
 WHERE idServerMedia=@idServerMedia;"))
             {
                 cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
                 MediaFillParamsAndExecute(cmd, "servermedia", serverMedia, serverId);
-                Debug.WriteLine(serverMedia, "ServerMediaUpdate-d");
             }
         }
 
@@ -1726,7 +1738,7 @@ WHERE idArchiveMedia=@idArchiveMedia;"))
 #endif
                     command.Parameters.AddWithValue("@SegmentName", mediaSegment.SegmentName);
                     command.ExecuteNonQuery();
-                    return (ulong)command.GetLastInsertedId();
+                    return (ulong)command.LastInsertedId();
                 }
         }
 
@@ -1745,7 +1757,7 @@ WHERE idArchiveMedia=@idArchiveMedia;"))
                     cmd.Parameters.AddWithValue("@Config", Newtonsoft.Json.JsonConvert.SerializeObject(aco, HibernationSerializerSettings));
                     cmd.Parameters.AddWithValue("@typAco", (int)aco.SecurityObjectTypeType);
                     cmd.ExecuteNonQuery();
-                    pAco.Id = (ulong)cmd.GetLastInsertedId();
+                    pAco.Id = (ulong)cmd.LastInsertedId();
                 }
         }
 
