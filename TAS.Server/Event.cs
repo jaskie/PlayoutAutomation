@@ -1345,7 +1345,22 @@ namespace TAS.Server
         {
             lock(_engine.RundownSync)
             {
-                return this.AllSubEvents();
+                var ev = this;
+                while (!(ev is null))
+                {
+                    lock (ev._subEvents)
+                    {
+                        foreach (Event se in ev._subEvents.Value)
+                        {
+                            yield return se;
+                            foreach (var s in se.GetSubAndNextEvents())
+                                yield return s;
+                        }
+                    }
+                    ev = ev._next.Value;
+                    if (!(ev is null))
+                        yield return ev;
+                }
             }
         }
 
