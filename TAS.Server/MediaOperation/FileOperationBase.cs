@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -127,7 +126,7 @@ namespace TAS.Server.MediaOperation
         {
             get
             {
-                lock (((IList) _operationWarning).SyncRoot)
+                lock (_operationWarning.SyncRoot())
                 {
                     return _operationWarning.ToList();
                 }
@@ -139,7 +138,7 @@ namespace TAS.Server.MediaOperation
         {
             get
             {
-                lock (((IList)_operationOutput).SyncRoot)
+                lock (_operationOutput.SyncRoot())
                 {
                     return _operationOutput.ToList();
                 }
@@ -187,7 +186,7 @@ namespace TAS.Server.MediaOperation
         
         internal void AddOutputMessage(LogLevel level, string message)
         {
-            lock (((IList)_operationOutput).SyncRoot)
+            lock (_operationOutput.SyncRoot())
                 _operationOutput.Add($"{DateTime.UtcNow} {message}");
             NotifyPropertyChanged(nameof(OperationOutput));
             Logger.Log(level, message);
@@ -195,7 +194,7 @@ namespace TAS.Server.MediaOperation
 
         internal void AddWarningMessage(string message)
         {
-            lock (((IList)_operationWarning).SyncRoot)
+            lock (_operationWarning.SyncRoot())
                 _operationWarning.Add(message);
             Logger.Warn(message);
             NotifyPropertyChanged(nameof(OperationWarning));

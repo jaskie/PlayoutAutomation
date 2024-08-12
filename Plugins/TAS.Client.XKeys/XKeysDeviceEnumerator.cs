@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using NLog;
 using PIEHid64Net;
+using TAS.Common;
 
 namespace TAS.Client.XKeys
 {
@@ -42,7 +43,7 @@ namespace TAS.Client.XKeys
                     foreach (var pieDevice in devices.Where(d => d.HidUsagePage == 0xC && !oldDevices.Any(od => DeviceEquals(od, d))))
                     {
                         var device = new XKeysDevice(pieDevice);
-                        lock (((IList)Devices).SyncRoot)
+                        lock (Devices.SyncRoot())
                             Devices.Add(device);
                         DeviceConnected?.Invoke(null, device);
                         Logger.Info("New device connected {0}:{1}", pieDevice.Pid, pieDevice.Vid);
@@ -53,7 +54,7 @@ namespace TAS.Client.XKeys
                         if (device == null)
                             continue;
                         device.Dispose();
-                        lock (((IList)Devices).SyncRoot)
+                        lock (Devices.SyncRoot())
                             Devices.Remove(device);
                         Logger.Info("Device disconnected {0}:{1}", pieDevice.Pid, pieDevice.Vid);
                     }
@@ -75,7 +76,7 @@ namespace TAS.Client.XKeys
 
         public static void SetBacklight(byte unitId, int keyNr, BacklightColorEnum color, bool blinking)
         {
-            lock (((IList) Devices).SyncRoot)
+            lock (Devices.SyncRoot())
             {
                 Devices.ForEach(d =>
                 {

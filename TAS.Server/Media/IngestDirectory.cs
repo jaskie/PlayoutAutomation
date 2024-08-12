@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -377,7 +376,7 @@ namespace TAS.Server.Media
                 if (Kind == TIngestDirectoryKind.BmdMediaExpressWatchFolder &&
                     Path.GetExtension(e.Name).ToLowerInvariant() == XmlFileExtension)
                 {
-                    lock (((IList) _bMdXmlFiles).SyncRoot)
+                    lock (_bMdXmlFiles.SyncRoot())
                     {
                         string xf = _bMdXmlFiles.FirstOrDefault(s => s == e.OldFullPath);
                         if (xf != null)
@@ -408,7 +407,7 @@ namespace TAS.Server.Media
         protected override void OnFileChanged(object source, FileSystemEventArgs e)
         {
             if (Kind == TIngestDirectoryKind.BmdMediaExpressWatchFolder)
-                lock (((IList) _bMdXmlFiles).SyncRoot)
+                lock (_bMdXmlFiles.SyncRoot())
                 {
                     var extension = Path.GetExtension(e.Name);
                     if (extension != null && extension.ToLower() == XmlFileExtension &&
@@ -427,7 +426,7 @@ namespace TAS.Server.Media
         {
             base.EnumerateFiles(directory);
             if (Kind == TIngestDirectoryKind.BmdMediaExpressWatchFolder)
-                lock (((IList) _bMdXmlFiles).SyncRoot)
+                lock (_bMdXmlFiles.SyncRoot())
                     foreach (string xml in _bMdXmlFiles)
                         _scanXML(xml);
         }
@@ -445,7 +444,7 @@ namespace TAS.Server.Media
         {
             if (Path.GetExtension(fullPath)?.ToLowerInvariant() == XmlFileExtension)
             {
-                lock (((IList)_bMdXmlFiles).SyncRoot)
+                lock (_bMdXmlFiles.SyncRoot())
                     _bMdXmlFiles.Remove(fullPath);
                 foreach (var fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).BmdXmlFile == fullPath))
                     ((IngestMedia)fd).BmdXmlFile = string.Empty;

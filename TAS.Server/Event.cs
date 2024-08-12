@@ -1,19 +1,18 @@
-﻿using System;
+﻿using jNet.RPC;
+using jNet.RPC.Server;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics;
-using TAS.Common;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using jNet.RPC.Server;
+using System.Threading.Tasks;
+using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.Security;
 using TAS.Server.Media;
 using TAS.Server.Security;
-using jNet.RPC;
-using System.Threading.Tasks;
-using System.Collections;
 
 namespace TAS.Server
 {
@@ -214,7 +213,7 @@ namespace TAS.Server
                     return;
                 if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
                 {
-                    lock (((IList)_subEvents.Value).SyncRoot)
+                    lock (_subEvents.Value.SyncRoot())
                     {
                         foreach (Event e in _subEvents.Value.Where(ev => ev.EventType == TEventType.StillImage))
                         {
@@ -520,10 +519,10 @@ namespace TAS.Server
             }
         }
 
-        public IEnumerable<IEvent> GetSubEvents() { lock (((IList)_subEvents.Value).SyncRoot) return _subEvents.Value.ToArray(); } 
+        public IEnumerable<IEvent> GetSubEvents() { lock (_subEvents.Value.SyncRoot()) return _subEvents.Value.ToArray(); } 
 
         [DtoMember]
-        public int SubEventsCount { get { lock (((IList)_subEvents.Value).SyncRoot) { return _subEvents.Value.Count; } } }
+        public int SubEventsCount { get { lock (_subEvents.Value.SyncRoot()) { return _subEvents.Value.Count; } } }
 
         public IEngine Engine => _engine;
 
@@ -678,7 +677,7 @@ namespace TAS.Server
                 parent._subEventsRemove(this);
                 if (next != null)
                 {
-                    lock (((IList)parent._subEvents.Value).SyncRoot)
+                    lock (parent._subEvents.Value.SyncRoot())
                     {
                         parent._subEvents.Value.Add(next);
                     }
@@ -717,7 +716,7 @@ namespace TAS.Server
                 var e2Prior = e2.GetPrior() as Event;
                 if (e2Parent != null)
                 {
-                    lock (((IList)e2Parent._subEvents.Value).SyncRoot)
+                    lock (e2Parent._subEvents.Value.SyncRoot())
                     {
                         var index = e2Parent._subEvents.Value.IndexOf(e2);
                         e2Parent._subEvents.Value[index] = this;
@@ -764,7 +763,7 @@ namespace TAS.Server
                 var e2Prior = GetPrior() as Event;
                 if (e2Parent != null)
                 {
-                    lock (((IList)e2Parent._subEvents.Value).SyncRoot)
+                    lock (e2Parent._subEvents.Value.SyncRoot())
                     {
                         var index = e2Parent._subEvents.Value.IndexOf(this);
                         e2Parent._subEvents.Value[index] = e3;
@@ -902,7 +901,7 @@ namespace TAS.Server
                     subEventToAdd.StartType = fromEnd ? TStartType.WithParentFromEnd : TStartType.WithParent;
                 subEventToAdd.SetParent(this);
                 subEventToAdd.IsHold = false;
-                lock (((IList)_subEvents.Value).SyncRoot)
+                lock (_subEvents.Value.SyncRoot())
                 {
                     _subEvents.Value.Add(subEventToAdd);
                 }
@@ -1220,7 +1219,7 @@ namespace TAS.Server
                 while (nextLevel != null)
                     if (nextLevel._eventType == TEventType.Rundown)
                     {
-                        lock (((IList)predecessor._subEvents.Value).SyncRoot)
+                        lock (predecessor._subEvents.Value.SyncRoot())
                         {
                             nextLevel = (Event)predecessor._subEvents.Value.FirstOrDefault();
                         }
@@ -1249,7 +1248,7 @@ namespace TAS.Server
             if (_eventType == TEventType.Rundown)
             {
                 long maxlen = 0;
-                lock (((IList)_subEvents.Value).SyncRoot)
+                lock (_subEvents.Value.SyncRoot())
                 {
                     foreach (Event e in _subEvents.Value)
                     {
@@ -1289,7 +1288,7 @@ namespace TAS.Server
         private bool _uppdateScheduledTime()
         {
             Event baseEvent;
-            DateTime determinedTime = DateTime.MinValue;
+            DateTime determinedTime = default;
             switch (StartType)
             {
                 case TStartType.After:
@@ -1310,7 +1309,7 @@ namespace TAS.Server
                 default:
                     return false;
             }
-            if (determinedTime != DateTime.MinValue && SetField(ref _scheduledTime, determinedTime, nameof(ScheduledTime)))
+            if (determinedTime != default && SetField(ref _scheduledTime, determinedTime, nameof(ScheduledTime)))
             {
                 NotifyPropertyChanged(nameof(Offset));
                 NotifyPropertyChanged(nameof(EndTime));
@@ -1321,7 +1320,7 @@ namespace TAS.Server
 
         private void _subEventsRemove(Event subEventToRemove)
         {
-            lock (((IList)_subEvents.Value).SyncRoot)
+            lock (_subEvents.Value.SyncRoot())
             {
                 if (!_subEvents.Value.Remove(subEventToRemove))
                     return;

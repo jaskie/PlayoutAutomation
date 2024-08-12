@@ -1,6 +1,5 @@
 ﻿using jNet.RPC;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -57,7 +56,7 @@ namespace TAS.Server.Security
 
         public ReadOnlyCollection<IGroup> GetGroups()
         {
-            lock (((IList) _groups).SyncRoot)
+            lock (_groups.SyncRoot())
                 return _groups.AsReadOnly();
         }
 
@@ -67,7 +66,7 @@ namespace TAS.Server.Security
         {
             get
             {
-                lock (((IList)_groups).SyncRoot)
+                lock (_groups.SyncRoot())
                     return _groups.Select(g => g.Id).ToArray();
             }
             set
@@ -78,7 +77,7 @@ namespace TAS.Server.Security
 
         public void GroupAdd(IGroup group)
         {
-            lock (((IList)_groups).SyncRoot)
+            lock (_groups.SyncRoot())
             {
                 _groups.Add(group);
             }
@@ -87,7 +86,7 @@ namespace TAS.Server.Security
         public bool GroupRemove(IGroup group)
         {
             bool isRemoved;
-            lock (((IList)_groups).SyncRoot)
+            lock (_groups.SyncRoot())
             {
                 isRemoved = _groups.Remove(group);
             }
@@ -115,10 +114,10 @@ namespace TAS.Server.Security
         {
             if (allGroups == null || _groupsIds == null)
                 return;
-            lock (((IList)_groups).SyncRoot)
+            lock (_groups.SyncRoot())
                 Array.ForEach(_groupsIds, id =>
                 {
-                    lock (((IList)allGroups).SyncRoot)
+                    lock (allGroups.SyncRoot())
                     {
                         var group = allGroups.FirstOrDefault(g => g.Id == id);
                         if (group != null)
