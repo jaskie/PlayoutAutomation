@@ -1173,7 +1173,7 @@ VALUES
                         | ((uint)media.Parental << 12) // bits 4-7 of second byte
                         ;
             cmd.Parameters.AddWithValue("@flags", flags);
-            if (serverMedia != null && serverMedia.Directory is IServerDirectory)
+            if (serverMedia?.Directory is IServerDirectory serverDirectory)
             {
                 cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typVideo", (byte)serverMedia.VideoFormat);
