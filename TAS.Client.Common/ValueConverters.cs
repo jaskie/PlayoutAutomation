@@ -223,14 +223,35 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(int?), typeof(Brush))]
     public class AgeToBrushConverter : IValueConverter
     {
+        private static readonly Brush RedBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0)) { Opacity = 0.2 };
+        private static readonly Brush YellowBrush = new SolidColorBrush(Color.FromRgb(255, 255, 0)) { Opacity = 0.2 };
+        private static readonly Brush GreenBrush = new SolidColorBrush(Color.FromRgb(0, 255, 0)) { Opacity = 0.2 };
+        private static readonly Brush DarkRedBrush = new SolidColorBrush(Color.FromRgb(127, 0, 0));
+        private static readonly Brush DarkYellowBrush = new SolidColorBrush(Color.FromRgb(127, 127, 0));
+        private static readonly Brush DarkGreenBrush = new SolidColorBrush(Color.FromRgb(0, 127, 0));
+
+        static AgeToBrushConverter()
+        {
+            RedBrush.Freeze();
+            YellowBrush.Freeze();
+            GreenBrush.Freeze();
+            DarkRedBrush.Freeze();
+            DarkYellowBrush.Freeze();
+            DarkGreenBrush.Freeze();
+        }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            //TODO: write correct logic for conversion
             if (!(value is int intValue)) 
-                return DependencyProperty.UnsetValue;
-            byte b = (byte)(intValue > 365 ? 0 : byte.MaxValue - (intValue * byte.MaxValue / 365));
-            var color = Color.FromRgb(byte.MaxValue, 128 , 128);
-            return new SolidColorBrush(color);
+                return Brushes.Transparent;
+            bool isInverted = (parameter as string == "Inverted");
+            if (intValue > 180)
+                return isInverted ? DarkRedBrush : RedBrush;
+            if (intValue > 30)
+                return isInverted ? DarkYellowBrush : YellowBrush;
+            if (intValue >= 0)
+                return isInverted ? DarkGreenBrush : GreenBrush;
+            return Brushes.Transparent;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {

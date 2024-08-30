@@ -77,7 +77,17 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-    
+    <Style TargetType="DataGridCell" x:Key="AgeColumnCellStyle" BasedOn="{StaticResource {x:Type DataGridCell}}">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="{Binding LastPlayedAge, Converter={StaticResource AgeToBrush}}" />
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{Binding LastPlayedAge, Converter={StaticResource AgeToBrush}, ConverterParameter=Inverted}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{x:Static SystemColors.HighlightColor}"/>
     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{x:Static SystemColors.HighlightTextColor}"/>
     <ResourceDictionary.MergedDictionaries>

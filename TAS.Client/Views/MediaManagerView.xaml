@@ -435,7 +435,7 @@
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTextColumn Width="12" Binding="{Binding LastPlayedAge}" CanUserResize="False" Visibility="{Binding Data.IsServerDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="LastPlayedAge" >
+                                <DataGridTextColumn Width="12" Binding="{Binding LastPlayedAge}" CanUserResize="False" Visibility="{Binding Data.IsServerDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="LastPlayedAge" CellStyle="{StaticResource AgeColumnCellStyle}" >
                                     <DataGridTextColumn.Header>
                                         <Image Source="/TAS.Client.Common;component/Images/Indicators/hourglass.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.LastPlayedAge.ToolTip}"/>
                                     </DataGridTextColumn.Header>

@@ -172,17 +172,10 @@
                         <!--#endregion-->
 
                         <!--#region LastPlayedAge-->
-                        <DataGridTextColumn Width="20" Binding="{Binding LastPlayedAge}" CanUserResize="False" SortMemberPath="LastPlayedAge" >
+                        <DataGridTextColumn Width="20" Binding="{Binding LastPlayedAge}" CanUserResize="False" SortMemberPath="LastPlayedAge" CellStyle="{StaticResource AgeColumnCellStyle}" >
                             <DataGridTextColumn.Header>
                                 <Image Source="/TAS.Client.Common;component/Images/Indicators/hourglass.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.LastPlayedAge.ToolTip}"/>
                             </DataGridTextColumn.Header>
-                            <DataGridTextColumn.CellStyle>
-                                <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
-                                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                    <Setter Property="Background" Value="{Binding LastPlayedAge, Converter={StaticResource AgeToBrush}}" />
-                                    <Setter Property="BorderThickness" Value="0" />
-                                </Style>
-                            </DataGridTextColumn.CellStyle>
                         </DataGridTextColumn>
                         <!--#endregion-->
 
