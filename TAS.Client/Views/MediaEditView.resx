@@ -168,6 +168,12 @@
   <data name="_killDate" xml:space="preserve">
     <value>Valid until</value>
   </data>
+  <data name="_lastPlayed" xml:space="preserve">
+    <value>Last broadcast</value>
+  </data>
+  <data name="_lastPlayed.ToolTip" xml:space="preserve">
+    <value>Updated after playing on rundown is finished</value>
+  </data>
   <data name="_mediaGuid" xml:space="preserve">
     <value>File ID</value>
   </data>

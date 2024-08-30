@@ -163,10 +163,16 @@
     <value>Plik</value>
   </data>
   <data name="_ingestTime" xml:space="preserve">
-    <value>Data i czas ingestu</value>
+    <value>Ingest</value>
   </data>
   <data name="_killDate" xml:space="preserve">
     <value>Ważny do</value>
+  </data>
+  <data name="_lastPlayed" xml:space="preserve">
+    <value>Ostatnia emisja</value>
+  </data>
+  <data name="_lastPlayed.ToolTip" xml:space="preserve">
+    <value>Aktualizowany po zakończeniu odtwarzania na playliście</value>
   </data>
   <data name="_mediaGuid" xml:space="preserve">
     <value>Id pliku</value>

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Media;
 using TAS.Common;
+using System.Windows;
 
 namespace TAS.Client.Common
 {
@@ -213,6 +214,45 @@ namespace TAS.Client.Common
             return new SolidColorBrush((Color)value);
         }
 
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Binding.DoNothing;
+        }
+    }
+
+    [ValueConversion(typeof(int?), typeof(Brush))]
+    public class AgeToBrushConverter : IValueConverter
+    {
+        private static readonly Brush RedBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0)) { Opacity = 0.2 };
+        private static readonly Brush YellowBrush = new SolidColorBrush(Color.FromRgb(255, 255, 0)) { Opacity = 0.2 };
+        private static readonly Brush GreenBrush = new SolidColorBrush(Color.FromRgb(0, 255, 0)) { Opacity = 0.2 };
+        private static readonly Brush DarkRedBrush = new SolidColorBrush(Color.FromRgb(127, 0, 0));
+        private static readonly Brush DarkYellowBrush = new SolidColorBrush(Color.FromRgb(127, 127, 0));
+        private static readonly Brush DarkGreenBrush = new SolidColorBrush(Color.FromRgb(0, 127, 0));
+
+        static AgeToBrushConverter()
+        {
+            RedBrush.Freeze();
+            YellowBrush.Freeze();
+            GreenBrush.Freeze();
+            DarkRedBrush.Freeze();
+            DarkYellowBrush.Freeze();
+            DarkGreenBrush.Freeze();
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (!(value is int intValue)) 
+                return Brushes.Transparent;
+            bool isInverted = (parameter as string == "Inverted");
+            if (intValue > 180)
+                return isInverted ? DarkRedBrush : RedBrush;
+            if (intValue > 30)
+                return isInverted ? DarkYellowBrush : YellowBrush;
+            if (intValue >= 0)
+                return isInverted ? DarkGreenBrush : GreenBrush;
+            return Brushes.Transparent;
+        }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;

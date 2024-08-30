@@ -148,6 +148,7 @@ CREATE TABLE servermedia (
   FileName TEXT,
   FileSize INTEGER NOT NULL,
   LastUpdated INTEGER NOT NULL,
+  LastPlayed INTEGER,
   Duration INTEGER NOT NULL,
   DurationPlay INTEGER NOT NULL,
   typVideo INTEGER,
@@ -199,6 +200,6 @@ CREATE TABLE engine_acl (
 CREATE INDEX engine_acl_idEngine ON engine_acl (idEngine);
 CREATE INDEX engine_acl_idACO ON engine_acl (idACO);
 
-PRAGMA user_version = 1;
+PRAGMA user_version = 2;
 
 COMMIT;

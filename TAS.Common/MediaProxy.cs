@@ -57,7 +57,7 @@ namespace TAS.Common
     public class PersistentMediaProxy: MediaProxy, IPersistentMediaProperties
     {
         public TMediaEmphasis MediaEmphasis { get; set; }
-        public DateTime? KillDate { get; set; }
+        public DateTime KillDate { get; set; }
         public ulong IdProgramme { get; set; }
         public ulong IdPersistentMedia { get; set; }
         public bool IsProtected { get; set; }

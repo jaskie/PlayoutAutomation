@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using TAS.Client.ViewModels;
@@ -35,9 +36,15 @@ namespace TAS.Client.Views
                 return;
             // Scroll to selected Item
             Common.DispatcherHelper.WaitForPriority();
-            // TODO: find conditions for InvalidOperationException in TransformToAncestor below
-            Point offset = TransformToAncestor(parent as ScrollViewer).Transform(new Point(0, 0));
-            (parent as ScrollViewer).ScrollToVerticalOffset(offset.Y + (parent as ScrollViewer).ContentVerticalOffset - ActualHeight);
+            try
+            {
+                Point offset = TransformToAncestor(parent as ScrollViewer).Transform(new Point(0, 0));
+                (parent as ScrollViewer).ScrollToVerticalOffset(offset.Y + (parent as ScrollViewer).ContentVerticalOffset - ActualHeight);
+            }
+            catch (InvalidOperationException)
+            {
+                // Ignore, as when the item is just removed from parent, it will throw InvalidOperationException
+            }
         }
     }
 }

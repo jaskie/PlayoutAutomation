@@ -91,12 +91,10 @@ namespace TAS.Server.Media
             return result;
         }
 
-
         internal void NotifyIngestStatusUpdated(IMedia media, TIngestStatus ingestStatus)
         {
             IngestStatusUpdated?.Invoke(this, new MediaIngestStatusEventArgs(media, ingestStatus));
         }
-
 
         protected override bool AcceptFile(string fullPath)
         {

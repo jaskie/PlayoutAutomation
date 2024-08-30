@@ -85,7 +85,7 @@
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
                 </DataTemplate>
             </Setter.Value>
-        </Setter>        
+        </Setter>
     </Style>
 
     <Style TargetType="Button" x:Key="EditButtonStyle" BasedOn="{StaticResource SmallToolButtonStyle}">

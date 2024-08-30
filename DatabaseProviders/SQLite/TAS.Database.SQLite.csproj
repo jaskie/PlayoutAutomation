@@ -14,7 +14,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Schema.sql" />
+    <EmbeddedResource Include="Schema\Schema.sql" />
+    <EmbeddedResource Include="Schema\Update0002.sql" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />

@@ -18,7 +18,7 @@ namespace TAS.Remoting.Model.Media
         private string _idAux;
 
         [DtoMember(nameof(IPersistentMedia.KillDate))]
-        private DateTime? _killDate;
+        private DateTime _killDate;
 
         [DtoMember(nameof(IPersistentMedia.IdProgramme))]
         private ulong _idProgramme;
@@ -35,7 +35,7 @@ namespace TAS.Remoting.Model.Media
 
         public string IdAux { get => _idAux; set => Set(value); }
 
-        public DateTime? KillDate { get => _killDate; set => Set(value); }
+        public DateTime KillDate { get => _killDate; set => Set(value); }
 
         public ulong IdProgramme { get => _idProgramme; set => Set(value); }
 

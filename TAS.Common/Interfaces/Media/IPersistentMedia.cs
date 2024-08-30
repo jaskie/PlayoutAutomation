@@ -14,7 +14,7 @@ namespace TAS.Common.Interfaces.Media
     {
         TMediaEmphasis MediaEmphasis { get; set; }
         string IdAux { get; set; }
-        DateTime? KillDate { get; set; }
+        DateTime KillDate { get; set; }
         ulong IdProgramme { get; set; }
         bool IsProtected { get; set; }
     }

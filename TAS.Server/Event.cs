@@ -1183,7 +1183,22 @@ namespace TAS.Server
                 case TPlayState.Paused:
                     Position = 0;
                     break;
+                case TPlayState.Played:
+                    _updateMediaLastPlayedTime();
+                    break;
             }
+        }
+
+        private void _updateMediaLastPlayedTime()
+        {
+            var media = this.Media as ServerMedia;
+            if (media is null)
+                return;
+            Task.Run(() =>
+            {
+                media.LastPlayed = this.StartTime;
+                media.Save();
+            });
         }
 
         private Event _getVisualParent()

@@ -34,12 +34,14 @@ namespace TAS.Client.ViewModels
         private double _audioVolume;
         private string _mediaName;
         private TMediaEmphasis _mediaEmphasis;
-        private DateTime? _killDate;
+        private DateTime _killDate;
         private bool _isProtected;
         private bool _doNotArchive;
         private byte _parental;
         private TMediaCategory _mediaCategory;
         private string _idAux;
+
+        private AutoResetEvent _checkVolumeSignal;
 
         public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, bool showButtons) : base(media)
         {
@@ -201,20 +203,15 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _mediaEmphasis, value);
         }
         
-        public DateTime? KillDate
+        public DateTime KillDate
         {
             get => _killDate;
-            set
-            {
-                if (!SetField(ref _killDate, value))
-                    return;
-                NotifyPropertyChanged(nameof(IsKillDate));
-            }
+            set => SetField(ref _killDate, value);
         }
 
         public bool IsKillDate
         {
-            get => _killDate != null;
+            get => _killDate != default;
             set
             {
                 if (value == IsKillDate)
@@ -222,12 +219,14 @@ namespace TAS.Client.ViewModels
                 if (value)
                     _killDate = DateTime.UtcNow.Date.AddDays(30);
                 else
-                    _killDate = null;
+                    _killDate = default;
                 IsModified = true;
                 NotifyPropertyChanged(nameof(KillDate));
                 NotifyPropertyChanged();
             }
         }
+
+        public DateTime LastPlayed => (Model as IServerMedia)?.LastPlayed ?? default;
 
         public bool IsProtected
         {
@@ -400,7 +399,6 @@ namespace TAS.Client.ViewModels
             await Task.Run(() => Model.Verify(true));
         }
 
-        private AutoResetEvent _checkVolumeSignal;
         private void CheckVolume(object _)
         {
             if (_isVolumeChecking)
@@ -441,29 +439,29 @@ namespace TAS.Client.ViewModels
 
         private void OnMediaPropertyChanged(object media, PropertyChangedEventArgs e)
         {
+            if (string.IsNullOrEmpty(e.PropertyName))
+                return;
             OnUiThread(() =>
             {
-                if (string.IsNullOrEmpty(e.PropertyName))
-                    return;
                 var sourcePi = Model.GetType().GetProperty(e.PropertyName);
                 var destPi = GetType().GetProperty(e.PropertyName);
-                if (sourcePi == null || destPi == null || !sourcePi.CanRead || !destPi.CanWrite)
-                    return;
-                var oldModified = IsModified;
-                destPi.SetValue(this, sourcePi.GetValue(Model, null), null);
-                IsModified = oldModified;
+                if (!(sourcePi is null || destPi is null || !sourcePi.CanRead || !destPi.CanWrite))
+                {
+                    var oldModified = IsModified;
+                    destPi.SetValue(this, sourcePi.GetValue(Model, null), null);
+                    IsModified = oldModified;
+                }
                 NotifyPropertyChanged(e.PropertyName);
+                switch (e.PropertyName)
+                {
+                    case nameof(IMedia.MediaStatus):
+                        NotifyPropertyChanged(nameof(IsIngestDataShown));
+                        break;
+                    case nameof(IPersistentMedia.KillDate):
+                        NotifyPropertyChanged(nameof(IsKillDate));
+                        break;
+                }
             });
-
-            if (e.PropertyName == nameof(IMedia.MediaStatus))
-            {
-                NotifyPropertyChanged(e.PropertyName);
-                NotifyPropertyChanged(nameof(IsIngestDataShown));
-            }
-            if (e.PropertyName == nameof(IMedia.MediaGuid))
-            {
-                NotifyPropertyChanged(e.PropertyName);
-            }
         }
 
         private void UndoEdit(object _)

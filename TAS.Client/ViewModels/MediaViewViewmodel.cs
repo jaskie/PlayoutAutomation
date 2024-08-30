@@ -82,14 +82,28 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var killDate = (Media as IPersistentMedia)?.KillDate;
-                if (killDate.HasValue && killDate.Value < DateTime.Today)
-                    return true;
+                if (Media is IPersistentMedia persistentMedia)
+                {
+                    var killDate = persistentMedia.KillDate;
+                    if (killDate != default && killDate.ToLocalTime() < DateTime.Today)
+                        return true;
+                }
                 return false;
             }
         }
 
+        public int? LastPlayedAge
+        {
+            get
+            {
+                if (!(Media is IServerMedia serverMedia) || serverMedia.LastPlayed == default)
+                    return null;
+                return (int)(DateTime.Today - serverMedia.LastPlayed.ToLocalTime().Date).TotalDays;
+            }
+        }
+
         public int ClipNr => (Media as IXdcamMedia)?.ClipNr ?? 0;
+
         public int TotalClipCount => (Media.Directory as IIngestDirectory)?.XdcamClipCount ?? 0;
 
         public TIngestStatus IngestStatus
@@ -151,6 +165,9 @@ namespace TAS.Client.ViewModels
                     break;
                 case nameof(IPersistentMedia.KillDate):
                     NotifyPropertyChanged(nameof(IsExpired));
+                    break;
+                case nameof(IServerMedia.LastPlayed):
+                    NotifyPropertyChanged(nameof(LastPlayedAge));
                     break;
             }
         }

@@ -35,8 +35,8 @@ namespace TAS.Client.ViewModels
                     Event.ScheduledTc < media.TcStart)
                     return TMediaErrorInfo.TooShort;
                 if (media is IPersistentMedia persistentMedia &&
-                    persistentMedia.KillDate.HasValue &&
-                    persistentMedia.KillDate.Value < Event.ScheduledTime.Date)
+                    persistentMedia.KillDate != default &&
+                    persistentMedia.KillDate < Event.ScheduledTime.Date)
                     return TMediaErrorInfo.Expired;
                 return TMediaErrorInfo.NoError;
             }

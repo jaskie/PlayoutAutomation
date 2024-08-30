@@ -19,4 +19,5 @@
     <common:TimeSpanToRedGreenBrushConverter x:Key="TimeSpanToRedGreenBrushConverter"/>
     <common:MultiBooleanOrNotNullToVisibilityConverter x:Key="MultiBooleanOrNotNullToVisibilityConverter"/>
     <common:InvertedBooleanConverter x:Key="InvertedBooleanConverter"/>
+    <common:AgeToBrushConverter x:Key="AgeToBrush" />
 </ResourceDictionary>
