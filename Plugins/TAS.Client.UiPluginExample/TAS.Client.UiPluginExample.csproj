@@ -10,7 +10,6 @@
     <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PluginFiles Include="$(OutDir)$(TargetFileName)"/>
-    <PluginFiles Include="$(OutDir)$(TargetName).pdb"/>
+    <Reference Include="System.ComponentModel.Composition" />
   </ItemGroup>
 </Project>

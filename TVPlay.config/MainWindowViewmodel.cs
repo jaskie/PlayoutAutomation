@@ -13,11 +13,11 @@ namespace TAS.Client.Config
         {
             if (File.Exists("TVPlay.exe"))
                 ConfigFile = new Model.ConfigFile(ConfigurationManager.OpenExeConfiguration("TVPlay.exe"));
-            CommandIngestFoldersSetup = new UiCommand(CommandName(nameof(IngestFoldersSetup)), IngestFoldersSetup, CanShowDialog);
-            CommandConfigFileEdit = new UiCommand(CommandName(nameof(ConfigFileEdit)), ConfigFileEdit, CanShowDialog);
-            CommandConfigFileSelect = new UiCommand(CommandName(nameof(ConfigFileSelect)), ConfigFileSelect, CanShowDialog);
-            CommandPlayoutServersSetup = new UiCommand(CommandName(nameof(ServersSetup)), ServersSetup, CanShowDialog);
-            CommandEnginesSetup = new UiCommand(CommandName(nameof(EnginesSetup)), EnginesSetup, CanShowDialog);
+            CommandConfigFileSelect = new UiCommand(CommandName(nameof(ConfigFileSelect)), ConfigFileSelect);
+            CommandIngestFoldersSetup = new UiCommand(CommandName(nameof(IngestFoldersSetup)), IngestFoldersSetup, CanEditWithConfigFile);
+            CommandConfigFileEdit = new UiCommand(CommandName(nameof(ConfigFileEdit)), ConfigFileEdit, CanEditWithConfigFile);
+            CommandPlayoutServersSetup = new UiCommand(CommandName(nameof(ServersSetup)), ServersSetup, CanEditWithDatabase);
+            CommandEnginesSetup = new UiCommand(CommandName(nameof(EnginesSetup)), EnginesSetup, CanEditWithDatabase);
         }
 
         public ICommand CommandIngestFoldersSetup { get; }
@@ -34,22 +34,31 @@ namespace TAS.Client.Config
 
         protected override void OnDispose() { }
 
-        private bool CanShowDialog(object _)
+        private bool CanEditWithConfigFile(object _)
         {
             return _configFile != null;
         }
-        
+
         private void EnginesSetup(object _)
         {
-            using (var vm = new EnginesViewmodel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
+            if (ConfigFile.AppSettings.DatabaseType == null)
+                return;
+            using (var vm = new EnginesViewmodel(ConfigFile.AppSettings.DatabaseType.Value, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
             {
                 vm.ShowDialog();
             }
         }
 
+        private bool CanEditWithDatabase(object _)
+        {
+            return ConfigFile?.AppSettings.DatabaseType != null;
+        }
+
         private void ServersSetup(object _)
         {
-            using (var vm = new PlayoutServersViewmodel(ConfigFile.AppSettings.DatabaseType, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
+            if (ConfigFile.AppSettings.DatabaseType == null)
+                return;
+            using (var vm = new PlayoutServersViewmodel(ConfigFile.AppSettings.DatabaseType.Value, ConfigFile.Configuration.ConnectionStrings.ConnectionStrings))
             {
                 vm.ShowDialog();
             }

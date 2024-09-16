@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PIEHid64Net" Private="True">
+    <Reference Include="PIEHid64Net" Private="True" Visible="False">
       <HintPath>.\PIEHid64Net.dll</HintPath>
     </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.ServiceModel" />
@@ -17,10 +17,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj" />
     <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PluginFiles Include="$(OutDir)$(TargetFileName)"/>
-    <PluginFiles Include="$(OutDir)$(TargetName).pdb"/>
-    <PluginFiles Include="$(OutDir)PIEHid64Net.dll"/>
   </ItemGroup>
 </Project>

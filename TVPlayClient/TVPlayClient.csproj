@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>WinExe</OutputType>
     <ApplicationIcon>TVPlayClient.ico</ApplicationIcon>
     <UseWPF>true</UseWPF>
@@ -12,6 +11,7 @@
     <ProjectReference Include="..\TAS.Client\TAS.Client.csproj" />
     <ProjectReference Include="..\TAS.Remoting.Proxy\TAS.Remoting.Proxy.csproj" />
     <ProjectReference Include="..\TAS.Common\TAS.Common.csproj" />
+    <ProjectReference Include="..\Plugins\TAS.Client.NDIVideoPreview\TAS.Client.NDIVideoPreview.csproj" DestinationSubDirectory="Plugins\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="NLog.config" CopyToOutputDirectory="PreserveNewest" />

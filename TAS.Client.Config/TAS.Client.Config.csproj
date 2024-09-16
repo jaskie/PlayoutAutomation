@@ -5,9 +5,7 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj" />
     <ProjectReference Include="..\TAS.Client.Common\TAS.Client.Common.csproj" />
-    <ProjectReference Include="..\TAS.Common\TAS.Common.csproj" />
     <ProjectReference Include="..\TAS.Database.Common\TAS.Database.Common.csproj" />
   </ItemGroup>
 </Project>

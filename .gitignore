@@ -1,8 +1,7 @@
 obj
+bin
 Service References
 packages
-Debug
-Release
 *.bak
 *.mwb
 /ipch
@@ -22,8 +21,4 @@ Release
 /*.log
 /TAS.FFMpegUtils/x64
 /TAS.Client.Common/*.DotSettings
-/dependencies/bin
-/ffmpeg/x86/bin
-/TVPlay/bin
-/TVPlayClient/bin
 /ffmpeg/4.02

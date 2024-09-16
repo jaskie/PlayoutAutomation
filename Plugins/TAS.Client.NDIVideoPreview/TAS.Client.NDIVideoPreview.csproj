@@ -1,23 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj" Private="False" />
-    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj" Private="False" />
-    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" Private="False" />
+    <ProjectReference Include="..\..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj"/>
+    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj"/>
+    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="NAudio" Version="2.2.1"/>
   </ItemGroup>
   <ItemGroup>
-    <PluginFiles Include="$(OutDir)$(TargetFileName)" />
-    <PluginFiles Include="$(OutDir)$(TargetName).pdb" />
-    <!-- TODO: include the resources -->
-    <!--<PluginFiles Include="$(OutDir)pl\$(TargetName).resources.dll" />-->
-    <PluginFiles Include="$(OutDir)NAudio*.dll" />
+    <Reference Include="System.ComponentModel.Composition"/>
   </ItemGroup>
 </Project>

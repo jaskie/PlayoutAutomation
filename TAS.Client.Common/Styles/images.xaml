@@ -57,10 +57,10 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
-    <Style x:Key="EventTypeEventTypeImage" TargetType="Image" BasedOn="{StaticResource {x:Type Image}}">
+    <Style x:Key="EventTypeImage" TargetType="Image" BasedOn="{StaticResource {x:Type Image}}">
         <Style.Triggers>
             <DataTrigger Binding="{Binding EventType}" Value="Rundown">
-                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventTypes/Rundown.gif"/>
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventTypes/Rundown.png"/>
             </DataTrigger>
             <DataTrigger Binding="{Binding EventType}" Value="Movie">
                 <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventTypes/Movie.png"/>

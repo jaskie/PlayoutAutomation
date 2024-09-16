@@ -17,6 +17,11 @@
     <ProjectReference Include="..\TAS.Database.Common\TAS.Database.Common.csproj" />
     <ProjectReference Include="..\TAS.FFMpegUtils\FFMpegUtils.vcxproj" />
     <ProjectReference Include="..\TAS.Common\TAS.Common.csproj" />
+    <ProjectReference Include="..\DatabaseProviders\MySqlRedundant\TAS.Database.MySqlRedundant.csproj" />
+    <ProjectReference Include="..\DatabaseProviders\SQLite\TAS.Database.SQLite.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(SolutionDir)ffmpeg\x64\bin\**\*.*" CopyToOutputDirectory="PreserveNewest" Visible="False" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NLog" Version="5.2.8" />

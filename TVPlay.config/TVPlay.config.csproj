@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>WinExe</OutputType>
     <RootNamespace>TAS.Client.Config</RootNamespace>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <ApplicationIcon>Setup.ico</ApplicationIcon>
+    <OutputPath>$(SolutionDir)TVPlay\bin\$(Configuration)</OutputPath>
+    <GenerateSupportedRuntime>False</GenerateSupportedRuntime>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />
@@ -13,6 +14,5 @@
   <ItemGroup>
     <ProjectReference Include="..\TAS.Client.Common\TAS.Client.Common.csproj" />
     <ProjectReference Include="..\TAS.Client.Config\TAS.Client.Config.csproj" />
-    <ProjectReference Include="..\TAS.Common\TAS.Common.csproj" />
   </ItemGroup>
 </Project>

@@ -1,17 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\TVPlay\bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;MYSQL</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\..\TVPlay\bin\Release\</OutputPath>
-    <DefineConstants>TRACE;MYSQL</DefineConstants>
+    <DefineConstants>MYSQL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel" />
@@ -20,6 +12,7 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Windows" />
+    <Reference Include="System.ComponentModel.Composition" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\DatabaseBase.cs">

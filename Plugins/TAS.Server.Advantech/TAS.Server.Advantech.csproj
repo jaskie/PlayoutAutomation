@@ -1,22 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <RootNamespace>TAS.Server</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Automation.BDaq" Private="true" />
+    <Reference Include="Automation.BDaq" Private="True" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj" />
-    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
+    <ProjectReference Include="..\..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj"/>
+    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Composition" Version="8.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <PluginFiles Include="$(OutDir)$(TargetFileName)"/>
-    <PluginFiles Include="$(OutDir)$(TargetName).pdb"/>
-    <PluginFiles Include="$(OutDir)Automation.BDaq.dll"/>
+    <Reference Include="System.ComponentModel.Composition"/>
   </ItemGroup>
 </Project>

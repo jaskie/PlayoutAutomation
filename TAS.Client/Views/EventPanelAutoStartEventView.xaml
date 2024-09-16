@@ -21,7 +21,7 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Image Grid.Column="0" Margin="3" HorizontalAlignment="Center" ToolTip="{Binding Event.EventType}" Style="{StaticResource EventTypeEventTypeImage}" />
+            <Image Grid.Column="0" Margin="3" HorizontalAlignment="Center" ToolTip="{Binding Event.EventType}" Style="{StaticResource EventTypeImage}" />
             <Image Grid.Column="1" Margin="3" HorizontalAlignment="Center">
                 <Image.Style>
                     <Style TargetType="Image">

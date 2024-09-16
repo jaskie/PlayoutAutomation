@@ -1,18 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
-    <UseWPF>true</UseWPF>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>TRACE;DEBUG;NLOG_OUTPUT_DEBUG</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DefineConstants>TRACE</DefineConstants>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DefineConstants>NLOG_OUTPUT_DEBUG</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj" />
-    <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj" />
+    <ProjectReference Include="..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj" Private="False" />
+    <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj" Private="False" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
   </ItemGroup>
 </Project>

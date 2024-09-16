@@ -4,8 +4,8 @@
     <RootNamespace>TAS.Server</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dependencies\Svt\Svt.Caspar\Svt.Caspar.csproj" />
-    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
+    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj"/>
+    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj"/>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel.Composition"/>

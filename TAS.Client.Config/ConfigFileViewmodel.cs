@@ -73,7 +73,7 @@ namespace TAS.Client.Config
         }
 
         public string ExeDirectory => Path.GetDirectoryName(Model.FileName);
-                       
+
         protected override void Update(object destObject = null)
         {
             base.Update(Model.AppSettings);

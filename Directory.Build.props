@@ -1,9 +1,8 @@
 <Project>
   <PropertyGroup>
-    <TVPlayDir>TVPlay</TVPlayDir>
     <TargetFramework>net48</TargetFramework>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>$(SolutionDir)$(TVPlayDir)\bin\$(Configuration)</OutputPath>
     <Deterministic>false</Deterministic>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>

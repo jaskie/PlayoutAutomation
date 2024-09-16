@@ -8,26 +8,24 @@
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NLog" Version="5.2.8" />
-  </ItemGroup>
-  <ItemGroup>
     <None Update="Plugins\FolderInfo.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Configuration\**\*" CopyToOutputDirectory="PreserveNewest" />
     <None Update="NLog.config" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj" />
     <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj" />
     <ProjectReference Include="..\TAS.Client\TAS.Client.csproj" />
-    <ProjectReference Include="..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj" />
-    <ProjectReference Include="..\TAS.Client.Common\TAS.Client.Common.csproj" />
     <ProjectReference Include="..\TAS.Common\TAS.Common.csproj" />
     <ProjectReference Include="..\TAS.Database.Common\TAS.Database.Common.csproj" />
     <ProjectReference Include="..\TAS.Server\TAS.Server.csproj" />
+    <ProjectReference Include="..\Plugins\TAS.Client.NDIVideoPreview\TAS.Client.NDIVideoPreview.csproj" DestinationSubDirectory="Plugins.repository\" />
+    <ProjectReference Include="..\Plugins\TAS.Client.ExportRundownAsXml\TAS.Client.ExportRundownAsXml.csproj" DestinationSubDirectory="Plugins.repository\" />
+    <ProjectReference Include="..\Plugins\TAS.Client.XKeys\TAS.Client.XKeys.csproj" DestinationSubDirectory="Plugins.repository\" />
+    <ProjectReference Include="..\Plugins\TAS.Server.Advantech\TAS.Server.Advantech.csproj" DestinationSubDirectory="Plugins.repository\" />
+    <ProjectReference Include="..\Plugins\TAS.Server.Advantech\TAS.Server.Advantech.csproj" DestinationSubDirectory="Plugins.repository\" />
+    <ProjectReference Include="..\Plugins\TAS.Server.CgElementsController\TAS.Server.CgElementsController.csproj" DestinationSubDirectory="Plugins.repository\" />
+    <ProjectReference Include="..\Plugins\TAS.Server.NowPlayingNotifier\TAS.Server.NowPlayingNotifier.csproj" DestinationSubDirectory="Plugins.repository\" />
+    <ProjectReference Include="..\Plugins\TAS.Server.Router\TAS.Server.Router.csproj" DestinationSubDirectory="Plugins.repository\" />
   </ItemGroup>
-  <Target Name="CopyFFmpeg" AfterTargets="Build">
-    <ItemGroup>
-      <FFmpegFiles Include="$(SolutionDir)ffmpeg\x64\bin\**\*.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(FFmpegFiles)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
-  </Target>
 </Project>

@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
@@ -10,153 +9,13 @@
     <ProjectReference Include="..\TAS.Common\TAS.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Composition" Version="8.0.0" />
     <PackageReference Include="Expression.Blend.Sdk.WPF" Version="1.0.1" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.6.0" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Actions\apply.png" />
-    <Resource Include="Images\Actions\delete.png" />
-    <Resource Include="Images\Indicators\hourglass.png" />
-    <Resource Include="Images\PlayStates\Played.png" />
-    <Resource Include="Images\PlayStates\Playing.png" />
-    <Resource Include="Images\PlayStates\Paused.png" />
-    <Resource Include="Images\PlayStates\Aborted.png" />
-    <Resource Include="Images\PlayStates\Fading.png" />
-    <Resource Include="Images\Config\file-open.png" />
-    <Resource Include="Images\Config\document-add.png" />
-    <Resource Include="Images\Config\document-delete.png" />
-    <Resource Include="Images\Config\document-cancel.png" />
-    <Resource Include="Images\Config\document-done.png" />
-    <Resource Include="Images\Config\document-edit.png" />
-    <Resource Include="Images\Config\document-save.png" />
-    <Resource Include="Images\Indicators\gearwheel.png" />
-    <Resource Include="Images\Actions\edit.png" />
-    <Resource Include="Images\Config\connect-test.png" />
-    <Resource Include="Images\Config\database-new.png" />
-    <Resource Include="Images\Config\playlist-config.png" />
-    <Resource Include="Images\Config\video_display_setup.png" />
-    <Resource Include="Images\Config\folder-development.png" />
-    <Resource Include="Images\Config\config.png" />
-    <Resource Include="Images\Config\database.png" />
-    <Resource Include="Images\Config\database_config.png" />
-    <Resource Include="Images\Actions\archive-export-delete.png" />
-    <Resource Include="Images\Actions\archive-export.png" />
-    <Resource Include="Images\Actions\volume-measure.png" />
-    <Resource Include="Images\Actions\media-delete.png" />
-    <Resource Include="Images\FileOperationStates\Waiting.png" />
-    <Resource Include="Images\FileOperationStates\InProgress.png" />
-    <Resource Include="Images\FileOperationStates\Finished.png" />
-    <Resource Include="Images\FileOperationStates\Failed.png" />
-    <Resource Include="Images\FileOperationStates\Aborted.png" />
-    <Resource Include="Images\MediaStates\validation-error.png" />
-    <Resource Include="Images\MediaStates\unknown.png" />
-    <Resource Include="Images\MediaStates\required.png" />
-    <Resource Include="Images\MediaStates\deleted.png" />
-    <Resource Include="Images\MediaStates\copy-pending.png" />
-    <Resource Include="Images\MediaStates\copying.png" />
-    <Resource Include="Images\MediaStates\copy-error.png" />
-    <Resource Include="Images\MediaStates\copied.png" />
-    <Resource Include="Images\MediaStates\available.png" />
-    <Resource Include="Images\Indicators\scizors.png" />
-    <Resource Include="Images\Actions\copy-small.png" />
-    <Resource Include="Images\Actions\add-small.png" />
-    <Resource Include="Images\Actions\save-small.png" />
-    <Resource Include="Images\Actions\trash-small.png" />
-    <Resource Include="Images\Actions\view-refresh.png" />
-    <Resource Include="Images\MediaNavigation\FFForward.png" />
-    <Resource Include="Images\MediaNavigation\FFBack.png" />
-    <Resource Include="Images\MediaNavigation\OneFrameForward.png" />
-    <Resource Include="Images\MediaNavigation\OneFrameBack.png" />
-    <Resource Include="Images\Indicators\warning.png" />
-    <Resource Include="Images\EventTypes\Container.png" />
-    <Resource Include="Images\EventTypes\Live.png" />
-    <Resource Include="Images\EventTypes\Movie.png" />
-    <Resource Include="Images\EventTypes\Rundown.gif" />
-    <Resource Include="Images\EventTypes\StillImage.png" />
-    <Resource Include="Images\Indicators\tick_circle.png" />
-    <Resource Include="Images\Layers\layer1.png" />
-    <Resource Include="Images\Layers\layer2.png" />
-    <Resource Include="Images\Layers\layer3.png" />
-    <Resource Include="Images\Layers\layerA.png" />
-    <Resource Include="Images\Actions\undo.png" />
-    <Resource Include="Images\Actions\select.png" />
-    <Resource Include="Images\EventActions\new-empty-movie.png" />
-    <Resource Include="Images\EventActions\new-movie.png" />
-    <Resource Include="Images\EventActions\new-next-live.png" />
-    <Resource Include="Images\EventActions\new-rundown.png" />
-    <Resource Include="Images\EventActions\new-sub-live.png" />
-    <Resource Include="Images\EventActions\new-sub-movie.png" />
-    <Resource Include="Images\EventActions\new-sub-rundown.png" />
-    <Resource Include="Images\Actions\go-down.png" />
-    <Resource Include="Images\Actions\go-up.png" />
-    <Resource Include="Images\VideoFormats\4-3.png" />
-    <Resource Include="Images\VideoFormats\FHA.png" />
-    <Resource Include="Images\VideoFormats\HD.png" />
-    <Resource Include="Images\PlayStates\Cue.png" />
-    <Resource Include="Images\Indicators\on-air.png" />
-    <Resource Include="Images\Indicators\loop.png" />
-    <Resource Include="Images\Actions\database-create.png" />
-    <Resource Include="Images\Actions\database-clone.png" />
-    <Resource Include="Images\Actions\database-connect.png" />
-    <Resource Include="Images\Actions\database-secondary-connect.png" />
-    <Resource Include="Images\Config\direction-down.png" />
-    <Resource Include="Images\Config\direction-up.png" />
-    <Resource Include="Images\Actions\add-green.png" />
-    <Resource Include="Images\Layers\layer1-active.png" />
-    <Resource Include="Images\Layers\layer2-active.png" />
-    <Resource Include="Images\Layers\layer3-active.png" />
-    <Resource Include="Images\Layers\layerA-active.png" />
-    <Resource Include="Images\Indicators\error-overlay.png" />
-    <Resource Include="Images\Indicators\warning-overlay.png" />
-    <Resource Include="Images\PlayStates\ForceNext.png" />
-    <Resource Include="Images\Actions\media-ingest.png" />
-    <Resource Include="Images\Actions\media-export.png" />
-    <Resource Include="Images\MediaCategories\insert.png" />
-    <Resource Include="Images\MediaCategories\show.png" />
-    <Resource Include="Images\MediaCategories\promo.png" />
-    <Resource Include="Images\MediaCategories\commercial.png" />
-    <Resource Include="Images\MediaCategories\sponsored.png" />
-    <Resource Include="Images\MediaCategories\fill.png" />
-    <Resource Include="Images\Indicators\archive.png" />
-    <Resource Include="Images\EventTypes\Animation.png" />
-    <Resource Include="Images\IngestStates\InProgress.png" />
-    <Resource Include="Images\IngestStates\Ready.png" />
-    <Resource Include="Images\MediaCategories\jingle.png" />
-    <Resource Include="Images\EventActions\clock-play.png" />
-    <Resource Include="Images\EventActions\clock-stop.png" />
-    <Resource Include="Images\Indicators\clock.png" />
-    <Resource Include="Images\AutoStartPlayStates\Disabled.png" />
-    <Resource Include="Images\AutoStartPlayStates\Playing.png" />
-    <Resource Include="Images\AutoStartPlayStates\Played.png" />
-    <Resource Include="Images\AutoStartPlayStates\ScheduledFuture.png" />
-    <Resource Include="Images\AutoStartPlayStates\ScheduledPast.png" />
-    <Resource Include="Images\Actions\copy.png" />
-    <Resource Include="Images\Layers\layerS.png" />
-    <Resource Include="Images\EventTypes\CommandScript.png" />
-    <Resource Include="Images\Actions\add-finish-small.png" />
-    <Resource Include="Images\Actions\search.png" />
-    <Resource Include="Images\Actions\close.png" />
-    <Resource Include="Images\Actions\search_clear.png" />
-    <Resource Include="Images\Actions\search_glyph.png" />
-    <Resource Include="Images\Config\document-folder-add.png" />
-    <Resource Include="Images\Actions\import-movie.png" />
-    <Resource Include="Images\MediaNavigation\media-playback-start.png" />
-    <Resource Include="Images\MediaNavigation\media-playback-stop.png" />
-    <Resource Include="Images\MediaNavigation\media-seek-backward.png" />
-    <Resource Include="Images\MediaNavigation\media-seek-forward.png" />
-    <Resource Include="Images\MediaNavigation\media-record.png" />
-    <Resource Include="Images\MediaNavigation\media-capture.png" />
-    <Resource Include="Images\Actions\go-jump.png" />
-    <Resource Include="Images\Secutity\group.png" />
-    <Resource Include="Images\Secutity\user.png" />
-    <Resource Include="Images\MediaNavigation\media-playback-pause.png" />
-    <Resource Include="Images\MediaNavigation\media-playback-end.png" />
-    <Resource Include="Images\Actions\time-update.png" />
-    <Resource Include="Images\Actions\list-add-3.png" />
-    <Resource Include="Images\Actions\list-remove-3.png" />
-    <Resource Include="Images\Actions\edit-find-6.png" />
-    <Resource Include="Images\Actions\hourglass.png" />
-    <Resource Include="Images\MediaNavigation\media-playback-cue.png" />
+    <Reference Include="System.ComponentModel.Composition" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\**\*.png" />
   </ItemGroup>
 </Project>

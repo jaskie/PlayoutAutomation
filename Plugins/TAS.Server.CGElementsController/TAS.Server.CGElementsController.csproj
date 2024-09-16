@@ -4,14 +4,10 @@
     <RootNamespace>TAS.Server</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Composition" Version="8.0.0" />
+    <Reference Include="System.ComponentModel.Composition"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj" />
-    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PluginFiles Include="$(OutDir)$(TargetFileName)"/>
-    <PluginFiles Include="$(OutDir)$(TargetName).pdb"/>
+    <ProjectReference Include="..\..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj"/>
+    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj"/>
   </ItemGroup>
 </Project> 
