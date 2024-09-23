@@ -6,7 +6,7 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <ApplicationIcon>Setup.ico</ApplicationIcon>
     <OutputPath>$(SolutionDir)TVPlay\bin\$(Configuration)</OutputPath>
-    <GenerateSupportedRuntime>False</GenerateSupportedRuntime>
+    <GenerateSupportedRuntime>True</GenerateSupportedRuntime>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />

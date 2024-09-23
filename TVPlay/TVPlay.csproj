@@ -6,6 +6,7 @@
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
+    <AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <None Update="Plugins\FolderInfo.txt" CopyToOutputDirectory="PreserveNewest" />

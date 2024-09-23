@@ -4,6 +4,7 @@
     <ApplicationIcon>TVPlayClient.ico</ApplicationIcon>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj" />
