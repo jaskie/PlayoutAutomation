@@ -120,6 +120,9 @@
   <data name="_directory" xml:space="preserve">
     <value>Folder</value>
   </data>
+  <data name="_directoryNotInitialized" xml:space="preserve">
+    <value>Folder nie został jeszcze zainicjalizowany</value>
+  </data>
   <data name="_grid.Header.ClipName" xml:space="preserve">
     <value>Nazwa klipu</value>
   </data>
@@ -150,6 +153,9 @@
   <data name="_grid.Header.IsTrimmed.ToolTip" xml:space="preserve">
     <value>Przycięcie</value>
   </data>
+  <data name="_grid.Header.LastPlayedAge.ToolTip" xml:space="preserve">
+    <value>Od ostatniej emisji minęło</value>
+  </data>
   <data name="_grid.Header.MediaCategory.ToolTip" xml:space="preserve">
     <value>Kategoria</value>
   </data>
@@ -162,8 +168,14 @@
   <data name="_grid.IsTrimmed" xml:space="preserve">
     <value>Przycięty</value>
   </data>
+  <data name="_hide" xml:space="preserve">
+    <value>Ukryj</value>
+  </data>
   <data name="_media" xml:space="preserve">
     <value>Pliki medialne</value>
+  </data>
+  <data name="_media.ClipName.IsExpired" xml:space="preserve">
+    <value>Przekroczona data ważności</value>
   </data>
   <data name="_mediaCategory" xml:space="preserve">
     <value>Kategoria</value>
@@ -180,6 +192,9 @@
   <data name="_menu.Tools.VerifyAllMedia" xml:space="preserve">
     <value>Zweryfikuj wszystkie media</value>
   </data>
+  <data name="_propertiesPanelExpander.ToolTip" xml:space="preserve">
+    <value>F11</value>
+  </data>
   <data name="_recorders" xml:space="preserve">
     <value>Nagrywanie</value>
   </data>
@@ -191,6 +206,9 @@
   </data>
   <data name="_searchFor" xml:space="preserve">
     <value>Napisz, czego szukasz</value>
+  </data>
+  <data name="_show" xml:space="preserve">
+    <value>Pokaż</value>
   </data>
   <data name="_statusbar.TotalItems" xml:space="preserve">
     <value>Klipów:</value>
@@ -245,20 +263,5 @@
   </data>
   <data name="_toolbar.Ingest.ToolTip" xml:space="preserve">
     <value>Pobierz do emisji</value>
-  </data>
-  <data name="_hide" xml:space="preserve">
-    <value>Ukryj</value>
-  </data>
-  <data name="_show" xml:space="preserve">
-    <value>Pokaż</value>
-  </data>
-  <data name="_media.ClipName.IsExpired" xml:space="preserve">
-    <value>Przekroczona data ważności</value>
-  </data>
-  <data name="_directoryNotInitialized" xml:space="preserve">
-    <value>Folder nie został jeszcze zainicjalizowany</value>
-  </data>
-  <data name="_grid.Header.LastPlayedAge.ToolTip" xml:space="preserve">
-    <value>Od ostatniej emisji minęło</value>
   </data>
 </root>

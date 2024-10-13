@@ -171,6 +171,9 @@
   <data name="_menu.Rundown.Restart" xml:space="preserve">
     <value>_Uruchom ponownie zaznaczoną pozycję</value>
   </data>
+  <data name="_menu.Container" xml:space="preserve">
+    <value>_Kontener</value>
+  </data>
   <data name="_statusbar.Selected" xml:space="preserve">
     <value>Wybrane {0}, </value>
   </data>
@@ -224,9 +227,6 @@
   </data>
   <data name="_menu.Edit.Copy" xml:space="preserve">
     <value>Kopiuj</value>
-  </data>
-  <data name="_menu.Container" xml:space="preserve">
-    <value>_Kontener</value>
   </data>
   <data name="_statusbar.Indicator.Alarm" xml:space="preserve">
     <value>Alarm!</value>
@@ -342,6 +342,9 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
   </data>
   <data name="_show" xml:space="preserve">
     <value>Pokaż</value>
+  </data>
+  <data name="_propertiesPanelExpander.ToolTip" xml:space="preserve">
+    <value>F11</value>
   </data>
   <data name="_toolbar.AddSecond" xml:space="preserve">
     <value>Dodaj sekundę</value>

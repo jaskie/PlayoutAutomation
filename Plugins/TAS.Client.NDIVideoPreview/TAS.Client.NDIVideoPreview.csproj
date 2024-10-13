@@ -5,14 +5,14 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj"/>
-    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj"/>
-    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj"/>
+    <ProjectReference Include="..\..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj" />
+    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj" />
+    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NAudio" Version="2.2.1"/>
+    <PackageReference Include="NAudio" Version="1.10.0" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.ComponentModel.Composition"/>
+    <Reference Include="System.ComponentModel.Composition" />
   </ItemGroup>
 </Project>

@@ -6,7 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPlay", "TVPlay\TVPlay.csproj", "{B2FD5EA3-CB51-470B-A58B-E2400983DD79}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9ACA6AE7-49ED-4599-91AC-927680CF9623} = {9ACA6AE7-49ED-4599-91AC-927680CF9623}
-		{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93} = {BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TAS.FFMpegUtils", "TAS.FFMpegUtils\FFMpegUtils.vcxproj", "{AAA90FDF-4E13-490E-A4A4-9B83F522F6C4}"
@@ -60,14 +59,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Client.UiPluginExample"
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Server.NowPlayingNotifier", "Plugins\TAS.Server.NowPlayingNotifier\TAS.Server.NowPlayingNotifier.csproj", "{12EE9232-10AD-4E0F-A848-42C8A79876B8}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Server.CgElementsController", "Plugins\TAS.Server.CGElementsController\TAS.Server.CgElementsController.csproj", "{7970C290-A9E8-4ED3-83BC-9E8654ECD8D6}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RemoteClient", "RemoteClient", "{3F966B33-01BF-49D9-9EEC-C6A81308D6F6}"
 EndProject
@@ -78,9 +71,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External dependencies", "External dependencies", "{9E587B86-2AD9-446D-8DD5-D710167A7F54}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Client.NDIVideoPreview", "Plugins\TAS.Client.NDIVideoPreview\TAS.Client.NDIVideoPreview.csproj", "{41219373-E25E-48C8-AD64-EAB58244E713}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TAS.Database.MySqlRedundant", "DatabaseProviders\MySqlRedundant\TAS.Database.MySqlRedundant.csproj", "{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}"
 EndProject
