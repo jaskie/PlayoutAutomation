@@ -18,9 +18,11 @@ namespace TAS.Client.Config.Model
                 if (aps == null)
                     continue;
                 if (setting.PropertyType.IsEnum)
-                    setting.SetValue(AppSettings, Enum.Parse(setting.PropertyType, aps.Value), null);
+                    setting.SetValue(AppSettings, Enum.Parse(setting.PropertyType, aps.Value));
+                else if (TryParseNullableEnum(setting.PropertyType, aps.Value, out var nullableEnum))
+                    setting.SetValue(AppSettings, nullableEnum);
                 else
-                    setting.SetValue(AppSettings, Convert.ChangeType(Configuration.AppSettings.Settings[setting.Name].Value, setting.PropertyType), null);
+                    setting.SetValue(AppSettings, Convert.ChangeType(Configuration.AppSettings.Settings[setting.Name].Value, setting.PropertyType));
             }
         }
 
@@ -41,6 +43,26 @@ namespace TAS.Client.Config.Model
         public AppSettings AppSettings { get; } = new AppSettings();
 
         public string FileName => Configuration.FilePath;
+
+        private static bool TryParseNullableEnum(Type t, string value, out object result)
+        {
+            Type undelyingType = Nullable.GetUnderlyingType(t);
+            if (undelyingType != null && undelyingType.IsEnum)
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    result = null;
+                    return true;
+                }
+                if (undelyingType.IsEnum)
+                {
+                    result = Enum.Parse(undelyingType, value);
+                    return true;
+                }
+            }
+            result = null;
+            return false;
+        }
     }
 
     public class AppSettings
