@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 
 namespace Svt.Caspar
 {
-    public class CasparDevice: IDisposable
+    public class CasparDevice : IDisposable
     {
         internal Svt.Network.ServerConnection Connection { get; private set; }
         private Svt.Network.ReconnectionHelper ReconnectionHelper { get; set; }
@@ -21,22 +20,18 @@ namespace Svt.Caspar
         public bool IsConnected => Connection != null && Connection.IsConnected;
         public bool IsRecordingSupported { get; set; }
 
-        [Obsolete("This event is obsolete. Use the new ConnectionStatusChanged instead")]
-		public event EventHandler<Svt.Network.NetworkEventArgs> Connected;
-        [Obsolete("This event is obsolete. Use the new ConnectionStatusChanged instead")]
-        public event EventHandler<Svt.Network.NetworkEventArgs> Disconnected;
-
         public event EventHandler<Svt.Network.ConnectionEventArgs> ConnectionStatusChanged;
 
-		public event EventHandler<DataEventArgs> DataRetrieved;
-		public event EventHandler<EventArgs> UpdatedChannels;
+        public event EventHandler<DataEventArgs> DataRetrieved;
+        public event EventHandler<DataEventArgs> VersionRetrieved;
+        public event EventHandler<EventArgs> UpdatedChannels;
         public event EventHandler<EventArgs> UpdatedRecorders;
         public event EventHandler<Network.Osc.OscPacketEventArgs> OscMessage;
 
         volatile bool bIsDisconnecting = false;
 
-		public CasparDevice()
-		{
+        public CasparDevice()
+        {
             Settings = new CasparDeviceSettings();
             Connection = new Network.ServerConnection();
             Channels = new Channel[0];
@@ -47,7 +42,7 @@ namespace Svt.Caspar
 
             Connection.ProtocolStrategy = new AMCP.AMCPProtocolStrategy(this);
             Connection.ConnectionStateChanged += server__ConnectionStateChanged;
-		}
+        }
 
         bool _disposed;
         public void Dispose()
@@ -75,7 +70,7 @@ namespace Svt.Caspar
                     var bundle = e.Packet as Svt.Network.Osc.OscBundle;
                     if (bundle != null)
                         foreach (var m in bundle.Messages)
-                           OscMessageReceived(m);
+                            OscMessageReceived(m);
                 }
             }
         }
@@ -104,7 +99,7 @@ namespace Svt.Caspar
 
         #endregion OSC
 
-            #region Server notifications
+        #region Server notifications
         private void server__ConnectionStateChanged(object sender, Network.ConnectionEventArgs e)
         {
             try
@@ -117,16 +112,6 @@ namespace Svt.Caspar
             if (e.Connected)
             {
                 Connection.SendString("VERSION");
-
-                //For compability with legacy users
-                try
-                {
-                    if (Connected != null)
-                    {
-                        Connected(this, new Svt.Network.NetworkEventArgs(e.Hostname, e.Port));
-                    }
-                }
-                catch { }
             }
             else
             {
@@ -145,13 +130,6 @@ namespace Svt.Caspar
                     catch { }
                     bIsDisconnecting = false;
                 }
-
-                //For compability with legacy users
-                try
-                {
-                    Disconnected?.Invoke(this, new Svt.Network.NetworkEventArgs(e.Hostname, e.Port));
-                }
-                catch { }
             }
         }
 
@@ -165,7 +143,7 @@ namespace Svt.Caspar
             }
             server__ConnectionStateChanged(Connection, e);
         }
-		#endregion
+        #endregion
 
         public void SendString(string command)
         {
@@ -173,7 +151,7 @@ namespace Svt.Caspar
                 Connection.SendString(command);
         }
 
-		#region Connection
+        #region Connection
         public bool Connect(string host, int port)
         {
             return Connect(host, port, 0, false);
@@ -193,19 +171,19 @@ namespace Svt.Caspar
         }
 
         public bool Connect()
-		{
+        {
             if (Settings.OscPort > 0)
             {
                 HostAddresses = System.Net.Dns.GetHostAddresses(Settings.Hostname);
                 Network.Osc.OscPacketDispatcher.Bind(Settings.OscPort, OscListener_PacketReceived);
             }
             if (!IsConnected)
-			{
+            {
                 Connection.InitiateConnection(Settings.Hostname, Settings.AmcpPort);
-				return true;
-			}
-			return false;
-		}
+                return true;
+            }
+            return false;
+        }
 
         public void Disconnect()
         {
@@ -220,11 +198,11 @@ namespace Svt.Caspar
             if (Settings.OscPort > 0)
                 Network.Osc.OscPacketDispatcher.UnBind(Settings.OscPort, OscListener_PacketReceived);
         }
-		#endregion
-        
-		#region AMCP-protocol callbacks
-		internal void OnUpdatedChannelInfo(string channelsXml)
-		{
+        #endregion
+
+        #region AMCP-protocol callbacks
+        internal void OnUpdatedChannelInfo(string channelsXml)
+        {
             var serializer = new XmlSerializer(typeof(ChannelList));
             using (StringReader reader = new StringReader(channelsXml))
             {
@@ -242,11 +220,11 @@ namespace Svt.Caspar
         {
             Channels = channels.Select(s =>
             {
-                var channelData = s.Split(new []{' '}, StringSplitOptions.RemoveEmptyEntries);
+                var channelData = s.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 if (channelData.Length > 2
-                    && int.TryParse(channelData[0], out  var id)
+                    && int.TryParse(channelData[0], out var id)
                     && Enum.TryParse($"m{channelData[1]}", true, out VideoMode videoMode))
-                    return new Channel(id, videoMode) {Connection = this.Connection};
+                    return new Channel(id, videoMode) { Connection = this.Connection };
                 return null;
             })
             .Where(c => c != null)
@@ -269,52 +247,53 @@ namespace Svt.Caspar
             }
         }
 
-		internal void OnVersion(string version)
-		{
-			Version = version;
+        internal void OnVersion(string version)
+        {
+            Version = version;
 
-		    if (version.StartsWith("2.0"))
-		    {
-		        //Ask server for channels
-		        Connection.SendString("INFO SERVER");
+            if (version.StartsWith("2.0"))
+            {
+                //Ask server for channels
+                Connection.SendString("INFO SERVER");
 
-		        //Ask server for recorders
-		        if (IsRecordingSupported)
-		            Connection.SendString("INFO RECORDERS");
-		    }
-		    else // 2.2 and newer
-		    {
-		        Connection.SendString("INFO");
+                //Ask server for recorders
+                if (IsRecordingSupported)
+                    Connection.SendString("INFO RECORDERS");
             }
-		}
+            else // 2.2 and newer
+            {
+                Connection.SendString("INFO");
+            }
+            VersionRetrieved?.Invoke(this, new DataEventArgs(version));
+        }
 
         internal void OnLoad(string clipname)
-		{
-		}
+        {
+        }
 
-		internal void OnLoadBG(string clipname)
-		{
-		}
+        internal void OnLoadBG(string clipname)
+        {
+        }
 
-		internal void OnDataRetrieved(string data)
-		{
+        internal void OnDataRetrieved(string data)
+        {
             DataRetrieved?.Invoke(this, new DataEventArgs(data));
         }
-		#endregion
-	}
+        #endregion
+    }
 
-	public class DataEventArgs : EventArgs
-	{
-		public DataEventArgs(string data)
-		{
-			Data = data;
-		}
+    public class DataEventArgs : EventArgs
+    {
+        public DataEventArgs(string data)
+        {
+            Data = data;
+        }
 
-		public string Data { get; set; }
-	}
+        public string Data { get; set; }
+    }
 
-	public class CasparDeviceSettings
-	{
+    public class CasparDeviceSettings
+    {
         public const int DefaultReconnectInterval = 5000;
 
         public CasparDeviceSettings()

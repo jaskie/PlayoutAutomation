@@ -625,7 +625,7 @@ namespace TAS.Server
                 item.Clipname = LiveDevice;
             if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie)
                 item.ChannelLayout = GetAudioChannelLayout();
-            if (aEvent.EventType == TEventType.Movie)
+            if (aEvent.EventType == TEventType.Movie && Owner.ServerType == TServerType.CasparTVP)
             {
                 item.FieldOrderInverted = media.FieldOrderInverted;
                 item.Length = (int)aEvent.LengthInFrames;

@@ -14,7 +14,7 @@ using TAS.Server.Media;
 using System.ComponentModel;
 using TAS.Database.Common;
 using jNet.RPC;
-using Svt.Caspar;
+using NLog;
 
 namespace TAS.Server
 {
@@ -23,6 +23,8 @@ namespace TAS.Server
 
     public class CasparServer : ServerObjectBase, IPlayoutServer, IPlayoutServerProperties, IDisposable
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private bool _isConnected;
         private int _isInitialized;
         private bool _needUpdateChannels;
@@ -107,7 +109,7 @@ namespace TAS.Server
 
         public void Initialize(MediaManager mediaManager)
         {
-            Debug.WriteLine(this, "CasparServer initialize");
+            Logger.Debug("Initialize: {0}", ServerAddress);
             if (Interlocked.Exchange(ref _isInitialized, 1) != default(int))
                 return;
             MediaDirectory = new ServerDirectory(this) { Folder = MediaFolder };
@@ -117,15 +119,17 @@ namespace TAS.Server
             _casparDevice.ConnectionStatusChanged += CasparDevice_ConnectionStatusChanged;
             _casparDevice.UpdatedChannels += CasparDevice_UpdatedChannels;
             _casparDevice.UpdatedRecorders += CasparDevice_UpdatedRecorders;
+            _casparDevice.VersionRetrieved += CasparDevice_UpdatedVersion;
             Connect();
         }
 
-        public override string ToString()
+        // private methods
+
+        private void CasparDevice_UpdatedVersion(object sender, Svt.Caspar.DataEventArgs e)
         {
-            return $"{GetType().Name} {ServerAddress}";
+            Logger.Info("CasparCG {0} version: {1}", ServerAddress, e.Data);
         }
 
-        // private methods
         private void CasparDevice_UpdatedRecorders(object sender, EventArgs e)
         {
             var deviceRecorders = _casparDevice.Recorders.ToList();
@@ -141,7 +145,8 @@ namespace TAS.Server
                 port = 5250;
             if (_casparDevice != null && !_casparDevice.IsConnected)
                 _casparDevice.Connect(host, port, OscPort, true);
-            else throw new Exception($"Invalid server address: {ServerAddress}");
+            else
+                Logger.Error("Invalid server address: {0}", ServerAddress);
         }
 
         private void Disconnect()
@@ -173,7 +178,7 @@ namespace TAS.Server
                 _needUpdateChannels = true;
             }
             IsConnected = e.Connected;
-            Debug.WriteLine(e.Connected, "Caspar connected");
+            Logger.Info("Connection status changed: {0} {1}", ServerAddress, e.Connected ? "Connected" : "Disconnected");
         }
         
         public void Dispose()
@@ -187,6 +192,7 @@ namespace TAS.Server
                 _casparDevice.ConnectionStatusChanged -= CasparDevice_ConnectionStatusChanged;
                 _casparDevice.UpdatedChannels -= CasparDevice_UpdatedChannels;
                 _casparDevice.UpdatedRecorders -= CasparDevice_UpdatedRecorders;
+                _casparDevice.VersionRetrieved -= CasparDevice_UpdatedVersion;
                 _casparDevice.Dispose();
             }
             (MediaDirectory as IDisposable)?.Dispose();
