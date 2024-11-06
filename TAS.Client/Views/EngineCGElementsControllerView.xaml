@@ -18,14 +18,6 @@
             <CheckBox VerticalAlignment="Center" Margin="10, 0" Content="{Resx _active}" IsChecked="{Binding IsCGEnabled}"/>
             <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsCGEnabled}">
                 <StackPanel.Resources>
-                    <Style TargetType="CheckBox">
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter Property="Foreground" Value="Black"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
                     <Style TargetType="ComboBox">
                         <Setter Property="VerticalAlignment" Value="Center"/>
                         <Setter Property="Width" Value="100" />
@@ -44,19 +36,15 @@
                         </Style.Triggers>
                     </Style>
                 </StackPanel.Resources>
-                <CheckBox IsChecked="{Binding IsWideScreen}" Margin="5, 0" Width="50" HorizontalContentAlignment="Left">
-                    <CheckBox.Content>
-                        <TextBlock>
-                            <TextBlock.Text>
-                                <Binding Path="IsWideScreen">
-                                    <Binding.Converter>
-                                        <common:BoolToStringConverter TrueValue="16:9" FalseValue="4:3" />
-                                    </Binding.Converter>
-                                </Binding>
-                            </TextBlock.Text>
-                        </TextBlock>
-                    </CheckBox.Content>
-                </CheckBox>
+                <TextBlock Margin="5, 0" Width="50" VerticalAlignment="Center">
+                    <TextBlock.Text>
+                        <Binding Path="IsWideScreen">
+                            <Binding.Converter>
+                                <common:BoolToStringConverter TrueValue="16:9" FalseValue="4:3" />
+                            </Binding.Converter>
+                        </Binding>
+                    </TextBlock.Text>
+                </TextBlock>
                 <StackPanel Visibility="{Binding Crawls.Length, Converter={StaticResource NonZeroToVisibilityConverter}}" Orientation="Horizontal">
                     <Label Padding="5, 0" Content="{Resx _crawl}"/>
                     <ComboBox ItemsSource="{Binding Crawls}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Crawl}" />
