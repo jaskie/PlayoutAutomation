@@ -6,5 +6,6 @@
     <Deterministic>false</Deterministic>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <SatelliteResourceLanguages>pl</SatelliteResourceLanguages>
   </PropertyGroup>
 </Project>
