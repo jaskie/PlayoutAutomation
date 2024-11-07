@@ -9,6 +9,16 @@ namespace Svt.Caspar
 {
     public class CasparDevice : IDisposable
     {
+        internal enum ServerVersion
+        {
+            Unknown,
+            V2_0,
+            V2_0_6_TVP,
+            V2_2_Plus
+        }
+
+        private ServerVersion _serverVersion = ServerVersion.Unknown;
+
         internal Svt.Network.ServerConnection Connection { get; private set; }
         private Svt.Network.ReconnectionHelper ReconnectionHelper { get; set; }
         private System.Net.IPAddress[] HostAddresses;
@@ -18,7 +28,6 @@ namespace Svt.Caspar
         public string Version { get; private set; }
 
         public bool IsConnected => Connection != null && Connection.IsConnected;
-        public bool IsRecordingSupported { get; set; }
 
         public event EventHandler<Svt.Network.ConnectionEventArgs> ConnectionStatusChanged;
 
@@ -86,7 +95,7 @@ namespace Svt.Caspar
                     {
                         case "channel":
                             var channels = Channels;
-                            channels.FirstOrDefault(c => c.Id == id)?.OscMessage(path, message.Arguments);
+                            channels.FirstOrDefault(c => c.Id == id)?.OscMessage(path, message.Arguments, _serverVersion);
                             break;
                         case "recorder":
                             var recorders = Recorders;
@@ -250,18 +259,22 @@ namespace Svt.Caspar
         internal void OnVersion(string version)
         {
             Version = version;
-
             if (version.StartsWith("2.0"))
             {
                 //Ask server for channels
                 Connection.SendString("INFO SERVER");
-
-                //Ask server for recorders
-                if (IsRecordingSupported)
+                if (version.StartsWith("2.0.6 TVP"))
+                {
+                    _serverVersion = ServerVersion.V2_0_6_TVP;
+                    //Ask server for recorders
                     Connection.SendString("INFO RECORDERS");
+                }
+                else
+                    _serverVersion = ServerVersion.V2_0;
             }
             else // 2.2 and newer
             {
+                _serverVersion = ServerVersion.V2_2_Plus;
                 Connection.SendString("INFO");
             }
             VersionRetrieved?.Invoke(this, new DataEventArgs(version));

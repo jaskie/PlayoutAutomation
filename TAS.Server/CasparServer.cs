@@ -115,7 +115,7 @@ namespace TAS.Server
             MediaDirectory = new ServerDirectory(this) { Folder = MediaFolder };
             if (!string.IsNullOrWhiteSpace(AnimationFolder))
                 AnimationDirectory = new AnimationDirectory(this) { Folder = AnimationFolder };
-            _casparDevice = new Svt.Caspar.CasparDevice { IsRecordingSupported = ServerType == TServerType.CasparTVP };
+            _casparDevice = new Svt.Caspar.CasparDevice();
             _casparDevice.ConnectionStatusChanged += CasparDevice_ConnectionStatusChanged;
             _casparDevice.UpdatedChannels += CasparDevice_UpdatedChannels;
             _casparDevice.UpdatedRecorders += CasparDevice_UpdatedRecorders;

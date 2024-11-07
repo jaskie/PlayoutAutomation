@@ -10,7 +10,6 @@ namespace Svt.Network.Osc
     public static class OscPacketDispatcher
     {
 
-        
         public static void Bind(int port, Action<OscPacketEventArgs> packetReceivedDelegate)
         {
             UdpListener listener = null;
@@ -37,8 +36,8 @@ namespace Svt.Network.Osc
             }
             return false;
         }
-        
+
         private static ConcurrentDictionary<int, UdpListener> _listeners = new ConcurrentDictionary<int, UdpListener>();
-                
+
     }
 }

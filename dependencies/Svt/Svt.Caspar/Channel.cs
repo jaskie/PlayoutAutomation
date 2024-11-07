@@ -264,52 +264,52 @@ namespace Svt.Caspar
         #endregion //Commands
 
         public event EventHandler<AudioDataEventArgs> AudioDataReceived;
+
         #region OSC
-        internal void OscMessage(string[] address, List<object> arguments)
+        internal void OscMessage(string[] address, object[] arguments, CasparDevice.ServerVersion serverVersion)
         {
-            if (address.Length >= 3 && arguments.Count == 1)
+            if (AudioDataReceived is null)
+                return;
+            if (address.Length >= 5 && address[2] == "mixer" && address[3] == "audio")
             {
-                switch (address[2])
+                switch (serverVersion)
                 {
-                    case "mixer":
-                        if (address.Length >= 5)
+                    case CasparDevice.ServerVersion.V2_2_Plus:
+                        if (address[4] == "volume")
                         {
-                            if (address[3] == "audio")
+                            var audoData = new AudioData(arguments.Length);
+                            for (int i = 0; i < arguments.Length; i++)
                             {
-                                if (address[4] == "nb_channels" && arguments[0] is long)
-                                    NotifyAudio((int)(long)arguments[0]);
-                                else
+                                if (arguments[i] is int intValue)
                                 {
-                                    int audioChannel;
-                                    if (address.Length == 6
-                                        && arguments[0] is float
-                                        && int.TryParse(address[4], out audioChannel)
-                                        && audioChannel-- > 0)
-                                    {
-                                        var ad = _currentAudioData;
-                                        if (ad != null)
-                                            switch (address[5])
-                                            {
-                                                case "dBFS":
-                                                    if (ad.NumChannels > audioChannel)
-                                                        ad.dBFS[audioChannel] = (float)arguments[0];
-                                                    break;
-                                                case "pFS":
-                                                    if (ad.NumChannels > audioChannel)
-                                                        ad.pFS[audioChannel] = (float)arguments[0];
-                                                    break;
-                                            }
-                                    }
+                                    audoData.dBFS[i] = (float)(20 * Math.Log10(intValue >> 16)) - 88;
                                 }
-                                break;
+                            }
+                            AudioDataReceived?.Invoke(this, new AudioDataEventArgs(audoData));
+                        }
+                        break;
+                    default:
+                        if (address[4] == "nb_channels" && arguments[0] is long)
+                            NotifyAudio((int)(long)arguments[0]);
+                        else
+                        {
+                            int audioChannel;
+                            if (address.Length == 6
+                                && arguments[0] is float
+                                && int.TryParse(address[4], out audioChannel)
+                                && audioChannel-- > 0)
+                            {
+                                var ad = _currentAudioData;
+                                if (ad != null)
+                                    switch (address[5])
+                                    {
+                                        case "dBFS":
+                                            if (ad.NumChannels > audioChannel)
+                                                ad.dBFS[audioChannel] = (float)arguments[0];
+                                            break;
+                                    }
                             }
                         }
-                        Debug.WriteLine($"Unrecognized message: {string.Join("/", address)}:{string.Join(",", arguments)}");
-                        break;
-                    case "stage":
-                    case "output":
-                    default:
-                        //Debug.WriteLine($"Unrecognized message: {string.Join("/", address)}:{string.Join(",", arguments)}");
                         break;
                 }
             }
@@ -318,7 +318,7 @@ namespace Svt.Caspar
         private void NotifyAudio(int numChannels)
         {
             var audioData = _currentAudioData;
-            if (audioData != null && (audioData.dBFS.Any(v => v != null) || audioData.pFS.Any(v => v != null)))
+            if (audioData != null && (audioData.dBFS.Any(v => v != null)))
                 AudioDataReceived?.Invoke(this, new AudioDataEventArgs(audioData));
             _currentAudioData = new AudioData(numChannels);
         }
@@ -411,14 +411,12 @@ namespace Svt.Caspar
         {
             NumChannels = numChannels;
             dBFS = new float?[numChannels];
-            pFS =  new float?[numChannels];
         }
         public float?[] dBFS;
-        public float?[] pFS;
         public readonly int NumChannels;
         public override string ToString()
         {
-            return $"Audio data: {NumChannels}, dBFS:[{string.Join(", ", dBFS)}], pFS:[{string.Join(", ", pFS)}]";
+            return $"Audio data: {NumChannels}, dBFS:[{string.Join(", ", dBFS)}]";
         }
     }
 

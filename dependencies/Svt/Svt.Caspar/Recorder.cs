@@ -135,9 +135,9 @@ namespace Svt.Caspar
 
         #region OSC notifications
 
-        internal void OscMessage(string[] address, List<object> arguments)
+        internal void OscMessage(string[] address, object[] arguments)
         {
-            if (address.Length >= 3 && arguments.Count == 1)
+            if (address.Length >= 3 && arguments.Length == 1)
             {
                 switch (address[2])
                 {

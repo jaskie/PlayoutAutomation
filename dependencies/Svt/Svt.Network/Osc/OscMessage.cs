@@ -7,28 +7,27 @@ namespace Svt.Network.Osc
 {
     public class OscMessage : OscPacket
     {
-        public string Address;
-        public List<object> Arguments;
+        public readonly string Address;
+        public readonly object[] Arguments;
 
         public OscMessage(string address, params object[] args)
         {
             this.Address = address;
-            Arguments = new List<object>();
-            Arguments.AddRange(args);
+            this.Arguments = args;
         }
 
         public override byte[] GetBytes()
         {
             List<byte[]> parts = new List<byte[]>();
 
-            List<object> currentList = Arguments;
+            var currentArguments = Arguments;
             int ArgumentsIndex = 0;
 
             string typeString = ",";
             int i = 0;
-            while (i < currentList.Count)
+            while (i < currentArguments.Length)
             {
-                var arg = currentList[i];
+                var arg = currentArguments[i];
 
                 string type = (arg != null) ? arg.GetType().ToString() : "null";
                 switch (type)
@@ -109,13 +108,13 @@ namespace Svt.Network.Osc
                     // currentList back with Arguments and continue from where we left off
                     case "System.Object[]":
                     case "System.Collections.Generic.List`1[System.Object]":
-                        if (arg.GetType() == typeof(object[]))
-                            arg = ((object[])arg).ToList();
+                        if (arg.GetType() == typeof(List<object>))
+                            arg = ((List<object>)arg).ToArray();
 
-                        if (Arguments != currentList)
+                        if (Arguments != currentArguments)
                             throw new Exception("Nested Arrays are not supported");
                         typeString += "[";
-                        currentList = (List<object>)arg;
+                        currentArguments = (object[])arg;
                         ArgumentsIndex = i;
                         i = 0;
                         continue;
@@ -125,11 +124,11 @@ namespace Svt.Network.Osc
                 }
 
                 i++;
-                if (currentList != Arguments && i == currentList.Count)
+                if (currentArguments != Arguments && i == currentArguments.Length)
                 {
                     // End of array, go back to main Argument list
                     typeString += "]";
-                    currentList = Arguments;
+                    currentArguments = Arguments;
                     i = ArgumentsIndex + 1;
                 }
             }
