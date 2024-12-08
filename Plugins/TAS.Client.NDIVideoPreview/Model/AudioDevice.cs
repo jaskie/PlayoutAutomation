@@ -1,6 +1,6 @@
 ﻿using NAudio.Wave;
 
-namespace TAS.Client.NDIVideoPreview.Audio
+namespace TAS.Client.NDIVideoPreview.Model
 {
     public class AudioDevice
     {

@@ -16,6 +16,7 @@
              >
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <common:NullToVisibilityConverter x:Key="NullToVis"/>
         <Style x:Key="ProgressBarVolumeMeterStyle" TargetType="{x:Type ProgressBar}">
             <Setter Property="Background" Value="#ABABAB"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -115,7 +116,7 @@
                     </DrawingBrush>
                 </Rectangle.Fill>
             </Rectangle>
-            <Image Visibility="{Binding IsDisplaySource, Converter={StaticResource BoolToVis}}" Source="{Binding VideoBitmap}" />
+            <Image Visibility="{Binding VideoBitmap, Converter={StaticResource NullToVis}}" Source="{Binding VideoBitmap}" />
             <ItemsControl ItemsSource="{Binding AudioLevels}" Visibility="{Binding IsDisplayAudioBars, Converter={StaticResource BoolToVis}}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
