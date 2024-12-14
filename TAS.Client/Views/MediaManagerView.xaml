@@ -170,7 +170,7 @@
                             </Grid.Resources>
                             <StackPanel Grid.Column="0" Orientation="Horizontal">
                                 <Label Content="{Resx _directory}"/>
-                                <toolkit:DropDownButton x:Name="DirectoryCombo" Width="120" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory}" ToolTip="{Binding SelectedDirectory.Folder}" Margin="2">
+                                <toolkit:DropDownButton x:Name="DirectoryCombo" Width="120" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory.DirectoryName}" ToolTip="{Binding SelectedDirectory.Folder}" Margin="2">
                                     <toolkit:DropDownButton.DropDownContent>
                                         <TreeView x:Name="DirectorySelector" MinWidth="140" 
                                               ItemsSource="{Binding MediaDirectories}" 
@@ -534,9 +534,10 @@
                                 </DataTemplate>
                             </DataGrid.RowDetailsTemplate>
                         </DataGrid>
-                        <Border Grid.Row="1" Grid.RowSpan="2" Background="DarkGray" Opacity="0.5" Visibility="{Binding SelectedDirectory.IsInitialzied, Converter={StaticResource InvertedBoolToVis}}">
+                        <Grid Grid.Row="1" Grid.RowSpan="2" Visibility="{Binding SelectedDirectory.IsInitialzied, Converter={StaticResource InvertedBoolToVis}}">
+                            <Border Background="DarkGray" Opacity="0.9" />
                             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Resx _directoryNotInitialized}"/>
-                        </Border>
+                        </Grid>
                     </Grid>
                 </TabItem>
                 <TabItem Header="{Resx _recorders}" Visibility="{Binding IsShowRecorders, Converter={StaticResource BoolToVis}}">

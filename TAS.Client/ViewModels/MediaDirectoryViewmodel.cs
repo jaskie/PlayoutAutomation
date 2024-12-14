@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using TAS.Client.Common;
 using TAS.Common;
@@ -6,7 +8,7 @@ using TAS.Common.Interfaces.MediaDirectory;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaDirectoryViewmodel
+    public class MediaDirectoryViewmodel : ViewModelBase
     {
         public MediaDirectoryViewmodel(IMediaDirectory directory, string directoryName, bool includeImport = false, bool includeExport = false)
         {
@@ -14,6 +16,7 @@ namespace TAS.Client.ViewModels
             DirectoryName = directoryName;
             SubDirectories = (directory as IIngestDirectory)?.SubDirectories?.Where(d=> includeImport && d.ContainsImport() || includeExport && d.ContainsExport())
                              .Select(d => new MediaDirectoryViewmodel((IIngestDirectory)d, d.DirectoryName, includeImport, includeExport)).ToList() ?? new List<MediaDirectoryViewmodel>();
+            directory.PropertyChanged += Directory_PropertyChanged;
         }
 
         public IMediaDirectory Directory { get; }
@@ -73,11 +76,30 @@ namespace TAS.Client.ViewModels
 
         public bool IsInitialzied => (Directory as IWatcherDirectory)?.IsInitialized ?? true;
 
-        public override string ToString()
+        protected override void OnDispose()
         {
-            return DirectoryName;
+            Directory.PropertyChanged -= Directory_PropertyChanged;
         }
 
-
+        private void Directory_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(IMediaDirectory.VolumeFreeSize):
+                    NotifyPropertyChanged(nameof(VolumeFreeSize));
+                    NotifyPropertyChanged(nameof(DirectoryFreePercentage));
+                    NotifyPropertyChanged(nameof(IsOK));
+                    break;
+                case nameof(IMediaDirectory.VolumeTotalSize):
+                    NotifyPropertyChanged(nameof(VolumeTotalSize));
+                    NotifyPropertyChanged(nameof(DirectoryFreePercentage));
+                    NotifyPropertyChanged(nameof(IsOK));
+                    break;
+                case nameof(IWatcherDirectory.IsInitialized):
+                    NotifyPropertyChanged(nameof(IsInitialzied));
+                    NotifyPropertyChanged(nameof(IsOK));
+                    break;
+            }
+        }
     }
 }
