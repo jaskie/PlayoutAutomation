@@ -74,7 +74,7 @@ namespace TAS.Server
         public bool IsServerConnected { get => _isServerConnected; internal set => SetField(ref _isServerConnected, value); }
 
         [DtoMember]
-        public IEnumerable<IPlayoutServerChannel> Channels => _ownerServer.Channels.ToList();
+        public IEnumerable<IPlayoutServerChannel> Channels => _ownerServer.Channels.ToArray();
 
         [DtoMember]
         public IMedia RecordingMedia { get => _recordingMedia; private set => SetField(ref _recordingMedia, value); }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Remoting.Model.MediaOperation;
 
 namespace TAS.Remoting.Model
 {
@@ -14,7 +14,7 @@ namespace TAS.Remoting.Model
 
         private event EventHandler<FileOperationEventArgs> _operationCompleted;
 
-        public IEnumerable<IFileOperationBase> GetOperationQueue() { return Query<List<IFileOperationBase>>(); }
+        public IEnumerable<IFileOperationBase> GetOperationQueue() { return Query<FileOperationBase[]>(); }
 
         public IFileOperationBase CreateFileOperation(TFileOperationKind kind)
         {
@@ -64,15 +64,16 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(SocketMessage message)
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs) 
         {
-            if (message.MemberName == nameof(OperationAdded))
+            switch (eventName)
             {
-                _operationAdded?.Invoke(this, DeserializeEventArgs<FileOperationEventArgs>(message));
-            }
-            if (message.MemberName == nameof(OperationCompleted))
-            {
-                _operationCompleted?.Invoke(this, DeserializeEventArgs<FileOperationEventArgs>(message));
+                case nameof(OperationAdded):
+                    _operationAdded?.Invoke(this, (FileOperationEventArgs)eventArgs);
+                    break;
+                case nameof(OperationCompleted):
+                    _operationCompleted?.Invoke(this, (FileOperationEventArgs)eventArgs);
+                    break;
             }
         }
 

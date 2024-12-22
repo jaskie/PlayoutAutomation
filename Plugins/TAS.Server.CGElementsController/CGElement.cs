@@ -10,6 +10,7 @@ using TAS.Common.Interfaces;
 namespace TAS.Server
 {
     [DebuggerDisplay("{Id}:{Name}")]
+    [DtoType(typeof(ICGElement))]
     public class CGElement : ServerObjectBase, ICGElement
     {
         private readonly object _imageLock = new object();

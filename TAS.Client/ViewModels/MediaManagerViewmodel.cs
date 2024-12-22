@@ -30,7 +30,7 @@ namespace TAS.Client.ViewModels
         private MediaViewViewmodel _selectedMediaVm;
         private MediaEditViewmodel _editMedia;
         private IList _selectedMediaList;
-        private string[] _searchTextSplit = new string[0];
+        private string[] _searchTextSplit = Array.Empty<string>();
         private string _searchText = string.Empty;
         private object _mediaCategory;
         private object _mediaType = resources._all_;
@@ -435,13 +435,18 @@ namespace TAS.Client.ViewModels
 
         private void SelectedDirectory_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            switch (e.PropertyName)
+            OnUiThread(() =>
             {
-                case nameof(IWatcherDirectory.IsInitialized):
-                case nameof(IMediaDirectory.VolumeFreeSize):
-                    NotifyDirectoryPropertiesChanged();
-                    break;
-            }
+                switch (e.PropertyName)
+                {
+                    case nameof(IWatcherDirectory.IsInitialized):
+                        RefreshFiles();
+                        break;
+                    case nameof(IMediaDirectory.VolumeFreeSize):
+                        NotifyDirectoryPropertiesChanged();
+                        break;
+                }
+            });
         }
 
         private async void RefreshFiles()
@@ -472,7 +477,7 @@ namespace TAS.Client.ViewModels
                         else
                         {
                             if (!CanSearch(null))
-                                return;
+                               break;
                             await Task.Run(() => StartMediaSearchProvider(ingestDirectory));
                         }
                         break;
@@ -525,12 +530,16 @@ namespace TAS.Client.ViewModels
         {
             if (!(sender is IMediaSearchProvider provider))
                 return;
-            provider.ItemAdded -= Search_ItemAdded;
-            provider.Finished -= Search_Finished;
-            if (provider != _currentSearchProvider)
-                return;
-            _currentSearchProvider = null;
-            IsSearching = false;
+            // the call may come from a different thread
+            OnUiThread(() =>
+            {
+                provider.ItemAdded -= Search_ItemAdded;
+                provider.Finished -= Search_Finished;
+                if (provider != _currentSearchProvider)
+                    return;
+                _currentSearchProvider = null;
+                IsSearching = false;
+            });
         }
 
         public bool IsSearching { get => _isSearching; set => SetField(ref _isSearching, value); }
@@ -539,22 +548,25 @@ namespace TAS.Client.ViewModels
 
         private void SetMediaItems(IEnumerable<IMedia> items)
         {
-            var newItems = items == null
-                ? new ObservableCollection<MediaViewViewmodel>()
-                : new ObservableCollection<MediaViewViewmodel>(items.Select(media => new MediaViewViewmodel(media, _mediaManager)));
-            var oldMediaItems = _mediaItems;
-            _mediaItems = newItems;
-            if (oldMediaItems != null)
-                foreach (var m in oldMediaItems)
-                    m.Dispose();
-            SelectedMediaVm = null;
-            MediaItemsView = CollectionViewSource.GetDefaultView(newItems);
-            if (items != null)
-                MediaItemsView.Filter = MediaItemFilter;
-            MediaItemsView.SortDescriptions.Add(!SelectedDirectory.IsXdcam
-                ? new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending)
-                : new SortDescription(nameof(MediaViewViewmodel.ClipNr), ListSortDirection.Ascending));
-            NotifyPropertyChanged(nameof(ItemsCount));
+            OnUiThread(() =>
+            {
+                var newItems = items == null
+                    ? new ObservableCollection<MediaViewViewmodel>()
+                    : new ObservableCollection<MediaViewViewmodel>(items.Select(media => new MediaViewViewmodel(media, _mediaManager)));
+                var oldMediaItems = _mediaItems;
+                _mediaItems = newItems;
+                if (oldMediaItems != null)
+                    foreach (var m in oldMediaItems)
+                        m.Dispose();
+                SelectedMediaVm = null;
+                MediaItemsView = CollectionViewSource.GetDefaultView(newItems);
+                if (items != null)
+                    MediaItemsView.Filter = MediaItemFilter;
+                MediaItemsView.SortDescriptions.Add(!SelectedDirectory.IsXdcam
+                    ? new SortDescription(nameof(MediaViewViewmodel.LastUpdated), ListSortDirection.Descending)
+                    : new SortDescription(nameof(MediaViewViewmodel.ClipNr), ListSortDirection.Ascending));
+                NotifyDirectoryPropertiesChanged();
+            });
         }
 
         private void AddMediaToItems(IMedia media)

@@ -1,7 +1,6 @@
 ﻿using jNet.RPC;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Xml.Serialization;
 using TAS.Common;
@@ -54,10 +53,10 @@ namespace TAS.Server.Security
             set { SetField(ref _authenticationObject, value); }
         }
 
-        public ReadOnlyCollection<IGroup> GetGroups()
+        public IReadOnlyCollection<IGroup> GetGroups()
         {
             lock (_groups.SyncRoot())
-                return _groups.AsReadOnly();
+                return _groups.ToArray();
         }
 
         [XmlArray("Groups"), XmlArrayItem(nameof(Group))]

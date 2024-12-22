@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using jNet.RPC.Client;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
+using TAS.Common.Interfaces;
 using TAS.Remoting;
-using TAS.Remoting.Model;
 
 namespace TVPlayClient
 {
@@ -76,7 +72,7 @@ namespace TVPlayClient
             CreateView();
         }
 
-        private void SetupChannel(Engine engine)
+        private void SetupChannel(IEngine engine)
         {
             Channel = new ChannelViewmodel(engine, _channelConfiguration.ShowEngine, _channelConfiguration.ShowMedia);
             TabName = Channel.DisplayName;
@@ -89,7 +85,7 @@ namespace TVPlayClient
                 try
                 {
                     _client = new RemoteClient(_channelConfiguration.Address, ClientTypeNameBinder.Current);
-                    var engine = _client.GetRootObject<Engine>();
+                    var engine = _client.GetRootObject<IEngine>();
                     if (engine is null)
                     {
                         _client.Dispose();

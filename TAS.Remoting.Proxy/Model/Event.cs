@@ -79,7 +79,7 @@ namespace TAS.Remoting.Model
         private byte _logo;
 
         [DtoMember(nameof(IEvent.Media))]
-        private MediaBase _media;
+        private IMedia _media;
 
         [DtoMember(nameof(IEvent.MediaGuid))]
         private Guid _mediaGuid;
@@ -181,13 +181,13 @@ namespace TAS.Remoting.Model
 
         public Guid MediaGuid { get => _mediaGuid; set => Set(value); }
 
-        public IEvent GetNext() => Query<Event>();
+        public IEvent GetNext() => Query<IEvent>();
 
-        public IEvent GetParent() => Query<Event>();
+        public IEvent GetParent() => Query<IEvent>();
 
-        public IEvent GetPrior() => Query<Event>();
+        public IEvent GetPrior() => Query<IEvent>();
 
-        public IEvent GetVisualParent() => Query<Event>();
+        public IEvent GetVisualParent() => Query<IEvent>();
 
 
         public TimeSpan? Offset => _offset;
@@ -211,7 +211,7 @@ namespace TAS.Remoting.Model
 
         public TStartType StartType { get => _startType; set => Set(value); }
 
-        public IEnumerable<IEvent> GetSubEvents() => Query<Event[]>();
+        public IEnumerable<IEvent> GetSubEvents() => Query<IEvent[]>();
 
         public int SubEventsCount => _subEventsCount;
 
@@ -227,7 +227,7 @@ namespace TAS.Remoting.Model
 
         public IEvent GetSuccessor()
         {
-            return Query<Event>();
+            return Query<IEvent>();
         }
 
         #region Event handlers
@@ -261,15 +261,15 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(SocketMessage message)
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
-            switch (message.MemberName)
+            switch (eventName)
             {
                 case nameof(IEvent.PositionChanged):
-                    _positionChanged?.Invoke(this, DeserializeEventArgs<EventPositionEventArgs>(message));
+                    _positionChanged?.Invoke(this, (EventPositionEventArgs)eventArgs);
                     break;
                 case nameof(IEvent.SubEventChanged):
-                    var ea = DeserializeEventArgs<CollectionOperationEventArgs<IEvent>>(message);
+                    var ea = (CollectionOperationEventArgs<IEvent>)eventArgs;
                     _subEventChanged?.Invoke(this, ea);
                     break;
             }
@@ -300,7 +300,7 @@ namespace TAS.Remoting.Model
             Invoke();
         }
 
-        public IEnumerable<IAclRight> GetRights() => Query<ReadOnlyCollection<EventAclRight>>();
+        public IEnumerable<IAclRight> GetRights() => Query<IAclRight[]>();
 
         public IAclRight AddRightFor(ISecurityObject securityObject) { return Query<IAclRight>(parameters: new object[] { securityObject }); }
 

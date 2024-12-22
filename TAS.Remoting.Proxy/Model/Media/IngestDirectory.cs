@@ -97,7 +97,7 @@ namespace TAS.Remoting.Model.Media
         private int _xdcamClipCount;
 
         [DtoMember(nameof(SubDirectories))]
-        private List<IngestDirectory> _subDirectories;
+        private IIngestDirectory[] _subDirectories;
 
         #pragma warning restore
 

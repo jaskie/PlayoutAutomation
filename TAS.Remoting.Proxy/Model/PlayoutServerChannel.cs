@@ -1,5 +1,6 @@
 ﻿using jNet.RPC;
 using jNet.RPC.Client;
+using System;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -51,7 +52,7 @@ namespace TAS.Remoting.Model
 
         public int AudioChannelCount => _audioChannelCount;
 
-        protected override void OnEventNotification(SocketMessage message) { }
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs) { }
 
     }
 }

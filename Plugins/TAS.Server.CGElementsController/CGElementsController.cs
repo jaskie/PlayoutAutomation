@@ -8,6 +8,7 @@ using jNet.RPC;
 
 namespace TAS.Server
 {
+    [DtoType(typeof(ICGElementsController))]
     public class CgElementsController : ServerObjectBase, ICGElementsController, IEnginePlugin
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -75,11 +76,11 @@ namespace TAS.Server
             }
         }
 
-        [DtoMember(nameof(Crawls))]
         [XmlArray(nameof(Crawls)), XmlArrayItem(nameof(Crawl))]
         public CGElement[] _crawls { get; set; } = new CGElement[0];
 
-        public IEnumerable<ICGElement> Crawls => _crawls;
+        [DtoMember]
+        public IEnumerable<ICGElement> Crawls => _crawls.Cast<ICGElement>().ToArray();
 
         [DtoMember]
         [XmlIgnore]
@@ -94,11 +95,11 @@ namespace TAS.Server
             }
         }
 
-        [DtoMember(nameof(Logos))]
         [XmlArray(nameof(Logos)), XmlArrayItem(nameof(Logo))]
         public CGElement[] _logos { get; set; } = new CGElement[0];
 
-        public IEnumerable<ICGElement> Logos => _logos;
+        [DtoMember]
+        public IEnumerable<ICGElement> Logos => _logos.Cast<ICGElement>().ToArray();
 
         [DtoMember]
         [XmlIgnore]
@@ -113,11 +114,11 @@ namespace TAS.Server
             }
         }
 
-        [DtoMember(nameof(Parentals))]
         [XmlArray(nameof(Parentals)), XmlArrayItem(nameof(Parental))]
         public CGElement[] _parentals { get; set; } = new CGElement[0];
 
-        public IEnumerable<ICGElement> Parentals => _parentals;
+        [DtoMember]
+        public IEnumerable<ICGElement> Parentals => _parentals.Cast<ICGElement>().ToArray();
 
         [XmlArray("Startup"), XmlArrayItem("Command")]
         public string[] _startup { get; set; } = new string[0];
@@ -173,7 +174,6 @@ namespace TAS.Server
             {
                 if (!_isCgEnabled)
                     return;
-
 
                 Logger.Debug("Executing startup items");
                 foreach (var command in _startup)

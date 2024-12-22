@@ -1,5 +1,5 @@
 ﻿using jNet.RPC;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using TAS.Common;
 using TAS.Common.Interfaces.Security;
 
@@ -33,9 +33,9 @@ namespace TAS.Remoting.Model.Security
 
         public bool IsAuthenticated { get => _isAuthenticated; set => Set(value); }
 
-        public ReadOnlyCollection<IGroup> GetGroups()
+        public IReadOnlyCollection<IGroup> GetGroups()
         {
-            return Query<ReadOnlyCollection<IGroup>>();
+            return Query<IGroup[]>();
         }
 
         public void GroupAdd(IGroup group)

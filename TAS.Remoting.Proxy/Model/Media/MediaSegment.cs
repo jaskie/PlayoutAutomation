@@ -46,7 +46,7 @@ namespace TAS.Remoting.Model.Media
             Invoke();
         }
 
-        protected override void OnEventNotification(SocketMessage message) { }
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs) { }
 
     }
 }

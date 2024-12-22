@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common.Interfaces;
@@ -31,6 +32,6 @@ namespace TAS.Remoting.Model
             Invoke(parameters: new object[] { inputId });
         }
 
-        protected override void OnEventNotification(SocketMessage message) { }
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs) { }
     }
 }

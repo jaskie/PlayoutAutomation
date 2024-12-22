@@ -168,10 +168,10 @@ namespace TAS.Common
                                 ne = e;
                             }
                             else
-                                throw new ApplicationException($"Previous item for {seProxy} not found");
+                                throw new ApplicationException($"Previous item for {seProxy.EventType} {seProxy.EventName} not found");
                             break;
                         default:
-                            throw new ApplicationException($"Invalid start type of {seProxy}");
+                            throw new ApplicationException($"Invalid start type of {seProxy.EventType} {seProxy.EventName}: {seProxy.StartType}");
                     }
                 }
             }
@@ -199,7 +199,7 @@ namespace TAS.Common
                 IsLoop = source.IsLoop,
                 Layer = source.Layer,
                 MediaGuid = source.MediaGuid,
-                Media = eventMedia == null ? null : MediaProxy.FromMedia(eventMedia),
+                Media = eventMedia is null ? null : MediaProxy.FromMedia(eventMedia),
                 RequestedStartTime = source.RequestedStartTime,
                 ScheduledDelay = source.ScheduledDelay,
                 ScheduledTc = source.ScheduledTc,

@@ -11,7 +11,7 @@ namespace TAS.Remoting.Model.Media
         #pragma warning disable CS0649
 
         [DtoMember(nameof(IMediaSegments.Segments))]
-        private List<MediaSegment> _segments;
+        private List<IMediaSegment> _segments;
 
         [DtoMember(nameof(IMediaSegments.Count))]
         private int _count;
@@ -60,17 +60,17 @@ namespace TAS.Remoting.Model.Media
             }
         }
 
-        protected override void OnEventNotification(SocketMessage message)
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
-            switch (message.MemberName)
+            switch (eventName)
             {
                 case nameof(IMediaSegments.SegmentAdded):
-                    var eAdded = DeserializeEventArgs<MediaSegmentEventArgs>(message);
+                    var eAdded = (MediaSegmentEventArgs)eventArgs;
                     _segments.Add(eAdded.Segment as MediaSegment);
                     _segmentAdded?.Invoke(this, eAdded);
                     break;
                 case nameof(IMediaSegments.SegmentRemoved):
-                    var eRemoved = DeserializeEventArgs<MediaSegmentEventArgs>(message);
+                    var eRemoved = (MediaSegmentEventArgs)eventArgs;
                     _segments.Remove(eRemoved.Segment as MediaSegment);
                     _segmentRemoved?.Invoke(this, eRemoved);
                     break;

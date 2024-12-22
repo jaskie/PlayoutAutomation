@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common;
@@ -36,7 +37,7 @@ namespace TAS.Remoting.Model.Security
             Invoke();
         }
 
-        protected override void OnEventNotification(SocketMessage message)
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
         }
     }

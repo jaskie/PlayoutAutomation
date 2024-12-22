@@ -11,10 +11,10 @@ namespace TAS.Remoting.Model.Security
     {
 #pragma warning disable CS0649
         [DtoMember(nameof(IAuthenticationService.Users))]
-        private List<User> _users;
+        private IUser[] _users;
 
         [DtoMember(nameof(IAuthenticationService.Groups))]
-        private List<Group> _groups;
+        private IGroup[] _groups;
 
         private event EventHandler<CollectionOperationEventArgs<IUser>> _usersOperation;
 
@@ -70,16 +70,16 @@ namespace TAS.Remoting.Model.Security
             throw new NotImplementedException();
         }
 
-        protected override void OnEventNotification(SocketMessage message)
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
-            switch (message.MemberName)
+            switch (eventName)
             {
 
                 case nameof(UsersOperation):
-                    _usersOperation?.Invoke(this, DeserializeEventArgs<CollectionOperationEventArgs<IUser>>(message));
+                    _usersOperation?.Invoke(this, (CollectionOperationEventArgs<IUser>)eventArgs);
                     break;
                 case nameof(GroupsOperation):
-                    _groupsOperation?.Invoke(this, DeserializeEventArgs<CollectionOperationEventArgs<IGroup>>(message));
+                    _groupsOperation?.Invoke(this, (CollectionOperationEventArgs<IGroup>)eventArgs);
                     break;
             }
         }

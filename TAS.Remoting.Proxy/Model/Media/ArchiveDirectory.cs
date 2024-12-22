@@ -38,13 +38,13 @@ namespace TAS.Remoting.Model.Media
 
         public IMediaManager MediaManager { get; set; }
 
-        protected override void OnEventNotification(SocketMessage message)
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
-            base.OnEventNotification(message);
-            switch (message.MemberName)
+            base.OnEventNotification(eventName, eventArgs);
+            switch (eventName)
             { 
                 case nameof(MediaIsArchived):
-                    MediaIsArchivedEvent?.Invoke(this, DeserializeEventArgs<MediaIsArchivedEventArgs>(message));
+                    MediaIsArchivedEvent?.Invoke(this, (MediaIsArchivedEventArgs)eventArgs);
                     break;
             }
         }

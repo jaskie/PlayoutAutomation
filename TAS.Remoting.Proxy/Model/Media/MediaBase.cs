@@ -233,7 +233,7 @@ namespace TAS.Remoting.Model.Media
             return $"Media: {MediaName}";
         }
 
-        protected override void OnEventNotification(SocketMessage message) { }
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs) { }
 
     }
 }
