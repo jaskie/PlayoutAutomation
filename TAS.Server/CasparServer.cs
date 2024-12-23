@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics;
 using System.Threading;
 using System.Xml.Serialization;
 using jNet.RPC.Server;
@@ -49,7 +48,7 @@ namespace TAS.Server
             throw new NotImplementedException();
         }
         #endregion
-        
+
         [Hibernate]
         public string ServerAddress { get; set; }
 
@@ -180,7 +179,7 @@ namespace TAS.Server
             IsConnected = e.Connected;
             Logger.Info("Connection status changed: {0} {1}", ServerAddress, e.Connected ? "Connected" : "Disconnected");
         }
-        
+
         public void Dispose()
         {
             if (_disposed)
@@ -199,7 +198,4 @@ namespace TAS.Server
             (AnimationDirectory as IDisposable)?.Dispose();
         }
     }
-
-
-  
 }

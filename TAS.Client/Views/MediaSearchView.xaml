@@ -172,7 +172,7 @@
                         <!--#endregion-->
 
                         <!--#region LastPlayedAge-->
-                        <DataGridTextColumn Width="20" Binding="{Binding LastPlayedAge}" CanUserResize="False" SortMemberPath="LastPlayedAge" CellStyle="{StaticResource AgeColumnCellStyle}" >
+                        <DataGridTextColumn Width="20" x:Name="lastPlayedAgeColumn" Binding="{Binding LastPlayedAge}" CanUserResize="False" SortMemberPath="LastPlayedAge" CellStyle="{StaticResource AgeColumnCellStyle}" >
                             <DataGridTextColumn.Header>
                                 <Image Source="/TAS.Client.Common;component/Images/Indicators/hourglass.png" ToolTip="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.LastPlayedAge.ToolTip}"/>
                             </DataGridTextColumn.Header>
@@ -220,49 +220,28 @@
                     </DataGrid.Columns>
                     <DataGrid.RowDetailsTemplate >
                         <DataTemplate>
-                            <ListView ItemsSource="{Binding MediaSegments}" SelectionMode="Single" SelectedItem="{Binding SelectedSegment}" Background="#FFE0EFFF" BorderThickness="0" SelectionChanged="ListView_SelectionChanged">
-                                <ListView.View>
-                                    <GridView >
-                                        <GridView.ColumnHeaderContainerStyle>
-                                            <Style TargetType="GridViewColumnHeader">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                            </Style>
-                                        </GridView.ColumnHeaderContainerStyle>
-                                        <GridViewColumn Width="{Binding ElementName=toggleColumn, Path=ActualWidth}" >
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate />
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Width="{Binding ElementName=categoryColumn, Path=ActualWidth}" >
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate />
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Width="{Binding ElementName=isTrimmedColumn, Path=ActualWidth}"  >
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate />
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn DisplayMemberBinding="{Binding SegmentName, Mode=OneWay}" Width="{Binding ElementName=clipNameColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
-                                        <GridViewColumn Width="{Binding ElementName=folderColumn, Path=ActualWidth}">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate />
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Width="{Binding ElementName=ingestDateColumn, Path=ActualWidth}">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate />
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Width="{Binding ElementName=durationColumn, Path=ActualWidth}" >
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <controls:TimecodeTextBlock TextAlignment="Left" Timecode="{Binding Duration}" VideoFormat="{Binding VideoFormat}"/>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                    </GridView>
-                                </ListView.View>
+                            <ListView ItemsSource="{Binding MediaSegments}" SelectionMode="Single" SelectedItem="{Binding SelectedSegment}" Background="#FFE0EFFF" BorderThickness="0" SelectionChanged="ListView_SelectionChanged" >
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="0"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Control Width="{Binding ElementName=toggleColumn, Path=ActualWidth}"/>
+                                            <Control Width="{Binding ElementName=isTrimmedColumn, Path=ActualWidth}"/>
+                                            <Control Width="{Binding ElementName=categoryColumn, Path=ActualWidth}"/>
+                                            <Control Width="{Binding ElementName=lastPlayedAgeColumn, Path=ActualWidth}"/>
+                                            <TextBlock Text="{Binding SegmentName}" Width="{Binding ElementName=clipNameColumn, Path=ActualWidth}"/>
+                                            <Control Width="{Binding ElementName=folderColumn, Path=ActualWidth}" Visibility="{Binding ElementName=folderColumn, Path=Visibility}"/>
+                                            <Control Width="{Binding ElementName=ingestDateColumn, Path=ActualWidth}"/>
+                                            <controls:TimecodeTextBlock Timecode="{Binding Duration}" VideoFormat="{Binding VideoFormat}" Width="{Binding ElementName=durationColumn, Path=ActualWidth}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
                             </ListView>
                         </DataTemplate>
                     </DataGrid.RowDetailsTemplate>
