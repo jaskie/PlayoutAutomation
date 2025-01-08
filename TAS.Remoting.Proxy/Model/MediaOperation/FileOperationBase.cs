@@ -88,9 +88,9 @@ namespace TAS.Remoting.Model.MediaOperation
         protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
             if (eventName == nameof(Finished))
-            {
                 _finished?.Invoke(this, eventArgs);
-            }
+            else
+                base.OnEventNotification(eventName, eventArgs);
         }
     }
 }

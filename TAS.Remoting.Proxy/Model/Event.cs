@@ -267,12 +267,13 @@ namespace TAS.Remoting.Model
             {
                 case nameof(IEvent.PositionChanged):
                     _positionChanged?.Invoke(this, (EventPositionEventArgs)eventArgs);
-                    break;
+                    return;
                 case nameof(IEvent.SubEventChanged):
                     var ea = (CollectionOperationEventArgs<IEvent>)eventArgs;
                     _subEventChanged?.Invoke(this, ea);
-                    break;
+                    return;
             }
+            base.OnEventNotification(eventName, eventArgs);
         }
 
         #endregion //Event handlers
@@ -307,18 +308,12 @@ namespace TAS.Remoting.Model
         public void DeleteRight(IAclRight item) { Invoke(parameters: new object[] { item }); }
 
         public ulong CurrentUserRights => _currentUserRights;
-    
 
         public bool HaveRight(EventRight right)
         {
             if (_engine.HaveRight(EngineRight.Rundown))
                 return true;
             return (CurrentUserRights & (ulong)right) > 0;
-        }
-
-        public override string ToString()
-        {
-            return $"{nameof(Event)}: {EventName}";
         }
     }
 }

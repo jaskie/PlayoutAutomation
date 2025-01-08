@@ -21,6 +21,6 @@ namespace TAS.Remoting.Model.MediaOperation
         public IMediaDirectory DestDirectory { get => _destDirectory; set => Set(value); }
 
         public IMedia Source { get => _source; set => Set(value); }
-        
+
     }
 }

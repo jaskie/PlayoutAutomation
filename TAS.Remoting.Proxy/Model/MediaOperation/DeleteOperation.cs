@@ -23,7 +23,7 @@ namespace TAS.Remoting.Model.MediaOperation
         #pragma warning restore
 
         private event EventHandler<AudioVolumeEventArgs> _audioVolumeMeasured;
-        
+
         public IMedia Source { get => _source; set => Set(value); }
 
         public TimeSpan MeasureDuration { get => _measureDuration; set => Set(value); }

@@ -40,13 +40,10 @@ namespace TAS.Remoting.Model.Media
 
         protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
-            base.OnEventNotification(eventName, eventArgs);
-            switch (eventName)
-            { 
-                case nameof(MediaIsArchived):
-                    MediaIsArchivedEvent?.Invoke(this, (MediaIsArchivedEventArgs)eventArgs);
-                    break;
-            }
+            if (eventName == nameof(MediaIsArchived))
+                MediaIsArchivedEvent?.Invoke(this, (MediaIsArchivedEventArgs)eventArgs);
+            else
+                base.OnEventNotification(eventName, eventArgs);
         }
     }
 }

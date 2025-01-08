@@ -50,11 +50,12 @@ namespace TAS.Remoting.Model
             {
                 case nameof(Finished):
                     _finished?.Invoke(this, eventArgs);
-                    break;
+                    return;
                 case nameof(ItemAdded):
                     _itemAdded?.Invoke(this, (EventArgs<T>)eventArgs);
-                    break;
+                    return;
             }
+            base.OnEventNotification(eventName, eventArgs);
         }
     }
 }

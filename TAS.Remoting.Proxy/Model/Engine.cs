@@ -344,25 +344,20 @@ namespace TAS.Remoting.Model
             {
                 case nameof(IEngine.EngineTick):
                     _engineTick?.Invoke(this, (EngineTickEventArgs)eventArgs);
-                    break;
+                    return;
                 case nameof(IEngine.EngineOperation):
                     _engineOperation?.Invoke(this, (EngineOperationEventArgs)eventArgs);
-                    break;
+                    return;
                 case nameof(IEngine.EventLocated):
                     _eventLocated?.Invoke(this, (EventEventArgs)eventArgs);
-                    break;
+                    return;
                 case nameof(IEngine.EventDeleted):
                     _eventDeleted?.Invoke(this, (EventEventArgs)eventArgs);
-                    break;
+                    return;
             }
+            base.OnEventNotification(eventName, eventArgs);
         }
 
         #endregion // Event handling
-
-        public override string ToString()
-        {
-            return EngineName;
-        }
-
     }
 }

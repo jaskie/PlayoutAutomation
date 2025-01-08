@@ -22,6 +22,5 @@ namespace TAS.Remoting.Model.MediaOperation
 
         public IMedia Source { get => _source; set => Set(value); }
 
-
     }
 }

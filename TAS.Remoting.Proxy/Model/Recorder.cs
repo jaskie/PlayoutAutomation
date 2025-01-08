@@ -119,7 +119,5 @@ namespace TAS.Remoting.Model
 
         #endregion IRecorder
 
-        protected override void OnEventNotification(string eventName, EventArgs eventArgs) { }
-
     }
 }

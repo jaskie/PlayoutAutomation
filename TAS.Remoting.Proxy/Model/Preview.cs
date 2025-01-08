@@ -140,11 +140,12 @@ namespace TAS.Remoting.Model
             {
                 case nameof(IPreview.StillImageLoaded):
                     _stillImageLoaded?.Invoke(this, (MediaOnLayerEventArgs)eventArgs);
-                    break;
+                    return;
                 case nameof(IPreview.StillImageUnLoaded):
                     _stillImageUnLoaded?.Invoke(this, (MediaOnLayerEventArgs)eventArgs);
-                    break;
+                    return;
             }
+            base.OnEventNotification(eventName, eventArgs);
         }
     }
 }

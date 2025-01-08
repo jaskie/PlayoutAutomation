@@ -38,7 +38,5 @@ namespace TAS.Remoting.Model
 
         public IServerDirectory MediaDirectory => _mediaDirectory;
 
-        protected override void OnEventNotification(string eventName, EventArgs eventArgs) { }
-
     }
 }

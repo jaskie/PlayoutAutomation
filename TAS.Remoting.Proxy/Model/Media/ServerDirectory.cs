@@ -38,13 +38,10 @@ namespace TAS.Remoting.Model.Media
 
         protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
-            base.OnEventNotification(eventName, eventArgs);
-            switch (eventName)
-            {
-                case nameof(IngestStatusUpdated):
-                    IngestStatusUpdatedEvent?.Invoke(this, (MediaIngestStatusEventArgs)eventArgs);
-                    break;
-            }
+            if (eventName == nameof(IngestStatusUpdated))
+                IngestStatusUpdatedEvent?.Invoke(this, (MediaIngestStatusEventArgs)eventArgs);
+            else
+                base.OnEventNotification(eventName, eventArgs);
         }
     }
 }

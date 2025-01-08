@@ -68,13 +68,14 @@ namespace TAS.Remoting.Model.Media
                     var eAdded = (MediaSegmentEventArgs)eventArgs;
                     _segments.Add(eAdded.Segment as MediaSegment);
                     _segmentAdded?.Invoke(this, eAdded);
-                    break;
+                    return;
                 case nameof(IMediaSegments.SegmentRemoved):
                     var eRemoved = (MediaSegmentEventArgs)eventArgs;
                     _segments.Remove(eRemoved.Segment as MediaSegment);
                     _segmentRemoved?.Invoke(this, eRemoved);
-                    break;
+                    return;
             }
+            base.OnEventNotification(eventName, eventArgs);
         }
 
         #endregion //Event handling

@@ -1,6 +1,5 @@
 ﻿using jNet.RPC;
 using jNet.RPC.Client;
-using System;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Security;
 
@@ -24,10 +23,5 @@ namespace TAS.Remoting.Model.Security
         public ISecurityObject SecurityObject { get => _securityObject; set => Set(value); }
 
         public ulong Acl { get => _acl; set => Set(value); }
-
-        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
-        {
-
-        }
     }
 }

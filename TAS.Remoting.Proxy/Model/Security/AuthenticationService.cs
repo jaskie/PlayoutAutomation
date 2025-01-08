@@ -77,11 +77,12 @@ namespace TAS.Remoting.Model.Security
 
                 case nameof(UsersOperation):
                     _usersOperation?.Invoke(this, (CollectionOperationEventArgs<IUser>)eventArgs);
-                    break;
+                    return;
                 case nameof(GroupsOperation):
                     _groupsOperation?.Invoke(this, (CollectionOperationEventArgs<IGroup>)eventArgs);
-                    break;
+                    return;
             }
+            base.OnEventNotification(eventName, eventArgs);
         }
     }
 }

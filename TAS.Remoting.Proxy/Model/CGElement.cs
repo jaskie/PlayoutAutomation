@@ -32,6 +32,5 @@ namespace TAS.Remoting.Model
 
         public string Name => _name;
 
-        protected override void OnEventNotification(string eventName, EventArgs eventArgs) { }
     }
 }

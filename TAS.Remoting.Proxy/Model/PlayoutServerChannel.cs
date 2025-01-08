@@ -52,7 +52,5 @@ namespace TAS.Remoting.Model
 
         public int AudioChannelCount => _audioChannelCount;
 
-        protected override void OnEventNotification(string eventName, EventArgs eventArgs) { }
-
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common;
@@ -109,8 +108,6 @@ namespace TAS.Remoting.Model
         {
             Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory, mXFAudioExportFormat, mXFVideoExportFormat });
         }
-
-        protected override void OnEventNotification(string eventName, EventArgs eventArgs) { }
 
     }
 }

@@ -70,11 +70,12 @@ namespace TAS.Remoting.Model
             {
                 case nameof(OperationAdded):
                     _operationAdded?.Invoke(this, (FileOperationEventArgs)eventArgs);
-                    break;
+                    return;
                 case nameof(OperationCompleted):
                     _operationCompleted?.Invoke(this, (FileOperationEventArgs)eventArgs);
-                    break;
+                    return;
             }
+            base.OnEventNotification(eventName, eventArgs);
         }
 
     }

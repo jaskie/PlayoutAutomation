@@ -32,6 +32,5 @@ namespace TAS.Remoting.Model
             Invoke(parameters: new object[] { inputId });
         }
 
-        protected override void OnEventNotification(string eventName, EventArgs eventArgs) { }
     }
 }

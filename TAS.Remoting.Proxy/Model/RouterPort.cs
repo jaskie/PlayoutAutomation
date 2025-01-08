@@ -20,6 +20,5 @@ namespace TAS.Remoting.Model
         public string PortName => _portName;
         public bool? IsSignalPresent => _portIsSignalPresent;
 
-        protected override void OnEventNotification(string eventName, EventArgs eventArgs) { }
     }
 }

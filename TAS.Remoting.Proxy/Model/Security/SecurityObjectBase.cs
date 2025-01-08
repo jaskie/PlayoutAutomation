@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common;
@@ -12,7 +11,7 @@ namespace TAS.Remoting.Model.Security
     /// </summary>
     public abstract class SecurityObjectBase : ProxyObjectBase, ISecurityObject
     {
-        
+
 #pragma warning disable CS0649
         [DtoMember(nameof(ISecurityObject.SecurityObjectTypeType))]
         private SecurityObjectType _securityObjectType;
@@ -35,10 +34,6 @@ namespace TAS.Remoting.Model.Security
         public void Delete()
         {
             Invoke();
-        }
-
-        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
-        {
         }
     }
 }

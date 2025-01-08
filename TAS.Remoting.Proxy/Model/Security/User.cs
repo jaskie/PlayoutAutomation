@@ -10,7 +10,7 @@ namespace TAS.Remoting.Model.Security
 #pragma warning disable CS0649 
         [DtoMember(nameof(IUser.Name))]
         private string _name;
-        
+
         [DtoMember(nameof(IUser.IsAuthenticated))]
         private bool _isAuthenticated;
 
@@ -53,6 +53,6 @@ namespace TAS.Remoting.Model.Security
         public AuthenticationSource AuthenticationSource { get { return _authenticationSource; } set { Set(value);} }
 
         public string AuthenticationObject { get { return _authenticationObject; } set { Set(value); } }
-        
+
     }
 }

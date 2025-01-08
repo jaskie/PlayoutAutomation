@@ -87,7 +87,5 @@ namespace TAS.Remoting.Model
             Invoke();
         }
 
-        protected override void OnEventNotification(string eventName, EventArgs eventArgs) { }
-
     }
 }

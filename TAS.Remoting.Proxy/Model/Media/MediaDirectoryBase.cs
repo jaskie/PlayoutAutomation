@@ -106,14 +106,15 @@ namespace TAS.Remoting.Model.Media
             {
                 case nameof(MediaAdded):
                     MediaAddedEvent?.Invoke(this, (MediaEventArgs)eventArgs);
-                    break;
+                    return;
                 case nameof(MediaRemoved):
                     MediaRemovedEvent?.Invoke(this, (MediaEventArgs)eventArgs);
-                    break;
+                    return;
                 case nameof(MediaVerified):
                     MediaVerifiedEvent?.Invoke(this, (MediaEventArgs)eventArgs);
-                    break;
+                    return;
             }
+            base.OnEventNotification(eventName, eventArgs);
         }
 
         #endregion // Ehent handling
