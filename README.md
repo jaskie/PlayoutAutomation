@@ -6,9 +6,11 @@ It can be used as a simple (even multi-) channel-in-a-box solution, as well as i
 ### Playout
 - multiple channels
 - multi-user with rights management based on PC network address
-- redundant output for every channel
+- redundant output for each channel, redundant MySQL databases
 - GPI as start source, aspect ratio control and external graphics trigger
 - partial clip playout (via media trimming or logical sub-clips)
+- [XKeys](https://xkeys.com/) control keyboard support
+- [NDI](https://ndi.video/) preview support
 
 ### Rundowns
 - variety of rundown event types: movie, live, graphics, Flash CG templates
@@ -21,8 +23,12 @@ It can be used as a simple (even multi-) channel-in-a-box solution, as well as i
 - from watchfolders
 - from ftp's
 - linear (tape or live) ingest with deck control using [CasparCG fork](https://github.com/jaskie/Server)
-- from Sony [XDCAM](http://en.wikipedia.org/wiki/XDCAM) decks, supports metadata and subclip ingest
+- from Sony [XDCAM](https://en.wikipedia.org/wiki/XDCAM) decks, supports metadata and subclip ingest
 - extensive clip playout-related metadata
+
+### Channel branding
+- can add overlay graphics: simple .png files, looped .mov files with transparency, Flash or HTML
+- execute CasparCG Flash template with editable text fields from rundown
 
 ### Archiving
 - "shallow" archive for temporarily unnecessary media
@@ -30,9 +36,8 @@ It can be used as a simple (even multi-) channel-in-a-box solution, as well as i
 
 ## System requirements
 They mainly follow [CasparCG] requirements.
-- Windows as base operating system
-- .NET 4.5 as application platform
-- Blackmagic Design [Decklink] as inputs and outputs cards
+- Windows 7 or newer as base operating system
+- .NET Framework 4.8 as application platform
 
 ## Instalation
 Refer to [wiki] pages.
@@ -40,7 +45,7 @@ Refer to [wiki] pages.
 ## Contact
 Don't hesitate.
 
-[CasparCG]: http://www.casparcg.com
-[FFmpeg]: http://ffmpeg.org/
+[CasparCG]: https://www.casparcg.com
+[FFmpeg]: https://ffmpeg.org/
 [Decklink]: https://www.blackmagicdesign.com/products/decklink
 [wiki]: https://github.com/jaskie/PlayoutAutomation/wiki
