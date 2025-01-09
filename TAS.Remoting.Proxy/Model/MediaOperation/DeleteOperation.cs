@@ -23,7 +23,7 @@ namespace TAS.Remoting.Model.MediaOperation
         #pragma warning restore
 
         private event EventHandler<AudioVolumeEventArgs> _audioVolumeMeasured;
-        
+
         public IMedia Source { get => _source; set => Set(value); }
 
         public TimeSpan MeasureDuration { get => _measureDuration; set => Set(value); }
@@ -45,12 +45,12 @@ namespace TAS.Remoting.Model.MediaOperation
             }
         }
 
-        protected override void OnEventNotification(SocketMessage message)
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
-            if (message.MemberName == nameof(AudioVolumeMeasured))
-                _audioVolumeMeasured?.Invoke(this, DeserializeEventArgs<AudioVolumeEventArgs>(message));
+            if (eventName == nameof(AudioVolumeMeasured))
+                _audioVolumeMeasured?.Invoke(this, (AudioVolumeEventArgs)eventArgs);
             else
-                base.OnEventNotification(message);
+                base.OnEventNotification(eventName, eventArgs);
         }
     }
 }

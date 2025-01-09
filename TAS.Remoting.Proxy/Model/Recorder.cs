@@ -17,7 +17,7 @@ namespace TAS.Remoting.Model
         #pragma warning disable CS0649
 
         [DtoMember(nameof(IRecorder.Channels))]
-        private List<PlayoutServerChannel> _channels;
+        private IPlayoutServerChannel[] _channels;
 
         [DtoMember(nameof(IRecorder.RecordingDirectory))]
         private ServerDirectory _recordingDirectory;
@@ -118,8 +118,6 @@ namespace TAS.Remoting.Model
         }
 
         #endregion IRecorder
-
-        protected override void OnEventNotification(SocketMessage message) { }
 
     }
 }

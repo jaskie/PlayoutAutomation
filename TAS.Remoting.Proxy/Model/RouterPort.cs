@@ -1,5 +1,6 @@
 ﻿using jNet.RPC;
 using jNet.RPC.Client;
+using System;
 using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
@@ -19,6 +20,5 @@ namespace TAS.Remoting.Model
         public string PortName => _portName;
         public bool? IsSignalPresent => _portIsSignalPresent;
 
-        protected override void OnEventNotification(SocketMessage message) { }
     }
 }

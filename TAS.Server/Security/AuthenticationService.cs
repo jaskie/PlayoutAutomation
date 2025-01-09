@@ -10,7 +10,7 @@ namespace TAS.Server.Security
     public class AuthenticationService: ServerObjectBase, IAuthenticationService, IAuthenticationServicePersitency
     {
         private readonly AcoHive<User> _users;
-        private readonly AcoHive<IGroup> _groups;
+        private readonly AcoHive<Group> _groups;
 
         private AuthenticationService()
         {
@@ -26,7 +26,7 @@ namespace TAS.Server.Security
             _users = new AcoHive<User>(users);
             _users.AcoOperartion += Users_AcoOperation;
 
-            _groups = new AcoHive<IGroup>(groups);
+            _groups = new AcoHive<Group>(groups);
             _groups.AcoOperartion += Groups_AcoOperation;
         }
 
@@ -63,7 +63,7 @@ namespace TAS.Server.Security
             UsersOperation?.Invoke(this, new CollectionOperationEventArgs<IUser>(e.Item, e.Operation));
         }
 
-        private void Groups_AcoOperation(object sender, CollectionOperationEventArgs<IGroup> e)
+        private void Groups_AcoOperation(object sender, CollectionOperationEventArgs<Group> e)
         {
             GroupsOperation?.Invoke(this, new CollectionOperationEventArgs<IGroup>(e.Item, e.Operation));
         }

@@ -175,7 +175,7 @@ namespace TAS.Server
 
         [DtoMember]
         public Dictionary<VideoLayer, IMedia> LoadedStillImages => new Dictionary<VideoLayer, IMedia>(_previewLoadedStills);
-        
+
         public void UnloadMovie()
         {
             if (!_engine.HaveRight(EngineRight.Preview))
@@ -192,7 +192,6 @@ namespace TAS.Server
                 IsLivePlaying = false;
                 IsPlaying = true;
             }
-                
         }
 
         public void Pause()
@@ -271,6 +270,6 @@ namespace TAS.Server
         {
             if (e.PropertyName == nameof(IPlayoutServerChannel.IsServerConnected))
                 NotifyPropertyChanged(nameof(IsConnected));
-        }        
+        }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using jNet.RPC;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using TAS.Common;
 using TAS.Common.Interfaces.Security;
 
@@ -10,7 +10,7 @@ namespace TAS.Remoting.Model.Security
 #pragma warning disable CS0649 
         [DtoMember(nameof(IUser.Name))]
         private string _name;
-        
+
         [DtoMember(nameof(IUser.IsAuthenticated))]
         private bool _isAuthenticated;
 
@@ -33,9 +33,9 @@ namespace TAS.Remoting.Model.Security
 
         public bool IsAuthenticated { get => _isAuthenticated; set => Set(value); }
 
-        public ReadOnlyCollection<IGroup> GetGroups()
+        public IReadOnlyCollection<IGroup> GetGroups()
         {
-            return Query<ReadOnlyCollection<IGroup>>();
+            return Query<IGroup[]>();
         }
 
         public void GroupAdd(IGroup group)
@@ -53,6 +53,6 @@ namespace TAS.Remoting.Model.Security
         public AuthenticationSource AuthenticationSource { get { return _authenticationSource; } set { Set(value);} }
 
         public string AuthenticationObject { get { return _authenticationObject; } set { Set(value); } }
-        
+
     }
 }

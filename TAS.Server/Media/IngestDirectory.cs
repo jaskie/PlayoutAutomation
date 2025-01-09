@@ -58,7 +58,8 @@ namespace TAS.Server.Media
                     }
                 }
             }
-            Parallel.ForEach(_subDirectories?.ToList(), async d => await d.Initialize());
+            var initializeTasks = _subDirectories.Select(d => Task.Run(async () => await d.Initialize()));
+            await Task.WhenAll(initializeTasks);
         }
 
         public string EncodeParams { get; set; }
@@ -130,7 +131,7 @@ namespace TAS.Server.Media
         public TDirectoryAccessType AccessType { get; protected set; }
 
         [XmlArray(nameof(SubDirectories))]
-        public List<IngestDirectory> _subDirectories;
+        public IngestDirectory[] _subDirectories = Array.Empty<IngestDirectory>();
 
         [XmlIgnore]
         [DtoMember]

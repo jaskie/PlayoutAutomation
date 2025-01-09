@@ -747,7 +747,7 @@ namespace TAS.Server
 
         public IEnumerable<IAclRight> GetRights()
         {
-            lock (_rights) return _rights.Value.AsReadOnly();
+            lock (_rights) return _rights.Value.ToArray();
         }
 
         public IAclRight AddRightFor(ISecurityObject securityObject)

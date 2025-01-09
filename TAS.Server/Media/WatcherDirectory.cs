@@ -65,7 +65,7 @@ namespace TAS.Server.Media
         public virtual IReadOnlyCollection<IMedia> GetAllFiles()
         {
             lock (((IDictionary) Files).SyncRoot)
-                return Files.Values.ToList().AsReadOnly();
+                return Files.Values.ToArray();
         }
 
         internal override bool DeleteMedia(IMedia media)

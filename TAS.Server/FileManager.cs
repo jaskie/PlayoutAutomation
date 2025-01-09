@@ -70,7 +70,7 @@ namespace TAS.Server
             var retList = _queueSimpleOperation.GetQueue();
             retList.AddRange(_queueConvertOperation.GetQueue());
             retList.AddRange(_queueExportOperation.GetQueue());
-            return retList;
+            return retList.ToArray();
         }
 
         public void QueueList(IEnumerable<IFileOperationBase> operationList)

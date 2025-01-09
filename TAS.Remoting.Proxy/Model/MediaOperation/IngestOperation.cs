@@ -45,7 +45,7 @@ namespace TAS.Remoting.Model.MediaOperation
 
         [DtoMember(nameof(IIngestOperation.LoudnessCheck))]
         private bool _loudnessCheck;
-        
+
 
 #pragma warning restore
 

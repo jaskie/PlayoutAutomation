@@ -12,12 +12,12 @@ namespace TAS.Remoting.Model
         #pragma warning disable CS0649 
 
         [DtoMember(nameof(ICGElementsController.Crawls))]
-        private List<CGElement> _crawls;
+        private ICGElement[] _crawls;
         [DtoMember(nameof(ICGElementsController.Logos))]
-        private List<CGElement> _logos;
+        private ICGElement[] _logos;
 
         [DtoMember(nameof(ICGElementsController.Parentals))]
-        private List<CGElement> _parentals;
+        private ICGElement[] _parentals;
 
         [DtoMember(nameof(ICGElementsController.Crawl))]
         private byte _crawl;
@@ -86,8 +86,6 @@ namespace TAS.Remoting.Model
         {
             Invoke();
         }
-
-        protected override void OnEventNotification(SocketMessage message) { }
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
@@ -40,8 +41,8 @@ namespace TAS.Server
             Servers = DatabaseProvider.Database.LoadServers<CasparServer>();
             foreach (var s in Servers)
             {
-                s.ChannelsSer.ForEach(c => c.Owner = s);
-                s.RecordersSer.ForEach(r => r.SetOwner(s));
+                Array.ForEach(s.ChannelsSer, c => c.Owner = s);
+                Array.ForEach(s.RecordersSer, r => r.SetOwner(s));
             }
             Engines = DatabaseProvider.Database.LoadEngines<Engine>(ulong.Parse(ConfigurationManager.AppSettings["Instance"]));
             LoadArchiveDirectories();

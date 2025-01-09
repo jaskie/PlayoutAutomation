@@ -44,17 +44,18 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(SocketMessage message)
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
-            switch (message.MemberName)
+            switch (eventName)
             {
                 case nameof(Finished):
-                    _finished?.Invoke(this, EventArgs.Empty);
-                    break;
+                    _finished?.Invoke(this, eventArgs);
+                    return;
                 case nameof(ItemAdded):
-                    _itemAdded?.Invoke(this, DeserializeEventArgs<EventArgs<T>>(message));
-                    break;
+                    _itemAdded?.Invoke(this, (EventArgs<T>)eventArgs);
+                    return;
             }
+            base.OnEventNotification(eventName, eventArgs);
         }
     }
 }

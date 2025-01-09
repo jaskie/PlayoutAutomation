@@ -36,15 +36,12 @@ namespace TAS.Remoting.Model.Media
 
         public bool IsRecursive => _isRecursive;
 
-        protected override void OnEventNotification(SocketMessage message)
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
-            base.OnEventNotification(message);
-            switch (message.MemberName)
-            {
-                case nameof(IngestStatusUpdated):
-                    IngestStatusUpdatedEvent?.Invoke(this, DeserializeEventArgs<MediaIngestStatusEventArgs>(message));
-                    break;
-            }
+            if (eventName == nameof(IngestStatusUpdated))
+                IngestStatusUpdatedEvent?.Invoke(this, (MediaIngestStatusEventArgs)eventArgs);
+            else
+                base.OnEventNotification(eventName, eventArgs);
         }
     }
 }

@@ -66,7 +66,7 @@ namespace TAS.Server
         public IEnumerable<IIngestDirectory> IngestDirectories => EngineController.Current.IngestDirectories;
 
         [DtoMember]
-        public IEnumerable<IRecorder> Recorders => _recorders;
+        public IEnumerable<IRecorder> Recorders => _recorders.ToArray();
 
         public async Task Initialize(ArchiveDirectory archiveDirectory)
         {

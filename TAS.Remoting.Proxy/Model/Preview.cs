@@ -134,17 +134,18 @@ namespace TAS.Remoting.Model
         }
 
 
-        protected override void OnEventNotification(SocketMessage message)
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
-            switch (message.MemberName)
+            switch (eventName)
             {
                 case nameof(IPreview.StillImageLoaded):
-                    _stillImageLoaded?.Invoke(this, DeserializeEventArgs<MediaOnLayerEventArgs>(message));
-                    break;
+                    _stillImageLoaded?.Invoke(this, (MediaOnLayerEventArgs)eventArgs);
+                    return;
                 case nameof(IPreview.StillImageUnLoaded):
-                    _stillImageUnLoaded?.Invoke(this, DeserializeEventArgs<MediaOnLayerEventArgs>(message));
-                    break;
+                    _stillImageUnLoaded?.Invoke(this, (MediaOnLayerEventArgs)eventArgs);
+                    return;
             }
+            base.OnEventNotification(eventName, eventArgs);
         }
     }
 }

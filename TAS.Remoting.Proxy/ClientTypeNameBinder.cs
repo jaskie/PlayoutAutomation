@@ -12,6 +12,7 @@ namespace TAS.Remoting
         {
             switch (typeName)
             {
+                // types implented in the server may be mapped using their real type names
                 case "TAS.Server.Media.ServerMedia":
                     return typeof(Model.Media.ServerMedia);
                 case "TAS.Server.Media.IngestMedia":
@@ -22,10 +23,14 @@ namespace TAS.Remoting
                     return typeof(Model.Media.ArchiveMedia);
                 case "TAS.Server.Media.AnimatedMedia":
                     return typeof(Model.Media.AnimatedMedia);
+                case "TAS.Server.Media.MediaBase[]":
+                    return typeof(Model.Media.MediaBase[]);
                 case "TAS.Server.Media.ServerDirectory":
                     return typeof(Model.Media.ServerDirectory);
                 case "TAS.Server.Media.IngestDirectory":
                     return typeof(Model.Media.IngestDirectory);
+                case "TAS.Server.Media.IngestDirectory[]":
+                    return typeof(Model.Media.IngestDirectory[]);
                 case "TAS.Server.Media.ArchiveDirectory":
                     return typeof(Model.Media.ArchiveDirectory);
                 case "TAS.Server.Media.AnimationDirectory":
@@ -40,6 +45,8 @@ namespace TAS.Remoting
                     return typeof(Model.FileManager);
                 case "TAS.Server.CasparRecorder":
                     return typeof(Model.Recorder);
+                case "TAS.Server.CasparRecorder[]":
+                    return typeof(Model.Recorder[]);
                 case "TAS.Server.MediaOperation.CopyOperation":
                     return typeof(Model.MediaOperation.CopyOperation);
                 case "TAS.Server.MediaOperation.MoveOperation":
@@ -52,6 +59,8 @@ namespace TAS.Remoting
                     return typeof(Model.MediaOperation.ExportOperation);
                 case "TAS.Server.MediaOperation.LoudnessOperation":
                     return typeof(Model.MediaOperation.LoudnessOperation);
+                case "TAS.Server.MediaOperation.FileOperationBase[]":
+                    return typeof(Model.MediaOperation.FileOperationBase[]);
                 case "TAS.Server.Engine":
                     return typeof(Model.Engine);
                 case "TAS.Server.Preview":
@@ -68,26 +77,35 @@ namespace TAS.Remoting
                     return typeof(Model.PlayoutServerChannel);
                 case "TAS.Server.CasparServer":
                     return typeof(Model.PlayoutServer);
-                case "TAS.Server.CgElementsController":
-                    return typeof(Model.CGElementsController);
                 case "TAS.Server.RouterController":
                     return typeof(Model.Router);
                 case "TAS.Server.RouterPort":
                     return typeof(Model.RouterPort);
-                case "TAS.Server.CGElement":
-                    return typeof(Model.CGElement);
                 case "TAS.Server.Security.AuthenticationService":
                     return typeof(Model.Security.AuthenticationService);
                 case "TAS.Server.Security.User":
                     return typeof(Model.Security.User);
+                case "TAS.Server.Security.User[]":
+                    return typeof(Model.Security.User[]);
                 case "TAS.Server.Security.Group":
                     return typeof(Model.Security.Group);
+                case "TAS.Server.Security.Group[]":
+                    return typeof(Model.Security.Group[]);
                 case "TAS.Server.Security.EventAclRight":
                     return typeof(Model.Security.EventAclRight);
                 case "TAS.Server.Security.EngineAclRight":
                     return typeof(Model.Security.EngineAclRight);
+
+                // types implemented by plugins have to be mapped using their interfaces
+                case "TAS.Common.Interfaces.ICGElementsController":
+                    return typeof(Model.CGElementsController);
+                case "TAS.Common.Interfaces.ICGElement":
+                    return typeof(Model.CGElement);
+                case "TAS.Common.Interfaces.ICGElement[]":
+                    return typeof(Model.CGElement[]);
+
                 default:
-                        return Type.GetType($"{typeName}, {assemblyName}", true);
+                    return Type.GetType($"{typeName}, {assemblyName}", true);
             }
         }
 

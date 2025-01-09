@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common.Interfaces;
@@ -31,6 +32,5 @@ namespace TAS.Remoting.Model
 
         public string Name => _name;
 
-        protected override void OnEventNotification(SocketMessage message) { }
     }
 }

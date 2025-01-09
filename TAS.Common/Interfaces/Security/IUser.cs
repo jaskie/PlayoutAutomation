@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.Security.Principal;
 
 namespace TAS.Common.Interfaces.Security
@@ -10,6 +10,6 @@ namespace TAS.Common.Interfaces.Security
         bool IsAdmin { get; set; }
         AuthenticationSource AuthenticationSource { get; set; }
         string AuthenticationObject { get; set; }
-        ReadOnlyCollection<IGroup> GetGroups();
+        IReadOnlyCollection<IGroup> GetGroups();
     }
 }

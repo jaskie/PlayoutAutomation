@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using TAS.Common;
 using TAS.Common.Interfaces.Security;
 
@@ -16,12 +15,12 @@ namespace TAS.Server.Security
             _items = new List<TItem>(items);
         }
 
-        public ReadOnlyCollection<TItem> Items
+        public IReadOnlyCollection<TItem> Items
         {
             get
             {
                 lock (_items.SyncRoot())
-                    return _items.AsReadOnly();
+                    return _items.ToArray();
             }
         }
 

@@ -85,12 +85,12 @@ namespace TAS.Remoting.Model.MediaOperation
             Invoke();
         }
 
-        protected override void OnEventNotification(SocketMessage message)
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
-            if (message.MemberName == nameof(Finished))
-            {
-                _finished?.Invoke(this, DeserializeEventArgs<EventArgs>(message));
-            }
+            if (eventName == nameof(Finished))
+                _finished?.Invoke(this, eventArgs);
+            else
+                base.OnEventNotification(eventName, eventArgs);
         }
     }
 }

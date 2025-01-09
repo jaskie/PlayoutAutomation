@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common.Interfaces;
@@ -14,7 +15,7 @@ namespace TAS.Remoting.Model
         private IAnimationDirectory _animationDirectory;
 
         [DtoMember(nameof(IPlayoutServer.Channels))]
-        private List<PlayoutServerChannel> _channels;
+        private IPlayoutServerChannel[] _channels;
 
         [DtoMember(nameof(IPlayoutServer.Recorders))]
         private List<Recorder> _recorders;
@@ -36,8 +37,6 @@ namespace TAS.Remoting.Model
         public bool IsConnected => _isConnected;
 
         public IServerDirectory MediaDirectory => _mediaDirectory;
-
-        protected override void OnEventNotification(SocketMessage message) { }
 
     }
 }

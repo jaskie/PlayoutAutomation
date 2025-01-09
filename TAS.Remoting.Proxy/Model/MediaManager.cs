@@ -5,7 +5,6 @@ using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.MediaDirectory;
-using TAS.Remoting.Model.Media;
 
 namespace TAS.Remoting.Model
 {
@@ -15,38 +14,38 @@ namespace TAS.Remoting.Model
         #pragma warning disable CS0649, IDE0044
 
         [DtoMember(nameof(IMediaManager.AnimationDirectoryPRI))]
-        private AnimationDirectory _animationDirectoryPRI;
+        private IAnimationDirectory _animationDirectoryPRI;
 
         [DtoMember(nameof(IMediaManager.MediaDirectoryPRI))]
-        private ServerDirectory _mediaDirectoryPri;
+        private IServerDirectory _mediaDirectoryPri;
 
         [DtoMember(nameof(IMediaManager.AnimationDirectorySEC))]
-        private AnimationDirectory _animationDirectorySEC;
+        private IAnimationDirectory _animationDirectorySEC;
 
         [DtoMember(nameof(IMediaManager.IngestDirectories))]
-        private List<IngestDirectory> _ingestDirectories;
+        private IIngestDirectory[] _ingestDirectories;
         
         [DtoMember(nameof(IMediaManager.AnimationDirectoryPRV))]
-        private AnimationDirectory _animationDirectoryPRV;
+        private IAnimationDirectory _animationDirectoryPRV;
         
         [DtoMember(nameof(IMediaManager.ArchiveDirectory))]
-        private ArchiveDirectory _archiveDirectory;
+        private IArchiveDirectory _archiveDirectory;
 
         [DtoMember(nameof(IMediaManager.Recorders))]
-        private List<Recorder> _recorders;
+        private IRecorder[] _recorders;
 
         [DtoMember(nameof(IMediaManager.MediaDirectorySEC))]
-        private ServerDirectory _mediaDirectorySec;
+        private IServerDirectory _mediaDirectorySec;
 
         [DtoMember(nameof(IMediaManager.FileManager))]
-        private FileManager _fileManager;
+        private IFileManager _fileManager;
 
         [DtoMember(nameof(IMediaManager.MediaDirectoryPRV))]
-        private ServerDirectory _mediaDirectoryPrv;
+        private IServerDirectory _mediaDirectoryPrv;
 
         #pragma warning restore
 
-        public IEngine Engine => Get<Engine>();
+        public IEngine Engine => Get<IEngine>();
 
         public IFileManager FileManager => _fileManager;
 
@@ -68,7 +67,7 @@ namespace TAS.Remoting.Model
 
         public IServerDirectory DetermineValidServerDirectory()
         {
-            return Query<ServerDirectory>();
+            return Query<IServerDirectory>();
         }
 
         public void MeasureLoudness(IEnumerable<IMedia> mediaList)
@@ -93,7 +92,6 @@ namespace TAS.Remoting.Model
             Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory });
         }
 
-
         public IEnumerable<IRecorder> Recorders => _recorders;
 
         public List<MediaDeleteResult> MediaArchive(IEnumerable<IMedia> mediaList, bool deleteAfter, bool forceDelete)
@@ -110,10 +108,6 @@ namespace TAS.Remoting.Model
         {
             Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory, mXFAudioExportFormat, mXFVideoExportFormat });
         }
-
-
-        protected override void OnEventNotification(SocketMessage message) { }
-
 
     }
 }

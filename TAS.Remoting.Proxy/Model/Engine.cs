@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using jNet.RPC;
 using jNet.RPC.Client;
 using TAS.Common;
@@ -30,10 +29,10 @@ namespace TAS.Remoting.Model
         private IEvent _forcedNext;
 
         [DtoMember(nameof(IEngine.CGElementsController))]
-        private CGElementsController _cGElementsController;
+        private ICGElementsController _cGElementsController;
 
         [DtoMember(nameof(IEngine.Router))]
-        private Router _router;
+        private IRouter _router;
 
         [DtoMember(nameof(IEngine.EnableCGElementsForNewEvents))]
         private bool _enableCGElementsForNewEvents;
@@ -48,16 +47,16 @@ namespace TAS.Remoting.Model
         private bool _fieldOrderInverted;
 
         [DtoMember(nameof(IEngine.Preview))]
-        private Preview _preview;
+        private IPreview _preview;
 
         [DtoMember(nameof(IEngine.MediaManager))]
-        private MediaManager _mediaManager;
+        private IMediaManager _mediaManager;
 
         [DtoMember(nameof(IEngine.PlayoutChannelPRI))]
-        private PlayoutServerChannel _playoutChannelPRI;
+        private IPlayoutServerChannel _playoutChannelPRI;
 
         [DtoMember(nameof(IEngine.PlayoutChannelSEC))]
-        private PlayoutServerChannel _playoutChannelSEC;
+        private IPlayoutServerChannel _playoutChannelSEC;
 
         [DtoMember(nameof(IEngine.IsWideScreen))]
         private bool _isWideScreen;
@@ -69,7 +68,7 @@ namespace TAS.Remoting.Model
         private bool _pst2Prv;
 
         [DtoMember(nameof(IEngine.AuthenticationService))]
-        private AuthenticationService _authenticationService;
+        private IAuthenticationService _authenticationService;
 
         [DtoMember(nameof(IEngine.VideoFormat))]
         private TVideoFormat _videoFormat;
@@ -78,7 +77,7 @@ namespace TAS.Remoting.Model
         private ConnectionStateRedundant _databaseConnectionState;
 
         [DtoMember(nameof(IEngine.Playing))]
-        private Event _playing;
+        private IEvent _playing;
 
         [DtoMember(nameof(IEngine.ServerMediaFieldLengths))]
         private IDictionary<string, int> _serverMediaFieldLengths;
@@ -90,7 +89,7 @@ namespace TAS.Remoting.Model
         private IDictionary<string, int> _eventFieldLengths;
 
         [DtoMember(nameof(IEngine.NextToPlay))]
-        private Event _nextToPlay;
+        private IEvent _nextToPlay;
 
         #pragma warning restore
 
@@ -142,7 +141,7 @@ namespace TAS.Remoting.Model
 
         public IEvent NextToPlay { get => _nextToPlay; set => Set(value); }
 
-        public IEvent GetNextWithRequestedStartTime() { return Query<Event>(); }
+        public IEvent GetNextWithRequestedStartTime() { return Query<IEvent>(); }
 
 
 
@@ -205,7 +204,7 @@ namespace TAS.Remoting.Model
                     RecordingInfo recordingInfo = null
             )
         {
-            return Query<Event>(parameters: new object[] { idRundownEvent, idEventBinding , videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName,
+            return Query<IEvent>(parameters: new object[] { idRundownEvent, idEventBinding , videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName,
                     startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, isCGEnabled,
                     crawl, logo, parental, autoStartFlags, command, fields, method, templateLayer, routerPort, recordingInfo});
         }
@@ -247,7 +246,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException(); // method used by server plugin only
         }
 
-        public IEnumerable<IAclRight> GetRights() => Query<List<EngineAclRight>>();
+        public IEnumerable<IAclRight> GetRights() => Query<IAclRight[]>();
 
         public IAclRight AddRightFor(ISecurityObject securityObject) { return Query<IAclRight>(parameters: new object[] { securityObject }); }
 
@@ -339,31 +338,26 @@ namespace TAS.Remoting.Model
         public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
 #pragma warning restore
 
-        protected override void OnEventNotification(SocketMessage message)
+        protected override void OnEventNotification(string eventName, EventArgs eventArgs)
         {
-            switch (message.MemberName)
+            switch (eventName)
             {
                 case nameof(IEngine.EngineTick):
-                    _engineTick?.Invoke(this, DeserializeEventArgs<EngineTickEventArgs>(message));
-                    break;
+                    _engineTick?.Invoke(this, (EngineTickEventArgs)eventArgs);
+                    return;
                 case nameof(IEngine.EngineOperation):
-                    _engineOperation?.Invoke(this, DeserializeEventArgs<EngineOperationEventArgs>(message));
-                    break;
+                    _engineOperation?.Invoke(this, (EngineOperationEventArgs)eventArgs);
+                    return;
                 case nameof(IEngine.EventLocated):
-                    _eventLocated?.Invoke(this, DeserializeEventArgs<EventEventArgs>(message));
-                    break;
+                    _eventLocated?.Invoke(this, (EventEventArgs)eventArgs);
+                    return;
                 case nameof(IEngine.EventDeleted):
-                    _eventDeleted?.Invoke(this, DeserializeEventArgs<EventEventArgs>(message));
-                    break;
+                    _eventDeleted?.Invoke(this, (EventEventArgs)eventArgs);
+                    return;
             }
+            base.OnEventNotification(eventName, eventArgs);
         }
 
         #endregion // Event handling
-
-        public override string ToString()
-        {
-            return EngineName;
-        }
-
     }
 }

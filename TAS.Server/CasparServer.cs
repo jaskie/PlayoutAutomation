@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics;
 using System.Threading;
 using System.Xml.Serialization;
 using jNet.RPC.Server;
@@ -49,7 +48,7 @@ namespace TAS.Server
             throw new NotImplementedException();
         }
         #endregion
-        
+
         [Hibernate]
         public string ServerAddress { get; set; }
 
@@ -79,7 +78,7 @@ namespace TAS.Server
 
         [XmlArray(nameof(Channels)), Hibernate(nameof(Channels))]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public List<CasparServerChannel> ChannelsSer { get; set; }
+        public CasparServerChannel[] ChannelsSer { get; set; }
 
         [XmlIgnore]
         [DtoMember]
@@ -87,7 +86,7 @@ namespace TAS.Server
 
         [XmlArray(nameof(Recorders)), Hibernate(nameof(Recorders))]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public List<CasparRecorder> RecordersSer { get; set; }
+        public CasparRecorder[] RecordersSer { get; set; }
 
         [XmlIgnore]
         [DtoMember]
@@ -102,8 +101,8 @@ namespace TAS.Server
             {
                 if (!SetField(ref _isConnected, value))
                     return;
-                RecordersSer.ForEach(r => r.IsServerConnected = value);
-                ChannelsSer.ForEach(c => c.IsServerConnected = value);
+                Array.ForEach(RecordersSer, r => r.IsServerConnected = value);
+                Array.ForEach(ChannelsSer, c => c.IsServerConnected = value);
             }
         }
 
@@ -180,7 +179,7 @@ namespace TAS.Server
             IsConnected = e.Connected;
             Logger.Info("Connection status changed: {0} {1}", ServerAddress, e.Connected ? "Connected" : "Disconnected");
         }
-        
+
         public void Dispose()
         {
             if (_disposed)
@@ -199,7 +198,4 @@ namespace TAS.Server
             (AnimationDirectory as IDisposable)?.Dispose();
         }
     }
-
-
-  
 }
