@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "TVPlay+Client",
+    "Projects": [
+      {
+        "Path": "TVPlay\\TVPlay.csproj",
+        "Action": "Start",
+        "DebugTarget": "TVPlay"
+      },
+      {
+        "Path": "TVPlayClient\\TVPlayClient.csproj",
+        "Action": "Start",
+        "DebugTarget": "TVPlayClient"
+      }
+    ]
+  }
+]
