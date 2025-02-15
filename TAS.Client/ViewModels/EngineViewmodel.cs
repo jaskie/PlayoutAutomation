@@ -330,7 +330,7 @@ namespace TAS.Client.ViewModels
             Engine.TimeCorrection += intValue;
         }
 
-        private bool CanDeleteSelected(object _) => _multiSelectedEvents.Count > 0 && _multiSelectedEvents.All(e => e.Event.HaveRight(EventRight.Delete) && e.Event.AllowDelete());
+        private bool CanDeleteSelected(object _) => _multiSelectedEvents.Count > 0 && _multiSelectedEvents.All(e => e.Event != null && e.Event.HaveRight(EventRight.Delete) && e.Event.AllowDelete());
 
         private void EngineRights(object _)
         {
@@ -1044,7 +1044,7 @@ namespace TAS.Client.ViewModels
 
         public int SelectedCount => _multiSelectedEvents.Count;
 
-        public TimeSpan SelectedTime => TimeSpan.FromTicks(_multiSelectedEvents.Where(e => e != null).Sum(e => e.Event.Duration.Ticks));
+        public TimeSpan SelectedTime => TimeSpan.FromTicks(_multiSelectedEvents.Sum(e => e.Event.Duration.Ticks));
 
         public bool IsForcedNext => Engine.ForcedNext != null;
 

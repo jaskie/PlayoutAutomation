@@ -1,5 +1,4 @@
 ﻿using jNet.RPC;
-using jNet.RPC.Server;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,7 +16,7 @@ using TAS.Server.Security;
 namespace TAS.Server
 {
     [DebuggerDisplay("{" + nameof(_eventName) + "}")]
-    public class Event : ServerObjectBase, IEventPersistent
+    public class Event : jNet.RPC.Server.ServerObjectBase, IEventPersistent
     {
         [DtoMember(nameof(IEventPersistent.Engine))]
         private readonly Engine _engine;
@@ -974,10 +973,10 @@ namespace TAS.Server
         
         public void Delete()
         {
-            if (IsDeleted || !AllowDelete())
-                return;
             lock (_engine.RundownSync)
             {
+                if (IsDeleted || !_allowDelete())
+                    return;
                 foreach (var e in this._getSubEventTree().ToArray())
                     e._delete();
                 _delete();
@@ -1045,16 +1044,24 @@ namespace TAS.Server
 
         public bool AllowDelete()
         {
+            lock(_engine.RundownSync)
+            {
+                return _allowDelete();
+            }
+        }
+
+        private bool _allowDelete()
+        {
             if (!HaveRight(EventRight.Delete))
                 return false;
             if ((_playState == TPlayState.Fading || _playState == TPlayState.Paused || _playState == TPlayState.Playing) &&
                 (_eventType == TEventType.Live || _eventType == TEventType.Movie || _eventType == TEventType.Rundown))
                 return false;
-            if (_eventType == TEventType.Container && GetSubEvents().Any())
+            if (_eventType == TEventType.Container && _subEvents.Value.Any())
                 return false;
             foreach (var ne in this._getSubEventTree())
             {
-                if (!ne.AllowDelete())
+                if (!ne._allowDelete())
                     return false;
             }
             return true;
