@@ -500,6 +500,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Application is closing.
+        /// </summary>
+        public static string _splash_ClosingApplication {
+            get {
+                return ResourceManager.GetString("_splash_ClosingApplication", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete: {0}:{1}.
         /// </summary>
         public static string _title_Delete {

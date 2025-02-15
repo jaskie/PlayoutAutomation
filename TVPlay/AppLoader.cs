@@ -16,7 +16,8 @@ namespace TAS.Client
             {
                 try
                 {
-                    SplashScreenView.Current?.Notify("Initializing database...");
+                    var splash = SplashScreenView.Current;
+                    splash?.Notify("Initializing database...");
                     var database = DatabaseProvider.Database ?? throw new ApplicationException("No database provider loaded");
                     if (database.UpdateRequired())
                     {
@@ -24,12 +25,12 @@ namespace TAS.Client
                             Common.Properties.Resources._caption_Warning,
                             MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
                             return false;
-                        SplashScreenView.Current?.Notify("Updating database schema...");
+                        splash?.Notify("Updating database schema...");
                         database.UpdateDb();
                     }
-                    SplashScreenView.Current?.Notify("Initializing engines...");
+                    splash?.Notify("Initializing engines...");
                     EngineController.Current.InitializeEngines();
-                    SplashScreenView.Current?.Notify("Loading ingest directories...");
+                    splash?.Notify("Loading ingest directories...");
                     EngineController.Current.LoadIngestDirectories();
                 }
                 catch (TypeInitializationException e)

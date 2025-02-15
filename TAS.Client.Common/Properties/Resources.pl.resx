@@ -382,4 +382,7 @@ Kontynuować?</value>
   <data name="_validate_InvalidVideoFormat" xml:space="preserve">
     <value>Nieprawidłowy format wideo.</value>
   </data>
+  <data name="_splash_ClosingApplication" xml:space="preserve">
+    <value>Trwa zamykanie aplikacji</value>
+  </data>
 </root>

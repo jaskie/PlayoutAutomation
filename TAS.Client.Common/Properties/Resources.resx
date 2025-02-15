@@ -382,4 +382,7 @@ Proceed with update?</value>
   <data name="_validate_InvalidVideoFormat" xml:space="preserve">
     <value>Invalid video format.</value>
   </data>
+  <data name="_splash_ClosingApplication" xml:space="preserve">
+    <value>Application is closing</value>
+  </data>
 </root>

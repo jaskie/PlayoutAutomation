@@ -29,7 +29,7 @@ namespace TAS.Client
             var splash = MainWindow as SplashScreenView;
             MainWindow = new MainWindow();
             MainWindow.Show();
-            splash.Close();
+            splash?.Close();
         }
 
         protected override void OnExit(ExitEventArgs e)

@@ -3,8 +3,8 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Diagnostics;
-using TAS.Server;
 using resources = TAS.Client.Common.Properties.Resources;
+using TAS.Server;
 
 namespace TAS.Client
 {
@@ -18,10 +18,13 @@ namespace TAS.Client
             InitializeComponent();
         }
 
-        protected override void OnClosed(EventArgs e)
+        private void ShutdownApplication()
         {
-            (TryFindResource("MainWindowVM") as MainWindowViewmodel)?.Dispose();
-            base.OnClosed(e);
+            var splashScreen = new Views.SplashScreenView() { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner };
+            splashScreen.Notify(resources._splash_ClosingApplication);
+            splashScreen.Show();
+            MainWindowViewmodel.Current?.Dispose();
+            splashScreen.Close();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -29,9 +32,11 @@ namespace TAS.Client
 #if DEBUG == false
             int connectedClientCount = EngineController.Current.GetConnectedClientCount();
             e.Cancel = !((App)Application.Current).IsShutdown
-                       && (MessageBox.Show(resources._query_ExitApplication, resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes
-                           || (connectedClientCount > 0 && MessageBox.Show(string.Format(resources._query_ClientsConnectedOnExit, connectedClientCount), resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes));
+                       && (MessageBox.Show(this, resources._query_ExitApplication, resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes
+                           || (connectedClientCount > 0 && MessageBox.Show(this, string.Format(resources._query_ClientsConnectedOnExit, connectedClientCount), resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes));
 #endif // DEBUG
+            if (!e.Cancel)
+                ShutdownApplication();
             base.OnClosing(e);
         }
 

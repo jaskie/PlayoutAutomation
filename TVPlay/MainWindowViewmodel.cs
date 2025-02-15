@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
@@ -15,6 +16,7 @@ namespace TAS.Client
 
         public MainWindowViewmodel()
         {
+            Current = this;
             if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject())) 
                 return;
             try
@@ -43,6 +45,8 @@ namespace TAS.Client
                 Application.Current.Shutdown(1);
             }
         }
+
+        public static MainWindowViewmodel Current { get; private set; }
 
         public List<ViewModelBase> Tabs { get; } = new List<ViewModelBase>();
 
