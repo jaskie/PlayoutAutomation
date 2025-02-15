@@ -340,10 +340,10 @@ namespace TAS.Database.SQLite
                             dataReader.Close();
                         }
                         foreach (var ev in foundEvents)
-                            if (ev is ITemplated && ev is IEventPersistent)
+                            if (ev is ITemplated && ev is IEventPersistent persistent)
                             {
-                                ReadAnimatedEvent(((IEventPersistent)ev).Id, ev as ITemplated);
-                                ((IEventPersistent)ev).IsModified = false;
+                                ReadAnimatedEvent(persistent.Id, ev as ITemplated);
+                                persistent.IsModified = false;
                             }
                         return foundEvents;
                     }
@@ -367,10 +367,10 @@ namespace TAS.Database.SQLite
                     using (var reader = cmd.ExecuteReader())
                         if (reader.Read())
                             futureScheduled = InternalEventRead(engine, reader);
-                    if (futureScheduled is ITemplated && futureScheduled is IEventPersistent)
+                    if (futureScheduled is ITemplated && futureScheduled is IEventPersistent persistent)
                     {
-                        ReadAnimatedEvent(((IEventPersistent)futureScheduled).Id, futureScheduled as ITemplated);
-                        ((IEventPersistent)futureScheduled).IsModified = false;
+                        ReadAnimatedEvent(persistent.Id, futureScheduled as ITemplated);
+                        persistent.IsModified = false;
                     }
                     if (futureScheduled != null)
                         return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InSchedule, Media = serverMedia, Event = futureScheduled };
@@ -581,11 +581,11 @@ namespace TAS.Database.SQLite
                         while (dataReader.Read())
                             subevents.Add(InternalEventRead(engine, dataReader));
                     }
-                    foreach (var e in subevents)
-                        if (e is ITemplated)
+                    foreach (IEventPersistent e in subevents.Cast<IEventPersistent>())
+                        if (e is ITemplated templated)
                         {
-                            ReadAnimatedEvent(e.Id, e as ITemplated);
-                            ((IEventPersistent)e).IsModified = false;
+                            ReadAnimatedEvent(e.Id, templated);
+                            e.IsModified = false;
                         }
                     return subevents;
                 }

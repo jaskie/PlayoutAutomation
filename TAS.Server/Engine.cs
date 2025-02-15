@@ -366,24 +366,33 @@ namespace TAS.Server
                 var e = _playing;
                 if (e == null)
                     return null;
-                e = _successor(e);
+                lock (RundownSync)
+                {
+                    e = _successor(e);
+                }
                 if (e == null)
                     return null;
                 if (e.EventType == TEventType.Rundown)
-                    return e.FindVisibleSubEvent();
+                    lock (RundownSync)
+                    {
+                        return e.FindVisibleSubEvent();
+                    }
                 return e;
             }
         }
 
         public IEvent GetNextWithRequestedStartTime()
         {
-            var e = _playing;
-            if (e == null)
-                return null;
-            do
-                e = e.InternalGetSuccessor();
-            while (e != null && e.RequestedStartTime == null);
-            return e;
+            lock (RundownSync)
+            {
+                var e = _playing;
+                if (e == null)
+                    return null;
+                do
+                    e = e.InternalGetSuccessor();
+                while (e != null && e.RequestedStartTime == null);
+                return e;
+            }
         }
 
         [DtoMember]
@@ -456,8 +465,8 @@ namespace TAS.Server
                 foreach (var e in el)
                     _stop(e);
                 _clearRunning();
+                _load(aEvent as Event);
             }
-            _load(aEvent as Event);
         }
 
         public void StartLoaded()
@@ -505,7 +514,7 @@ namespace TAS.Server
                 if (ev != null)
                 {
                     ev.PlayState = ev.Position == 0 ? TPlayState.Scheduled : TPlayState.Aborted;
-                    ev.SaveDelayed();
+                    SaveEventDelayed(ev);
                     RemoveVisibleEvent(ev);
                     _runningEvents.Remove(ev);
                     RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(ev, CollectionOperation.Remove));
@@ -690,7 +699,10 @@ namespace TAS.Server
             {
                 try
                 {
-                    _reSchedule(aEvent as Event);
+                    lock (RundownSync)
+                    {
+                        _reSchedule(aEvent as Event);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -871,8 +883,6 @@ namespace TAS.Server
         {
             if (aEvent == null)
                 return;
-            lock (RundownSync)
-            {
                 try
                 {
                     if (aEvent.PlayState == TPlayState.Aborted
@@ -883,7 +893,7 @@ namespace TAS.Server
                             _reSchedule(se);
                     }
 
-                    var next = aEvent.InternalGetSuccessor();
+                    var next = (Event)aEvent.GetSuccessor();
                     if (next != null)
                         _reSchedule(next);
                 }
@@ -891,7 +901,6 @@ namespace TAS.Server
                 {
                     aEvent.Save();
                 }
-            }
         }
 
         private void _load(Event aEvent)
@@ -985,7 +994,7 @@ namespace TAS.Server
                             _runningEvents.Remove(e);
                             RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Remove));
                         }
-                        e.SaveDelayed();
+                        SaveEventDelayed(e);
                     });
             }
             _run(aEvent);
@@ -1049,7 +1058,7 @@ namespace TAS.Server
                         }
                 }
             }
-            aEvent.SaveDelayed();
+            SaveEventDelayed(aEvent);
             if (_pst2Prv)
                 _loadPST();
             NotifyEngineOperation(aEvent, TEngineOperation.Play);
@@ -1080,7 +1089,7 @@ namespace TAS.Server
                 _runningEvents.Remove(e);
                 e.PlayState = e.Position == 0 ? TPlayState.Scheduled : TPlayState.Aborted;
                 RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Remove));
-                e.SaveDelayed();
+                SaveEventDelayed(e);
             }
         }
 
@@ -1111,7 +1120,7 @@ namespace TAS.Server
         private void _stop(Event aEvent)
         {
             aEvent.PlayState = aEvent.Position == 0 ? TPlayState.Scheduled : aEvent.IsFinished() ? TPlayState.Played : TPlayState.Aborted;
-            aEvent.SaveDelayed();
+            SaveEventDelayed(aEvent);
             lock (_visibleEvents.SyncRoot())
                 if (_visibleEvents.Contains(aEvent))
                 {
@@ -1145,7 +1154,7 @@ namespace TAS.Server
             if (finish)
             {
                 aEvent.PlayState = TPlayState.Played;
-                aEvent.SaveDelayed();
+                SaveEventDelayed(aEvent);
                 _runningEvents.Remove(aEvent);
                 NotifyEngineOperation(aEvent, TEngineOperation.Stop);
             }
@@ -1365,14 +1374,14 @@ namespace TAS.Server
             if (pe == null || (pe.PlayState != TPlayState.Playing && pe.PlayState != TPlayState.Paused))
                 return TimeSpan.Zero;
             var result = pe.Length - TimeSpan.FromTicks(pe.Position * FrameTicks);
-            pe = pe.InternalGetSuccessor();
+            pe = (Event)pe.GetSuccessor();
             while (pe != null)
             {
                 var pauseTime = pe.GetAttentionTime();
                 if (pauseTime != null)
                     return result + pauseTime.Value - pe.TransitionTime;
                 result = result + pe.Length - pe.TransitionTime;
-                pe = pe.InternalGetSuccessor();
+                pe = (Event)pe.GetSuccessor();
             }
             return result;
         }
@@ -1568,6 +1577,10 @@ namespace TAS.Server
             NotifyPropertyChanged(nameof(CurrentUserRights));
         }
 
+        private void SaveEventDelayed(Event e)
+        {
+            Task.Run(() => e.Save());
+        }
 
         #region PInvoke
         [DllImport("kernel32.dll")]
