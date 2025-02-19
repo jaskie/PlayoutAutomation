@@ -330,7 +330,7 @@ namespace TAS.Client.ViewModels
             Engine.TimeCorrection += intValue;
         }
 
-        private bool CanDeleteSelected(object _) => _multiSelectedEvents.Count > 0 && _multiSelectedEvents.All(e => e.Event != null && e.Event.HaveRight(EventRight.Delete) && e.Event.AllowDelete());
+        private bool CanDeleteSelected(object _) => _multiSelectedEvents.Count > 0 && _multiSelectedEvents.All(e => e?.Event != null && e.Event.HaveRight(EventRight.Delete) && e.Event.AllowDelete());
 
         private void EngineRights(object _)
         {
@@ -652,7 +652,7 @@ namespace TAS.Client.ViewModels
 
         private void DeleteSelected(object ob)
         {
-            var evmList = _multiSelectedEvents.ToList();
+            var evmList = _multiSelectedEvents.Where(vm => vm?.Event != null).ToList();
             if (evmList.Count == 0
                 || MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count, evmList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
                 return;
@@ -1082,7 +1082,8 @@ namespace TAS.Client.ViewModels
         public void ClearSelection()
         {
             foreach (var evm in _multiSelectedEvents.ToList())
-                evm.IsMultiSelected = false;
+                if (evm != null)
+                    evm.IsMultiSelected = false;
             _multiSelectedEvents.Clear();
         }
 

@@ -617,9 +617,9 @@
                                 </Setter.Value>
                             </Setter>
                             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                            <Setter Property="IsSelected" Value="{Binding IsSelected}" />
                             <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVis}}"/>
-                            <Setter Property="common:TreeViewExtensions.IsMultiSelected" Value="{Binding IsMultiSelected, Mode=TwoWay}"/>
+                            <Setter Property="common:TreeViewExtensions.IsMultiSelected" Value="{Binding IsMultiSelected}"/>
                             <Setter Property="Margin" Value="0"/>
                             <Style.Triggers>
                                 <Trigger Property="common:TreeViewExtensions.IsMultiSelected"  Value="True" >
