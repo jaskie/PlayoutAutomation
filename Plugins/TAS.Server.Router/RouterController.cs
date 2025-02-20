@@ -70,7 +70,7 @@ namespace TAS.Server
             try
             {
                 IsConnected = await _routerCommunicator.Connect();
-                if (IsConnected)                    
+                if (IsConnected)
                     ParseInputMeta(await _routerCommunicator.GetInputPorts());
             }
             catch (Exception e)
@@ -97,7 +97,7 @@ namespace TAS.Server
             {
                 ParseInputMeta(ports);
                 return;
-            }                
+            }
 
             if (SelectedInputPort == null || SelectedInputPort.PortId != selectedInput.InPort)            
                 SelectedInputPort = InputPorts.FirstOrDefault(port => port.PortId == selectedInput.InPort);
@@ -107,10 +107,10 @@ namespace TAS.Server
         {
             IsConnected = e.Value;
             if (e.Value)
-                return;            
+                return;
 
-            Init();           
-        }        
+            Init();
+        }
 
         private void Communicator_OnRouterPortStateReceived(object sender, EventArgs<PortState[]> e)
         {
