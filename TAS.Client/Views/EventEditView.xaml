@@ -7,12 +7,14 @@
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:behaviors="clr-namespace:TAS.Client.Common.Behaviors;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:interfaces="clr-namespace:TAS.Common.Interfaces;assembly=TAS.Common"
              xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d" 
              d:DesignWidth="360"
              d:DesignHeight="530"
+             d:DataContext="{d:DesignInstance vm:EventEditViewmodel}"
              BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey }}"
              >
     <Grid>
@@ -261,19 +263,13 @@
                             <Label Margin="5" Content="{Resx _inputPort}" VerticalAlignment="Center" />
                             <ComboBox Grid.Column="1" ItemsSource="{Binding InputPorts}" SelectedItem="{Binding SelectedInputPort}" IsEnabled="{Binding Router.IsConnected}" MinWidth="100" VerticalAlignment="Center">
                                 <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <ComboBoxItem>
-                                            <ComboBoxItem.Style>
-                                                <Style TargetType="ComboBoxItem">
-                                                    <Setter Property="Content" Value="{Binding PortName}" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding}" Value="">
-                                                            <Setter Property="Content" Value="{Resx _noInputPort, ResxName=TAS.Client.Views.EventEditView}" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </ComboBoxItem.Style>
-                                        </ComboBoxItem>
+                                    <DataTemplate DataType="interfaces:IRouterPort">
+                                        <TextBlock x:Name="tb" Text="{Binding PortName}" />
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding PortId}" Value="-1">
+                                                <Setter TargetName="tb" Property="Text" Value="{Resx _noInputPort, ResxName=TAS.Client.Views.EventEditView}" />
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>

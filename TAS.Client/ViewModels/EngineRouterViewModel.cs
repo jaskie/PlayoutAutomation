@@ -32,11 +32,11 @@ namespace TAS.Client.ViewModels
         public IRouterPort SelectedInputPort 
         { 
             get => _selectedInputPort; 
-            set 
+            set
             {
-                _selectedInputPort = value;                    
-                NotifyPropertyChanged();                                    
-            } 
+                _selectedInputPort = value;
+                NotifyPropertyChanged();
+            }
         }
 
         public bool IsConnected => Router.IsConnected;

@@ -14,6 +14,9 @@ namespace TAS.Server
         [XmlAttribute]
         public string Address { get; set; }
 
+        [XmlAttribute]
+        public int MixEffectBlockIndex { get; set; } = 1;
+
         internal IEngine Engine;
     }
 }

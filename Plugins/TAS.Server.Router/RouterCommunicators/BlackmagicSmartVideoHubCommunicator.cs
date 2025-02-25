@@ -448,7 +448,7 @@ namespace TAS.Server.RouterCommunicators
             while (_response.Contains("\n\n"))
             {
                 var command = _response.Substring(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
-                _response = _response.Remove(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);                              
+                _response = _response.Remove(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
                 ProcessCommand(command);
             }
         }

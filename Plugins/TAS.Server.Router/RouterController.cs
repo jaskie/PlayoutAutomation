@@ -10,6 +10,8 @@ using jNet.RPC;
 
 namespace TAS.Server
 {
+
+    [DtoType(typeof(IRouter))]
     public class RouterController : ServerObjectBase, IRouter
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -58,7 +60,7 @@ namespace TAS.Server
         }
 
         public void SelectInput(int inPort)
-        {            
+        {
              _routerCommunicator.SelectInput(inPort);
         }
 
@@ -99,7 +101,7 @@ namespace TAS.Server
                 return;
             }
 
-            if (SelectedInputPort == null || SelectedInputPort.PortId != selectedInput.InPort)            
+            if (SelectedInputPort == null || SelectedInputPort.PortId != selectedInput.InPort)
                 SelectedInputPort = InputPorts.FirstOrDefault(port => port.PortId == selectedInput.InPort);
         }
 

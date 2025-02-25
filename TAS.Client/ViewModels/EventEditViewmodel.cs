@@ -41,11 +41,6 @@ namespace TAS.Client.ViewModels
         private bool _isEventNameFocused;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        #region Router
-        private int _routerPort = -1;
-        private object _selectedInputPort;
-        #endregion
-
         public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
         public static readonly Regex RegexMixerClip = new Regex(TAS.Common.EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
         public static readonly Regex RegexMixerClear = new Regex(TAS.Common.EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase);
@@ -62,16 +57,16 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
             Router = engineViewModel.Router;
-            InputPorts = new List<object>();
+            InputPorts = new List<IRouterPort>();
 
             if (Router != null)
             {
-                InputPorts.Add(string.Empty); //default value in ComboBox
+                InputPorts.Add(new DummyRouterPort()); // "do not change the input" value
                 foreach (var input in Router.InputPorts)
                     InputPorts.Add(input);
-                _selectedInputPort = InputPorts?.FirstOrDefault(param => param is IRouterPort routerPort && routerPort.PortId == _routerPort) ?? InputPorts?[0];
+                _selectedInputPort = InputPorts.FirstOrDefault(x => x.PortId == RouterPort);
             }
-                            
+
             if (@event.EventType == TEventType.Live && Model.Engine.MediaManager.Recorders.Count() > 0)
             {
                 RecordingInfoViewmodel = new RecordingInfoViewModel(@event.Engine, @event.RecordingInfo);
@@ -562,39 +557,23 @@ namespace TAS.Client.ViewModels
         public TVideoFormat VideoFormat => _engineViewModel.VideoFormat;
 
         #region Router
-        public int RouterPort
-        {
-            get => _routerPort;
-            set
-            {
-                if (_routerPort == value)
-                    return;
-
-                _routerPort = value;
-                _selectedInputPort = InputPorts?.FirstOrDefault(p => p is IRouterPort routerPort && routerPort.PortId == value) ?? InputPorts?[0];
-                NotifyPropertyChanged(nameof(SelectedInputPort));
-            }
-        }
 
         public IRouter Router { get; }
 
-        public IList<object> InputPorts { get; }
+        public int RouterPort { get; set; }
 
-        public object SelectedInputPort
+        public IList<IRouterPort> InputPorts { get; }
+
+        private IRouterPort _selectedInputPort;
+
+        public IRouterPort SelectedInputPort
         {
             get => _selectedInputPort;
             set
             {
                 if (!SetField(ref _selectedInputPort, value))
                     return;
-
-                if (!(value is IRouterPort routerPort))
-                {
-                    RouterPort = -1;
-                    return;
-                }
-                
-                RouterPort = routerPort.PortId;
+                RouterPort = value.PortId;
             }
         }
 
@@ -871,6 +850,8 @@ namespace TAS.Client.ViewModels
                         break;
                     case nameof(IEvent.RouterPort):
                         RouterPort = s.RouterPort;
+                        _selectedInputPort = InputPorts?.FirstOrDefault(p => p is IRouterPort routerPort && routerPort.PortId == s.RouterPort) ?? InputPorts?[0];
+                        NotifyPropertyChanged(nameof(SelectedInputPort));
                         break;
                     case nameof(IEvent.CurrentUserRights):
                         InvalidateRequerySuggested();
@@ -1010,9 +991,20 @@ namespace TAS.Client.ViewModels
 
         private void RightsModifiedChanged(object sender, EventArgs e) => IsModified = true;
 
-
         public void SetFocusOnEventName() => IsEventNameFocused = true;
-    }
 
+        /// <summary>
+        /// class to represent a dummy router port "do not change the input"
+        /// </summary>
+        private class DummyRouterPort: IRouterPort
+        {
+            public int PortId => -1;
+            public string PortName => string.Empty;
+            public bool? IsSignalPresent => null;
+#pragma warning disable CS0067
+            public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore
+        }
+    }
 }
 
