@@ -24,15 +24,22 @@ namespace TAS.Server
             Logger.Error("Router config read error");
         }
 
-        public object CreateEnginePlugin(IEngine engine)
+        public T CreateEnginePlugin<T>(IEngine engine) where T : class
         {
             var atemDevice = _atemDevices?.FirstOrDefault(c => c.EngineName == engine.EngineName);
             if (atemDevice == null)
                 return null;
-            if (atemDevice.Engine != null && atemDevice.Engine != engine)
-                throw new InvalidOperationException("Atem plugin reused");
-            atemDevice.Engine = engine;
-            return new AtemController(atemDevice);
+            if (atemDevice.AtemController is null)
+                atemDevice.AtemController = new AtemController(atemDevice);
+            switch (typeof(T))
+            {
+                case Type t when t == typeof(IGpi) && atemDevice.StartME > 0:
+                    return atemDevice.AtemController as T;
+                case Type t when t == typeof(IRouter) && atemDevice.InputSelectME > 0:
+                    return atemDevice.AtemController as T;
+                default:
+                    return null;
+            }
         }
 
         public Type Type { get; } = typeof(AtemController);

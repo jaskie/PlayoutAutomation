@@ -15,8 +15,15 @@ namespace TAS.Server
         public string Address { get; set; }
 
         [XmlAttribute]
-        public int MixEffectBlockIndex { get; set; } = 1;
+        public int InputSelectME { get; set; }
 
-        internal IEngine Engine;
+        [XmlAttribute]
+        public int StartME { get; set; }
+
+        [XmlAttribute]
+        public int StartVideoInput { get; set; }
+
+        [XmlIgnore]
+        internal AtemController AtemController { get; set; }
     }
 }

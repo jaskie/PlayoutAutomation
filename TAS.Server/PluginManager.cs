@@ -41,13 +41,13 @@ namespace TAS.Server
             }
         }
 
-        public static T ComposePart<T>(this IEngine engine) 
+        public static T ComposePart<T>(this IEngine engine) where T: class
         {
             try
             {
                 var factory = EnginePlugins?.FirstOrDefault(f => typeof(T).IsAssignableFrom(f.Type));
                 if (factory != null)
-                    return (T) factory.CreateEnginePlugin(engine);
+                    return factory.CreateEnginePlugin<T>(engine);
             }
             catch (Exception e)
             {
@@ -56,14 +56,14 @@ namespace TAS.Server
             return default(T);
         }
 
-        public static List<T> ComposeParts<T>(this IEngine engine)
+        public static List<T> ComposeParts<T>(this IEngine engine) where T : class
         {
             try
             {
                 if (EnginePlugins != null)
                 {
                     var factories = EnginePlugins.Where(f => typeof(T).IsAssignableFrom(f.Type));
-                    return factories.Select(f => (T) f.CreateEnginePlugin(engine)).Where(f => f != null).ToList();
+                    return factories.Select(f => f.CreateEnginePlugin<T>(engine)).Where(f => f != null).ToList();
                 }
             }
             catch (Exception e)

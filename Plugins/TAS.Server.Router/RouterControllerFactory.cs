@@ -23,7 +23,7 @@ namespace TAS.Server
             Logger.Error("Router config read error");
         }
 
-        public object CreateEnginePlugin(IEngine engine)
+        public T CreateEnginePlugin<T>(IEngine engine) where T: class
         {
             var routerDevice = _routerDevices?.FirstOrDefault(c => c.EngineName == engine.EngineName);
             if (routerDevice == null)
@@ -31,7 +31,7 @@ namespace TAS.Server
             if (routerDevice.Engine != null && routerDevice.Engine != engine)
                 throw new InvalidOperationException("Router reused");
             routerDevice.Engine = engine;
-            return new RouterController(routerDevice);
+            return new RouterController(routerDevice) as T;
         }
 
         public Type Type { get; } = typeof(RouterController);

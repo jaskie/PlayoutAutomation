@@ -1,4 +1,29 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <AtemDevices>
-  <AtemDevice EngineName="TVP Szczecin" Address="192.168.2.9"/>
+<!--
+  *** Blackmagic Design ATEM plugin (TAS.Server.Atem.dll) configuration file ***
+  
+  This plugin serves two purposes:
+  1. To switch inputs for "live" rundown events, allowing to preselect source for CasparCG video input. 
+     When "Live" event is about to start, the plugin will switch the ATEM input to the source selected in the event properties.
+     Required configuration for the role is:
+
+     <AtemDevice EngineName="TVP Szczecin" Address="192.168.2.9" InputSelectME="1"/>
+
+  2. To start preloaded (parked) rundown item using the switcher - when PGM input is changed to specific source, the plugin will start the preloaded rundown item.
+
+     To configure the role, use the following configuration:
+
+     <AtemDevice EngineName="TVP Szczecin" Address="192.168.2.9" StartME="1" StartVideoInput="1"/>
+
+  Of course, you can combine both roles in one configuration, which may be useful if you have switcher with 2 or more MEs.
+
+  Configuration parameters:
+  EngineName - name of the engine, *must be* the same string as EngineName in the engine configuration
+  Address - IP address of the ATEM switcher
+  InputSelectME - ME number to select input for "live" events, starting from 1 (ME1 = 1, ME2 = 2, etc.)
+  StartME - ME number on which video source selection triggers playout start, counting from 1
+  StartVideoInput - video input which selection triggers playout start, counting from 1 (0 = black, 1 = input 1, 2 = input 2, etc.)
+-->
+  <AtemDevice EngineName="TVP Szczecin" Address="192.168.2.9" InputSelectME="1" StartME="2" StartVideoInput="1"/>
 </AtemDevices>
