@@ -6,17 +6,17 @@
   This plugin serves two purposes:
   1. To switch inputs for "live" rundown events, allowing to preselect source for CasparCG video input. 
      When "Live" event is about to start, the plugin will switch the ATEM input to the source selected in the event properties.
-     Required configuration for the role is:
+     Required configuration for the role is like this:
 
      <AtemDevice EngineName="TVP Szczecin" Address="192.168.2.9" InputSelectME="1"/>
 
   2. To start preloaded (parked) rundown item using the switcher - when PGM input is changed to specific source, the plugin will start the preloaded rundown item.
 
-     To configure the role, use the following configuration:
+     To configure the role, use the configuration like this:
 
      <AtemDevice EngineName="TVP Szczecin" Address="192.168.2.9" StartME="1" StartVideoInput="1"/>
 
-  Of course, you can combine both roles in one configuration, which may be useful if you have switcher with 2 or more MEs.
+  You can combine both roles in one configuration, which may be useful if you have switcher with 2 or more MEs.
 
   Configuration parameters:
   EngineName - name of the engine, *must be* the same string as EngineName in the engine configuration
