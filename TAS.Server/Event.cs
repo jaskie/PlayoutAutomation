@@ -133,7 +133,7 @@ namespace TAS.Server
             {
                 var result = DatabaseProvider.Database.ReadSubEvents(_engine, this);
                 foreach (Event e in result)
-                    e.SetParent(this);
+                    e._parent = new Lazy<Event>(() => this);
                 return result;
             });
 
@@ -141,7 +141,7 @@ namespace TAS.Server
             {
                 var next = (Event)DatabaseProvider.Database.ReadNext(_engine, this);
                 if (next != null)
-                    next.SetPrior(this);
+                    next._prior = new Lazy<Event>(() => this);
                 return next;
             });
 
@@ -151,7 +151,7 @@ namespace TAS.Server
                 if (startType == TStartType.After && IdEventBinding > 0)
                     prior = (Event)DatabaseProvider.Database.ReadEvent(_engine, IdEventBinding);
                 if (prior != null)
-                    prior.SetNext(this);
+                    prior._next = new Lazy<Event>(() => this);
                 return prior;
             });
 
