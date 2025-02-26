@@ -976,7 +976,10 @@ namespace TAS.Server
             lock (_engine.RundownSync)
             {
                 if (IsDeleted || !_allowDelete())
+                {
+                    Logger.Warn("Event {0} cannot be deleted, {1}", EventName, IsDeleted ? "it was deleted previously" : "it's not allowed");
                     return;
+                }
                 foreach (var e in this._getSubEventTree().ToArray())
                     e._delete();
                 _delete();
