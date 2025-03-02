@@ -272,91 +272,135 @@ namespace TAS.Database.SQLite
 
         public int CheckDatabase(IEngine engine, bool recoverLostEvents)
         {
+            lock (Connection)
             {
-                lock (Connection)
+                const string unlinkedEventsCommand = "SELECT * FROM rundownevent m WHERE m.idEngine=@idEngine AND (SELECT count(*) FROM rundownevent s WHERE m.idEventBinding = s.idRundownEvent) = 0;";
+                const string multipleConnectedEventsCommand = "SELECT * FROM rundownevent s WHERE s.idEngine=@idEngine AND s.typStart = @typStart AND (SELECT COUNT(*) FROM rundownevent m WHERE s.idEventBinding = m.idEventBinding) > 1 ORDER BY s.idEventBinding, s.idRundownEvent DESC;";
+                var rootEvents = engine.GetRootEvents();
+                if (recoverLostEvents)
                 {
-                    const string unlinkedEventsCommand = "SELECT * FROM rundownevent m WHERE m.idEngine=@idEngine AND (SELECT count(*) FROM rundownevent s WHERE m.idEventBinding = s.idRundownEvent) = 0";
-                    var rootEvents = engine.GetRootEvents();
-                    if (recoverLostEvents)
+                    var foundEvents = new List<IEvent>();
+                    // step 1: find all events that are not bound to another event
+                    using (var cmd = new DbCommand(unlinkedEventsCommand, Connection))
                     {
-                        var foundEvents = new List<IEvent>();
-                        // step 1: find all events that are not bound to another event
-                        using (var cmd = new DbCommand(unlinkedEventsCommand, Connection))
+                        cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
+                        using (var dataReader = cmd.ExecuteReader())
                         {
-                            cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
-                            using (var dataReader = cmd.ExecuteReader())
+                            while (dataReader.Read())
                             {
-                                while (dataReader.Read())
-                                {
-                                    if (rootEvents.Any(e => e.Id == dataReader.GetUInt64("idRundownEvent")))
-                                        continue;
-                                    var newEvent = InternalEventRead(engine, dataReader);
-                                    foundEvents.Add(newEvent);
-                                }
-                                dataReader.Close();
+                                if (rootEvents.Any(e => e.Id == dataReader.GetUInt64("idRundownEvent")))
+                                    continue;
+                                var newEvent = InternalEventRead(engine, dataReader);
+                                foundEvents.Add(newEvent);
                             }
+                            dataReader.Close();
                         }
-                        foreach (var e in foundEvents)
-                        {
-                            if (e is ITemplated et)
-                                ReadAnimatedEvent(e.Id, et);
-                            if (e.EventType != TEventType.Rundown)
-                            {
-                                var cont = engine.CreateNewEvent(
-                                    eventType: TEventType.Rundown,
-                                    eventName: $"Rundown for {e.EventName}",
-                                    scheduledTime: e.ScheduledTime,
-                                    startType: TStartType.Manual
-                                    );
-                                engine.AddRootEvent(cont);
-                                cont.Save();
-                                cont.InsertUnder(e, false);
-                            }
-                            else
-                            {
-                                e.StartType = TStartType.Manual;
-                                engine.AddRootEvent(e);
-                                e.Save();
-                            }
-                        }
-                        return foundEvents.Count;
                     }
-                    else
+                    // step 2: find events connected excesively
+                    using (var cmd = new DbCommand(multipleConnectedEventsCommand, Connection)) // notice correct sorting order
                     {
-                        var foundIds = new List<ulong>();
-                        using (var cmd = new DbCommand(unlinkedEventsCommand, Connection))
+                        cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
+                        cmd.Parameters.AddWithValue("@typStart", TStartType.After);
+                        ulong previousIdBinding = 0;
+                        using (var dataReader = cmd.ExecuteReader())
                         {
-                            cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
-                            using (var dataReader = cmd.ExecuteReader())
+                            while (dataReader.Read())
                             {
-                                while (dataReader.Read())
+                                var newIdBinding = dataReader.GetUInt64("idEventBinding");
+                                if (previousIdBinding != newIdBinding)
                                 {
-                                    ulong id = dataReader.GetUInt64("idRundownEvent");
-                                    if (rootEvents.Any(e => e.Id == id))
-                                        continue;
-                                    foundIds.Add(id);
+                                    previousIdBinding = newIdBinding;
+                                    continue; // skip first event, as this is the one we want to keep
                                 }
-                                dataReader.Close();
+                                var newEvent = InternalEventRead(engine, dataReader);
+                                foundEvents.Add(newEvent);
                             }
+                            dataReader.Close();
                         }
-                        if (foundIds.Count == 0)
-                            return 0;
-                        var idsToDelete = new List<ulong>();
-                        foreach (var id in foundIds)
-                            AddLinkedEventsToDeleteList(id, idsToDelete);
-                        var idsToDeleteStr = string.Join(",", idsToDelete);
-                        using (var transaction = Connection.BeginTransaction())
-                        {
-                            using (var cmd = new DbCommand($"DELETE FROM rundownevent WHERE idRundownEvent IN ({idsToDeleteStr})", Connection))
-                                cmd.ExecuteNonQuery();
-                            using (var cmd = new DbCommand($"DELETE FROM rundownevent_templated WHERE idrundownevent_templated IN ({idsToDeleteStr})", Connection))
-                                cmd.ExecuteNonQuery();
-                            using (var cmd = new DbCommand($"DELETE FROM rundownevent_acl WHERE idrundownevent IN ({idsToDeleteStr})", Connection))
-                                cmd.ExecuteNonQuery();
-                            transaction.Commit();
-                        }
-                        return foundIds.Count;
                     }
+                    foreach (var e in foundEvents)
+                    {
+                        if (e is ITemplated et)
+                            ReadAnimatedEvent(e.Id, et);
+                        if (e.EventType != TEventType.Rundown)
+                        {
+                            var cont = engine.CreateNewEvent(
+                                eventType: TEventType.Rundown,
+                                eventName: $"Rundown for {e.EventName}",
+                                scheduledTime: e.ScheduledTime,
+                                startType: TStartType.Manual
+                                );
+                            engine.AddRootEvent(cont);
+                            cont.Save();
+                            cont.InsertUnder(e, false);
+                        }
+                        else
+                        {
+                            e.StartType = TStartType.Manual;
+                            engine.AddRootEvent(e);
+                            e.Save();
+                        }
+                    }
+                    return foundEvents.Count;
+                }
+                else
+                {
+                    var foundIds = new List<ulong>();
+                    // step 1: find all events that are not bound to another event
+                    using (var cmd = new DbCommand(unlinkedEventsCommand, Connection))
+                    {
+                        cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
+                        using (var dataReader = cmd.ExecuteReader())
+                        {
+                            while (dataReader.Read())
+                            {
+                                ulong id = dataReader.GetUInt64("idRundownEvent");
+                                if (rootEvents.Any(e => e.Id == id))
+                                    continue;
+                                foundIds.Add(id);
+                            }
+                            dataReader.Close();
+                        }
+                    }
+                    // step 2: find events connected excesively
+                    using (var cmd = new DbCommand(multipleConnectedEventsCommand, Connection))
+                    {
+                        cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
+                        cmd.Parameters.AddWithValue("@typStart", TStartType.After);
+                        ulong previousIdBinding = 0;
+                        using (var dataReader = cmd.ExecuteReader())
+                        {
+                            while (dataReader.Read())
+                            {
+                                var newIdBinding = dataReader.GetUInt64("idEventBinding");
+                                if (previousIdBinding != newIdBinding)
+                                {
+                                    previousIdBinding = newIdBinding;
+                                    continue; // skip first event, as this is the one we want to keep
+                                }
+                                foundIds.Add(dataReader.GetUInt64("idRundownEvent"));
+                            }
+                            dataReader.Close();
+                        }
+                    }
+
+                    if (foundIds.Count == 0)
+                        return 0;
+                    var idsToDelete = new List<ulong>();
+                    foreach (var id in foundIds)
+                        AddLinkedEventsToDeleteList(id, idsToDelete);
+                    var idsToDeleteStr = string.Join(",", idsToDelete);
+                    using (var transaction = Connection.BeginTransaction())
+                    {
+                        using (var cmd = new DbCommand($"DELETE FROM rundownevent WHERE idRundownEvent IN ({idsToDeleteStr})", Connection))
+                            cmd.ExecuteNonQuery();
+                        using (var cmd = new DbCommand($"DELETE FROM rundownevent_templated WHERE idrundownevent_templated IN ({idsToDeleteStr})", Connection))
+                            cmd.ExecuteNonQuery();
+                        using (var cmd = new DbCommand($"DELETE FROM rundownevent_acl WHERE idRundownEvent IN ({idsToDeleteStr})", Connection))
+                            cmd.ExecuteNonQuery();
+                        transaction.Commit();
+                    }
+                    return foundIds.Count;
                 }
             }
         }
