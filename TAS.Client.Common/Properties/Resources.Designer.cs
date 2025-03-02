@@ -133,6 +133,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Information.
+        /// </summary>
+        public static string _caption_Information {
+            get {
+                return ResourceManager.GetString("_caption_Information", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Warning.
         /// </summary>
         public static string _caption_Warning {
@@ -263,6 +272,15 @@ namespace TAS.Client.Common.Properties {
         public static string _message_DirectoryRefreshFailed {
             get {
                 return ResourceManager.GetString("_message_DirectoryRefreshFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Found events: {0} .
+        /// </summary>
+        public static string _message_FoundEvents {
+            get {
+                return ResourceManager.GetString("_message_FoundEvents", resourceCulture);
             }
         }
         
@@ -430,6 +448,15 @@ namespace TAS.Client.Common.Properties {
         public static string _query_PlayWhileRunning {
             get {
                 return ResourceManager.GetString("_query_PlayWhileRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recover found events into new rundowns?.
+        /// </summary>
+        public static string _query_RevoverFoundEvents {
+            get {
+                return ResourceManager.GetString("_query_RevoverFoundEvents", resourceCulture);
             }
         }
         

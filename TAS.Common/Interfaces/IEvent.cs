@@ -13,7 +13,7 @@ namespace TAS.Common.Interfaces
     }
 
     public interface IEvent: IEventProperties, IAclObject, IPersistent, INotifyPropertyChanged
-    {        
+    {
         TPlayState PlayState { get; }
         IMedia Media { get; set; }
         IEngine Engine { get; }

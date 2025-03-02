@@ -4,10 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Data;
-using System.Data.Common;
-#if SQLITE
-using System.Data.SQLite;
-#endif
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -20,12 +16,12 @@ using TAS.Common.Interfaces.MediaDirectory;
 using TAS.Common.Interfaces.Security;
 
 #if MYSQL
-using DataReader = TAS.Database.MySqlRedundant.DbDataReaderRedundant;
+using DbDataReader = TAS.Database.MySqlRedundant.DbDataReaderRedundant;
 using DbCommand = TAS.Database.MySqlRedundant.DbCommandRedundant;
 using DbConnection = TAS.Database.MySqlRedundant.DbConnectionRedundant;
 namespace TAS.Database.MySqlRedundant
 #elif SQLITE
-using DataReader = System.Data.SQLite.SQLiteDataReader;
+using DbDataReader = System.Data.SQLite.SQLiteDataReader;
 using DbCommand = System.Data.SQLite.SQLiteCommand;
 using DbConnection = System.Data.SQLite.SQLiteConnection;
 namespace TAS.Database.SQLite
@@ -47,6 +43,9 @@ namespace TAS.Database.SQLite
 
 #endif
         protected DbConnection Connection;
+
+        protected NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         protected abstract string TrimText(string tableName, string columnName, string value);
 
         private static readonly Newtonsoft.Json.JsonSerializerSettings HibernationSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
@@ -271,33 +270,36 @@ namespace TAS.Database.SQLite
             }
         }
 
-        public void SearchMissing(IEngine engine) 
+        public int CheckDatabase(IEngine engine, bool recoverLostEvents)
         {
             {
                 lock (Connection)
                 {
-                    using (var cmd = new DbCommand("SELECT * FROM rundownevent m WHERE m.idEngine=@idEngine AND m.typStart <= @typStart AND (SELECT s.idRundownEvent FROM rundownevent s WHERE m.idEventBinding = s.idRundownEvent) IS NULL", Connection))
+                    const string unlinkedEventsCommand = "SELECT * FROM rundownevent m WHERE m.idEngine=@idEngine AND (SELECT count(*) FROM rundownevent s WHERE m.idEventBinding = s.idRundownEvent) = 0";
+                    var rootEvents = engine.GetRootEvents();
+                    if (recoverLostEvents)
                     {
-                        cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
-                        cmd.Parameters.AddWithValue("@typStart", (int)TStartType.Manual);
                         var foundEvents = new List<IEvent>();
-                        using (var dataReader = cmd.ExecuteReader())
+                        // step 1: find all events that are not bound to another event
+                        using (var cmd = new DbCommand(unlinkedEventsCommand, Connection))
                         {
-                            while (dataReader.Read())
+                            cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
+                            using (var dataReader = cmd.ExecuteReader())
                             {
-                                if (engine.GetRootEvents().Any(e => (e as IEventPersistent)?.Id == dataReader.GetUInt64("idRundownEvent")))
-                                    continue;
-                                var newEvent = InternalEventRead(engine, dataReader);
-                                foundEvents.Add(newEvent);
+                                while (dataReader.Read())
+                                {
+                                    if (rootEvents.Any(e => e.Id == dataReader.GetUInt64("idRundownEvent")))
+                                        continue;
+                                    var newEvent = InternalEventRead(engine, dataReader);
+                                    foundEvents.Add(newEvent);
+                                }
+                                dataReader.Close();
                             }
-                            dataReader.Close();
                         }
                         foreach (var e in foundEvents)
                         {
-                            if (e is ITemplated et && e is IEventPersistent ep)
-                                ReadAnimatedEvent(ep.Id, et);
-                            if (e.EventType == TEventType.Container)
-                                continue;
+                            if (e is ITemplated et)
+                                ReadAnimatedEvent(e.Id, et);
                             if (e.EventType != TEventType.Rundown)
                             {
                                 var cont = engine.CreateNewEvent(
@@ -317,45 +319,101 @@ namespace TAS.Database.SQLite
                                 e.Save();
                             }
                         }
+                        return foundEvents.Count;
+                    }
+                    else
+                    {
+                        var foundIds = new List<ulong>();
+                        using (var cmd = new DbCommand(unlinkedEventsCommand, Connection))
+                        {
+                            cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
+                            using (var dataReader = cmd.ExecuteReader())
+                            {
+                                while (dataReader.Read())
+                                {
+                                    ulong id = dataReader.GetUInt64("idRundownEvent");
+                                    if (rootEvents.Any(e => e.Id == id))
+                                        continue;
+                                    foundIds.Add(id);
+                                }
+                                dataReader.Close();
+                            }
+                        }
+                        if (foundIds.Count == 0)
+                            return 0;
+                        var idsToDelete = new List<ulong>();
+                        foreach (var id in foundIds)
+                            AddLinkedEventsToDeleteList(id, idsToDelete);
+                        var idsToDeleteStr = string.Join(",", idsToDelete);
+                        using (var transaction = Connection.BeginTransaction())
+                        {
+                            using (var cmd = new DbCommand($"DELETE FROM rundownevent WHERE idRundownEvent IN ({idsToDeleteStr})", Connection))
+                                cmd.ExecuteNonQuery();
+                            using (var cmd = new DbCommand($"DELETE FROM rundownevent_templated WHERE idrundownevent_templated IN ({idsToDeleteStr})", Connection))
+                                cmd.ExecuteNonQuery();
+                            using (var cmd = new DbCommand($"DELETE FROM rundownevent_acl WHERE idrundownevent IN ({idsToDeleteStr})", Connection))
+                                cmd.ExecuteNonQuery();
+                            transaction.Commit();
+                        }
+                        return foundIds.Count;
                     }
                 }
             }
         }
 
-        public List<IEvent> SearchPlaying(IEngine engine)
+        private void AddLinkedEventsToDeleteList(ulong idEvent, List<ulong> idsToDelete)
         {
+            idsToDelete.Add(idEvent);
+            var found = new List<ulong>();
+            using (var cmd = new DbCommand("SELECT idRundownEvent FROM rundownevent WHERE idEventBinding=@idEventBinding", Connection))
             {
-                lock (Connection)
+                cmd.Parameters.AddWithValue("@idEventBinding", idEvent);
+                using (var dataReader = cmd.ExecuteReader())
                 {
-                    using (var cmd = new DbCommand("SELECT * FROM rundownevent WHERE idEngine=@idEngine AND PlayState=@PlayState", Connection))
+                    while (dataReader.Read())
                     {
-                        cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
-                        cmd.Parameters.AddWithValue("@PlayState", TPlayState.Playing);
-                        var foundEvents = new List<IEvent>();
-                        using (var dataReader = cmd.ExecuteReader())
-                        {
-                            while (dataReader.Read())
-                            {
-                                var newEvent = InternalEventRead(engine, dataReader);
-                                foundEvents.Add(newEvent);
-                            }
-                            dataReader.Close();
-                        }
-                        foreach (var ev in foundEvents)
-                            if (ev is ITemplated && ev is IEventPersistent persistent)
-                            {
-                                ReadAnimatedEvent(persistent.Id, ev as ITemplated);
-                                persistent.IsModified = false;
-                            }
-                        return foundEvents;
+                        ulong id = dataReader.GetUInt64("idRundownEvent");
+                        found.Add(id);
                     }
                 }
             }
+            foreach (var id in found)
+                AddLinkedEventsToDeleteList(id, idsToDelete);
+        }
+
+        public List<IEvent> SearchPlaying(IEngine engine)
+        {
+            var foundEvents = new List<IEvent>();
+            lock (Connection)
+            {
+                using (var cmd = new DbCommand("SELECT * FROM rundownevent WHERE idEngine=@idEngine AND PlayState=@PlayState", Connection))
+                {
+                    cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
+                    cmd.Parameters.AddWithValue("@PlayState", TPlayState.Playing);
+                    using (var dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            var newEvent = InternalEventRead(engine, dataReader);
+                            foundEvents.Add(newEvent);
+                        }
+                        dataReader.Close();
+                    }
+                }
+            }
+            foreach (var ev in foundEvents)
+                if (ev is ITemplated templated)
+                {
+                    ReadAnimatedEvent(ev.Id, templated);
+                    ((IEventPersistent)ev).IsModified = false;
+                }
+            return foundEvents;
         }
 
         public MediaDeleteResult MediaInUse(IEngine engine, IServerMedia serverMedia)
         {
             var reason = MediaDeleteResult.NoDeny;
+            IEvent futureScheduled = null;
             lock (Connection)
             {
 #if MYSQL
@@ -364,26 +422,25 @@ namespace TAS.Database.SQLite
                 string commandStr = "SELECT * from rundownevent WHERE MediaGuid=@MediaGuid AND (ScheduledTime + Duration) >  datetime('now', 'utc');";
 #endif
                 using (var cmd = new DbCommand(commandStr, Connection))
-
                 {
                     cmd.Parameters.AddWithValue("@MediaGuid", serverMedia.MediaGuid);
-                    IEvent futureScheduled = null;
-                    using (var reader = cmd.ExecuteReader())
+                    using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
                         if (reader.Read())
                             futureScheduled = InternalEventRead(engine, reader);
-                    if (futureScheduled is ITemplated && futureScheduled is IEventPersistent persistent)
-                    {
-                        ReadAnimatedEvent(persistent.Id, futureScheduled as ITemplated);
-                        persistent.IsModified = false;
-                    }
-                    if (futureScheduled != null)
-                        return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InSchedule, Media = serverMedia, Event = futureScheduled };
                 }
             }
+            if (futureScheduled is ITemplated templated)
+            {
+                ReadAnimatedEvent(futureScheduled.Id, templated);
+                ((IEventPersistent)futureScheduled).IsModified = false;
+            }
+            if (futureScheduled != null)
+                return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InSchedule, Media = serverMedia, Event = futureScheduled };
+
             return reason;
         }
 
-#endregion //IEngine
+#endregion IEngine
 
 #region ArchiveDirectory
         public ReadOnlyCollection<T> LoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
@@ -449,7 +506,7 @@ namespace TAS.Database.SQLite
             }
         }
 
-        private T ReadArchiveMedia<T>(DataReader dataReader) where T: IArchiveMedia, new()
+        private T ReadArchiveMedia<T>(DbDataReader dataReader) where T: IArchiveMedia, new()
         {
             var media = new T
             {
@@ -551,15 +608,16 @@ namespace TAS.Database.SQLite
             }
         }
 
-#endregion // ArchiveDirectory
+        #endregion // ArchiveDirectory
 
-#region IEvent
+        #region IEvent
         public List<IEvent> ReadSubEvents(IEngine engine, IEventPersistent eventOwner)
         {
             if (eventOwner == null)
                 return null;
             lock (Connection)
             {
+                var subevents = new List<IEvent>();
                 using (var cmd = eventOwner.EventType == TEventType.Container
                     ? new DbCommand("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND (typStart=@StartTypeManual OR typStart=@StartTypeOnFixedTime);", Connection)
                     : new DbCommand("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND typStart IN (@StartTypeWithParent, @StartTypeWithParentFromEnd);", Connection))
@@ -575,20 +633,19 @@ namespace TAS.Database.SQLite
                         cmd.Parameters.AddWithValue("@StartTypeWithParentFromEnd", TStartType.WithParentFromEnd);
                     }
                     cmd.Parameters.AddWithValue("@idEventBinding", eventOwner.Id);
-                    var subevents = new List<IEvent>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
                             subevents.Add(InternalEventRead(engine, dataReader));
                     }
-                    foreach (IEventPersistent e in subevents.Cast<IEventPersistent>())
-                        if (e is ITemplated templated)
-                        {
-                            ReadAnimatedEvent(e.Id, templated);
-                            e.IsModified = false;
-                        }
-                    return subevents;
                 }
+                foreach (var e in subevents.Cast<IEventPersistent>())
+                    if (e is ITemplated templated)
+                    {
+                        ReadAnimatedEvent(e.Id, templated);
+                        e.IsModified = false;
+                    }
+                return subevents;
             }
         }
 
@@ -599,7 +656,7 @@ namespace TAS.Database.SQLite
             lock (Connection)
             {
                 IEvent next = null;
-                using (var cmd = new DbCommand("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND typStart=@StartType;", Connection))
+                using (var cmd = new DbCommand("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND typStart=@StartType ORDER BY idRundownEvent DESC;", Connection))
                 {
                     cmd.Parameters.AddWithValue("@idEventBinding", aEvent.Id);
                     cmd.Parameters.AddWithValue("@StartType", TStartType.After);
@@ -607,12 +664,15 @@ namespace TAS.Database.SQLite
                     {
                         if (reader.Read())
                             next = InternalEventRead(engine, reader);
+                        if (reader.Read())
+                            Logger.Log(NLog.LogLevel.Warn, "Redundant next event(s) found for event \"{0}\" (idRundownEvent={1})", aEvent.EventName, aEvent.Id);
                     }
                 }
-                if (!(next is ITemplated) || !(next is IEventPersistent))
-                    return next;
-                ReadAnimatedEvent(((IEventPersistent)next).Id, next as ITemplated);
-                ((IEventPersistent)next).IsModified = false;
+                if ((next is ITemplated templated))
+                {
+                    ReadAnimatedEvent(next.Id, templated);
+                    ((IEventPersistent)next).IsModified = false;
+                }
                 return next;
             }
         }
@@ -624,7 +684,7 @@ namespace TAS.Database.SQLite
                 using (var cmd = new DbCommand("SELECT * FROM rundownevent_templated WHERE idrundownevent_templated = @id;", Connection))
                 {
                     cmd.Parameters.AddWithValue("@id", id);
-                    using (var reader = cmd.ExecuteReader())
+                    using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
                     {
                         if (!reader.Read())
                             return;
@@ -651,21 +711,22 @@ namespace TAS.Database.SQLite
                 using (var cmd = new DbCommand("SELECT * FROM rundownevent WHERE idRundownEvent = @idRundownEvent", Connection))
                 {
                     cmd.Parameters.AddWithValue("@idRundownEvent", idRundownEvent);
-                    using (var reader = cmd.ExecuteReader())
+                    using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
                     {
                         if (reader.Read())
                             result = InternalEventRead(engine, reader);
                     }
                 }
-                if (!(result is ITemplated) || !(result is IEventPersistent))
-                    return result;
-                ReadAnimatedEvent(((IEventPersistent)result).Id, result as ITemplated);
-                ((IEventPersistent)result).IsModified = false;
+                if (result is ITemplated templated)
+                {
+                    ReadAnimatedEvent(result.Id, templated);
+                    ((IEventPersistent)result).IsModified = false;
+                }
                 return result;
             }
         }
 
-        private IEvent InternalEventRead(IEngine engine, DataReader dataReader)
+        private IEvent InternalEventRead(IEngine engine, DbDataReader dataReader)
         {
             var flags = dataReader.IsDBNull("flagsEvent") ? 0 : dataReader.GetUInt32("flagsEvent");
             var transitionType = dataReader.GetUInt16("typTransition");
@@ -1224,7 +1285,7 @@ VALUES
             return false;
         }
 
-        private void MediaReadFields(IPersistentMedia media, DataReader dataReader)
+        private void MediaReadFields(IPersistentMedia media, DbDataReader dataReader)
         {
             var flags = dataReader.IsDBNull("flags") ? 0 : dataReader.GetUInt32("flags");
             media.DisableIsModified();

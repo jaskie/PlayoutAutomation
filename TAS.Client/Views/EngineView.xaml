@@ -137,7 +137,7 @@
                     <MenuItem Header="{Resx _menu.Tools.Export.EnabledOnly}" Command="{Binding CommandExportMedia}" />
                 </MenuItem>
                 <Separator/>
-                <MenuItem Header="{Resx _menu.Tools.FindUnlinkedEvents}" Command="{Binding CommandSearchMissingEvents}" />
+                <MenuItem Header="{Resx _menu.Tools.CheckDatabase}" Command="{Binding CommandCheckDatabase}" />
                 <MenuItem Header="{Resx _menu.Tools.DebugWindow}" Command="{Binding CommandDebugToggle}" Visibility="{Binding IsDebugBuild, Converter={StaticResource BoolToVis}}" />
                 <MenuItem Header="{Resx _menu.Tools.Plugins}" Visibility="{Binding IsAnyPluginVisible, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding Plugins}">
                     <MenuItem.ItemContainerStyle>

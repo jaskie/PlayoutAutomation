@@ -150,7 +150,7 @@ namespace TAS.Remoting.Model
 
         public IAuthenticationService AuthenticationService => _authenticationService;
 
-        public IEnumerable<IEvent> GetRootEvents() { return Query<List<IEvent>>(); }
+        public IReadOnlyCollection<IEvent> GetRootEvents() { return Query<List<IEvent>>(); }
 
         public TVideoFormat VideoFormat { get => _videoFormat; set => Set(value); }
 
@@ -229,9 +229,9 @@ namespace TAS.Remoting.Model
 
         public void Schedule(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
-        public void SearchMissingEvents()
+        public int CheckDatabase(bool recoverLostEvents)
         {
-            Invoke();
+            Invoke(parameters: new object[] { recoverLostEvents });
         }
 
         public void Start(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }

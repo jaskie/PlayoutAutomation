@@ -57,7 +57,7 @@ namespace TAS.Database.Common.Interfaces
         List<IEvent> ReadSubEvents(IEngine engine, IEventPersistent eventOwner);
         ulong SaveMediaSegment(IMediaSegment mediaSegment);
         List<T> ArchiveMediaSearch<T>(IArchiveDirectoryServerSide dir, TMediaCategory? mediaCategory, string search) where T : IArchiveMedia, new();
-        void SearchMissing(IEngine engine);
+        int CheckDatabase(IEngine engine, bool recoverLostEvents);
         List<IEvent> SearchPlaying(IEngine engine);
         void UpdateArchiveDirectory(IArchiveDirectoryProperties dir);
         void UpdateEngine(IEnginePersistent engine);

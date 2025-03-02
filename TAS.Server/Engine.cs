@@ -615,7 +615,7 @@ namespace TAS.Server
             return DatabaseProvider.Database.MediaInUse(this, serverMedia);
         }
 
-        public IEnumerable<IEvent> GetRootEvents() { lock (_rootEvents.SyncRoot) return _rootEvents.Cast<IEvent>().ToList(); }
+        public IReadOnlyCollection<IEvent> GetRootEvents() { lock (_rootEvents.SyncRoot) return _rootEvents.Cast<IEvent>().ToList(); }
 
         public void AddRootEvent(IEvent aEvent)
         {
@@ -718,11 +718,11 @@ namespace TAS.Server
         }
 
 
-        public void SearchMissingEvents()
+        public int CheckDatabase(bool recoverLostEvents)
         {
             if (!CurrentUser.IsAdmin)
-                return;
-            DatabaseProvider.Database.SearchMissing(this);
+                return 0;
+            return DatabaseProvider.Database.CheckDatabase(this, recoverLostEvents);
         }
 
         #region  IPersistent properties

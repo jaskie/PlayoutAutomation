@@ -184,7 +184,7 @@ namespace TAS.Server
 
         #region IEventPesistent 
         [DtoMember]
-        public ulong Id {get; set; }
+        public ulong Id { get; set; }
 
         public ulong IdEventBinding { get; private set; }
 
@@ -582,7 +582,6 @@ namespace TAS.Server
         private void SetNext(IEvent value)
         {
             _next = new Lazy<Event>(() => (Event)value);
-            IsModified = true;
             if (value != null)
                 IsLoop = false;
         }
@@ -1022,6 +1021,8 @@ namespace TAS.Server
 
         public void Save()
         {
+            if (IsDeleted)
+                return;
             switch (_startType)
             {
                 case TStartType.After:
@@ -1184,9 +1185,9 @@ namespace TAS.Server
         {
             _remove();
             IsDeleted = true;
-            DatabaseProvider.Database.DeleteEvent(this);
-            _engine.NotifyEventDeleted(this);
             IsModified = false;
+            _engine.NotifyEventDeleted(this);
+            Task.Run(() => DatabaseProvider.Database.DeleteEvent(this));
         }
 
         private void _setPlayState(TPlayState newPlayState)
