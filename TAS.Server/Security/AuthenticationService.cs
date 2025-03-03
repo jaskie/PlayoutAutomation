@@ -16,12 +16,13 @@ namespace TAS.Server.Security
         {
             var users = DatabaseProvider.Database.LoadSecurityObject<User>();
             var groups = DatabaseProvider.Database.LoadSecurityObject<Group>();
-            users.ForEach(u =>
+            foreach (var u in users)
             {
                 u.AuthenticationService = this;
                 u.PopulateGroups(groups);
-            });
-            groups.ForEach(g => g.AuthenticationService = this);
+            };
+            foreach (var g in groups)
+                g.AuthenticationService = this;
 
             _users = new AcoHive<User>(users);
             _users.AcoOperartion += Users_AcoOperation;

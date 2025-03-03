@@ -10,6 +10,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
+    [DebuggerDisplay("RootViewmodel for {Engine.EngineName}")]
     public class EventPanelRootViewmodel : EventPanelViewmodelBase
     {
         public EventPanelRootViewmodel(EngineViewmodel engineViewmodel) : base(engineViewmodel)

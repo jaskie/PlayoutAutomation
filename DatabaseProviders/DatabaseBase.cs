@@ -1,7 +1,6 @@
 ﻿//#undef DEBUG
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
@@ -90,7 +89,7 @@ namespace TAS.Database.SQLite
         #region IPlayoutServer
 
 
-        public ReadOnlyCollection<T> LoadServers<T>() where T : IPlayoutServerProperties
+        public IReadOnlyCollection<T> LoadServers<T>() where T : IPlayoutServerProperties
         {
             var servers = new List<T>();
             lock (Connection)
@@ -155,7 +154,7 @@ namespace TAS.Database.SQLite
 
         #region IEngine
 
-        public ReadOnlyCollection<T> LoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
+        public IReadOnlyCollection<T> LoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
         {
             var engines = new List<T>();
             lock (Connection)
@@ -279,7 +278,7 @@ namespace TAS.Database.SQLite
                 var rootEvents = engine.GetRootEvents();
                 if (recoverLostEvents)
                 {
-                    var foundEvents = new List<IEvent>();
+                    var foundEvents = new Dictionary<ulong, IEvent>();
                     // step 1: find all events that are not bound to another event
                     using (var cmd = new DbCommand(unlinkedEventsCommand, Connection))
                     {
@@ -291,7 +290,7 @@ namespace TAS.Database.SQLite
                                 if (rootEvents.Any(e => e.Id == dataReader.GetUInt64("idRundownEvent")))
                                     continue;
                                 var newEvent = InternalEventRead(engine, dataReader);
-                                foundEvents.Add(newEvent);
+                                foundEvents[newEvent.Id] = newEvent;
                             }
                             dataReader.Close();
                         }
@@ -313,12 +312,12 @@ namespace TAS.Database.SQLite
                                     continue; // skip first event, as this is the one we want to keep
                                 }
                                 var newEvent = InternalEventRead(engine, dataReader);
-                                foundEvents.Add(newEvent);
+                                foundEvents[newEvent.Id] = newEvent;
                             }
                             dataReader.Close();
                         }
                     }
-                    foreach (var e in foundEvents)
+                    foreach (var e in foundEvents.Values)
                     {
                         if (e is ITemplated et)
                             ReadAnimatedEvent(e.Id, et);
@@ -330,8 +329,8 @@ namespace TAS.Database.SQLite
                                 scheduledTime: e.ScheduledTime,
                                 startType: TStartType.Manual
                                 );
-                            engine.AddRootEvent(cont);
                             cont.Save();
+                            engine.AddRootEvent(cont);
                             cont.InsertUnder(e, false);
                         }
                         else
@@ -345,7 +344,7 @@ namespace TAS.Database.SQLite
                 }
                 else
                 {
-                    var foundIds = new List<ulong>();
+                    var foundIds = new HashSet<ulong>();
                     // step 1: find all events that are not bound to another event
                     using (var cmd = new DbCommand(unlinkedEventsCommand, Connection))
                     {
@@ -425,7 +424,7 @@ namespace TAS.Database.SQLite
                 AddLinkedEventsToDeleteList(id, idsToDelete);
         }
 
-        public List<IEvent> SearchPlaying(IEngine engine)
+        public IList<IEvent> SearchPlaying(IEngine engine)
         {
             var foundEvents = new List<IEvent>();
             lock (Connection)
@@ -487,7 +486,7 @@ namespace TAS.Database.SQLite
 #endregion IEngine
 
 #region ArchiveDirectory
-        public ReadOnlyCollection<T> LoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
+        public IReadOnlyCollection<T> LoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
         {
             var directories = new List<T>();
             lock (Connection)
@@ -560,7 +559,7 @@ namespace TAS.Database.SQLite
             return media;
         }
 
-        public List<T> ArchiveMediaSearch<T>(IArchiveDirectoryServerSide dir, TMediaCategory? mediaCategory, string search) where T: IArchiveMedia, new()
+        public IList<T> ArchiveMediaSearch<T>(IArchiveDirectoryServerSide dir, TMediaCategory? mediaCategory, string search) where T: IArchiveMedia, new()
         {
             lock (Connection)
             {
@@ -593,7 +592,7 @@ namespace TAS.Database.SQLite
             }
         }
         
-        public List<T> FindArchivedStaleMedia<T>(IArchiveDirectoryServerSide dir) where T : IArchiveMedia, new()
+        public IList<T> FindArchivedStaleMedia<T>(IArchiveDirectoryServerSide dir) where T : IArchiveMedia, new()
         {
             var returnList = new List<T>();
             lock (Connection)
@@ -655,10 +654,13 @@ namespace TAS.Database.SQLite
         #endregion // ArchiveDirectory
 
         #region IEvent
-        public List<IEvent> ReadSubEvents(IEngine engine, IEventPersistent eventOwner)
+        public IList<IEvent> ReadSubEvents(IEngine engine, IEventPersistent eventOwner)
         {
-            if (eventOwner == null)
-                return null;
+            if (eventOwner == null || eventOwner.Id == default)
+            {
+                Logger.Log(NLog.LogLevel.Warn, "ReadNext called for not saved event");
+                return Array.Empty<IEvent>();
+            }
             lock (Connection)
             {
                 var subevents = new List<IEvent>();
@@ -695,8 +697,11 @@ namespace TAS.Database.SQLite
 
         public IEvent ReadNext(IEngine engine, IEventPersistent aEvent) 
         {
-            if (aEvent == null)
+            if (aEvent == null || aEvent.Id == default)
+            {
+                Logger.Log(NLog.LogLevel.Warn, "ReadNext called for not saved event");
                 return null;
+            }
             lock (Connection)
             {
                 IEvent next = null;
@@ -747,8 +752,11 @@ namespace TAS.Database.SQLite
 
         public IEvent ReadEvent(IEngine engine, ulong idRundownEvent)
         {
-            if (idRundownEvent <= 0)
+            if (idRundownEvent == default)
+            {
+                Logger.Log(NLog.LogLevel.Warn, "ReadEvent called for zero idRundownEvent");
                 return null;
+            }
             lock (Connection)
             {
                 IEvent result = null;
@@ -986,6 +994,11 @@ WHERE idRundownEvent=@idRundownEvent;";
 
         public bool DeleteEvent(IEventPersistent aEvent)
         {
+            if (aEvent is null || aEvent.Id == default)
+            {
+                Logger.Log(NLog.LogLevel.Warn, "DeleteEvent called for not saved event");
+                return false;
+            }
             lock (Connection)
             {
                 using (var transaction = Connection.BeginTransaction())
@@ -1092,10 +1105,10 @@ VALUES
 
 #region ACL
 
-        public List<IAclRight> ReadEventAclList<TEventAcl>(IEventPersistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
+        public IList<IAclRight> ReadEventAclList<TEventAcl>(IEventPersistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
         {
             if (aEvent == null)
-                return null;
+                return Array.Empty<IAclRight>();
             lock (Connection)
             {
                 using (var cmd = new DbCommand("SELECT * FROM rundownevent_acl WHERE idRundownEvent = @idRundownEvent;", Connection))
@@ -1168,7 +1181,7 @@ VALUES
         }
 
 
-        public List<IAclRight> ReadEngineAclList<TEngineAcl>(IPersistent engine, IAuthenticationServicePersitency authenticationService) where TEngineAcl : IAclRight, IPersistent, new()
+        public IList<IAclRight> ReadEngineAclList<TEngineAcl>(IPersistent engine, IAuthenticationServicePersitency authenticationService) where TEngineAcl : IAclRight, IPersistent, new()
         {
             lock (Connection)
             {
@@ -1871,7 +1884,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", Connection))
                 }
         }
 
-        public List<T> LoadSecurityObject<T>() where T : ISecurityObject
+        public IList<T> LoadSecurityObject<T>() where T : ISecurityObject
         {
             var acos = new List<T>();
             lock (Connection)

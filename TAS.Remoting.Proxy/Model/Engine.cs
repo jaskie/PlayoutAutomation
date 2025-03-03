@@ -231,7 +231,7 @@ namespace TAS.Remoting.Model
 
         public int CheckDatabase(bool recoverLostEvents)
         {
-            Invoke(parameters: new object[] { recoverLostEvents });
+            return Query<int>(parameters: new object[] { recoverLostEvents });
         }
 
         public void Start(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }

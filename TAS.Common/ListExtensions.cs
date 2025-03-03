@@ -4,7 +4,7 @@ namespace TAS.Common
 {
     public static class ListExtensions
     {
-        public static object SyncRoot<T>(this List<T> list)
+        public static object SyncRoot<T>(this IList<T> list)
         {
             return ((System.Collections.ICollection)list).SyncRoot;
         }
