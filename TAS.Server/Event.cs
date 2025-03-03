@@ -1176,7 +1176,7 @@ namespace TAS.Server
             IsDeleted = true;
             IsModified = false;
             _engine.NotifyEventDeleted(this);
-            Task.Run(() => DatabaseProvider.Database.DeleteEvent(this));
+            DatabaseProvider.Database.DeleteEvent(this);
         }
 
         private void _setPlayState(TPlayState newPlayState)
@@ -1381,7 +1381,6 @@ namespace TAS.Server
                     yield return ev;
             }
         }
-
 
         private IEnumerable<Event> GetSuccessors()
         {

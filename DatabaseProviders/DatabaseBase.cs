@@ -656,14 +656,14 @@ namespace TAS.Database.SQLite
         #region IEvent
         public IList<IEvent> ReadSubEvents(IEngine engine, IEventPersistent eventOwner)
         {
+            var subevents = new List<IEvent>();
             if (eventOwner == null || eventOwner.Id == default)
             {
                 Logger.Log(NLog.LogLevel.Warn, "ReadNext called for not saved event");
-                return Array.Empty<IEvent>();
+                return subevents;
             }
             lock (Connection)
             {
-                var subevents = new List<IEvent>();
                 using (var cmd = eventOwner.EventType == TEventType.Container
                     ? new DbCommand("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND (typStart=@StartTypeManual OR typStart=@StartTypeOnFixedTime);", Connection)
                     : new DbCommand("SELECT * FROM rundownevent WHERE idEventBinding = @idEventBinding AND typStart IN (@StartTypeWithParent, @StartTypeWithParentFromEnd);", Connection))
@@ -1107,14 +1107,17 @@ VALUES
 
         public IList<IAclRight> ReadEventAclList<TEventAcl>(IEventPersistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
         {
-            if (aEvent == null)
-                return Array.Empty<IAclRight>();
+            var acl = new List<IAclRight>();
+            if (aEvent == null || aEvent.Id == 0)
+            {
+                Logger.Log(NLog.LogLevel.Warn, "ReadEventAclList called for not saved event");
+                return acl;
+            }
             lock (Connection)
             {
                 using (var cmd = new DbCommand("SELECT * FROM rundownevent_acl WHERE idRundownEvent = @idRundownEvent;", Connection))
                 {
                     cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
-                    var acl = new List<IAclRight>();
                     using (var dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
