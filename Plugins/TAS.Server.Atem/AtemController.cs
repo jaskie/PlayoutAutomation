@@ -5,6 +5,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server
@@ -20,6 +21,7 @@ namespace TAS.Server
         private readonly MixEffectBlockId _inputSelectME;
         private readonly MixEffectBlockId _startME;
         private readonly VideoSource _startInput;
+        private readonly int _switchDelay;
         private readonly object _inputPortsLock = new object();
         private readonly List<AtemInputPort> _inputPorts = new List<AtemInputPort>();
         private IRouterPort _selectedRouterPort;
@@ -34,6 +36,8 @@ namespace TAS.Server
             _startME = (MixEffectBlockId)atemDevice.StartME - 1;
             _startInput = (VideoSource)atemDevice.StartVideoInput;
             _actsAsGpi = atemDevice.StartME > 0;
+            SwitchOnLoad = atemDevice.SwitchOnLoad;
+            _switchDelay = atemDevice.SwitchDelay;
             _atemClient.OnConnection += OnConnection;
             _atemClient.OnDisconnect += OnDisconnect;
             _atemClient.OnReceive += OnReceive;
@@ -46,6 +50,8 @@ namespace TAS.Server
         [DtoMember]
         public IRouterPort SelectedInputPort { get { return _selectedRouterPort; } private set { SetField(ref _selectedRouterPort, value); } }
 
+        public bool SwitchOnLoad { get; }
+
         [DtoMember]
         public bool IsConnected
         {
@@ -55,12 +61,23 @@ namespace TAS.Server
 
         public bool IsWideScreen { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public void SelectInput(int inputId)
+        public void SelectInputPort(int inputId)
+        {
+            if (!_actsAsRouter)
+                return;
+            if (_switchDelay <= 0)
+                SelectInputPortInternal(inputId);
+            else
+                Task.Delay(_switchDelay).ContinueWith(_ => SelectInputPortInternal(inputId));
+        }
+
+        private void SelectInputPortInternal(int inputId)
         {
             if (!_actsAsRouter)
                 return;
             var command = new LibAtem.Commands.MixEffects.ProgramInputSetCommand { Index = _inputSelectME, Source = (VideoSource)inputId };
             _atemClient.SendCommand(command);
+            Logger.Trace("Switched to input {0}", inputId);
         }
 
         private void OnConnection(object sender)

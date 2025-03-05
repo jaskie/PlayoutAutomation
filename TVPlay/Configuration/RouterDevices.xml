@@ -11,7 +11,7 @@
     </OutputPorts>
   </RouterDevice>-->
   
-    <RouterDevice EngineName="TVP Szczecin" Type="Nevion" IpAddress="192.168.0.1" Port="4381" Level="1" Login="admin" Password="password">
+    <RouterDevice EngineName="TVP Szczecin" Type="Nevion" IpAddress="192.168.0.1" Port="4381" Level="1" Login="admin" Password="password" SwitchOnLoad="true" SwitchDelay="0">
       <OutputPorts>
         <OutputPort>0</OutputPort>
         <OutputPort>1</OutputPort>

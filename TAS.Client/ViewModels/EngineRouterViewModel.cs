@@ -25,7 +25,7 @@ namespace TAS.Client.ViewModels
                 if (value == null)
                     return;
 
-                Router.SelectInput(value.PortId);
+                Router.SelectInputPort(value.PortId);
             }
         }
 

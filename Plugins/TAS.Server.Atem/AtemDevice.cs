@@ -1,5 +1,4 @@
 ﻿using System.Xml.Serialization;
-using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
@@ -22,6 +21,12 @@ namespace TAS.Server
 
         [XmlAttribute]
         public int StartVideoInput { get; set; }
+
+        [XmlAttribute]
+        public bool SwitchOnLoad { get; set; }
+
+        [XmlAttribute]
+        public int SwitchDelay { get; set; }
 
         [XmlIgnore]
         internal AtemController AtemController { get; set; }

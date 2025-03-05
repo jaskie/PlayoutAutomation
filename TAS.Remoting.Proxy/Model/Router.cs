@@ -27,7 +27,7 @@ namespace TAS.Remoting.Model
 
         public bool IsConnected => _isConnected;
 
-        public void SelectInput(int inputId)
+        public void SelectInputPort(int inputId)
         {
             Invoke(parameters: new object[] { inputId });
         }

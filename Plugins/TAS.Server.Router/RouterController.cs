@@ -7,6 +7,7 @@ using jNet.RPC.Server;
 using TAS.Server.Model;
 using TAS.Server.RouterCommunicators;
 using jNet.RPC;
+using System.Threading.Tasks;
 
 namespace TAS.Server
 {
@@ -35,7 +36,7 @@ namespace TAS.Server
                 default:
                     return;
             }
-            
+
             _routerCommunicator.OnInputPortChangeReceived += Communicator_OnInputPortChangeReceived;
             _routerCommunicator.OnRouterPortsStatesReceived += Communicator_OnRouterPortStateReceived;
             _routerCommunicator.OnRouterConnectionStateChanged += Communicator_OnRouterConnectionStateChanged;
@@ -59,9 +60,14 @@ namespace TAS.Server
             private set => SetField(ref _isConnected, value);
         }
 
-        public void SelectInput(int inPort)
+        public bool SwitchOnLoad => _device.SwitchOnLoad;
+
+        public void SelectInputPort(int inPort)
         {
-             _routerCommunicator.SelectInput(inPort);
+            if (_device.SwitchDelay <= 0)
+                _routerCommunicator.SelectInput(inPort);
+            else
+                Task.Delay(_device.SwitchDelay).ContinueWith(_ => _routerCommunicator.SelectInput(inPort));
         }
 
         private async void Init()

@@ -1,5 +1,4 @@
-﻿#undef DEBUG
-using System;
+﻿using System;
 using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
@@ -915,8 +914,8 @@ namespace TAS.Server
             Logger.Info("{0}: Load {1}", EngineName, aEvent);
             var eventType = aEvent.EventType;
 
-            if (eventType == TEventType.Live)
-                Router?.SelectInput(aEvent.RouterPort);
+            if (eventType == TEventType.Live && Router?.SwitchOnLoad == true)
+                Router.SelectInputPort(aEvent.RouterPort);
 
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
@@ -950,8 +949,8 @@ namespace TAS.Server
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
 
-                if (Router != null && eventType == TEventType.Live && _playing?.EventType != TEventType.Live)
-                    Router.SelectInput(aEvent.RouterPort);
+                if (eventType == TEventType.Live && Router?.SwitchOnLoad == true)
+                    Router.SelectInputPort(aEvent.RouterPort);
 
                 if (!aEvent.IsHold
                     && CGElementsController?.IsConnected == true
@@ -1010,8 +1009,8 @@ namespace TAS.Server
                 if (aEvent.RecordingInfo != null)
                     _eventRecorder.StartCapture(aEvent);
 
-                if (Router != null && eventType == TEventType.Live && _playing?.EventType == TEventType.Live)
-                    Router.SelectInput(aEvent.RouterPort);
+                if (eventType == TEventType.Live && Router?.SwitchOnLoad == false)
+                    Router.SelectInputPort(aEvent.RouterPort);
 
                 _playoutChannelPRI?.Play(aEvent);
                 _playoutChannelSEC?.Play(aEvent);
