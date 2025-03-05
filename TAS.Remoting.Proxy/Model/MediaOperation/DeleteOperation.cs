@@ -1,6 +1,4 @@
-﻿using System;
-using jNet.RPC;
-using TAS.Common;
+﻿using jNet.RPC;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Remoting.Model.Media;
@@ -15,8 +13,6 @@ namespace TAS.Remoting.Model.MediaOperation
         private MediaBase _source;
 
         #pragma warning restore
-
-        private event EventHandler<AudioVolumeEventArgs> _audioVolumeMeasured;
 
         public IMedia Source { get => _source; set => Set(value); }
 
