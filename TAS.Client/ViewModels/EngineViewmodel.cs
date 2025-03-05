@@ -95,7 +95,7 @@ namespace TAS.Client.ViewModels
             CommandRestartLayer = new UiCommand(CommandName(nameof(RestartLayer)), RestartLayer, _ => IsPlayingMovie && Engine.HaveRight(EngineRight.Play));
             CommandNewRootRundown = new UiCommand(CommandName(nameof(AddNewRootRundown)), AddNewRootRundown);
             CommandNewContainer = new UiCommand(CommandName(nameof(NewContainer)), NewContainer);
-            CommandSearchMissingEvents = new UiCommand(CommandName(nameof(SearchMissingEvents)), SearchMissingEvents, _ => CurrentUser.IsAdmin);
+            CommandCheckDatabase = new UiCommand(CommandName(nameof(CheckDatabase)), CheckDatabase, _ => CurrentUser.IsAdmin);
             CommandStartLoaded = new UiCommand(CommandName(nameof(Engine.StartLoaded)), _ => Engine.StartLoaded(), _ => Engine.EngineState == TEngineState.Hold && Engine.HaveRight(EngineRight.Play));
             CommandDeleteSelected = new UiCommand(CommandName(nameof(DeleteSelected)), DeleteSelected, CanDeleteSelected);
             CommandCopySelected = new UiCommand(CommandName(nameof(CopySelected)), CopySelected, _ => _multiSelectedEvents.Count > 0);
@@ -154,7 +154,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandNewRootRundown { get; }
         public ICommand CommandNewContainer { get; }
         public ICommand CommandDebugToggle { get; }
-        public ICommand CommandSearchMissingEvents { get; }
+        public ICommand CommandCheckDatabase { get; }
         public ICommand CommandDeleteSelected { get; }
         public ICommand CommandCopySelected { get; }
         public ICommand CommandPasteSelected { get; }
@@ -353,7 +353,7 @@ namespace TAS.Client.ViewModels
 
         private void Undelete(object _)
         {
-            if (MessageBox.Show(string.Format(resources._query_Undelete), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
+            if (MessageBox.Show(resources._query_Undelete, resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                 EventClipboard.Undo();
         }
 
@@ -657,6 +657,7 @@ namespace TAS.Client.ViewModels
                 || MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count, evmList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
                 return;
             _multiSelectedEvents.Clear();
+            UiServices.SetBusyState();
             var firstEvent = evmList.First().Event;
             EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.GetPrior() : firstEvent.GetParent());
             Task.Run(
@@ -1095,7 +1096,23 @@ namespace TAS.Client.ViewModels
                 SelectedEvent = null;
         }
 
-        public void SearchMissingEvents(object o) => Engine.SearchMissingEvents();
+        public void CheckDatabase(object o)
+        {
+            bool recoverFoundEvents = false;
+            switch (MessageBox.Show(resources._query_RevoverFoundEvents, resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
+            {
+                case MessageBoxResult.Yes:
+                    recoverFoundEvents = true;
+                    break;
+                case MessageBoxResult.No:
+                    break;
+                default:
+                    return;
+            }
+            UiServices.SetBusyState();
+            var recovered = Engine.CheckDatabase(recoverFoundEvents);
+            MessageBox.Show(string.Format(resources._message_FoundEvents, recovered), resources._caption_Information);
+        }
 
         private void OnSelectedEvent_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {

@@ -111,7 +111,6 @@ namespace TAS.Database.MySqlRedundant
             }
         }
 
-
         public void TestConnect(string connectionString)
         {
             DbConnectionRedundant.TestConnect(connectionString);
@@ -138,15 +137,12 @@ namespace TAS.Database.MySqlRedundant
             return UpdateManager.UpdateRequired();
         }
 
-
         public override void UpdateDb()
         {
             UpdateManager.Update();
         }
 
         #endregion //Configuration functions
-        
-
 
     }
 }

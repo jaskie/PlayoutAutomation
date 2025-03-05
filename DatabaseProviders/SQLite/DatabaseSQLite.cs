@@ -14,7 +14,7 @@ namespace TAS.Database.SQLite
     [Export(typeof(IDatabase))]
     public class DatabaseSQLite : DatabaseBase
     {
-       
+
         private static readonly string DatabaseFile = Path.Combine(FileUtils.ApplicationDataPath, "TVPlay.db");
         private const long ExpectedVersion = 2;
         private long _currentVersion;
@@ -54,10 +54,7 @@ namespace TAS.Database.SQLite
             }
         }
 
-
-        public override void InitializeFieldLengths()
-        { }
-
+        public override void InitializeFieldLengths() { }
 
         public override void Open(ConnectionStringSettingsCollection connectionStringSettingsCollection)
         {
@@ -81,7 +78,6 @@ namespace TAS.Database.SQLite
             Connection_StateRedundantChange(this, new RedundantConnectionStateEventArgs((ConnectionStateRedundant)e.OriginalState, (ConnectionStateRedundant)e.CurrentState));
         }
 
-
         public override void UpdateDb()
         {
             var nextVersion = _currentVersion;
@@ -96,7 +92,6 @@ namespace TAS.Database.SQLite
             }
         }
 
-
         public override bool UpdateRequired()
         {
             return _currentVersion < ExpectedVersion;
@@ -106,6 +101,5 @@ namespace TAS.Database.SQLite
         {
             return value;
         }
-
     }
 }

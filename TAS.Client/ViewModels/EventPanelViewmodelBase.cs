@@ -7,7 +7,6 @@ using System.Windows;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
-using resources = TAS.Client.Common.Properties.Resources;
 
 
 namespace TAS.Client.ViewModels
@@ -140,7 +139,7 @@ namespace TAS.Client.ViewModels
             get => _parent;
             private set => SetField(ref _parent, value);
         }
-        
+
         public string EventName => Event?.EventName;
 
         public TEventType? EventType => Event?.EventType;
@@ -269,7 +268,7 @@ namespace TAS.Client.ViewModels
         }
 
         public IEvent Event { get; }
-        
+
         public string RootOwnerName => RootOwner.EventName;
 
         public override string ToString()
@@ -328,7 +327,6 @@ namespace TAS.Client.ViewModels
             return false;
         }
 
-
         protected virtual void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IEvent.EventName))
@@ -386,7 +384,5 @@ namespace TAS.Client.ViewModels
             if (Event.SubEventsCount > 0)
                 Childrens.Add(DummyChild);
         }
-
-
     }
 }

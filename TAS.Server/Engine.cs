@@ -50,7 +50,7 @@ namespace TAS.Server
         private readonly SynchronizedCollection<Event> _rootEvents = new SynchronizedCollection<Event>();
         private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
         private readonly ConcurrentDictionary<ulong, Event> _events = new ConcurrentDictionary<ulong, Event>();
-        private readonly Lazy<List<IAclRight>> _rights;
+        private readonly Lazy<IList<IAclRight>> _rights;
 
         private Event _playing;
         private Event _forcedNext;
@@ -77,11 +77,14 @@ namespace TAS.Server
             _mediaManager = new MediaManager(this);
             _databaseConnectionState = DatabaseProvider.Database.ConnectionState;
             DatabaseProvider.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
-            _rights = new Lazy<List<IAclRight>>(() =>
+            _rights = new Lazy<IList<IAclRight>>(() =>
             {
                 var rights = DatabaseProvider.Database.ReadEngineAclList<EngineAclRight>(this,
                         AuthenticationService as IAuthenticationServicePersitency);
-                rights.ForEach(r => ((EngineAclRight)r).Saved += AclRight_Saved);
+                foreach (var r in rights)
+                {
+                    ((EngineAclRight)r).Saved += AclRight_Saved;
+                }
                 return rights;
             });
             FieldLengths = DatabaseProvider.Database.EngineFieldLengths;
@@ -251,7 +254,7 @@ namespace TAS.Server
             }
         }
 
-        public void Initialize(IList<CasparServer> servers)
+        public void Initialize(IReadOnlyCollection<CasparServer> servers)
         {
             Logger.Debug("{0}: Initializing", EngineName);
             _authenticationService = Security.AuthenticationService.Current;
@@ -615,7 +618,7 @@ namespace TAS.Server
             return DatabaseProvider.Database.MediaInUse(this, serverMedia);
         }
 
-        public IEnumerable<IEvent> GetRootEvents() { lock (_rootEvents.SyncRoot) return _rootEvents.Cast<IEvent>().ToList(); }
+        public IReadOnlyCollection<IEvent> GetRootEvents() { lock (_rootEvents.SyncRoot) return _rootEvents.Cast<IEvent>().ToList(); }
 
         public void AddRootEvent(IEvent aEvent)
         {
@@ -718,11 +721,11 @@ namespace TAS.Server
         }
 
 
-        public void SearchMissingEvents()
+        public int CheckDatabase(bool recoverLostEvents)
         {
             if (!CurrentUser.IsAdmin)
-                return;
-            DatabaseProvider.Database.SearchMissing(this);
+                return 0;
+            return DatabaseProvider.Database.CheckDatabase(this, recoverLostEvents);
         }
 
         #region  IPersistent properties
@@ -1402,7 +1405,8 @@ namespace TAS.Server
             lock (_rights)
             {
                 if (_rights.IsValueCreated)
-                    _rights.Value.ForEach(r => ((EngineAclRight)r).Saved -= AclRight_Saved);
+                    foreach (var r in _rights.Value)
+                        ((EngineAclRight)r).Saved -= AclRight_Saved;
             }
             DatabaseProvider.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
             (CGElementsController as IDisposable)?.Dispose();

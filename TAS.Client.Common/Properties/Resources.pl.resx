@@ -385,4 +385,13 @@ Kontynuować?</value>
   <data name="_splash_ClosingApplication" xml:space="preserve">
     <value>Trwa zamykanie aplikacji</value>
   </data>
+  <data name="_query_RevoverFoundEvents" xml:space="preserve">
+    <value>Odzyskać zagubione elementy w nowe playlisty?</value>
+  </data>
+  <data name="_message_FoundEvents" xml:space="preserve">
+    <value>Znaleziono {0} elementów</value>
+  </data>
+  <data name="_caption_Information" xml:space="preserve">
+    <value>Informacja</value>
+  </data>
 </root>
