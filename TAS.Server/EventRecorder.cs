@@ -9,11 +9,11 @@ namespace TAS.Server
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private IList<CasparServer> _servers;
+        private IReadOnlyCollection<CasparServer> _servers;
         private IEngine _engine;
         public IRecorder Recorder { get; private set; }
         public IEvent Recording { get; private set; }
-        public EventRecorder(IEngine engine, IList<CasparServer> servers)
+        public EventRecorder(IEngine engine, IReadOnlyCollection<CasparServer> servers)
         {
             _servers = servers;
             _engine = engine;
@@ -35,7 +35,7 @@ namespace TAS.Server
             catch(Exception ex)
             {
                 Logger.Error(ex, "Error when starting recording.");
-            }            
+            }
         }
 
         public void EndCapture(IEvent @event)

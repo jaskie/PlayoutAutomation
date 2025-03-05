@@ -285,8 +285,8 @@
   <data name="_menu.Tools.DebugWindow" xml:space="preserve">
     <value>Okienko debuggowania</value>
   </data>
-  <data name="_menu.Tools.FindUnlinkedEvents" xml:space="preserve">
-    <value>Wyszukaj niepowiązane zdarzenia w bazie danych</value>
+  <data name="_menu.Tools.CheckDatabase" xml:space="preserve">
+    <value>Sprawdź spójność bazy danych</value>
   </data>
   <data name="_menu.Tools.Plugins" xml:space="preserve">
     <value>Dodatki</value>

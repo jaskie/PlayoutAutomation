@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
@@ -81,5 +80,4 @@ namespace TAS.Client.ViewModels
             base.OnDispose();
         }
     }
-   
 }

@@ -16,7 +16,7 @@ namespace TAS.Client.ViewModels
         public IMedia Logo { get; }
 
         public UiCommand CommandRemove { get; }
-        
+
         public override string ToString()
         {
             return Logo.MediaName;

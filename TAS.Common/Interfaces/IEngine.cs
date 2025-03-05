@@ -19,7 +19,7 @@ namespace TAS.Common.Interfaces
         bool FieldOrderInverted { get; set; }
         TEngineState EngineState { get; }
         RationalNumber FrameRate { get; }
-        IEnumerable<IEvent> GetRootEvents();
+        IReadOnlyCollection<IEvent> GetRootEvents();
         void AddRootEvent(IEvent aEvent);
         List<IEvent> FixedTimeEvents { get; }
         IDictionary<string, int> ServerMediaFieldLengths { get; }
@@ -80,7 +80,7 @@ namespace TAS.Common.Interfaces
         DateTime CurrentTime { get; }
         ICGElementsController CGElementsController { get; }
         IRouter Router { get; }
-        void SearchMissingEvents();
+        int CheckDatabase(bool recoverLostEvents);
         IEvent Playing { get; }
         IEvent NextToPlay { get; }
         IEvent GetNextWithRequestedStartTime();

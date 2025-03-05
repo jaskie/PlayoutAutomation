@@ -202,7 +202,7 @@ namespace TAS.Client.ViewModels
             get => _mediaEmphasis;
             set => SetField(ref _mediaEmphasis, value);
         }
-        
+
         public DateTime KillDate
         {
             get => _killDate;
@@ -476,9 +476,5 @@ namespace TAS.Client.ViewModels
             if (templatedEditViewmodel.IsModified)
                 IsModified = true;
         }
-
-
     }
-
-
 }

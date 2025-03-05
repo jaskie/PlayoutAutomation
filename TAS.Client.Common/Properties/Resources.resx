@@ -385,4 +385,13 @@ Proceed with update?</value>
   <data name="_splash_ClosingApplication" xml:space="preserve">
     <value>Application is closing</value>
   </data>
+  <data name="_query_RevoverFoundEvents" xml:space="preserve">
+    <value>Recover found events into new rundowns?</value>
+  </data>
+  <data name="_message_FoundEvents" xml:space="preserve">
+    <value>Found events: {0} </value>
+  </data>
+  <data name="_caption_Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
 </root>

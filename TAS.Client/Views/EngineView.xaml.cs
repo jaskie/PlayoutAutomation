@@ -7,7 +7,6 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using TAS.Client.Common;
 
 namespace TAS.Client.Views
 {

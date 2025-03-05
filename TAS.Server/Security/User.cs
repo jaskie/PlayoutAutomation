@@ -109,7 +109,7 @@ namespace TAS.Server.Security
             DatabaseProvider.Database.DeleteSecurityObject(this);
         }
 
-        internal void PopulateGroups(List<Group> allGroups)
+        internal void PopulateGroups(IList<Group> allGroups)
         {
             if (allGroups == null || _groupsIds == null)
                 return;

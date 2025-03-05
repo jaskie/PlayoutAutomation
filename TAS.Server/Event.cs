@@ -23,11 +23,11 @@ namespace TAS.Server
         private bool _isForcedNext;
         private TPlayState _playState;
         private long _position;
-        private readonly Lazy<List<IEvent>> _subEvents;
+        private readonly Lazy<IList<IEvent>> _subEvents;
         private Lazy<Event> _parent;
         private Lazy<Event> _prior;
         private Lazy<Event> _next;
-        private readonly Lazy<List<IAclRight>> _rights;
+        private readonly Lazy<IList<IAclRight>> _rights;
         private bool _isCGEnabled;
         private byte _crawl;
         private byte _logo;
@@ -129,11 +129,11 @@ namespace TAS.Server
             _parental = parental;
             _autoStartFlags = autoStartFlags;
             _mediaGuid = mediaGuid;
-            _subEvents = new Lazy<List<IEvent>>(() =>
+            _subEvents = new Lazy<IList<IEvent>>(() =>
             {
                 var result = DatabaseProvider.Database.ReadSubEvents(_engine, this);
                 foreach (Event e in result)
-                    e.SetParent(this);
+                    e._parent = new Lazy<Event>(() => this);
                 return result;
             });
 
@@ -141,7 +141,7 @@ namespace TAS.Server
             {
                 var next = (Event)DatabaseProvider.Database.ReadNext(_engine, this);
                 if (next != null)
-                    next.SetPrior(this);
+                    next._prior = new Lazy<Event>(() => this);
                 return next;
             });
 
@@ -151,7 +151,7 @@ namespace TAS.Server
                 if (startType == TStartType.After && IdEventBinding > 0)
                     prior = (Event)DatabaseProvider.Database.ReadEvent(_engine, IdEventBinding);
                 if (prior != null)
-                    prior.SetNext(this);
+                    prior._next = new Lazy<Event>(() => this);
                 return prior;
             });
 
@@ -162,10 +162,11 @@ namespace TAS.Server
                 return null;
             });
 
-            _rights = new Lazy<List<IAclRight>>(() =>
+            _rights = new Lazy<IList<IAclRight>>(() =>
             {
                 var rights = DatabaseProvider.Database.ReadEventAclList<EventAclRight>(this, _engine.AuthenticationService as IAuthenticationServicePersitency);
-                rights.ForEach(r => ((EventAclRight)r).Saved += AclEvent_Saved);
+                foreach (var r in rights)
+                    ((EventAclRight)r).Saved += AclEvent_Saved;
                 return rights;
             });
             _routerPort = routerPort;
@@ -184,7 +185,7 @@ namespace TAS.Server
 
         #region IEventPesistent 
         [DtoMember]
-        public ulong Id {get; set; }
+        public ulong Id { get; set; }
 
         public ulong IdEventBinding { get; private set; }
 
@@ -582,7 +583,6 @@ namespace TAS.Server
         private void SetNext(IEvent value)
         {
             _next = new Lazy<Event>(() => (Event)value);
-            IsModified = true;
             if (value != null)
                 IsLoop = false;
         }
@@ -692,10 +692,7 @@ namespace TAS.Server
                 parent._subEventsRemove(this);
                 if (next != null)
                 {
-                    lock (parent._subEvents.Value.SyncRoot())
-                    {
-                        parent._subEvents.Value.Add(next);
-                    }
+                    parent._subEvents.Value.Add(next);
                     parent.NotifyPropertyChanged(nameof(SubEventsCount));
                 }
                 if (parent.SetField(ref parent._duration, parent._computedDuration(), nameof(Duration)))
@@ -731,11 +728,8 @@ namespace TAS.Server
                 var e2Prior = e2.GetPrior() as Event;
                 if (e2Parent != null)
                 {
-                    lock (e2Parent._subEvents.Value.SyncRoot())
-                    {
-                        var index = e2Parent._subEvents.Value.IndexOf(e2);
-                        e2Parent._subEvents.Value[index] = this;
-                    }
+                    var index = e2Parent._subEvents.Value.IndexOf(e2);
+                    e2Parent._subEvents.Value[index] = this;
                     e2Parent.NotifySubEventChanged(e2, CollectionOperation.Remove);
                     e2Parent.NotifySubEventChanged(this, CollectionOperation.Add);
                 }
@@ -778,11 +772,8 @@ namespace TAS.Server
                 var e2Prior = GetPrior() as Event;
                 if (e2Parent != null)
                 {
-                    lock (e2Parent._subEvents.Value.SyncRoot())
-                    {
-                        var index = e2Parent._subEvents.Value.IndexOf(this);
-                        e2Parent._subEvents.Value[index] = e3;
-                    }
+                    var index = e2Parent._subEvents.Value.IndexOf(this);
+                    e2Parent._subEvents.Value[index] = e3;
                     e2Parent.NotifySubEventChanged(this, CollectionOperation.Remove);
                     e2Parent.NotifySubEventChanged(e3, CollectionOperation.Add);
                 }
@@ -913,10 +904,7 @@ namespace TAS.Server
                     subEventToAdd.StartType = fromEnd ? TStartType.WithParentFromEnd : TStartType.WithParent;
                 subEventToAdd.SetParent(this);
                 subEventToAdd.IsHold = false;
-                lock (_subEvents.Value.SyncRoot())
-                {
-                    _subEvents.Value.Add(subEventToAdd);
-                }
+                _subEvents.Value.Add(subEventToAdd);
                 NotifyPropertyChanged(nameof(SubEventsCount));
                 NotifySubEventChanged(subEventToAdd, CollectionOperation.Add);
                 if (_eventType == TEventType.Rundown)
@@ -976,7 +964,10 @@ namespace TAS.Server
             lock (_engine.RundownSync)
             {
                 if (IsDeleted || !_allowDelete())
+                {
+                    Logger.Warn("Event {0} cannot be deleted, {1}", EventName, IsDeleted ? "it was deleted previously" : "it's not allowed");
                     return;
+                }
                 foreach (var e in this._getSubEventTree().ToArray())
                     e._delete();
                 _delete();
@@ -1019,6 +1010,8 @@ namespace TAS.Server
 
         public void Save()
         {
+            if (IsDeleted)
+                return;
             switch (_startType)
             {
                 case TStartType.After:
@@ -1181,9 +1174,9 @@ namespace TAS.Server
         {
             _remove();
             IsDeleted = true;
-            DatabaseProvider.Database.DeleteEvent(this);
-            _engine.NotifyEventDeleted(this);
             IsModified = false;
+            _engine.NotifyEventDeleted(this);
+            DatabaseProvider.Database.DeleteEvent(this);
         }
 
         private void _setPlayState(TPlayState newPlayState)
@@ -1388,7 +1381,6 @@ namespace TAS.Server
                     yield return ev;
             }
         }
-
 
         private IEnumerable<Event> GetSuccessors()
         {

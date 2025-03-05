@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
@@ -26,13 +26,13 @@ namespace TAS.Server
 
         public static EngineController Current { get; } = new EngineController();
 
-        public ReadOnlyCollection<CasparServer> Servers;
+        public IReadOnlyCollection<CasparServer> Servers;
 
         public IngestDirectory[] IngestDirectories { get; set; }
 
-        public ReadOnlyCollection<Engine> Engines { get; private set; }
+        public IReadOnlyCollection<Engine> Engines { get; private set; }
 
-        public ReadOnlyCollection<ArchiveDirectory> ArchiveDirectories { get; private set; }
+        public IReadOnlyCollection<ArchiveDirectory> ArchiveDirectories { get; private set; }
 
         public void InitializeEngines()
         {

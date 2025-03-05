@@ -210,7 +210,7 @@ namespace TAS.Client.ViewModels
                 return media == null ? ((Event.EventType == TEventType.Movie || Event.EventType == TEventType.StillImage) ? Event.MediaGuid.ToString() : string.Empty) : media.FileName;
             }
         }
-        
+
         public TPlayState PlayState => Event.PlayState;
 
         public TMediaEmphasis MediaEmphasis => (Media as IPersistentMedia)?.MediaEmphasis ?? TMediaEmphasis.None;
@@ -291,7 +291,7 @@ namespace TAS.Client.ViewModels
         {
             NotifyPropertyChanged(nameof(IsInvalidInSchedule));
         }
-        
+
         internal override void SetOnTop()
         {
             var p = Parent;
