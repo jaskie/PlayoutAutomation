@@ -92,7 +92,7 @@ namespace TAS.Client.ViewModels
             }
             OperationList.Clear();
         }
-        
+
     }
 }
 

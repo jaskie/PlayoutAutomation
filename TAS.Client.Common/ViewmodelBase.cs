@@ -1,6 +1,4 @@
-﻿#undef DEBUG
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -19,9 +17,7 @@ namespace TAS.Client.Common
     /// </summary>
     public abstract class ViewModelBase : INotifyPropertyChanged, IDisposable
     {
-
         private bool _disposed;
-        
 
         #region Constructor / Destructor
 
@@ -121,6 +117,7 @@ namespace TAS.Client.Common
             NotifyPropertyChanged(propertyName);
             return true;
         }
+
         protected virtual void InvalidateRequerySuggested()
         {
             Application.Current?.Dispatcher.BeginInvoke((Action)CommandManager.InvalidateRequerySuggested);
@@ -143,7 +140,7 @@ namespace TAS.Client.Common
         {
             void Callback(object o, EventArgs e) 
             {
-                var dispatcherTimer = (DispatcherTimer)o ;
+                var dispatcherTimer = (DispatcherTimer)o;
                 dispatcherTimer.Stop();
                 dispatcherTimer.Tick -= Callback;
                 action();

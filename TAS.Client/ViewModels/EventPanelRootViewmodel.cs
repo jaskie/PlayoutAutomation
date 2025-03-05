@@ -1,6 +1,4 @@
-﻿//#undef DEBUG
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -19,7 +17,7 @@ namespace TAS.Client.ViewModels
             Engine.EventDeleted += _engine_EventDeleted;
             AddRootEvents();
         }
-        
+
         public IEnumerable<EventPanelViewmodelBase> HiddenContainers
         {
             get { return Childrens.Where(c => (c as EventPanelContainerViewmodel)?.IsVisible == false); }
@@ -32,7 +30,6 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(IsAnyContainerHidden));
             NotifyPropertyChanged(nameof(HiddenContainers));
         }
-
         protected override void OnDispose()
         {
             base.OnDispose();
@@ -66,7 +63,6 @@ namespace TAS.Client.ViewModels
 
         private void _onEngineEventLocated(object o, EventEventArgs e) // when new event was created
         {
-            Debug.WriteLine(e.Event?.EventName, "EventLocated notified");
             if (e.Event == null)
                 return;
             OnUiThread(() =>
@@ -92,7 +88,6 @@ namespace TAS.Client.ViewModels
                 }
             });
         }
-
 
         private EventPanelViewmodelBase PlaceEventInRundown(IEvent e, bool show)
         {
@@ -166,26 +161,21 @@ namespace TAS.Client.ViewModels
             }
             return newVm;
         }
-        
 
         private EventPanelViewmodelBase AddRootEvent(IEvent e)
         {
-            if (!e.IsDeleted)
+            if (e.IsDeleted)
+                return null;
+            var newEvm = CreateChildEventPanelViewmodelForEvent(e);
+            Childrens.Add(newEvm);
+            IEvent ne = e.GetNext();
+            while (ne != null)
             {
-                var newEvm = CreateChildEventPanelViewmodelForEvent(e);
-                Childrens.Add(newEvm);
-                IEvent ne = e.GetNext();
-                while (ne != null)
-                {
-                    Childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
-                    Debug.WriteLine(ne, "Reading next for");
-                    ne = ne.GetNext();
-                }
-                return newEvm;
+                Childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
+                Debug.WriteLine(ne, "Reading next for");
+                ne = ne.GetNext();
             }
-            return null;
+            return newEvm;
         }
-        
-        
     }
 }

@@ -9,7 +9,7 @@ namespace TAS.Client.ViewModels
 
         private string _key;
         private string _value;
-        
+
         public KeyValueEditViewmodel(KeyValuePair<string, string> item, bool keyIsEnabled)
         {
             _key = item.Key;
