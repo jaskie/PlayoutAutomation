@@ -36,7 +36,7 @@ namespace TAS.Server
             _startME = (MixEffectBlockId)atemDevice.StartME - 1;
             _startInput = (VideoSource)atemDevice.StartVideoInput;
             _actsAsGpi = atemDevice.StartME > 0;
-            SwitchOnPreload = atemDevice.SwitchOnLoad;
+            SwitchOnPreload = atemDevice.SwitchOnPreload;
             _switchDelay = atemDevice.SwitchDelay;
             _atemClient.OnConnection += OnConnection;
             _atemClient.OnDisconnect += OnDisconnect;

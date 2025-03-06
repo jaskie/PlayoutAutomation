@@ -12,7 +12,7 @@ namespace TAS.Server.Model
         [XmlAttribute]
         public int Port { get; set; }
         [XmlAttribute]
-        public bool SwitchOnLoad { get; set; }
+        public bool SwitchOnPreload { get; set; } = true;
         [XmlAttribute]
         public int SwitchDelay { get; set; }
         [XmlAttribute]

@@ -61,7 +61,7 @@ namespace TAS.Server
             private set => SetField(ref _isConnected, value);
         }
 
-        public bool SwitchOnPreload => _device.SwitchOnLoad;
+        public bool SwitchOnPreload => _device.SwitchOnPreload;
 
         public void SelectInputPort(int inPort, bool instant)
         {

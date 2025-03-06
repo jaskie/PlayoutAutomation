@@ -1,8 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<AtemDevices>
 <!--
   *** Blackmagic Design ATEM plugin (TAS.Server.Atem.dll) configuration file ***
-  
+
   This plugin serves three purposes:
   1. To switch inputs for "live" rundown events, allowing to preselect source for CasparCG video input.
      When "Live" event is about to start, the plugin will switch the ATEM input to the source selected in the event properties.
@@ -35,5 +34,12 @@
   SwitchOnPreload - if true, the plugin will switch the input on live input load/preload (2 seconds in advance), if false, the plugin will switch the input on live input start, applying the delay
   SwitchDelay - delay in milliseconds to apply when switching the input on live input start
 -->
-  <AtemDevice EngineName="TVP Szczecin" Address="192.168.2.9" InputSelectME="1" StartME="2" StartVideoInput="1" SwitchOnPreload="false" SwitchDelay="0" />
+<AtemDevices>
+  <AtemDevice EngineName="TVP Szczecin"
+              Address="192.168.2.9"
+              InputSelectME="1"
+              StartME="2"
+              StartVideoInput="1"
+              SwitchOnPreload="false"
+              SwitchDelay="0" />
 </AtemDevices>

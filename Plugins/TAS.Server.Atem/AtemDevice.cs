@@ -23,7 +23,7 @@ namespace TAS.Server
         public int StartVideoInput { get; set; }
 
         [XmlAttribute]
-        public bool SwitchOnLoad { get; set; }
+        public bool SwitchOnPreload { get; set; }
 
         [XmlAttribute]
         public int SwitchDelay { get; set; }
