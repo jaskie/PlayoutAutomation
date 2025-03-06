@@ -6,36 +6,28 @@ namespace TAS.Client.ViewModels
 {
     public class EngineRouterViewModel : ViewModelBase
     {
+
+        private IRouterPort _selectedInputPort;
+
         public EngineRouterViewModel(IRouter router)
         {
             Router = router;
             Router.PropertyChanged += Router_PropertyChanged;
+            _selectedInputPort = Router.SelectedInputPort;
         }
 
         public IList<IRouterPort> InputPorts => Router.InputPorts;
-
-        private IRouterPort _selectedInputPort
-        {
-            get => Router.SelectedInputPort;
-            set
-            {
-                if (Router.InputPorts == value)
-                    return;
-
-                if (value == null)
-                    return;
-
-                Router.SelectInputPort(value.PortId);
-            }
-        }
 
         public IRouterPort SelectedInputPort 
         { 
             get => _selectedInputPort; 
             set
             {
-                _selectedInputPort = value;
-                NotifyPropertyChanged();
+                if (!SetField(ref _selectedInputPort, value))
+                    return;
+                if (value == null)
+                    return;
+                Router.SelectInputPort(value.PortId, true);
             }
         }
 

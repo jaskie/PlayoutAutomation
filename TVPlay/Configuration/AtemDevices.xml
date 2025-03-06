@@ -23,7 +23,8 @@
 
      <AtemDevice EngineName="TVP Szczecin" Address="192.168.2.9" StartME="1" StartVideoInput="1"/>
 
-  You can combine both roles in one configuration, which may be useful if you have switcher with 2 or more MEs.
+  You can combine two roles (e.g. second and third) in one configuration.
+  In this case starting "live" rundown event will change Atem input to desired live source, then you can preload next runodwn item, which will start whem Atem input is changed.
 
   Configuration parameters:
   EngineName - name of the engine, *must be* the same string as EngineName in the engine configuration
@@ -31,8 +32,8 @@
   InputSelectME - ME number to select input for "live" events, starting from 1 (ME1 = 1, ME2 = 2, etc.)
   StartME - ME number on which video source selection triggers playout start, counting from 1
   StartVideoInput - video input which selection triggers playout start, counting from 1 (0 = black, 1 = input 1, 2 = input 2, etc.)
-  SwitchOnLoad - if true, the plugin will switch the input on live input load/preload (2 seconds in advance), if false, the plugin will switch the input on live input start, applying the delay
+  SwitchOnPreload - if true, the plugin will switch the input on live input load/preload (2 seconds in advance), if false, the plugin will switch the input on live input start, applying the delay
   SwitchDelay - delay in milliseconds to apply when switching the input on live input start
 -->
-  <AtemDevice EngineName="TVP Szczecin" Address="192.168.2.9" InputSelectME="1" StartME="2" StartVideoInput="1" SwitchOnLoad="false" SwitchDelay="0" />
+  <AtemDevice EngineName="TVP Szczecin" Address="192.168.2.9" InputSelectME="1" StartME="2" StartVideoInput="1" SwitchOnPreload="false" SwitchDelay="0" />
 </AtemDevices>

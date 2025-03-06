@@ -914,8 +914,8 @@ namespace TAS.Server
             Logger.Info("{0}: Load {1}", EngineName, aEvent);
             var eventType = aEvent.EventType;
 
-            if (eventType == TEventType.Live && Router?.SwitchOnLoad == true)
-                Router.SelectInputPort(aEvent.RouterPort);
+            if (eventType == TEventType.Live && Router?.SwitchOnPreload == true)
+                Router.SelectInputPort(aEvent.RouterPort, true);
 
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
@@ -949,8 +949,8 @@ namespace TAS.Server
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
 
-                if (eventType == TEventType.Live && Router?.SwitchOnLoad == true)
-                    Router.SelectInputPort(aEvent.RouterPort);
+                if (eventType == TEventType.Live && Router?.SwitchOnPreload == true)
+                    Router.SelectInputPort(aEvent.RouterPort, true);
 
                 if (!aEvent.IsHold
                     && CGElementsController?.IsConnected == true
@@ -1009,8 +1009,8 @@ namespace TAS.Server
                 if (aEvent.RecordingInfo != null)
                     _eventRecorder.StartCapture(aEvent);
 
-                if (eventType == TEventType.Live && Router?.SwitchOnLoad == false)
-                    Router.SelectInputPort(aEvent.RouterPort);
+                if (eventType == TEventType.Live && Router?.SwitchOnPreload == false)
+                    Router.SelectInputPort(aEvent.RouterPort, false);
 
                 _playoutChannelPRI?.Play(aEvent);
                 _playoutChannelSEC?.Play(aEvent);

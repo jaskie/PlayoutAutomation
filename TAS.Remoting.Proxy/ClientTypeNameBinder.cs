@@ -77,10 +77,6 @@ namespace TAS.Remoting
                     return typeof(Model.PlayoutServerChannel);
                 case "TAS.Server.CasparServer":
                     return typeof(Model.PlayoutServer);
-                case "TAS.Server.RouterController":
-                    return typeof(Model.Router);
-                case "TAS.Server.RouterPort":
-                    return typeof(Model.RouterPort);
                 case "TAS.Server.Security.AuthenticationService":
                     return typeof(Model.Security.AuthenticationService);
                 case "TAS.Server.Security.User":
@@ -103,6 +99,10 @@ namespace TAS.Remoting
                     return typeof(Model.CGElement);
                 case "TAS.Common.Interfaces.ICGElement[]":
                     return typeof(Model.CGElement[]);
+                case "TAS.Common.Interfaces.IRouter":
+                    return typeof(Model.Router);
+                case "TAS.Common.Interfaces.IRouterPort":
+                    return typeof(Model.RouterPort);
 
                 default:
                     return Type.GetType($"{typeName}, {assemblyName}", true);

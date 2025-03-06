@@ -24,7 +24,7 @@
     <ProjectReference Include="..\Plugins\TAS.Client.ExportRundownAsXml\TAS.Client.ExportRundownAsXml.csproj" DestinationSubDirectory="Plugins.repository\" />
     <ProjectReference Include="..\Plugins\TAS.Client.XKeys\TAS.Client.XKeys.csproj" DestinationSubDirectory="Plugins.repository\" />
     <ProjectReference Include="..\Plugins\TAS.Server.Advantech\TAS.Server.Advantech.csproj" DestinationSubDirectory="Plugins.repository\" />
-    <ProjectReference Include="..\Plugins\TAS.Server.Atem\TAS.Server.Atem.csproj" DestinationSubDirectory="Plugins\" />
+    <ProjectReference Include="..\Plugins\TAS.Server.Atem\TAS.Server.Atem.csproj" DestinationSubDirectory="Plugins.repository\" />
     <ProjectReference Include="..\Plugins\TAS.Server.CgElementsController\TAS.Server.CgElementsController.csproj" DestinationSubDirectory="Plugins.repository\" />
     <ProjectReference Include="..\Plugins\TAS.Server.NowPlayingNotifier\TAS.Server.NowPlayingNotifier.csproj" DestinationSubDirectory="Plugins.repository\" />
     <ProjectReference Include="..\Plugins\TAS.Server.Router\TAS.Server.Router.csproj" DestinationSubDirectory="Plugins.repository\" />

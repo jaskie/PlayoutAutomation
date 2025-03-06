@@ -36,7 +36,7 @@ namespace TAS.Server
             _startME = (MixEffectBlockId)atemDevice.StartME - 1;
             _startInput = (VideoSource)atemDevice.StartVideoInput;
             _actsAsGpi = atemDevice.StartME > 0;
-            SwitchOnLoad = atemDevice.SwitchOnLoad;
+            SwitchOnPreload = atemDevice.SwitchOnLoad;
             _switchDelay = atemDevice.SwitchDelay;
             _atemClient.OnConnection += OnConnection;
             _atemClient.OnDisconnect += OnDisconnect;
@@ -45,12 +45,13 @@ namespace TAS.Server
         }
 
         [DtoMember]
-        public IList<IRouterPort> InputPorts { get { lock (_inputPortsLock) return _inputPorts.ToArray(); } }
+        public IRouterPort[] InputPorts { get { lock (_inputPortsLock) return _inputPorts.Cast<IRouterPort>().ToArray(); } }
 
         [DtoMember]
         public IRouterPort SelectedInputPort { get { return _selectedRouterPort; } private set { SetField(ref _selectedRouterPort, value); } }
 
-        public bool SwitchOnLoad { get; }
+        ///<inheritdoc/>
+        public bool SwitchOnPreload { get; }
 
         [DtoMember]
         public bool IsConnected
@@ -61,11 +62,12 @@ namespace TAS.Server
 
         public bool IsWideScreen { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public void SelectInputPort(int inputId)
+        ///<inheritdoc/>
+        public void SelectInputPort(int inputId, bool instant)
         {
             if (!_actsAsRouter)
                 return;
-            if (_switchDelay <= 0)
+            if (instant || _switchDelay <= 0)
                 SelectInputPortInternal(inputId);
             else
                 Task.Delay(_switchDelay).ContinueWith(_ => SelectInputPortInternal(inputId));
