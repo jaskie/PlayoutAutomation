@@ -1,12 +1,11 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Xml.Serialization;
 
-namespace TAS.Server.Router.Helpers
+namespace TAS.Common.Helpers
 {
-    public static class DataStore
-    {             
-        static string ConfigurationFolder = "Configuration";        
+    public static class XmlDataStore
+    {
+        static string ConfigurationFolder = "Configuration";
 
         public static void Save<T>(this T data, string fileNameStem)
         {
@@ -22,7 +21,7 @@ namespace TAS.Server.Router.Helpers
         {
             var fullPath = $"{Path.Combine(ConfigurationFolder, fileNameStem)}.xml";
             if (!File.Exists(fullPath))
-                return default(T);
+                return default;
 
             XmlSerializer serializer = null;
             using (var reader = new StreamReader(fullPath))
@@ -31,7 +30,6 @@ namespace TAS.Server.Router.Helpers
                     serializer = new XmlSerializer(typeof(T));
                 else
                     serializer = new XmlSerializer(typeof(T), atrib);
-
                 return (T)serializer.Deserialize(reader);
             }
         }

@@ -31,14 +31,14 @@ namespace TAS.Server
             }
         }
 
-        public object CreateEnginePlugin(IEngine engine)
+        public T CreateEnginePlugin<T>(IEngine engine) where T : class
         {
             var plugin = _plugins.FirstOrDefault(p => p.Engine == engine);
             if (plugin != null)
-                return plugin;
+                return plugin as T;
             plugin = _plugins.FirstOrDefault(p => p.EngineName == engine.EngineName);
             plugin?.Initialize(engine);
-            return plugin;
+            return plugin as T;
         }
 
         public Type Type { get; } = typeof(NowPlayingNotifier);

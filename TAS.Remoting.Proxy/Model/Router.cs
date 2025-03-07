@@ -11,7 +11,7 @@ namespace TAS.Remoting.Model
 #pragma warning disable CS0649 
 
         [DtoMember(nameof(IRouter.InputPorts))]
-        private IList<IRouterPort> _inputPorts;
+        private IRouterPort[] _inputPorts;
 
         [DtoMember(nameof(IRouter.SelectedInputPort))]
         private IRouterPort _selectedInputPort;
@@ -21,15 +21,21 @@ namespace TAS.Remoting.Model
 
 #pragma warning restore
 
-        public IList<IRouterPort> InputPorts => _inputPorts;
+        public IRouterPort[] InputPorts => _inputPorts;
 
         public IRouterPort SelectedInputPort => _selectedInputPort;
 
         public bool IsConnected => _isConnected;
 
-        public void SelectInput(int inputId)
+        /// <summary>
+        /// method used only on the server side
+        /// </summary>
+        public bool SwitchOnPreload => throw new NotImplementedException();
+
+        ///<inheritdoc/>
+        public void SelectInputPort(int inputId, bool instant)
         {
-            Invoke(parameters: new object[] { inputId });
+            Invoke(parameters: new object[] { inputId, instant });
         }
 
     }

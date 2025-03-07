@@ -6,10 +6,10 @@ namespace TAS.Server.Model
 {
     internal interface IRouterCommunicator : IDisposable
     {
-        Task<bool> Connect();       
+        Task<bool> Connect();
         void SelectInput(int inPort);
-        
-        Task<PortInfo[]> GetInputPorts();               
+
+        Task<PortInfo[]> GetInputPorts();
         Task<CrosspointInfo> GetCurrentInputPort();
 
         event EventHandler<EventArgs<CrosspointInfo>> OnInputPortChangeReceived;

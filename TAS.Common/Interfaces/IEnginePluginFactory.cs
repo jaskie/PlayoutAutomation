@@ -4,7 +4,7 @@ namespace TAS.Common.Interfaces
 {
     public interface IEnginePluginFactory
     {
-        object CreateEnginePlugin(IEngine engine);
+        T CreateEnginePlugin<T>(IEngine engine) where T : class;
         Type Type { get; }
     }
 }

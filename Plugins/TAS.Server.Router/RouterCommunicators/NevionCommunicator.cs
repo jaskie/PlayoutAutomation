@@ -35,7 +35,7 @@ namespace TAS.Server.RouterCommunicators
 
         public NevionCommunicator(RouterDevice device)
         {
-            _device = device;               
+            _device = device;
         }
 
         public async Task<bool> Connect()
@@ -43,7 +43,7 @@ namespace TAS.Server.RouterCommunicators
             _cancellationTokenSource = new CancellationTokenSource();
 
             while (_disposed == default(int))
-            {                
+            {
                 _tcpClient = new TcpClient();
 
                 Logger.Debug("Connecting to Nevion...");
@@ -59,7 +59,7 @@ namespace TAS.Server.RouterCommunicators
                     {
                         _tcpClient.Close();
                         continue;
-                    }                        
+                    }
 
                     Logger.Debug("Nevion connected!");
 
@@ -94,17 +94,17 @@ namespace TAS.Server.RouterCommunicators
 
             }
             return false;
-        }         
+        }
 
         public void SelectInput(int inPort)
         {
-           AddToRequestQueue($"x l{_device.Level} {inPort} {string.Join(",", _device.OutputPorts.Select(param => param.ToString()))}");            
-        }                
+           AddToRequestQueue($"x l{_device.Level} {inPort} {string.Join(",", _device.OutputPorts.Select(param => param.ToString()))}");
+        }
 
         public void Disconnect()
         {
             _cancellationTokenSource?.Cancel();
-            _tcpClient?.Close();            
+            _tcpClient?.Close();
             OnRouterConnectionStateChanged?.Invoke(this, new EventArgs<bool>(false));
         }
 
@@ -112,11 +112,11 @@ namespace TAS.Server.RouterCommunicators
         {
             if (Interlocked.Exchange(ref _disposed, 1) != default(int))
                 return;
-            Disconnect();           
+            Disconnect();
             Logger.Debug("Nevion communicator disposed");
         }
 
-        public event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;        
+        public event EventHandler<EventArgs<PortState[]>> OnRouterPortsStatesReceived;
         public event EventHandler<EventArgs<bool>> OnRouterConnectionStateChanged;
         public event EventHandler<EventArgs<CrosspointInfo>> OnInputPortChangeReceived;
 
@@ -134,7 +134,7 @@ namespace TAS.Server.RouterCommunicators
                         throw new OperationCanceledException(_cancellationTokenSource.Token);
 
                     if (!_responseDictionary.TryRemove(ListTypeEnum.Input, out var response))
-                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);                    
+                        await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.Input, out response))
                         continue;
@@ -196,7 +196,7 @@ namespace TAS.Server.RouterCommunicators
                 }
             }
             return null;
-        }       
+        }
 
         private async void StartRequestQueueHandler()
         {
@@ -252,11 +252,11 @@ namespace TAS.Server.RouterCommunicators
                             if (!_semaphores.TryGetValue(response.Key, out var semaphore))
                                 continue;
 
-                            semaphore.Release();                            
+                            semaphore.Release();
                         }
                             
                         else
-                            _responsesQueue.Enqueue(response);                        
+                            _responsesQueue.Enqueue(response);
                     }
                 }
             }
@@ -290,7 +290,7 @@ namespace TAS.Server.RouterCommunicators
                     {
                         Logger.Debug("Router listener network stream closed/disposed.");
                         Disconnect();
-                    }                        
+                    }
                     else
                         Logger.Error(ex);
                     return;
@@ -319,7 +319,7 @@ namespace TAS.Server.RouterCommunicators
                         await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
                     
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.SignalPresence, out response))
-                        continue;                                        
+                        continue;
 
                     var portsSignal = response.Select(line =>
                     {
@@ -358,7 +358,7 @@ namespace TAS.Server.RouterCommunicators
                         await semaphore.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 
                     if (response == null && !_responseDictionary.TryRemove(ListTypeEnum.CrosspointChange, out response))
-                        continue;                    
+                        continue;
 
                     var crosspoints = response.Select(line =>
                     {
@@ -397,7 +397,7 @@ namespace TAS.Server.RouterCommunicators
         }
 
         private void AddToResponseQueue(ListTypeEnum type, string[] response)
-        {            
+        {
             _responsesQueue.Enqueue(new KeyValuePair<ListTypeEnum, string[]>(type, response));
             _responsesQueueSemaphore.Release();
         }
@@ -419,7 +419,7 @@ namespace TAS.Server.RouterCommunicators
                 else
                     semaphore.Release();
 
-            }                
+            }
 
             else if (lines[0].Contains("si") && lines[0].Contains($"l{_device.Level}"))
             {
@@ -431,7 +431,7 @@ namespace TAS.Server.RouterCommunicators
                 else
                     semaphore.Release();
             }
-                                
+
             else if (lines[0].Contains($"sspi l{_device.Level}"))
             {
                 if (!_semaphores.TryGetValue(ListTypeEnum.SignalPresence, out var semaphore))
@@ -440,7 +440,7 @@ namespace TAS.Server.RouterCommunicators
                 if (!_responseDictionary.TryAdd(ListTypeEnum.SignalPresence, trimmedLines))
                     AddToResponseQueue(ListTypeEnum.SignalPresence, trimmedLines);
                 else
-                    semaphore.Release();                
+                    semaphore.Release();
             }
 
             else if (lines.Length>1 && lines[0].StartsWith("%") && lines[1].Contains($"x l{_device.Level}"))
@@ -458,8 +458,8 @@ namespace TAS.Server.RouterCommunicators
                 if (lines[1].Contains("ok"))
                     Logger.Info("Nevion login ok");
                 else if (lines[1].Contains("failed"))
-                    Logger.Error("Nevion login incorrect");            
-        }        
+                    Logger.Error("Nevion login incorrect");
+        }
 
         private void ParseMessage(string response)
         {
@@ -470,6 +470,6 @@ namespace TAS.Server.RouterCommunicators
                 _response = _response.Remove(0, _response.IndexOf("\n\n", StringComparison.Ordinal) + 2);
                 ProcessCommand(command);
             }
-        }        
+        }
     }
 }

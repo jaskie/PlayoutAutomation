@@ -26,12 +26,12 @@ namespace TAS.Server
 
         public Type Type { get; } = typeof(LocalGpiDeviceBinding);
 
-        public object CreateEnginePlugin(IEngine engine)
+        public T CreateEnginePlugin<T>(IEngine engine) where T : class
         {
             var plugin = EngineBindings.FirstOrDefault(b => b.EngineName == engine.EngineName);
             if (plugin != null)
                 plugin.Engine = engine;
-            return plugin;
+            return plugin as T;
         }
 
         public void DeserializeElements(string settingsFileName)

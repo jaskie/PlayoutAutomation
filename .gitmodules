@@ -1,3 +1,6 @@
 [submodule "dependencies/jNet.RPC"]
 	path = dependencies/jNet.RPC
 	url = https://github.com/jaskie/jNet.RPC.git
+[submodule "dependencies/LibAtem"]
+	path = dependencies/LibAtem
+	url = git@github.com:jaskie/LibAtem.git
