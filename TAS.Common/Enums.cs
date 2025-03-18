@@ -353,6 +353,7 @@ namespace TAS.Common
     [TypeConverter(typeof(TEventTypeEnumConverter))]
     public enum TEventType
     {
+        Unknown = -1,
         Rundown = 0,
         Movie = 1,
         StillImage = 2,

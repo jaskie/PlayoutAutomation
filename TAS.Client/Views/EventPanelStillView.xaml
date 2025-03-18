@@ -10,7 +10,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type vm:EventPanelStillViewmodel}"
+             d:DataContext="{d:DesignInstance {x:Type vm:EventPanelStillViewmodel}}"
              FontSize="12" 
              d:DesignWidth="700"
              >
@@ -23,7 +23,7 @@
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Image Grid.Column="0" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/StillImage.png"/>
+            <Image Grid.Column="0" ToolTip="{Binding EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/StillImage.png"/>
             <Image Grid.Column="0" ToolTip="{Binding MediaErrorInfo}" >
                 <Image.Style>
                     <Style TargetType="Image">
@@ -45,6 +45,7 @@
                 </TextBlock.ToolTip>
             </TextBlock>
             <TextBlock Grid.Column="3" Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToString}}" FontSize="15" VerticalAlignment="Center" Margin="5, 0" />
+            <TextBlock Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Top" Text="{Binding Id}" Visibility="{Binding ShowInDebugBuild}"/>
         </Grid>
     </Border>
 </local:EventPanelView>

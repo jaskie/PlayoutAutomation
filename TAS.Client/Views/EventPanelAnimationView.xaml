@@ -10,7 +10,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type vm:EventPanelAnimationViewmodel}"
+             d:DataContext="{d:DesignInstance {x:Type vm:EventPanelAnimationViewmodel}}"
              d:DesignWidth="700"
              >
     <Border x:Name="border" Style="{StaticResource EventPanelStyle}">
@@ -22,7 +22,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Image ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Animation.png"/>
+            <Image ToolTip="{Binding EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Animation.png"/>
             <Image ToolTip="{Binding MediaErrorInfo}" >
                 <Image.Style>
                     <Style TargetType="Image">

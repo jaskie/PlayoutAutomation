@@ -40,7 +40,7 @@ namespace TAS.Client.ViewModels
                         HiddenEventsStorage.Add(Event);
                     if (!value)
                         IsSelected = false;
-                    Root.NotifyContainerVisibility();
+                    EngineViewmodel.RootEventViewModel.NotifyContainerVisibility();
                 }
             }
         }

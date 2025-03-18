@@ -16,6 +16,7 @@ namespace TAS.Client.ViewModels
     {
         protected readonly IEngine Engine;
         protected readonly EngineViewmodel EngineViewmodel;
+        internal readonly IEvent Event;
         protected static readonly EventPanelViewmodelBase DummyChild = new EventPanelDummyViewmodel();
         private EventPanelViewmodelBase _parent;
 
@@ -35,7 +36,6 @@ namespace TAS.Client.ViewModels
             Level = 0;
             _isExpanded = true;
             _videoFormat = engineViewmodel.VideoFormat;
-            Root = (EventPanelRootViewmodel)this;
         }
 
         /// <summary>
@@ -53,7 +53,6 @@ namespace TAS.Client.ViewModels
             if (parent != null)
             {
                 _parent = parent;
-                Root = parent.Root;
                 EngineViewmodel = parent.EngineViewmodel;
                 Level = parent.Level + 1;
                 if (aEvent.SubEventsCount > 0)
@@ -79,7 +78,7 @@ namespace TAS.Client.ViewModels
             Debug.WriteLine(this, "EventPanelViewmodel Disposed");
         }
 
-        protected EventPanelRootViewmodel Root { get; }
+        public ulong Id => Event?.Id ?? 0;
 
         public ObservableCollection<EventPanelViewmodelBase> Childrens { get; } = new ObservableCollection<EventPanelViewmodelBase>();
 
@@ -142,7 +141,18 @@ namespace TAS.Client.ViewModels
 
         public string EventName => Event?.EventName;
 
-        public TEventType? EventType => Event?.EventType;
+        public TEventType EventType => Event?.EventType ?? TEventType.Unknown;
+
+        public int SubEventsCount => Event?.SubEventsCount ?? 0;
+
+        public string RootOwnerName => RootOwner.EventName;
+
+        public Visibility ShowInDebugBuild { get; } =
+#if DEBUG 
+        Visibility.Visible;
+#else
+        Visibility.Collapsed;
+#endif
 
         public EventPanelViewmodelBase Find(IEvent aEvent, bool searchOnNextLevels)
         {
@@ -187,7 +197,7 @@ namespace TAS.Client.ViewModels
                     || index <= 0
                     || Parent.Childrens[index - 1].Event != prior)
                 {
-                    var priorVm = Root.Find(prior, true);
+                    var priorVm = EngineViewmodel.RootEventViewModel.Find(prior, true);
                     if (priorVm != null)
                     {
                         var newParent = priorVm.Parent;
@@ -220,7 +230,7 @@ namespace TAS.Client.ViewModels
                     || index <= 0
                     || Parent.Childrens[index].Event != next)
                 {
-                    var nextVm = Root.Find(next, true);
+                    var nextVm = EngineViewmodel.RootEventViewModel.Find(next, true);
                     if (nextVm != null)
                     {
                         var newParent = nextVm.Parent;
@@ -245,12 +255,12 @@ namespace TAS.Client.ViewModels
             else if (parent == null)
             {
                 Parent.RemoveChild(this);
-                Root.Childrens.Add(this);
-                Parent = Root;
+                EngineViewmodel.RootEventViewModel.Childrens.Add(this);
+                Parent = EngineViewmodel.RootEventViewModel;
             }
             else
             {
-                var newParent = Root.Find(parent, true);
+                var newParent = EngineViewmodel.RootEventViewModel.Find(parent, true);
                 if (newParent != null)
                 {
                     if (newParent == Parent)
@@ -266,10 +276,6 @@ namespace TAS.Client.ViewModels
             }
             BringIntoView();
         }
-
-        public IEvent Event { get; }
-
-        public string RootOwnerName => RootOwner.EventName;
 
         public override string ToString()
         {

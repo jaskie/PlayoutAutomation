@@ -9,7 +9,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type vm:EventPanelAutoStartEventViewmodel}"
+             d:DataContext="{d:DesignInstance {x:Type vm:EventPanelAutoStartEventViewmodel}}"
              FontSize="12" 
              d:DesignWidth="600">
     <Border Style="{StaticResource EventPanelStyle}">
@@ -21,7 +21,7 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Image Grid.Column="0" Margin="3" HorizontalAlignment="Center" ToolTip="{Binding Event.EventType}" Style="{StaticResource EventTypeImage}" />
+            <Image Grid.Column="0" Margin="3" HorizontalAlignment="Center" ToolTip="{Binding EventType}" Style="{StaticResource EventTypeImage}" />
             <Image Grid.Column="1" Margin="3" HorizontalAlignment="Center">
                 <Image.Style>
                     <Style TargetType="Image">
