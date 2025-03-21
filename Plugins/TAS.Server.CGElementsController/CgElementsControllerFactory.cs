@@ -32,20 +32,20 @@ namespace TAS.Server
             }
         }
 
-        public object CreateEnginePlugin(IEngine engine)
+        public T CreateEnginePlugin<T>(IEngine engine) where T : class
         {
             if (_cgElementsControllers == null)
                 return null;
             var controller = _cgElementsControllers.FirstOrDefault(c => c.Engine != null && c.Engine == engine);
             if (controller != null)
-                return controller;
+                return controller as T;
             controller = _cgElementsControllers.FirstOrDefault(c => c.EngineName == engine.EngineName);
             if (controller == null)
                 return null;
             if (controller.Engine != null)
                 throw new ApplicationException($"Unable to re-use CgElementsController. Duplicated engine name {engine.EngineName}?");
             controller.Engine = engine;
-            return controller;
+            return controller as T;
         }
 
         public Type Type { get; } = typeof(CgElementsController);

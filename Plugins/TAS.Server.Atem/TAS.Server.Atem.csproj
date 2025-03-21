@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <RootNamespace>TAS.Server</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\dependencies\LibAtem\LibAtem\LibAtem.csproj" />
+    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj" />
+    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.Composition" />
+  </ItemGroup>
+</Project>

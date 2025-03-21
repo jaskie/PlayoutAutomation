@@ -4,20 +4,21 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {
+    [DtoType(typeof(IRouterPort))]
     public class RouterPort : ServerObjectBase, IRouterPort
     {
-        private short _portId;
+        private int _portId;
         private string _portName;
         private bool? _isSignalPresent;
 
-        public RouterPort(short id, string portName)
+        public RouterPort(int id, string portName)
         {
             _portId = id;
             PortName = portName;
         }
 
         [DtoMember]
-        public short PortId
+        public int PortId
         { 
             get => _portId; 
             set => SetField(ref _portId, value);
@@ -35,6 +36,6 @@ namespace TAS.Server
         {
             get => _isSignalPresent;
             set => SetField(ref _isSignalPresent, value);
-        }      
+        }
     }
 }

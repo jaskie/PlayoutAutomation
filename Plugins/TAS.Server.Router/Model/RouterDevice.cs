@@ -12,6 +12,10 @@ namespace TAS.Server.Model
         [XmlAttribute]
         public int Port { get; set; }
         [XmlAttribute]
+        public bool SwitchOnPreload { get; set; } = true;
+        [XmlAttribute]
+        public int SwitchDelay { get; set; }
+        [XmlAttribute]
         public RouterTypeEnum Type { get; set; }
         [XmlAttribute]
         public int Level { get; set; }

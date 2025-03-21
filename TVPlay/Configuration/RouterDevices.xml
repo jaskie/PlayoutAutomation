@@ -2,16 +2,26 @@
 <RouterDevices>
   <!--
   Below are example configurations for Nevion and BMD routers. Note that assigning instance of plugin to relevant engine is based on engine name.
-  Plugin shows all available inputs, and - when selected - assigns selected input to all outputs listed in this configuration. In case of Nevion routers, inputs and output numbers are logical (level-based).-->
-  
-  <!--<RouterDevice EngineName="TVP Szczecin" Type="BlackmagicSmartVideoHub" IpAddress="192.168.0.1" Port="9990">       
+  Plugin shows all available inputs, and - when selected - assigns selected input to all outputs listed in this configuration.
+  In case of Nevion routers, inputs and output numbers are logical ones (level-based).-->
+
+  <!--<RouterDevice EngineName="TVP Szczecin" Type="BlackmagicSmartVideoHub" IpAddress="192.168.0.1" Port="9990">
     <OutputPorts>
       <OutputPort>0</OutputPort>
       <OutputPort>1</OutputPort>
     </OutputPorts>
   </RouterDevice>-->
   
-    <RouterDevice EngineName="TVP Szczecin" Type="Nevion" IpAddress="192.168.0.1" Port="4381" Level="1" Login="admin" Password="password">
+    <RouterDevice
+      EngineName="TVP Szczecin"
+      Type="Nevion"
+      IpAddress="192.168.0.1"
+      Port="4381"
+      Level="1"
+      Login="admin"
+      Password="password"
+      SwitchOnPreload="true"
+      SwitchDelay="0">
       <OutputPorts>
         <OutputPort>0</OutputPort>
         <OutputPort>1</OutputPort>

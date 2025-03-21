@@ -4,9 +4,9 @@ using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using TAS.Common;
+using TAS.Common.Helpers;
 using TAS.Common.Interfaces;
 using TAS.Server.Model;
-using TAS.Server.Router.Helpers;
 
 namespace TAS.Server
 {
@@ -18,12 +18,12 @@ namespace TAS.Server
 
         public RouterControllerFactory()
         {
-            _routerDevices = DataStore.Load<RouterDevice[]>(Path.Combine(FileUtils.ConfigurationPath, "RouterDevices"), new System.Xml.Serialization.XmlRootAttribute("RouterDevices"));
+            _routerDevices = XmlDataStore.Load<RouterDevice[]>(Path.Combine(FileUtils.ConfigurationPath, "RouterDevices"), new System.Xml.Serialization.XmlRootAttribute("RouterDevices"));
             if (_routerDevices != null) return;
             Logger.Error("Router config read error");
         }
 
-        public object CreateEnginePlugin(IEngine engine)
+        public T CreateEnginePlugin<T>(IEngine engine) where T: class
         {
             var routerDevice = _routerDevices?.FirstOrDefault(c => c.EngineName == engine.EngineName);
             if (routerDevice == null)
@@ -31,7 +31,7 @@ namespace TAS.Server
             if (routerDevice.Engine != null && routerDevice.Engine != engine)
                 throw new InvalidOperationException("Router reused");
             routerDevice.Engine = engine;
-            return new RouterController(routerDevice);
+            return new RouterController(routerDevice) as T;
         }
 
         public Type Type { get; } = typeof(RouterController);
