@@ -129,21 +129,28 @@ namespace TAS.Server
             _parental = parental;
             _autoStartFlags = autoStartFlags;
             _mediaGuid = mediaGuid;
-            _subEvents = new Lazy<IList<IEvent>>(() =>
+            if (idRundownEvent > 0)
             {
-                var result = DatabaseProvider.Database.ReadSubEvents(_engine, this);
-                foreach (Event e in result)
-                    e._parent = new Lazy<Event>(() => this);
-                return result;
-            });
-
-            _next = new Lazy<Event>(() =>
+                _subEvents = new Lazy<IList<IEvent>>(() =>
+                {
+                    var result = DatabaseProvider.Database.ReadSubEvents(_engine, this);
+                    foreach (Event e in result)
+                        e._parent = new Lazy<Event>(() => this);
+                    return result;
+                });
+                _next = new Lazy<Event>(() =>
+                {
+                    var next = (Event)DatabaseProvider.Database.ReadNext(_engine, this);
+                    if (next != null)
+                        next._prior = new Lazy<Event>(() => this);
+                    return next;
+                });
+            }
+            else
             {
-                var next = (Event)DatabaseProvider.Database.ReadNext(_engine, this);
-                if (next != null)
-                    next._prior = new Lazy<Event>(() => this);
-                return next;
-            });
+                _subEvents = new Lazy<IList<IEvent>>(() => new List<IEvent>());
+                _next = new Lazy<Event>(() => null);
+            }
 
             _prior = new Lazy<Event>(() =>
             {

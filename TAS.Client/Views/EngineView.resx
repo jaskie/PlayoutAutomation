@@ -329,7 +329,7 @@ Effective until current clip ends.</value>
     <value>Clear mixer transformations</value>
   </data>
   <data name="_menu.Edit.Undo" xml:space="preserve">
-    <value>Restore deleted</value>
+    <value>Undo deletion</value>
   </data>
   <data name="_userManager" xml:space="preserve">
     <value>User manager</value>

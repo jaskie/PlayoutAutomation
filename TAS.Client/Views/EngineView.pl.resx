@@ -329,7 +329,7 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
     <value>Wyczyść transformacje miksera</value>
   </data>
   <data name="_menu.Edit.Undo" xml:space="preserve">
-    <value>Przywróć usunięte</value>
+    <value>Cofnij usunięcie</value>
   </data>
   <data name="_userManager" xml:space="preserve">
     <value>Zarządzanie użytkownikami</value>

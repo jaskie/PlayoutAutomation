@@ -659,7 +659,7 @@ namespace TAS.Database.SQLite
             var subevents = new List<IEvent>();
             if (eventOwner == null || eventOwner.Id == default)
             {
-                Logger.Log(NLog.LogLevel.Warn, "ReadNext called for not saved event");
+                Logger.Log(NLog.LogLevel.Warn, "ReadSubEvents called for not saved event");
                 return subevents;
             }
             lock (Connection)

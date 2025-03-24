@@ -48,6 +48,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(nameof(InputPorts));
                     break;
                 case nameof(Router.SelectedInputPort):
+                    _selectedInputPort = Router.SelectedInputPort;
                     NotifyPropertyChanged(nameof(SelectedInputPort));
                     break;
                 case nameof(Router.IsConnected):

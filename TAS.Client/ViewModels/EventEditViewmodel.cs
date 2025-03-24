@@ -57,8 +57,6 @@ namespace TAS.Client.ViewModels
                 EventRightsEditViewmodel.ModifiedChanged += RightsModifiedChanged;
             }
             Router = engineViewModel.Router;
-            InputPorts = new List<IRouterPort>();
-
             if (Router != null)
             {
                 InputPorts.Add(new DummyRouterPort()); // "do not change the input" value
@@ -562,7 +560,7 @@ namespace TAS.Client.ViewModels
 
         public int RouterPort { get; set; }
 
-        public IList<IRouterPort> InputPorts { get; }
+        public IList<IRouterPort> InputPorts { get; } = new List<IRouterPort>();
 
         private IRouterPort _selectedInputPort;
 
