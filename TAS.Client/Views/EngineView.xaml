@@ -96,8 +96,7 @@
             </MenuItem>
             <MenuItem Header="{Resx _menu.Rundown}">
                 <MenuItem Header="{Resx _menu.Rundown.AddEmpty}" Command="{Binding CommandNewRootRundown}"/>
-                <!--<MenuItem Header="_Importuj playlistę" Command="{Binding CommandImportRundown}"/>-->
-                <MenuItem Header="{Resx _menu.Rundown.Restart}" Command="{Binding CommandRestart}"/>
+                <MenuItem Header="{Resx _menu.Rundown.ContinueAbortedRundown}" Command="{Binding CommandContinueAbortedRundown}"/>
                 <Separator/>
                 <MenuItem Header="{Resx _menu.Rundown.Save}" Command="{Binding CommandSaveRundown}"/>
                 <MenuItem Header="{Resx _menu.Rundown.Load}" >

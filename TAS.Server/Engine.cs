@@ -44,7 +44,8 @@ namespace TAS.Server
         public readonly object RundownSync = new object();
 
         private readonly List<Event> _visibleEvents = new List<Event>(); // list of visible events
-        private readonly List<Event> _runningEvents = new List<Event>(); // list of events loaded and playing 
+        private readonly List<Event> _runningEvents = new List<Event>(); // list of events loaded and playing
+        private IEnumerable<IEvent> _abortedEvents;
         private readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents = new ConcurrentDictionary<VideoLayer, IEvent>();
         private readonly SynchronizedCollection<Event> _rootEvents = new SynchronizedCollection<Event>();
         private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
@@ -69,6 +70,7 @@ namespace TAS.Server
         private ConnectionStateRedundant _databaseConnectionState;
         private TVideoFormat _videoFormat;
         private bool _disposed;
+        private bool _isAbortedRundown;
 
         public Engine()
         {
@@ -251,6 +253,18 @@ namespace TAS.Server
                 if (_playoutChannelSEC != null && !(_playoutChannelSEC == Preview.Channel && _preview?.IsMovieLoaded == true))
                     _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
             }
+        }
+
+        [DtoMember]
+        public bool IsAbortedRundown { get => _isAbortedRundown; private set => SetField(ref _isAbortedRundown, value); }
+
+        public void SetAbortedEvents(IEnumerable<IEvent> aEvents)
+        {
+            lock (RundownSync)
+            {
+                _abortedEvents = aEvents;
+            }
+            IsAbortedRundown = aEvents?.Any() == true;
         }
 
         public void Initialize(IReadOnlyCollection<CasparServer> servers)
@@ -583,14 +597,13 @@ namespace TAS.Server
                 _restartEvent(e);
         }
 
-        public void RestartRundown(IEvent aRundown)
+        public void ContinueAbortedRundown()
         {
             if (!HaveRight(EngineRight.Play))
                 return;
             lock (RundownSync)
             {
-                _restartRundown(aRundown);
-                EngineState = TEngineState.Running;
+                _continueAbortedRundown(); // TODO: provide correct event
             }
         }
 
@@ -719,7 +732,6 @@ namespace TAS.Server
             _playoutChannelSEC?.Execute(command);
         }
 
-
         public int CheckDatabase(bool recoverLostEvents)
         {
             if (!CurrentUser.IsAdmin)
@@ -743,8 +755,6 @@ namespace TAS.Server
 
         [DtoMember]
         public IDictionary<string, int> EventFieldLengths { get; }
-
-
 
         public void Save()
         {
@@ -1189,7 +1199,7 @@ namespace TAS.Server
             _playoutChannelSEC?.ReStart(ev, EngineState == TEngineState.Running);
         }
 
-        private void _restartRundown(IEvent aRundown)
+        private void _continueAbortedRundown()
         {
             Action<Event> rerun = aEvent =>
             {
@@ -1201,7 +1211,7 @@ namespace TAS.Server
                 }
             };
 
-            var ev = aRundown as Event;
+            /*var ev = aRundown as Event;
             while (ev != null)
             {
                 if (_currentTicks >= ev.ScheduledTime.Ticks &&
@@ -1213,11 +1223,12 @@ namespace TAS.Server
                     ev.StartTime = st;
                     rerun(ev);
                     foreach (var se in ev.GetSubEvents())
-                        _restartRundown(se);
+                        _continueAbortedRundown(se);
                     break;
                 }
                 ev = ev.InternalGetSuccessor();
-            }
+            }*/
+            EngineState = TEngineState.Running;
         }
 
         private void _tick(long nFrames)

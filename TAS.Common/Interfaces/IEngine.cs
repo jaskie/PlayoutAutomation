@@ -71,7 +71,8 @@ namespace TAS.Common.Interfaces
         void Clear();
         void Clear(VideoLayer aVideoLayer);
         void ClearMixer();
-        void RestartRundown(IEvent aRundown);
+        bool IsAbortedRundown { get; }
+        void ContinueAbortedRundown();
         void Schedule(IEvent aEvent);
         void ReSchedule(IEvent aEvent);
         void Restart();
@@ -120,5 +121,6 @@ namespace TAS.Common.Interfaces
         ulong IdServerPRV { get; set; }
         int ServerChannelPRV { get; set; }
         ulong IdArchive { get; set; }
+        void SetAbortedEvents(IEnumerable<IEvent> aEvents);
     }
 }

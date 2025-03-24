@@ -168,9 +168,6 @@
   <data name="_menu.Rundown.AddEmpty" xml:space="preserve">
     <value>_Add empty root rundown</value>
   </data>
-  <data name="_menu.Rundown.Restart" xml:space="preserve">
-    <value>R_estart selected event</value>
-  </data>
   <data name="_menu.Container" xml:space="preserve">
     <value>_Container</value>
   </data>
@@ -329,7 +326,7 @@ Effective until current clip ends.</value>
     <value>Clear mixer transformations</value>
   </data>
   <data name="_menu.Edit.Undo" xml:space="preserve">
-    <value>Undo deletion</value>
+    <value>_Undo deletion</value>
   </data>
   <data name="_userManager" xml:space="preserve">
     <value>User manager</value>
@@ -357,5 +354,8 @@ Effective until current clip ends.</value>
   </data>
   <data name="_toolbar.Show" xml:space="preserve">
     <value>Show</value>
+  </data>
+  <data name="_menu.Rundown.ContinueAbortedRundown" xml:space="preserve">
+    <value>_Continue aborted rundown</value>
   </data>
 </root>

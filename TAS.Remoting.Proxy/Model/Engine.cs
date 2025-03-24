@@ -225,7 +225,7 @@ namespace TAS.Remoting.Model
 
         public void Restart() { Invoke(); }
 
-        public void RestartRundown(IEvent aRundown) { Invoke(parameters: new object[] { aRundown }); }
+        public void ContinueAbortedRundown(IEvent aRundown) { Invoke(parameters: new object[] { aRundown }); }
 
         public void Schedule(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 

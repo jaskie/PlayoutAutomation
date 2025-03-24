@@ -58,7 +58,6 @@ namespace TAS.Client.ViewModels
             Engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _plugins = UiPluginManager.ComposeUiParts(this);
             VideoPreview = UiPluginManager.ComposePart<IVideoPreview>(this);
-            
 
             if (preview != null && engine.HaveRight(EngineRight.Preview))
                 _preview = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit), false) { IsSegmentsVisible = true };
@@ -79,10 +78,10 @@ namespace TAS.Client.ViewModels
             }
 
 
-            CommandClearAll = new UiCommand(CommandName(nameof(Clear)), Clear, CanClear);
-            CommandClearLayer = new UiCommand(CommandName(nameof(ClearLayer)), ClearLayer, CanClear);
-            CommandClearMixer = new UiCommand(CommandName(nameof(Engine.ClearMixer)), _ => Engine.ClearMixer(), CanClear);
-            CommandRestart = new UiCommand(CommandName(nameof(Engine.Restart)), _ => Engine.Restart(), CanClear);
+            CommandClearAll = new UiCommand(CommandName(nameof(Clear)), Clear, HavePlayRight);
+            CommandClearLayer = new UiCommand(CommandName(nameof(ClearLayer)), ClearLayer, HavePlayRight);
+            CommandClearMixer = new UiCommand(CommandName(nameof(Engine.ClearMixer)), _ => Engine.ClearMixer(), HavePlayRight);
+            CommandRestart = new UiCommand(CommandName(nameof(Engine.Restart)), _ => Engine.Restart(), HavePlayRight);
             CommandStartSelected = new UiCommand(CommandName(nameof(StartSelected)), StartSelected, CanStartSelected);
             CommandLoadSelected = new UiCommand(CommandName(nameof(LoadSelected)), LoadSelected, CanLoadSelected);
             CommandScheduleSelected = new UiCommand(CommandName(nameof(Engine.Schedule)), _ => Engine.Schedule(_selectedEventPanel.Event), CanScheduleSelected);
@@ -91,7 +90,8 @@ namespace TAS.Client.ViewModels
             CommandTrackingToggle = new UiCommand(CommandName(nameof(TrackPlayingEvent)), _ => TrackPlayingEvent = !TrackPlayingEvent);
             CommandShowRunningItem = new UiCommand(CommandName(nameof(ShowRunningItem)), ShowRunningItem, _ => engine.Playing != null);
             CommandDebugToggle = new UiCommand(CommandName(nameof(DebugToggle)), DebugToggle);
-            CommandRestartRundown = new UiCommand(CommandName(nameof(RestartRundown)), RestartRundown, CanClear);
+            CommandContinueAbortedRundown = new UiCommand(CommandName(nameof(ContinueAbortedRundown)), ContinueAbortedRundown, CanContinueAbortedRundown);
+
             CommandRestartLayer = new UiCommand(CommandName(nameof(RestartLayer)), RestartLayer, _ => IsPlayingMovie && Engine.HaveRight(EngineRight.Play));
             CommandNewRootRundown = new UiCommand(CommandName(nameof(AddNewRootRundown)), AddNewRootRundown);
             CommandNewContainer = new UiCommand(CommandName(nameof(NewContainer)), NewContainer);
@@ -102,7 +102,7 @@ namespace TAS.Client.ViewModels
             CommandCutSelected = new UiCommand(CommandName(nameof(CutSelected)), CutSelected, CanDeleteSelected);
             CommandPasteSelected = new UiCommand(CommandName(nameof(PasteSelected)), PasteSelected, CanPasteSelected);
             CommandExportMedia = new UiCommand(CommandName(nameof(ExportMedia)), ExportMedia, CanExportMedia);
-            CommandUndelete = new UiCommand(CommandName(nameof(Undelete)), Undelete, CanUndelete);
+            CommandUndo = new UiCommand(CommandName(nameof(Undo)), Undo, CanUndo);
 
             CommandEventHide = new UiCommand(CommandName(nameof(EventHide)), EventHide);
             CommandMoveUp = new UiCommand(CommandName(nameof(MoveUp)), MoveUp);
@@ -142,6 +142,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandClearMixer { get; }
         public ICommand CommandClearLayer { get; }
         public ICommand CommandRestart { get; }
+        public ICommand CommandContinueAbortedRundown { get; }
         public ICommand CommandStartSelected { get; }
         public ICommand CommandForceNextSelected { get; }
         public ICommand CommandStartLoaded { get; }
@@ -160,7 +161,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandPasteSelected { get; }
         public ICommand CommandCutSelected { get; }
         public ICommand CommandExportMedia { get; }
-        public ICommand CommandUndelete { get; }
+        public ICommand CommandUndo { get; }
         public ICommand CommandSaveRundown { get; }
         public ICommand CommandLoadRundown { get; }
         public ICommand CommandRestartLayer { get; }
@@ -349,9 +350,9 @@ namespace TAS.Client.ViewModels
 
         private bool CanUserManager(object _) => CurrentUser.IsAdmin;
 
-        private bool CanUndelete(object _) => EventClipboard.CanUndo();
+        private bool CanUndo(object _) => EventClipboard.CanUndo();
 
-        private void Undelete(object _)
+        private void Undo(object _)
         {
             if (MessageBox.Show(resources._query_Undelete, resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                 EventClipboard.Undo();
@@ -363,27 +364,15 @@ namespace TAS.Client.ViewModels
 
         private void ClearMixer(object _) => Engine.ClearMixer();
 
-        private bool CanClear(object _) => Engine.HaveRight(EngineRight.Play);
+        private bool HavePlayRight(object _) => Engine.HaveRight(EngineRight.Play);
 
-        private void FocusRundown(object _)
-        {
-            Focus();
-        }
+        private void FocusRundown(object _) => Focus();
 
-        private void FocusEventName(object _)
-        {
-            SelectedEventEditViewmodel?.SetFocusOnEventName();
-        }
+        private void FocusEventName(object _) => SelectedEventEditViewmodel?.SetFocusOnEventName();
 
-        private void Engine_VisibleEventRemoved(object _, EventEventArgs e)
-        {
-            OnUiThread(() => _visibleEvents.Remove(e.Event));
-        }
+        private void Engine_VisibleEventRemoved(object _, EventEventArgs e) => OnUiThread(() => _visibleEvents.Remove(e.Event));
 
-        private void Engine_VisibleEventAdded(object _, EventEventArgs e)
-        {
-            OnUiThread(() => _visibleEvents.Add(e.Event));
-        }
+        private void Engine_VisibleEventAdded(object _, EventEventArgs e) => OnUiThread(() => _visibleEvents.Add(e.Event));
 
         private void LoadRundown(object obj)
         {
@@ -616,17 +605,11 @@ namespace TAS.Client.ViewModels
                    && Engine.HaveRight(EngineRight.Play);
         }
 
-        private void RestartRundown(object o)
-        {
-            IEvent ev = _selectedEventPanel?.Event;
-            if (ev != null)
-                Engine.RestartRundown(ev);
-        }
+        private void ContinueAbortedRundown(object o) => Engine.ContinueAbortedRundown();
 
-        private void RestartLayer(object obj)
-        {
-            Engine.Restart();
-        }
+        private bool CanContinueAbortedRundown(object o) => Engine.HaveRight(EngineRight.Play) && Engine.IsAbortedRundown;
+
+        private void RestartLayer(object obj) => Engine.Restart();
 
         private void AddNewRootRundown(object o)
         {
