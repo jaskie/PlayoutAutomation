@@ -26,16 +26,16 @@ namespace TAS.Server
         private bool _isServerConnected;
         private int _audiolevel;
 
-        public static readonly Regex RegexMixerClip = new Regex(EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
-        public static readonly Regex RegexMixerFill = new Regex(EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
-        public static readonly Regex RegexMixerClear = new Regex(EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
-        public static readonly Regex RegexPlay = new Regex(EventExtensions.PlayCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
-        public static readonly Regex RegexCall = new Regex(EventExtensions.CallCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
-        public static readonly Regex RegexCg = new Regex(EventExtensions.CgCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
-        public static readonly Regex RegexCgWithLayer = new Regex(EventExtensions.CgWithLayerCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
-        public static readonly Regex RegexCgAdd = new Regex(EventExtensions.CgAddCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
-        public static readonly Regex RegexCgInvoke = new Regex(EventExtensions.CgInvokeCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
-        public static readonly Regex RegexCgUpdate = new Regex(EventExtensions.CgUpdateCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexMixerClip = new Regex(IEventExtensions.MixerClipCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexMixerFill = new Regex(IEventExtensions.MixerFillCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexMixerClear = new Regex(IEventExtensions.MixerClearCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexPlay = new Regex(IEventExtensions.PlayCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexCall = new Regex(IEventExtensions.CallCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexCg = new Regex(IEventExtensions.CgCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexCgWithLayer = new Regex(IEventExtensions.CgWithLayerCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexCgAdd = new Regex(IEventExtensions.CgAddCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexCgInvoke = new Regex(IEventExtensions.CgInvokeCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static readonly Regex RegexCgUpdate = new Regex(IEventExtensions.CgUpdateCommand, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
 
 
         #region IPlayoutServerChannel
@@ -79,8 +79,7 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (aEvent != null && CheckConnected(channel))
             {
-                var eventType = aEvent.EventType;
-                if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
+                if (aEvent.IsVisibleEvent())
                 {
                     var item = _getItem(aEvent);
                     if (item != null)
@@ -101,14 +100,13 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (aEvent != null && CheckConnected(channel))
             {
-                var eventType = aEvent.EventType;
-                if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
+                if (aEvent.IsVisibleEvent())
                 {
                     var item = _getItem(aEvent);
                     if (item != null)
                     {
                         channel.Load(item);
-                        if (eventType == TEventType.Live)
+                        if (aEvent.EventType == TEventType.Live)
                             channel.Play(item.VideoLayer);
                         _visible[aEvent.Layer] = aEvent;
                         _loadedNext.TryRemove(aEvent.Layer, out _);
@@ -194,8 +192,7 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (CheckConnected(channel))
             {
-                var eventType = aEvent.EventType;
-                if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
+                if (aEvent.IsVisibleEvent())
                 {
                     if (!(_visible.TryGetValue(aEvent.Layer, out var visible) && visible == aEvent))
                     {
@@ -212,10 +209,9 @@ namespace TAS.Server
                     Debug.WriteLine(aEvent, $"CasparPlay Layer {aEvent.Layer}");
                     return true;
                 }
-                if (eventType == TEventType.Animation)
+                switch (aEvent.EventType)
                 {
-                    if (aEvent is ITemplated eTemplated)
-                    {
+                    case TEventType.Animation when aEvent is ITemplated eTemplated:
                         switch (eTemplated.Method)
                         {
                             case TemplateMethod.Add:
@@ -253,13 +249,11 @@ namespace TAS.Server
                                 Debug.WriteLine("Method CG {0} not implemented", eTemplated.Method, null);
                                 break;
                         }
-                    }
-                }
-                if (eventType == TEventType.CommandScript)
-                {
-                    CommandScriptEvent csi = aEvent as CommandScriptEvent;
-                    string command = csi?.Command;
-                    return Execute(command);
+                        break;
+                    case TEventType.CommandScript:
+                        CommandScriptEvent csi = aEvent as CommandScriptEvent;
+                        string command = csi?.Command;
+                        return Execute(command);
                 }
             }
             return false;
@@ -347,6 +341,7 @@ namespace TAS.Server
             }
             else
                 channel.Load(item);
+            _visible[ev.Layer] = ev;
             Debug.WriteLine("CasparChanner.ReStart: restarted {0} from frame {1}", item.Clipname, item.Seek);
         }
 
@@ -614,7 +609,7 @@ namespace TAS.Server
             if (aEvent.EventType != TEventType.Live && media == null)
                 return null;
             var item = new CasparItem(string.Empty);
-            if (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
+            if (aEvent.IsMovieOrStill())
             {
                 if (!string.IsNullOrWhiteSpace(media.Folder) && ((ServerDirectory)media.Directory).IsRecursive)
                     item.Clipname = $"\"{Path.Combine(media.Folder, media.FileName)}\"";
@@ -623,7 +618,7 @@ namespace TAS.Server
             }
             if (aEvent.EventType == TEventType.Live)
                 item.Clipname = LiveDevice;
-            if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie)
+            if (aEvent.IsMovieOrLive())
                 item.ChannelLayout = GetAudioChannelLayout();
             if (aEvent.EventType == TEventType.Movie && Owner.ServerType == TServerType.CasparTVP)
             {

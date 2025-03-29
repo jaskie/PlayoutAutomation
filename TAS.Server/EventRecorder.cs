@@ -38,10 +38,8 @@ namespace TAS.Server
             }
         }
 
-        public void EndCapture(IEvent @event)
+        public void EndCapture()
         {
-            if (@event == null || @event != Recording)
-                return;
             Recorder?.Finish();
             Recorder = null;
             Recording = null;

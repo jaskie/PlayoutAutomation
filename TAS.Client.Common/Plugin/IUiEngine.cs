@@ -27,8 +27,6 @@ namespace TAS.Client.Common.Plugin
         ICommand CommandUndo { get; }
         ICommand CommandSaveRundown { get; }
         ICommand CommandLoadRundown { get; }
-        ICommand CommandRestartLayer { get; }
-
         ICommand CommandEventHide { get; }
         ICommand CommandAddNextMovie { get; }
         ICommand CommandAddNextEmptyMovie { get; }

@@ -191,7 +191,7 @@ namespace TAS.Client
                         case PasteLocation.Under:
                             var newEvent = sourceProxy.InsertUnder(dest, false, mediaFiles, animationFiles);
                             if (dest.EventType == TEventType.Container)
-                                newEvent.ScheduledTime = EventExtensions.DefaultScheduledTime;
+                                newEvent.ScheduledTime = IEventExtensions.DefaultScheduledTime;
                             return newEvent;
                     }
                     throw new InvalidOperationException("Invalid paste location");

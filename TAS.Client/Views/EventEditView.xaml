@@ -105,7 +105,7 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Content="{Resx _eventType}"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding EventType}" IsEnabled="False" />
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding EventType, Mode=OneWay}" IsEnabled="False" />
                 <Label Grid.Row="1" Grid.Column="0" Content="{Resx _name}"/>
                 <TextBox Grid.Row="1" Grid.Column="1" Name="EventName" Text="{Binding EventName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" ToolTip="{Resx _eventName.ToolTip}">
                     <i:Interaction.Behaviors>

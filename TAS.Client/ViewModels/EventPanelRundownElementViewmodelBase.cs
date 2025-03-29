@@ -207,7 +207,7 @@ namespace TAS.Client.ViewModels
             get
             {
                 var media = Media;
-                return media == null ? ((Event.EventType == TEventType.Movie || Event.EventType == TEventType.StillImage) ? Event.MediaGuid.ToString() : string.Empty) : media.FileName;
+                return media == null ? (Event.IsMovieOrStill() ? Event.MediaGuid.ToString() : string.Empty) : media.FileName;
             }
         }
 
@@ -231,14 +231,7 @@ namespace TAS.Client.ViewModels
 
         public string Duration => Event.Duration.ToSmpteTimecodeString(VideoFormat);
 
-        public virtual bool IsEnabled
-        {
-            get
-            {
-                var et = Event.EventType;
-                return Event.IsEnabled && (Event.Duration > TimeSpan.Zero || et == TEventType.Animation || et == TEventType.CommandScript);
-            }
-        }
+        public virtual bool IsEnabled => Event.IsEnabled && (Event.Duration > TimeSpan.Zero || Event.IsAnimationOrCommandScript());
 
         public bool IsFixedTimeStart => Event.StartType == TStartType.OnFixedTime;
 

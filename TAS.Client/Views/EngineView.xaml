@@ -309,7 +309,7 @@
                             <TextBlock Text="{Binding PlayingEventName}" >
                                 <TextBlock.ContextMenu>
                                     <ContextMenu>
-                                        <MenuItem Header="{Resx _toolbar.playingEventName.Menu.Restart, ResxName=TAS.Client.Views.EngineView}" Command="{Binding CommandRestartLayer}" CommandParameter="16"/>
+                                        <MenuItem Header="{Resx _toolbar.playingEventName.Menu.Restart, ResxName=TAS.Client.Views.EngineView}" Command="{Binding CommandRestart}"/>
                                     </ContextMenu>
                                 </TextBlock.ContextMenu>
                             </TextBlock>

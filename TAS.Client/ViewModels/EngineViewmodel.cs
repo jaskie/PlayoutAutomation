@@ -92,7 +92,6 @@ namespace TAS.Client.ViewModels
             CommandDebugToggle = new UiCommand(CommandName(nameof(DebugToggle)), DebugToggle);
             CommandContinueAbortedRundown = new UiCommand(CommandName(nameof(ContinueAbortedRundown)), ContinueAbortedRundown, CanContinueAbortedRundown);
 
-            CommandRestartLayer = new UiCommand(CommandName(nameof(RestartLayer)), RestartLayer, _ => IsPlayingMovie && Engine.HaveRight(EngineRight.Play));
             CommandNewRootRundown = new UiCommand(CommandName(nameof(AddNewRootRundown)), AddNewRootRundown);
             CommandNewContainer = new UiCommand(CommandName(nameof(NewContainer)), NewContainer);
             CommandCheckDatabase = new UiCommand(CommandName(nameof(CheckDatabase)), CheckDatabase, _ => CurrentUser.IsAdmin);
@@ -473,7 +472,7 @@ namespace TAS.Client.ViewModels
             return Engine.CGElementsController?.IsConnected == true
             && SelectedEvent != null
             && SelectedEvent.PlayState == TPlayState.Scheduled
-            && (SelectedEvent.EventType == TEventType.Movie || SelectedEvent.EventType == TEventType.Live)
+            && SelectedEvent.IsMovieOrLive()
             && SelectedEvent.HaveRight(EventRight.Modify);
         }
         
@@ -564,7 +563,7 @@ namespace TAS.Client.ViewModels
             return ev != null
                    && ev.IsEnabled
                    && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused || ev.PlayState == TPlayState.Aborted)
-                   && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
+                   && (ev.IsMovieOrLiveOrRundown())
                    && Engine.HaveRight(EngineRight.Play);
         }
 
@@ -584,7 +583,7 @@ namespace TAS.Client.ViewModels
             return ev != null
                 && ev.IsEnabled
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Aborted)
-                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
+                && (ev.IsMovieOrLiveOrRundown())
                 && Engine.HaveRight(EngineRight.Play);
         }
 
@@ -617,7 +616,7 @@ namespace TAS.Client.ViewModels
                 eventType: TEventType.Rundown,
                 eventName: resources._title_NewRundown,
                 startType: TStartType.Manual,
-                scheduledTime: EventExtensions.DefaultScheduledTime);
+                scheduledTime: IEventExtensions.DefaultScheduledTime);
             Engine.AddRootEvent(newEvent);
             newEvent.Save();
             LastAddedEvent = newEvent;
@@ -755,7 +754,7 @@ namespace TAS.Client.ViewModels
                     break;
                 case TEventType.Rundown:
                     newEvent = Engine.CreateNewEvent(
-                        scheduledTime: EventExtensions.DefaultScheduledTime,
+                        scheduledTime: IEventExtensions.DefaultScheduledTime,
                         eventType: TEventType.Rundown,
                         eventName: resources._title_NewRundown);
                     break;

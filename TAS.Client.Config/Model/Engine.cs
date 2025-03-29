@@ -59,15 +59,9 @@ namespace TAS.Client.Config.Model
 
         public IDictionary<string, int> FieldLengths { get; set; }
 
-        public void Save()
-        {
-            throw new NotImplementedException();
-        }
+        public void Save() => throw new NotImplementedException();
 
-        public void Delete()
-        {
-            throw new NotImplementedException();
-        }
+        public void Delete() => throw new NotImplementedException();
 
         internal IReadOnlyCollection<CasparServer> Servers;
 

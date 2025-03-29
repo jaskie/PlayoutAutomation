@@ -4,7 +4,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Common
 {
-    public static class EventExtensions
+    public static class IEventExtensions
     {
 
         public static readonly string MixerFillCommand =
@@ -87,18 +87,17 @@ namespace TAS.Common
             }
         }
 
+        /// <summary>
+        /// Finds AudioVolume for the Event or associated media
+        /// </summary>
+        /// <param name="aEvent">Event to find the value for</param>
+        /// <returns>audio volume in relative dB, or 0 if unknown</returns>
         public static double GetAudioVolume(this IEvent aEvent)
         {
             var volume = aEvent.AudioVolume;
-            if (volume != null)
+            if (volume.HasValue)
                 return volume.Value;
-            if (aEvent.EventType == TEventType.Movie)
-            {
-                var m = aEvent.Media;
-                if (m != null)
-                    return m.AudioVolume;
-            }
-            return 0;
+            return aEvent.EventType == TEventType.Movie ? aEvent.Media?.AudioVolume ?? 0 : 0;
         }
 
         public static IEnumerable<IEvent> AllSubEvents(this IEvent e)
@@ -113,12 +112,43 @@ namespace TAS.Common
             }
         }
 
-        public static bool OccupiesSameVideoLayerAs(this IEvent e, IEvent other)
+        public static bool IsVisibleEvent(this IEvent aEvent)
         {
-            return e != null 
-                && e.Layer == other?.Layer 
-                && (e.EventType == TEventType.Movie || e.EventType == TEventType.StillImage || e.EventType == TEventType.Live)
-                && (other.EventType == TEventType.Movie || other.EventType == TEventType.StillImage || other.EventType == TEventType.Live);
+            switch (aEvent.EventType)
+            {
+                case TEventType.Movie:
+                case TEventType.StillImage:
+                case TEventType.Live:
+                    return true;
+                default:
+                    return false;
+            }
         }
+
+        public static bool IsAnimationOrCommandScript(this IEvent aEvent)
+        {
+            return aEvent != null && (aEvent.EventType == TEventType.Animation || aEvent.EventType == TEventType.CommandScript);
+        }
+
+        public static bool IsMovieOrStill(this IEvent aEvent)
+        {
+            return aEvent != null && (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage);
+        }
+
+        public static bool IsMovieOrLive(this IEvent aEvent)
+        {
+            return aEvent != null && (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live);
+        }
+
+        public static bool IsMovieOrLiveOnProgramLayer(this IEvent aEvent)
+        {
+            return aEvent?.Layer == VideoLayer.Program && (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live);
+        }
+
+        public static bool IsMovieOrLiveOrRundown(this IEvent aEvent)
+        {
+            return aEvent != null && (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Rundown);
+        }
+
     }
 }
