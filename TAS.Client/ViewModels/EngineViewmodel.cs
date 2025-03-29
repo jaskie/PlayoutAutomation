@@ -150,7 +150,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandRescheduleSelected { get; }
         public ICommand CommandTrackingToggle { get; }
         public ICommand CommandShowRunningItem { get; }
-        public ICommand CommandRestartRundown { get; }
         public ICommand CommandNewRootRundown { get; }
         public ICommand CommandNewContainer { get; }
         public ICommand CommandDebugToggle { get; }
@@ -163,7 +162,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandUndo { get; }
         public ICommand CommandSaveRundown { get; }
         public ICommand CommandLoadRundown { get; }
-        public ICommand CommandRestartLayer { get; }
         public ICommand CommandSearchDo { get; }
         public ICommand CommandSearchShowPanel { get; }
         public ICommand CommandSearchHidePanel { get; }
@@ -607,8 +605,6 @@ namespace TAS.Client.ViewModels
         private void ContinueAbortedRundown(object o) => Engine.ContinueAbortedRundown();
 
         private bool CanContinueAbortedRundown(object o) => Engine.HaveRight(EngineRight.Play) && Engine.IsAbortedRundown;
-
-        private void RestartLayer(object obj) => Engine.Restart();
 
         private void AddNewRootRundown(object o)
         {

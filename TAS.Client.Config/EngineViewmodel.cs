@@ -102,7 +102,6 @@ namespace TAS.Client.Config
             set => SetField(ref _enableCGElementsForNewEvents, value);
         }
 
-        public bool StudioMode { get => _studioMode; set => SetField(ref _studioMode, value); }
 
         public TCrawlEnableBehavior CrawlEnableBehavior
         {
@@ -138,6 +137,7 @@ namespace TAS.Client.Config
             get => _channelPRV;
             set => SetField(ref _channelPRV, value);
         }
+        
         public List<object> ArchiveDirectories { get; private set; }
 
         private object _archiveDirectory;
@@ -154,14 +154,19 @@ namespace TAS.Client.Config
             set => SetField(ref _remoteHostEnabled, value);
         }
 
-        private ushort _remoteHostListenPort;
-        private bool _studioMode;
 
+        private ushort _remoteHostListenPort;
         public ushort RemoteHostListenPort
         {
             get => _remoteHostListenPort;
             set => SetField(ref _remoteHostListenPort, value);
         }
+
+        private bool _studioMode;
+        public bool StudioMode { get => _studioMode; set => SetField(ref _studioMode, value); }
+
+        private bool _tryContinueRundownAfterEngineRestart;
+        public bool TryContinueRundownAfterEngineRestart { get => _tryContinueRundownAfterEngineRestart; set => SetField(ref _tryContinueRundownAfterEngineRestart, value); }
 
         public Common.UiCommand CommandManageArchiveDirectories { get; }
 

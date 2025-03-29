@@ -23,5 +23,11 @@ namespace TAS.Server
                 && (e.IsVisibleEvent())
                 && (other.IsVisibleEvent());
         }
+
+        public static void AbortAndSave(this Event e)
+        {
+            e.PlayState = TPlayState.Aborted;
+            e.Save();
+        }
     }
 }

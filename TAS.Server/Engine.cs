@@ -138,6 +138,9 @@ namespace TAS.Server
         [DtoMember, Hibernate]
         public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
 
+        [Hibernate]
+        public bool TryContinueRundownAfterEngineRestart { get; set; }
+
         #endregion //IEngineProperties
 
         public TArchivePolicyType ArchivePolicy { get; set; } = TArchivePolicyType.NoArchive;
@@ -1201,7 +1204,7 @@ namespace TAS.Server
                     SetVisibleEvent(se);
                     _restartEvent(se, true);
                 }
-                Logger.Debug("{0}: ContinueAbortedRundown executed for {1} starting {2}", EngineName, _abortedEvent, baseEvent);
+                Logger.Info("{0}: ContinueAbortedRundown executed for {1} starting {2}", EngineName, _abortedEvent, baseEvent);
 
                 // step 2.3 (TODO in future, if needed) start its owners, if should be running
 
@@ -1421,11 +1424,11 @@ namespace TAS.Server
             CurrentTime = AlignDateTime(DateTime.UtcNow + TimeSpan.FromMilliseconds(_timeCorrection));
             _currentTimeInTicks = CurrentTime.Ticks;
 
-            var playingEvents = DatabaseProvider.Database.SearchPlaying(this).Cast<Event>().ToArray();
+            var playingEvents = DatabaseProvider.Database.SearchPlaying(this).Cast<Event>().ToList();
             var playing = playingEvents.FirstOrDefault(e => e.IsMovieOrLiveOnProgramLayer());
             if (playing != null)
             {
-                // the event didn't finished yet - we do nothing, but mark running, assuming that it's still playing on playout channel(s)
+                // the event didn't finished yet - we do not execute it, but mark as running, assuming that it's still playing on playout channel(s)
                 if (_currentTimeInTicks < playing.StartTime.Ticks + playing.Duration.Ticks) 
                 {
                     foreach (var e in playingEvents)
@@ -1440,22 +1443,17 @@ namespace TAS.Server
                 }
                 else
                 {
-                    foreach (var e in playingEvents)
-                    {
-                        e.PlayState = TPlayState.Aborted;
-                        e.Save();
-                    }
+                    playingEvents.ForEach(e => e.AbortAndSave());
                     Logger.Debug("{0}: Found aborted event: {1}", EngineName, playing);
                     _abortedEvent = playing;
-                    NotifyPropertyChanged(nameof(IsAbortedRundown));
+                    if (TryContinueRundownAfterEngineRestart)
+                        _continueAbortedRundown();
+                    else
+                        NotifyPropertyChanged(nameof(IsAbortedRundown));
                 }
             }
             else
-                foreach (var e in playingEvents)
-                {
-                    e.PlayState = TPlayState.Aborted;
-                    e.Save();
-                }
+                playingEvents.ForEach(e => e.AbortAndSave());
 
             var frameDuration = (ulong)FrameTicks;
             QueryUnbiasedInterruptTime(out var unbiasedTime);
