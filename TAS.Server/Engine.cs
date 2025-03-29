@@ -540,13 +540,13 @@ namespace TAS.Server
             _playoutChannelSEC?.ClearMixer();
         }
 
-        public void Restart()
+        public void RefreshVisibleEventsOnPlayer()
         {
             if (!HaveRight(EngineRight.Play))
                 return;
             Logger.Info("{0}: Restart", EngineName);
             lock (RundownSync)
-                _restart();
+                _refreshVisibleEventsOnPlayer();
         }
 
         public void ContinueAbortedRundown()
@@ -1138,13 +1138,13 @@ namespace TAS.Server
             channel.Load(System.Drawing.Color.Black, VideoLayer.Preset);
         }
 
-        private void _restartEvent(Event ev, bool play)
+        private void _refreshVisibleEventOnPlayer(Event ev, bool start)
         {
             if (ev == null)
                 return;
             _setProgramAudioVolume(ev.GetAudioVolumeLinearValue(), false);
-            _playoutChannelPRI?.ReStart(ev, play);
-            _playoutChannelSEC?.ReStart(ev, play);
+            _playoutChannelPRI?.RefreshPlayback(ev, start);
+            _playoutChannelSEC?.RefreshPlayback(ev, start);
         }
 
         private void _continueAbortedRundown()
@@ -1181,7 +1181,7 @@ namespace TAS.Server
                 baseEvent.InternalSetPlaying(startTime, (currentTime.Ticks - startTime.Ticks) / FrameTicks);
                 _run(baseEvent);
                 SetVisibleEvent(baseEvent);
-                _restartEvent(baseEvent, true);
+                _refreshVisibleEventOnPlayer(baseEvent, true);
                 // step 2.2: start its subevents that should be running
                 foreach (var se in baseEvent.GetSubEvents().Where(e => e.IsMovieOrStill()).Cast<Event>())
                 {
@@ -1202,7 +1202,7 @@ namespace TAS.Server
                     se.InternalSetPlaying(seStartTime, (currentTime.Ticks - seStartTime.Ticks) / FrameTicks);
                     _run(se);
                     SetVisibleEvent(se);
-                    _restartEvent(se, true);
+                    _refreshVisibleEventOnPlayer(se, true);
                 }
                 Logger.Info("{0}: ContinueAbortedRundown executed for {1} starting {2}", EngineName, _abortedEvent, baseEvent);
 
@@ -1505,7 +1505,7 @@ namespace TAS.Server
             {
                 foreach (Event ev in ve)
                 {
-                    channel.ReStart(ev, EngineState == TEngineState.Running);
+                    channel.RefreshPlayback(ev, EngineState == TEngineState.Running);
                     channel.SetVolume(VideoLayer.Program, _programAudioVolume, 0);
                     if (ev.Layer == VideoLayer.Program || ev.Layer == VideoLayer.Preset)
                     {
@@ -1570,13 +1570,13 @@ namespace TAS.Server
                 _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
         }
 
-        private void _restart()
+        private void _refreshVisibleEventsOnPlayer()
         {
             List<Event> le;
             lock (_visibleEvents.SyncRoot())
                 le = _visibleEvents.ToList();
             foreach (var e in le)
-                _restartEvent(e, _engineState == TEngineState.Running);
+                _refreshVisibleEventOnPlayer(e, _engineState == TEngineState.Running);
         }
 
         private void _clear()

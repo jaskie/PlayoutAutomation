@@ -8,7 +8,7 @@ namespace TAS.Client.Common.Plugin
         IEvent SelectedEvent { get; }
         ICommand CommandClearAll { get; }
         ICommand CommandClearMixer { get; }
-        ICommand CommandRestart { get; }
+        ICommand CommandRefreshVisibleEventsOnPlayer { get; }
         ICommand CommandContinueAbortedRundown { get; }
         ICommand CommandStartSelected { get; }
         ICommand CommandForceNextSelected { get; }

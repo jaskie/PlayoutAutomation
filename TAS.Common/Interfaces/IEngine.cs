@@ -75,7 +75,7 @@ namespace TAS.Common.Interfaces
         void ContinueAbortedRundown();
         void Schedule(IEvent aEvent);
         void ReSchedule(IEvent aEvent);
-        void Restart();
+        void RefreshVisibleEventsOnPlayer();
         void ForceNext(IEvent aEvent);
         void Execute(string command);
         DateTime CurrentTime { get; }

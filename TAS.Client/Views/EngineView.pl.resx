@@ -192,8 +192,8 @@
   <data name="_toolbar.NowPlaying" xml:space="preserve">
     <value>Teraz odtwarza</value>
   </data>
-  <data name="_toolbar.playingEventName.Menu.Restart" xml:space="preserve">
-    <value>Restart (od bieżącego położenia)</value>
+  <data name="_menu.Tools.RefreshVisibleEventsOnPlayer" xml:space="preserve">
+    <value>Odświeź odtwarzanie</value>
   </data>
   <data name="_toolbar.Reschedule" xml:space="preserve">
     <value>Zaplanuj ponownie | F4</value>

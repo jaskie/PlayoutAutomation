@@ -81,7 +81,7 @@ namespace TAS.Client.ViewModels
             CommandClearAll = new UiCommand(CommandName(nameof(Clear)), Clear, HavePlayRight);
             CommandClearLayer = new UiCommand(CommandName(nameof(ClearLayer)), ClearLayer, HavePlayRight);
             CommandClearMixer = new UiCommand(CommandName(nameof(Engine.ClearMixer)), _ => Engine.ClearMixer(), HavePlayRight);
-            CommandRestart = new UiCommand(CommandName(nameof(Engine.Restart)), _ => Engine.Restart(), HavePlayRight);
+            CommandRefreshVisibleEventsOnPlayer = new UiCommand(CommandName(nameof(Engine.RefreshVisibleEventsOnPlayer)), _ => Engine.RefreshVisibleEventsOnPlayer(), CanRefreshVisibleEventsOnPlayer);
             CommandStartSelected = new UiCommand(CommandName(nameof(StartSelected)), StartSelected, CanStartSelected);
             CommandLoadSelected = new UiCommand(CommandName(nameof(LoadSelected)), LoadSelected, CanLoadSelected);
             CommandScheduleSelected = new UiCommand(CommandName(nameof(Engine.Schedule)), _ => Engine.Schedule(_selectedEventPanel.Event), CanScheduleSelected);
@@ -140,7 +140,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandClearAll { get; }
         public ICommand CommandClearMixer { get; }
         public ICommand CommandClearLayer { get; }
-        public ICommand CommandRestart { get; }
+        public ICommand CommandRefreshVisibleEventsOnPlayer { get; }
         public ICommand CommandContinueAbortedRundown { get; }
         public ICommand CommandStartSelected { get; }
         public ICommand CommandForceNextSelected { get; }
@@ -329,6 +329,8 @@ namespace TAS.Client.ViewModels
         }
 
         private bool CanDeleteSelected(object _) => _multiSelectedEvents.Count > 0 && _multiSelectedEvents.All(e => e?.Event != null && e.Event.HaveRight(EventRight.Delete) && e.Event.AllowDelete());
+
+        private bool CanRefreshVisibleEventsOnPlayer(object _) => Engine.HaveRight(EngineRight.Play) && Engine.EngineState == TEngineState.Running;
 
         private void EngineRights(object _)
         {

@@ -97,6 +97,7 @@
             <MenuItem Header="{Resx _menu.Rundown}">
                 <MenuItem Header="{Resx _menu.Rundown.AddEmpty}" Command="{Binding CommandNewRootRundown}"/>
                 <MenuItem Header="{Resx _menu.Rundown.ContinueAbortedRundown}" Command="{Binding CommandContinueAbortedRundown}"/>
+                <MenuItem Header="{Resx _menu.Tools.RefreshVisibleEventsOnPlayer}" Command="{Binding CommandRefreshVisibleEventsOnPlayer}"/>
                 <Separator/>
                 <MenuItem Header="{Resx _menu.Rundown.Save}" Command="{Binding CommandSaveRundown}"/>
                 <MenuItem Header="{Resx _menu.Rundown.Load}" >
@@ -306,14 +307,8 @@
                     <ScrollViewer controls:WrapPanelFill.UseToFill="True" MinWidth="350" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
                         <StackPanel MaxWidth="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}, Path=ActualWidth}">
                             <Label Content="{Resx _toolbar.NowPlaying}"  />
-                            <TextBlock Text="{Binding PlayingEventName}" >
-                                <TextBlock.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Header="{Resx _toolbar.playingEventName.Menu.Restart, ResxName=TAS.Client.Views.EngineView}" Command="{Binding CommandRestart}"/>
-                                    </ContextMenu>
-                                </TextBlock.ContextMenu>
-                            </TextBlock>
-                            <Label Content="{Resx _toolbar.Next}"  />
+                            <TextBlock Text="{Binding PlayingEventName}" />
+                            <Label Content="{Resx _toolbar.Next}" />
                             <TextBlock Text="{Binding NextToPlay}" HorizontalAlignment="Stretch" Width="Auto"/>
                         </StackPanel>
                     </ScrollViewer>

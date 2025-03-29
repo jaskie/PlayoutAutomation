@@ -226,7 +226,7 @@ namespace TAS.Remoting.Model
 
         public void ReSchedule(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
-        public void Restart() { Invoke(); }
+        public void RefreshVisibleEventsOnPlayer() { Invoke(); }
 
         public void ContinueAbortedRundown() { Invoke(); }
 
