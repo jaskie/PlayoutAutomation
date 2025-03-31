@@ -45,7 +45,7 @@
                 <ComboBox ItemsSource="{Binding ArchiveDirectories}" SelectedItem="{Binding ArchiveDirectory}"/>
             </DockPanel>
             <CheckBox IsChecked="{Binding StudioMode}">Studio mode (hold added rundown items)</CheckBox>
-            <CheckBox IsChecked="{Binding TryContinueRundownAfterEngineRestart}">Try continue rundown after restart</CheckBox>
+            <CheckBox IsChecked="{Binding TryContinueRundownAfterEngineRestart}">Try to continue rundown after restart</CheckBox>
             <Separator Margin="5"/>
             <Expander>
                 <HeaderedContentControl.Header>
