@@ -914,8 +914,7 @@ namespace TAS.Server
                     Router.SelectInputPort(aEvent.RouterPort, true);
 
                 if (!aEvent.IsHold
-                    && CGElementsController?.IsConnected == true
-                    && CGElementsController.IsCGEnabled
+                    && CGElementsController != null
                     && CGStartDelay < 0)
                 {
                     Task.Run(() =>
@@ -979,17 +978,16 @@ namespace TAS.Server
                     _setPlaying(aEvent);
                     _setProgramAudioVolume(aEvent.GetAudioVolumeLinearValue(), true);
                     _setAspectRatio(aEvent);
-                    var cgController = CGElementsController;
-                    if (cgController?.IsConnected == true && cgController.IsCGEnabled)
+                    if (CGElementsController != null)
                     {
                         if (CGStartDelay <= 0)
-                            cgController.SetState(aEvent);
+                            CGElementsController.SetState(aEvent);
                         else
                         {
                             Task.Run(() =>
                             {
                                 Thread.Sleep(CGStartDelay);
-                                cgController.SetState(aEvent);
+                                CGElementsController.SetState(aEvent);
                             });
                         }
                     }
@@ -1145,6 +1143,11 @@ namespace TAS.Server
             _setProgramAudioVolume(ev.GetAudioVolumeLinearValue(), false);
             _playoutChannelPRI?.RefreshPlayback(ev, start);
             _playoutChannelSEC?.RefreshPlayback(ev, start);
+            if (CGElementsController != null)
+            {
+                CGElementsController.Clear();
+                CGElementsController.SetState(ev);
+            }
         }
 
         private void _continueAbortedRundown()
@@ -1182,6 +1185,11 @@ namespace TAS.Server
                 _run(baseEvent);
                 SetVisibleEvent(baseEvent);
                 _refreshVisibleEventOnPlayer(baseEvent, true);
+                if (CGElementsController != null)
+                {
+                    CGElementsController.Clear();
+                    CGElementsController.SetState(baseEvent); // call the controler, ignoring its delay for sake of simplicity
+                }
                 // step 2.2: start its subevents that should be running
                 foreach (var se in baseEvent.GetSubEvents().Where(e => e.IsMovieOrStill()).Cast<Event>())
                 {
@@ -1590,16 +1598,7 @@ namespace TAS.Server
             _setProgramAudioVolume(1, false);
             EngineState = TEngineState.Idle;
             _setPlaying(null);
-            if (CGElementsController != null)
-                try
-                {
-                    if (CGElementsController?.IsConnected == true && CGElementsController.IsCGEnabled)
-                        CGElementsController.Clear();
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e, "{0}: Error clearing CG", EngineName);
-                }
+            CGElementsController?.Clear();
         }
 
         private void SetVisibleEvent(Event aEvent)
