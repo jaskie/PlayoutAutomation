@@ -21,7 +21,7 @@
     <ProjectReference Include="..\DatabaseProviders\SQLite\TAS.Database.SQLite.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(SolutionDir)ffmpeg\x64\bin\**\*.*" CopyToOutputDirectory="PreserveNewest" Visible="False" />
+    <Content Include="$(SolutionDir)dependencies\ffmpeg\x64\bin\**\*.*" CopyToOutputDirectory="PreserveNewest" Visible="False"/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NLog" Version="5.2.8" />

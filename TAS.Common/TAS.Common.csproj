@@ -6,6 +6,24 @@
     <DefineConstants>NLOG_OUTPUT_DEBUG</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Properties\Enums.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Enums.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Enums.pl.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Rights.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Rights.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Rights.pl.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <Compile Update="Properties\Enums.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Enums.resx" />
+    <Compile Update="Properties\Rights.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Rights.resx" />
+</ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj" Private="False" />
     <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj" Private="False" />
   </ItemGroup>
