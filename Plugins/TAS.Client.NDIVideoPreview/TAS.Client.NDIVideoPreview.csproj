@@ -14,5 +14,6 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel.Composition" />
+    <Content Include="$(NDI_RUNTIME_DIR_V4)\Processing.NDI.Lib.x64.dll" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

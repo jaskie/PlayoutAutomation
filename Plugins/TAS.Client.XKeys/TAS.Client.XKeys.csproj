@@ -5,9 +5,7 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PIEHid64Net" Private="True" Visible="False">
-      <HintPath>.\PIEHid64Net.dll</HintPath>
-    </Reference>
+    <Reference Include="PIEHid64Net" Private="True" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.IO.Compression" />

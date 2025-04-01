@@ -21,4 +21,4 @@ packages
 /*.log
 /TAS.FFMpegUtils/x64
 /TAS.Client.Common/*.DotSettings
-/ffmpeg/4.02
+/publish
