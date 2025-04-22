@@ -78,7 +78,7 @@ namespace TAS.Client.ViewModels
             }
 
 
-            CommandClearAll = new UiCommand(CommandName(nameof(Clear)), Clear, HavePlayRight);
+            CommandClearAll = new UiCommand(CommandName(nameof(ClearAll)), ClearAll, HavePlayRight);
             CommandClearLayer = new UiCommand(CommandName(nameof(ClearLayer)), ClearLayer, HavePlayRight);
             CommandClearMixer = new UiCommand(CommandName(nameof(Engine.ClearMixer)), _ => Engine.ClearMixer(), HavePlayRight);
             CommandRefreshVisibleEventsOnPlayer = new UiCommand(CommandName(nameof(Engine.RefreshVisibleEventsOnPlayer)), _ => Engine.RefreshVisibleEventsOnPlayer(), CanRefreshVisibleEventsOnPlayer);
@@ -357,7 +357,7 @@ namespace TAS.Client.ViewModels
                 EventClipboard.Undo();
         }
 
-        private void Clear(object _) => Engine.Clear();
+        private void ClearAll(object _) => Engine.Clear();
 
         private void ClearLayer(object layer) => Engine.Clear((VideoLayer)int.Parse((string)layer));
 
