@@ -549,16 +549,18 @@ namespace TAS.Server
                 _refreshVisibleEventsOnPlayer();
         }
 
-        public void ContinueAbortedRundown()
+        public bool ContinueAbortedRundown()
         {
             if (!HaveRight(EngineRight.Play))
-                return;
+                return false;
+            var result = false;
             lock (RundownSync)
             {
-                _continueAbortedRundown();
+                result = _continueAbortedRundown();
                 _abortedEvent = null;
             }
             NotifyPropertyChanged(nameof(IsAbortedRundown));
+            return result;
         }
 
         public void ForceNext(IEvent aEvent)
@@ -1150,16 +1152,16 @@ namespace TAS.Server
             }
         }
 
-        private void _continueAbortedRundown()
+        private bool _continueAbortedRundown()
         {
             if (_abortedEvent is null || EngineState == TEngineState.Running)
-                return;
+                return false;
             if (!(_abortedEvent is Event currentEvent && currentEvent.IsMovieOrLiveOnProgramLayer())) // currentEvent contains previously playing movie or live
-                return;
+                return false;
             var startTime = currentEvent.StartTime;
             var currentTime = CurrentTime;
             if (startTime == default || startTime > currentTime)
-                return;
+                return false;
             Event baseEvent = null;
             // step 1: find the base event that should be running now on Program layer
             while (currentEvent != null)
@@ -1218,7 +1220,9 @@ namespace TAS.Server
 
                 // step 3: run the engine
                 SetField(ref _engineState, TEngineState.Running, nameof(EngineState));
+                return true;
             }
+            return false;
         }
 
         private void _tick(long nFrames)

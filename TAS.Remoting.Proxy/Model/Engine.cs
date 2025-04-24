@@ -228,7 +228,7 @@ namespace TAS.Remoting.Model
 
         public void RefreshVisibleEventsOnPlayer() { Invoke(); }
 
-        public void ContinueAbortedRundown() { Invoke(); }
+        public bool ContinueAbortedRundown() { return Query<bool>(); }
 
         public void Schedule(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 

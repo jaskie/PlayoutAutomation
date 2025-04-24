@@ -394,4 +394,7 @@ Proceed with update?</value>
   <data name="_caption_Information" xml:space="preserve">
     <value>Information</value>
   </data>
+  <data name="_message_ContinueAbortedRundown_Failed" xml:space="preserve">
+    <value>Unable to continue aborted rundown, item expected to play now can't be determined.</value>
+  </data>
 </root>

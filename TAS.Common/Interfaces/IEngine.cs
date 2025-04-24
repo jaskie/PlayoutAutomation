@@ -72,7 +72,7 @@ namespace TAS.Common.Interfaces
         void Clear(VideoLayer aVideoLayer);
         void ClearMixer();
         bool IsAbortedRundown { get; }
-        void ContinueAbortedRundown();
+        bool ContinueAbortedRundown();
         void Schedule(IEvent aEvent);
         void ReSchedule(IEvent aEvent);
         void RefreshVisibleEventsOnPlayer();

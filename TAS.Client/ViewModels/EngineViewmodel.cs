@@ -604,7 +604,11 @@ namespace TAS.Client.ViewModels
                    && Engine.HaveRight(EngineRight.Play);
         }
 
-        private void ContinueAbortedRundown(object o) => Engine.ContinueAbortedRundown();
+        private void ContinueAbortedRundown(object o)
+        {
+            if (!Engine.ContinueAbortedRundown())
+                MessageBox.Show(resources._message_ContinueAbortedRundown_Failed, resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
 
         private bool CanContinueAbortedRundown(object o) => Engine.HaveRight(EngineRight.Play) && Engine.IsAbortedRundown;
 
