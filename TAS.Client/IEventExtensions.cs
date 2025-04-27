@@ -4,7 +4,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client
 {
-    internal static class EventExtensions
+    public static class IEventExtensions
     {
         public static bool CanMoveUp(this IEvent aEvent)
         {

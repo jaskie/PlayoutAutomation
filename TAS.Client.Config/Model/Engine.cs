@@ -6,7 +6,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
-    public class Engine: IEnginePersistent
+    public class Engine : IEnginePersistent
     {
         public ulong Id { get; set; }
 
@@ -53,21 +53,18 @@ namespace TAS.Client.Config.Model
         [Hibernate]
         public int CGStartDelay { get; set; }
 
+        [Hibernate]
+        public bool TryContinueRundownAfterEngineRestart { get; set; }
+
         public bool IsModified = false;
 
         public bool IsNew = true;
 
         public IDictionary<string, int> FieldLengths { get; set; }
 
-        public void Save()
-        {
-            throw new NotImplementedException();
-        }
+        public void Save() => throw new NotImplementedException();
 
-        public void Delete()
-        {
-            throw new NotImplementedException();
-        }
+        public void Delete() => throw new NotImplementedException();
 
         internal IReadOnlyCollection<CasparServer> Servers;
 

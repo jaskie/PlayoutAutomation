@@ -60,6 +60,9 @@ namespace TAS.Remoting.Model
         [DtoMember(nameof(IEngine.IsWideScreen))]
         private bool _isWideScreen;
 
+        [DtoMember(nameof(IEngine.IsAbortedRundown))]
+        private bool _isAbortedRundown;
+
         [DtoMember(nameof(IEngine.ProgramAudioVolume))]
         private double _programAudioVolume;
 
@@ -142,7 +145,7 @@ namespace TAS.Remoting.Model
 
         public IEvent GetNextWithRequestedStartTime() { return Query<IEvent>(); }
 
-
+        public bool IsAbortedRundown => _isAbortedRundown;
 
         public double ProgramAudioVolume { get => _programAudioVolume; set => Set(value); }
 
@@ -223,9 +226,9 @@ namespace TAS.Remoting.Model
 
         public void ReSchedule(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
-        public void Restart() { Invoke(); }
+        public void RefreshVisibleEventsOnPlayer() { Invoke(); }
 
-        public void RestartRundown(IEvent aRundown) { Invoke(parameters: new object[] { aRundown }); }
+        public bool ContinueAbortedRundown() { return Query<bool>(); }
 
         public void Schedule(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 

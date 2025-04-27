@@ -6,10 +6,10 @@ namespace TAS.Client.Common.Plugin
     public interface IUiEngine : IUiPluginContext
     {
         IEvent SelectedEvent { get; }
-
         ICommand CommandClearAll { get; }
         ICommand CommandClearMixer { get; }
-        ICommand CommandRestart { get; }
+        ICommand CommandRefreshVisibleEventsOnPlayer { get; }
+        ICommand CommandContinueAbortedRundown { get; }
         ICommand CommandStartSelected { get; }
         ICommand CommandForceNextSelected { get; }
         ICommand CommandStartLoaded { get; }
@@ -17,7 +17,6 @@ namespace TAS.Client.Common.Plugin
         ICommand CommandScheduleSelected { get; }
         ICommand CommandRescheduleSelected { get; }
         ICommand CommandTrackingToggle { get; }
-        ICommand CommandRestartRundown { get; }
         ICommand CommandNewRootRundown { get; }
         ICommand CommandNewContainer { get; }
         ICommand CommandDeleteSelected { get; }
@@ -25,11 +24,9 @@ namespace TAS.Client.Common.Plugin
         ICommand CommandPasteSelected { get; }
         ICommand CommandCutSelected { get; }
         ICommand CommandExportMedia { get; }
-        ICommand CommandUndelete { get; }
+        ICommand CommandUndo { get; }
         ICommand CommandSaveRundown { get; }
         ICommand CommandLoadRundown { get; }
-        ICommand CommandRestartLayer { get; }
-
         ICommand CommandEventHide { get; }
         ICommand CommandAddNextMovie { get; }
         ICommand CommandAddNextEmptyMovie { get; }

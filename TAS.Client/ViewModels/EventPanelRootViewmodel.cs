@@ -101,9 +101,7 @@ namespace TAS.Client.ViewModels
                     var evmVp = Find(vp, true);
                     if (evmVp != null)
                     {
-                        var eventType = e.EventType;
-                        if (eventType == TEventType.Movie || eventType == TEventType.Rundown || eventType == TEventType.Live
-                            || evmVp.IsExpanded)
+                        if (e.IsMovieOrLiveOrRundown() || evmVp.IsExpanded)
                         {
                             if (evmVp.IsExpanded || show || e == EngineViewmodel.LastAddedEvent)
                             {

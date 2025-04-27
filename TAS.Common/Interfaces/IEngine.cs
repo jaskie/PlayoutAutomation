@@ -71,10 +71,11 @@ namespace TAS.Common.Interfaces
         void Clear();
         void Clear(VideoLayer aVideoLayer);
         void ClearMixer();
-        void RestartRundown(IEvent aRundown);
+        bool IsAbortedRundown { get; }
+        bool ContinueAbortedRundown();
         void Schedule(IEvent aEvent);
         void ReSchedule(IEvent aEvent);
-        void Restart();
+        void RefreshVisibleEventsOnPlayer();
         void ForceNext(IEvent aEvent);
         void Execute(string command);
         DateTime CurrentTime { get; }
@@ -120,5 +121,6 @@ namespace TAS.Common.Interfaces
         ulong IdServerPRV { get; set; }
         int ServerChannelPRV { get; set; }
         ulong IdArchive { get; set; }
+        bool TryContinueRundownAfterEngineRestart { get; set; }
     }
 }

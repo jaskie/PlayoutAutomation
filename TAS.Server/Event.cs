@@ -512,7 +512,28 @@ namespace TAS.Server
             {
                 lock (_engine.RundownSync)
                 {
-                    _setPlayState(value);
+                    if (!SetField(ref _playState, value, nameof(PlayState)))
+                        return;
+                    switch (value)
+                    {
+                        case TPlayState.Playing:
+                            StartTime = Engine.CurrentTime;
+                            StartTc = ScheduledTc + TimeSpan.FromTicks(_position * Engine.FrameTicks);
+                            break;
+                        case TPlayState.Scheduled:
+                            StartTime = default(DateTime);
+                            StartTc = ScheduledTc;
+                            Position = 0;
+                            _updateScheduledTimeWithSuccessors();
+                            break;
+                        case TPlayState.Paused:
+                            Position = 0;
+                            break;
+                        case TPlayState.Played:
+                            _updateMediaLastPlayedTime();
+                            break;
+                    }
+
                 }
             }
         }
@@ -1186,29 +1207,12 @@ namespace TAS.Server
             DatabaseProvider.Database.DeleteEvent(this);
         }
 
-        private void _setPlayState(TPlayState newPlayState)
+        internal void InternalSetPlaying(DateTime startTime, long position)
         {
-            if (!SetField(ref _playState, newPlayState, nameof(PlayState)))
-                return;
-            switch (newPlayState)
-            {
-                case TPlayState.Playing:
-                    StartTime = Engine.CurrentTime;
-                    StartTc = ScheduledTc + TimeSpan.FromTicks(_position * Engine.FrameTicks);
-                    break;
-                case TPlayState.Scheduled:
-                    StartTime = default(DateTime);
-                    StartTc = ScheduledTc;
-                    Position = 0;
-                    _updateScheduledTimeWithSuccessors();
-                    break;
-                case TPlayState.Paused:
-                    Position = 0;
-                    break;
-                case TPlayState.Played:
-                    _updateMediaLastPlayedTime();
-                    break;
-            }
+            SetField(ref _playState,  TPlayState.Playing, nameof(PlayState));
+            StartTime = startTime;
+            _position = position;
+            StartTc = ScheduledTc + TimeSpan.FromTicks(_position * Engine.FrameTicks);
         }
 
         private void _updateMediaLastPlayedTime()

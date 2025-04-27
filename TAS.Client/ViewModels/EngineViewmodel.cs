@@ -58,7 +58,6 @@ namespace TAS.Client.ViewModels
             Engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _plugins = UiPluginManager.ComposeUiParts(this);
             VideoPreview = UiPluginManager.ComposePart<IVideoPreview>(this);
-            
 
             if (preview != null && engine.HaveRight(EngineRight.Preview))
                 _preview = new PreviewViewmodel(preview, engine.HaveRight(EngineRight.MediaEdit), false) { IsSegmentsVisible = true };
@@ -79,10 +78,10 @@ namespace TAS.Client.ViewModels
             }
 
 
-            CommandClearAll = new UiCommand(CommandName(nameof(Clear)), Clear, CanClear);
-            CommandClearLayer = new UiCommand(CommandName(nameof(ClearLayer)), ClearLayer, CanClear);
-            CommandClearMixer = new UiCommand(CommandName(nameof(Engine.ClearMixer)), _ => Engine.ClearMixer(), CanClear);
-            CommandRestart = new UiCommand(CommandName(nameof(Engine.Restart)), _ => Engine.Restart(), CanClear);
+            CommandClearAll = new UiCommand(CommandName(nameof(ClearAll)), ClearAll, HavePlayRight);
+            CommandClearLayer = new UiCommand(CommandName(nameof(ClearLayer)), ClearLayer, HavePlayRight);
+            CommandClearMixer = new UiCommand(CommandName(nameof(Engine.ClearMixer)), _ => Engine.ClearMixer(), HavePlayRight);
+            CommandRefreshVisibleEventsOnPlayer = new UiCommand(CommandName(nameof(Engine.RefreshVisibleEventsOnPlayer)), _ => Engine.RefreshVisibleEventsOnPlayer(), CanRefreshVisibleEventsOnPlayer);
             CommandStartSelected = new UiCommand(CommandName(nameof(StartSelected)), StartSelected, CanStartSelected);
             CommandLoadSelected = new UiCommand(CommandName(nameof(LoadSelected)), LoadSelected, CanLoadSelected);
             CommandScheduleSelected = new UiCommand(CommandName(nameof(Engine.Schedule)), _ => Engine.Schedule(_selectedEventPanel.Event), CanScheduleSelected);
@@ -91,8 +90,8 @@ namespace TAS.Client.ViewModels
             CommandTrackingToggle = new UiCommand(CommandName(nameof(TrackPlayingEvent)), _ => TrackPlayingEvent = !TrackPlayingEvent);
             CommandShowRunningItem = new UiCommand(CommandName(nameof(ShowRunningItem)), ShowRunningItem, _ => engine.Playing != null);
             CommandDebugToggle = new UiCommand(CommandName(nameof(DebugToggle)), DebugToggle);
-            CommandRestartRundown = new UiCommand(CommandName(nameof(RestartRundown)), RestartRundown, CanClear);
-            CommandRestartLayer = new UiCommand(CommandName(nameof(RestartLayer)), RestartLayer, _ => IsPlayingMovie && Engine.HaveRight(EngineRight.Play));
+            CommandContinueAbortedRundown = new UiCommand(CommandName(nameof(ContinueAbortedRundown)), ContinueAbortedRundown, CanContinueAbortedRundown);
+
             CommandNewRootRundown = new UiCommand(CommandName(nameof(AddNewRootRundown)), AddNewRootRundown);
             CommandNewContainer = new UiCommand(CommandName(nameof(NewContainer)), NewContainer);
             CommandCheckDatabase = new UiCommand(CommandName(nameof(CheckDatabase)), CheckDatabase, _ => CurrentUser.IsAdmin);
@@ -102,7 +101,7 @@ namespace TAS.Client.ViewModels
             CommandCutSelected = new UiCommand(CommandName(nameof(CutSelected)), CutSelected, CanDeleteSelected);
             CommandPasteSelected = new UiCommand(CommandName(nameof(PasteSelected)), PasteSelected, CanPasteSelected);
             CommandExportMedia = new UiCommand(CommandName(nameof(ExportMedia)), ExportMedia, CanExportMedia);
-            CommandUndelete = new UiCommand(CommandName(nameof(Undelete)), Undelete, CanUndelete);
+            CommandUndo = new UiCommand(CommandName(nameof(Undo)), Undo, CanUndo);
 
             CommandEventHide = new UiCommand(CommandName(nameof(EventHide)), EventHide);
             CommandMoveUp = new UiCommand(CommandName(nameof(MoveUp)), MoveUp);
@@ -141,7 +140,8 @@ namespace TAS.Client.ViewModels
         public ICommand CommandClearAll { get; }
         public ICommand CommandClearMixer { get; }
         public ICommand CommandClearLayer { get; }
-        public ICommand CommandRestart { get; }
+        public ICommand CommandRefreshVisibleEventsOnPlayer { get; }
+        public ICommand CommandContinueAbortedRundown { get; }
         public ICommand CommandStartSelected { get; }
         public ICommand CommandForceNextSelected { get; }
         public ICommand CommandStartLoaded { get; }
@@ -150,7 +150,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandRescheduleSelected { get; }
         public ICommand CommandTrackingToggle { get; }
         public ICommand CommandShowRunningItem { get; }
-        public ICommand CommandRestartRundown { get; }
         public ICommand CommandNewRootRundown { get; }
         public ICommand CommandNewContainer { get; }
         public ICommand CommandDebugToggle { get; }
@@ -160,10 +159,9 @@ namespace TAS.Client.ViewModels
         public ICommand CommandPasteSelected { get; }
         public ICommand CommandCutSelected { get; }
         public ICommand CommandExportMedia { get; }
-        public ICommand CommandUndelete { get; }
+        public ICommand CommandUndo { get; }
         public ICommand CommandSaveRundown { get; }
         public ICommand CommandLoadRundown { get; }
-        public ICommand CommandRestartLayer { get; }
         public ICommand CommandSearchDo { get; }
         public ICommand CommandSearchShowPanel { get; }
         public ICommand CommandSearchHidePanel { get; }
@@ -332,6 +330,8 @@ namespace TAS.Client.ViewModels
 
         private bool CanDeleteSelected(object _) => _multiSelectedEvents.Count > 0 && _multiSelectedEvents.All(e => e?.Event != null && e.Event.HaveRight(EventRight.Delete) && e.Event.AllowDelete());
 
+        private bool CanRefreshVisibleEventsOnPlayer(object _) => Engine.HaveRight(EngineRight.Play) && Engine.EngineState == TEngineState.Running;
+
         private void EngineRights(object _)
         {
             using (var vm = new EngineRightsEditViewmodel(Engine, Engine.AuthenticationService))
@@ -349,41 +349,29 @@ namespace TAS.Client.ViewModels
 
         private bool CanUserManager(object _) => CurrentUser.IsAdmin;
 
-        private bool CanUndelete(object _) => EventClipboard.CanUndo();
+        private bool CanUndo(object _) => EventClipboard.CanUndo();
 
-        private void Undelete(object _)
+        private void Undo(object _)
         {
             if (MessageBox.Show(resources._query_Undelete, resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                 EventClipboard.Undo();
         }
 
-        private void Clear(object _) => Engine.Clear();
+        private void ClearAll(object _) => Engine.Clear();
 
         private void ClearLayer(object layer) => Engine.Clear((VideoLayer)int.Parse((string)layer));
 
         private void ClearMixer(object _) => Engine.ClearMixer();
 
-        private bool CanClear(object _) => Engine.HaveRight(EngineRight.Play);
+        private bool HavePlayRight(object _) => Engine.HaveRight(EngineRight.Play);
 
-        private void FocusRundown(object _)
-        {
-            Focus();
-        }
+        private void FocusRundown(object _) => Focus();
 
-        private void FocusEventName(object _)
-        {
-            SelectedEventEditViewmodel?.SetFocusOnEventName();
-        }
+        private void FocusEventName(object _) => SelectedEventEditViewmodel?.SetFocusOnEventName();
 
-        private void Engine_VisibleEventRemoved(object _, EventEventArgs e)
-        {
-            OnUiThread(() => _visibleEvents.Remove(e.Event));
-        }
+        private void Engine_VisibleEventRemoved(object _, EventEventArgs e) => OnUiThread(() => _visibleEvents.Remove(e.Event));
 
-        private void Engine_VisibleEventAdded(object _, EventEventArgs e)
-        {
-            OnUiThread(() => _visibleEvents.Add(e.Event));
-        }
+        private void Engine_VisibleEventAdded(object _, EventEventArgs e) => OnUiThread(() => _visibleEvents.Add(e.Event));
 
         private void LoadRundown(object obj)
         {
@@ -484,7 +472,7 @@ namespace TAS.Client.ViewModels
             return Engine.CGElementsController?.IsConnected == true
             && SelectedEvent != null
             && SelectedEvent.PlayState == TPlayState.Scheduled
-            && (SelectedEvent.EventType == TEventType.Movie || SelectedEvent.EventType == TEventType.Live)
+            && SelectedEvent.IsMovieOrLive()
             && SelectedEvent.HaveRight(EventRight.Modify);
         }
         
@@ -575,7 +563,7 @@ namespace TAS.Client.ViewModels
             return ev != null
                    && ev.IsEnabled
                    && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused || ev.PlayState == TPlayState.Aborted)
-                   && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
+                   && (ev.IsMovieOrLiveOrRundown())
                    && Engine.HaveRight(EngineRight.Play);
         }
 
@@ -595,7 +583,7 @@ namespace TAS.Client.ViewModels
             return ev != null
                 && ev.IsEnabled
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Aborted)
-                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
+                && (ev.IsMovieOrLiveOrRundown())
                 && Engine.HaveRight(EngineRight.Play);
         }
 
@@ -616,17 +604,13 @@ namespace TAS.Client.ViewModels
                    && Engine.HaveRight(EngineRight.Play);
         }
 
-        private void RestartRundown(object o)
+        private void ContinueAbortedRundown(object o)
         {
-            IEvent ev = _selectedEventPanel?.Event;
-            if (ev != null)
-                Engine.RestartRundown(ev);
+            if (!Engine.ContinueAbortedRundown())
+                MessageBox.Show(resources._message_ContinueAbortedRundown_Failed, resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        private void RestartLayer(object obj)
-        {
-            Engine.Restart();
-        }
+        private bool CanContinueAbortedRundown(object o) => Engine.HaveRight(EngineRight.Play) && Engine.IsAbortedRundown;
 
         private void AddNewRootRundown(object o)
         {
@@ -634,7 +618,7 @@ namespace TAS.Client.ViewModels
                 eventType: TEventType.Rundown,
                 eventName: resources._title_NewRundown,
                 startType: TStartType.Manual,
-                scheduledTime: EventExtensions.DefaultScheduledTime);
+                scheduledTime: IEventExtensions.DefaultScheduledTime);
             Engine.AddRootEvent(newEvent);
             newEvent.Save();
             LastAddedEvent = newEvent;
@@ -772,7 +756,7 @@ namespace TAS.Client.ViewModels
                     break;
                 case TEventType.Rundown:
                     newEvent = Engine.CreateNewEvent(
-                        scheduledTime: EventExtensions.DefaultScheduledTime,
+                        scheduledTime: IEventExtensions.DefaultScheduledTime,
                         eventType: TEventType.Rundown,
                         eventName: resources._title_NewRundown);
                     break;

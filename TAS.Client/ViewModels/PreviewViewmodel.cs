@@ -727,7 +727,7 @@ namespace TAS.Client.ViewModels
             {
                 if (SelectedMedia != null)
                     return SelectedMedia;
-                if (SelectedEvent?.EventType == TEventType.Movie || SelectedEvent?.EventType == TEventType.StillImage)
+                if (SelectedEvent.IsMovieOrStill())
                     return SelectedEvent.Media;
                 return SelectedIngestOperation?.Source;
             }

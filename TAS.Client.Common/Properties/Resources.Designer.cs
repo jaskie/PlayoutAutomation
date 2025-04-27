@@ -245,6 +245,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to continue aborted rundown, item expected to play now can&apos;t be determined..
+        /// </summary>
+        public static string _message_ContinueAbortedRundown_Failed {
+            get {
+                return ResourceManager.GetString("_message_ContinueAbortedRundown_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Database update is required to run the application.
         ///Backup is strongly recommended.
         ///

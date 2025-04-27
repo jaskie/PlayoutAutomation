@@ -168,9 +168,6 @@
   <data name="_menu.Rundown.AddEmpty" xml:space="preserve">
     <value>Dodaj pustą listę _startową</value>
   </data>
-  <data name="_menu.Rundown.Restart" xml:space="preserve">
-    <value>_Uruchom ponownie zaznaczoną pozycję</value>
-  </data>
   <data name="_menu.Container" xml:space="preserve">
     <value>_Kontener</value>
   </data>
@@ -195,8 +192,8 @@
   <data name="_toolbar.NowPlaying" xml:space="preserve">
     <value>Teraz odtwarza</value>
   </data>
-  <data name="_toolbar.playingEventName.Menu.Restart" xml:space="preserve">
-    <value>Restart (od bieżącego położenia)</value>
+  <data name="_menu.Tools.RefreshVisibleEventsOnPlayer" xml:space="preserve">
+    <value>Odświeź odtwarzanie</value>
   </data>
   <data name="_toolbar.Reschedule" xml:space="preserve">
     <value>Zaplanuj ponownie | F4</value>
@@ -329,7 +326,7 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
     <value>Wyczyść transformacje miksera</value>
   </data>
   <data name="_menu.Edit.Undo" xml:space="preserve">
-    <value>Cofnij usunięcie</value>
+    <value>_Cofnij usunięcie</value>
   </data>
   <data name="_userManager" xml:space="preserve">
     <value>Zarządzanie użytkownikami</value>
@@ -357,5 +354,8 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
   </data>
   <data name="_toolbar.Show" xml:space="preserve">
     <value>Pokaż</value>
+  </data>
+  <data name="_menu.Rundown.ContinueAbortedRundown" xml:space="preserve">
+    <value>Wznów przerwaną playlistę</value>
   </data>
 </root>

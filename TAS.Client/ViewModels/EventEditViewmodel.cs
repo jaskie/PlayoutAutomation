@@ -19,7 +19,6 @@ namespace TAS.Client.ViewModels
         private readonly EngineViewmodel _engineViewModel;
         private IMedia _media;
         private bool _isVolumeChecking;
-        private TEventType _eventType;
         private string _eventName;
         private string _command;
         private bool _isEnabled;
@@ -41,11 +40,11 @@ namespace TAS.Client.ViewModels
         private bool _isEventNameFocused;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public static readonly Regex RegexMixerFill = new Regex(TAS.Common.EventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexMixerClip = new Regex(TAS.Common.EventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexMixerClear = new Regex(TAS.Common.EventExtensions.MixerClearCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexPlay = new Regex(TAS.Common.EventExtensions.PlayCommand, RegexOptions.IgnoreCase);
-        public static readonly Regex RegexCg = new Regex(TAS.Common.EventExtensions.CgCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerFill = new Regex(TAS.Common.IEventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerClip = new Regex(TAS.Common.IEventExtensions.MixerClipCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexMixerClear = new Regex(TAS.Common.IEventExtensions.MixerClearCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexPlay = new Regex(TAS.Common.IEventExtensions.PlayCommand, RegexOptions.IgnoreCase);
+        public static readonly Regex RegexCg = new Regex(TAS.Common.IEventExtensions.CgCommand, RegexOptions.IgnoreCase);
 
         public EventEditViewmodel(IEvent @event, EngineViewmodel engineViewModel): base(@event)
         {
@@ -206,11 +205,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public TEventType EventType
-        {
-            get => _eventType;
-            set => SetField(ref _eventType, value);
-        }
+        public TEventType EventType => Model.EventType;
 
         public string EventName
         {
@@ -222,18 +217,11 @@ namespace TAS.Client.ViewModels
 
         public bool IsAutoStartEvent => _startType == TStartType.OnFixedTime;
 
-        public bool IsMovieOrLive => Model.EventType == TEventType.Movie || Model.EventType == TEventType.Live;
+        public bool IsMovieOrLive => Model.IsMovieOrLive();
 
         public bool IsLive => Model.EventType == TEventType.Live;
 
-        public bool IsMovieOrLiveOrRundown
-        {
-            get
-            {
-                var et = Model.EventType;
-                return et == TEventType.Movie || et == TEventType.Live || et == TEventType.Rundown;
-            }
-        }
+        public bool IsMovieOrLiveOrRundown => Model.IsMovieOrLiveOrRundown();
 
         public bool IsCommandScript => Model is ICommandScript;
 
@@ -281,14 +269,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsStillImage => Model.EventType == TEventType.StillImage;
 
-        public bool IsTransitionPanelEnabled
-        {
-            get
-            {
-                var et = Model.EventType;
-                return !_isHold && (et == TEventType.Live || et == TEventType.Movie);
-            }
-        }
+        public bool IsTransitionPanelEnabled => !_isHold && (Model.IsMovieOrLive());
 
         public bool IsTransitionPropertiesVisible => _transitionType != TTransitionType.Cut;
 
@@ -402,7 +383,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsDisplayBindToEnd => (_eventType == TEventType.CommandScript || _eventType == TEventType.StillImage)
+        public bool IsDisplayBindToEnd => (Model.EventType == TEventType.StillImage || Model.IsAnimationOrCommandScript())
                                           && (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd);
 
         public bool IsEventNameFocused
@@ -594,7 +575,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsDurationEnabled => Model.EventType != TEventType.Rundown;
 
-        public bool IsCGElementsEnabled => Model.EventType == TEventType.Live || Model.EventType == TEventType.Movie;
+        public bool IsCGElementsEnabled => Model.IsMovieOrLive();
 
         public bool IsDisplayCGElements => Model.Engine.CGElementsController != null;
 
