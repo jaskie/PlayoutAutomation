@@ -10,7 +10,7 @@ namespace TAS.Client.NDIVideoPreview.Model
 {
     internal class NdiSourcesWatcher
     {
-        private readonly Dictionary<string, string> _ndiSources = new Dictionary<string, string>();
+        private readonly Dictionary<string, NdiSource> _ndiSources = new Dictionary<string, NdiSource>();
         private readonly IntPtr NdiFindInstance;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -49,11 +49,11 @@ namespace TAS.Client.NDIVideoPreview.Model
             sourcesPoolThread.Start();
         }
 
-        public IEnumerable<string> GetSources()
+        public IEnumerable<NdiSource> GetSources()
         {
             lock (((IDictionary)_ndiSources).SyncRoot)
             {
-                return _ndiSources.Keys.ToArray();
+                return _ndiSources.Values.ToArray();
             }
         }
 
@@ -61,11 +61,11 @@ namespace TAS.Client.NDIVideoPreview.Model
         {
             var numSources = 0;
             var ndiSources = Ndi.NDIlib_find_get_current_sources(NdiFindInstance, ref numSources);
-            var sourcesAdded = new List<string>();
-            List<string> sourcesToRemove;
+            List<NdiSource> sourcesAdded = new List<NdiSource>();
+            List<NdiSource> sourcesToRemove;
             lock (((IDictionary)_ndiSources).SyncRoot)
             {
-                sourcesToRemove = _ndiSources.Keys.ToList();
+                sourcesToRemove =  new List<NdiSource>(_ndiSources.Values);
                 if (numSources > 0)
                 {
                     var sourceSizeInBytes = Marshal.SizeOf(typeof(NDIlib_source_t));
@@ -75,27 +75,28 @@ namespace TAS.Client.NDIVideoPreview.Model
                         var src = (NDIlib_source_t)Marshal.PtrToStructure(p, typeof(NDIlib_source_t));
                         var ndiName = Ndi.Utf8ToString(src.p_ndi_name);
                         var ndiAddress = Ndi.Utf8ToString(src.p_ip_address);
-                        if (_ndiSources.ContainsKey(ndiName))
+                        if (_ndiSources.TryGetValue(ndiName, out var source))
                         {
-                            sourcesToRemove.Remove(ndiName);
-                            if (_ndiSources[ndiName] != ndiAddress)
+                            sourcesToRemove.Remove(source);
+                            if (source.Address != ndiAddress)
                             {
-                                _ndiSources[ndiName] = ndiAddress;
+                                source.Address = ndiAddress;
                                 Logger.Debug($"Updated source name:{ndiName} address:{ndiAddress}");
                             }
                         }
                         else
                         {
-                            _ndiSources.Add(ndiName, ndiAddress);
-                            sourcesAdded.Add(ndiName);
+                            var newSource = new NdiSource(ndiName, ndiAddress);
+                            _ndiSources.Add(ndiName, newSource);
+                            sourcesAdded.Add(newSource);
                             Logger.Debug($"Added source name:{ndiName} address:{ndiAddress}");
                         }
                     }
                 }
                 foreach (var source in sourcesToRemove)
                 {
-                    _ndiSources.Remove(source);
-                    Logger.Debug($"Removed source name:{source}");
+                    _ndiSources.Remove(source.SourceName);
+                    Logger.Debug($"Removed source name:{source.SourceName} address: {source.Address}");
                 }
             }
             foreach (var source in sourcesAdded)
@@ -109,26 +110,17 @@ namespace TAS.Client.NDIVideoPreview.Model
         /// </summary>
         /// <param name="sourceToFind">machine_name (source_name) OR addres:port</param>
         /// <returns>If found, Key = machine_name (source_name), Value = address:port</returns>
-        internal KeyValuePair<string, string> FindSource(string sourceToFind)
+        internal NdiSource FindSource(string sourceToFind)
         {
             lock (((IDictionary)_ndiSources).SyncRoot)
             {
-                foreach (var source in _ndiSources)
+                foreach (var source in _ndiSources.Values)
                 {
-                    if (source.Key == sourceToFind || source.Value == sourceToFind)
+                    if (source.SourceName == sourceToFind || source.Address == sourceToFind)
                         return source;
                 }
                 return default;
             }
         }
-    }
-
-    internal class NdiSourceEventArgs : EventArgs
-    {
-        public NdiSourceEventArgs(string sourceName)
-        {
-            SourceName = sourceName;
-        }
-        public string SourceName { get; }
     }
 }

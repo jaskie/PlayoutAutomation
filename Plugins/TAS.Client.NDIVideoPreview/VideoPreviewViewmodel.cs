@@ -20,8 +20,8 @@ namespace TAS.Client.NDIVideoPreview
     public class VideoPreviewViewmodel : ViewModelBase, Common.Plugin.IVideoPreview
     {
         private const double MinAudioLevel = -60;
-        private readonly ObservableCollection<string> _videoSources;
-        private string _videoSource;
+        private readonly ObservableCollection<NdiSource> _videoSources;
+        private NdiSource _videoSource;
         private ThreadStartParameters _currentThreadParameters;
         private WriteableBitmap _videoBitmap;
         private int _videoBitmapWidth, _videoBitmapHeight;
@@ -49,7 +49,7 @@ namespace TAS.Client.NDIVideoPreview
 
         public VideoPreviewViewmodel()
         {
-            _videoSources = new ObservableCollection<string>(new[] { Common.Properties.Resources._none_ });
+            _videoSources = new ObservableCollection<NdiSource>(new[] { new NdiSource(Common.Properties.Resources._none_) });
             _videoSource = _videoSources.FirstOrDefault();
             CommandRefreshSources = new UiCommand(CommandName(nameof(RefreshSources)), RefreshSources);
             CommandGotoNdiWebsite = new UiCommand(CommandName(nameof(GotoNdiWebsite)), GotoNdiWebsite);
@@ -87,31 +87,31 @@ namespace TAS.Client.NDIVideoPreview
             if (sourceUrl.StartsWith("ndi://"))
             {
                 var source = NdiSourcesWatcher.FindSource(sourceUrl.Substring(6));
-                if (string.IsNullOrEmpty(source.Key))
+                if (string.IsNullOrEmpty(source.Address))
                     return;
                 OnUiThread(() =>
                 {
-                    VideoSource = source.Key;
+                    VideoSource = source;
                 });
             }
         }
 
         #endregion IVideoPreview
 
-        public IEnumerable<string> VideoSources => _videoSources;
+        public IEnumerable<NdiSource> VideoSources => _videoSources;
 
-        public string VideoSource
+        public NdiSource VideoSource
         {
             get => _videoSource;
             set
             {
                 if (SetField(ref _videoSource, value))
                 {
-                    if (!string.IsNullOrEmpty(value))
+                    Disconnect();
+                    VideoBitmap = null;
+                    AudioLevels = Array.Empty<AudioLevelBarViewmodel>();
+                    if (value?.Address != null)
                     {
-                        Disconnect();
-                        VideoBitmap = null;
-                        AudioLevels = Array.Empty<AudioLevelBarViewmodel>();
                         Connect(value);
                     }
                 }
@@ -208,17 +208,16 @@ namespace TAS.Client.NDIVideoPreview
                   AudioDevices.FirstOrDefault();
         }
 
-        private void Connect(string sourceName)
+        private void Connect(NdiSource source)
         {
-            var source = NdiSourcesWatcher.FindSource(sourceName);
-            if (source.Value is null || _currentThreadParameters != null)
+            if (source.Address is null || _currentThreadParameters != null)
                 return;
             NDIlib_recv_create_t recvDescription = new NDIlib_recv_create_t
             {
                 source_to_connect_to = new NDIlib_source_t
                 {
-                    p_ndi_name = Ndi.StringToUtf8(source.Key),
-                    p_ip_address = Ndi.StringToUtf8(source.Value)
+                    p_ndi_name = Ndi.StringToUtf8(source.SourceName),
+                    p_ip_address = Ndi.StringToUtf8(source.Address)
                 },
                 color_format = NDIlib_recv_color_format_e.NDIlib_recv_color_format_e_BGRX_BGRA,
                 bandwidth = NDIlib_recv_bandwidth_e.NDIlib_recv_bandwidth_lowest,
@@ -229,8 +228,8 @@ namespace TAS.Client.NDIVideoPreview
             if (ndiReceiveInstance == default)
                 return;
             // start up a thread to receive on
-            _currentThreadParameters = new ThreadStartParameters { NdiReceiveInstance = ndiReceiveInstance, SourceName = sourceName };
-            new Thread(ReceiveThreadProc) { IsBackground = true, Name = $"Newtek Ndi video preview plugin receive thread for {sourceName}" }
+            _currentThreadParameters = new ThreadStartParameters { NdiReceiveInstance = ndiReceiveInstance, SourceName = source.SourceName };
+            new Thread(ReceiveThreadProc) { IsBackground = true, Name = $"Newtek Ndi video preview plugin receive thread for {source}" }
                 .Start(_currentThreadParameters);
         }
 
@@ -364,15 +363,15 @@ namespace TAS.Client.NDIVideoPreview
 
         private void OnSourceRemoved(object sender, NdiSourceEventArgs eventArgs)
         {
-            OnUiThread(() => _videoSources.Remove(eventArgs.SourceName));
+            OnUiThread(() => _videoSources.Remove(eventArgs.Source));
         }
 
         private void OnSourceAdded(object sender, NdiSourceEventArgs eventArgs)
         {
             OnUiThread(() =>
             {
-                if (!_videoSources.Contains(eventArgs.SourceName))
-                    _videoSources.Add(eventArgs.SourceName);
+                if (!_videoSources.Contains(eventArgs.Source))
+                    _videoSources.Add(eventArgs.Source);
             });
         }
 

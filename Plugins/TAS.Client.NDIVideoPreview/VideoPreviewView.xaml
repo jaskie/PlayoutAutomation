@@ -59,7 +59,7 @@
         </Style>
         <CollectionViewSource x:Key="VideoSourcesCollectionViewSource" Source="{Binding Path=VideoSources}">
             <CollectionViewSource.SortDescriptions>
-                <componentModel:SortDescription />
+                <componentModel:SortDescription PropertyName="SourceName"/>
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
     </UserControl.Resources>
@@ -95,9 +95,8 @@
             <Button Command="{Binding CommandRefreshSources}" DockPanel.Dock="Right" Height="{Binding ElementName=Selector, Path=ActualHeight}" ToolTip="{Resx _refreshSources}">
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
             </Button>
-            <ComboBox ItemsSource="{Binding Source={StaticResource VideoSourcesCollectionViewSource}}" SelectedItem="{Binding VideoSource}" VerticalAlignment="Center" x:Name="Selector" />
+            <ComboBox ItemsSource="{Binding Source={StaticResource VideoSourcesCollectionViewSource}}" DisplayMemberPath="DisplayName" SelectedItem="{Binding VideoSource}" VerticalAlignment="Center" x:Name="Selector" />
         </DockPanel>
-        <!--<ProgressBar Height="56" Value="70" Style="{DynamicResource ProgressBarVolumeMeterStyle}"></ProgressBar>-->
 
         <Grid Grid.Row="1">
             <Grid.ContextMenu>
