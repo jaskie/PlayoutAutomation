@@ -41,7 +41,7 @@ namespace TAS.Client.ViewModels
             set => SetField(ref _authenticationSource, value);
         }
 
-        public AuthenticationSource[] AuthenticationSources { get; } = Enum.GetValues(typeof(AuthenticationSource)).Cast<AuthenticationSource>().Where(a => a != AuthenticationSource.Console).ToArray();
+        public AuthenticationSource[] AuthenticationSources { get; } = Enum.GetValues(typeof(AuthenticationSource)).Cast<AuthenticationSource>().Where(a => a != AuthenticationSource.LocalUser).ToArray();
 
         public string AuthenticationObject
         {

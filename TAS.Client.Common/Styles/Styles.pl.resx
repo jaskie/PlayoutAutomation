@@ -129,6 +129,9 @@
   <data name="_buttonOk.ToolTip" xml:space="preserve">
     <value>Zatwierdza zmiany</value>
   </data>
+  <data name="_buttonRetry.Caption" xml:space="preserve">
+    <value>Spróbuj ponownie</value>
+  </data>
   <data name="_buttonUndo.Caption" xml:space="preserve">
     <value>Przywróć</value>
   </data>

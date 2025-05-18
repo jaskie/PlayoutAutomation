@@ -117,22 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="_authenticationObject" xml:space="preserve">
-    <value>Authenticating object</value>
+  <data name="_pleaseWait" xml:space="preserve">
+    <value>Connecting to server. Please wait...</value>
   </data>
-  <data name="_authenticationObject.ToolTip" xml:space="preserve">
-    <value>For IP address authentication, provide client station IP address. You may use wildcards to select whole subnet.</value>
-  </data>
-  <data name="_authenticationSource" xml:space="preserve">
-    <value>Authentication source</value>
-  </data>
-  <data name="_groupMembership" xml:space="preserve">
-    <value>Group membership</value>
-  </data>
-  <data name="_isAdmin" xml:space="preserve">
-    <value>Administrator</value>
-  </data>
-  <data name="_name" xml:space="preserve">
-    <value>User name</value>
+  <data name="_retry" xml:space="preserve">
+    <value>Retry</value>
   </data>
 </root>

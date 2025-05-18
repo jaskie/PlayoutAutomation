@@ -1,12 +1,13 @@
-﻿using System;
+﻿using jNet.RPC.Server;
+using System;
 using System.Xml.Serialization;
 using TAS.Database.Common;
 
 namespace TAS.Server
 {
-    public class ServerHost: IDisposable
+    public class ServerHostWrapper: IDisposable
     {
-        private jNet.RPC.Server.ServerHost _serverHost;
+        private ServerHost _serverHost;
 
         [XmlAttribute, Hibernate]
         public ushort ListenPort { get; set; }
@@ -17,9 +18,9 @@ namespace TAS.Server
             _serverHost?.Dispose();
         }
 
-        internal void Initialize(Engine engine, jNet.RPC.Server.IPrincipalProvider principalProvider)
+        internal void Initialize(Engine engine, IPrincipalProvider principalProvider)
         {
-            _serverHost = new jNet.RPC.Server.ServerHost(ListenPort, engine, principalProvider);
+            _serverHost = new ServerHost(ListenPort, engine, principalProvider);
         }
 
         internal void UnInitialize()

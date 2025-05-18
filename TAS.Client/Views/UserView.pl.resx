@@ -120,6 +120,9 @@
   <data name="_authenticationObject" xml:space="preserve">
     <value>Obiekt poświadczający</value>
   </data>
+  <data name="_authenticationObject.ToolTip" xml:space="preserve">
+    <value>Przy autentykacji za pomocą adresu IP, wprowadź tu adres stacji klienta. Można użyć "*", aby wskazać całą podsieć.</value>
+  </data>
   <data name="_authenticationSource" xml:space="preserve">
     <value>Źródło poświadczeń</value>
   </data>

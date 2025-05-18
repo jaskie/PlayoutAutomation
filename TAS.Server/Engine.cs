@@ -156,7 +156,7 @@ namespace TAS.Server
         public IRouter Router { get; private set; }
 
         [Hibernate]
-        public ServerHost Remote { get; set; }
+        public ServerHostWrapper Remote { get; set; }
 
         [DtoMember, Hibernate]
         public TAspectRatioControl AspectRatioControl { get; set; }

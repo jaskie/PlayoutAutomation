@@ -13,19 +13,17 @@
         <KeyBinding Gesture="F12" Command="{Binding CommandSwitchTab}"/>
     </UserControl.InputBindings>
     <TabControl TabStripPlacement="Bottom" BorderThickness="1" Padding="0" SelectedItem="{Binding SelectedItem, Mode=OneWayToSource}" SelectedIndex="{Binding SelectedTabIndex}" >
-        <TabControl.Items>
-            <TabItem DataContext="{Binding Engine}" Visibility="{Binding Converter={StaticResource NullToVis}}" >
-                <TabItem.Header>
-                    <TextBlock Text="{Resx _rundown}" ToolTip="{Resx _rundown.ToolTip}"></TextBlock>
-                </TabItem.Header>
-                <views:EngineView />
-            </TabItem>
-            <TabItem DataContext="{Binding MediaManager}" Visibility="{Binding Converter={StaticResource NullToVis}}">
-                <TabItem.Header>
-                    <TextBlock Text="{Resx _media}" ToolTip="{Resx _media.ToolTip}"></TextBlock>
-                </TabItem.Header>
-                <views:MediaManagerView />
-            </TabItem>
-        </TabControl.Items>
+        <TabItem DataContext="{Binding Engine}" Visibility="{Binding Converter={StaticResource NullToVis}}" >
+            <TabItem.Header>
+                <TextBlock Text="{Resx _rundown}" ToolTip="{Resx _rundown.ToolTip}"></TextBlock>
+            </TabItem.Header>
+            <views:EngineView />
+        </TabItem>
+        <TabItem DataContext="{Binding MediaManager}" Visibility="{Binding Converter={StaticResource NullToVis}}">
+            <TabItem.Header>
+                <TextBlock Text="{Resx _media}" ToolTip="{Resx _media.ToolTip}"></TextBlock>
+            </TabItem.Header>
+            <views:MediaManagerView />
+        </TabItem>
     </TabControl>
 </UserControl>

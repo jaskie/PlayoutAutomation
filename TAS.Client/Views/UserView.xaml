@@ -39,7 +39,7 @@
                 <ComboBox ItemsSource="{Binding AuthenticationSources}" SelectedItem="{Binding AuthenticationSource}" VerticalAlignment="Center"/>
             </DockPanel>
             <Label Content="{Resx _authenticationObject}"/>
-            <TextBox Text="{Binding AuthenticationObject, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Text="{Binding AuthenticationObject, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Resx _authenticationObject.ToolTip}"/>
         </StackPanel>
         <Separator DockPanel.Dock="Top" Margin="5" />
         <Label DockPanel.Dock="Top" Content="{Resx _groupMembership}"/>

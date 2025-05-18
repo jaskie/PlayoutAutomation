@@ -117,22 +117,24 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="_authenticationObject" xml:space="preserve">
-    <value>Authenticating object</value>
+  <data name="_message_Connecting" xml:space="preserve">
+    <value>Łączenie z serwerem {0}.
+Proszę czekać...</value>
   </data>
-  <data name="_authenticationObject.ToolTip" xml:space="preserve">
-    <value>For IP address authentication, provide client station IP address. You may use wildcards to select whole subnet.</value>
+  <data name="_message_ConnectionFailed" xml:space="preserve">
+    <value>Nie udało się połączyć z {0}.
+Proszę się upewnić, że serwer jest skonfigurowany dla połączeń zdalnych, działa oraz jest dostępny w sieci.</value>
   </data>
-  <data name="_authenticationSource" xml:space="preserve">
-    <value>Authentication source</value>
+  <data name="_message_ConnectionRejected" xml:space="preserve">
+    <value>Połączenie z {0} zostało odrzucone.
+Sprawdź prawidłowość adresu oraz uprawnienia nadane w aplikacji TVPlay.</value>
   </data>
-  <data name="_groupMembership" xml:space="preserve">
-    <value>Group membership</value>
+  <data name="_message_ConnectionRetry" xml:space="preserve">
+    <value>Łączenie z serwerem {0}. Próba {1}.
+Proszę czekać...</value>
   </data>
-  <data name="_isAdmin" xml:space="preserve">
-    <value>Administrator</value>
-  </data>
-  <data name="_name" xml:space="preserve">
-    <value>User name</value>
+  <data name="_message_ReceivedEmptyRoot" xml:space="preserve">
+    <value>Połączenie do {0} się powiodło, ale nie odebrano danych.
+Proszę się upewnić, że serwer używa powyższego portu oraz tej samej wersji oprogramowania.</value>
   </data>
 </root>

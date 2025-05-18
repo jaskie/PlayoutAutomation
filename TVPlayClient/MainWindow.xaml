@@ -5,9 +5,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TVPlayClient"
-        xmlns:views="clr-namespace:TAS.Client.Views;assembly=TAS.Client"
-        xmlns:vm="clr-namespace:TAS.Client.ViewModels;assembly=TAS.Client"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="{Resx ResxName=TVPlayClient.MainWindow, Key=_windowTitle}" 
         Height="600" 
@@ -38,17 +35,8 @@
                             </DataTemplate>
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>
-                            <DataTemplate>
-                                <xctk:BusyIndicator IsBusy="{Binding IsLoading}" Content="{Binding Channel}">
-                                    <xctk:BusyIndicator.BusyContent>
-                                        <TextBlock Text="{Resx ResxName=TVPlayClient.MainWindow, Key=_pleaseWait}"/>
-                                    </xctk:BusyIndicator.BusyContent>
-                                    <xctk:BusyIndicator.Resources>
-                                        <DataTemplate DataType="{x:Type vm:ChannelViewmodel}">
-                                            <views:ChannelView/>
-                                        </DataTemplate>
-                                    </xctk:BusyIndicator.Resources>
-                                </xctk:BusyIndicator>
+                            <DataTemplate DataType="local:ChannelWrapperViewmodel">
+                                <local:ChannelWrapperView/>
                             </DataTemplate>
                         </TabControl.ContentTemplate>
                     </TabControl>

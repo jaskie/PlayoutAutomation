@@ -560,8 +560,8 @@ namespace TAS.Common
     [TypeConverter(typeof(AuthenticationSourceEnumConverter))]
     public enum AuthenticationSource
     {
-        Console, // user 
-        IpAddress,
+        LocalUser, // local user 
+        IpAddress, // IP address of the client, wildcards supported
         // WindowsCredentials // not implemented yet
     }
 

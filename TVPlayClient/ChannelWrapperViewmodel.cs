@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using jNet.RPC.Client;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
@@ -17,10 +19,14 @@ namespace TVPlayClient
         private bool _isLoading = true;
         private string _tabName;
         private bool _isDisposed;
+        private bool _isFailed;
+        private string _failedMessage;
+        private int _retryCount;
 
         public ChannelWrapperViewmodel(ChannelConfiguration channel)
         {
             _channelConfiguration = channel;
+            RetryCommand = new UiCommand(nameof(Retry), _ => Retry(), _ => IsFailed);
         }
 
         public void Initialize()
@@ -28,17 +34,24 @@ namespace TVPlayClient
             Task.Run(CreateView);
         }
 
-        public string TabName
+        public string TabName { get => _tabName; private set => SetField(ref _tabName, value); }
+
+        public bool IsLoading { get => _isLoading; private set => SetField(ref _isLoading, value); }
+
+        public bool IsFailed
         {
-            get => _tabName;
-            private set => SetField(ref _tabName, value);
+            get => _isFailed;
+            private set
+            {
+                if (!SetField(ref _isFailed, value))
+                    return;
+                InvalidateRequerySuggested();
+            }
         }
 
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set => SetField(ref _isLoading, value);
-        }
+        public string ConnectionMessage { get => _failedMessage; private set => SetField(ref _failedMessage, value); }
+
+        public ICommand RetryCommand { get; } 
 
         public ChannelViewmodel Channel
         {
@@ -65,11 +78,9 @@ namespace TVPlayClient
                 return;
             client.Disconnected -= ClientDisconnected;
             client.Dispose();
-            var channel = Channel;
+            Channel?.Dispose();
             Channel = null;
-            IsLoading = true;
-            channel?.Dispose();
-            CreateView();
+            Retry();
         }
 
         private void SetupChannel(IEngine engine)
@@ -79,29 +90,66 @@ namespace TVPlayClient
             IsLoading = false;
         }
 
-        private async void CreateView()
+        private void Retry()
         {
+            IsFailed = false;
+            ConnectionMessage = string.Empty;
+            Task.Run(CreateView);
+        }
+
+        private async Task CreateView()
+        {
+            ConnectionMessage = string.Format(Properties.Resources._message_Connecting, _channelConfiguration.Address);
+            IsLoading = true;
+            _retryCount = 1;
             while (!_isDisposed)
-                try
+            {
+                _client = new RemoteClient(_channelConfiguration.Address, ClientTypeNameBinder.Current);
+                var engine = _client.GetRootObject<IEngine>();
+                if (engine is null)
                 {
-                    _client = new RemoteClient(_channelConfiguration.Address, ClientTypeNameBinder.Current);
-                    var engine = _client.GetRootObject<IEngine>();
-                    if (engine is null)
+                    try
+                    {
+                        switch (_client.ClientConnectionState)
+                        {
+                            case ClientConnectionState.Disconnected:
+                                if (_retryCount++ < 10)
+                                    ConnectionMessage = string.Format(Properties.Resources._message_ConnectionRetry, _channelConfiguration.Address, _retryCount);
+                                else
+                                {
+                                    SetFailed(Properties.Resources._message_ConnectionFailed);
+                                    return;
+                                }
+                                await Task.Delay(5000);
+                                continue;
+                            case ClientConnectionState.Rejected:
+                                SetFailed(Properties.Resources._message_ConnectionRejected);
+                                return;
+                            default:
+                                SetFailed(Properties.Resources._message_ReceivedEmptyRoot);
+                                break;
+                        }
+                    }
+                    finally
                     {
                         _client.Dispose();
-                        await Task.Delay(5000);
-                    }
-                    else
-                    {
-                        _client.Disconnected += ClientDisconnected;
-                        OnUiThread(() => SetupChannel(engine));
-                        return;
+                        _client = null;
                     }
                 }
-                catch
+                else
                 {
-                    await Task.Delay(5000);
+                    _client.Disconnected += ClientDisconnected;
+                    OnUiThread(() => SetupChannel(engine));
                 }
+                return;
+            }
+        }
+
+        private void SetFailed(string messageToFormat)
+        {
+            IsLoading = false;
+            ConnectionMessage = string.Format(messageToFormat, _channelConfiguration.Address);
+            IsFailed = true;
         }
     }
 }

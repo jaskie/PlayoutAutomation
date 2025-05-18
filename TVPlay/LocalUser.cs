@@ -11,15 +11,15 @@ namespace TAS.Client
 
         public string Name { get; set; } = Properties.Resources._localUserName;
 
-        public string AuthenticationType { get; } = AuthenticationSource.Console.ToString();
+        public string AuthenticationType { get; } = AuthenticationSource.LocalUser.ToString();
 
         public bool IsAuthenticated { get; } = true;
 
         public bool IsAdmin { get; set; } = true;
 
-        public AuthenticationSource AuthenticationSource { get; set; } = AuthenticationSource.Console;
+        public AuthenticationSource AuthenticationSource { get; set; } = AuthenticationSource.LocalUser;
 
-        public string AuthenticationObject { get; set; } = AuthenticationSource.Console.ToString();
+        public string AuthenticationObject { get; set; } = AuthenticationSource.LocalUser.ToString();
 
         public ulong Id { get; set; }
 

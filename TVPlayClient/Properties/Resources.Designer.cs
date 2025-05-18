@@ -59,5 +59,55 @@ namespace TVPlayClient.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connecting to server {0}.
+        ///Please wait....
+        /// </summary>
+        public static string _message_Connecting {
+            get {
+                return ResourceManager.GetString("_message_Connecting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection to {0} failed.
+        ///Ensure the server is configured for remote connections, running and available in the network..
+        /// </summary>
+        public static string _message_ConnectionFailed {
+            get {
+                return ResourceManager.GetString("_message_ConnectionFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection to {0} rejected.
+        ///Check if the address is correct and client has assigned access rights in TVPlay application..
+        /// </summary>
+        public static string _message_ConnectionRejected {
+            get {
+                return ResourceManager.GetString("_message_ConnectionRejected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connecting to server {0}, attempt {1}.
+        ///Please wait....
+        /// </summary>
+        public static string _message_ConnectionRetry {
+            get {
+                return ResourceManager.GetString("_message_ConnectionRetry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection to {0} was established, but no data was retrieved.
+        ///Ensure that the server uses the specified port and is running the same playout automation release as the client..
+        /// </summary>
+        public static string _message_ReceivedEmptyRoot {
+            get {
+                return ResourceManager.GetString("_message_ReceivedEmptyRoot", resourceCulture);
+            }
+        }
     }
 }
