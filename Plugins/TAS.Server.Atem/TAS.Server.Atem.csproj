@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <RootNamespace>TAS.Server</RootNamespace>
+    <AssemblyTitle>Blackmagic ATEM switcher plugin</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\dependencies\LibAtem\LibAtem\LibAtem.csproj" />

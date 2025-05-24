@@ -3,6 +3,7 @@
     <OutputType>Exe</OutputType>
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
     <OutputPath>$(SolutionDir)TVPlay\bin\$(Configuration)</OutputPath>
+    <AssemblyTitle>TVPlay engine service</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Configuration.Install" />

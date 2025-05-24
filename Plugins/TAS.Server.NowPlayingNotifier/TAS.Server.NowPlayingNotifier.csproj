@@ -2,12 +2,13 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <RootNamespace>TAS.Server</RootNamespace>
+    <AssemblyTitle>Allows display info about next rundown items on air, using CasparCG template</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\dependencies\Svt\Svt.Caspar\Svt.Caspar.csproj" />
     <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.ComponentModel.Composition"/>
+    <Reference Include="System.ComponentModel.Composition" />
   </ItemGroup>
 </Project>

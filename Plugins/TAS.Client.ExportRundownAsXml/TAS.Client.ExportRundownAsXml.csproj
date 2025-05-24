@@ -3,6 +3,7 @@
     <OutputType>Library</OutputType>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <AssemblyTitle>Plugin to save/load rundown using XML file</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj" />

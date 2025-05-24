@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <RootNamespace>TAS.Remoting</RootNamespace>
+    <AssemblyTitle>DTO proxy classes</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj" />

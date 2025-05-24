@@ -2,12 +2,13 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <RootNamespace>TAS.Server</RootNamespace>
+    <AssemblyTitle>Blackmagic Design and Nevion routers support</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj"/>
-    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj"/>
+    <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj" />
+    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.ComponentModel.Composition"/>
+    <Reference Include="System.ComponentModel.Composition" />
   </ItemGroup>
 </Project>

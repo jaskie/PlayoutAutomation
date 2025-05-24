@@ -3,6 +3,7 @@
     <OutputType>Library</OutputType>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <AssemblyTitle>NewTek NDI preview plugin</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj" />

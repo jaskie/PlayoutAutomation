@@ -3,6 +3,7 @@
     <OutputType>Library</OutputType>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <AssemblyTitle>Client support for XKeys keyboards</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PIEHid64Net" Private="True" />

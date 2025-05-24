@@ -1,11 +1,18 @@
 <Project>
   <PropertyGroup>
+    <TVPlayVersion>1.8.9275</TVPlayVersion>
     <TargetFramework>net48</TargetFramework>
     <Platform>x64</Platform>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <Deterministic>false</Deterministic>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
     <SatelliteResourceLanguages>pl</SatelliteResourceLanguages>
+    <Product>TVPlay - Open source play-out automation</Product>
+    <AssemblyVersion>1.8.*</AssemblyVersion>
+    <Version>$(TVPlayVersion)</Version>
+    <FileVersion>$(TVPlayVersion)</FileVersion>
+    <Copyright>2025 Jerzy Jaśkiewicz</Copyright>
+    <Authors>Jerzy Jaśkiewicz</Authors>
+    <NoWarn>$(NoWarn);CS7035</NoWarn>
   </PropertyGroup>
 </Project>

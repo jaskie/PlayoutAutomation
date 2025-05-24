@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.FtpClient;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using TAS.Server.Media;
@@ -13,6 +14,15 @@ namespace TAS.Server
 {
     public class EngineController
     {
+        static EngineController()
+        {
+            Assembly assembly = typeof(EngineController).Assembly;
+            var buildDateAttribute = assembly.GetCustomAttribute<BuildDateAttribute>();
+            var assemblyName = assembly.GetName();
+            var buildDate = buildDateAttribute != null ? buildDateAttribute.BuildDate : default;
+            Logger.Info($"{assemblyName.Name} loaded, version {assemblyName.Version}, build date {buildDate:d}");
+        }
+
         public double ReferenceLoudnessLevel => _referenceLoudnessLevel;
 
         private EngineController()

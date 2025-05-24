@@ -2,8 +2,8 @@
   <PropertyGroup>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
+    <AssemblyTitle>TVPlay server core</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel.Composition" />
@@ -21,9 +21,17 @@
     <ProjectReference Include="..\DatabaseProviders\SQLite\TAS.Database.SQLite.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(SolutionDir)dependencies\ffmpeg\x64\bin\**\*.*" CopyToOutputDirectory="PreserveNewest" Visible="False"/>
+    <Content Include="$(SolutionDir)dependencies\ffmpeg\x64\bin\**\*.*" CopyToOutputDirectory="PreserveNewest" Visible="False" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NLog" Version="5.2.8" />
+  </ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="TAS.Server.BuildDateAttribute">
+      <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMdd"))</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>

@@ -2,12 +2,13 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <RootNamespace>TAS.Server</RootNamespace>
+    <AssemblyTitle>Simple on-air graphics controller</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.ComponentModel.Composition"/>
+    <Reference Include="System.ComponentModel.Composition" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj"/>
-    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj"/>
+    <ProjectReference Include="..\..\dependencies\jNet.RPC\jNet.RPC\jNet.RPC.csproj" />
+    <ProjectReference Include="..\..\TAS.Common\TAS.Common.csproj" />
   </ItemGroup>
 </Project> 

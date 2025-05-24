@@ -15,7 +15,7 @@
     <Reference Include="System.ComponentModel.Composition" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\DatabaseBase.cs" Link ="DatabaseBase.cs"/>
+    <Compile Include="..\DatabaseBase.cs" Link="DatabaseBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="database.sql" />
