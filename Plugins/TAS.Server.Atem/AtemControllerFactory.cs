@@ -24,9 +24,9 @@ namespace TAS.Server
             Logger.Error("Router config read error");
         }
 
-        public T CreateEnginePlugin<T>(IEngine engine) where T : class
+        public T CreateEnginePlugin<T>(EnginePluginContext enginePluginContext) where T : class
         {
-            var atemDevice = _atemDevices?.FirstOrDefault(c => c.EngineName == engine.EngineName);
+            var atemDevice = _atemDevices?.FirstOrDefault(c => c.EngineName == enginePluginContext.Engine.EngineName);
             if (atemDevice == null)
                 return null;
             if (atemDevice.AtemController is null)

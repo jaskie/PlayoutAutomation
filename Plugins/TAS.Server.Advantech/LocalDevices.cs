@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Serialization;
-using System.Threading;
+using System.Collections.Specialized;
+using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
-using System.ComponentModel.Composition;
+using System.Linq;
+using System.Threading;
 using System.Xml;
-using System.Collections.Specialized;
+using System.Xml.Serialization;
+using TAS.Common;
+using TAS.Common.Helpers;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server
@@ -16,27 +18,30 @@ namespace TAS.Server
     public class LocalDevices : IEnginePluginFactory
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-        [ImportingConstructor]
-        public LocalDevices([Import("AppSettings")] NameValueCollection settings)
-        {
-            DeserializeElements(Path.Combine(Directory.GetCurrentDirectory(), settings["LocalDevices"] ?? "Configuration\\LocalDevices.xml"));
-            Initialize();
-        }
+        private bool _isInitialized;
 
         public Type Type { get; } = typeof(LocalGpiDeviceBinding);
 
-        public T CreateEnginePlugin<T>(IEngine engine) where T : class
+        public T CreateEnginePlugin<T>(EnginePluginContext enginePluginContext) where T : class
         {
-            var plugin = EngineBindings.FirstOrDefault(b => b.EngineName == engine.EngineName);
+            LoadConfigurationIfEmpty(enginePluginContext.AppSettings);
+            var plugin = EngineBindings.FirstOrDefault(b => b.EngineName == enginePluginContext.Engine.EngineName);
             if (plugin != null)
-                plugin.Engine = engine;
+                plugin.Engine = enginePluginContext.Engine;
             return plugin as T;
+        }
+
+        private void LoadConfigurationIfEmpty(NameValueCollection appSettings)
+        {
+            if (_isInitialized)
+                return;
+            _isInitialized = true;
+            DeserializeElements(Path.Combine(FileUtils.ConfigurationPath, "LocalDevices.xml"));
+            Initialize();
         }
 
         public void DeserializeElements(string settingsFileName)
         {
-            Debug.WriteLine($"Deserializing LocalDevices from {settingsFileName}");
             Logger.Debug($"Deserializing LocalDevices from {settingsFileName}");
             try
             {

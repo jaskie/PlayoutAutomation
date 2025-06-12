@@ -17,7 +17,8 @@ namespace TAS.Client.Common.Plugin
             var directory = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
             if (!Directory.Exists(directory))
                 return;
-            using (var catalog = new DirectoryCatalog(directory, "TAS.Client.*.dll"))
+            using (var catalog = new AggregateCatalog(new DirectoryCatalog(directory, "TAS.Server.*.dll"), // Include server plugins for shared functionality
+                                                      new DirectoryCatalog(directory, "TAS.Client.*.dll")))
             using (var container = new CompositionContainer(catalog))
             {
                 try

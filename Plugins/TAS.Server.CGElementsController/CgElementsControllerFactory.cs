@@ -3,8 +3,8 @@ using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
-using NLog;
 using TAS.Common;
+using TAS.Common.Helpers;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server
@@ -15,36 +15,29 @@ namespace TAS.Server
         private readonly CgElementsController[] _cgElementsControllers;
         private const string ElementsFileName = "CgElementsControllers.xml";
 
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public CgElementsControllerFactory()
         {
             var file = Path.Combine(FileUtils.ConfigurationPath, ElementsFileName);
-            if (!File.Exists(file))
-            {
-                Logger.Warn("Configuration file ({0}) missing", file);
-                return;
-            }
-            using (var streamReader = new FileStream(file, FileMode.Open))
-            {
-                var serializer = new XmlSerializer(typeof(CgElementsController[]), new XmlRootAttribute("CgElementsControllers"));
-                _cgElementsControllers = (CgElementsController[]) serializer.Deserialize(streamReader);
-            }
+            _cgElementsControllers = XmlDataStore.Load<CgElementsController[]>(file, new XmlRootAttribute("CgElementsControllers"));
+            if (_cgElementsControllers != null)
+                Logger.Warn($"Configuration file ({file}) empty or missing");
         }
 
-        public T CreateEnginePlugin<T>(IEngine engine) where T : class
+        public T CreateEnginePlugin<T>(EnginePluginContext enginePluginContext) where T : class
         {
             if (_cgElementsControllers == null)
                 return null;
-            var controller = _cgElementsControllers.FirstOrDefault(c => c.Engine != null && c.Engine == engine);
+            var controller = _cgElementsControllers.FirstOrDefault(c => c.Engine != null && c.Engine == enginePluginContext.Engine);
             if (controller != null)
                 return controller as T;
-            controller = _cgElementsControllers.FirstOrDefault(c => c.EngineName == engine.EngineName);
+            controller = _cgElementsControllers.FirstOrDefault(c => c.EngineName == enginePluginContext.Engine.EngineName);
             if (controller == null)
                 return null;
             if (controller.Engine != null)
-                throw new ApplicationException($"Unable to re-use CgElementsController. Duplicated engine name {engine.EngineName}?");
-            controller.Engine = engine;
+                throw new ApplicationException($"Unable to re-use CgElementsController. Duplicated engine name {enginePluginContext.Engine.EngineName}?");
+            controller.Engine = enginePluginContext.Engine;
             return controller as T;
         }
 

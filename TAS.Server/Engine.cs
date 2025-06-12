@@ -54,8 +54,8 @@ namespace TAS.Server
 
         private Event _playing;
         private Event _forcedNext;
-        private List<IGpi> _localGpis;
-        private List<IEnginePlugin> _plugins;
+        private IGpi[] _localGpis;
+        private IEnginePlugin[] _plugins;
         private int _timeCorrection;
         private bool _isWideScreen;
         private TEngineState _engineState;

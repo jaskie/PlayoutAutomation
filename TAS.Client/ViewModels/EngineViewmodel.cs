@@ -1039,18 +1039,17 @@ namespace TAS.Client.ViewModels
             private set => SetField(ref _audioLevelPri, value);
         }
 
-        #region Plugin
+        #region Plugins
 
-        public IList<IUiPlugin> Plugins => _plugins;
-
+        public IEnumerable<IUiMenuItem> PluginMenus => _plugins?.Select(plugin => plugin.Menu).Where(menu => menu != null);
 
         public IVideoPreview VideoPreview { get; }
 
         public IRouter Router { get; }
 
-        public bool IsAnyPluginVisible => _plugins != null && _plugins.Any(p => p.Menu != null);
+        public bool IsAnyPluginVisible => _plugins?.Any(plugin => plugin.Menu != null) == true;
 
-        #endregion // Plugin
+        #endregion Plugins
 
         public bool CGControllerExists => Engine.CGElementsController != null;
 

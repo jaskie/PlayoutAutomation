@@ -19,18 +19,18 @@ namespace TAS.Server
         public RouterControllerFactory()
         {
             _routerDevices = XmlDataStore.Load<RouterDevice[]>(Path.Combine(FileUtils.ConfigurationPath, "RouterDevices"), new System.Xml.Serialization.XmlRootAttribute("RouterDevices"));
-            if (_routerDevices != null) return;
-            Logger.Error("Router config read error");
+            if (_routerDevices == null) 
+                Logger.Error("Router config read error");
         }
 
-        public T CreateEnginePlugin<T>(IEngine engine) where T: class
+        public T CreateEnginePlugin<T>(EnginePluginContext enginePluginContext) where T: class
         {
-            var routerDevice = _routerDevices?.FirstOrDefault(c => c.EngineName == engine.EngineName);
+            var routerDevice = _routerDevices?.FirstOrDefault(c => c.EngineName == enginePluginContext.Engine.EngineName);
             if (routerDevice == null)
                 return null;
-            if (routerDevice.Engine != null && routerDevice.Engine != engine)
+            if (routerDevice.Engine != null && routerDevice.Engine != enginePluginContext.Engine)
                 throw new InvalidOperationException("Router reused");
-            routerDevice.Engine = engine;
+            routerDevice.Engine = enginePluginContext.Engine;
             return new RouterController(routerDevice) as T;
         }
 

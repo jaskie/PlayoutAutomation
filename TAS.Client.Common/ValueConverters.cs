@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Media;
 using TAS.Common;
-using System.Windows;
 
 namespace TAS.Client.Common
 {

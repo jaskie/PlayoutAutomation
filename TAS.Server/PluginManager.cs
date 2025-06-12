@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Configuration;
 using System.IO;
@@ -14,7 +13,7 @@ namespace TAS.Server
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private static readonly IEnumerable<IEnginePluginFactory> EnginePlugins;
-        
+
         static PluginManager()
         {
             Logger.Debug("Creating");
@@ -24,7 +23,6 @@ namespace TAS.Server
             using (var catalog = new DirectoryCatalog(pluginPath, "TAS.Server.*.dll"))
             using (var container = new CompositionContainer(catalog))
             {
-                container.ComposeExportedValue("AppSettings", ConfigurationManager.AppSettings);
                 try
                 {
                     EnginePlugins = container.GetExportedValues<IEnginePluginFactory>();
@@ -47,30 +45,39 @@ namespace TAS.Server
             {
                 var factory = EnginePlugins?.FirstOrDefault(f => typeof(T).IsAssignableFrom(f.Type));
                 if (factory != null)
-                    return factory.CreateEnginePlugin<T>(engine);
+                    return factory.CreateEnginePlugin<T>(new EnginePluginContext
+                    {
+                        Engine = engine,
+                        AppSettings = ConfigurationManager.AppSettings
+                    });
             }
             catch (Exception e)
             {
                 Logger.Error(e);
             }
-            return default(T);
+            return null;
         }
 
-        public static List<T> ComposeParts<T>(this IEngine engine) where T : class
+        public static T[] ComposeParts<T>(this IEngine engine) where T : class
         {
             try
             {
                 if (EnginePlugins != null)
                 {
                     var factories = EnginePlugins.Where(f => typeof(T).IsAssignableFrom(f.Type));
-                    return factories.Select(f => f.CreateEnginePlugin<T>(engine)).Where(f => f != null).ToList();
+                    return factories.Select(f => f.CreateEnginePlugin<T>(new EnginePluginContext
+                    {
+                        Engine = engine,
+                        AppSettings = ConfigurationManager.AppSettings
+                    }
+                    )).Where(f => f != null).ToArray();
                 }
             }
             catch (Exception e)
             {
                 Logger.Error(e);
             }
-            return new List<T>();
+            return Array.Empty<T>();
         }
 
     }

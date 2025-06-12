@@ -139,12 +139,12 @@
                 <Separator/>
                 <MenuItem Header="{Resx _menu.Tools.CheckDatabase}" Command="{Binding CommandCheckDatabase}" />
                 <MenuItem Header="{Resx _menu.Tools.DebugWindow}" Command="{Binding CommandDebugToggle}" Visibility="{Binding IsDebugBuild, Converter={StaticResource BoolToVis}}" />
-                <MenuItem Header="{Resx _menu.Tools.Plugins}" Visibility="{Binding IsAnyPluginVisible, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding Plugins}">
+                <MenuItem Header="{Resx _menu.Tools.Plugins}" Visibility="{Binding IsAnyPluginVisible, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding PluginMenus}" >
                     <MenuItem.ItemContainerStyle>
                         <Style TargetType="MenuItem">
-                            <Setter Property="Visibility" Value="{Binding Menu, Converter={StaticResource NullToVis}}"></Setter>
-                            <Setter Property="Command" Value="{Binding Menu}"/>
-                            <Setter Property="Header" Value="{Binding Menu.Header}"/>
+                            <Setter Property="Header" Value="{Binding Header}" />
+                            <Setter Property="Command" Value="{Binding .}" />
+                            <Setter Property="ItemsSource" Value="{Binding Items}" />
                         </Style>
                     </MenuItem.ItemContainerStyle>
                 </MenuItem>
@@ -517,10 +517,10 @@
                     </Button>
                 </Grid>
                 <TreeView x:Name="RundownTreeView"
-                      common:TreeViewExtensions.EnableMultiSelect="True" 
-                      common:TreeViewExtensions.MultiSelectedItems="{Binding MultiSelectedEvents}" 
-                      ItemsSource="{Binding RootEventViewModel.Childrens}" 
-                      Background="{x:Null}" 
+                      common:TreeViewExtensions.EnableMultiSelect="True"
+                      common:TreeViewExtensions.MultiSelectedItems="{Binding MultiSelectedEvents}"
+                      ItemsSource="{Binding RootEventViewModel.Childrens}"
+                      Background="{x:Null}"
                       BorderThickness="0"
                       >
                     <TreeView.ItemContainerStyle>
@@ -576,18 +576,18 @@
                                                     </Style>
                                                 </ToggleButton.Style>
                                             </ToggleButton>
-                                            <Border x:Name="Bd" BorderThickness="{TemplateBinding Border.BorderThickness}" 
-                                                                BorderBrush="{TemplateBinding Border.BorderBrush}" 
-                                                                Padding="{TemplateBinding Control.Padding}" 
-                                                                Background="{TemplateBinding Panel.Background}" 
+                                            <Border x:Name="Bd" BorderThickness="{TemplateBinding BorderThickness}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                Padding="{TemplateBinding Padding}"
+                                                                Background="{TemplateBinding Background}"
                                                                 SnapsToDevicePixels="True"
                                                                 Grid.Row="0" Grid.Column="1">
-                                                <ContentPresenter x:Name="PART_Header" 
-                                                      Content="{TemplateBinding HeaderedContentControl.Header}" 
-                                                      ContentTemplate="{TemplateBinding HeaderedContentControl.HeaderTemplate}" 
-                                                      ContentStringFormat="{TemplateBinding HeaderedItemsControl.HeaderStringFormat}" 
-                                                      ContentTemplateSelector="{TemplateBinding HeaderedItemsControl.HeaderTemplateSelector}" 
-                                                      ContentSource="Header" SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" 
+                                                <ContentPresenter x:Name="PART_Header"
+                                                      Content="{TemplateBinding Header}"
+                                                      ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                                      ContentStringFormat="{TemplateBinding HeaderStringFormat}"
+                                                      ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}"
+                                                      ContentSource="Header" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                                       />
                                             </Border>
                                             <ItemsPresenter x:Name="ItemsHost" Grid.Column="1" Grid.Row="1" />

@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Specialized;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
-using NLog;
+using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server
@@ -13,12 +12,11 @@ namespace TAS.Server
     public class NowPlayingNotifierFactory : IEnginePluginFactory
     {
         private readonly NowPlayingNotifier[] _plugins;
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        
-        [ImportingConstructor]
-        public NowPlayingNotifierFactory([Import("AppSettings")] NameValueCollection settings)
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public NowPlayingNotifierFactory()
         {
-            var configPath = Path.Combine(Directory.GetCurrentDirectory(), settings["NowPlayingNotifier"] ?? "Configuration\\NowPlayingNotifier.xml");
+            var configPath = Path.Combine(FileUtils.ConfigurationPath, "NowPlayingNotifier.xml");
             if (!File.Exists(configPath))
             {
                 Logger.Warn("Configuration file ({0}) missing", configPath);
@@ -31,13 +29,13 @@ namespace TAS.Server
             }
         }
 
-        public T CreateEnginePlugin<T>(IEngine engine) where T : class
+        public T CreateEnginePlugin<T>(EnginePluginContext enginePluginContext) where T : class
         {
-            var plugin = _plugins.FirstOrDefault(p => p.Engine == engine);
+            var plugin = _plugins.FirstOrDefault(p => p.Engine == enginePluginContext.Engine);
             if (plugin != null)
                 return plugin as T;
-            plugin = _plugins.FirstOrDefault(p => p.EngineName == engine.EngineName);
-            plugin?.Initialize(engine);
+            plugin = _plugins.FirstOrDefault(p => p.EngineName == enginePluginContext.Engine.EngineName);
+            plugin?.Initialize(enginePluginContext.Engine);
             return plugin as T;
         }
 
