@@ -1025,6 +1025,8 @@ WHERE idRundownEvent=@idRundownEvent;";
         {
             try
             {
+                // we have to get subevents before entering lock, otherwise deadlock may occur
+                var subevents = e.GetSubEvents();
                 lock (Connection)
                 {
                     using (var cmd = new DbCommand(
@@ -1088,7 +1090,7 @@ VALUES
                         }
                         cmd.Parameters.AddWithValue("@idProgramme", e.IdProgramme);
                         cmd.Parameters.AddWithValue("@idAuxRundown", TrimText("asrunlog", "idAuxRundown", e.IdAux));
-                        cmd.Parameters.AddWithValue("@SecEvents", TrimText("asrunlog", "SecEvents", string.Join(";", e.GetSubEvents().Select(se => se.EventName))));
+                        cmd.Parameters.AddWithValue("@SecEvents", TrimText("asrunlog", "SecEvents", string.Join(";", subevents.Select(se => se.EventName))));
                         cmd.Parameters.AddWithValue("@Flags", e.ToFlags());
                         cmd.ExecuteNonQuery();
                     }

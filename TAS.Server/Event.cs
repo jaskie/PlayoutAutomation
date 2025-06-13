@@ -989,17 +989,19 @@ namespace TAS.Server
 
         public void Delete()
         {
+            if (IsDeleted || !_allowDelete())
+            {
+                Logger.Warn("Event {0} cannot be deleted, {1}", EventName, IsDeleted ? "it is already deleted" : "it's not allowed");
+                return;
+            }
+            Event[] eventsToDelete;
             lock (_engine.RundownSync)
             {
-                if (IsDeleted || !_allowDelete())
-                {
-                    Logger.Warn("Event {0} cannot be deleted, {1}", EventName, IsDeleted ? "it was deleted previously" : "it's not allowed");
-                    return;
-                }
-                foreach (var e in this._getSubEventTree().ToArray())
-                    e._delete();
-                _delete();
+                eventsToDelete = _getSubEventTree().ToArray();
             }
+            foreach (var e in eventsToDelete)
+                e._delete(); // locking is done in _delete for each individual event, as we don't want to lock engine for the whole deletion process
+            _delete();
         }
 
         private IEnumerable<Event> _getSubEventTree()
@@ -1200,7 +1202,7 @@ namespace TAS.Server
 
         private void _delete()
         {
-            _remove();
+            Remove(); //locked in Remove()
             IsDeleted = true;
             IsModified = false;
             _engine.NotifyEventDeleted(this);

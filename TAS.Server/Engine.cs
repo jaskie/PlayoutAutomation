@@ -70,7 +70,6 @@ namespace TAS.Server
         private ConnectionStateRedundant _databaseConnectionState;
         private TVideoFormat _videoFormat;
         private bool _disposed;
-        private bool _isAbortedRundown;
 
         public Engine()
         {
@@ -861,7 +860,7 @@ namespace TAS.Server
                             _reSchedule(se);
                     }
 
-                    var next = (Event)aEvent.GetSuccessor();
+                    var next = (Event)aEvent.InternalGetSuccessor();
                     if (next != null)
                         _reSchedule(next);
                 }
@@ -1381,14 +1380,14 @@ namespace TAS.Server
             if (pe == null || (pe.PlayState != TPlayState.Playing && pe.PlayState != TPlayState.Paused))
                 return TimeSpan.Zero;
             var result = pe.Length - TimeSpan.FromTicks(pe.Position * FrameTicks);
-            pe = (Event)pe.GetSuccessor();
+            pe = (Event)pe.InternalGetSuccessor();
             while (pe != null)
             {
                 var pauseTime = pe.GetAttentionTime();
                 if (pauseTime != null)
                     return result + pauseTime.Value - pe.TransitionTime;
                 result = result + pe.Length - pe.TransitionTime;
-                pe = (Event)pe.GetSuccessor();
+                pe = (Event)pe.InternalGetSuccessor();
             }
             return result;
         }
@@ -1428,7 +1427,6 @@ namespace TAS.Server
         {
             EngineOperation?.Invoke(this, new EngineOperationEventArgs(aEvent, operation));
         }
-
 
         private void ThreadProc()
         {
