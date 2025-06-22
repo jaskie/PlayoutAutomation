@@ -73,41 +73,41 @@ namespace Svt.Caspar
 
         public bool Play()
         {
-            Connection.SendString($"RECORDER PLAY {Id}");
+            Connection.SendRequest($"RECORDER PLAY {Id}");
             return true;
         }
 
         public bool Stop()
         {
-            Connection.SendString($"RECORDER STOP {Id}");
+            Connection.SendRequest($"RECORDER STOP {Id}");
             return true;
         }
 
         public bool Abort()
         {
-            Connection.SendString($"RECORDER ABORT {Id}");
+            Connection.SendRequest($"RECORDER ABORT {Id}");
             return true;
         }
 
         public bool FastForward()
         {
-            Connection.SendString($"RECORDER FF {Id}");
+            Connection.SendRequest($"RECORDER FF {Id}");
             return true;
         }
         public bool Rewind()
         {
-            Connection.SendString($"RECORDER REWIND {Id}");
+            Connection.SendRequest($"RECORDER REWIND {Id}");
             return true;
         }
         public bool GotoTimecode(string timecode)
         {
-            Connection.SendString($"RECORDER GOTO {Id} TC {timecode}");
+            Connection.SendRequest($"RECORDER GOTO {Id} TC {timecode}");
             return true;
         }
 
         public bool Capture(int channel, string tcIn, string tcOut, bool narrowMode, string filename, int[] channelMap)
         {
-            Connection.SendString(channelMap == null
+            Connection.SendRequest(channelMap == null
                 ? $"CAPTURE {channel} RECORDER {Id} IN {tcIn} OUT {tcOut} NARROW {narrowMode} FILE \"{filename}\""
                 : $"CAPTURE {channel} RECORDER {Id} IN {tcIn} OUT {tcOut} NARROW {narrowMode} FILE \"{filename}\" CHANNEL_MAP \"{string.Join(",", channelMap)}\"");
             return true;
@@ -115,7 +115,7 @@ namespace Svt.Caspar
 
         public bool Capture(int channel, long frames, bool narrowMode, string filename, int[] channelMap)
         {
-            Connection.SendString(channelMap == null
+            Connection.SendRequest(channelMap == null
                 ? $"CAPTURE {channel} RECORDER {Id} LIMIT {frames} NARROW {narrowMode} FILE \"{filename}\""
                 : $"CAPTURE {channel} RECORDER {Id} LIMIT {frames} NARROW {narrowMode} FILE \"{filename}\" CHANNEL_MAP \"{string.Join(",", channelMap)}\"");
             return true;
@@ -123,13 +123,13 @@ namespace Svt.Caspar
 
         public bool Finish()
         {
-            Connection.SendString($"RECORDER FINISH {Id}");
+            Connection.SendRequest($"RECORDER FINISH {Id}");
             return true;
         }
 
         public bool SetTimeLimit(long frames)
         {
-            Connection.SendString($"RECORDER CALL {Id} LIMIT {frames}");
+            Connection.SendRequest($"RECORDER CALL {Id} LIMIT {frames}");
             return true;
         }
 

@@ -1,6 +1,4 @@
-﻿//#undef DEBUG
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -13,13 +11,9 @@ using TAS.Server.Media;
 using System.ComponentModel;
 using TAS.Database.Common;
 using jNet.RPC;
-using NLog;
 
 namespace TAS.Server
 {
-
-    public delegate void CommandNotifier(DateTime when, string command, Event sender);
-
     public class CasparServer : ServerObjectBase, IPlayoutServer, IPlayoutServerProperties, IDisposable
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -106,6 +100,8 @@ namespace TAS.Server
             }
         }
 
+        internal Svt.Caspar.ServerType CasparServerType { get; private set; }
+
         public void Initialize(MediaManager mediaManager)
         {
             Logger.Debug("Initialize: {0}", ServerAddress);
@@ -124,9 +120,10 @@ namespace TAS.Server
 
         // private methods
 
-        private void CasparDevice_UpdatedVersion(object sender, Svt.Caspar.DataEventArgs e)
+        private void CasparDevice_UpdatedVersion(object sender, Svt.Caspar.VersionEventArgs e)
         {
-            Logger.Info("CasparCG {0} version: {1}", ServerAddress, e.Data);
+            Logger.Info("CasparCG {0} version: {1}", ServerAddress, e.Version);
+            CasparServerType = e.ServerType;
         }
 
         private void CasparDevice_UpdatedRecorders(object sender, EventArgs e)

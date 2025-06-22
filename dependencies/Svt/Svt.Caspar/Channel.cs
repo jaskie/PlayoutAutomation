@@ -7,6 +7,9 @@ using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
+using Svt.Caspar.AMCP;
 
 namespace Svt.Caspar
 {
@@ -18,44 +21,44 @@ namespace Svt.Caspar
     }
     
     [XmlRoot("xmlElementName")]
-	public class Channel: System.Xml.Serialization.IXmlSerializable
-	{
+    public class Channel: System.Xml.Serialization.IXmlSerializable
+    {
         const string xmlElementName = "channel";
 
         private AudioData _currentAudioData;
-		public int Id { get; private  set ;}
+        public int Id { get; private  set ;}
         public CGManager CG { get; private set; }
         public VideoMode VideoMode { get; internal set; }
         internal Svt.Network.ServerConnection Connection { get; set; }
 
-		internal Channel()
-		{
-			CG = new CGManager(this);
-		}
+        internal Channel()
+        {
+            CG = new CGManager(this);
+        }
 
-	    internal Channel(int id, VideoMode videoMode) : this()
-	    {
-	        Id = id;
-	        VideoMode = videoMode;
-	    }
+        internal Channel(int id, VideoMode videoMode) : this()
+        {
+            Id = id;
+            VideoMode = videoMode;
+        }
 
         #region Commands
 
         public void Load(string clipname, bool loop)
-		{
+        {
             clipname = clipname.Replace("\\", "\\\\");
-			Connection.SendString("LOAD " + Id + " " + clipname + (string)(loop ? " LOOP" : ""));
-		}
+            Connection.SendRequest("LOAD " + Id + " " + clipname + (string)(loop ? " LOOP" : ""));
+        }
         public void Load(int videoLayer, string clipname, bool loop)
         {
             clipname = clipname.Replace("\\", "\\\\");
             if (videoLayer == -1)
                 Load(clipname, loop);
             else
-                Connection.SendString("LOAD " + Id + "-" + videoLayer + " " + clipname + (string)(loop ? " LOOP" : ""));
+                Connection.SendRequest("LOAD " + Id + "-" + videoLayer + " " + clipname + (string)(loop ? " LOOP" : ""));
         }
-		public void Load(CasparItem item)
-		{
+        public void Load(CasparItem item)
+        {
             string clipname = item.Clipname.Replace("\\", "\\\\");
             var command = new StringBuilder("LOAD ").Append(Id);
             if (item.VideoLayer >= 0) command.AppendFormat("-{0}", item.VideoLayer);
@@ -66,11 +69,11 @@ namespace Svt.Caspar
             if (item.ChannelLayout != ChannelLayout.Default) command.AppendFormat(" CHANNEL_LAYOUT {0}", item.ChannelLayout.ToString().ToUpperInvariant());
             if (item.FieldOrderInverted)
                 command.Append(" FIELD_ORDER_INVERTED");
-            Connection.SendString(command.ToString());
+            Connection.SendRequest(command.ToString());
         }
        
         public void LoadBG(CasparItem item)
-		{
+        {
             string clipname = item.Clipname.Replace("\\", "\\\\");
             var command = new StringBuilder("LOADBG ").Append(Id);
             if (item.VideoLayer >= 0) command.AppendFormat("-{0}", item.VideoLayer);
@@ -83,92 +86,98 @@ namespace Svt.Caspar
                 command.AppendFormat(" {0}", item.Transition);
             if (item.FieldOrderInverted)
                 command.Append(" FIELD_ORDER_INVERTED");
-            Connection.SendString(command.ToString());
+            Connection.SendRequest(command.ToString());
         }
 
         public void Play(int videoLayer, string clipName, bool loop)
-	    {
-	        clipName = clipName.Replace("\\", "\\\\");
-	        if (videoLayer == -1)
-	            Connection.SendString("PLAY " + Id + " " + clipName + "" + (loop ? " LOOP" : ""));
-	        else
-	            Connection.SendString("PLAY " + Id + "-" + videoLayer + " " + clipName + (loop ? " LOOP" : ""));
+        {
+            clipName = clipName.Replace("\\", "\\\\");
+            if (videoLayer == -1)
+                Connection.SendRequest("PLAY " + Id + " " + clipName + "" + (loop ? " LOOP" : ""));
+            else
+                Connection.SendRequest("PLAY " + Id + "-" + videoLayer + " " + clipName + (loop ? " LOOP" : ""));
         }
 
         public void Pause()
-		{
-			Connection.SendString("PAUSE " + Id);
-		}
+        {
+            Connection.SendRequest("PAUSE " + Id);
+        }
 
         public void Pause(int videoLayer)
         {
             if (videoLayer == -1)
                 Pause();
             else
-                Connection.SendString("PAUSE " + Id + "-" + videoLayer);
+                Connection.SendRequest("PAUSE " + Id + "-" + videoLayer);
         }
 
         public void Call(string function)
         {
-            Connection.SendString("CALL " + Id + " " + function);
+            Connection.SendRequest("CALL " + Id + " " + function);
         }
 
         public void Call(int videoLayer, string function)
         {
-            Connection.SendString("CALL " + Id + "-" + videoLayer + " " + function);
+            Connection.SendRequest("CALL " + Id + "-" + videoLayer + " " + function);
         }
 
         public void Play()
         {
-            Connection.SendString("PLAY " + Id);
+            Connection.SendRequest("PLAY " + Id);
         }
+
         public void Play(int videoLayer)
         {
             if (videoLayer == -1)
                 Play();
             else
-                Connection.SendString("PLAY " + Id + "-" + videoLayer);
+                Connection.SendRequest("PLAY " + Id + "-" + videoLayer);
         }
 
         public void Stop()
-		{
-			Connection.SendString("STOP " + Id);
-		}
+        {
+            Connection.SendRequest("STOP " + Id);
+        }
 
         public void Stop(int videoLayer)
         {
             if (videoLayer == -1)
                 Stop();
             else
-                Connection.SendString("STOP " + Id + "-" + videoLayer);
+                Connection.SendRequest("STOP " + Id + "-" + videoLayer);
         }
 
         public void Seek(int videoLayer, uint seek)
         {
-            Connection.SendString($"CALL {Id}-{videoLayer} SEEK {seek}");
+            Connection.SendRequest($"CALL {Id}-{videoLayer} SEEK {seek}");
+        }
+
+        public async Task<bool> SeekAsync(int videoLayer, uint seek)
+        {
+            return await Connection.SendRequestAsync($"CALL {Id}-{videoLayer} SEEK {seek}");
         }
 
         public void SetInvertedFieldOrder(int videoLayer, bool invert)
         {
-            Connection.SendString($"CALL {Id}-{videoLayer} FIELD_ORDER_INVERTED {(invert ? 1 : 0)}");
+            Connection.SendRequest($"CALL {Id}-{videoLayer} FIELD_ORDER_INVERTED {(invert ? 1 : 0)}");
         }
 
-		public void Clear()
-		{
-			Connection.SendString("CLEAR " + Id);
-		}
+        public void Clear()
+        {
+            Connection.SendRequest("CLEAR " + Id);
+        }
         public void Clear(int videoLayer)
         {
             if (videoLayer == -1)
                 Clear();
             else
-                Connection.SendString("CLEAR " + Id + "-" + videoLayer);
+                Connection.SendRequest("CLEAR " + Id + "-" + videoLayer);
         }
 
-		public void Mode(VideoMode mode)
-		{
-			Connection.SendString("SET " + Id + " MODE " + ToAMCPString(mode));
-		}
+        public void Mode(VideoMode mode)
+        {
+            Connection.SendRequest("SET " + Id + " MODE " + ToAMCPString(mode));
+        }
 
         public void ClearMixer()
         {
@@ -178,9 +187,9 @@ namespace Svt.Caspar
         public void ClearMixer(int videoLayer)
         {
             if (videoLayer == -1)
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0} CLEAR", Id));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0} CLEAR", Id));
             else
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} CLEAR", Id, videoLayer));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} CLEAR", Id, videoLayer));
         }
 
         public void Volume(double volume, int duration, Easing easing)
@@ -191,14 +200,14 @@ namespace Svt.Caspar
         public void Volume(int videoLayer, double volume, int duration, Easing easing)
         {
             if (videoLayer == -1)
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0} VOLUME {1} {2} {3}", Id, volume, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0} VOLUME {1} {2} {3}", Id, volume, duration, easing.ToString().ToUpperInvariant()));
             else
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} VOLUME {2} {3} {4}", Id, videoLayer, volume, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} VOLUME {2} {3} {4}", Id, videoLayer, volume, duration, easing.ToString().ToUpperInvariant()));
         }
 
         public void MasterVolume(double volume)
         {
-            Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0} MASTERVOLUME {1:F3}", Id, volume));
+            Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0} MASTERVOLUME {1:F3}", Id, volume));
         }
 
         public void Opacity(float opacity, int duration, Easing easing)
@@ -209,72 +218,72 @@ namespace Svt.Caspar
         public void Opacity(int videoLayer, float opacity, int duration, Easing easing)
         {
             if (videoLayer == -1)
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0} OPACITY {1} {2} {3}", Id, opacity, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0} OPACITY {1} {2} {3}", Id, opacity, duration, easing.ToString().ToUpperInvariant()));
             else
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} OPACITY {2} {3} {4}", Id, videoLayer, opacity, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} OPACITY {2} {3} {4}", Id, videoLayer, opacity, duration, easing.ToString().ToUpperInvariant()));
         }
 
         public void Brightness(int videoLayer, float brightness, int duration, Easing easing)
         {
             if (videoLayer == -1)
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0} BRIGHTNESS {1} {2} {3}", Id, brightness, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0} BRIGHTNESS {1} {2} {3}", Id, brightness, duration, easing.ToString().ToUpperInvariant()));
             else
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} BRIGHTNESS {2} {3} {4}", Id, videoLayer, brightness, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} BRIGHTNESS {2} {3} {4}", Id, videoLayer, brightness, duration, easing.ToString().ToUpperInvariant()));
         }
 
         public void Contrast(int videoLayer, float contrast, int duration, Easing easing)
         {
             if (videoLayer == -1)
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0} CONTRAST {1} {2} {3}", Id, contrast, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0} CONTRAST {1} {2} {3}", Id, contrast, duration, easing.ToString().ToUpperInvariant()));
             else
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} CONTRAST {2} {3} {4}", Id, videoLayer, contrast, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} CONTRAST {2} {3} {4}", Id, videoLayer, contrast, duration, easing.ToString().ToUpperInvariant()));
         }
 
         public void Saturation(int videoLayer, float contrast, int duration, Easing easing)
         {
             if (videoLayer == -1)
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0} SATURATION {1} {2} {3}", Id, contrast, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0} SATURATION {1} {2} {3}", Id, contrast, duration, easing.ToString().ToUpperInvariant()));
             else
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} SATURATION {2} {3} {4}", Id, videoLayer, contrast, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} SATURATION {2} {3} {4}", Id, videoLayer, contrast, duration, easing.ToString().ToUpperInvariant()));
         }
 
         public void Levels(int videoLayer, float minIn, float maxIn, float gamma, float minOut, float maxOut, int duration, Easing easing)
         {
             if (videoLayer == -1)
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0} LEVELS {1} {2} {3} {4} {5} {6} {7}", Id, minIn, maxIn, gamma, minOut, maxOut, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0} LEVELS {1} {2} {3} {4} {5} {6} {7}", Id, minIn, maxIn, gamma, minOut, maxOut, duration, easing.ToString().ToUpperInvariant()));
             else
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} LEVELS {2} {3} {4} {5} {6} {7} {8}", Id, videoLayer, minIn, maxIn, gamma, minOut, maxOut, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} LEVELS {2} {3} {4} {5} {6} {7} {8}", Id, videoLayer, minIn, maxIn, gamma, minOut, maxOut, duration, easing.ToString().ToUpperInvariant()));
         }
 
         public void Fill(int videoLayer, float x, float y, float scaleX, float scaleY, int duration, Easing easing)
         {
             if (videoLayer == -1)
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0} FILL {1} {2} {3} {4} {5} {6}", Id, x, y, scaleX, scaleY, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0} FILL {1} {2} {3} {4} {5} {6}", Id, x, y, scaleX, scaleY, duration, easing.ToString().ToUpperInvariant()));
             else
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} FILL {2} {3} {4} {5} {6} {7}", Id, videoLayer, x, y, scaleX, scaleY, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} FILL {2} {3} {4} {5} {6} {7}", Id, videoLayer, x, y, scaleX, scaleY, duration, easing.ToString().ToUpperInvariant()));
         }
 
         public void Clip(int videoLayer, float x, float y, float scaleX, float scaleY, int duration, Easing easing)
         {
             if (videoLayer == -1)
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0} CLIP {1} {2} {3} {4} {5} {6}", Id, x, y, scaleX, scaleY, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0} CLIP {1} {2} {3} {4} {5} {6}", Id, x, y, scaleX, scaleY, duration, easing.ToString().ToUpperInvariant()));
             else
-                Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} CLIP {2} {3} {4} {5} {6} {7}", Id, videoLayer, x, y, scaleX, scaleY, duration, easing.ToString().ToUpperInvariant()));
+                Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} CLIP {2} {3} {4} {5} {6} {7}", Id, videoLayer, x, y, scaleX, scaleY, duration, easing.ToString().ToUpperInvariant()));
         }
         #endregion //Commands
 
         public event EventHandler<AudioDataEventArgs> AudioDataReceived;
 
         #region OSC
-        internal void OscMessage(string[] address, object[] arguments, CasparDevice.ServerVersion serverVersion)
+        internal void OscMessage(string[] address, object[] arguments, ServerType serverType)
         {
             if (AudioDataReceived is null)
                 return;
             if (address.Length >= 5 && address[2] == "mixer" && address[3] == "audio")
             {
-                switch (serverVersion)
+                switch (serverType)
                 {
-                    case CasparDevice.ServerVersion.V2_2_Plus:
+                    case ServerType.V2_2_Plus:
                         if (address[4] == "volume")
                         {
                             var audoData = new AudioData(arguments.Length);
@@ -365,8 +374,6 @@ namespace Svt.Caspar
         {
             throw new NotImplementedException();
         }
-
-
     }
 
     public enum VideoMode

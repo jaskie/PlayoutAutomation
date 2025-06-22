@@ -1,3 +1,4 @@
+using Svt.Caspar.AMCP;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,15 +10,7 @@ namespace Svt.Caspar
 {
     public class CasparDevice : IDisposable
     {
-        internal enum ServerVersion
-        {
-            Unknown,
-            V2_0,
-            V2_0_6_TVP,
-            V2_2_Plus
-        }
-
-        private ServerVersion _serverVersion = ServerVersion.Unknown;
+        private ServerType _serverType = ServerType.Unknown;
 
         internal Svt.Network.ServerConnection Connection { get; private set; }
         private Svt.Network.ReconnectionHelper ReconnectionHelper { get; set; }
@@ -32,7 +25,7 @@ namespace Svt.Caspar
         public event EventHandler<Svt.Network.ConnectionEventArgs> ConnectionStatusChanged;
 
         public event EventHandler<DataEventArgs> DataRetrieved;
-        public event EventHandler<DataEventArgs> VersionRetrieved;
+        public event EventHandler<VersionEventArgs> VersionRetrieved;
         public event EventHandler<EventArgs> UpdatedChannels;
         public event EventHandler<EventArgs> UpdatedRecorders;
         public event EventHandler<Network.Osc.OscPacketEventArgs> OscMessage;
@@ -95,7 +88,7 @@ namespace Svt.Caspar
                     {
                         case "channel":
                             var channels = Channels;
-                            channels.FirstOrDefault(c => c.Id == id)?.OscMessage(path, message.Arguments, _serverVersion);
+                            channels.FirstOrDefault(c => c.Id == id)?.OscMessage(path, message.Arguments, _serverType);
                             break;
                         case "recorder":
                             var recorders = Recorders;
@@ -120,7 +113,7 @@ namespace Svt.Caspar
 
             if (e.Connected)
             {
-                Connection.SendString("VERSION");
+                Connection.SendRequest("VERSION");
             }
             else
             {
@@ -157,7 +150,7 @@ namespace Svt.Caspar
         public void SendString(string command)
         {
             if (IsConnected)
-                Connection.SendString(command);
+                Connection.SendRequest(command);
         }
 
         #region Connection
@@ -262,36 +255,40 @@ namespace Svt.Caspar
             if (version.StartsWith("2.0"))
             {
                 //Ask server for channels
-                Connection.SendString("INFO SERVER");
-                if (version.StartsWith("2.0.6 TVP"))
+                Connection.SendRequest("INFO SERVER");
+                if (version.Contains("TVP"))
                 {
-                    _serverVersion = ServerVersion.V2_0_6_TVP;
+                    if (version.Contains("#"))
+                    {
+                        _serverType = ServerType.V2_0_6_TVP_WithResponseId;
+                        Connection.SupportsRequestId = true;
+                    }
+                    else
+                        _serverType = ServerType.V2_0_6_TVP;
                     //Ask server for recorders
-                    Connection.SendString("INFO RECORDERS");
+                    Connection.SendRequest("INFO RECORDERS");
                 }
                 else
-                    _serverVersion = ServerVersion.V2_0;
+                    _serverType = ServerType.V2_0;
             }
             else // 2.2 and newer
             {
-                _serverVersion = ServerVersion.V2_2_Plus;
-                Connection.SendString("INFO");
+                _serverType = ServerType.V2_2_Plus;
+                Connection.SendRequest("INFO");
             }
-            VersionRetrieved?.Invoke(this, new DataEventArgs(version));
-        }
-
-        internal void OnLoad(string clipname)
-        {
-        }
-
-        internal void OnLoadBG(string clipname)
-        {
+            VersionRetrieved?.Invoke(this, new VersionEventArgs(_serverType, version));
         }
 
         internal void OnDataRetrieved(string data)
         {
             DataRetrieved?.Invoke(this, new DataEventArgs(data));
         }
+
+        internal void OnCommandResponse(string requestId, AMCPCommand command, AMCPError error)
+        {
+            Connection.SetRequestResponse(requestId, error == AMCPError.None);
+        }
+
         #endregion
     }
 
@@ -302,7 +299,18 @@ namespace Svt.Caspar
             Data = data;
         }
 
-        public string Data { get; set; }
+        public string Data { get; }
+    }
+
+    public class VersionEventArgs : EventArgs
+    {
+        public VersionEventArgs(ServerType serverType, string version)
+        {
+            ServerType = serverType;
+            Version = version;
+        }
+        public ServerType ServerType { get; }
+        public string Version { get; }
     }
 
     public class CasparDeviceSettings
@@ -320,4 +328,26 @@ namespace Svt.Caspar
         public int ReconnectInterval { get; set; }
         public int OscPort { get; set; }
     }
+
+    public enum ServerType
+    {
+        Unknown,
+        /// <summary>
+        /// Main branch 2.0
+        /// </summary>
+        V2_0,
+        /// <summary>
+        /// TVP's fork up to rev 9.x
+        /// </summary>
+        V2_0_6_TVP,
+        /// <summary>
+        /// TVP's fork with request/response ID support, starting with rev 10.0
+        /// </summary>
+        V2_0_6_TVP_WithResponseId,
+        /// <summary>
+        /// Main branch 2.2 and newer
+        /// </summary>
+        V2_2_Plus
+    }
+
 }

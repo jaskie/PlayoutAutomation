@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using jNet.RPC;
 using jNet.RPC.Server;
@@ -14,11 +13,12 @@ namespace TAS.Server
 {
     public class Preview: ServerObjectBase, IPreview, IDisposable
     {
-        private const int PerviewPositionSetDelay = 100;
+        private const int PerviewPositionSetDelay = 200;
 
         private readonly Engine _engine;
         private readonly ConcurrentDictionary<VideoLayer, IMedia> _previewLoadedStills = new ConcurrentDictionary<VideoLayer, IMedia>();
         private readonly CasparServerChannel _channel;
+        private readonly SequentialTaskScheduler _seekTaskScheduler = new SequentialTaskScheduler();
 
         [DtoMember(nameof(LoadedMovie))]
         private IMedia _loadedMovie;
@@ -28,9 +28,6 @@ namespace TAS.Server
         private bool _isLoaded;
         private bool _isPlaying;
         private bool _isLivePlaying;
-        private long _currentTicks;
-        private CancellationTokenSource _previewPositionCancellationTokenSource;
-        private long _previewLastPositionSetTick;
         private bool _disposed;
 
         public Preview(Engine engine, CasparServerChannel previewChannel)
@@ -74,19 +71,21 @@ namespace TAS.Server
                     newSeek = maxSeek;
                 if (SetField(ref _position, newSeek))
                 {
-                    _previewPositionCancellationTokenSource?.Cancel();
-                    var cancellationTokenSource = new CancellationTokenSource();
-                    Task.Run(() =>
+                    if (_channel.IsAsyncSeekCapable)
                     {
-                        Thread.Sleep(PerviewPositionSetDelay);
-                        if (!cancellationTokenSource.IsCancellationRequested ||
-                            _currentTicks > _previewLastPositionSetTick + TimeSpan.TicksPerMillisecond * PerviewPositionSetDelay * 3)
+                        _seekTaskScheduler.Schedule(async () => {
+                            await _channel.SeekAsync(VideoLayer.Preview, MovieSeekOnLoad + newSeek);
+                            await Task.Delay(PerviewPositionSetDelay);
+                        });
+                    }
+                    else
+                    {
+                        _seekTaskScheduler.Schedule(async () =>
                         {
-                            _previewLastPositionSetTick = _currentTicks;
                             _channel.Seek(VideoLayer.Preview, MovieSeekOnLoad + newSeek);
-                        }
-                    }, cancellationTokenSource.Token);
-                    _previewPositionCancellationTokenSource = cancellationTokenSource;
+                            await Task.Delay(PerviewPositionSetDelay);
+                        });
+                    }
                 }
             }
         }
@@ -129,7 +128,6 @@ namespace TAS.Server
             private set => SetField(ref _isLivePlaying, value);
         }
 
-
         public void LoadMovie(IMedia media, long seek, long duration, long position, double previewAudioVolume)
         {
             if (!_engine.HaveRight(EngineRight.Preview))
@@ -141,7 +139,6 @@ namespace TAS.Server
             MovieSeekOnLoad = seek;
             _position = position;
             _loadedMovie = media;
-            _previewLastPositionSetTick = _currentTicks;
             _channel.SetAspect(VideoLayer.Preview, _engine.FormatDescription, !media.VideoFormat.IsWideScreen());
             IsMovieLoaded = true;
             AudioVolume = previewAudioVolume;
@@ -219,11 +216,10 @@ namespace TAS.Server
         public event EventHandler<MediaOnLayerEventArgs> StillImageUnLoaded;
 
         private void _movieUnload()
-        {                           
+        {
             var media = _loadedMovie;
             if (media == null && !IsLivePlaying)
                 return;
-            _previewPositionCancellationTokenSource?.Cancel();
             _channel.Clear(VideoLayer.Preview);
             _duration = 0;
             _position = 0;
@@ -239,7 +235,6 @@ namespace TAS.Server
 
         internal void Tick(long currentTicks, long nFrames)
         {
-            _currentTicks = currentTicks;
             if (!IsPlaying)
                 return;
             if (_position < _duration - 1)
@@ -254,7 +249,7 @@ namespace TAS.Server
             if (_disposed)
                 return;
             _disposed = true;
-           _channel.PropertyChanged -= ChannelPropertyChanged;
+            _channel.PropertyChanged -= ChannelPropertyChanged;
         }
 
         private MediaBase _findPreviewMedia(MediaBase media)

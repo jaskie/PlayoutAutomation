@@ -1,247 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
-using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Collections.Concurrent;
 
-namespace Svt.Network	
+namespace Svt.Network
 {
-    [Obsolete()]
-	public class ExceptionEventArgs : EventArgs
-	{
-		public ExceptionEventArgs(Exception e) {
-			exception_ = e;
-		}
-
-		private Exception exception_;
-		public Exception Exception {
-			get { return exception_; }
-		}
-	}
-
-    [Obsolete()]
-    public class NetworkEventArgs : EventArgs
-	{
-		public NetworkEventArgs(string host, int port)
-		{
-			Hostname = host;
-			Port = port;
-		}
-
-		private string host_;
-		public string Hostname
-		{
-			get { return host_; }
-			set { host_ = value; }
-		}
-		private int port_;
-		public int Port
-		{
-			get { return port_; }
-			set { port_ = value; }
-		}
-	}
-
-	public class ServerConnection
+    public class ServerConnection
     {
-        #region obsolete
-        [Browsable(true),
-        Obsolete("Use ConnectionStateChanged instead"),
-		Description("Occurs when a connection is established. It is not guaranteed that this event will be fired in the main GUI-thread.")]
-		public event EventHandler<NetworkEventArgs> Connected;
-
-		[Browsable(true),
-        Obsolete("Use ConnectionStateChanged instead"),
-        Description("Occurs when we get disconnected. It is not guaranteed that this event will be fired in the main GUI-thread.")]
-		public event EventHandler<NetworkEventArgs> Disconnected;
-
-		[Browsable(true),
-        Obsolete("Use ConnectionStateChanged instead"),
-        Description("Occurs when an attempted connection fails. It is not guaranteed that this event will be fired in the main GUI-thread.")]
-		public event EventHandler<NetworkEventArgs> FailedConnect;
-
-		[Browsable(true),
-        Obsolete("Relevant exceptions are handled internally."),
-        Description("Occurs when an exception is thrown during an async network call. It is not guaranteed that this event will be fired in the main GUI-thread.")]
-		public event EventHandler<ExceptionEventArgs> CaughtAsyncException;
-
-        [Obsolete("Use the default constructor instead")]
-		public ServerConnection(string hostname, int port)
-		{
-			Hostname = hostname;
-			Port = port;
-		}
-
-        [Obsolete("Use InitiateConnection instead")]
-        public void Connect(string hostname, int port)
-		{
-			Hostname = hostname;
-			Port = port;
-			Connect();
-		}
-
-        [Obsolete("Use InitiateConnection instead")]
-        public void Connect()
-        {
-			TcpClient client = new TcpClient();
-			try
-			{
-				client.BeginConnect(Hostname, Port, new AsyncCallback(ConnectCallback_obsolete), client);
-			}
-			catch {
-				if(client != null) {
-					client.Close();
-					client = null;
-				}
-
-				OnFailedConnect();
-				throw;
-			}
-		}
-        [Obsolete()]
-        private void ConnectCallback_obsolete(IAsyncResult ar)
-        {
-			TcpClient client = null;
-            try
-            {
-				client = (TcpClient)ar.AsyncState;
-                client.EndConnect(ar);
-                client.NoDelay = true;
-
-				RemoteState = new RemoteHostState(client);
-                RemoteState.GotDataToSend += RemoteState_GotDataToSend;
-				RemoteState.Stream.BeginRead(RemoteState.ReadBuffer, 0, RemoteState.ReadBuffer.Length, new AsyncCallback(RecvCallback_obsolete), null);
-
-                OnConnected();
-            }
-            catch
-            {
-				if (RemoteState != null)
-				{
-					RemoteState.Close();
-					RemoteState = null;
-				}
-				else if (client != null)
-                {
-                    client.Close();
-                    client = null;
-                }
-
-                OnFailedConnect();
-            }
-        }
-        [Obsolete()]
-        private void RecvCallback_obsolete(IAsyncResult ar)
-        {
-            try
-            {
-                if (RemoteState != null)
-                {
-                    if (RemoteState.Stream.CanRead)
-                    {
-                        int len = RemoteState.Stream.EndRead(ar);
-                        if (len == 0)
-                        {
-                            Disconnect();
-                        }
-                        else
-                        {
-                            string data = "";
-                            if (ProtocolStrategy != null)
-                            {
-                                data = ProtocolStrategy.Encoding.GetString(RemoteState.ReadBuffer, 0, len);
-                                ProtocolStrategy.Parse(data, null);
-                            }
-
-                            RemoteState.Stream.BeginRead(RemoteState.ReadBuffer, 0, RemoteState.ReadBuffer.Length, new AsyncCallback(RecvCallback_obsolete), null);
-                        }
-                    }
-                }
-                else
-                {
-                }
-
-            }
-            catch (System.IO.IOException ioe)
-            {
-                if (ioe.InnerException.GetType() == typeof(System.Net.Sockets.SocketError))
-                {
-                    System.Net.Sockets.SocketException se = (System.Net.Sockets.SocketException)ioe.InnerException;
-
-                    try
-                    {
-                        Disconnect();
-                    }
-                    catch (NullReferenceException)
-                    { }
-                    catch (Exception e)
-                    {
-                        OnAsyncException(new ExceptionEventArgs(e));
-                    }
-                }
-            }
-            catch (NullReferenceException)
-            { }
-            catch (Exception e)
-            {
-                OnAsyncException(new ExceptionEventArgs(e));
-            }
-        }
-
-        [Obsolete("Use CloseConnection instead")]
-		public void Disconnect()
-		{
-			if(RemoteState != null && RemoteState.Close())
-			{
-                RemoteState = null;
-                try
-                {
-                    //Signal that we got disconnected
-                    if (Disconnected != null)
-                        Disconnected(this, new NetworkEventArgs(Hostname, Port));
-                }
-                catch { }
-			}
-		}
-
-        [Obsolete()]
-        protected void OnConnected()
-        {
-            try
-            {
-                //Signal that we got connected
-                if (Connected != null)
-                    Connected(this, new NetworkEventArgs(Hostname, Port));
-            }
-            catch { }
-        }
-
-        [Obsolete()]
-        protected void OnFailedConnect()
-        {
-            try
-            {
-                //Signal that an exception was caught during an asynchronous network call
-                if (FailedConnect != null)
-                    FailedConnect(this, new NetworkEventArgs(Hostname, Port));
-            }
-            catch { }
-        }
-
-        [Obsolete()]
-        protected void OnAsyncException(ExceptionEventArgs serverExceptionEventArgs)
-        {
-            try
-            {
-                //Signal that an exception was caught during an asynchronous network call
-                if (CaughtAsyncException != null)
-                    CaughtAsyncException(this, serverExceptionEventArgs);
-            }
-            catch { }
-        }
-        #endregion
-
         [Browsable(true),
         Description("Occurs when the state of the connection is changed. It is not guaranteed that this event will be fired in the main GUI-thread.")]
         public event EventHandler<ConnectionEventArgs> ConnectionStateChanged;
@@ -249,20 +17,17 @@ namespace Svt.Network
         public string Hostname { get; private set; }
         public int Port { get; private set; }
         public IProtocolStrategy ProtocolStrategy { get; set; }
-		RemoteHostState RemoteState { get; set; }
-       
+        RemoteHostState RemoteState { get; set; }
+
         AsyncCallback readCallback = null;
         AsyncCallback writeCallback = null;
         AsyncCallback connectCallback = null;
+        ConcurrentDictionary<string, TaskCompletionSource<bool>> _requests = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
 
-        public bool IsConnected
+        public bool IsConnected => RemoteState?.Connected == true;
+
+        public ServerConnection()
         {
-            get { return (RemoteState != null) ? RemoteState.Connected : false; }
-        }
-
-
-		public ServerConnection() 
-		{
             readCallback = new AsyncCallback(ReadCallback);
             writeCallback = new AsyncCallback(WriteCallback);
             connectCallback = new AsyncCallback(ConnectCallback);
@@ -273,31 +38,33 @@ namespace Svt.Network
             if (RemoteState != null)
                 CloseConnection();
 
-			Hostname = (string.IsNullOrEmpty(hostName) ? "localhost" : hostName);
+            Hostname = (string.IsNullOrEmpty(hostName) ? "localhost" : hostName);
             Port = port;
 
-			TcpClient client = new TcpClient();
-			try
+            TcpClient client = new TcpClient();
+            try
             {
                 client.BeginConnect(Hostname, Port, connectCallback, client);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-				if (client != null)
-				{
-					client.Close();
-					client = null;
-				}
+                if (client != null)
+                {
+                    client.Close();
+                    client = null;
+                }
                 OnClosedConnection(ex);
             }
         }
 
-		public void CloseConnection()
-		{
-			//Only send notification if there actually was a connection to close
-			if (DoCloseConnection())
-				OnClosedConnection();
-		}
+        public void CloseConnection()
+        {
+            //Only send notification if there actually was a connection to close
+            if (DoCloseConnection())
+                OnClosedConnection();
+        }
+
+        public bool SupportsRequestId { get; set; }
 
         private void ConnectCallback(IAsyncResult ar)
         {
@@ -349,19 +116,19 @@ namespace Svt.Network
                     {
                         if (ProtocolStrategy != null)
                         {
-							if (ProtocolStrategy.Encoding != null)
-							{
+                            if (ProtocolStrategy.Encoding != null)
+                            {
                                 if (state.Decoder == null)
                                     state.Decoder = ProtocolStrategy.Encoding.GetDecoder();
 
                                 int charCount = state.Decoder.GetCharCount(state.ReadBuffer, 0, len);
-								char[] chars = new char[charCount];
+                                char[] chars = new char[charCount];
                                 state.Decoder.GetChars(state.ReadBuffer, 0, len, chars, 0);
-								string msg = new string(chars);
+                                string msg = new string(chars);
 
                                 ProtocolStrategy.Parse(msg, state);
-							}
-							else
+                            }
+                            else
                                 ProtocolStrategy.Parse(state.ReadBuffer, len, state);
                         }
                     }
@@ -372,16 +139,16 @@ namespace Svt.Network
             }
             catch (System.IO.IOException ioe)
             {
-                if (ioe.InnerException.GetType() == typeof(System.Net.Sockets.SocketError))
+                if (ioe.InnerException.GetType() == typeof(SocketError))
                 {
-                    System.Net.Sockets.SocketException se = (System.Net.Sockets.SocketException)ioe.InnerException;
+                    SocketException se = (SocketException)ioe.InnerException;
 
                     if (DoCloseConnection())
                         OnClosedConnection((se.SocketErrorCode == SocketError.Interrupted) ? null : se);
                 }
                 else
                     if (DoCloseConnection())
-                        OnClosedConnection(ioe);
+                    OnClosedConnection(ioe);
             }
             //We dont need to take care of ObjectDisposedException. 
             //ObjectDisposedException would indicate that the state has been closed, and that means it has been disconnected already
@@ -389,12 +156,12 @@ namespace Svt.Network
         }
 
         #region Send
-        void RemoteState_GotDataToSend(object sender, EventArgs e)
+        private void RemoteState_GotDataToSend(object sender, EventArgs e)
         {
             DoSend();
         }
 
-        void DoSend()
+        private void DoSend()
         {
             try
             {
@@ -442,7 +209,7 @@ namespace Svt.Network
                 }
                 else
                     if (DoCloseConnection())
-                        OnClosedConnection(ioe);
+                    OnClosedConnection(ioe);
 
                 return;
             }
@@ -462,7 +229,7 @@ namespace Svt.Network
                 DoSend();
         }
 
-        public void SendString(string str)
+        public void SendRequest(string str)
         {
             byte[] data = null;
             try
@@ -479,25 +246,24 @@ namespace Svt.Network
 
         public void Send(byte[] data)
         {
-            if(RemoteState != null)
+            if (RemoteState != null)
                 RemoteState.Send(data);
         }
         #endregion
 
         protected void OnOpenedConnection()
-		{
+        {
             try
             {
                 //Signal that we got connected
-                if (ConnectionStateChanged != null)
-                    ConnectionStateChanged(this, new ConnectionEventArgs(Hostname, Port, true));
+                ConnectionStateChanged?.Invoke(this, new ConnectionEventArgs(Hostname, Port, true));
             }
             catch { }
-		}
+        }
 
-		private bool DoCloseConnection()
+        private bool DoCloseConnection()
         {
-            if(RemoteState != null)
+            if (RemoteState != null)
             {
                 RemoteState.GotDataToSend -= RemoteState_GotDataToSend;
                 RemoteState.Close();
@@ -505,23 +271,52 @@ namespace Svt.Network
 
                 return true;
             }
-            else 
+            else
                 return false;
         }
 
-        protected void OnClosedConnection()
+        private void OnClosedConnection()
         {
             OnClosedConnection(null);
         }
-        protected void OnClosedConnection(Exception ex)
+
+        private void OnClosedConnection(Exception ex)
         {
             try
             {
+                // Set all pending requests to false since the connection is closed
+                foreach (var request in _requests.Values)
+                {
+                    request.SetResult(false);
+                }
+                _requests.Clear();
+
                 //Signal that we got diconnected
-                if (ConnectionStateChanged != null)
-                    ConnectionStateChanged(this, new ConnectionEventArgs(Hostname, Port, false, ex));
+                ConnectionStateChanged?.Invoke(this, new ConnectionEventArgs(Hostname, Port, false, ex));
             }
             catch { }
- 		}
-	}
+        }
+
+        public async Task<bool> SendRequestAsync(string s)
+        {
+            if (!SupportsRequestId)
+            {
+                SendRequest(s);
+                return true;
+            }
+            var requestId = Guid.NewGuid().ToString("N"); // Unique identifier for the request
+            var tcs = new TaskCompletionSource<bool>();
+            _requests[requestId] = tcs; // Store the TaskCompletionSource for this request
+            SendRequest($"#{requestId} {s}");
+            return await tcs.Task;
+        }
+
+        public void SetRequestResponse(string requestId, bool success)
+        {
+            if (_requests.TryRemove(requestId, out var tcs))
+            {
+                tcs.SetResult(success);
+            }
+        }
+    }
 }

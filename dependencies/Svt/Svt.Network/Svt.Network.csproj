@@ -148,7 +148,7 @@
     <Compile Include="RemoteHostState.cs" />
     <Compile Include="ConnectionEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProtocolStrategy.cs" />
+    <Compile Include="IProtocolStrategy.cs" />
     <Compile Include="ServerConnection.cs" />
   </ItemGroup>
   <ItemGroup>
