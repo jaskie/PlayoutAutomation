@@ -42,6 +42,7 @@ namespace TAS.Client.ViewModels
         private IMediaSearchProvider _currentSearchProvider;
         private bool _isSearching;
         private bool _isRefreshing;
+        private readonly bool _anyExportDirectories;
 
         public MediaManagerViewmodel(IEngine engine, IPreview preview)
         {
@@ -72,6 +73,7 @@ namespace TAS.Client.ViewModels
                 MediaDirectories.Insert(0, new MediaDirectoryViewmodel(serverDirectoryPri, resources._primary));
                 serverDirectoryPri.IngestStatusUpdated += ServerDirectoryPri_IngestStatusUpdated;
             }
+            _anyExportDirectories = _mediaManager.IngestDirectories.AllSubDirectories().Where(d => d.IsExport).Any();
 
             _mediaCategory = MediaCategories.FirstOrDefault();
             SelectedDirectory = MediaDirectories.FirstOrDefault();
@@ -296,7 +298,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsAnimationDirectory => _selectedDirectory?.IsAnimationDirectory ?? false;
 
-        public bool IsMediaExportVisible { get { return MediaDirectories.Any(d => d.IsExport) && Engine.HaveRight(EngineRight.MediaExport); } }
+        public bool IsMediaExportVisible { get { return _anyExportDirectories && Engine.HaveRight(EngineRight.MediaExport); } }
 
         public bool DisplayDirectoryInfo => _selectedDirectory != null
                                             && (_selectedDirectory.IsServerDirectory || _selectedDirectory.IsArchiveDirectory || (_selectedDirectory.IsIngestDirectory && (_selectedDirectory.AccessType == TDirectoryAccessType.Direct || _selectedDirectory.IsXdcam)));
@@ -674,7 +676,7 @@ namespace TAS.Client.ViewModels
 
         private void Export(object _)
         {
-            var selections = GetSelections().Select(m => new MediaExportDescription(m, new List<IMedia>(), m.TcPlay, m.DurationPlay, m.AudioVolume));
+            var selections = GetSelections().Select(m => new MediaExportDescription(m, Array.Empty<IMedia>(), m.TcPlay, m.DurationPlay, m.AudioVolume));
             using (var vm = new ExportViewmodel(Engine, selections))
             {
                 UiServices.ShowDialog<Views.ExportView>(vm);

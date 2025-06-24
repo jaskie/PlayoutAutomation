@@ -6,10 +6,11 @@ namespace TAS.Common
 {
     public class MediaExportDescription
     {
-        public MediaExportDescription(IMedia media, List<IMedia> logos, TimeSpan startTC, TimeSpan duration, double audioVolume)
+        private readonly List<IMedia> _logos = new List<IMedia>();
+        public MediaExportDescription(IMedia media, IEnumerable<IMedia> logos, TimeSpan startTC, TimeSpan duration, double audioVolume)
         {
             Media = media;
-            Logos = logos;
+            _logos = new List<IMedia>(logos);
             StartTC = startTC;
             Duration = duration;
             AudioVolume = audioVolume;
@@ -17,7 +18,7 @@ namespace TAS.Common
 
         public IMedia Media { get; private set; }
         
-        public List<IMedia> Logos { get; }
+        public IEnumerable<IMedia> Logos => _logos;
 
         public TimeSpan Duration;
 
@@ -27,12 +28,12 @@ namespace TAS.Common
 
         public void AddLogo(IMedia logo)
         {
-            Logos.Add(logo);
+            _logos.Add(logo);
         }
 
         public void RemoveLogo(IMedia logo)
         {
-            Logos.Remove(logo);
+            _logos.Remove(logo);
         }
 
         public override string ToString()

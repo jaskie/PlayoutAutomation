@@ -536,7 +536,7 @@ namespace TAS.Client.ViewModels
                 .Select(e => new MediaExportDescription(
                     e.Event.Media,
                     e.Event.GetSubEvents().Where(sev => sev.EventType == TEventType.StillImage && sev.Media != null)
-                        .Select(sev => sev.Media).ToList(),
+                        .Select(sev => sev.Media),
                     e.Event.ScheduledTc,
                     e.Event.Duration,
                     e.Event.GetAudioVolume()));

@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <TVPlayVersion>1.8.9304</TVPlayVersion>
+    <TVPlayVersion>1.8.9306</TVPlayVersion>
     <TargetFramework>net48</TargetFramework>
     <Platform>x64</Platform>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

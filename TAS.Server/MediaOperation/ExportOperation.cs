@@ -249,14 +249,14 @@ namespace TAS.Server.MediaOperation
                 var audioIndex = index;
                 complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0}]volume={1:F3}dB[a{0}]", audioIndex, e.AudioVolume));
                 index++;
-                var logos = e.Logos.ToArray();
-                foreach (var iMedia in logos)
+                foreach (var iMedia in e.Logos)
                 {
                     if (!(iMedia is MediaBase logo))
                         continue;
                     files.Append($" -i \"{logo.FullPath}\"");
                     var newOutputName = $"[v{index}]";
-                    complexFilterElements.Add($"{videoOutputName}[{index}]overlay{newOutputName}");
+                    complexFilterElements.Add($"[{index}]scale={outputFormatDesc.ImageSize.Width}:{outputFormatDesc.ImageSize.Height}[o{index}]");
+                    complexFilterElements.Add($"{videoOutputName}[o{index}]overlay{newOutputName}");
                     videoOutputName = newOutputName;
                     index++;
                 }
@@ -264,7 +264,7 @@ namespace TAS.Server.MediaOperation
             }
             if (isXdcamDirectory || directory.ExportContainerFormat == TMovieContainerFormat.mxf)
                 if (MXFVideoExportFormat == TmXFVideoExportFormat.DV25)
-                    complexFilterElements.Add($"{string.Join(string.Empty, overlayOutputs)}concat=n={exportMedia.Count}:v=1:a=1[v][p]");            
+                    complexFilterElements.Add($"{string.Join(string.Empty, overlayOutputs)}concat=n={exportMedia.Count}:v=1:a=1[v][p]");
                 else
                     complexFilterElements.Add($"{string.Join(string.Empty, overlayOutputs)}concat=n={exportMedia.Count}:v=1:a=1[vr][p], [vr]{D10PadFilter}[v]");
             else
