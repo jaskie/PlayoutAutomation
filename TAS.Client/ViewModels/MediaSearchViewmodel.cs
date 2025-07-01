@@ -61,7 +61,7 @@ namespace TAS.Client.ViewModels
 
         private void SetupSearchDirectory(bool closeAfterAdd, TMediaType mediaType)
         {
-            _searchDirectory = Engine.MediaManager.DetermineValidServerDirectory();
+            _searchDirectory = Engine.MediaManager.DetermineValidServerDirectory(mediaType == TMediaType.Animation);
             if (_searchDirectory == null)
                 return;
             _searchDirectory.MediaAdded += SearchDirectory_MediaAdded;

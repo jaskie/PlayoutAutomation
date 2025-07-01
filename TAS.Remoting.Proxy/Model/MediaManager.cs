@@ -65,16 +65,16 @@ namespace TAS.Remoting.Model
 
         public IServerDirectory MediaDirectoryPRV => _mediaDirectoryPrv;
 
-        public IServerDirectory DetermineValidServerDirectory()
+        public IWatcherDirectory DetermineValidServerDirectory(bool forAnimations)
         {
-            return Query<IServerDirectory>();
+            return Query<IWatcherDirectory>(parameters: new object[] { forAnimations });
         }
 
         public void MeasureLoudness(IEnumerable<IMedia> mediaList)
         {
             Invoke(parameters: mediaList);
         }
-       
+
         public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList) { Invoke(parameters: mediaList); }
 
         public void SynchronizeMediaSecToPri()

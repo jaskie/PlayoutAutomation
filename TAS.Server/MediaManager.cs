@@ -235,10 +235,10 @@ namespace TAS.Server
             return result;
         }
 
-        public IServerDirectory DetermineValidServerDirectory()
+        public IWatcherDirectory DetermineValidServerDirectory(bool forAnimations)
         {
-            var pri = MediaDirectoryPRI;
-            var sec = MediaDirectorySEC;
+            var pri = forAnimations ? (IWatcherDirectory)AnimationDirectoryPRI : MediaDirectoryPRI;
+            var sec = forAnimations ? (IWatcherDirectory)AnimationDirectorySEC : MediaDirectorySEC;
             if (pri?.IsInitialized == true)
                 return pri;
             if (sec?.IsInitialized == true)

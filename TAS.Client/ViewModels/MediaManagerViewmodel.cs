@@ -699,7 +699,7 @@ namespace TAS.Client.ViewModels
                 return;
             var ingestList = new List<IIngestOperation>();
             var selectedMediaList = GetSelections();
-            var destDirectory = _mediaManager.DetermineValidServerDirectory();
+            var destDirectory = _mediaManager.DetermineValidServerDirectory(false);
             if (destDirectory == null)
                 return;
             Task.Run(() =>

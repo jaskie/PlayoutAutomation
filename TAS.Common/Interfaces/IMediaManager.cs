@@ -23,7 +23,7 @@ namespace TAS.Common.Interfaces
         void Export(IEnumerable<MediaExportDescription> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat);
         void SynchronizeMediaSecToPri();
         void SynchronizeAnimationsPropertiesSecToPri();
-        IServerDirectory DetermineValidServerDirectory();
+        IWatcherDirectory DetermineValidServerDirectory(bool forAnimations);
 
         void MeasureLoudness(IEnumerable<IMedia> mediaList);
     }

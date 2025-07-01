@@ -74,16 +74,16 @@
                     <CheckBox Margin="5" IsChecked="{Binding Engine.EnableCGElementsForNewEvents}" Content="{Resx _enableCGForNewEvents}" Visibility="{Binding CanEnableCGElements, Converter={StaticResource BoolToVis}}"/>
                     <CheckBox Margin="5" IsChecked="{Binding Engine.StudioMode}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" Content="{Resx _studioMode}" />
                 </UniformGrid>
-                <DataGrid  
-                    x:Name="gSearch" 
+                <DataGrid
+                    x:Name="gSearch"
                     Grid.Row="1"
-                    SelectionUnit="FullRow" 
-                    SelectionMode="Single" 
-                    AutoGenerateColumns="False" 
+                    SelectionUnit="FullRow"
+                    SelectionMode="Single"
+                    AutoGenerateColumns="False"
                     ColumnWidth="Auto"
-                    ItemsSource="{Binding Items}" 
-                    SelectedItem="{Binding SelectedItem}" 
-                    SelectionChanged="DataGrid_SelectionChanged" 
+                    ItemsSource="{Binding Items}"
+                    SelectedItem="{Binding SelectedItem}"
+                    SelectionChanged="DataGrid_SelectionChanged"
                     Sorting="DataGrid_OnSorting"
                     IsReadOnly="True"
                     RowHeaderWidth="0">
@@ -96,8 +96,8 @@
                                     Height="13"
                                     Background="Transparent">
                                 <Path x:Name="ExpandPath"
-                                          HorizontalAlignment="Left" 
-                                          VerticalAlignment="Center" 
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Center"
                                           Margin="1,1,1,1"
                                           Fill="{StaticResource GlyphBrush}"
                                           Data="M 4 0 L 8 4 L 4 8 Z"/>
