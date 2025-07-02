@@ -383,7 +383,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsDisplayBindToEnd => (Model.EventType == TEventType.StillImage || Model.IsAnimationOrCommandScript())
+        public bool IsDisplayBindToEnd => (Model.EventType == TEventType.StillImage || Model.EventType == TEventType.CommandScript)
                                           && (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd);
 
         public bool IsEventNameFocused

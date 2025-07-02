@@ -13,7 +13,7 @@ namespace TAS.Server
     public class CgElementsControllerFactory : IEnginePluginFactory
     {
         private readonly CgElementsController[] _cgElementsControllers;
-        private const string ElementsFileName = "CgElementsControllers.xml";
+        private const string ElementsFileName = "CgElementsControllers";
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -22,7 +22,8 @@ namespace TAS.Server
             var file = Path.Combine(FileUtils.ConfigurationPath, ElementsFileName);
             _cgElementsControllers = XmlDataStore.Load<CgElementsController[]>(file, new XmlRootAttribute("CgElementsControllers"));
             if (_cgElementsControllers != null)
-                Logger.Warn($"Configuration file ({file}) empty or missing");
+                return;
+            Logger.Warn($"Configuration file ({file}) empty or missing");
         }
 
         public T CreateEnginePlugin<T>(EnginePluginContext enginePluginContext) where T : class
