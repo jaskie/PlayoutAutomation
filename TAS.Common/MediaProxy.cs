@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Xml.Serialization;
+using TAS.Common.Helpers;
 using TAS.Common.Interfaces.Media;
 
 namespace TAS.Common
@@ -9,7 +11,11 @@ namespace TAS.Common
         public double AudioLevelIntegrated { get; set; }
         public double AudioLevelPeak { get; set; }
         public double AudioVolume { get; set; }
+
+        [XmlElement(Type = typeof(XmlTimeSpan))]
         public TimeSpan Duration { get; set; }
+
+        [XmlElement(Type = typeof(XmlTimeSpan))]
         public TimeSpan DurationPlay { get; set; }
         public string FileName { get; set; }
         public ulong FileSize { get; set; }
@@ -20,7 +26,11 @@ namespace TAS.Common
         public string MediaName { get; set; }
         public TMediaStatus MediaStatus { get; set; }
         public TMediaType MediaType { get; set; }
+
+        [XmlElement(Type = typeof(XmlTimeSpan))]
         public TimeSpan TcPlay { get; set; }
+
+        [XmlElement(Type = typeof(XmlTimeSpan))]
         public TimeSpan TcStart { get; set; }
         public TVideoFormat VideoFormat { get; set; }
         public bool FieldOrderInverted { get; set; }

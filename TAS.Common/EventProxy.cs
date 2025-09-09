@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Xml.Serialization;
+using TAS.Common.Helpers;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 
@@ -11,6 +12,8 @@ namespace TAS.Common
     public class EventProxy : IEventProperties
     {
         public double? AudioVolume { get; set; }
+
+        [XmlElement(Type = typeof(XmlTimeSpan))]
         public TimeSpan Duration { get; set; }
         public string EventName { get; set; }
         public TEventType EventType { get; set; }
@@ -22,14 +25,26 @@ namespace TAS.Common
         public VideoLayer Layer { get; set; }
         public Guid MediaGuid { get; set; }
         public MediaProxy Media { get; set; }
+
+        [XmlElement(Type = typeof(XmlTimeSpan))]
         public TimeSpan? RequestedStartTime { get; set; }
+
+        [XmlElement(Type = typeof(XmlTimeSpan))]
         public TimeSpan ScheduledDelay { get; set; }
+
+        [XmlElement(Type = typeof(XmlTimeSpan))]
         public TimeSpan ScheduledTc { get; set; }
         public DateTime ScheduledTime { get; set; }
+
+        [XmlElement(Type = typeof(XmlTimeSpan))]
         public TimeSpan StartTc { get; set; }
         public DateTime StartTime { get; set; }
         public TStartType StartType { get; set; }
+
+        [XmlElement(Type = typeof(XmlTimeSpan))]
         public TimeSpan TransitionTime { get; set; }
+
+        [XmlElement(Type = typeof(XmlTimeSpan))]
         public TimeSpan TransitionPauseTime { get; set; }
         public TTransitionType TransitionType { get; set; }
         public TEasing TransitionEasing { get; set; }
