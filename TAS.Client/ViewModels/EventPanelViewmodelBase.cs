@@ -339,11 +339,12 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == nameof(IEvent.SubEventsCount))
             {
-                OnUiThread(() => 
+                NotifyPropertyChanged(nameof(SubEventsCount));
+                OnUiThread(() =>
                 {
                     if (IsExpanded)
                         return;
-                    if (((IEvent) sender).SubEventsCount == 0)
+                    if (((IEvent)sender).SubEventsCount == 0)
                         Childrens.Remove(DummyChild);
                     else if (!HasDummyChild)
                         Childrens.Add(DummyChild);

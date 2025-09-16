@@ -70,18 +70,13 @@ namespace TAS.Database.MySqlRedundant
 
         public override DateTime GetDateTime(int ordinal)
         {
-            return GetDateTime(ordinal, DateTimeKind.Utc);
+            return _reader.IsDBNull(ordinal) ? default : _reader.GetDateTime(ordinal);
         }
 
-        public DateTime GetDateTime(int ordinal, DateTimeKind kind )
-        {
-            return _reader.IsDBNull(ordinal) ? default(DateTime) : DateTime.SpecifyKind(_reader.GetDateTime(ordinal), kind);
-        }
-
-        public DateTime GetDateTime(string name, DateTimeKind kind = DateTimeKind.Utc)
+        public DateTime GetDateTime(string name)
         {
             int columnIndex = _reader.GetOrdinal(name);
-            return _reader.IsDBNull(columnIndex) ? default(DateTime) : DateTime.SpecifyKind(_reader.GetDateTime(columnIndex), kind);
+            return _reader.IsDBNull(columnIndex) ? default : _reader.GetDateTime(columnIndex);
         }
 
         public TimeSpan GetTimeSpan(string name)

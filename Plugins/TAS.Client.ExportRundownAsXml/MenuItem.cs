@@ -32,9 +32,9 @@ namespace TAS.Client.UiPluginExample
                 DefaultExt = FileUtils.RundownFileExtension,
                 Filter = "XML files|*.xml|All files|*.*"
             };
-            var proxy = EventProxy.FromEvent(theEvent);
             if (dlg.ShowDialog() != true)
                 return;
+            var proxy = EventProxy.FromEvent(theEvent);
             using (var stream = new FileStream(dlg.FileName, FileMode.Create))
             {
                 var serializer = new XmlSerializer(typeof(EventProxy), new XmlRootAttribute("Rundown"));

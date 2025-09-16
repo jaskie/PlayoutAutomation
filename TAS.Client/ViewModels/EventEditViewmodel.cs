@@ -488,7 +488,7 @@ namespace TAS.Client.ViewModels
             get => _scheduledTime;
             set
             {
-                if (!SetField(ref _scheduledTime, value))
+                if (!SetField(ref _scheduledTime, value.ToUniversalTime()))
                     return;
                 NotifyPropertyChanged(nameof(ScheduledDate));
                 NotifyPropertyChanged(nameof(ScheduledTimeOfDay));

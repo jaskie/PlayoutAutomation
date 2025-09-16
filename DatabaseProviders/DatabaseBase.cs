@@ -64,13 +64,13 @@ namespace TAS.Database.SQLite
         public abstract ConnectionStateRedundant ConnectionState { get; }
 
         public abstract bool UpdateRequired();
-        
+
         public abstract void UpdateDb();
 
         protected void Connection_StateRedundantChange(object sender, RedundantConnectionStateEventArgs e)
         {
             ConnectionStateChanged?.Invoke(sender, e);
-        }        
+        }
 
         public IDictionary<string, int> ServerMediaFieldLengths { get; } = new Dictionary<string, int>();
 
@@ -109,7 +109,7 @@ namespace TAS.Database.SQLite
             return servers.AsReadOnly();
         }
 
-        public void InsertServer(IPlayoutServerProperties server) 
+        public void InsertServer(IPlayoutServerProperties server)
         {
             lock (Connection)
             {
@@ -124,7 +124,7 @@ namespace TAS.Database.SQLite
             }
         }
 
-        public void UpdateServer(IPlayoutServerProperties server) 
+        public void UpdateServer(IPlayoutServerProperties server)
         {
             lock (Connection)
             {
@@ -138,7 +138,7 @@ namespace TAS.Database.SQLite
             }
         }
 
-        public void DeleteServer(IPlayoutServerProperties server) 
+        public void DeleteServer(IPlayoutServerProperties server)
         {
             lock (Connection)
             {
@@ -189,7 +189,7 @@ namespace TAS.Database.SQLite
             }
         }
 
-        public void InsertEngine(IEnginePersistent engine) 
+        public void InsertEngine(IEnginePersistent engine)
         {
             lock (Connection)
             {
@@ -233,7 +233,7 @@ namespace TAS.Database.SQLite
             }
         }
 
-        public void DeleteEngine(IEnginePersistent engine) 
+        public void DeleteEngine(IEnginePersistent engine)
         {
             lock (Connection)
             {
@@ -483,9 +483,9 @@ namespace TAS.Database.SQLite
             return reason;
         }
 
-#endregion IEngine
+        #endregion IEngine
 
-#region ArchiveDirectory
+        #region ArchiveDirectory
         public IReadOnlyCollection<T> LoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
         {
             var directories = new List<T>();
@@ -509,7 +509,7 @@ namespace TAS.Database.SQLite
             return directories.AsReadOnly();
         }
 
-        public void InsertArchiveDirectory(IArchiveDirectoryProperties dir) 
+        public void InsertArchiveDirectory(IArchiveDirectoryProperties dir)
         {
             lock (Connection)
             {
@@ -537,7 +537,7 @@ namespace TAS.Database.SQLite
             }
         }
 
-        public void DeleteArchiveDirectory(IArchiveDirectoryProperties dir) 
+        public void DeleteArchiveDirectory(IArchiveDirectoryProperties dir)
         {
             lock (Connection)
             {
@@ -549,7 +549,7 @@ namespace TAS.Database.SQLite
             }
         }
 
-        private T ReadArchiveMedia<T>(DbDataReader dataReader) where T: IArchiveMedia, new()
+        private T ReadArchiveMedia<T>(DbDataReader dataReader) where T : IArchiveMedia, new()
         {
             var media = new T
             {
@@ -559,7 +559,7 @@ namespace TAS.Database.SQLite
             return media;
         }
 
-        public IList<T> ArchiveMediaSearch<T>(IArchiveDirectoryServerSide dir, TMediaCategory? mediaCategory, string search) where T: IArchiveMedia, new()
+        public IList<T> ArchiveMediaSearch<T>(IArchiveDirectoryServerSide dir, TMediaCategory? mediaCategory, string search) where T : IArchiveMedia, new()
         {
             lock (Connection)
             {
@@ -591,7 +591,7 @@ namespace TAS.Database.SQLite
                 }
             }
         }
-        
+
         public IList<T> FindArchivedStaleMedia<T>(IArchiveDirectoryServerSide dir) where T : IArchiveMedia, new()
         {
             var returnList = new List<T>();
@@ -611,7 +611,7 @@ namespace TAS.Database.SQLite
             return returnList;
         }
 
-        public T ArchiveMediaFind<T>(IArchiveDirectoryServerSide dir, Guid mediaGuid) where T: IArchiveMedia, new()
+        public T ArchiveMediaFind<T>(IArchiveDirectoryServerSide dir, Guid mediaGuid) where T : IArchiveMedia, new()
         {
             var result = default(T);
             if (mediaGuid == Guid.Empty)
@@ -695,7 +695,7 @@ namespace TAS.Database.SQLite
             }
         }
 
-        public IEvent ReadNext(IEngine engine, IEventPersistent aEvent) 
+        public IEvent ReadNext(IEngine engine, IEventPersistent aEvent)
         {
             if (aEvent == null || aEvent.Id == default)
             {
@@ -790,13 +790,13 @@ namespace TAS.Database.SQLite
                 eventType,
                 (TStartType)dataReader.GetByte("typStart"),
                 (TPlayState)dataReader.GetByte("PlayState"),
-                dataReader.GetDateTime("ScheduledTime"),
+                DateTime.SpecifyKind(dataReader.GetDateTime("ScheduledTime"), DateTimeKind.Utc),
                 dataReader.GetTimeSpan("Duration"),
                 dataReader.GetTimeSpan("ScheduledDelay"),
                 dataReader.GetTimeSpan("ScheduledTC"),
                 dataReader.GetGuid("MediaGuid"),
                 dataReader.GetString("EventName"),
-                dataReader.GetDateTime("StartTime"),
+                DateTime.SpecifyKind(dataReader.GetDateTime("StartTime"), DateTimeKind.Utc),
                 dataReader.GetTimeSpan("StartTC"),
                 dataReader.IsDBNull("RequestedStartTime") ? null : (TimeSpan?)dataReader.GetTimeSpan("RequestedStartTime"),
                 dataReader.GetTimeSpan("TransitionTime"),
@@ -814,7 +814,7 @@ namespace TAS.Database.SQLite
                 flags.Logo(),
                 flags.Parental(),
                 flags.AutoStartFlags(),
-                dataReader.GetString("Commands"), 
+                dataReader.GetString("Commands"),
                 routerPort: dataReader.IsDBNull("RouterPort") ? (short)-1 : dataReader.GetInt16("RouterPort"),
                 recordingInfo: dataReader.IsDBNull("RecordingInfo") ? null : Newtonsoft.Json.JsonConvert.DeserializeObject<RecordingInfo>(dataReader.GetString("RecordingInfo"))
                 );
@@ -885,14 +885,14 @@ namespace TAS.Database.SQLite
 #elif SQLITE
                 cmd.Parameters.AddWithValue("@RequestedStartTime", aEvent.RequestedStartTime.Value.Ticks);
 #endif
-            cmd.Parameters.AddWithValue("@typTransition", (ushort)aEvent.TransitionType | ((ushort)aEvent.TransitionEasing)<<8);
+            cmd.Parameters.AddWithValue("@typTransition", (ushort)aEvent.TransitionType | ((ushort)aEvent.TransitionEasing) << 8);
             cmd.Parameters.AddWithValue("@idProgramme", aEvent.IdProgramme);
             if (aEvent.AudioVolume == null)
                 cmd.Parameters.AddWithValue("@AudioVolume", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent.AudioVolume);
             cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
-            cmd.Parameters.AddWithValue("@RouterPort", aEvent.RouterPort == -1 ? (object) DBNull.Value : aEvent.RouterPort);
+            cmd.Parameters.AddWithValue("@RouterPort", aEvent.RouterPort == -1 ? (object)DBNull.Value : aEvent.RouterPort);
             cmd.Parameters.AddWithValue("@RecordingInfo", aEvent.RecordingInfo == null ? (object)DBNull.Value : Newtonsoft.Json.JsonConvert.SerializeObject(aEvent.RecordingInfo));
 
             var command = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript script
@@ -902,7 +902,7 @@ namespace TAS.Database.SQLite
             return cmd.ExecuteNonQuery() == 1;
         }
 
-        private void EventAnimatedSave(ulong id,  ITemplated e, bool inserting)
+        private void EventAnimatedSave(ulong id, ITemplated e, bool inserting)
         {
             var query = inserting ?
                 @"INSERT INTO rundownevent_templated (idrundownevent_templated, Method, TemplateLayer, Fields) VALUES (@idrundownevent_templated, @Method, @TemplateLayer, @Fields);" :
@@ -944,7 +944,7 @@ VALUES
             return false;
         }
 
-        public bool UpdateEvent<TEvent>(TEvent aEvent) where  TEvent: IEventPersistent
+        public bool UpdateEvent<TEvent>(TEvent aEvent) where TEvent : IEventPersistent
         {
             lock (Connection)
             {
@@ -1103,11 +1103,11 @@ VALUES
             }
         }
 
-#endregion // IEvent
+        #endregion // IEvent
 
-#region ACL
+        #region ACL
 
-        public IList<IAclRight> ReadEventAclList<TEventAcl>(IEventPersistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
+        public IList<IAclRight> ReadEventAclList<TEventAcl>(IEventPersistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl : IAclRight, IPersistent, new()
         {
             var acl = new List<IAclRight>();
             if (aEvent == null || aEvent.Id == 0)
@@ -1139,7 +1139,7 @@ VALUES
             }
         }
 
-        public bool InsertEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
+        public bool InsertEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             if (acl?.Owner == null)
                 return false;
@@ -1152,13 +1152,13 @@ VALUES
                     cmd.Parameters.AddWithValue("@idACO", acl.SecurityObject.Id);
                     cmd.Parameters.AddWithValue("@ACL", acl.Acl);
                     if (cmd.ExecuteNonQuery() == 1)
-                        acl.Id = (ulong) cmd.LastInsertedId();
+                        acl.Id = (ulong)cmd.LastInsertedId();
                     return true;
                 }
             }
         }
 
-        public bool UpdateEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl: IAclRight, IPersistent
+        public bool UpdateEventAcl<TEventAcl>(TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             lock (Connection)
             {
@@ -1255,9 +1255,9 @@ VALUES
             }
         }
 
-#endregion //ACL
+        #endregion //ACL
 
-#region Media
+        #region Media
         private bool MediaFillParamsAndExecute(DbCommand cmd, string tableName, IPersistentMedia media, ulong serverId)
         {
             cmd.Parameters.AddWithValue("@idProgramme", media.IdProgramme);
@@ -1295,7 +1295,7 @@ VALUES
 #endif
                 else
                     cmd.Parameters.AddWithValue("@LastPlayed", DBNull.Value);
-            } 
+            }
             if (media is IAnimatedMedia && media.Directory is IAnimationDirectory)
             {
                 cmd.Parameters.AddWithValue("@idServer", serverId);
@@ -1342,7 +1342,7 @@ VALUES
             }
             catch (Exception e)
             {
-                Debug.WriteLine(media, e.Message); 
+                Debug.WriteLine(media, e.Message);
             }
             return false;
         }
@@ -1354,7 +1354,7 @@ VALUES
             try
             {
                 media.MediaName = dataReader.IsDBNull("MediaName") ? string.Empty : dataReader.GetString("MediaName");
-                media.LastUpdated = dataReader.GetDateTime("LastUpdated");
+                media.LastUpdated = DateTime.SpecifyKind(dataReader.GetDateTime("LastUpdated"), DateTimeKind.Utc);
                 media.MediaGuid = dataReader.GetGuid("MediaGuid");
                 media.MediaType = (TMediaType)(dataReader.IsDBNull("typMedia") ? 0 : dataReader.GetInt32("typMedia"));
                 media.Duration = dataReader.IsDBNull("Duration") ? default : dataReader.GetTimeSpan("Duration");
@@ -1372,13 +1372,13 @@ VALUES
                 media.AudioChannelMapping = dataReader.IsDBNull("typAudio") ? TAudioChannelMapping.Stereo : (TAudioChannelMapping)dataReader.GetByte("typAudio");
                 media.VideoFormat = dataReader.IsDBNull("typVideo") ? TVideoFormat.Other : (TVideoFormat)dataReader.GetByte("typVideo");
                 media.IdAux = dataReader.IsDBNull("idAux") ? string.Empty : dataReader.GetString("idAux");
-                media.KillDate = dataReader.IsDBNull("KillDate") ? default : dataReader.GetDateTime("KillDate");
+                media.KillDate = dataReader.IsDBNull("KillDate") ? default : DateTime.SpecifyKind(dataReader.GetDateTime("KillDate"), DateTimeKind.Utc);
                 media.MediaEmphasis = (TMediaEmphasis)((flags >> 8) & 0xF);
                 media.Parental = (byte)((flags >> 12) & 0xF);
                 if (media is IServerMedia serverMedia)
                 {
                     serverMedia.DoNotArchive = (flags & 0x1) != 0;
-                    serverMedia.LastPlayed = dataReader.IsDBNull("LastPlayed") ? default : dataReader.GetDateTime("LastPlayed");
+                    serverMedia.LastPlayed = dataReader.IsDBNull("LastPlayed") ? default : DateTime.SpecifyKind(dataReader.GetDateTime("LastPlayed"), DateTimeKind.Utc);
                 }
                 media.IsProtected = (flags & 0x2) != 0;
                 media.FieldOrderInverted = (flags & 0x4) != 0;
@@ -1545,7 +1545,7 @@ VALUES
             }
         }
 
-        public void InsertMedia(IAnimatedMedia animatedMedia, ulong serverId )
+        public void InsertMedia(IAnimatedMedia animatedMedia, ulong serverId)
         {
             var result = false;
             lock (Connection)
@@ -1635,7 +1635,7 @@ VALUES
                 return result;
             }
         }
-        
+
         private bool DeleteServerMedia(IPersistentMedia serverMedia)
         {
             using (var cmd = new DbCommand("DELETE FROM servermedia WHERE idServerMedia=@idServerMedia;", Connection))
@@ -1755,9 +1755,9 @@ WHERE idArchiveMedia=@idArchiveMedia;", Connection))
         }
 
 
-#endregion // Media
+        #endregion // Media
 
-#region MediaSegment
+        #region MediaSegment
         private readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference> _mediaSegments = new System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference>();
 
         private ConstructorInfo _mediaSegmentsConstructorInfo;
@@ -1771,7 +1771,7 @@ WHERE idArchiveMedia=@idArchiveMedia;", Connection))
             return null;
         }
 
-        public T MediaSegmentsRead<T>(IPersistentMedia media) where T : IMediaSegments 
+        public T MediaSegmentsRead<T>(IPersistentMedia media) where T : IMediaSegments
         {
             lock (Connection)
             {
@@ -1914,6 +1914,6 @@ WHERE idArchiveMedia=@idArchiveMedia;", Connection))
                 }
         }
 
-#endregion
+        #endregion
     }
 }
