@@ -64,7 +64,8 @@ namespace TAS.Server
         private EventRecorder _eventRecorder;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
+        private static TimeSpan _preloadTime = TimeSpan.FromSeconds(2); // time to preload event
+        private static TimeSpan _signalTime = TimeSpan.FromSeconds(4); // time to signal SCTE-35
         private bool _enableCGElementsForNewEvents;
         private bool _studioMode;
         private ConnectionStateRedundant _databaseConnectionState;
@@ -636,7 +637,8 @@ namespace TAS.Server
             TemplateMethod method = TemplateMethod.Add,
             int templateLayer = 10,
             short routerPort = -1,
-            RecordingInfo recordingInfo = null
+            RecordingInfo recordingInfo = null,
+            uint? signalId = 0
         )
         {
             if (idRundownEvent != 0
@@ -651,7 +653,7 @@ namespace TAS.Server
                     result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, startType, playState, scheduledDelay, eventName, startTime, isEnabled, command);
                     break;
                 default:
-                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental, routerPort, recordingInfo);
+                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental, routerPort, recordingInfo, signalId);
                     break;
             }
             if (idRundownEvent != 0)
@@ -1231,7 +1233,12 @@ namespace TAS.Server
                 if (EngineState == TEngineState.Running)
                 {
                     foreach (var e in _runningEvents.Where(ev => ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading))
+                    {
                         e.Position += nFrames;
+                        if (e.SignalState == SignalState.SignalledOut && e.SignalId.HasValue &&
+                            e.Position * FrameTicks > e.Duration.Ticks - _signalTime.Ticks)
+                            _signalIn(e, (int)(_signalTime.Ticks / FrameTicks));
+                    }
 
                     Event playingEvent = _playing;
                     Event succEvent = null;
@@ -1245,6 +1252,11 @@ namespace TAS.Server
                                 if (playingEvent.PlayState == TPlayState.Playing)
                                     playingEvent.PlayState = TPlayState.Fading;
                             }
+                            if (playingEvent.Position * FrameTicks >= playingEvent.Duration.Ticks - _signalTime.Ticks)
+                            {
+                                if (succEvent.SignalId.HasValue && succEvent.SignalState != SignalState.SignalledOut && !succEvent.IsHold)
+                                    _signalOut(succEvent, (int)(_signalTime.Ticks / FrameTicks));
+                            }
                             if (playingEvent.Position * FrameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks)
                                 _loadNext(succEvent);
                             if (playingEvent.Position >= playingEvent.LengthInFrames - succEvent.TransitionInFrames())
@@ -1257,7 +1269,7 @@ namespace TAS.Server
                         }
 
                         // preload and play subevents, which was not started immediately with parent
-                        playingEvent = _playing; // in case when succEvent just started 
+                        playingEvent = _playing; // in case when e just started 
                         if (playingEvent != null && playingEvent.SubEventsCount > 0)
                         {
                             TimeSpan playingEventPosition = TimeSpan.FromTicks(playingEvent.Position * FrameTicks);
@@ -1311,6 +1323,20 @@ namespace TAS.Server
 
                 _executeAutoStartEvents();
             }
+        }
+
+        private void _signalOut(Event e, int framesTo)
+        {
+            e.SignalState = SignalState.SignalledOut;
+            _playoutChannelPRI?.SignalOut(e, framesTo);
+            _playoutChannelSEC?.SignalOut(e, framesTo);
+        }
+
+        private void _signalIn(Event e, int framesTo)
+        {
+            e.SignalState = SignalState.SignalledIn;
+            _playoutChannelPRI?.SignalIn(e, framesTo);
+            _playoutChannelSEC?.SignalIn(e, framesTo);
         }
 
         private void _executeAutoStartEvents()
@@ -1646,6 +1672,13 @@ namespace TAS.Server
         private static extern int QueryUnbiasedInterruptTime(out ulong unbiasedTime);
         #endregion // static PInvoke
 
+    }
+
+    internal enum SignalState
+    {
+        None = 0,
+        SignalledOut,
+        SignalledIn,
     }
 
 }

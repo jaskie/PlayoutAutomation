@@ -123,6 +123,7 @@ CREATE TABLE `rundownevent` (
   `Commands` TEXT NULL,
   `RouterPort` smallint DEFAULT NULL,
   `RecordingInfo` JSON DEFAULT NULL,
+  `SignalId` integer unsigned DEFAULT NULL,
   PRIMARY KEY (`idRundownEvent`),
   KEY `idEventBinding` (`idEventBinding`) USING BTREE,
   KEY `id_ScheduledTime` (`ScheduledTime`) USING BTREE,
@@ -212,4 +213,4 @@ CREATE TABLE `engine_acl` (
 );
 
 
-INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '15');
+INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '16');

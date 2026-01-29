@@ -57,7 +57,6 @@ namespace TAS.Database.MySqlRedundant.Updates
             }
             using (var cmd = new DbCommandRedundant("ALTER TABLE engine CHANGE COLUMN Config Config JSON", Connection))
                 cmd.ExecuteNonQuery();
-                
         }
 
 

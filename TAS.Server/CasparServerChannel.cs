@@ -559,6 +559,19 @@ namespace TAS.Server
             return false;
         }
 
+        public void SignalOut(Event aEvent, int framesTo)
+        {
+            _casparChannel?.SignalOut(aEvent.SignalId.Value, (short)aEvent.IdProgramme, framesTo, (int)aEvent.LengthInFrames);
+            Logger.Trace("SingnalOut for {0} requested", aEvent);
+        }
+
+        public void SignalIn(Event aEvent, int framesTo)
+        {
+            _casparChannel?.SignalIn(aEvent.SignalId.Value, (short)aEvent.IdProgramme, framesTo);
+            Logger.Trace("SingnalIn for {0} requested", aEvent);
+        }
+
+
         #endregion //IPlayoutServerChannel
 
         internal CasparServer Owner { get; set; }

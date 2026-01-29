@@ -816,7 +816,8 @@ namespace TAS.Database.SQLite
                 flags.AutoStartFlags(),
                 dataReader.GetString("Commands"),
                 routerPort: dataReader.IsDBNull("RouterPort") ? (short)-1 : dataReader.GetInt16("RouterPort"),
-                recordingInfo: dataReader.IsDBNull("RecordingInfo") ? null : Newtonsoft.Json.JsonConvert.DeserializeObject<RecordingInfo>(dataReader.GetString("RecordingInfo"))
+                recordingInfo: dataReader.IsDBNull("RecordingInfo") ? null : Newtonsoft.Json.JsonConvert.DeserializeObject<RecordingInfo>(dataReader.GetString("RecordingInfo")),
+                signalId: dataReader.IsDBNull("SignalId") ? (uint?)null : dataReader.GetUInt32("SignalId")
                 );
             return newEvent;
         }
@@ -894,6 +895,10 @@ namespace TAS.Database.SQLite
             cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
             cmd.Parameters.AddWithValue("@RouterPort", aEvent.RouterPort == -1 ? (object)DBNull.Value : aEvent.RouterPort);
             cmd.Parameters.AddWithValue("@RecordingInfo", aEvent.RecordingInfo == null ? (object)DBNull.Value : Newtonsoft.Json.JsonConvert.SerializeObject(aEvent.RecordingInfo));
+            if (aEvent.SignalId == null)
+                cmd.Parameters.AddWithValue("@SignalId", DBNull.Value);
+            else
+                cmd.Parameters.AddWithValue("@SignalId", aEvent.SignalId);
 
             var command = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript script
                 ? (object)script.Command
@@ -926,9 +931,9 @@ namespace TAS.Database.SQLite
                 using (var transaction = Connection.BeginTransaction())
                 {
                     const string query = @"INSERT INTO rundownevent 
-(idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, TransitionPauseTime, typTransition, AudioVolume, idProgramme, flagsEvent, Commands, RouterPort, RecordingInfo) 
+(idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, TransitionPauseTime, typTransition, AudioVolume, idProgramme, flagsEvent, Commands, RouterPort, RecordingInfo, SignalId)
 VALUES 
-(@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @TransitionPauseTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent, @Commands, @RouterPort, @RecordingInfo);";
+(@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @TransitionPauseTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent, @Commands, @RouterPort, @RecordingInfo, @SignalId);";
                     using (var cmd = new DbCommand(query, Connection))
                         if (EventFillParamsAndExecute(cmd, aEvent))
                         {
@@ -975,7 +980,8 @@ idProgramme=@idProgramme,
 flagsEvent=@flagsEvent,
 Commands=@Commands,
 RouterPort=@RouterPort,
-RecordingInfo=@RecordingInfo
+RecordingInfo=@RecordingInfo,
+SignalId=@SignalId
 WHERE idRundownEvent=@idRundownEvent;";
                     using (var cmd = new DbCommand(query, Connection))
                     {

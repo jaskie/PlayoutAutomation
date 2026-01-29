@@ -1,0 +1,4 @@
+BEGIN TRANSACTION;
+ALTER TABLE rundownevent ADD SignalId INTEGER;
+PRAGMA user_version = 3;
+COMMIT;

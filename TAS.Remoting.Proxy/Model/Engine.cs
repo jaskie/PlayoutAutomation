@@ -203,12 +203,13 @@ namespace TAS.Remoting.Model
                     TemplateMethod method = TemplateMethod.Add,
                     int templateLayer = -1,
                     short routerPort = -1,
-                    RecordingInfo recordingInfo = null
+                    RecordingInfo recordingInfo = null,
+                    short signalId = 0
             )
         {
             return Query<IEvent>(parameters: new object[] { idRundownEvent, idEventBinding , videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName,
                     startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, isCGEnabled,
-                    crawl, logo, parental, autoStartFlags, command, fields, method, templateLayer, routerPort, recordingInfo});
+                    crawl, logo, parental, autoStartFlags, command, fields, method, templateLayer, routerPort, recordingInfo, signalId});
         }
 
         public void AddRootEvent(IEvent ev)

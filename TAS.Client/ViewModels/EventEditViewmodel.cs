@@ -38,6 +38,10 @@ namespace TAS.Client.ViewModels
         private TimeSpan _duration;
         private TimeSpan _scheduledDelay;
         private bool _isEventNameFocused;
+        private IRouterPort _selectedInputPort;
+        private bool _isSignalId;
+        private uint? _signalId;
+
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static readonly Regex RegexMixerFill = new Regex(TAS.Common.IEventExtensions.MixerFillCommand, RegexOptions.IgnoreCase);
@@ -100,6 +104,7 @@ namespace TAS.Client.ViewModels
                 TemplatedEditViewmodel = new TemplatedEditViewmodel(templated, true, true, engineViewModel.VideoFormat);
                 TemplatedEditViewmodel.ModifiedChanged += TemplatedEditViewmodel_ModifiedChanged;
             }
+            _isSignalId = SignalId != null;
         }
 
         private void RecordingInfoViewmodel_ModifiedChanged(object sender, EventArgs e)
@@ -124,6 +129,8 @@ namespace TAS.Client.ViewModels
         {
             Model.RecordingInfo = RecordingInfoViewmodel?.GetRecordingInfo();
             base.Update(Model);
+            if (!_isSignalId)
+                Model.SignalId = null;
             EventRightsEditViewmodel?.Save();
             TemplatedEditViewmodel?.Save();
             Model.Save();
@@ -221,6 +228,8 @@ namespace TAS.Client.ViewModels
 
         public bool IsLive => Model.EventType == TEventType.Live;
 
+        public bool IsRundown => Model.EventType == TEventType.Rundown;
+
         public bool IsMovieOrLiveOrRundown => Model.IsMovieOrLiveOrRundown();
 
         public bool IsCommandScript => Model is ICommandScript;
@@ -258,7 +267,7 @@ namespace TAS.Client.ViewModels
 
         #endregion ICGElementsState
 
-        
+
         public string Command
         {
             get => _command;
@@ -543,8 +552,6 @@ namespace TAS.Client.ViewModels
 
         public IList<IRouterPort> InputPorts { get; } = new List<IRouterPort>();
 
-        private IRouterPort _selectedInputPort;
-
         public IRouterPort SelectedInputPort
         {
             get => _selectedInputPort;
@@ -584,11 +591,26 @@ namespace TAS.Client.ViewModels
         public ICGElement[] Crawls => Model.Engine.CGElementsController?.Crawls.ToArray() ?? new ICGElement[0];
 
         public ICGElement[] Parentals => Model.Engine.CGElementsController?.Parentals.ToArray() ?? new ICGElement[0];
-        
+
         public EventRightsEditViewmodel EventRightsEditViewmodel { get; }
 
         public TemplatedEditViewmodel TemplatedEditViewmodel { get; }
+
         public RecordingInfoViewModel RecordingInfoViewmodel { get; }
+
+        public bool IsSignalId
+        {
+            get => _isSignalId;
+            set
+            {
+                if (!SetField(ref _isSignalId, value))
+                    return;
+                if (_signalId is null)
+                    SignalId = (uint)Model.Id;
+            }
+        }
+
+        public uint? SignalId { get => _signalId; set => SetField(ref _signalId, value); }
 
         public override string ToString() => $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {EventName}";
 

@@ -61,6 +61,7 @@ namespace TAS.Server
 
         private IRouterPort _inputPort;
         private bool _isDeleted;
+        private uint? _signalId;
 
         #region Constructor
         internal Event(
@@ -96,7 +97,8 @@ namespace TAS.Server
                     byte logo,
                     byte parental,
                     short routerPort,
-                    RecordingInfo recordingInfo)
+                    RecordingInfo recordingInfo,
+                    uint? signalId)
         {
             _engine = engine;
             Id = idRundownEvent;
@@ -178,6 +180,7 @@ namespace TAS.Server
             });
             _routerPort = routerPort;
             _recordingInfo = recordingInfo;
+            _signalId = signalId;
 
             FieldLengths = DatabaseProvider.Database.EventFieldLengths;
         }
@@ -524,6 +527,7 @@ namespace TAS.Server
                             StartTime = default(DateTime);
                             StartTc = ScheduledTc;
                             Position = 0;
+                            SignalState = SignalState.None;
                             _updateScheduledTimeWithSuccessors();
                             break;
                         case TPlayState.Paused:
@@ -563,7 +567,7 @@ namespace TAS.Server
 
         internal TimeSpan Length => _isEnabled ? _duration : TimeSpan.Zero;
         internal long LengthInFrames => Length.Ticks / Engine.FrameTicks;
-        
+
         [DtoMember]
         public DateTime EndTime => _scheduledTime + Length;
 
@@ -680,13 +684,25 @@ namespace TAS.Server
             get => _parental;
             set => SetField(ref _parental, value);
         }
-                     
+
         [DtoMember]
         public int RouterPort
         {
             get => _routerPort;
             set => SetField(ref _routerPort, value);
-        }       
+        }
+
+        [DtoMember]
+        public uint? SignalId
+        {
+            get => _signalId;
+            set => _signalId = value;
+        }
+
+        /// <summary>
+        /// determines SCTE-35 signal state for the event
+        /// </summary>
+        internal SignalState SignalState { get; set; }
 
         public event EventHandler<EventPositionEventArgs> PositionChanged;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;

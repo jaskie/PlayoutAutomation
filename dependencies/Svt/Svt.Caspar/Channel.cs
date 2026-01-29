@@ -205,6 +205,16 @@ namespace Svt.Caspar
                 Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} VOLUME {2} {3} {4}", Id, videoLayer, volume, duration, easing.ToString().ToUpperInvariant()));
         }
 
+        public void SignalOut(uint eventId, short programId, int framesTo, int length)
+        {
+            Connection.SendRequest($"SIGNAL {Id} OUT {framesTo} ID {eventId} LENGTH {length} PROGRAM {programId}");
+        }
+
+        public void SignalIn(uint eventId, short programId, int framesTo)
+        {
+            Connection.SendRequest($"SIGNAL {Id} IN {framesTo} ID {eventId} PROGRAM {programId}");
+        }
+
         public void MasterVolume(double volume)
         {
             Connection.SendRequest(string.Format(CultureInfo.InvariantCulture, "MIXER {0} MASTERVOLUME {1:F3}", Id, volume));

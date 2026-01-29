@@ -119,7 +119,8 @@ CREATE TABLE rundownevent (
   idAux TEXT,
   Commands TEXT,
   RouterPort INTEGER,
-  RecordingInfo TEXT
+  RecordingInfo TEXT,
+  SignalId INTEGER
 );
 
 CREATE INDEX rundownevent_idEventBinding ON rundownevent (idEventBinding);
@@ -200,6 +201,6 @@ CREATE TABLE engine_acl (
 CREATE INDEX engine_acl_idEngine ON engine_acl (idEngine);
 CREATE INDEX engine_acl_idACO ON engine_acl (idACO);
 
-PRAGMA user_version = 2;
+PRAGMA user_version = 3;
 
 COMMIT;

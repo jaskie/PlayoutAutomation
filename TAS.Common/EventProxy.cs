@@ -63,7 +63,7 @@ namespace TAS.Common
         public string Command { get; set; }
         [XmlIgnore]
         public IDictionary<string, string> Fields { get; set; }
-
+        public uint? SignalId { get; set; }
 
         public IEvent InsertAfter(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
@@ -128,7 +128,8 @@ namespace TAS.Common
                         command: Command,
                         fields: Fields,
                         method: Method,
-                        templateLayer: TemplateLayer
+                        templateLayer: TemplateLayer,
+                        signalId: SignalId
                     );
                 // find media if Guid not set
                 if ((EventType == TEventType.Movie || EventType == TEventType.StillImage) && mediaFiles != null && Media != null)
@@ -235,7 +236,8 @@ namespace TAS.Common
                 Command = (source as ICommandScript)?.Command,
                 Fields = source is ITemplated templated && templated.Fields != null ? new Dictionary<string, string>(templated.Fields) : null,
                 Method = (source as ITemplated)?.Method ?? TemplateMethod.Add,
-                TemplateLayer = (source as ITemplated)?.TemplateLayer ?? -1
+                TemplateLayer = (source as ITemplated)?.TemplateLayer ?? -1,
+                SignalId = source.SignalId,
             };
         }
     }

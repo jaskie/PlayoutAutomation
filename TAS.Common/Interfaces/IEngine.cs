@@ -62,7 +62,8 @@ namespace TAS.Common.Interfaces
             TemplateMethod method = TemplateMethod.Add,
             int templateLayer = 10,
             short routerPort = -1,
-            RecordingInfo recordingInfo = null
+            RecordingInfo recordingInfo = null,
+            uint? signalId = null
         );
 
         void Load(IEvent aEvent);

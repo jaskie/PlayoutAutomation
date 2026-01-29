@@ -16,7 +16,7 @@ namespace TAS.Database.SQLite
     {
 
         private static readonly string DatabaseFile = Path.Combine(FileUtils.ApplicationDataPath, "TVPlay.db");
-        private const long ExpectedVersion = 2;
+        private const long ExpectedVersion = 3;
         private long _currentVersion;
 
         private long GetCurrentVersion()

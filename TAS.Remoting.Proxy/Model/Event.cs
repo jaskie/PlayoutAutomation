@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using jNet.RPC;
 using jNet.RPC.Client;
@@ -8,8 +7,6 @@ using TAS.Common;
 using TAS.Common.Interfaces;
 using TAS.Common.Interfaces.Media;
 using TAS.Common.Interfaces.Security;
-using TAS.Remoting.Model.Media;
-using TAS.Remoting.Model.Security;
 
 namespace TAS.Remoting.Model
 {
@@ -135,6 +132,9 @@ namespace TAS.Remoting.Model
         [DtoMember(nameof(IEvent.RecordingInfo))]
         private RecordingInfo _recordingInfo;
 
+        [DtoMember(nameof(IEvent.SignalId))]
+        private short _signalId;
+
 #pragma warning restore
 
         public ulong Id { get => _id; set => _id = value; }
@@ -224,6 +224,8 @@ namespace TAS.Remoting.Model
         public TTransitionType TransitionType { get => _transitionType; set => Set(value); }
 
         public RecordingInfo RecordingInfo { get => _recordingInfo; set => Set(value); }
+
+        public short SignalId { get => _signalId; set => _signalId = value; }
 
         public IEvent GetSuccessor()
         {

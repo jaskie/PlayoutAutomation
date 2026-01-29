@@ -57,6 +57,7 @@ namespace TAS.Common.Interfaces
         bool IsHold { get; set; }
         bool IsLoop { get; set; }
         string IdAux { get; set; } // auxiliary Id for external systems
+        uint? SignalId { get; set; } // if not null, SCTE-35 signals will be notified with the Id for the event
         ulong IdProgramme { get; set; }
         int RouterPort { get; set; }
         VideoLayer Layer { get; set; }
