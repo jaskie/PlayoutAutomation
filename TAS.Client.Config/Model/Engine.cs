@@ -56,6 +56,9 @@ namespace TAS.Client.Config.Model
         [Hibernate]
         public bool TryContinueRundownAfterEngineRestart { get; set; }
 
+        [Hibernate]
+        public bool CheckForMediaInUse { get; set; } = true;
+
         public bool IsModified = false;
 
         public bool IsNew = true;

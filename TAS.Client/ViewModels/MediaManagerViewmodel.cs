@@ -76,13 +76,13 @@ namespace TAS.Client.ViewModels
             _anyExportDirectories = _mediaManager.IngestDirectories.AllSubDirectories().Where(d => d.IsExport).Any();
 
             _mediaCategory = MediaCategories.FirstOrDefault();
-            SelectedDirectory = MediaDirectories.FirstOrDefault();
             if (_mediaManager.FileManager != null)
                 FileManagerViewmodel = new FileManagerViewmodel(_mediaManager);
             RecordersViewmodel = new RecordersViewmodel(Engine, _mediaManager.Recorders);
             RecordersViewmodel.PropertyChanged += RecordersViewmodel_PropertyChanged;
             VideoPreview = UiPluginManager.ComposePart<IVideoPreview>(this);
             VideoPreview?.SetSource(RecordersViewmodel.Channel?.PreviewUrl);
+            OnIdle(() => SelectedDirectory = MediaDirectories.FirstOrDefault());
 
             CommandSearch = new UiCommand(CommandName(nameof(Search)), Search, CanSearch);
             CommandClearFilters = new UiCommand(CommandName(nameof(ClearFilters)), ClearFilters, CanClearFilters);

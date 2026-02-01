@@ -102,6 +102,12 @@ namespace TAS.Client.Config
             set => SetField(ref _enableCGElementsForNewEvents, value);
         }
 
+        private bool _checkForMediaInUse;
+        public bool CheckForMediaInUse
+        {
+            get => _checkForMediaInUse;
+            set => SetField(ref _checkForMediaInUse, value);
+        }
 
         public TCrawlEnableBehavior CrawlEnableBehavior
         {
@@ -137,7 +143,7 @@ namespace TAS.Client.Config
             get => _channelPRV;
             set => SetField(ref _channelPRV, value);
         }
-        
+
         public List<object> ArchiveDirectories { get; private set; }
 
         private object _archiveDirectory;

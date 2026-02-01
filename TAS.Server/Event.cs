@@ -1,4 +1,5 @@
-﻿using jNet.RPC;
+﻿#undef DEBUG
+using jNet.RPC;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -1024,13 +1025,10 @@ namespace TAS.Server
             if (EventType == TEventType.Rundown && (PlayState == TPlayState.Played || EndTime < DateTime.Now))
                 return MediaDeleteResult.NoDeny;
             Event firstEvent;
-            lock (_engine.RundownSync)
-            {
-                firstEvent = _getSubEventTree().FirstOrDefault(e =>
-                        e.EventType == TEventType.Movie &&
-                        e.Media == media &&
-                        e.PlayState != TPlayState.Played);
-            }
+            firstEvent = _getSubEventTree().FirstOrDefault(
+                e => e.EventType == TEventType.Movie &&
+                     e.Media == media &&
+                     e.PlayState != TPlayState.Played);
             return firstEvent is null ?
                 MediaDeleteResult.NoDeny :
                 new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.InSchedule, Event = firstEvent, Media = media };

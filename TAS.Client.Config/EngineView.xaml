@@ -46,6 +46,7 @@
             </DockPanel>
             <CheckBox IsChecked="{Binding StudioMode}">Studio mode (hold added rundown items)</CheckBox>
             <CheckBox IsChecked="{Binding TryContinueRundownAfterEngineRestart}">Try to continue rundown after restart</CheckBox>
+            <CheckBox IsChecked="{Binding CheckForMediaInUse}" ToolTip="Verify that media being deleted is not scheduled for playout.&#x0a;May substantially slow down deletion if many rundowns exists.">Check all rundows before deleting media</CheckBox>
             <Separator Margin="5"/>
             <Expander>
                 <HeaderedContentControl.Header>

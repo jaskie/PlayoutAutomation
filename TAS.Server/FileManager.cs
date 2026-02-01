@@ -8,7 +8,7 @@ using jNet.RPC;
 
 namespace TAS.Server
 {
-    public class FileManager: ServerObjectBase, IFileManager
+    public class FileManager: ServerObjectBase, IFileManager, IDisposable
     {
 #pragma warning disable CS0169
         [DtoMember]
@@ -18,6 +18,7 @@ namespace TAS.Server
         private readonly FileOperationQueue _queueSimpleOperation = new FileOperationQueue();
         private readonly FileOperationQueue _queueConvertOperation = new FileOperationQueue();
         private readonly FileOperationQueue _queueExportOperation = new FileOperationQueue();
+        private bool _isDisposed = false;
 
         public static FileManager Current { get; } = new FileManager();
 
@@ -26,13 +27,6 @@ namespace TAS.Server
             _queueSimpleOperation.OperationCompleted += _queue_OperationCompleted;
             _queueConvertOperation.OperationCompleted += _queue_OperationCompleted;
             _queueExportOperation.OperationCompleted += _queue_OperationCompleted;
-        }
-
-        internal void Shutdown()
-        {
-            _queueSimpleOperation.OperationCompleted -= _queue_OperationCompleted;
-            _queueConvertOperation.OperationCompleted -= _queue_OperationCompleted;
-            _queueExportOperation.OperationCompleted -= _queue_OperationCompleted;
         }
 
         private void _queue_OperationCompleted(object sender, FileOperationEventArgs e)
@@ -117,6 +111,16 @@ namespace TAS.Server
             OperationAdded?.Invoke(this, new FileOperationEventArgs(operation));
         }
 
+        public void Dispose()
+        {
+            if (_isDisposed)
+                return;
+            _isDisposed = true;
+            _queueSimpleOperation.OperationCompleted -= _queue_OperationCompleted;
+            _queueConvertOperation.OperationCompleted -= _queue_OperationCompleted;
+            _queueExportOperation.OperationCompleted -= _queue_OperationCompleted;
+            Logger.Debug("FileManager disposed");
+        }
     }
 
 

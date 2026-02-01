@@ -265,7 +265,7 @@ namespace TAS.Client.NDIVideoPreview
                             }
                             Application.Current?.Dispatcher.Invoke(() =>
                             {
-                                if (videoBitmap.TryLock(TimeSpan.FromMilliseconds(100)))
+                                if (videoBitmap.TryLock(TimeSpan.Zero))
                                 {
                                     uint bufferSize = videoFrame.yres * videoFrame.line_stride_in_bytes;
                                     videoBitmap.WritePixels(new Int32Rect(0, 0, xres, yres), videoFrame.p_data, (int)bufferSize, (int)videoFrame.line_stride_in_bytes);

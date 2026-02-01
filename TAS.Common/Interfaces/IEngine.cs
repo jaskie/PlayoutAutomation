@@ -122,5 +122,6 @@ namespace TAS.Common.Interfaces
         int ServerChannelPRV { get; set; }
         ulong IdArchive { get; set; }
         bool TryContinueRundownAfterEngineRestart { get; set; }
+        bool CheckForMediaInUse { get; set; }
     }
 }

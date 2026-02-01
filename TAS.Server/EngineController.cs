@@ -100,7 +100,7 @@ namespace TAS.Server
                 DatabaseProvider.Database.Close();
                 Logger.Info("Database closed");
             }
-            FileManager.Current.Shutdown();
+            FileManager.Current.Dispose();
         }
 
         public int GetConnectedClientCount() => Engines.Sum(e => e.Remote?.ClientCount ?? 0);

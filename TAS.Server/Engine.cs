@@ -167,6 +167,9 @@ namespace TAS.Server
             set => SetField(ref _timeCorrection, value);
         }
 
+        [Hibernate]
+        public bool CheckForMediaInUse { get; set; } = true;
+
         public DateTime CurrentTime { get; private set; }
 
         public DateTime AlignDateTime(DateTime dt)
@@ -571,14 +574,15 @@ namespace TAS.Server
 
         public MediaDeleteResult CanDeleteMedia(PersistentMedia media)
         {
-            MediaDeleteResult reason = MediaDeleteResult.NoDeny;
             if (media.IsProtected)
                 return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.Protected, Media = media };
             if (!(media is ServerMedia serverMedia))
-                return reason;
+                return MediaDeleteResult.NoDeny;
+            if (!CheckForMediaInUse)
+                return MediaDeleteResult.NoDeny;
             foreach (Event e in _rootEvents.ToList())
             {
-                reason = e.CheckCanDeleteMedia(serverMedia);
+                var reason = e.CheckCanDeleteMedia(serverMedia);
                 if (reason.Result != MediaDeleteResult.MediaDeleteResultEnum.Success)
                     return reason;
             }
