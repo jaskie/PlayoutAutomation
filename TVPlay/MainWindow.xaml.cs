@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Diagnostics;
 using resources = TAS.Client.Common.Properties.Resources;
-using TAS.Server;
 
 namespace TAS.Client
 {
@@ -13,18 +12,18 @@ namespace TAS.Client
     /// </summary>
     public partial class MainWindow : Window
     {
+        private Views.SplashScreenView _splashScreen;
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private void ShutdownApplication()
+        private void ShutdownViews()
         {
-            var splashScreen = new Views.SplashScreenView() { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner };
-            splashScreen.Notify(resources._splash_ClosingApplication);
-            splashScreen.Show();
+            _splashScreen = new Views.SplashScreenView() { Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner };
+            _splashScreen.Notify(resources._splash_ClosingApplication);
+            _splashScreen.Show();
             MainWindowViewmodel.Current?.Dispose();
-            splashScreen.Close();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -36,8 +35,14 @@ namespace TAS.Client
                            || (connectedClientCount > 0 && MessageBox.Show(this, string.Format(resources._query_ClientsConnectedOnExit, connectedClientCount), resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes));
 #endif // DEBUG
             if (!e.Cancel)
-                ShutdownApplication();
+                ShutdownViews();
             base.OnClosing(e);
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _splashScreen?.Close();
+            base.OnClosed(e);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
