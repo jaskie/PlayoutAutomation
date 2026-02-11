@@ -16,7 +16,7 @@
              d:DesignWidth="700"
              >
     <Border Style="{StaticResource EventPanelBaseStyle}">
-        <Grid Height="30">
+        <Grid  x:Name="mainGrid">
             <Grid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste}" Command="{Binding CommandPaste}" CommandParameter="Under"/>
@@ -30,13 +30,16 @@
                 <ColumnDefinition Width="40" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+            </Grid.RowDefinitions>
             <Image Margin="3" ToolTip="{Binding EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Container.png"/>
             <Image Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
             <TextBlock Grid.Column="1" Text="{Binding SubEventsCount, StringFormat={Resx _childrenCount, ResxName=TAS.Client.Views.EventPanelView}}" TextAlignment="Center" VerticalAlignment="Center"/>
             <Button Grid.Column="2" Margin="3" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _addSubRundown.ToolTip}" Command="{Binding CommandAddSubRundown}" Style="{StaticResource EventPanelCommandButton}">
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png"/>
             </Button>
-            <TextBlock Grid.Column="3" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" />
+            <TextBlock x:Name="lbContenerName" Grid.Column="3" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" />
             <TextBlock Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Top" Text="{Binding Id}" Visibility="{Binding ShowInDebugBuild}"/>
         </Grid>
     </Border>

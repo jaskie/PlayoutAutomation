@@ -34,11 +34,12 @@
             <Border.Resources>
                 <Style TargetType="Button" BasedOn="{StaticResource EventPanelCommandButton}"/>
             </Border.Resources>
-            <Grid>
+            <Grid x:Name="mainGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="33" />
                     <ColumnDefinition Width="31" />
                     <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="10" />
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
@@ -72,20 +73,20 @@
                             <Setter Property="VerticalAlignment" Value="Center"/>
                         </Style>
                     </StackPanel.Resources>
-                    <TextBlock Text="{Binding ScheduledTime}" ToolTip="{Resx _scheduledTime.ToolTip}" />
-                    <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" Foreground="{Binding Offset, Converter={StaticResource TimeSpanToRedGreenBrushConverter}}" Visibility="{Binding Offset, Converter={StaticResource NullToVis}}" ToolTip="{Resx _offsetTime.ToolTip}"/>
-                    <TextBlock Text="{Binding Duration}" ToolTip="{Resx _duration.ToolTip}" />
-                    <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" ToolTip="{Resx _endTime.ToolTip}"/>
+                    <TextBlock x:Name="lbScheduleTime" Text="{Binding ScheduledTime}" ToolTip="{Resx _scheduledTime.ToolTip}" />
+                    <TextBlock x:Name="lbOffset" Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" Foreground="{Binding Offset, Converter={StaticResource TimeSpanToRedGreenBrushConverter}}" Visibility="{Binding Offset, Converter={StaticResource NullToVis}}" ToolTip="{Resx _offsetTime.ToolTip}"/>
+                    <TextBlock x:Name="lbDuration" Text="{Binding Duration}" ToolTip="{Resx _duration.ToolTip}" />
+                    <TextBlock x:Name="lbEndTime" Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" ToolTip="{Resx _endTime.ToolTip}"/>
                     <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" Style="{StaticResource EventPanelImage}"/>
                 </StackPanel>
-                <StackPanel Grid.Column="3" Grid.Row="0" VerticalAlignment="Center" >
-                    <TextBlock Text="{Binding EventName}" FontSize="20" Style="{StaticResource EventPanelTextBlock}" >
+                <StackPanel Grid.Column="4" Grid.Row="0" VerticalAlignment="Center" >
+                    <TextBlock x:Name="lbLiveEventName" Text="{Binding EventName}" FontSize="20" Style="{StaticResource EventPanelTextBlock}" >
                         <TextBlock.ToolTip>
                             <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
                         </TextBlock.ToolTip>
                     </TextBlock>
                 </StackPanel>
-                <StackPanel Grid.Column="3" Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}" >
+                <StackPanel Grid.Column="4" Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}" >
                     <Button Command="{Binding CommandAddNextMovie}" ToolTip="{Resx _addNextMovie.ToolTip}" >
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-movie.png"/>
                     </Button>
@@ -100,7 +101,7 @@
                     </Button>
                 </StackPanel>
                 <local:EventPanelCGElementsView Grid.Column="3" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Right"  Margin="5, 0" />
-                <TextBlock Grid.Column="4" Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToString}}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
+                <TextBlock x:Name="lbTimeLeft" Grid.Column="4" Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToString}}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
                 <TextBlock Grid.Column="4" HorizontalAlignment="Right" VerticalAlignment="Top" Text="{Binding Id}" Visibility="{Binding ShowInDebugBuild}"/>
             </Grid>
         </Border>

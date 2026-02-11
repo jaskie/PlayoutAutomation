@@ -25,8 +25,19 @@ namespace TAS.Client.Views
         public MediaManagerView()
         {
             InitializeComponent();
+            SetFileNamesVisibility();
+            cbShowFileNames.Checked += (s, e) => SetFileNamesVisibility();
+            cbShowFileNames.Unchecked += (s, e) => SetFileNamesVisibility();
+            MediaListGrid.RowStyle = new Style(typeof(DataGridRow))
+            {
+                Setters = { new Setter(Control.FontSizeProperty, UISettings.GetFontSize(MediaListGrid.FontSize)) }
+            };
         }
 
+        void SetFileNamesVisibility()
+        {
+            clFileName.Visibility = cbShowFileNames.IsChecked ? Visibility.Visible : Visibility.Hidden;
+        }
 
         private void UserControl_KeyUp(object sender, KeyEventArgs e)
         {
