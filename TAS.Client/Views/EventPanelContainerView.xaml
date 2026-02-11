@@ -36,7 +36,7 @@
             <Image Margin="3" ToolTip="{Binding EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Container.png"/>
             <Image Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
             <TextBlock Grid.Column="1" Text="{Binding SubEventsCount, StringFormat={Resx _childrenCount, ResxName=TAS.Client.Views.EventPanelView}}" TextAlignment="Center" VerticalAlignment="Center"/>
-            <Button Grid.Column="2" Margin="3" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _addSubRundown.ToolTip}" Command="{Binding CommandAddSubRundown}" Style="{StaticResource EventPanelCommandButton}">
+            <Button Grid.Column="2" Margin="3" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _addSubRundown.ToolTip}" Command="{Binding CommandAddSubRundown}" Style="{StaticResource EventPanelCommandButton}" MaxWidth="27" MaxHeight="27">
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png"/>
             </Button>
             <TextBlock x:Name="lbContenerName" Grid.Column="3" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" />

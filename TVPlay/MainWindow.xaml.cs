@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Diagnostics;
 using resources = TAS.Client.Common.Properties.Resources;
+using TAS.Server;
 
 namespace TAS.Client
 {
