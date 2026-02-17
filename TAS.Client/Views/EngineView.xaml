@@ -75,7 +75,7 @@
             </Style.Triggers>
         </Style>
     </UserControl.Style>
-    <controls:CustomizableContentControl ViewName="EngineView">
+    <controls:CustomizableControl ViewName="EngineView">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -645,5 +645,5 @@
             </TabControl>-->
             </DockPanel>
         </Grid>
-    </controls:CustomizableContentControl>
+    </controls:CustomizableControl>
 </UserControl>
