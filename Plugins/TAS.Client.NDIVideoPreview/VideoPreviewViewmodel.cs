@@ -167,6 +167,7 @@ namespace TAS.Client.NDIVideoPreview
             Disconnect();
             NdiSourcesWatcher.SourceAdded -= OnSourceAdded;
             NdiSourcesWatcher.SourceRemoved -= OnSourceRemoved;
+            Logger.Debug($"{GetType().Name} disposed");
         }
 
         private void GotoNdiWebsite(object obj)

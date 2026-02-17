@@ -59,7 +59,13 @@ namespace TAS.Database.SQLite
 
         public event EventHandler<RedundantConnectionStateEventArgs> ConnectionStateChanged;
 
-        public abstract void Close();
+        public virtual void Close()
+        {
+            if (Connection is null)
+                return;
+            Connection.Close();
+            Logger.Debug($"{GetType().Name} closed");
+        }
 
         public abstract ConnectionStateRedundant ConnectionState { get; }
 

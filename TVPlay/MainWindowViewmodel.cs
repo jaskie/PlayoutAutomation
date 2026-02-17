@@ -52,7 +52,6 @@ namespace TAS.Client
         protected override void OnDispose()
         {
             Tabs.ToList().ForEach(c => c.Dispose());
-            EngineController.Current.ShutDown();
         }
     }
 }

@@ -441,6 +441,8 @@ namespace TAS.Client.ViewModels
         {
             if (string.IsNullOrEmpty(e.PropertyName))
                 return;
+            if (e.PropertyName == nameof(IMedia.FileSize))
+                return;
             OnUiThread(() =>
             {
                 var sourcePi = Model.GetType().GetProperty(e.PropertyName);
