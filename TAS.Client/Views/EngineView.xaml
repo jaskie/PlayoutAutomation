@@ -428,7 +428,7 @@
                 </StatusBarItem>
             </StatusBar>
             <DockPanel Grid.Row="1" >
-                <Expander DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" Collapsed="Expander_Collapsed"  >
+                <Expander x:Name="SidePanelExpander" DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" Collapsed="Expander_Collapsed"  >
                     <Expander.Resources>
                         <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
                             <Style.Triggers>
