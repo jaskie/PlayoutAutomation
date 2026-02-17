@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<PropertyOverrides>
+  <!--<AttentionTimeLabel FontSize="18"/>-->
+  <!--<SidePanelExpander ExpandDirection="Right" DockPanel.Dock="Left"/>-->
+</PropertyOverrides>
