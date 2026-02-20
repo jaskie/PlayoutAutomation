@@ -135,6 +135,8 @@
                 <MenuItem Header="{Resx _menu.Tools}">
                     <MenuItem Header="{Resx _menu.Tools.SynchronizeSecToPri}" Command="{Binding CommandSyncPriToSec}"/>
                     <MenuItem Header="{Resx _menu.Tools.VerifyAllMedia}" Command="{Binding CommandVerifyAllMedia}"/>
+                    <Separator />
+                    <MenuItem Name="cbShowFileNames" Header="{Resx _menu.Tools.ShowFileNames}" IsCheckable="True" IsChecked="False"/>
                 </MenuItem>
             </Menu>
             <TabControl Grid.Row="0">
@@ -467,16 +469,26 @@
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}" />
-                                <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.DurationPlay}"  Width="90" SortMemberPath="DurationPlay">
+                                <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="SizeToCells" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay, Converter={StaticResource DateTimeToStringConverter}}" CanUserResize="False">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Margin" Value="6,0,6,0"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.DurationPlay}"  Width="SizeToCells" SortMemberPath="DurationPlay" CanUserResize="False">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <controls:TimecodeTextBlock Timecode="{Binding DurationPlay}" VideoFormat="{Binding VideoFormat}"/>
+                                            <controls:TimecodeTextBlock Timecode="{Binding DurationPlay}" VideoFormat="{Binding VideoFormat}" Margin="6,0,6,0"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
+                                    
                                 </DataGridTemplateColumn>
-                                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.Folder}" Visibility="{Binding Data.IsDisplayFolder,  Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" Width="*" Binding="{Binding Folder, Mode=OneWay}" />
-                                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.FileName}" Width="*" Binding="{Binding FileName, Mode=OneWay}" />
+                                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.Folder}" Visibility="{Binding Data.IsDisplayFolder,  Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" Width="*" Binding="{Binding Folder, Mode=OneWay}"/>
+                                
+
+                                <DataGridTextColumn x:Name="clFileName" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.FileName}" Width="*" Binding="{Binding FileName, Mode=OneWay}" />
+
                             </DataGrid.Columns>
                             <DataGrid.RowDetailsTemplate>
                                 <DataTemplate>
