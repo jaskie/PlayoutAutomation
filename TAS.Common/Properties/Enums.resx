@@ -456,8 +456,8 @@
   <data name="TMediaErrorInfo_Expired" xml:space="preserve">
     <value>Clip expired</value>
   </data>
-  <data name="TAudioChannelMappingConversion_MergeAllChannels" xml:space="preserve">
-    <value>Get all channels</value>
+  <data name="TAudioChannelMappingConversion_FirstFourChannels" xml:space="preserve">
+    <value>First 4 channels (dual-stereo)</value>
   </data>
   <data name="TAudioChannelMappingConversion_FourthTwoChannels" xml:space="preserve">
     <value>Tracks 7 &amp; 8 -&gt; Stereo</value>

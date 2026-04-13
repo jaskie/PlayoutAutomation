@@ -187,7 +187,7 @@ namespace TAS.Common
         SecondChannelOnly,
         Combine1Plus2,
         Combine3Plus4,
-        MergeAllChannels
+        FirstFourChannels,
     }
 
     class TAudioChannelMappingConversionEnumConverter : ResourceEnumConverter
@@ -276,6 +276,7 @@ namespace TAS.Common
         DolbyE = 4,           // 5.1+stereomix L R C LFE Ls Rs Lmix Rmix
         DolbyDigital = 5,     // 5.1           L C R Ls Rs LFE
         Smpte = 6,            // 5.1           L R C LFE Ls Rs
+        Quad = 7 // dual - stereo              L R Ls Rs
     }
     class TAudioChannelMappingEnumConverter : ResourceEnumConverter
     {
