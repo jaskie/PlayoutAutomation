@@ -31,7 +31,4 @@
       <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMdd"))</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
 </Project>

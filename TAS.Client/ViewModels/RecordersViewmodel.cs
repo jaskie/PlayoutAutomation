@@ -126,7 +126,8 @@ namespace TAS.Client.ViewModels
             TAudioChannelMappingConversion.FirstTwoChannels,
             TAudioChannelMappingConversion.FirstChannelOnly,
             TAudioChannelMappingConversion.SecondChannelOnly,
-            TAudioChannelMappingConversion.SecondTwoChannels
+            TAudioChannelMappingConversion.SecondTwoChannels,
+            TAudioChannelMappingConversion.FirstFourChannels
         };
 
         public TAudioChannelMappingConversion SelectedAudioChannelMappingConversion
@@ -386,6 +387,8 @@ namespace TAS.Client.ViewModels
                     return new[] {1, 1};
                 case TAudioChannelMappingConversion.SecondTwoChannels:
                     return new[] {2, 3};
+                case TAudioChannelMappingConversion.FirstFourChannels:
+                    return new[] {0, 1, 2, 3};
                 default:
                     throw new NotSupportedException("Invalid audio channel mapping");
             }
