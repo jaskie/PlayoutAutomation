@@ -19,6 +19,10 @@ namespace TAS.Client.Views
         public EngineView()
         {
             InitializeComponent();
+            UISettings.Apply(lbAttentionTime, 5);
+            UISettings.Apply(lbNextRequiredTime, 4);
+            UISettings.Apply(lbNowPlayingName);
+            UISettings.Apply(lbNextToPlayName);
         }
 
         private void SidePanelResizer_DragDelta(object sender, DragDeltaEventArgs e)

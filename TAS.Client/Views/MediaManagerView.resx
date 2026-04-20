@@ -264,4 +264,7 @@
   <data name="_toolbar.Ingest.ToolTip" xml:space="preserve">
     <value>Ingest to playout</value>
   </data>
+  <data name="_menu.Tools.ShowFileNames" xml:space="preserve">
+    <value>Show file names</value>
+  </data>
 </root>

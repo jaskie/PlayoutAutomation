@@ -17,6 +17,7 @@
              d:DataContext="{d:DesignInstance vm:EventEditViewmodel}"
              BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey }}"
              >
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -88,6 +89,11 @@
                     <Setter Property="HorizontalAlignment" Value="Left"/>
                     <Setter Property="VerticalAlignment" Value="Center"/>
                     <Setter Property="Margin" Value="10, 3, 3, 0"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
                 <Style TargetType="ComboBox">
                     <Setter Property="Margin" Value="1"/>
@@ -104,10 +110,10 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0" Grid.Column="0" Content="{Resx _eventType}"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding EventType, Mode=OneWay}" IsEnabled="False" />
-                <Label Grid.Row="1" Grid.Column="0" Content="{Resx _name}"/>
-                <TextBox Grid.Row="1" Grid.Column="1" Name="EventName" Text="{Binding EventName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" ToolTip="{Resx _eventName.ToolTip}">
+                <Label Grid.Row="0" Grid.Column="0" Content="{Resx _eventType}" FontWeight="Bold"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding EventType, Mode=OneWay}" IsEnabled="False" Margin="1,3,1,0" VerticalAlignment="Top"  FontWeight="Bold"/>
+                <Label Grid.Row="1" Grid.Column="0" Content="{Resx _name}" FontWeight="Bold"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Name="EventName" Text="{Binding EventName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" ToolTip="{Resx _eventName.ToolTip}" FontWeight="Bold">
                     <i:Interaction.Behaviors>
                         <behaviors:Focus IsFocused="{Binding IsEventNameFocused}" SelectAllOnFocus="True" />
                     </i:Interaction.Behaviors>
@@ -131,14 +137,14 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <CheckBox Grid.Row="0" Grid.Column="0" Content="{Resx _starting}" IsChecked="{Binding IsEnabled}" HorizontalContentAlignment="Right" VerticalAlignment="Center" ToolTip="{Resx _starting.ToolTip}" />
+                    <CheckBox Grid.Row="0" Grid.Column="0" Content="{Resx _starting}" IsChecked="{Binding IsEnabled}" HorizontalContentAlignment="Right" VerticalAlignment="Center" ToolTip="{Resx _starting.ToolTip}"  FontWeight="Bold"/>
                     <Grid Grid.Row="0" Grid.Column="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding StartType}" IsReadOnly="True" />
-                        <Button Grid.Row="0" Grid.Column="1" Height="20" Margin="5" Visibility="{Binding IsStartEvent, Converter={StaticResource BoolToVis}}" Command="{Binding CommandTriggerStartType}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                        <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding StartType}" IsReadOnly="True"   FontWeight="Bold"/>
+                        <Button Grid.Row="0" Grid.Column="1" Height="20" Margin="5" Visibility="{Binding IsStartEvent, Converter={StaticResource BoolToVis}}" Command="{Binding CommandTriggerStartType}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}"  FontWeight="Bold">
                             <Image>
                                 <Image.Style>
                                     <Style TargetType="Image">
@@ -157,24 +163,26 @@
                             </Image>
                         </Button>
                     </Grid>
-                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding BoundEventName, Mode=OneWay}" IsReadOnly="True" Visibility="{Binding IsStartEvent, Converter={StaticResource InvertedBoolToVis}}"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding BoundEventName, Mode=OneWay}" IsReadOnly="True" Visibility="{Binding IsStartEvent, Converter={StaticResource InvertedBoolToVis}}" FontWeight="Bold"/>
                     <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding IsAutoStartEvent, Converter={StaticResource BoolToVis}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" SharedSizeGroup="Labels" />
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Content="Autostart"/>
-                        <CheckBox Grid.Column="1" Content="{Resx _autoStartForced}" ToolTip="{Resx _autoStartForced.ToolTip}" IsChecked="{Binding AutoStartForced}" Margin="1,3" Width="110"/>
-                        <CheckBox Grid.Column="2" Content="{Resx _autoStartEveryday}" IsChecked="{Binding AutoStartDaily}" Margin="1,3" Width="Auto" />
+                        <Label Content="Autostart" FontWeight="Bold"/>
+                        <CheckBox Grid.Column="1" Content="{Resx _autoStartForced}" ToolTip="{Resx _autoStartForced.ToolTip}" IsChecked="{Binding AutoStartForced}" Margin="1,3" Width="110" FontWeight="Bold"/>
+                        <CheckBox Grid.Column="2" Content="{Resx _autoStartEveryday}" IsChecked="{Binding AutoStartDaily}" Margin="1,3" Width="Auto"  FontWeight="Bold"/>
                     </Grid>
                     <Grid Grid.Row="3" Grid.Column="1" Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="126*"/>
+                            <ColumnDefinition Width="14*"/>
+                            <ColumnDefinition Width="21*"/>
+                            <ColumnDefinition Width="90*"/>
                         </Grid.ColumnDefinitions>
-                        <CheckBox Grid.Column="0" Content="{Resx _hold}" IsChecked="{Binding IsHold}" IsEnabled="{Binding CanHold}" ToolTip="{Resx _hold.ToolTip}"  Margin="1,3" Width="110"/>
-                        <CheckBox Grid.Column="1" Content="{Resx _loop}" IsChecked="{Binding IsLoop}" IsEnabled="{Binding CanLoop}" Margin="1,3" />
+                        <CheckBox Grid.Column="0" Content="{Resx _hold}" IsChecked="{Binding IsHold}" IsEnabled="{Binding CanHold}" ToolTip="{Resx _hold.ToolTip}"  Margin="1,0,0,0" Width="110" FontWeight="Bold"/>
+                        <CheckBox Grid.Column="1" Content="{Resx _loop}" IsChecked="{Binding IsLoop}" IsEnabled="{Binding CanLoop}" Grid.ColumnSpan="3" Margin="10,3,0,0" VerticalAlignment="Top"  FontWeight="Bold"/>
                     </Grid>
 
                     <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2">
@@ -356,7 +364,7 @@
                                     <MultiBinding Converter="{StaticResource MultiBooleanOrNotNullToVisibilityConverter}">
                                         <Binding Path="IsLive"/>
                                         <Binding Path="RecordingInfoViewmodel"/>
-                                    </MultiBinding>                                    
+                                    </MultiBinding>
                                 </Grid.Visibility>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="auto" />
