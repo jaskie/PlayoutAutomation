@@ -231,7 +231,7 @@
                             <Button Command="{Binding CommandRescheduleSelected}" ToolTip="{Resx _toolbar.Reschedule}">
                                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png" Stretch="None" />
                             </Button>
-                            <ComboBox x:Name="ClearCombo" Margin="2" SelectedIndex="0" Padding="5" VerticalAlignment="Center" >
+                            <ComboBox x:Name="Clear_ComboBox" Margin="2" SelectedIndex="0" Padding="5" VerticalAlignment="Center" >
                                 <ComboBoxItem ToolTip="{Resx _toolbar.ClearAll}" >
                                     <Button Command="{Binding CommandClearAll}" Style="{StaticResource ControlPanelButtons}" Click="ClearButton_OnClick">
                                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Aborted.png" />
@@ -282,8 +282,8 @@
                             </StackPanel>
                         </GroupBox>
                         <StackPanel Width="125">
-                            <Label x:Name="AttentionTimeLabel" Content="{Resx _toolbar.TimeToAttention}" />
-                            <TextBlock x:Name="AttentionTime" Text="{Binding TimeToAttention, Converter={StaticResource TimeSpanToString}}" TextAlignment="Center" VerticalAlignment="Center" FontSize="26" Margin="5, 0">
+                            <Label x:Name="AttentionTime_Label" Content="{Resx _toolbar.TimeToAttention}" />
+                            <TextBlock x:Name="AttentionTime_TextBlock" Text="{Binding TimeToAttention, Converter={StaticResource TimeSpanToString}}" TextAlignment="Center" VerticalAlignment="Center" FontSize="26" Margin="5, 0">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Style.Triggers>
@@ -297,8 +297,8 @@
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
-                            <Label x:Name="NextRequiredTimeLabel" Content="{Resx _toolbar.NextWithRequestedStartTime}"/>
-                            <TextBlock x:Name="NextRequiredTime" FontSize="12" Text="{Binding NextWithRequestedStartTime.Offset, Converter={StaticResource TimeSpanToSignedString}}">
+                            <Label x:Name="NextRequiredTime_Label" Content="{Resx _toolbar.NextWithRequestedStartTime}"/>
+                            <TextBlock x:Name="NextRequiredTime_TextBlock" FontSize="12" Text="{Binding NextWithRequestedStartTime.Offset, Converter={StaticResource TimeSpanToSignedString}}">
                                 <TextBlock.ToolTip>
                                     <Run Text="{Binding NextWithRequestedStartTime.EventName}"/>
                                 </TextBlock.ToolTip>
@@ -307,9 +307,9 @@
                         <ScrollViewer controls:WrapPanelFill.UseToFill="True" MinWidth="350" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
                             <StackPanel MaxWidth="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}, Path=ActualWidth}">
                                 <Label Content="{Resx _toolbar.NowPlaying}"  />
-                                <TextBlock x:Name="NowPlaying" Text="{Binding PlayingEventName}" />
+                                <TextBlock x:Name="NowPlaying_TextBlock" Text="{Binding PlayingEventName}" />
                                 <Label Content="{Resx _toolbar.Next}" />
-                                <TextBlock x:Name="NextToPlay" Text="{Binding NextToPlay}" HorizontalAlignment="Stretch" Width="Auto"/>
+                                <TextBlock x:Name="NextToPlay_TextBlock" Text="{Binding NextToPlay}" HorizontalAlignment="Stretch" Width="Auto"/>
                             </StackPanel>
                         </ScrollViewer>
                     </controls:WrapPanelFill>
@@ -428,7 +428,7 @@
                 </StatusBarItem>
             </StatusBar>
             <DockPanel Grid.Row="1" >
-                <Expander x:Name="SidePanelExpander" DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" Collapsed="Expander_Collapsed"  >
+                <Expander x:Name="SidePanel_Expander" DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" Collapsed="Expander_Collapsed"  >
                     <Expander.Resources>
                         <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
                             <Style.Triggers>
@@ -463,7 +463,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <Thumb Name="SidePanelResizer" HorizontalAlignment="Left" Width="3" BorderThickness="0" Background="DarkGray" Grid.Column="0" Grid.RowSpan="3" Cursor="SizeWE" DragDelta="SidePanelResizer_DragDelta"/>
+                        <Thumb Name="SidePanelResizer_Thumb" HorizontalAlignment="Left" Width="3" BorderThickness="0" Background="DarkGray" Grid.Column="0" Grid.RowSpan="3" Cursor="SizeWE" DragDelta="SidePanelResizer_DragDelta"/>
                         <ContentControl Content="{Binding SelectedEventEditViewmodel}" Margin="3, 0, 0, 0">
                             <ContentControl.Resources>
                                 <DataTemplate DataType="{x:Type vievmodels:EventEditViewmodel}">
@@ -499,112 +499,14 @@
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
                         </Button>
                     </Grid>
-                    <TreeView x:Name="RundownTreeView"
-                      common:TreeViewExtensions.EnableMultiSelect="True"
-                      common:TreeViewExtensions.MultiSelectedItems="{Binding MultiSelectedEvents}"
-                      ItemsSource="{Binding RootEventViewModel.Childrens}"
-                      Background="{x:Null}"
-                      BorderThickness="0"
+                    <TreeView x:Name="Rundown_TreeView"
+                              common:TreeViewExtensions.EnableMultiSelect="True"
+                              common:TreeViewExtensions.MultiSelectedItems="{Binding MultiSelectedEvents}"
+                              ItemsSource="{Binding RootEventViewModel.Childrens}"
+                              Background="{x:Null}"
+                              BorderThickness="0"
+                              ItemContainerStyle="{StaticResource RundownTreeViewItemStyle}"
                       >
-                        <TreeView.ItemContainerStyle>
-                            <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="TreeViewItem">
-                                            <Grid MaxWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto" MinWidth="20" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition />
-                                                </Grid.RowDefinitions>
-                                                <ToggleButton IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press" Name="Expander">
-                                                    <ToggleButton.Style>
-                                                        <Style TargetType="ToggleButton">
-                                                            <Setter Property="Focusable" Value="false" />
-                                                            <Setter Property="Width" Value="20" />
-                                                            <Setter Property="Height" Value="24" />
-                                                            <Setter Property="Template">
-                                                                <Setter.Value>
-                                                                    <ControlTemplate TargetType="ToggleButton">
-                                                                        <Border Background="#00FFFFFF" Width="20" Height="24" >
-                                                                            <Path Fill="#00FFFFFF" Stroke="#FF4D4D4D" Name="ExpandPath">
-                                                                                <Path.Data>
-                                                                                    <PathGeometry Figures="M0,0L0,13L13,0z" />
-                                                                                </Path.Data>
-                                                                                <Path.RenderTransform>
-                                                                                    <RotateTransform Angle="135" CenterX="6" CenterY="9"/>
-                                                                                </Path.RenderTransform>
-                                                                            </Path>
-                                                                        </Border>
-                                                                        <ControlTemplate.Triggers>
-                                                                            <Trigger Property="UIElement.IsMouseOver" Value="True">
-                                                                                <Setter TargetName="ExpandPath" Property="Shape.Stroke" Value="#FF0E8FFB" />
-                                                                            </Trigger>
-                                                                            <Trigger Property="ToggleButton.IsChecked" Value="True">
-                                                                                <Setter TargetName="ExpandPath" Property="UIElement.RenderTransform">
-                                                                                    <Setter.Value>
-                                                                                        <RotateTransform Angle="180" CenterX="8" CenterY="9" />
-                                                                                    </Setter.Value>
-                                                                                </Setter>
-                                                                                <Setter TargetName="ExpandPath" Property="Shape.Fill" Value="#FF0E8FFB" />
-                                                                                <Setter TargetName="ExpandPath" Property="Shape.Stroke" Value="#FF0E8FFB" />
-                                                                            </Trigger>
-                                                                        </ControlTemplate.Triggers>
-                                                                    </ControlTemplate>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </Style>
-                                                    </ToggleButton.Style>
-                                                </ToggleButton>
-                                                <Border x:Name="Bd" BorderThickness="{TemplateBinding BorderThickness}"
-                                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                                Padding="{TemplateBinding Padding}"
-                                                                Background="{TemplateBinding Background}"
-                                                                SnapsToDevicePixels="True"
-                                                                Grid.Row="0" Grid.Column="1">
-                                                    <ContentPresenter x:Name="PART_Header"
-                                                      Content="{TemplateBinding Header}"
-                                                      ContentTemplate="{TemplateBinding HeaderTemplate}"
-                                                      ContentStringFormat="{TemplateBinding HeaderStringFormat}"
-                                                      ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}"
-                                                      ContentSource="Header" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                                      />
-                                                </Border>
-                                                <ItemsPresenter x:Name="ItemsHost" Grid.Column="1" Grid.Row="1" />
-                                            </Grid>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="TreeViewItem.IsExpanded" Value="False">
-                                                    <Setter TargetName="ItemsHost" Property="UIElement.Visibility" Value="Collapsed" />
-                                                </Trigger>
-                                                <Trigger Property="ItemsControl.HasItems" Value="False">
-                                                    <Setter TargetName="Expander" Property="UIElement.Visibility" Value="Hidden" />
-                                                </Trigger>
-                                                <Trigger Property="TreeViewItem.IsSelected" Value="True">
-                                                    <Setter TargetName="Bd" Property="Panel.Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
-                                                    <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
-                                                </Trigger>
-                                                <Trigger Property="UIElement.IsEnabled" Value="False">
-                                                    <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                                <Setter Property="IsSelected" Value="{Binding IsSelected}" />
-                                <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVis}}"/>
-                                <Setter Property="common:TreeViewExtensions.IsMultiSelected" Value="{Binding IsMultiSelected}"/>
-                                <Setter Property="Margin" Value="0"/>
-                                <Style.Triggers>
-                                    <Trigger Property="common:TreeViewExtensions.IsMultiSelected"  Value="True" >
-                                        <Setter Property="Background" Value="LightSkyBlue"></Setter>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TreeView.ItemContainerStyle>
                         <TreeView.Resources>
                             <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelMovieViewmodel}" >
                                 <views:EventPanelMovieView />

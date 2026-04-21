@@ -1,5 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <PropertyOverrides>
-  <!--<AttentionTimeLabel FontSize="18"/>-->
-  <!--<SidePanelExpander ExpandDirection="Right" DockPanel.Dock="Left"/>-->
+  <!--<AttentionTime_Label FontSize="18"/>-->
+  <!--<SidePanel_Expander ExpandDirection="Right" DockPanel.Dock="Left"/>-->
+  <SidePanelResizer_Thumb />
+  <NextRequiredTime_Label />
+  <NextRequiredTime_TextBlock />
+  <NowPlaying_TextBlock />
+  <NextToPlay_TextBlock />
+  <ClearCombo />
+  <AttentionTime_TextBlock />
+  <Rundown_TreeView/>
+  
 </PropertyOverrides>

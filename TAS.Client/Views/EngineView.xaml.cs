@@ -31,13 +31,13 @@ namespace TAS.Client.Views
 
         private void ClearButton_OnClick(object sender, RoutedEventArgs e)
         {
-            ClearCombo.IsDropDownOpen = false;
+            Clear_ComboBox.IsDropDownOpen = false;
         }
 
 
         private void Expander_Collapsed(object sender, RoutedEventArgs e)
         {
-            RundownTreeView.Focus();
+            Rundown_TreeView.Focus();
         }
 
         private void EngineView_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
