@@ -441,6 +441,8 @@ namespace TAS.Client.ViewModels
         {
             if (string.IsNullOrEmpty(e.PropertyName))
                 return;
+            if (e.PropertyName is nameof(IMedia.FileSize) || e.PropertyName is nameof(IMedia.IsVerified))
+                return;
             OnUiThread(() =>
             {
                 var sourcePi = Model.GetType().GetProperty(e.PropertyName);

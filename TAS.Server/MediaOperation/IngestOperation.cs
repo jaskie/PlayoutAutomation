@@ -292,10 +292,11 @@ namespace TAS.Server.MediaOperation
                 {
                     var audioChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
                     int outputChannelCount;
-                    switch ((TAudioChannelMappingConversion)audioChannelMappingConversion.Conversion)
+                    var conversion = (TAudioChannelMappingConversion)audioChannelMappingConversion.Conversion;
+                    switch (conversion)
                     {
-                        case TAudioChannelMappingConversion.MergeAllChannels:
-                            outputChannelCount = audioStreams.Sum(s => s.ChannelCount);
+                        case TAudioChannelMappingConversion.FirstFourChannels:
+                            outputChannelCount = 4;
                             break;
                         default:
                             outputChannelCount = 2;
@@ -304,7 +305,8 @@ namespace TAS.Server.MediaOperation
 
                     ep.AppendFormat(" -b:a {0}k", (int)(outputChannelCount * 128 * sourceDir.AudioBitrateRatio));
                     int requiredOutputChannels;
-                    switch ((TAudioChannelMappingConversion)audioChannelMappingConversion.Conversion)
+
+                    switch (conversion)
                     {
                         case TAudioChannelMappingConversion.FirstTwoChannels:
                         case TAudioChannelMappingConversion.SecondChannelOnly:
@@ -324,8 +326,8 @@ namespace TAS.Server.MediaOperation
                         case TAudioChannelMappingConversion.FourthTwoChannels:
                             requiredOutputChannels = 8;
                             break;
-                        case TAudioChannelMappingConversion.MergeAllChannels:
-                            requiredOutputChannels = audioStreams.Sum(s => s.ChannelCount);
+                        case TAudioChannelMappingConversion.FirstFourChannels:
+                            requiredOutputChannels = 4;
                             break;
                         default:
                             requiredOutputChannels = 0;
@@ -345,7 +347,7 @@ namespace TAS.Server.MediaOperation
                     if (Math.Abs(AudioVolume) > double.Epsilon)
                         AddConversion(new MediaConversion(AudioVolume), audioFilters);
                     ep.Append(" -ar 48000");
-                    ep.Append($" -channel_layout {GetAudioChannelLayoutBitmask(requiredOutputChannels)}");
+                    ep.Append($" -channel_layout {GetAudioChannelLayout(conversion)}");
                    
                 }
             }
@@ -368,14 +370,15 @@ namespace TAS.Server.MediaOperation
             return ep.ToString();
         }
 
-        private long GetAudioChannelLayoutBitmask(int channels)
+        private string GetAudioChannelLayout(TAudioChannelMappingConversion conversion)
         {
-            long result = 0;
-            while (channels-- > 0)
+            switch (conversion)
             {
-                result = (result << 1) | 1;
+                case TAudioChannelMappingConversion.FirstFourChannels:
+                    return "4.0";
+                default:
+                    return "stereo";
             }
-            return result;
         }
 
         private bool IsTrimmed()

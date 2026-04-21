@@ -66,7 +66,7 @@ namespace Svt.Caspar
             if (item.Seek > 0) command.AppendFormat(" SEEK {0}", item.Seek);
             if (item.Length > 0) command.AppendFormat(" LENGTH {0}", item.Length);
             if (item.Loop) command.Append(" LOOP");
-            if (item.ChannelLayout != ChannelLayout.Default) command.AppendFormat(" CHANNEL_LAYOUT {0}", item.ChannelLayout.ToString().ToUpperInvariant());
+            if (item.ChannelLayout != ChannelLayout.Default) command.AppendFormat(" CHANNEL_LAYOUT {0}", item.ChannelLayout.ToAMCPChannelLayout());
             if (item.FieldOrderInverted)
                 command.Append(" FIELD_ORDER_INVERTED");
             Connection.SendRequest(command.ToString());

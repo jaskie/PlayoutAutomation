@@ -29,14 +29,6 @@ namespace TAS.Database.SQLite
 
         public override ConnectionStateRedundant ConnectionState => (ConnectionStateRedundant)Connection.State;
 
-        public override void Close()
-        {
-            if (Connection == null)
-                return;
-            Connection.Close();
-            Connection = null;
-        }
-
         public bool CreateEmptyDatabase()
         {
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TAS.Database.SQLite.Schema.Schema.sql"))

@@ -193,6 +193,7 @@ namespace TAS.Server
             }
             (MediaDirectory as IDisposable)?.Dispose();
             (AnimationDirectory as IDisposable)?.Dispose();
+            Logger.Debug($"{GetType().Name} disposed");
         }
     }
 }

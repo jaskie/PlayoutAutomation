@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Infralution.Localization.Wpf;
+using System;
 using System.Configuration;
 using System.Security.Principal;
 using System.Threading;
 using System.Windows;
-using Infralution.Localization.Wpf;
 using TAS.Client.Views;
+using TAS.Server;
 
 
 namespace TAS.Client
@@ -36,6 +37,7 @@ namespace TAS.Client
             base.OnExit(e);
             if (!IsShutdown)
                 Mutex.ReleaseMutex();
+            EngineController.Current.ShutDown();
             NLog.LogManager.Shutdown();
         }
 

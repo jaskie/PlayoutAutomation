@@ -95,11 +95,7 @@ namespace TAS.Server
             if (Servers != null)
                 foreach (var s in Servers)
                     s.Dispose();
-            if (DatabaseProvider.Database != null)
-            {
-                DatabaseProvider.Database.Close();
-                Logger.Info("Database closed");
-            }
+            DatabaseProvider.Database?.Close();
             FileManager.Current.Dispose();
         }
 

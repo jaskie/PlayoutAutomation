@@ -77,8 +77,9 @@ namespace TAS.Common
                     OutputFormat = TAudioChannelMapping.Stereo;
                     FFMpegFilter = "pan=stereo|c0=0.5*c2+0.5*c3|c1=0.5*c2+0.5*c3";
                     break;
-                case TAudioChannelMappingConversion.MergeAllChannels:
-                    OutputFormat = TAudioChannelMapping.Unknown;
+                case TAudioChannelMappingConversion.FirstFourChannels:
+                    OutputFormat = TAudioChannelMapping.Quad;
+                    FFMpegFilter = "pan=4.0|c0=c0|c1=c1|c2=c2|c3=c3";
                     break;
             }
         }
@@ -132,7 +133,7 @@ namespace TAS.Common
             {TAudioChannelMappingConversion.SecondChannelOnly, new MediaConversion(TAudioChannelMappingConversion.SecondChannelOnly)},
             {TAudioChannelMappingConversion.Combine1Plus2, new MediaConversion(TAudioChannelMappingConversion.Combine1Plus2)},
             {TAudioChannelMappingConversion.Combine3Plus4, new MediaConversion(TAudioChannelMappingConversion.Combine3Plus4)},
-            {TAudioChannelMappingConversion.MergeAllChannels, new MediaConversion(TAudioChannelMappingConversion.MergeAllChannels)}
+            {TAudioChannelMappingConversion.FirstFourChannels, new MediaConversion(TAudioChannelMappingConversion.FirstFourChannels)}
         };
 
         public static Dictionary<TFieldOrder, MediaConversion> SourceFieldOrderEnforceConversions = new Dictionary<TFieldOrder, MediaConversion>() 

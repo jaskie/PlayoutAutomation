@@ -738,6 +738,8 @@ namespace TAS.Server
                     return Svt.Caspar.ChannelLayout.Mono;
                 case 2:
                     return Svt.Caspar.ChannelLayout.Stereo;
+                case 4:
+                    return Svt.Caspar.ChannelLayout.DualStereo;
                 default:
                     return Svt.Caspar.ChannelLayout.Default;
             }
