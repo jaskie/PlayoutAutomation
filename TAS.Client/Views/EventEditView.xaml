@@ -92,6 +92,11 @@
                 <Style TargetType="ComboBox">
                     <Setter Property="Margin" Value="1"/>
                     <Setter Property="Padding" Value="2,1"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
             </ScrollViewer.Resources>
             <Grid IsSharedSizeScope="True" IsEnabled="{Binding IsEditEnabled}" >

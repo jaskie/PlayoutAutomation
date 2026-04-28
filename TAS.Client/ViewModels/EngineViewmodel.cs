@@ -260,7 +260,7 @@ namespace TAS.Client.ViewModels
 
         public void Focus()
         {
-            View?.RundownTreeView.Focus();
+            View?.Rundown_TreeView.Focus();
         }
 
         protected override void OnDispose()

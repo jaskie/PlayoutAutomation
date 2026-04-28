@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<PropertyOverrides>
+  <!--<AttentionTime_Label FontSize="18"/>-->
+  <!--<AttentionTime_TextBlock />-->
+  <!--<SidePanel_Expander ExpandDirection="Right" DockPanel.Dock="Left"/>-->
+  <!--<SidePanelResizer_Thumb />-->
+  <!--<NextRequiredTime_Label />-->
+  <!--<NextRequiredTime_TextBlock />-->
+  <!--<NowPlaying_Label />-->
+  <!--<NowPlaying_TextBlock />-->
+  <!--<NextToPlay_Label />-->
+  <!--<NextToPlay_TextBlock />-->
+  <!--<Clear_ComboBox />-->
+  <!--<Rundown_TreeView/>-->  
+</PropertyOverrides>
