@@ -306,15 +306,117 @@
                         </StackPanel>
                         <ScrollViewer controls:WrapPanelFill.UseToFill="True" MinWidth="350" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
                             <StackPanel MaxWidth="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}, Path=ActualWidth}">
-                                <Label Content="{Resx _toolbar.NowPlaying}"  />
+                                <Label x:Name="NowPlaying_Label" Content="{Resx _toolbar.NowPlaying}"  />
                                 <TextBlock x:Name="NowPlaying_TextBlock" Text="{Binding PlayingEventName}" />
-                                <Label Content="{Resx _toolbar.Next}" />
+                                <Label x:Name="NextToPlay_Label" Content="{Resx _toolbar.Next}" />
                                 <TextBlock x:Name="NextToPlay_TextBlock" Text="{Binding NextToPlay}" HorizontalAlignment="Stretch" Width="Auto"/>
                             </StackPanel>
                         </ScrollViewer>
                     </controls:WrapPanelFill>
                 </DockPanel>
             </Border>
+            <DockPanel Grid.Row="1" >
+                <Expander x:Name="SidePanel_Expander" DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" Collapsed="Expander_Collapsed"  >
+                    <Expander.Header>
+                        <TextBlock ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
+                            <TextBlock.LayoutTransform>
+                                <RotateTransform Angle="90"/>
+                            </TextBlock.LayoutTransform>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="{Resx _hide, ResxName=TAS.Client.Views.EngineView}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsExpanded, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Expander}}" Value="False">
+                                            <Setter Property="Text" Value="{Resx _show, ResxName=TAS.Client.Views.EngineView}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Expander.Header>
+                    <Grid Width="350" Name="SidePanel">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" MinHeight="50"/>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Thumb Name="SidePanelResizer_Thumb" HorizontalAlignment="Left" Width="3" BorderThickness="0" Background="DarkGray" Grid.Column="0" Grid.RowSpan="3" Cursor="SizeWE" DragDelta="SidePanelResizer_DragDelta"/>
+                        <ContentControl Content="{Binding SelectedEventEditViewmodel}" Margin="3, 0, 0, 0">
+                            <ContentControl.Resources>
+                                <DataTemplate DataType="{x:Type vievmodels:EventEditViewmodel}">
+                                    <views:EventEditView/>
+                                </DataTemplate>
+                            </ContentControl.Resources>
+                        </ContentControl>
+                        <GridSplitter Grid.Row="0" Visibility="{Binding Preview, Converter={StaticResource NullToVis}}"  HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
+                        <ContentControl Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding Preview}">
+                            <ContentControl.Resources>
+                                <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
+                                    <views:PreviewView/>
+                                </DataTemplate>
+                            </ContentControl.Resources>
+                        </ContentControl>
+                        <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="2" Margin="3, 3, 0, 0" Content="{Binding VideoPreview.View}"/>
+                    </Grid>
+                </Expander>
+                <DockPanel>
+                    <Grid Height="28" DockPanel.Dock="Bottom" Visibility="{Binding IsSearchPanelVisible, Converter={StaticResource BoolToVis}}">
+                        <StackPanel Orientation="Horizontal" >
+                            <Label Content="{Resx _search.SearchFor}" VerticalAlignment="Center" Margin="5, 0" Padding="0"/>
+                            <controls:SearchTextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Prompt="{Resx _search.EnterTextToSearch}" 
+                                                Width="250" VerticalAlignment="Center" Command="{Binding CommandSearchDo}" ButtonToolTip="{Resx _search.Search.ToolTip}" >
+                                <i:Interaction.Behaviors>
+                                    <behaviors:Focus IsFocused="{Binding IsSearchBoxFocused}"/>
+                                </i:Interaction.Behaviors>
+                            </controls:SearchTextBox>
+                            <TextBlock Text="{Resx _search.NotFound}" Visibility="{Binding IsSearchNotFound, Converter={StaticResource BoolToVis}}" Foreground="Red" Margin="5" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Button Style="{StaticResource ClearButton}" HorizontalAlignment="Right" Margin="3" Command="{Binding CommandSearchHidePanel}" IsCancel="True" ToolTip="{Resx _search.Close.ToolTip}">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
+                        </Button>
+                    </Grid>
+                    <TreeView x:Name="Rundown_TreeView"
+                              common:TreeViewExtensions.EnableMultiSelect="True"
+                              common:TreeViewExtensions.MultiSelectedItems="{Binding MultiSelectedEvents}"
+                              ItemsSource="{Binding RootEventViewModel.Childrens}"
+                              Background="{x:Null}"
+                              BorderThickness="0"
+                              ItemContainerStyle="{StaticResource RundownTreeViewItemStyle}"
+                      >
+                        <TreeView.Resources>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelMovieViewmodel}" >
+                                <views:EventPanelMovieView />
+                            </HierarchicalDataTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelLiveViewmodel}" >
+                                <views:EventPanelLiveView />
+                            </HierarchicalDataTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelContainerViewmodel}" >
+                                <views:EventPanelContainerView />
+                            </HierarchicalDataTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelRundownViewmodel}" >
+                                <views:EventPanelRundownView />
+                            </HierarchicalDataTemplate>
+                            <DataTemplate DataType="{x:Type vievmodels:EventPanelStillViewmodel}" >
+                                <views:EventPanelStillView />
+                            </DataTemplate>
+                            <DataTemplate DataType="{x:Type vievmodels:EventPanelAnimationViewmodel}" >
+                                <views:EventPanelAnimationView />
+                            </DataTemplate>
+                            <DataTemplate DataType="{x:Type vievmodels:EventPanelCommandScriptViewmodel}" >
+                                <views:EventPanelCommandScriptView />
+                            </DataTemplate>
+                        </TreeView.Resources>
+                        <TreeView.InputBindings>
+                            <KeyBinding Command="{Binding CommandCutSelected}" Gesture="Ctrl+X" />
+                            <KeyBinding Command="{Binding CommandCopySelected}" Gesture="Ctrl+C" />
+                            <KeyBinding Command="{Binding CommandPasteSelected}" CommandParameter="After" Gesture="Ctrl+V" />
+                            <KeyBinding Command="{Binding CommandDeleteSelected}" Gesture="Ctrl+Delete" />
+                            <KeyBinding Command="{Binding CommandUndo}" Gesture="Ctrl+Z" />
+                        </TreeView.InputBindings>
+                    </TreeView>
+                </DockPanel>
+            </DockPanel>
             <StatusBar Name="sbChannelStatus" VerticalAlignment="Bottom" Grid.Row="2">
                 <StatusBar.Resources>
                     <Style TargetType="CheckBox">
@@ -427,125 +529,6 @@
                     </StackPanel>
                 </StatusBarItem>
             </StatusBar>
-            <DockPanel Grid.Row="1" >
-                <Expander x:Name="SidePanel_Expander" DockPanel.Dock="Right" ExpandDirection="Left" IsExpanded="{Binding IsPropertiesPanelVisible}" Collapsed="Expander_Collapsed"  >
-                    <Expander.Resources>
-                        <Style TargetType="Expander" BasedOn="{StaticResource {x:Type Expander}}">
-                            <Style.Triggers>
-                                <Trigger Property="IsExpanded" Value="True">
-                                    <Setter Property="Header" >
-                                        <Setter.Value>
-                                            <TextBlock Text="{Resx _hide, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
-                                                <TextBlock.LayoutTransform>
-                                                    <RotateTransform Angle="90"/>
-                                                </TextBlock.LayoutTransform>
-                                            </TextBlock>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                                <Trigger Property="IsExpanded" Value="False">
-                                    <Setter Property="Header" >
-                                        <Setter.Value>
-                                            <TextBlock Text="{Resx _show, ResxName=TAS.Client.Views.EngineView}" ToolTip="{Resx _propertiesPanelExpander.ToolTip, ResxName=TAS.Client.Views.EngineView}">
-                                                <TextBlock.LayoutTransform>
-                                                    <RotateTransform Angle="90"/>
-                                                </TextBlock.LayoutTransform>
-                                            </TextBlock>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Expander.Resources>
-                    <Grid Width="350" Name="SidePanel">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" MinHeight="50"/>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Thumb Name="SidePanelResizer_Thumb" HorizontalAlignment="Left" Width="3" BorderThickness="0" Background="DarkGray" Grid.Column="0" Grid.RowSpan="3" Cursor="SizeWE" DragDelta="SidePanelResizer_DragDelta"/>
-                        <ContentControl Content="{Binding SelectedEventEditViewmodel}" Margin="3, 0, 0, 0">
-                            <ContentControl.Resources>
-                                <DataTemplate DataType="{x:Type vievmodels:EventEditViewmodel}">
-                                    <views:EventEditView/>
-                                </DataTemplate>
-                            </ContentControl.Resources>
-                        </ContentControl>
-                        <GridSplitter Grid.Row="0" Visibility="{Binding Preview, Converter={StaticResource NullToVis}}"  HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
-                        <ContentControl Grid.Row="1" Margin="5, 0, 0, 3" Content="{Binding Preview}">
-                            <ContentControl.Resources>
-                                <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
-                                    <views:PreviewView/>
-                                </DataTemplate>
-                            </ContentControl.Resources>
-                        </ContentControl>
-                        <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS" Margin="3, 0, 0, 0"/>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="2" Margin="3, 3, 0, 0" Content="{Binding VideoPreview.View}"/>
-                    </Grid>
-                </Expander>
-                <DockPanel>
-                    <Grid Height="28" DockPanel.Dock="Bottom" Visibility="{Binding IsSearchPanelVisible, Converter={StaticResource BoolToVis}}">
-                        <StackPanel Orientation="Horizontal" >
-                            <Label Content="{Resx _search.SearchFor}" VerticalAlignment="Center" Margin="5, 0" Padding="0"/>
-                            <controls:SearchTextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Prompt="{Resx _search.EnterTextToSearch}" 
-                                                Width="250" VerticalAlignment="Center" Command="{Binding CommandSearchDo}" ButtonToolTip="{Resx _search.Search.ToolTip}" >
-                                <i:Interaction.Behaviors>
-                                    <behaviors:Focus IsFocused="{Binding IsSearchBoxFocused}"/>
-                                </i:Interaction.Behaviors>
-                            </controls:SearchTextBox>
-                            <TextBlock Text="{Resx _search.NotFound}" Visibility="{Binding IsSearchNotFound, Converter={StaticResource BoolToVis}}" Foreground="Red" Margin="5" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <Button Style="{StaticResource ClearButton}" HorizontalAlignment="Right" Margin="3" Command="{Binding CommandSearchHidePanel}" IsCancel="True" ToolTip="{Resx _search.Close.ToolTip}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
-                        </Button>
-                    </Grid>
-                    <TreeView x:Name="Rundown_TreeView"
-                              common:TreeViewExtensions.EnableMultiSelect="True"
-                              common:TreeViewExtensions.MultiSelectedItems="{Binding MultiSelectedEvents}"
-                              ItemsSource="{Binding RootEventViewModel.Childrens}"
-                              Background="{x:Null}"
-                              BorderThickness="0"
-                              ItemContainerStyle="{StaticResource RundownTreeViewItemStyle}"
-                      >
-                        <TreeView.Resources>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelMovieViewmodel}" >
-                                <views:EventPanelMovieView />
-                            </HierarchicalDataTemplate>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelLiveViewmodel}" >
-                                <views:EventPanelLiveView />
-                            </HierarchicalDataTemplate>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelContainerViewmodel}" >
-                                <views:EventPanelContainerView />
-                            </HierarchicalDataTemplate>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelRundownViewmodel}" >
-                                <views:EventPanelRundownView />
-                            </HierarchicalDataTemplate>
-                            <DataTemplate DataType="{x:Type vievmodels:EventPanelStillViewmodel}" >
-                                <views:EventPanelStillView />
-                            </DataTemplate>
-                            <DataTemplate DataType="{x:Type vievmodels:EventPanelAnimationViewmodel}" >
-                                <views:EventPanelAnimationView />
-                            </DataTemplate>
-                            <DataTemplate DataType="{x:Type vievmodels:EventPanelCommandScriptViewmodel}" >
-                                <views:EventPanelCommandScriptView />
-                            </DataTemplate>
-                        </TreeView.Resources>
-                        <TreeView.InputBindings>
-                            <KeyBinding Command="{Binding CommandCutSelected}" Gesture="Ctrl+X" />
-                            <KeyBinding Command="{Binding CommandCopySelected}" Gesture="Ctrl+C" />
-                            <KeyBinding Command="{Binding CommandPasteSelected}" CommandParameter="After" Gesture="Ctrl+V" />
-                            <KeyBinding Command="{Binding CommandDeleteSelected}" Gesture="Ctrl+Delete" />
-                            <KeyBinding Command="{Binding CommandUndo}" Gesture="Ctrl+Z" />
-                        </TreeView.InputBindings>
-                    </TreeView>
-                </DockPanel>
-                <!--</TabItem>
-                <TabItem Padding="0, 20" Header="{Resx _tabs.State}">
-                    <Border BorderThickness="2" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}">
-                    </Border>
-                </TabItem>
-            </TabControl>-->
-            </DockPanel>
         </Grid>
     </controls:CustomizableControl>
 </UserControl>
